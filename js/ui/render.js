@@ -905,9 +905,9 @@ window.GL = window.GL || {};
               <span class="slot-stats">${roleChip(d.role)}<span class="ss" title="Leben">❤ ${u.hp}/${u.max}</span><span class="ss" title="Angriff">ATK ${u.atk}</span><span class="ss" title="Tempo">TMP ${u.spd}</span></span>
               <span class="slot-tags">
                 ${u.hp <= 0 ? '<em class="mu bad">Besiegt</em>' : ''}
-                ${atk > 1 ? `<em class="mu good">Angriff ${fmtMult(atk)}</em>` : atk < 1 ? `<em class="mu bad">Angriff ${fmtMult(atk)}</em>` : ''}
-                ${isFront && def > 1 ? `<em class="mu bad">Nimmt ${fmtMult(def)}</em>` : ''}
-                ${isFront && def < 1 ? `<em class="mu good">Nimmt ${fmtMult(def)}</em>` : ''}
+                ${atk > 1 ? `<em class="mu good" title="Macht mehr Schaden gegen den vordersten Gegner">⚔▲ ${fmtMult(atk)}</em>` : atk < 1 ? `<em class="mu bad" title="Macht weniger Schaden gegen den vordersten Gegner">⚔▼ ${fmtMult(atk)}</em>` : ''}
+                ${isFront && def > 1 ? `<em class="mu bad" title="Steckt mehr Schaden ein">🛡▼ ${fmtMult(def)}</em>` : ''}
+                ${isFront && def < 1 ? `<em class="mu good" title="Steckt weniger Schaden ein">🛡▲ ${fmtMult(def)}</em>` : ''}
               </span>
             </span>
             <span class="grip" aria-hidden="true"></span>

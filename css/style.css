@@ -2771,3 +2771,61 @@ body.on-title { overflow: hidden; }
 .cos.locked .badge-prev { filter: grayscale(1) opacity(.45); }
 .lb-who b .badge-ico { margin-left: 2px; }
 .float.lucky { color: #3a9a3a !important; font-size: 1.25rem !important; text-shadow: 0 0 6px #fff, 0 2px 0 rgba(0,0,0,.2) !important; }
+
+/* =====================================================================
+   UI-Durchgang: leichte Tiefe (Licht oben, Kante unten), ruhigere Farben
+   ===================================================================== */
+:root { --edge: #e2d3ae; --lift: 0 1px 0 rgba(255,255,255,.9) inset, 0 4px 0 var(--edge), 0 10px 22px rgba(80,55,25,.08); }
+.stage { box-shadow: var(--lift) !important; border-color: var(--edge) !important; }
+.quest, .hq-card, .art-card, .item-card, .my-card, .chapter-panel, .rank, .duel-box, .dev-box, .fuse-box, .vault-active, .sq-u, .sq-pick, .hq-item, .lb-row, .hq-stats div {
+  box-shadow: 0 1px 0 rgba(255,255,255,.9) inset, 0 3px 0 var(--edge), 0 6px 14px rgba(80,55,25,.06) !important; }
+.hq-sail.game { box-shadow: var(--lift) !important; border-color: var(--edge) !important; }
+.sail-stage { box-shadow: 0 -18px 30px rgba(0,0,0,.08) inset, 0 2px 0 rgba(255,255,255,.6) inset; }
+
+/* Knöpfe: Licht von oben, sichtbare Kante, beim Drücken sinken sie ein */
+.btn { background-image: linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,0) 55%) !important;
+  box-shadow: 0 4px 0 var(--btnedge), 0 6px 12px rgba(60,35,10,.18) !important; transition: transform .08s ease, box-shadow .08s ease; }
+.btn:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 1px 0 var(--btnedge), 0 2px 4px rgba(60,35,10,.15) !important; }
+.btn.ghost { background-image: linear-gradient(180deg, #fff, var(--panel-2)) !important; box-shadow: 0 3px 0 var(--edge), 0 4px 10px rgba(80,55,25,.06) !important; }
+.btn:disabled { opacity: .5; box-shadow: none !important; transform: none; }
+.atab { box-shadow: 0 2px 0 var(--edge) !important; transition: transform .08s; }
+.atab.on { box-shadow: 0 3px 0 var(--btnedge), 0 6px 12px rgba(60,35,10,.15) !important; transform: translateY(-1px); }
+.atab:active { transform: translateY(2px); }
+
+/* Karten: kippen beim Darüberfahren leicht in den Raum */
+.cards { perspective: 900px; }
+@media (hover: hover) {
+  .opt.card:hover { transform: rotateX(6deg) translateY(-5px) !important; }
+  .opt.course-opt:hover { transform: translateY(-3px); box-shadow: 0 8px 18px rgba(80,55,25,.12); }
+}
+.opt.card { transition: transform .18s ease; transform-origin: 50% 100%; }
+
+/* Weniger Rot: Rollen neutral, nur das Symbol farbig; Vorteil/Nachteil dezent */
+.role-chip { background: #efe4cc !important; color: #4a3a26 !important; border: 1px solid #dcc9a2; }
+.role-chip small { color: #7c6b52 !important; border-left-color: #cdb88f !important; }
+.rc-brecher { box-shadow: inset 3px 0 0 #4f86c6; }
+.rc-kaempfer { box-shadow: inset 3px 0 0 #d0564a; }
+.rc-helfer { box-shadow: inset 3px 0 0 #5bb36c; }
+.slot-stats .role-chip { background: rgba(255,255,255,.1) !important; color: #f1eee8 !important; border-color: rgba(255,255,255,.18); }
+.slot-stats .role-chip small, .slot-info .role-chip small { color: #c9ccd1 !important; border-left-color: rgba(255,255,255,.25) !important; }
+.mu { font-size: .7rem !important; padding: 1px 6px !important; }
+.mu.good { background: rgba(91,179,108,.2) !important; color: #9fe8a8 !important; }
+.mu.bad { background: rgba(208,86,74,.2) !important; color: #ffb3a8 !important; }
+
+/* Ruhigere Größen: Überschriften und Hinweise kompakter, besonders am Handy */
+.stage h2 { font-size: 1.35rem; }
+.stage .hint { font-size: .88rem; }
+@media (max-width: 520px) {
+  .stage { padding: 12px !important; }
+  .stage h2 { font-size: 1.15rem; }
+  .stage .hint { font-size: .82rem; line-height: 1.35; }
+  .cards { gap: 10px; }
+}
+/* Tipp-Ziele groß genug am Handy, kein versehentliches Doppel-Zoomen */
+button, .opt, .map-node, .lb-row { touch-action: manipulation; }
+@media (max-width: 520px) { .btn.mini { min-height: 34px; } .link { padding: 4px 0; } }
+/* Tooltips, die unter dem Element erscheinen (wenn darüber ein wichtiger Knopf liegt) */
+.heat-pill[data-tip]::after, .sb-chip[data-tip]::after, .atsea[data-tip]::after { bottom: auto; top: calc(100% + 9px); }
+.heat-pill[data-tip]::before, .sb-chip[data-tip]::before, .atsea[data-tip]::before { bottom: auto; top: calc(100% + 0px); border-top-color: transparent; border-bottom-color: #1b2230; }
+/* Kopfgeld-Tooltip auf dem Handy nicht über den Rand hinaus */
+@media (max-width: 640px) { .heat-pill[data-tip]::after { left: auto; right: 0; } }
