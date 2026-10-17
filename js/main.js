@@ -18,7 +18,7 @@
     ui.draft = {
       name: profile.nickname || '',
       char: { type: ch.type, role: ch.role, look: Object.assign({}, ch.look) },
-      cos: Object.assign({ bg: 'meer', frame: 'holz', anim: 'ruhig', title: 'neuling' }, profile.cos || {})
+      cos: Object.assign({ bg: 'meer', frame: 'holz', anim: 'ruhig', title: 'neuling', flag: 'keine' }, profile.cos || {})
     };
     ui.profileFrom = ui.screen || 'hq';
     ui.screen = 'profile';
@@ -42,6 +42,26 @@
 
   function saveProfile() { GL.save.storeProfile(profile); }
 
+  // Neu freigespielte Kosmetik kurz zeigen (Hintergrund, Rahmen, Animation, Titel, Flagge)
+  const COS_KIND = { backgrounds: 'Hintergrund', frames: 'Rahmen', animations: 'Animation', titles: 'Titel', flags: 'Flagge' };
+  function checkCosmetics() {
+    const vals = GL.meta.progressValues(profile);
+    const now = [];
+    Object.keys(GL.data.cosmetics).forEach(k => GL.data.cosmetics[k].forEach(it => {
+      if (Object.keys(it.req || {}).length && GL.meta.cosmeticUnlocked(profile, it, vals)) now.push(k + ':' + it.id);
+    }));
+    if (!profile.cosSeen) { profile.cosSeen = now; return; }
+    const fresh = now.filter(x => !profile.cosSeen.includes(x));
+    if (!fresh.length) return;
+    profile.cosSeen = profile.cosSeen.concat(fresh);
+    fresh.slice(0, 3).forEach(x => {
+      const [k, id] = x.split(':');
+      const it = GL.data.cosmetics[k].find(y => y.id === id);
+      toast(`<span><b>Neu für dein Profil: ${COS_KIND[k]} „${it.name}“</b>Im Profil ausrüsten, alle sehen es in der Rangliste.</span>`);
+    });
+    if (fresh.length > 3) toast(`<span><b>Und ${fresh.length - 3} weitere Profil-Teile</b>Schau im Profil vorbei.</span>`);
+  }
+
   function syncProfile() {
     if (!run) return saveProfile();
     GL.meta.update(profile, run).forEach(n => {
@@ -53,6 +73,7 @@
         toast(`<i>${GL.sprites.icon('fruit', f.id, true)}</i><span><b>Epische Frucht: ${f.name}</b>Taucht ab jetzt in deinen Runs auf.</span>`);
       }
     });
+    checkCosmetics();
     GL.save.storeProfile(profile);
   }
 
@@ -215,7 +236,7 @@
     const i = Number(el.dataset.i);
 
     if (type !== 'restart') ui.restartArmed = false;
-    if (type !== 'reset-all') ui.resetArmed = false;
+    if (type !== 'acc-reset' && type !== 'acc-delete') ui.accArmed = null;
 
     switch (type) {
       case 'node': act({ type: 'node', index: i }); break;
@@ -316,10 +337,26 @@
         else toast('<span><b>Duell-Code</b>' + el.dataset.id + '</span>');
         break;
       }
-      case 'reset-all': {
-        if (!ui.resetArmed) { ui.resetArmed = true; ui.lastStage = null; draw(); break; }
-        try { ['grandline.run', 'grandline.profile', 'grandline.best'].forEach(k => localStorage.removeItem(k)); } catch (e2) { /* egal */ }
-        location.reload();
+      // Account zurücksetzen (Name und Aussehen bleiben) oder ganz löschen. Zweimal klicken zum Bestätigen.
+      case 'acc-reset':
+      case 'acc-delete': {
+        const kind = type === 'acc-reset' ? 'reset' : 'delete';
+        if (ui.accArmed !== kind) { ui.accArmed = kind; ui.lastStage = null; draw(); if (ui.screen) { document.getElementById('title').dataset.last = ''; draw(); } break; }
+        el.disabled = true; el.textContent = 'Einen Moment …';
+        const keep = { nickname: profile.nickname, char: profile.char, cos: profile.cos };
+        const done = () => {
+          try {
+            ['grandline.run', 'grandline.profile', 'grandline.best'].forEach(k => localStorage.removeItem(k));
+            sessionStorage.removeItem('gl.pulled');
+            if (kind === 'reset') {
+              const fresh = Object.assign(GL.meta.newProfile(), keep, { savedAt: Date.now() });
+              localStorage.setItem('grandline.profile', JSON.stringify(fresh));
+            }
+          } catch (e2) { /* egal */ }
+          location.reload();
+        };
+        const p = GL.online && GL.online.wipe ? GL.online.wipe(kind === 'delete', keep) : Promise.resolve();
+        Promise.race([p, new Promise(r => setTimeout(r, 4000))]).then(done, done);
         break;
       }
       case 'mail-link':

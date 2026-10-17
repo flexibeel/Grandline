@@ -33,10 +33,10 @@ GL.data.artifacts = [
   { id: 'federmantel', name: 'Doflamingos Federmantel', from: ['doflamingo'], per: [0.03, 0.05, 0.07, 0.09, 0.12], pct: true, mod: { scope: 'all', stat: 'crit' },
     text: 'Ganze Crew +{v} Krit-Chance.' },
   // Kopfgeld-Ziele
-  { id: 'kriegschild', name: 'Don Kriegs Schild',     from: ['buggy', 'kuro', 'krieg', 'morgan'], per: [3, 5, 7, 9, 12], start: 'hp',
+  { id: 'kriegschild', name: 'Don Kriegs Schild',     from: ['buggy', 'kuro', 'krieg', 'morgan', 'hatchan'], per: [3, 5, 7, 9, 12], start: 'hp',
     text: 'Ganze Crew startet mit +{v} Leben.' },
-  { id: 'wapolkrone', name: 'Wapols Blechkrone',      from: ['mr3', 'wapol', 'bellamy'], per: [1, 1, 2, 2, 3], mod: { scope: 'role:brecher', stat: 'armor' },
+  { id: 'wapolkrone', name: 'Wapols Blechkrone',      from: ['mr3', 'wapol', 'bellamy', 'mr9', 'ohm'], per: [1, 1, 2, 2, 3], mod: { scope: 'role:brecher', stat: 'armor' },
     text: 'Brecher erleiden {v} weniger Schaden.' },
-  { id: 'denden',     name: 'Goldene Teleschnecke',   from: ['fukuro', 'spandam', 'foxy', 'nero'], per: [1, 1, 2, 2, 3], mod: { scope: 'all', stat: 'regen' },
+  { id: 'denden',     name: 'Goldene Teleschnecke',   from: ['fukuro', 'spandam', 'foxy', 'nero', 'blueno', 'jabra', 'mr1'], per: [1, 1, 2, 2, 3], mod: { scope: 'all', stat: 'regen' },
     text: 'Ganze Crew heilt {v} Leben pro Runde.' }
 ];

@@ -2,7 +2,8 @@
 // Sie zeigen sich im Profil und in der Rangliste. Keine Spielvorteile, nur zum Angeben.
 //   req = Bedingung (alle müssen erfüllt sein), leer = von Anfang an frei:
 //     rank (Piratenrang 1-14), runs, wins, kos, maxHit, bosses (Inselbosse gesamt),
-//     hunted (Kopfgeld-Ziele gesamt), raids, artifacts (verschiedene gefunden), reached (0-2: Meer erreicht)
+//     hunted (Kopfgeld-Ziele gesamt), raids, artifacts (verschiedene gefunden), reached (0-2: Meer erreicht),
+//     islands (verschiedene Inseln besucht), heat (höchste Kopfgeld-Stufe)
 window.GL = window.GL || {};
 GL.data = GL.data || {};
 
@@ -15,7 +16,15 @@ GL.data.cosmetics = {
     { id: 'sturm',      name: 'Gewittersturm',     req: { raids: 1 } },
     { id: 'kirsch',     name: 'Kirschblüten',      req: { rank: 6 } },
     { id: 'gold',       name: 'Schatzkammer',      req: { artifacts: 6 } },
-    { id: 'legende',    name: 'Legende',           req: { wins: 5 } }
+    { id: 'legende',    name: 'Legende',           req: { wins: 5 } },
+    { id: 'kokos',      name: 'Mandarinenhain',    req: { islands: 4 } },
+    { id: 'schnee',     name: 'Winterinsel',       req: { islands: 8 } },
+    { id: 'himmel',     name: 'Wolkenmeer',        req: { reached: 1, islands: 10 } },
+    { id: 'tiefsee',    name: 'Tiefsee',           req: { runs: 25 } },
+    { id: 'marine',     name: 'Marine-Basis',      req: { hunted: 15 } },
+    { id: 'lava',       name: 'Vulkan',            req: { maxHit: 120 } },
+    { id: 'galaxie',    name: 'Sternenmeer',       req: { rank: 12 } },
+    { id: 'regenbogen', name: 'Regenbogen',        req: { islands: 18 } }
   ],
   frames: [
     { id: 'holz',       name: 'Holz',              req: {} },
@@ -23,7 +32,14 @@ GL.data.cosmetics = {
     { id: 'silber',     name: 'Silber',            req: { rank: 5 } },
     { id: 'steckbrief', name: 'Steckbrief',        req: { hunted: 5 } },
     { id: 'gold',       name: 'Gold',              req: { rank: 9 } },
-    { id: 'krone',      name: 'Krone',             req: { wins: 3 } }
+    { id: 'krone',      name: 'Krone',             req: { wins: 3 } },
+    { id: 'rottau',     name: 'Rotes Tau',         req: { runs: 10 } },
+    { id: 'eisen',      name: 'Eisen',             req: { bosses: 5 } },
+    { id: 'rubin',      name: 'Rubin',             req: { hunted: 10 } },
+    { id: 'saphir',     name: 'Saphir',            req: { artifacts: 9 } },
+    { id: 'smaragd',    name: 'Smaragd',           req: { heat: 2 } },
+    { id: 'feuer',      name: 'Feuer',             req: { kos: 500 } },
+    { id: 'regenbogen', name: 'Regenbogen',        req: { wins: 10 } }
   ],
   animations: [
     { id: 'ruhig',      name: 'Ruhig',             req: {} },
@@ -31,7 +47,12 @@ GL.data.cosmetics = {
     { id: 'huepfen',    name: 'Hüpfen',            req: { kos: 50 } },
     { id: 'drehen',     name: 'Pirouette',         req: { bosses: 3 } },
     { id: 'funkeln',    name: 'Funkeln',           req: { artifacts: 3 } },
-    { id: 'flammen',    name: 'Flammen-Aura',      req: { maxHit: 60 } }
+    { id: 'flammen',    name: 'Flammen-Aura',      req: { maxHit: 60 } },
+    { id: 'schweben',   name: 'Schweben',          req: { islands: 6 } },
+    { id: 'puls',       name: 'Herzschlag',        req: { runs: 15 } },
+    { id: 'zittern',    name: 'Kampfeslust',       req: { kos: 250 } },
+    { id: 'blitz',      name: 'Blitz-Aura',        req: { raids: 3 } },
+    { id: 'konfetti',   name: 'Konfetti',          req: { wins: 2 } }
   ],
   titles: [
     { id: 'neuling',    name: 'Neuling auf See',   req: {} },
@@ -40,7 +61,32 @@ GL.data.cosmetics = {
     { id: 'bezwinger',  name: 'Bossbezwinger',     req: { bosses: 6 } },
     { id: 'sammler',    name: 'Sammler',           req: { artifacts: 6 } },
     { id: 'wuchtig',    name: 'Der Wuchtige',      req: { maxHit: 80 } },
-    { id: 'legende',    name: 'Legende der Meere', req: { wins: 5 } }
+    { id: 'legende',    name: 'Legende der Meere', req: { wins: 5 } },
+    { id: 'matrose',    name: 'Matrose',           req: { runs: 3 } },
+    { id: 'rookie',     name: 'Super-Rookie',      req: { rank: 4 } },
+    { id: 'entdecker',  name: 'Entdecker',         req: { islands: 6 } },
+    { id: 'schatz',     name: 'Schatzjäger',       req: { artifacts: 3 } },
+    { id: 'kartograph', name: 'Kartograph',        req: { islands: 12 } },
+    { id: 'hitzkopf',   name: 'Hitzkopf',          req: { heat: 3 } },
+    { id: 'sturm',      name: 'Sturmbezwinger',    req: { raids: 2 } },
+    { id: 'samurai',    name: 'Ein-Schlag-Samurai', req: { maxHit: 120 } },
+    { id: 'marinefeind', name: 'Albtraum der Marine', req: { kos: 500 } },
+    { id: 'reisender',  name: 'Weltreisender',     req: { islands: 18 } },
+    { id: 'unermuedlich', name: 'Unermüdlich',     req: { runs: 50 } },
+    { id: 'kaiser',     name: 'Kaiser der Meere',  req: { rank: 14 } }
+  ],
+  // Piratenflagge: kleines Abzeichen am Porträt (Profil, Rangliste)
+  flags: [
+    { id: 'keine',      name: 'Keine Flagge',      req: {} },
+    { id: 'totenkopf',  name: 'Totenkopf',         req: { runs: 1 } },
+    { id: 'anker',      name: 'Anker',             req: { rank: 3 } },
+    { id: 'stern',      name: 'Stern',             req: { wins: 1 } },
+    { id: 'schwerter',  name: 'Gekreuzte Klingen', req: { hunted: 5 } },
+    { id: 'sonne',      name: 'Sonne',             req: { islands: 8 } },
+    { id: 'blume',      name: 'Blüte',             req: { rank: 7 } },
+    { id: 'blitz',      name: 'Blitz',             req: { raids: 1 } },
+    { id: 'krone',      name: 'Krone',             req: { bosses: 6 } },
+    { id: 'drache',     name: 'Drache',            req: { wins: 8 } }
   ]
 };
 

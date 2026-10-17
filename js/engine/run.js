@@ -35,6 +35,29 @@ window.GL = window.GL || {};
     return Math.min(Math.floor(run.step / GL.config.stepsPerIsland), GL.data.islands.length - 1);
   }
 
+  // Insel-Kapitel: pro Meer erst eine kleine Insel, dann eine große (siehe islands.js)
+  function seaPos(run) { return run.step % GL.config.stepsPerIsland; }
+  function chapterIdx(run) { return Math.floor(seaPos(run) / GL.config.chapterSteps); }
+  function rowIdx(run) { return seaPos(run) % GL.config.chapterSteps; }
+  function chapterIsland(run, step) {
+    const st = step == null ? run.step : step;
+    const per = GL.config.stepsPerIsland;
+    const sea = Math.min(Math.floor(st / per), GL.data.islands.length - 1);
+    const ch = Math.floor((st % per) / GL.config.chapterSteps);
+    const id = (run.course || [])[sea * 2 + ch];
+    const S = GL.data.islands[sea];
+    return id ? (ch === 0 ? S.small : S.big).find(x => x.id === id) || null : null;
+  }
+  // Kurswahl vor jedem Insel-Kapitel
+  function openCourse(run) {
+    const S = GL.data.islands[islandIndex(run)];
+    const list = chapterIdx(run) === 0 ? S.small : S.big;
+    run.courseOpts = list.length > 2 ? R.sample(run, list.map(x => x.id), 2) : list.map(x => x.id);
+    run.phase = 'course';
+    run.chart = null;
+    run.options = [];
+  }
+
   function currentBoss(run) {
     return byId(GL.data.bosses, run.bosses[islandIndex(run)]);
   }
@@ -184,13 +207,18 @@ window.GL = window.GL || {};
   function nodeTypes(run, row) {
     const types = ['battle', 'battle', 'recruit', 'recruit', 'fruit', 'rest'];
     if (freeRelics(run).length) types.push('treasure');
-    if (row >= 1) types.push('elite');
+    if (row >= 1 || chapterIdx(run) === 1) types.push('elite');
     return types;
   }
 
+  // Eine Karte pro Insel-Kapitel: Reihen mit Orten der Insel, oben der Bösewicht (kleine Insel)
+  // bzw. der Boss des Meeres (große Insel).
   function genChart(run) {
     const C = GL.config;
-    const per = C.stepsPerIsland;
+    const per = C.chapterSteps;
+    const ch = chapterIdx(run);
+    const isl = islandIndex(run);
+    const here = chapterIsland(run);
     const rows = [];
     for (let r = 0; r < per - 1; r++) {
       const w = r === 0 ? 3 : R.int(run, 3, 4);
@@ -204,32 +232,25 @@ window.GL = window.GL || {};
       }
       rows.push(row);
     }
-    rows.push([{ t: 'boss', next: [] }]);
-    // Erste Insel: Start mit mindestens einem Kampf
+    // Ende des Kapitels: Bösewicht der kleinen Insel oder Boss des Meeres
+    if (ch === 0 && here && here.villain) rows.push([{ t: 'elite', who: here.villain, gate: true, next: [] }]);
+    else rows.push([{ t: 'boss', next: [] }]);
+    // Allererster Ort: mindestens ein Kampf
     if (run.step === 0 && !rows[0].some(n => n.t === 'battle')) rows[0][1].t = 'battle';
-    // Jede Insel hat mindestens ein Kopfgeld-Ziel (ersetzt einen normalen Kampf, sonst einen Ort)
-    if (!rows.some(row => row.some(n => n.t === 'elite'))) {
-      const cand = [];
-      for (let k = 1; k < per - 1; k++) rows[k].forEach((n, i) => { if (n.t === 'battle') cand.push([k, i]); });
-      const [k, i] = cand.length ? cand[R.int(run, 0, cand.length - 1)] : [per - 2, R.int(run, 0, rows[per - 2].length - 1)];
-      rows[k][i].t = 'elite';
-    }
-    // Seltener Raid ab der zweiten Insel, höchstens einmal pro Insel
-    const isl = islandIndex(run);
-    if (isl >= 1 && !run.raidIslands.includes(isl) && R.float(run) < C.raidChance) {
-      const r = R.int(run, 1, per - 2);
+    // Seltener Raid ab dem zweiten Meer, auf der großen Insel
+    if (isl >= 1 && ch === 1 && !run.raidIslands.includes(isl) && R.float(run) < C.raidChance) {
+      const r = R.int(run, 0, per - 2);
       rows[r][R.int(run, 0, rows[r].length - 1)].t = 'raid';
     }
-    // Stationen wie in der Serie: jede Reihe ist eine Insel mit ihrem Bösewicht.
-    // Kopfgeldjäger-Orte bekommen den Bösewicht der Insel, sonst einen aus diesem Meer.
-    const stops = (GL.data.islands[isl] && GL.data.islands[isl].stops) || [];
-    const pool = (GL.data.hunted || []).filter(h => h.island === Math.min(isl, 2)).map(h => h.id);
+    // Kopfgeldjäger-Orte: Bösewichte dieser Insel, sonst einer aus diesem Meer
+    const gate = here && here.villain;
+    const local = ((here && here.villains) || []).filter(v => v !== gate);
+    const seaPool = (GL.data.hunted || []).filter(h => h.island === Math.min(isl, 2) && h.id !== gate).map(h => h.id);
+    const pool = local.length ? local : seaPool;
     let pi = R.int(run, 0, Math.max(0, pool.length - 1));
-    rows.forEach((row, r) => row.forEach(n => {
-      if (n.t !== 'elite') return;
-      const v = stops[r] && stops[r].villain;
-      if (v && (GL.data.hunted || []).some(h => h.id === v)) n.who = v;
-      else if (pool.length) { n.who = pool[pi % pool.length]; pi++; }
+    rows.forEach(row => row.forEach(n => {
+      if (n.t !== 'elite' || n.who) return;
+      if (pool.length) { n.who = pool[pi % pool.length]; pi++; }
     }));
     // Wege: jeder Ort führt zum nächstgelegenen Ort darüber, manchmal auch zu einem Nachbarn
     for (let r = 0; r < rows.length - 1; r++) {
@@ -252,12 +273,12 @@ window.GL = window.GL || {};
       });
       a.forEach(n => { n.next = [...new Set(n.next)].sort((x, y) => x - y); });
     }
-    return { rows, at: null, path: [], stops: rows.map((_, r) => (stops[r] ? stops[r].name : null)) };
+    const names = here ? here.places.concat([here.lair || here.name]) : [];
+    return { rows, at: null, path: [], stops: rows.map((_, r) => names[r] || null) };
   }
 
   function genOptions(run) {
-    const C = GL.config;
-    const pos = run.step % C.stepsPerIsland;
+    const pos = rowIdx(run);
     if (pos === 0 || !run.chart) run.chart = genChart(run);
     const ch = run.chart;
     const cols = (pos === 0 || ch.at == null)
@@ -282,17 +303,18 @@ window.GL = window.GL || {};
     return out;
   }
 
-  function makeEnemies(run, kind, who) {
+  function makeEnemies(run, kind, who, gate) {
     const C = GL.config;
     const g = C.grunt;
     const H = run.H || heatMods(0);
     const level = run.step * C.enemyScale;
-    const mult = kind === 'elite' ? C.eliteMult + H.eliteMult : 1;
+    const mult = (kind === 'elite' ? (gate && islandIndex(run) === 0 ? 1 : C.eliteMult) + H.eliteMult : 1) * (gate ? C.gateMult : 1);
 
     let boss = kind === 'boss' ? currentBoss(run) : null;
     if (kind === 'raid') boss = GL.data.raids[R.int(run, 0, GL.data.raids.length - 1)];
     let count;
     if (boss) count = boss.escort + H.bossEscort;
+    else if (gate) count = 2 + Math.min(2, islandIndex(run));   // Bösewicht der Insel + Gefolge (wächst pro Meer)
     else count = Math.min(C.maxGrunts, 1 + Math.floor((level + 1) / 2)) + (kind === 'elite' ? 1 : 0);
 
     const enemies = [];
@@ -351,9 +373,11 @@ window.GL = window.GL || {};
     run.phase = 'map';
     run.pool = [];
     run.pending = null;
+    // Neues Insel-Kapitel: erst den Kurs wählen
+    if (rowIdx(run) === 0) { openCourse(run); return; }
     run.options = genOptions(run);
-    // Gelegentlich ein Ereignis auf See (nicht direkt vor dem Inselboss)
-    if (run.options[0] !== 'boss' && R.float(run) < GL.config.eventChance) {
+    // Gelegentlich ein Ereignis auf See (nicht direkt vor dem Bösewicht oder Boss)
+    if (rowIdx(run) < GL.config.chapterSteps - 1 && R.float(run) < GL.config.eventChance) {
       const ev = GL.data.events[R.int(run, 0, GL.data.events.length - 1)];
       run.event = { id: ev.id };
       run.phase = 'event';
@@ -369,6 +393,7 @@ window.GL = window.GL || {};
       return applyOutcome(run, won ? o.win : o.lose, lines);
     }
     if (o.berry) { run.berry += o.berry; lines.push(`${o.berry > 0 ? '+' : ''}${o.berry} Berry`); }
+    if (o.gold) { run.gold = Math.max(0, (run.gold || 0) + o.gold); lines.push(`${o.gold > 0 ? '+' : ''}${o.gold} Gold`); }
     if (o.heal) { heal(run, o.heal); lines.push(`Crew heilt ${Math.round(o.heal * 100)} %`); }
     if (o.hurt) {
       run.crew.forEach(u => { if (u.hp > 0) u.hp = Math.max(1, u.hp - Math.ceil(u.max * o.hurt)); });
@@ -511,6 +536,7 @@ window.GL = window.GL || {};
       run.defeated.push(h.id);
       rollTrophy(run, h.id, C.trophyChance.mini);
     }
+    if (b.kind === 'elite' && run.pending && run.pending.gate) heal(run, 0.3);   // Insel befreit: kurz durchatmen
     if (b.kind === 'elite') dropItem(run, C.items.dropElite);
     if (b.kind === 'boss') dropItem(run, C.items.dropBoss, 1);
     if (b.kind === 'boss') {
@@ -531,7 +557,7 @@ window.GL = window.GL || {};
   }
 
   // Statuspunkt verteilen: { type: 'spend', index, stat: 'hp' | 'atk' | 'spd' }
-  const SPEND_PHASES = ['map', 'prep', 'recruit', 'fruit', 'treasure', 'awaken', 'battle', 'event'];
+  const SPEND_PHASES = ['course', 'map', 'prep', 'recruit', 'fruit', 'treasure', 'awaken', 'battle', 'event'];
   function spend(run, a) {
     const C = GL.config;
     const u = run.crew[a.index];
@@ -553,7 +579,7 @@ window.GL = window.GL || {};
     return true;
   }
 
-  const SWAP_PHASES = ['map', 'prep', 'recruit', 'fruit', 'treasure', 'awaken', 'event'];
+  const SWAP_PHASES = ['course', 'map', 'prep', 'recruit', 'fruit', 'treasure', 'awaken', 'event'];
   function swap(run, a) {
     const n = run.crew.length;
     if (!SWAP_PHASES.includes(run.phase)) return false;
@@ -577,6 +603,21 @@ window.GL = window.GL || {};
         run.crew[0].points += run.startPoints || 0;
         run.captain = offer.id;
         run.pool = [];
+        openCourse(run);
+        return true;
+      }
+
+      case 'course': {
+        // Kurs setzen: { type: 'pick', index } wählt die nächste Insel
+        if (a.type !== 'pick') return false;
+        const id = (run.courseOpts || [])[a.index];
+        if (!id) return false;
+        const sea = islandIndex(run);
+        run.course = run.course || [];
+        run.course[sea * 2 + chapterIdx(run)] = id;
+        const isl = chapterIsland(run);
+        if (isl && isl.boss) run.bosses[sea] = isl.boss;
+        run.courseOpts = null;
         run.phase = 'map';
         run.options = genOptions(run);
         return true;
@@ -591,9 +632,10 @@ window.GL = window.GL || {};
         if (node === 'raid') run.raidIslands.push(islandIndex(run));
         if (node === 'battle' || node === 'elite' || node === 'boss' || node === 'raid') {
           // Gegner stehen schon vor dem Kampf fest, damit man die Reihenfolge planen kann
-          const cn = run.chart && run.optCols ? run.chart.rows[run.step % C.stepsPerIsland][run.optCols[a.index]] : null;
+          const cn = run.chart && run.optCols ? run.chart.rows[rowIdx(run)][run.optCols[a.index]] : null;
           const who = node === 'elite' && cn ? cn.who : null;
-          run.pending = { kind: node, who, enemies: makeEnemies(run, node, who) };
+          const gate = !!(cn && cn.gate);
+          run.pending = { kind: node, who, gate, enemies: makeEnemies(run, node, who, gate) };
           run.phase = 'prep';
         } else if (node === 'recruit') {
           openShop(run);
@@ -784,6 +826,8 @@ window.GL = window.GL || {};
         captain: null,
         vivreUsed: false,
         crew: [],
+        course: [],        // gewählte Inseln pro Kapitel (ids aus islands.js)
+        courseOpts: null,
         options: [],
         pool: [],
         pending: null,
@@ -855,11 +899,15 @@ window.GL = window.GL || {};
 
     // Name der aktuellen Station (Insel aus der Serie)
     stopName(run, row) {
-      const isl = GL.data.islands[islandIndex(run)];
-      const r = row == null ? run.step % GL.config.stepsPerIsland : row;
-      if (r >= GL.config.stepsPerIsland - 1) return (isl.bossStops && isl.bossStops[run.bosses[islandIndex(run)]]) || isl.name;
-      return (isl.stops && isl.stops[r] && isl.stops[r].name) || isl.name;
+      const here = chapterIsland(run);
+      if (!here) return GL.data.islands[islandIndex(run)].name;
+      const r = row == null ? rowIdx(run) : row;
+      if (r >= GL.config.chapterSteps - 1) return here.lair || here.name;
+      return here.places[r] || here.name;
     },
+    chapterIsland,
+    chapterIdx,
+    rowIdx,
 
     island(run) {
       return GL.data.islands[islandIndex(run)];

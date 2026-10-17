@@ -95,6 +95,17 @@ GL.data.abilities = {
   foxy:    { name: 'Noro-Noro-Strahl', text: 'Seine Treffer verlangsamen: Ziel ist 2 Runden geschwächt (+25 % Schaden).',
              status: { key: 'weak', rounds: 2, when: 'hit', target: 'target' } },
 
+  hatchan: { name: 'Sechs Schwerter', kind: 'chain', value: 0.35, text: 'Sechs Arme, sechs Klingen: Treffer springen über (35 % Schaden).' },
+  mr9:     { name: 'Baroque-Hinterhalt', kind: 'rally', value: 2, text: 'Zu Kampfbeginn bekommen alle Gegner +2 Angriff.' },
+  mr1:     { name: 'Klingenkörper',   text: 'Sein Körper ist eine Klinge: erleidet 25 % weniger Schaden, +20 % Krit-Chance.',
+             mods: [{ scope: 'char:mr1', guard: 0.25, crit: 0.2 }] },
+  ohm:     { name: 'Eisenwolke',      text: 'Alle 3 Runden fesselt sein Wolkenzaun den Vordersten (Betäubt).',
+             status: { key: 'stun', rounds: 1, when: 'every', n: 3, target: 'front' } },
+  blueno:  { name: 'Tekkai-Wand',     text: 'Erleidet 30 % weniger Schaden. Zu Kampfbeginn: Furcht für die ganze Crew (1 Runde).',
+             mods: [{ scope: 'char:blueno', guard: 0.3 }], status: { key: 'fear', rounds: 1, when: 'start', target: 'all' } },
+  jabra:   { name: 'Wolfs-Frucht',    text: '+30 % Schaden. Seine Krallen lassen bluten (3 Schaden pro Runde, 2 Runden).',
+             mods: [{ scope: 'char:jabra', dmgPct: 0.3 }], status: { key: 'bleed', rounds: 2, when: 'hit', target: 'target', value: 3 } },
+
   // Raid-Bosse
   kizaru:      { name: 'Lichtgeschwindigkeit', kind: 'double', text: 'Greift zweimal pro Runde an. Alle 2 Runden blendet er alle (Furcht, 1 Runde).',
                  status: { key: 'fear', rounds: 1, when: 'every', n: 2, target: 'all' } },

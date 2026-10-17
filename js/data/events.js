@@ -1,6 +1,7 @@
 // Ereignisse auf See: tauchen gelegentlich zwischen zwei Etappen auf (config.eventChance).
 // Jede Wahl hat ein Ergebnis (outcome). Mögliche Ergebnisse:
 //   { berry: 30 }                     Berry, die am Ende des Runs dazukommen
+//   { gold: 10 }                      Gold für die Taverne (nur in diesem Run)
 //   { heal: 0.25 }                    ganze Crew heilt Anteil vom Max-Leben
 //   { hurt: 0.15 }                    ganze Crew verliert Anteil vom Max-Leben (nie unter 1)
 //   { xp: 12 }                        Erfahrung für die ganze Crew
@@ -104,6 +105,41 @@ GL.data.events = [
     choices: [
       { label: 'Karte kaufen', hint: '-25 Berry, Schatz wählen', outcome: { berry: -25, pick: 'treasure' }, text: 'Die Karte führt zu einem Versteck.' },
       { label: 'Zuhören', hint: '+6 Erfahrung, +15 Berry', outcome: { xp: 6, berry: 15 }, text: 'Er erzählt vom One Piece und schenkt euch ein paar Münzen.' }
+    ]
+  },
+  {
+    id: 'flaschenpost', title: 'Flaschenpost',
+    text: 'Eine Flasche treibt am Bug vorbei. Darin eine Karte mit einem Kreuz und ein paar Münzen.',
+    choices: [
+      { label: 'Münzen nehmen', hint: '+12 Gold', outcome: { gold: 12 }, text: 'Die Münzen klimpern in der Bordkasse.' },
+      { label: 'Dem Kreuz folgen', hint: '50 %: seltener Schatz, sonst nichts', outcome: { chance: 0.5, win: { relic: 1 }, lose: {} },
+        text: 'Ihr folgt der Karte bis zur markierten Stelle.' }
+    ]
+  },
+  {
+    id: 'marktschiff', title: 'Ein schwimmender Markt',
+    text: 'Händler auf einem bunten Floß bieten Proviant und Waffen an. Für Gold natürlich.',
+    choices: [
+      { label: 'Proviant kaufen', hint: '-10 Gold, Crew heilt 35 %', outcome: { gold: -10, heal: 0.35 }, text: 'Satt und zufrieden geht es weiter.' },
+      { label: 'Training buchen', hint: '-10 Gold, +16 Erfahrung', outcome: { gold: -10, xp: 16 }, text: 'Ein alter Haudegen zeigt euch ein paar Tricks.' },
+      { label: 'Weitersegeln', hint: 'Nichts passiert', outcome: {}, text: 'Ihr winkt den Händlern zu.' }
+    ]
+  },
+  {
+    id: 'kopfgeldplakat', title: 'Ein Kopfgeld-Plakat',
+    text: 'An einer Boje hängt ein Steckbrief. Es ist euer Kapitän! Jemand hat das Kopfgeld erhöht.',
+    choices: [
+      { label: 'Stolz aufhängen', hint: '+2 Statuspunkte für den Kapitän', outcome: { points: 2 }, text: 'Der Kapitän platzt fast vor Stolz.' },
+      { label: 'Verkaufen', hint: '+20 Gold', outcome: { gold: 20 }, text: 'Sammler zahlen gut für so ein Plakat.' }
+    ]
+  },
+  {
+    id: 'wettangeln', title: 'Wettangeln mit Fischern',
+    text: 'Ein Fischerboot fordert euch zum Wettangeln heraus. Der Einsatz: Gold.',
+    choices: [
+      { label: 'Mitmachen', hint: '55 %: +25 Gold, sonst -10 Gold', outcome: { chance: 0.55, win: { gold: 25 }, lose: { gold: -10 } },
+        text: 'Die Angeln sind eingeholt.' },
+      { label: 'Ablehnen', hint: 'Nichts passiert', outcome: {}, text: 'Ihr lasst die Fischer in Ruhe.' }
     ]
   }
 ];

@@ -242,10 +242,11 @@ window.GL = window.GL || {};
     const total = GL.run.totalSteps();
     const per = GL.config.stepsPerIsland;
     const bars = Array.from({ length: total }, (_, i) =>
-      `<i class="${i < run.step ? 'done' : i === run.step ? 'now' : ''}${i % per === per - 1 ? ' boss' : ''}"></i>`).join('');
-    const island = GL.run.island(run).name;
-    const pos = Math.min(run.step % per + 1, per);
-    return `${bars}<span class="track-loc">${island} · <b class="stop-name">${GL.run.stopName(run)}</b> <small class="muted">(${pos}/${per})</small></span>
+      `<i class="${i < run.step ? 'done' : i === run.step ? 'now' : ''}${i % GL.config.chapterSteps === GL.config.chapterSteps - 1 ? ' boss' : ''}${i % per === per - 1 ? ' sea' : ''}"></i>`).join('');
+    const here = GL.run.chapterIsland(run);
+    const island = here && run.phase !== 'course' ? here.name : GL.run.island(run).name;
+    const pos = Math.min(GL.run.rowIdx(run) + 1, GL.config.chapterSteps);
+    return `${bars}<span class="track-loc">${island} · <b class="stop-name">${run.phase === 'course' ? 'Kurs setzen' : run.phase === 'starter' ? 'Kapitän wählen' : GL.run.stopName(run)}</b>${run.phase === 'course' || run.phase === 'starter' ? '' : ` <small class="muted">(${pos}/${GL.config.chapterSteps})</small>`}</span>
       <span class="head-chips">
         <em class="gold-chip" data-tip="Gold für die Taverne.\nGibt es für Siege, verfällt am Run-Ende.">${GL.sprites.coin()} <b>${run.gold || 0}</b></em>
         <em class="bounty-chip" id="bounty-chip" data-tip="Kopfgeld deines Kapitäns.\nZählt für deinen Punktestand und die Rangliste 'Höchstes Kopfgeld'. Bringt sonst nichts im Run.">${GL.sprites.icon('node', 'elite')} <b>${fmtBounty(run.bountyM || 0)}</b></em>
@@ -395,7 +396,7 @@ window.GL = window.GL || {};
     if (!ch) return '';
     const N = GL.data.nodes;
     const rows = ch.rows;
-    const pos = run.step % GL.config.stepsPerIsland;
+    const pos = GL.run.rowIdx(run);
     const ROW = 108, TOP = 58, BOTTOM = 104;
     const H = TOP + (rows.length - 1) * ROW + BOTTOM;
     // kleine, feste Verschiebung pro Ort, damit die Karte nicht wie ein Raster aussieht
@@ -425,20 +426,21 @@ window.GL = window.GL || {};
       const style = `left:${X(r, i)}%;top:${Y(r)}px`;
       const isBoss = n.t === 'boss';
       const hunted = n.t === 'elite' && n.who ? enemyData(n.who) : null;
+      const big = isBoss || !!n.gate;
       const icon = isBoss ? GL.sprites.render(boss) : hunted ? GL.sprites.render(hunted) : GL.sprites.icon('node', n.t);
-      const title = isBoss ? `${N.boss.title}: ${boss.name}` : hunted ? `Kopfgeld-Ziel: ${hunted.name} (${hunted.bounty} Mio. ฿)` : N[n.t].title;
+      const title = isBoss ? `${N.boss.title}: ${boss.name}` : n.gate && hunted ? `Bösewicht der Insel: ${hunted.name} (${hunted.bounty} Mio. ฿)` : hunted ? `Kopfgeld-Ziel: ${hunted.name} (${hunted.bounty} Mio. ฿)` : N[n.t].title;
       if (r === pos && reach.has(i)) {
         const k = reach.get(i);
         const isTip = tip && tip.index === k;
-        nodes += `<button class="map-node can n-${n.t}${isBoss ? ' boss' : ''}${hunted ? ' hunted' : ''}${isTip ? ' is-tip' : ''}" data-act="node" data-i="${k}" style="${style}"
+        nodes += `<button class="map-node can n-${n.t}${big ? ' boss' : ''}${n.gate ? ' gate' : ''}${hunted ? ' hunted' : ''}${isTip ? ' is-tip' : ''}" data-act="node" data-i="${k}" style="${style}"
             title="${title}: ${isBoss ? bossInfo(boss).text : hunted ? (ability(hunted.id) ? ability(hunted.id).name + ': ' + ability(hunted.id).text : '') : N[n.t].text}">
           <span class="mn-icon">${icon}</span>${k < 9 ? `<kbd class="key">${k + 1}</kbd>` : ''}${isTip ? '<span class="tip-badge">Tipp</span>' : ''}
           <span class="mn-label"><b>${isBoss ? boss.name : hunted ? hunted.name : title}</b>${hunted ? `<em class="mn-bounty">${hunted.bounty} Mio. ฿</em>` : ''}${dangerTag(run, n.t)}</span>
         </button>`;
       } else {
         const state = onPath(r, i) ? 'done' : r < pos ? 'gone' : 'future';
-        nodes += `<span class="map-node ${state} n-${n.t}${isBoss ? ' boss' : ''}${hunted ? ' hunted' : ''}" style="${style}" title="${title}">
-          <span class="mn-icon">${icon}</span>${isBoss ? `<span class="mn-label"><b>${boss.name}</b></span>` : ''}</span>`;
+        nodes += `<span class="map-node ${state} n-${n.t}${big ? ' boss' : ''}${n.gate ? ' gate' : ''}${hunted ? ' hunted' : ''}" style="${style}" title="${title}">
+          <span class="mn-icon">${icon}</span>${big ? `<span class="mn-label"><b>${isBoss ? boss.name : hunted ? hunted.name : ''}</b></span>` : ''}</span>`;
       }
     }));
     const shipX = pos === 0 ? startX : X(pos - 1, ch.at);
@@ -749,13 +751,42 @@ window.GL = window.GL || {};
             offerButton(run, o, i, 'cap' + (crewData(o.id).locked ? ' unlocked-cap' : ''), false)).join('')}</div>${lockedHtml}`;
       }
 
+      case 'course': {
+        // Kurs setzen: welche Insel steuert die Crew als Nächstes an?
+        const sea = GL.run.island(run);
+        const ch = GL.run.chapterIdx(run);
+        const opts = (run.courseOpts || []).map(id => (ch === 0 ? sea.small : sea.big).find(x => x.id === id)).filter(Boolean);
+        const cards = opts.map((isl, i) => {
+          const foe = enemyData(ch === 0 ? isl.villain : isl.boss);
+          const info = bossInfo(foe);
+          const bounty = foe.bounty ? `${foe.bounty} Mio. ฿` : '';
+          return `<button class="opt course-opt" data-act="pick" data-i="${i}">
+            ${i < 9 ? `<kbd class="key">${i + 1}</kbd>` : ''}
+            <span class="co-top"><b class="co-name">${isl.name}</b><small>${isl.text}</small></span>
+            <span class="co-route">${isl.places.map(p => `<i>${p}</i>`).join('<em>›</em>')}<em>›</em><i class="co-lair">${isl.lair}</i></span>
+            <span class="co-foe"><span class="co-sprite">${GL.sprites.render(foe)}</span>
+              <span><small>${ch === 0 ? 'Bösewicht der Insel' : 'Boss des Meeres'}</small><b>${foe.name} ${badge(foe.type)}</b>
+              <small>schwach gegen ${badge(info.counter)}${bounty ? ` · Kopfgeld ${bounty}` : ''}</small></span></span>
+          </button>`;
+        }).join('');
+        return `${noticeBox(run)}<span class="event-kicker">${sea.name} · ${ch === 0 ? 'Erste Insel' : 'Zweite Insel'}</span>
+          <h2>${ch === 0 ? 'Welche Insel steuerst du an?' : 'Kurs auf den Boss des Meeres'}</h2>
+          <p class="hint">${ch === 0 ? 'Jede Insel hat ihre eigenen Orte. Am Ende wartet ihr Bösewicht: Sieg bringt Kopfgeld, einen Schatz und eine Verschnaufpause.'
+            : 'Auf der großen Insel wartet der Boss dieses Meeres. Wähle den Gegner, gegen den deine Crew die besseren Karten hat.'}</p>
+          <div class="course-grid">${cards}</div>`;
+      }
+
       case 'map': {
         const boss = GL.run.boss(run);
-        const info = bossInfo(boss);
-        const preview = run.options[0] === 'boss' ? ''
-          : `<div class="lbl">Inselboss: ${boss.name} ${badge(boss.type)} schwach gegen ${badge(info.counter)}</div>`;
+        const here = GL.run.chapterIsland(run);
+        const gateFoe = here && here.villain && GL.run.chapterIdx(run) === 0 ? enemyData(here.villain) : null;
+        const foe = gateFoe || boss;
+        const info = bossInfo(foe);
+        const last = GL.run.rowIdx(run) === GL.config.chapterSteps - 1;
+        const preview = last ? ''
+          : `<div class="lbl">${gateFoe ? 'Bösewicht der Insel' : 'Boss des Meeres'}: ${foe.name} ${badge(foe.type)} schwach gegen ${badge(info.counter)}</div>`;
         const tip = GL.advice.map(run);
-        return `${noticeBox(run)}<h2>Wähle deine Route</h2>${preview}${seaChart(run, boss, tip)}${tipLine(tip)}`;
+        return `${noticeBox(run)}<h2>${here ? here.name : 'Wähle deine Route'}</h2>${preview}${seaChart(run, boss, tip)}${tipLine(tip)}`;
       }
 
       case 'recruit': {
@@ -853,7 +884,7 @@ window.GL = window.GL || {};
           </div>`;
         }).join('');
         const huntedT = boss && boss.mini ? enemyData(boss.id) : null;
-        return `<h2>${run.pending.kind === 'raid' ? 'Raid: ' + enemyData(boss.id).name : run.pending.kind === 'boss' ? 'Bosskampf: Aufstellung' : huntedT ? 'Kopfgeld-Ziel: ' + huntedT.name : 'Aufstellung'}</h2>
+        return `<h2>${run.pending.kind === 'raid' ? 'Raid: ' + enemyData(boss.id).name : run.pending.kind === 'boss' ? 'Bosskampf: Aufstellung' : huntedT ? (run.pending.gate ? 'Bösewicht der Insel: ' : 'Kopfgeld-Ziel: ') + huntedT.name : 'Aufstellung'}</h2>
           ${huntedT ? `<p class="hint">Auf ${huntedT.name} sind <b>${huntedT.bounty} Mio. ฿</b> ausgesetzt. Sieg: Das Kopfgeld geht an deinen Kapitän, dazu ein Schatz.</p>` : ''}
           ${run.pending.kind === 'raid' ? `<p class="hint">Gewinnst du, gehört dir eine erwachte Teufelsfrucht für immer. Verlierst du, entkommt deine Crew mit wenig Leben.</p>` : ''}
           <div class="formation isl-${GL.run.island(run).id}${run.pending.kind === 'raid' ? ' raid' : ''}">
@@ -1199,12 +1230,13 @@ window.GL = window.GL || {};
   const DEFAULT_LOOK = { hair: '#6b4a2a', skin: '#f2c9a0', shirt: '#2f6fb0', pants: '#3b5a8c', hat: 'band', hatColor: '#c0392b' };
   function lookOf(profile) { return (profile.char && profile.char.look) || DEFAULT_LOOK; }
   function avatarOf(profile) { return { id: 'self', name: profile.nickname || 'Pirat', look: lookOf(profile) }; }
-  function cosOf(profile) { return Object.assign({ bg: 'meer', frame: 'holz', anim: 'ruhig', title: 'neuling' }, profile.cos || {}); }
+  function cosOf(profile) { return Object.assign({ bg: 'meer', frame: 'holz', anim: 'ruhig', title: 'neuling', flag: 'keine' }, profile.cos || {}); }
   function titleName(id) { const t = GL.data.cosmetics.titles.find(x => x.id === id); return t ? t.name : ''; }
   // Kleines Porträt mit Hintergrund, Rahmen und Animation (Profil, Rangliste, Startbildschirm)
   function portrait(look, cos, size) {
-    const c = Object.assign({ bg: 'meer', frame: 'holz', anim: 'ruhig' }, cos || {});
-    return `<span class="portrait bg-${c.bg} fr-${c.frame} an-${c.anim}${size ? ' ' + size : ''}">${GL.sprites.render({ id: 'self', look: look || DEFAULT_LOOK })}</span>`;
+    const c = Object.assign({ bg: 'meer', frame: 'holz', anim: 'ruhig', flag: 'keine' }, cos || {});
+    const flag = c.flag && c.flag !== 'keine' ? `<i class="pflag fl-${c.flag}" aria-hidden="true"></i>` : '';
+    return `<span class="portrait bg-${c.bg} fr-${c.frame} an-${c.anim}${size ? ' ' + size : ''}">${GL.sprites.render({ id: 'self', look: look || DEFAULT_LOOK })}${flag}</span>`;
   }
   function profileChip(profile) {
     const rp = GL.meta.rankProgress(profile);
@@ -1224,8 +1256,7 @@ window.GL = window.GL || {};
     const st = GL.online ? GL.online.state() : { status: 'local', rows: [] };
     const players = (st.rows || []).length;
     return `<div class="ts-inner">
-      <div class="ts-top">${profile.nickname ? profileChip(profile) : '<span></span>'}
-        <button class="link" data-act="theme">${document.documentElement.dataset.theme === 'dark' ? 'Hell' : 'Dunkel'}</button></div>
+      <div class="ts-top">${profile.nickname ? profileChip(profile) : '<span></span>'}</div>
       <div class="ts-logo"><b>${esc(W)}</b><small>Ein Piraten-Roguelike</small></div>
       <div class="ts-scene" aria-hidden="true">
         <div class="ts-sun"></div>
@@ -1284,16 +1315,18 @@ window.GL = window.GL || {};
           </div>
         </div>
         <div class="cos-all">
-          <p class="hint">Freischaltbar: Hintergründe, Rahmen, Animationen und Titel. Alle sehen sie in der Rangliste.</p>
+          <p class="hint">Freischaltbar: Hintergründe, Rahmen, Animationen, Titel und Flaggen. Alle sehen sie in der Rangliste. Schwarz-weiße Felder zeigen, was dir noch fehlt.</p>
           ${cosGrid('backgrounds', 'Hintergrund', 'bg')}
           ${cosGrid('frames', 'Rahmen', 'frame')}
           ${cosGrid('animations', 'Animation', 'anim')}
           ${cosGrid('titles', 'Titel', 'title')}
+          ${cosGrid('flags', 'Piratenflagge', 'flag')}
         </div>
         <div class="pf-actions">
           ${profile.nickname ? '<button class="btn ghost" data-act="title-back">Zurück</button>' : ''}
           <button class="btn" data-act="profile-save">${profile.nickname ? 'Speichern' : 'Profil erstellen'} ${keyHint('Enter')}</button>
         </div>
+        ${profile.nickname ? dangerZone(ui) : ''}
       </div>
     </div>`;
   }
@@ -1335,6 +1368,22 @@ window.GL = window.GL || {};
         <div class="rank-road" role="list" aria-label="Belohnungen der Ränge">${road}</div>
         <p class="rank-src">Rang-EP gibt es für jede Etappe, Kopfgeld-Ziele, Inselbosse, Raids und Siege. Höhere Kopfgeld-Stufen geben mehr.</p>
       </div>`;
+  }
+
+  // Account zurücksetzen oder löschen (auch im Profil-Editor)
+  function dangerZone(uiRef) {
+    const armed = uiRef && uiRef.accArmed;
+    return `<div class="danger-zone">
+      <b>Account</b>
+      <div class="dz-row">
+        <span><b>Fortschritt zurücksetzen</b><small>Rang, Berry, Freischaltungen und Funde weg. Name und Aussehen bleiben.</small></span>
+        <button class="btn mini ghost danger-btn" data-act="acc-reset">${armed === 'reset' ? 'Sicher? Nochmal klicken' : 'Zurücksetzen'}</button>
+      </div>
+      <div class="dz-row">
+        <span><b>Account löschen</b><small>Alles weg, auch dein Eintrag in der Rangliste. Danach startest du als neuer Pirat.</small></span>
+        <button class="btn mini ghost danger-btn" data-act="acc-delete">${armed === 'delete' ? 'Sicher? Nochmal klicken' : 'Löschen'}</button>
+      </div>
+    </div>`;
   }
 
   function hq(profile, tab, uiRef) {
@@ -1425,9 +1474,7 @@ window.GL = window.GL || {};
         </div>
         <button class="btn ghost" data-act="profile-edit">Pirat und Aussehen bearbeiten</button>
         ${devicesBox()}
-        <div class="hq-reset">
-          <button class="link danger-link" data-act="reset-all">${uiRef && uiRef.resetArmed ? 'Wirklich alles löschen? Zum Bestätigen nochmal klicken.' : 'Spielstand komplett löschen und von vorne beginnen'}</button>
-        </div></section>` : ''}
+        ${dangerZone(uiRef)}</section>` : ''}
       ${tab === 'kammer' ? vaultSection(profile) : ''}
       ${tab === 'schmiede' ? forgeSection(profile) : ''}
       ${tab === 'rangliste' ? leaderboard(profile, uiRef) : ''}
@@ -1538,7 +1585,7 @@ window.GL = window.GL || {};
     {
       kicker: 'Willkommen',
       title: 'Auf zur Grand Line',
-      body: `<p>Ein kleines Roguelike im Browser: Stell deine Piratencrew zusammen und kämpf dich über drei Inseln bis zum letzten Boss. Jeder Run ist anders.</p>
+      body: `<p>Ein kleines Roguelike im Browser: Stell deine Piratencrew zusammen und kämpf dich durch drei Meere voller Inseln aus der Serie bis zum letzten Boss. Jeder Run ist anders und dauert nur rund 20 Minuten.</p>
         <div class="intro-note"><b>Inoffizielles Fanprojekt.</b> Kostenlos und ohne kommerzielle Absicht. Nicht verbunden mit Eiichiro Oda, Shueisha oder Toei Animation.</div>`
     },
     {
@@ -1546,9 +1593,10 @@ window.GL = window.GL || {};
       title: 'Wählen, kämpfen, weitersegeln',
       body: `<ol class="intro-steps">
         <li><b>Kapitän wählen.</b> Er oder sie startet allein.</li>
-        <li><b>Route wählen:</b> Kampf, neues Crewmitglied, Schatz, Teufelsfrucht oder Rast.</li>
+        <li><b>Kurs setzen:</b> Welche Insel steuerst du an? Jede hat eigene Orte und am Ende ihren Bösewicht.</li>
+        <li><b>Route wählen:</b> Kampf, Taverne, Schatz, Teufelsfrucht oder Rast.</li>
         <li><b>Kämpfe laufen automatisch.</b> Du bestimmst vorher, wer vorne steht.</li>
-        <li><b>Inselboss besiegen,</b> dann geht es zur nächsten Insel.</li></ol>`
+        <li><b>Pro Meer zwei Inseln:</b> erst eine kleine mit Bösewicht, dann eine große mit dem Boss des Meeres.</li></ol>`
     },
     {
       kicker: 'Stark werden',
@@ -1605,9 +1653,9 @@ window.GL = window.GL || {};
     el.id = 'scene';
     el.className = 'scene isl-' + isl.id;
     el.setAttribute('role', 'status');
-    el.innerHTML = `<div class="scene-card"><span class="event-kicker">Insel ${idx + 1} von ${GL.data.islands.length}</span>
+    el.innerHTML = `<div class="scene-card"><span class="event-kicker">Meer ${idx + 1} von ${GL.data.islands.length}</span>
       <h2>${isl.name}</h2><p>${isl.tagline || ''}</p>
-      ${isl.stops ? `<p class="scene-stops">${isl.stops.map(s => s.name).join(' → ')} → <b>Inselboss</b></p>` : ''}</div>`;
+      <p class="scene-stops">Kleine Insel → Bösewicht → Große Insel → <b>Boss des Meeres</b></p></div>`;
     el.addEventListener('click', () => el.remove());
     document.body.appendChild(el);
     setTimeout(() => el.classList.add('out'), 1900);
@@ -1662,15 +1710,18 @@ window.GL = window.GL || {};
       if ($('#traits').innerHTML !== rail) $('#traits').innerHTML = rail;
       // Szenenwechsel: beim Erreichen einer neuen Insel kurz ihren Namen einblenden
       const isl = GL.run.island(run);
-      if (run.phase === 'map' && run.step % GL.config.stepsPerIsland === 0 && ui.shownIsland !== isl.id + run.seed) {
+      if (run.phase === 'course' && run.step % GL.config.stepsPerIsland === 0 && ui.shownIsland !== isl.id + run.seed) {
         ui.shownIsland = isl.id + run.seed;
         showScene(isl, GL.run.islandIndex(run));
       }
       const stopKey = run.seed + ':' + run.step;
-      if (run.phase === 'map' && run.step % GL.config.stepsPerIsland !== 0 && ui.shownStop !== stopKey) {
+      if (run.phase === 'map' && ui.shownStop !== stopKey) {
         ui.shownStop = stopKey;
-        const last = run.step % GL.config.stepsPerIsland === GL.config.stepsPerIsland - 1;
-        showStop(GL.run.stopName(run), last ? 'Endstation: Inselboss' : 'Ankunft');
+        const r = GL.run.rowIdx(run);
+        const last = r === GL.config.chapterSteps - 1;
+        const here = GL.run.chapterIsland(run);
+        if (r === 0 && here) showStop(here.name, 'Ankunft auf');
+        else showStop(GL.run.stopName(run), last ? (GL.run.chapterIdx(run) === 0 ? 'Endstation: Bösewicht' : 'Endstation: Boss des Meeres') : 'Weiter nach');
       }
       const inBattle = run.phase === 'battle' && anim && !anim.done;
       // Im Kampf zeigt die Arena die Crew, daher Crew-Liste und Synergien ausblenden

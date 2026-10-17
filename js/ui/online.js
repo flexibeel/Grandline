@@ -60,7 +60,7 @@ window.GL = window.GL || {};
       async refresh() {
         const { data: d, error } = await client.from('scores').select('id,name,score,data').order('score', { ascending: false }).limit(300);
         if (error) throw error;
-        state.rows = (d || []).map(toRow);
+        state.rows = (d || []).map(toRow).filter(r => !r.deleted);
         afterRows();
       }
     };
@@ -76,7 +76,7 @@ window.GL = window.GL || {};
       if (error) return;
       state.cloud = true;
       const local = profileRef;
-      if (d && d.data && (!local || (d.data.savedAt || 0) > (local.savedAt || 0) + 1000) && onRemote) onRemote(d.data);
+      if (d && d.data && !d.data.wiped && (!local || (d.data.savedAt || 0) > (local.savedAt || 0) + 1000) && onRemote) onRemote(d.data);
       else if (local && local.nickname) pushSave(local);   // erster Upload von diesem Gerät
     } catch (e) { /* ohne Tabelle läuft alles lokal weiter */ }
   }
@@ -121,7 +121,7 @@ window.GL = window.GL || {};
       async refresh() { /* live über onSnapshot */ }
     };
     db.collection('scores').limit(300).onSnapshot(snap => {
-      state.rows = snap.docs.map(x => Object.assign({ id: x.id }, x.data()));
+      state.rows = snap.docs.map(x => Object.assign({ id: x.id }, x.data())).filter(r => !r.deleted);
       afterRows();
     }, () => { state.status = 'error'; emit(); });
   }
@@ -225,11 +225,31 @@ window.GL = window.GL || {};
     } catch (e) { return fail(e); }
   }
 
+  // Account zurücksetzen (full = false: Name und Aussehen bleiben) oder ganz löschen (full = true).
+  // Online-Spielstand wird überschrieben, damit ihn kein Gerät zurückholt.
+  async function wipe(full, keep) {
+    clearTimeout(pushTimer);
+    if (state.backend === 'supabase' && client && state.uid) {
+      const now = new Date().toISOString();
+      try { await client.from('saves').upsert({ id: state.uid, data: { wiped: true, savedAt: Date.now() }, updated_at: now }); } catch (e) { /* egal */ }
+      if (full) {
+        let gone = false;
+        try { const r = await client.from('scores').delete({ count: 'exact' }).eq('id', state.uid); gone = !r.error && r.count > 0; } catch (e) { /* egal */ }
+        if (!gone) { try { await client.from('scores').upsert({ id: state.uid, name: '-', score: 0, data: { deleted: true }, updated_at: now }); } catch (e) { /* egal */ } }
+        try { await client.auth.signOut(); } catch (e) { /* egal */ }
+      } else {
+        try { await client.from('scores').upsert({ id: state.uid, name: (keep && keep.nickname) || 'Pirat', score: 0, data: { rank: 0, rankXp: 0, look: keep && keep.char ? keep.char.look : null, cos: keep && keep.cos, updated: Date.now() }, updated_at: now }); } catch (e) { /* egal */ }
+      }
+    } else if (state.backend === 'claude' && store && state.uid && full) {
+      try { await store.set(state.uid, { name: '-', score: 0, deleted: true }); } catch (e) { /* egal */ }
+    }
+  }
+
   async function rename(profile, name) {
     profile.nickname = String(name || '').trim().slice(0, 24);
     return register(profile);
   }
 
-  GL.online = { init, submit, rename, register, pushSave, linkEmail, loginEmail,
+  GL.online = { init, submit, rename, register, pushSave, linkEmail, loginEmail, wipe,
     onRemoteProfile(fn) { onRemote = fn; }, state: () => state, onChange(fn) { listeners.push(fn); } };
 })();

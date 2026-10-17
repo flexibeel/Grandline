@@ -8,8 +8,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600;700&family=Nunito:wght@400;600;700;800&family=Pirata+One&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
 <script>
-  // Design vor dem ersten Zeichnen setzen, damit nichts aufblitzt
-  try { if (localStorage.getItem('grandline.theme') === 'dark') document.documentElement.dataset.theme = 'dark'; } catch (e) {}
+  // Vorerst nur das helle Clean-Design (Dunkelmodus war nur halb umgebaut). Alte Einstellung entfernen.
+  try { localStorage.removeItem('grandline.theme'); } catch (e) {}
 </script>
 </head>
 <body>
@@ -19,7 +19,6 @@
     <div class="head-right">
       <div class="track" id="track" aria-label="Fortschritt"></div>
       <div class="head-actions">
-        <button class="link theme-toggle" data-act="theme" id="theme-btn">Dunkel</button>
         <button class="link" id="peek-btn" data-act="peek" hidden>Hauptquartier</button>
         <button class="link" data-act="intro-open">Anleitung</button>
         <button class="link" data-act="album">Sammelalbum</button>

@@ -15,7 +15,15 @@ GL.data.hunted = [
     look: { hair: '#222222', skin: '#f2c9a0', shirt: '#1a1a1a', pants: '#1a1a1a' } },
   { id: 'krieg', name: 'Don Krieg', type: 'kraft', island: 0, hpX: 1.8, atkX: 0.8, spd: 4, bounty: 17,
     look: { hair: '#2a2a2a', skin: '#e0b088', shirt: '#c8a040', pants: '#5a5a5a' } },
+  { id: 'hatchan', name: 'Hatchan', type: 'klinge', island: 0, hpX: 1.6, atkX: 0.8, spd: 5, bounty: 12,
+    look: { hair: '#c0392b', skin: '#e89a8a', shirt: '#e8c040', pants: '#3a5a8a', hat: 'cap', hatColor: '#e8e8e8' } },
   // Paradies
+  { id: 'mr9', name: 'Mr. 9', type: 'technik', island: 1, hpX: 1.6, atkX: 0.85, spd: 7, bounty: 20,
+    look: { hair: '#d0d0d0', skin: '#f2c9a0', shirt: '#3a5aa8', pants: '#2a2a2a', hat: 'band', hatColor: '#c0392b' } },
+  { id: 'mr1', name: 'Mr. 1', type: 'klinge', island: 1, hpX: 2.2, atkX: 1.05, spd: 6, bounty: 60,
+    look: { hair: '#1a1a1a', skin: '#c89a70', shirt: '#2a2a2a', pants: '#2a2a2a' } },
+  { id: 'ohm', name: 'Ohm', type: 'klinge', island: 1, hpX: 2.1, atkX: 1.0, spd: 6, bounty: 45,
+    look: { hair: '#f0f0f0', skin: '#f2c9a0', shirt: '#e8e8e8', pants: '#5a4a3a', hat: 'band', hatColor: '#e8e8e8' } },
   { id: 'mr3', name: 'Mr. 3', type: 'technik', island: 1, hpX: 1.9, atkX: 0.9, spd: 6, bounty: 24,
     look: { hair: '#1a1a1a', skin: '#f2c9a0', shirt: '#f0f0f0', pants: '#2a2a5a' } },
   { id: 'wapol', name: 'Wapol', type: 'kraft', island: 1, hpX: 2.4, atkX: 1.0, spd: 4, bounty: 32,
@@ -29,6 +37,10 @@ GL.data.hunted = [
     look: { hair: '#2a2a2a', skin: '#f2c9a0', shirt: '#2a2a2a', pants: '#2a2a2a', hat: 'cap', hatColor: '#c8c8c8' } },
   { id: 'spandam', name: 'Spandam', type: 'technik', island: 2, hpX: 1.8, atkX: 0.85, spd: 6, bounty: 80,
     look: { hair: '#7a4a9a', skin: '#f2c9a0', shirt: '#5a3a7a', pants: '#2a2a2a', hat: 'band', hatColor: '#c8c8c8' } },
+  { id: 'blueno', name: 'Blueno', type: 'kraft', island: 2, hpX: 2.6, atkX: 0.95, spd: 5, bounty: 82,
+    look: { hair: '#3a2a1a', skin: '#e0b088', shirt: '#2a2a2a', pants: '#2a2a2a', hat: 'band', hatColor: '#2a2a2a' } },
+  { id: 'jabra', name: 'Jabra', type: 'kraft', island: 2, hpX: 2.3, atkX: 1.1, spd: 7, bounty: 85,
+    look: { hair: '#2a2a2a', skin: '#f2c9a0', shirt: '#e8e8e8', pants: '#2a2a2a' } },
   { id: 'foxy', name: 'Foxy', type: 'klinge', island: 2, hpX: 2.1, atkX: 1.0, spd: 6, bounty: 90,
     look: { hair: '#c86a2a', skin: '#f2c9a0', shirt: '#2a6a3a', pants: '#2a2a2a', hat: 'band', hatColor: '#2a2a2a' } }
 ];

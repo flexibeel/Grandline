@@ -185,7 +185,9 @@ window.GL = window.GL || {};
         hunted: sum((GL.data.hunted || []).map(h => h.id)),
         raids: sum(GL.data.raids.map(r => r.id)),
         artifacts: Object.keys(profile.vault || {}).length,
-        reached: [0, 1, 2].filter(i => c['reached:' + i]).length - 1
+        reached: [0, 1, 2].filter(i => c['reached:' + i]).length - 1,
+        islands: Object.keys(c).filter(k => k.startsWith('isle:')).length,
+        heat: profile.heatMax || 0
       };
     },
     cosmeticUnlocked(profile, item, vals) {
@@ -195,8 +197,9 @@ window.GL = window.GL || {};
     // Text der Bedingung, z. B. "Rang 5" oder "50 K.o.s"
     reqText(item) {
       const L = { rank: 'Rang', runs: 'Runs', wins: 'Siege', kos: 'K.o.s', maxHit: 'Schaden mit einem Schlag', bosses: 'Inselbosse besiegt',
-        hunted: 'Kopfgeld-Ziele besiegt', raids: 'Raid gewonnen', artifacts: 'Artefakte gefunden', reached: 'Meer erreicht' };
-      return Object.keys(item.req || {}).map(k => k === 'rank' ? `Rang ${item.req.rank}` : k === 'reached' ? `${GL.data.islands[item.req.reached].name} erreichen` : `${item.req[k]} ${L[k]}`).join(', ') || 'frei';
+        hunted: 'Kopfgeld-Ziele besiegt', raids: 'Raids gewonnen', artifacts: 'Artefakte gefunden', reached: 'Meer erreicht',
+        islands: 'verschiedene Inseln besucht', heat: 'Kopfgeld-Stufe' };
+      return Object.keys(item.req || {}).map(k => k === 'heat' ? `Kopfgeld-Stufe ${item.req.heat}` : k === 'rank' ? `Rang ${item.req.rank}` : k === 'reached' ? `${GL.data.islands[item.req.reached].name} erreichen` : `${item.req[k]} ${L[k]}`).join(', ') || 'frei';
     },
 
     // Artefakt-Plätze: einer zu Beginn, dazu einer ab Rang 5, 9 und 13
@@ -294,6 +297,7 @@ window.GL = window.GL || {};
       });
       (run.defeated || []).forEach(id => count('defeated:' + id));
       for (let i = 0; i <= GL.run.islandIndex(run); i++) count('reached:' + i);
+      (run.course || []).forEach(id => { if (id) count('isle:' + id); });
       const won = run.phase === 'win';
       if (won) count('win');
 

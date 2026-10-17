@@ -3,14 +3,16 @@
 window.GL = window.GL || {};
 
 GL.config = {
-  saveVersion: 9,
+  saveVersion: 10,
   // Welt: 'onepiece' (Fanprojekt) oder 'neutral' (eigene Namen, siehe js/world/neutral.js)
   world: 'onepiece',
   // Eigene Online-Rangliste (Supabase). Leer lassen = Rangliste über die geteilte Claude-Seite.
   online: { url: 'https://ahalqeebrtzpcrvpnyxf.supabase.co', key: 'sb_publishable_00GGB1JXueV7rpMb8JxX8A_FT6brXAm' },
 
   // Aufbau eines Runs
-  stepsPerIsland: 5,      // 4 Inseln mit Routenwahl + 1 Inselboss
+  stepsPerIsland: 6,      // pro Meer: 2 Insel-Kapitel mit je 3 Etappen (2 Orte + Bösewicht bzw. Boss)
+  chapterSteps: 3,        // Etappen pro Insel-Kapitel
+  gateMult: 1.1,          // Bösewicht am Ende einer kleinen Insel: so viel stärker als ein Kopfgeldjäger
   maxCrew: 6,
   starters: ['ruffy', 'zorro', 'nami'],   // wählbare Kapitäne zu Beginn eines Runs
   choicesPerPick: 3,      // wie viele Optionen bei Rekrutierung/Teufelsfrucht
@@ -67,7 +69,7 @@ GL.config = {
   awaken: { atk: 4, hp: 10 },
 
   // Gegnerstärke
-  enemyScale: 0.82,        // wie schnell normale Gegner pro Etappe stärker werden
+  enemyScale: 0.9,        // wie schnell normale Gegner pro Etappe stärker werden
   eliteMult: 1.3,         // Kopfgeldjäger sind um diesen Faktor stärker
   grunt: { hpBase: 12, hpPerLevel: 4, atkBase: 4, atkPerLevel: 1.2, spdMin: 3, spdMax: 7 },
   maxGrunts: 4,
