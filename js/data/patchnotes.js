@@ -1,6 +1,10 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-18d', date: '18.10.', title: 'Tageskiste und Wochen-Herausforderung', items: [
+    'Tageskiste im Hafen: einmal am Tag öffnen. Jeder Tag am Stück gibt mehr, an Tag 7 ein episches Ausrüstungsteil',
+    'Wochen-Herausforderung: drei Aufgaben, jede Woche neu. Alle geschafft: episches Teil, 150 Berry und 3 Meersplitter',
+    'Englisch: auch die neuen Figuren, Ereignisse und Freischalt-Ziele sind übersetzt' ] },
   { v: '2026-10-18c', date: '18.10.', title: 'Supernovas, Thriller Bark und Launen der See', items: [
     'Zwei neue Banden: Schlimmste Generation (Eustass Kid, Killer, Bonney, Drake, Hawkins, Apoo) und Thriller-Bark-Piraten (Gecko Moria, Absalom, Dr. Hogback, Perona)',
     'Neue Bündnisse: Chaos auf Sabaody (Supernovas + Strohhut) und Schattenspiel (Thriller Bark + Baroque Works), dazu 9 neue Duos',

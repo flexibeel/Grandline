@@ -889,6 +889,21 @@
         ui.lastStage = null; draw();
         break;
       }
+      case 'dbox': {
+        const r = GL.meta.dboxClaim(profile);
+        if (!r) { toast(`<span><b>Heute schon geöffnet</b>Morgen wartet die nächste Kiste. Serie: ${profile.dbox.streak} ${profile.dbox.streak === 1 ? 'Tag' : 'Tage'}.</span>`); break; }
+        saveProfile();
+        el.classList.add('opening');
+        toast(`<span><b>Tageskiste: +${r.berry} Berry${r.shards ? `, +${r.shards} 🔹` : ''}${r.gear ? ', episches Teil!' : ''}</b>Tag ${r.day}/7 deiner Serie${r.day < 7 ? `. An Tag 7 wartet ein episches Ausrüstungsteil.` : '. Morgen geht es bei Tag 1 weiter.'}</span>`);
+        setTimeout(() => { ui.lastStage = null; draw(); }, 700);
+        break;
+      }
+      case 'week-open': openGearPop(GL.ui.weekPop(profile)); break;
+      case 'week-claim': {
+        const r = GL.meta.weeklyClaim(profile);
+        if (r) { saveProfile(); closePop(); toast(`<span><b>Woche geschafft!</b>+${r.berry} Berry, +${r.shards} 🔹${r.gear ? ' und ' + esc2(GL.cgear.name(r.gear)) : ''}</span>`); draw(); }
+        break;
+      }
       case 'sticker': {
         GL.sticker.make(GL.ui.stickerInfo(profile)).then(blob => { ui.stickerBlob = blob; openGearPop(GL.ui.stickerPop(URL.createObjectURL(blob))); }).catch(() => toast('<span><b>Sticker ging gerade nicht</b></span>'));
         break;

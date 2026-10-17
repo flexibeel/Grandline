@@ -76,6 +76,20 @@ window.GL = window.GL || {};
     let r = ''; rows.forEach((row, y) => row.split('').forEach((ch, x) => { if (c[ch]) r += `<rect x="${x}" y="${y}" width="1" height="1" fill="${c[ch]}"/>`; }));
     return `<svg class="px-flame" viewBox="0 0 10 10" shape-rendering="crispEdges" aria-hidden="true">${r}</svg>`;
   })();
+  const pxArt = (rows, c, vb) => { let r = ''; rows.forEach((row, y) => row.split('').forEach((ch, x) => { if (c[ch]) r += `<rect x="${x}" y="${y}" width="1" height="1" fill="${c[ch]}"/>`; })); return `<svg viewBox="0 0 ${vb[0]} ${vb[1]}" shape-rendering="crispEdges" aria-hidden="true">${r}</svg>`; };
+  const PX_CHEST = open => pxArt(open
+    ? ['.YY.Y..YY.', '..YYYYYY..', 'KKKKKKKKKK', 'KBBBBBBBBK', 'KbbbbbbbbK', 'KKKKGGKKKK', 'KBBBGGBBBK', 'KBBBBBBBBK', 'KbbbbbbbbK', 'KKKKKKKKKK']
+    : ['..........', '.KKKKKKKK.', 'KBBBBBBBBK', 'KbbbbbbbbK', 'KKKKGGKKKK', 'KBBBGGBBBK', 'KBBBBBBBBK', 'KBBBBBBBBK', 'KbbbbbbbbK', 'KKKKKKKKKK'],
+    { K: '#3a2416', B: '#a8693a', b: '#7a4a24', G: '#f2d24a', Y: '#f2d24a' }, [10, 10]);
+  const PX_STAR = pxArt(['....Y.....', '...YYY....', 'YYYYYYYYY.', '.YYYOYYY..', '..YYYYY...', '..YYOYY...', '.YYY.YYY..', '.YY...YY..', 'Y.......Y.', '..........'], { Y: '#f2c94c', O: '#e0a020' }, [10, 10]);
+  function weekPop(profile) {
+    const w = GL.meta.weekly(profile);
+    const row = t => `<div class="wk-task${t.done ? ' done' : ''}"><i>${t.done ? '✓' : ''}</i><span><b>${esc(t.text)}</b><span class="goal-bar"><i style="width:${Math.round(100 * t.have / t.need)}%"></i></span></span><em>${t.have}/${t.need}</em></div>`;
+    return `<div class="fpop-card week-pop"><div class="wk-head"><span class="event-kicker">Wochen-Herausforderung</span><b>${w.id.split('-W')[1]}. Woche</b></div>
+      <p class="hint">Drei Aufgaben, jede Woche neu. Alle geschafft: <b>episches Ausrüstungsteil, 150 Berry, 3 Meersplitter</b>.</p>
+      <div class="wk-tasks">${w.tasks.map(row).join('')}</div>
+      <div class="fpop-btns">${w.done && !w.claimed ? '<button class="btn" data-act="week-claim">Belohnung abholen</button>' : `<button class="btn ghost" data-act="pop-close">${w.claimed ? 'Diese Woche geschafft ✓' : 'Schließen'}</button>`}</div></div>`;
+  }
   // Kleine Pixel-Pfeile für Vergleiche (besser/schlechter)
   const PX_UP = '<svg viewBox="0 0 5 3" aria-hidden="true"><rect x="2" y="0" width="1" height="1"/><rect x="1" y="1" width="3" height="1"/><rect x="0" y="2" width="5" height="1"/></svg>';
   const PX_DOWN = '<svg viewBox="0 0 5 3" aria-hidden="true"><rect x="0" y="0" width="5" height="1"/><rect x="1" y="1" width="3" height="1"/><rect x="2" y="2" width="1" height="1"/></svg>';
@@ -2459,6 +2473,12 @@ window.GL = window.GL || {};
       const t = profile.hunt && GL.data.raids.find(r => r.id === profile.hunt);
       tiles.push(`<button class="ad-tile" data-act="hunt-open"><i class="ad-ico">${t ? GL.sprites.render(t) : '🎯'}</i><b>Raid-Ziel</b><small>${t ? esc(t.name.replace(/^Admiral |^Rothaar /, '')) : 'keins'}</small></button>`);
     }
+    if (profile.nickname && (profile.stats.runs || 0) >= 1) {
+      const ready = GL.meta.dboxReady(profile), st = profile.dbox ? profile.dbox.streak || 1 : 0;
+      tiles.push(`<button class="ad-tile${ready ? ' hot' : ' done'}" data-act="dbox"><i class="ad-ico">${PX_CHEST(ready)}</i><b>Tageskiste</b><small>${ready ? 'Öffnen!' : `✓ Tag ${((st - 1) % 7) + 1}/7`}</small></button>`);
+      const w = GL.meta.weekly(profile), n = w.tasks.filter(t => t.done).length;
+      tiles.push(`<button class="ad-tile${w.done && !w.claimed ? ' hot' : w.claimed ? ' done' : ''}" data-act="week-open"><i class="ad-ico">${PX_STAR}</i><b>Woche</b><small>${w.claimed ? '✓ geschafft' : w.done ? 'Abholen!' : `${n}/3`}</small></button>`);
+    }
     return tiles.length ? `<div class="action-dock">${tiles.join('')}</div>` : '';
   }
   function endlessPop(profile) {
@@ -3045,6 +3065,7 @@ window.GL = window.GL || {};
 
   GL.ui = {
     introSteps: INTRO.length,
+    weekPop,
     // Kleines Freunde-Symbol (zwei Pixel-Köpfe) für die Ecke oben
     friendsIcon: '<svg viewBox="0 0 11 8" shape-rendering="crispEdges" aria-hidden="true"><path fill="currentColor" d="M2 0h3v1h1v2h-1v1h-3v-1h-1v-2h1zM1 5h5v1h1v2h-7v-2h1zM7 1h2v1h1v2h-1v1h-2zM8 5h2v1h1v2h-3v-2h-1z"/></svg>',
     stickerInfo(profile) {

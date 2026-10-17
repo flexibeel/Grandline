@@ -647,6 +647,62 @@ window.GL = window.GL || {};
         .sort((a, b) => b.f - a.f || a.pr.need - b.pr.need).slice(0, n || 3);
     },
     lifeKos(profile) { return Math.max((profile.life && profile.life.kos) || 0, (profile.records && profile.records.kos) || 0); },
+    // ---------- Tageskiste: einmal pro Tag, Serie für Tage am Stück ----------
+    dayKey(d) { d = d || new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); },
+    dboxReady(profile) { return !profile.dbox || profile.dbox.d !== GL.meta.dayKey(); },
+    dboxClaim(profile) {
+      if (!GL.meta.dboxReady(profile)) return null;
+      const today = GL.meta.dayKey(), yest = GL.meta.dayKey(new Date(Date.now() - 864e5));
+      const streak = profile.dbox && profile.dbox.d === yest ? (profile.dbox.streak || 1) + 1 : 1;
+      profile.dbox = { d: today, streak };
+      const day = ((streak - 1) % 7) + 1;   // Tag 1 bis 7, dann von vorn
+      const r = { streak, day, berry: 30 + 10 * day, shards: day >= 3 ? (day === 7 ? 4 : 1) : 0, gear: null };
+      profile.berry = (profile.berry || 0) + r.berry;
+      profile.shards = (profile.shards || 0) + r.shards;
+      if (day === 7 && GL.cgear) { r.gear = GL.cgear.roll({ r: 2, name: 'Wochentreue', seaName: 'Tageskiste', sea: 2 }); GL.cgear.bag(profile).push(r.gear); }
+      return r;
+    },
+    // ---------- Wochen-Herausforderung: drei Aufgaben pro Kalenderwoche ----------
+    WEEK_TASKS: [
+      { id: 'runs', text: 'Spiele 5 Runs', need: 5 }, { id: 'wins', text: 'Gewinne einen Run', need: 1 },
+      { id: 'bosses', text: 'Besiege 3 Inselbosse', need: 3 }, { id: 'hunted', text: 'Besiege 5 Kopfgeld-Ziele', need: 5 },
+      { id: 'kos', text: 'Besiege 80 Gegner', need: 80 }, { id: 'daily', text: 'Spiele 2 Tageskarten', need: 2 },
+      { id: 'duels', text: 'Gewinne 2 Crew-Duelle', need: 2, squad: true }, { id: 'islands', text: 'Entdecke eine neue Insel', need: 1 }
+    ],
+    weekId(d) {
+      d = new Date(d || Date.now()); const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+      const day = t.getUTCDay() || 7; t.setUTCDate(t.getUTCDate() + 4 - day);
+      const y = new Date(Date.UTC(t.getUTCFullYear(), 0, 1));
+      return t.getUTCFullYear() + '-W' + String(Math.ceil(((t - y) / 864e5 + 1) / 7)).padStart(2, '0');
+    },
+    weekVals(profile) {
+      const v = GL.meta.progressValues(profile);
+      return { runs: v.runs, wins: v.wins, bosses: v.bosses, hunted: v.hunted, kos: GL.meta.lifeKos(profile), daily: (profile.counts && profile.counts.daily) || 0, duels: v.duels, islands: v.islands };
+    },
+    weekly(profile) {
+      const id = GL.meta.weekId();
+      if (!profile.week || profile.week.id !== id) {
+        let h = 0; for (const ch of id) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+        const pool = GL.meta.WEEK_TASKS.filter(t => !t.squad || GL.meta.squadUnlocked(profile));
+        const pick = [];
+        while (pick.length < 3 && pool.length) { pick.push(pool.splice(h % pool.length, 1)[0].id); h = (h * 1103515245 + 12345) >>> 0; }
+        profile.week = { id, tasks: pick, base: GL.meta.weekVals(profile), claimed: false };
+      }
+      const now = GL.meta.weekVals(profile);
+      const tasks = profile.week.tasks.map(tid => { const t = GL.meta.WEEK_TASKS.find(x => x.id === tid); const have = Math.max(0, (now[tid] || 0) - (profile.week.base[tid] || 0)); return Object.assign({}, t, { have: Math.min(have, t.need), done: have >= t.need }); });
+      return { id: profile.week.id, tasks, done: tasks.every(t => t.done), claimed: profile.week.claimed };
+    },
+    weeklyClaim(profile) {
+      const w = GL.meta.weekly(profile);
+      if (!w.done || w.claimed) return null;
+      profile.week.claimed = true;
+      profile.berry = (profile.berry || 0) + 150;
+      profile.shards = (profile.shards || 0) + 3;
+      const gear = GL.cgear ? GL.cgear.roll({ r: 2, name: 'Wochenheld', seaName: 'Wochen-Herausforderung', sea: 2 }) : null;
+      if (gear) GL.cgear.bag(profile).push(gear);
+      return { berry: 150, shards: 3, gear };
+    },
+
     // Fortschritt zu einer Freischaltung, z. B. { have: 1, need: 3 }
     progress(profile, u) {
       const w = u.when;
