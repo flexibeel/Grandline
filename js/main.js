@@ -819,6 +819,14 @@
       }
       case 'cg-off': GL.cgear.unequip(profile, el.dataset.id, el.dataset.slot); saveProfile(); closePop(); ui.lastStage = null; draw(); break;
       case 'cg-item': { const it = GL.cgear.bag(profile).find(x => x.uid === el.dataset.uid); if (it) openGearPop(GL.ui.gearView(it, true, profile)); break; }
+      case 'cg-reroll': {
+        if (GL.cgear.reroll(profile, el.dataset.uid)) {
+          saveProfile(); ui.lastStage = null; draw();
+          const it = GL.cgear.bag(profile).find(x => x.uid === el.dataset.uid);
+          if (it) openGearPop(GL.ui.gearView(it, true, profile));
+        }
+        break;
+      }
       case 'cg-scrap': {
         const b = GL.cgear.scrap(profile, el.dataset.uid);
         if (b) { saveProfile(); closePop(); ui.lastStage = null; draw(); toast(`<i>${GL.sprites.coin()}</i><span><b>Zerlegt</b>+${b} Berry</span>`); }

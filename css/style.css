@@ -3658,3 +3658,5 @@ body.cg-dragging { user-select: none; }
 .mp-chance > * { position: relative; z-index: 1; } .mp-chance i { position: absolute; left: 0; top: 0; bottom: 0; z-index: 0; opacity: .3; }
 .mp-chance.ch-gut i { background: #3f8a52; } .mp-chance.ch-offen i { background: #e0a030; } .mp-chance.ch-schwer i { background: #c2412f; }
 .match-pop .sq-row { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; } .match-pop .sq-u { min-width: 0; padding: 4px 2px; } .match-pop .sq-name { font-size: .7rem; }
+.cg-foot { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.cg-shards { display: block; margin-top: 6px; font-size: .72rem; color: #5b7ea3; }

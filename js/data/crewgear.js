@@ -54,5 +54,9 @@ GL.data.crewGear = {
   weights: [50, 32, 14, 4],           // gewöhnlich, selten, episch, legendär
   bagMax: 40,
   caps: { crit: 0.3, dodge: 0.2 },    // Obergrenzen pro Figur
-  scrap: [6, 14, 35, 90]              // Berry beim Zerlegen
+  scrap: [6, 14, 35, 90],             // Berry beim Zerlegen
+  // Meersplitter: aus der Endlos-Fahrt (pro geschaffte Runde Meer+1 Stück) und vom Zerlegen seltener Teile.
+  // Damit lassen sich Zusatzwerte neu würfeln (Seltenheit, Teil und Hauptwert bleiben)
+  shardScrap: [0, 0, 1, 3],
+  rerollCost: [1, 2, 4, 7]
 };

@@ -1071,6 +1071,8 @@ window.GL = window.GL || {};
         const cgNew = ui.profile && ui.lastBerry != null && GL.cgear ? (ui.profile.lastGear || []).map(uid => GL.cgear.bag(ui.profile).find(x => x.uid === uid)).filter(Boolean) : [];
         const cgHtml = cgNew.length ? `<div class="trophy-sum cg-sum"><span class="event-kicker">Beute für deine Stammcrew</span>
           ${cgNew.map(it => `<span class="trophy-chip cr-${GL.cgear.RID[it.r]}">${cgArt(it)} ${esc(GL.cgear.name(it))}</span>`).join('')}</div>` : '';
+        const shardHtml = run.endlessSea != null && ui.lastBerry != null ? `<div class="trophy-sum"><span class="event-kicker">Endlos-Fahrt · ${esc((GL.data.islands[run.endlessSea] || {}).name || '')}</span>
+          <span>${run.loop || 0} ${run.loop === 1 ? 'Runde' : 'Runden'} geschafft${ui.profile && ui.profile.lastShards ? ` · <b>+${ui.profile.lastShards} 🔹 Meersplitter</b> zum Neu-Würfeln von Ausrüstung` : ''}</span></div>` : '';
         const tro = (run.trophies || []).map(id => (GL.data.artifacts || []).find(a => a.id === id)).filter(Boolean);
         const troHtml = tro.length ? `<div class="trophy-sum"><span class="event-kicker">Neu in der Schatzkammer</span>
           ${tro.map(a => `<span class="trophy-chip" title="${a.text.replace('{v}', '…')}">${artIcon(a)} ${a.name}</span>`).join('')}</div>` : '';
@@ -1082,7 +1084,7 @@ window.GL = window.GL || {};
         const endlessHtml = canEndless ? `<div class="endless-box"><span class="event-kicker">Endlos-Modus</span>
           <b>Die Grand Line ist bezwungen${run.loop ? ` – zum ${run.loop + 1}. Mal` : ''}!</b>
           <span>Weitersegeln? Deine Crew bleibt, die Gegner werden mit jeder Runde stärker. Alles bisher Erreichte ist schon gutgeschrieben.</span></div>` : '';
-        return `${head}${duelHtml}${endlessHtml}${record}${berry}${cgHtml}${troHtml}${itemSum}${rankHtml}${heatUp}<div class="end-actions dock">${canEndless ? `<button class="btn" data-act="endless">Weitersegeln ⚓</button>` : ''}<button class="btn${canEndless ? ' ghost' : ''}" data-act="again">${run.daily ? 'Neuer Run' : run.duel ? 'Normaler Run' : 'Nochmal!'} ${keyHint('Leertaste')}</button>
+        return `${head}${duelHtml}${endlessHtml}${record}${berry}${shardHtml}${cgHtml}${troHtml}${itemSum}${rankHtml}${heatUp}<div class="end-actions dock">${canEndless ? `<button class="btn" data-act="endless">Weitersegeln ⚓</button>` : ''}<button class="btn${canEndless ? ' ghost' : ''}" data-act="again">${run.daily ? 'Neuer Run' : run.duel ? 'Normaler Run' : 'Nochmal!'} ${keyHint('Leertaste')}</button>
           <button class="btn ghost" data-act="hq">Hauptquartier ${keyHint('H')}</button></div>`;
       }
     }
@@ -1242,7 +1244,7 @@ window.GL = window.GL || {};
       }).join('')}</span></div>`).join('');
     const list = bag.slice().sort((a, b) => b.r - a.r || GL.cgear.power(b) - GL.cgear.power(a));
     return `<div class="cg-panel">
-      <div class="cg-head"><b>Ausrüstung</b><small>${bag.length}/${GL.data.crewGear.bagMax} in der Tasche</small></div>
+      <div class="cg-head"><b>Ausrüstung</b><small>${bag.length}/${GL.data.crewGear.bagMax} in der Tasche · 🔹 ${profile.shards || 0}</small></div>
       ${bag.length ? '<p class="cg-hint">Teil auf einen passenden Platz ziehen oder den Platz antippen.</p>' : ''}
       ${rows}
       ${list.length ? `<div class="cg-bag">${GL.data.crewGear.slots.map(sl => { const grp = list.filter(it => GL.cgear.slotOf(it) === sl.id); return grp.length ? `<div class="cg-grp"><small class="cg-grp-t">${CG_ICON[sl.id]} ${sl.id === 'trophae' ? 'Trophäen' : sl.id === 'waffe' ? 'Waffen' : sl.name} <em>${grp.length}</em></small><div class="cg-grp-items">${grp.map(it => `<span class="cg-bagit${fresh.includes(it.uid) ? ' new' : ''}${GL.cgear.wornBy(profile, it.uid) ? ' worn' : ''}">${cgChip(it, 'cg-item', `data-uid="${it.uid}"`)}</span>`).join('')}</div></div>` : ''; }).join('')}</div>`
@@ -1268,8 +1270,12 @@ window.GL = window.GL || {};
   // Fenster: ein Teil ansehen (eigenes: zerlegen; fremdes: nur ansehen)
   function gearView(it, own, profile) {
     const by = own && GL.cgear.wornBy(profile, it.uid);
-    const foot = own ? (by ? `<small class="muted">Angelegt bei ${esc(by === 'self' ? (profile.nickname || 'dir') : (crewData(by) || {}).name || '')}</small>`
-      : `<button class="btn mini ghost danger-btn" data-act="cg-scrap" data-uid="${it.uid}">Zerlegen (+${GL.data.crewGear.scrap[it.r]} Berry)</button>`) : '';
+    const C = GL.data.crewGear, cost = C.rerollCost[it.r] || 1, sh = profile.shards || 0;
+    const extra = Object.keys(it.a || {}).filter(k => k !== it.m).length;
+    const rr = own && extra ? `<button class="btn mini" data-act="cg-reroll" data-uid="${it.uid}"${sh < cost ? ' disabled' : ''}>🔹 Werte neu würfeln (${cost})</button>` : '';
+    const foot = own ? `<div class="cg-foot">${rr}${by ? `<small class="muted">Angelegt bei ${esc(by === 'self' ? (profile.nickname || 'dir') : (crewData(by) || {}).name || '')}</small>`
+      : `<button class="btn mini ghost danger-btn" data-act="cg-scrap" data-uid="${it.uid}">Zerlegen (+${C.scrap[it.r]} Berry${C.shardScrap[it.r] ? `, +${C.shardScrap[it.r]} 🔹` : ''})</button>`}</div>
+      <small class="cg-shards">🔹 ${sh} Meersplitter · gibt es in der Endlos-Fahrt und beim Zerlegen seltener Teile</small>` : '';
     return `<div class="fpop-card cg-pop" role="dialog"><span class="fpop-kicker">Ausrüstung</span>${cgCard(it, foot)}
       <div class="fpop-btns"><button class="btn ghost" data-act="pop-close">Schließen</button></div></div>`;
   }

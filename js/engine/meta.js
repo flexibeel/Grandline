@@ -629,6 +629,11 @@ window.GL = window.GL || {};
         if (run.endlessSea > rec.sea || (run.endlessSea === rec.sea && (run.loop || 0) > rec.loops)) profile.endlessRec = { sea: run.endlessSea, loops: run.loop || 0 };
         profile.endlessSeaBest = profile.endlessSeaBest || {};
         profile.endlessSeaBest[run.endlessSea] = Math.max(profile.endlessSeaBest[run.endlessSea] || 0, run.loop || 0);
+        // Meersplitter: pro geschaffter Runde so viele wie das Meer tief ist (nur einmal pro Runde gutgeschrieben)
+        const paid = profile.shardPaid && profile.shardPaid.seed === run.seed ? profile.shardPaid.n : 0;
+        const got = Math.max(0, (run.loop || 0) - paid) * (run.endlessSea + 1);
+        profile.shards = (profile.shards || 0) + got; profile.lastShards = got;
+        profile.shardPaid = { seed: run.seed, n: run.loop || 0 };
       }
       const berry = GL.meta.berryFor(profile, eff);
       profile.berry += berry;

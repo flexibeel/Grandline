@@ -110,9 +110,26 @@ window.GL = window.GL || {};
     const B = bag(profile), i = B.findIndex(x => x.uid === uid);
     if (i < 0 || wornBy(profile, uid)) return 0;
     const berry = D().scrap[B[i].r] || 0;
+    profile.shards = (profile.shards || 0) + (D().shardScrap[B[i].r] || 0);
     B.splice(i, 1);
     profile.berry = (profile.berry || 0) + berry;
     return berry;
+  }
+  // Zusatzwerte neu würfeln (kostet Meersplitter). Hauptwert und Trophäen-Fähigkeit bleiben.
+  function reroll(profile, uid) {
+    const it = bag(profile).find(x => x.uid === uid);
+    if (!it) return false;
+    const cost = D().rerollCost[it.r] || 1;
+    if ((profile.shards || 0) < cost) return false;
+    profile.shards -= cost;
+    const C = D(), keep = it.m ? { [it.m]: it.a[it.m] } : {};
+    const n = Object.keys(it.a).length - Object.keys(keep).length;
+    const pool = Object.keys(C.affixes).filter(k => !(k in keep));
+    const q = (1 + C.perSea * 1.5 + 0.15 * ((it.f && it.f.loop) || 0)) * C.rarityMult[it.r];
+    const a = Object.assign({}, keep);
+    for (let i = 0; i < n && pool.length; i++) { const k = pool.splice(Math.floor(Math.random() * pool.length), 1)[0]; const F = C.affixes[k]; a[k] = round(k, between(F.min, F.max) * q); }
+    it.a = a; it.rolls = (it.rolls || 0) + 1;
+    return true;
   }
   // Werte aller angelegten Teile einer Figur zusammenzählen
   function totals(profile, crewId) {
@@ -169,5 +186,5 @@ window.GL = window.GL || {};
     return got;
   }
 
-  GL.cgear = { trophy, perk, migrate, roll, name, lines, power, slotOf, from, base, bag, worn, wornBy, equip, unequip, scrap, totals, wornList, drops, RNAME, RID };
+  GL.cgear = { reroll, trophy, perk, migrate, roll, name, lines, power, slotOf, from, base, bag, worn, wornBy, equip, unequip, scrap, totals, wornList, drops, RNAME, RID };
 })();
