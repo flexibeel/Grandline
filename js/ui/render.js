@@ -2491,12 +2491,6 @@ window.GL = window.GL || {};
       const t = profile.hunt && GL.data.raids.find(r => r.id === profile.hunt);
       tiles.push(`<button class="ad-tile" data-act="hunt-open"><i class="ad-ico">${t ? GL.sprites.render(t) : '🎯'}</i><b>Raid-Ziel</b><small>${t ? esc(t.name.replace(/^Admiral |^Rothaar /, '')) : 'keins'}</small></button>`);
     }
-    if (profile.nickname && (profile.stats.runs || 0) >= 1) {
-      const ready = GL.meta.dboxReady(profile), st = profile.dbox ? profile.dbox.streak || 1 : 0;
-      tiles.push(`<button class="ad-tile${ready ? ' hot' : ' done'}" data-act="dbox"><i class="ad-ico">${PX_CHEST(ready)}</i><b>Tageskiste</b><small>${ready ? 'Öffnen!' : `✓ Tag ${((st - 1) % 7) + 1}/7`}</small></button>`);
-      const w = GL.meta.weekly(profile), n = w.tasks.filter(t => t.done).length;
-      tiles.push(`<button class="ad-tile${w.done && !w.claimed ? ' hot' : w.claimed ? ' done' : ''}" data-act="week-open"><i class="ad-ico">${PX_STAR}</i><b>Woche</b><small>${w.claimed ? '✓ geschafft' : w.done ? 'Abholen!' : `${n}/3`}</small></button>`);
-    }
     return tiles.length ? `<div class="action-dock">${tiles.join('')}</div>` : '';
   }
   function endlessPop(profile) {
