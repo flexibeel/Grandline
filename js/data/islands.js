@@ -47,7 +47,26 @@ GL.data.islands = [
         text: 'Ein Wüstenkönigreich am Rand des Bürgerkriegs.', places: ['Sandora-Wüste', 'Rainbase'] },
       { id: 'skypiea', name: 'Skypiea', boss: 'enel', lair: 'Upper Yard', villains: ['ohm'],
         text: 'Eine Insel über den Wolken, beherrscht von einem selbsternannten Gott.', places: ['Weiße See', 'Angel Beach'] }
-    ] },
+    ],
+    // Zweite Route für das zweite Meer (ab Rang 12, feature 'route2'): zehntausend Meter unter dem Meer
+    alt: { id: 'fischmenschen', name: 'Fischmenscheninsel', feature: 'route2', bosses: ['hody', 'vander'],
+      tagline: 'Zehntausend Meter tief, unter einer Blase aus Licht. Nicht jeder hier mag Menschen.',
+      small: [
+        { id: 'tiefsee', name: 'Tiefsee', villain: 'hyouzou', lair: 'Wrack im Dunkeln',
+          text: 'Je tiefer das Schiff sinkt, desto dunkler wird es. Ein Schwertkämpfer wartet im Wrack.', places: ['Laternenfische', 'Sinkende Blase'] },
+        { id: 'korallenhuegel', name: 'Korallenhügel', villain: 'zeo', lair: 'Korallentor',
+          text: 'Bunte Korallen und Meerjungfrauen-Cafés. Irgendwer ist hier unsichtbar.', places: ['Blasenstraße', 'Meerjungfrauen-Café'] },
+        { id: 'fischmenschen-viertel', name: 'Fischmenschen-Viertel', villain: 'daruma', lair: 'Verlassene Gasse',
+          text: 'Ein vergessenes Viertel am Rand der Insel. Hier gräbt sich einer durch den Boden.', places: ['Muschelmarkt', 'Alte Brunnen'] },
+        { id: 'meerwald', name: 'Meereswald', villain: 'dosun', lair: 'Lichtung der Wurzeln',
+          text: 'Ein stiller Wald aus Licht und Seetang. Ein Hammerhai bewacht den Weg.', places: ['Wurzelgrab', 'Schiffsfriedhof'] }
+      ],
+      big: [
+        { id: 'gyoncorde', name: 'Gyoncorde-Platz', boss: 'hody', lair: 'Platz vor dem Palast', villains: ['ikaros', 'dosun'],
+          text: 'Der große Platz der Insel. Ein Hai mit Hass im Herzen will alles übernehmen.', places: ['Fischmenschen-Straße', 'Tribünen'] },
+        { id: 'ryugu', name: 'Ryugu-Palast', boss: 'vander', lair: 'Über dem Palast', villains: ['ikaros', 'zeo'],
+          text: 'Der Palast des Königs in einer Riesenblase. Über ihm schwebt ein ganzes Schiff.', places: ['Muschelhalle', 'Palastgarten'] }
+      ] } },
 
   { id: 'enies-lobby', name: 'Enies Lobby', bosses: ['rob-lucci', 'kaku'],
     tagline: 'Die Justizinsel der Weltregierung. Ab hier gibt es kein Zurück.',
@@ -69,7 +88,7 @@ GL.data.islands = [
     ],
     // Zweite Route für das dritte Meer (ab Rang 8, siehe features.js): Beim Kurs setzen steht dann
     // eine Insel aus jeder Route zur Wahl. Die Wahl entscheidet, welches Meer man befährt.
-    alt: { id: 'thriller-bark', name: 'Thriller Bark', bosses: ['moria', 'kuma'],
+    alt: { id: 'thriller-bark', name: 'Thriller Bark', feature: 'route', bosses: ['moria', 'kuma'],
       tagline: 'Nebel, Zombies und ein Schatten-Dieb. Danach wartet der Archipel vor der Neuen Welt.',
       small: [
         { id: 'florian', name: 'Florian-Dreieck', villain: 'absalom', lair: 'Nebelwand',
@@ -90,6 +109,9 @@ GL.data.islands = [
 ];
 // Daten eines Meeres im Run (berücksichtigt die gewählte Route)
 GL.data.seaOf = (run, idx) => { const S = GL.data.islands[idx]; return S && S.alt && run && run.alt && run.alt[idx] ? S.alt : S; };
+// Ist die zweite Route dieses Meeres im Run offen? Meer 2 (Thriller Bark) = run.altOpen, Meer 1 (Fischmenscheninsel) = run.altOpen1.
+// Alte Spielstände kennen altOpen1 nicht -> false, damit ihre Würfe gleich bleiben.
+GL.data.altOpen = (run, idx) => { const S = GL.data.islands[idx]; if (!S || !S.alt || !run) return false; return S.alt.feature === 'route2' ? !!run.altOpen1 : !!run.altOpen; };
 
 // Texte für die Routen-Knoten auf der Karte
 GL.data.nodes = {

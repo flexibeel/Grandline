@@ -991,7 +991,7 @@ window.GL = window.GL || {};
         const sea = GL.run.island(run);
         const ch = GL.run.chapterIdx(run);
         const baseSea = GL.data.islands[GL.run.islandIndex(run)];
-        const twoRoutes = ch === 0 && baseSea.alt && run.altOpen;
+        const twoRoutes = ch === 0 && GL.data.altOpen(run, GL.run.islandIndex(run));
         const findIsl = id => (ch === 0 ? sea.small : sea.big).find(x => x.id === id) || (twoRoutes ? baseSea.alt.small.find(x => x.id === id) || baseSea.small.find(x => x.id === id) : null);
         const opts = (run.courseOpts || []).map(findIsl).filter(Boolean);
         const cards = opts.map((isl, i) => {
@@ -1010,7 +1010,7 @@ window.GL = window.GL || {};
               <small>schwach gegen ${badge(info.counter)}${bounty ? ` · Kopfgeld ${bounty}` : ''}</small></span></span>
           </button>`;
         }).join('');
-        return `${noticeBox(run)}<span class="event-kicker">${twoRoutes ? 'Drittes Meer · Zwei Routen' : sea.name + ' · ' + (ch === 0 ? 'Erste Insel' : 'Zweite Insel')}</span>
+        return `${noticeBox(run)}<span class="event-kicker">${twoRoutes ? (GL.run.islandIndex(run) === 1 ? 'Zweites Meer' : 'Drittes Meer') + ' · Zwei Routen' : sea.name + ' · ' + (ch === 0 ? 'Erste Insel' : 'Zweite Insel')}</span>
           <h2>${ch === 0 ? 'Welche Insel steuerst du an?' : 'Kurs auf den Boss des Meeres'}</h2>
           <p class="hint">${ch === 0 ? 'Jede Insel hat ihre eigenen Orte. Am Ende wartet ihr Bösewicht: Sieg bringt Kopfgeld, einen Schatz und eine Verschnaufpause.'
             : 'Auf der großen Insel wartet der Boss dieses Meeres. Wähle den Gegner, gegen den deine Crew die besseren Karten hat.'}</p>
@@ -2403,7 +2403,7 @@ window.GL = window.GL || {};
   // Kapitel-Fortschritt: pro Meer alle Bösewichte + Bosse über mehrere Runs besiegen
   function chapterPanel(profile) {
     const seas = GL.data.islands.map((isl, i) => [isl, i]);
-    if (GL.meta.featureOpen(profile, 'route')) GL.data.islands.forEach(isl => { if (isl.alt) seas.push([isl.alt, isl.alt]); });
+    GL.data.islands.forEach(isl => { if (isl.alt && GL.meta.featureOpen(profile, isl.alt.feature || 'route')) seas.push([isl.alt, isl.alt]); });
     const rows = seas.map(([isl, i]) => {
       const cp = GL.meta.chapterProgress(profile, i);
       return `<div class="chapter-row${cp.complete ? ' done' : ''}">
@@ -3197,7 +3197,7 @@ window.GL = window.GL || {};
       if (run.phase === 'course' && run.step % GL.config.stepsPerIsland === 0 && ui.shownIsland !== isl.id + run.seed) {
         ui.shownIsland = isl.id + run.seed; ui.sceneAt = Date.now();
         const bs = GL.data.islands[GL.run.islandIndex(run)];
-        showScene(bs.alt && run.altOpen ? { id: isl.id, name: bs.name + ' oder ' + bs.alt.name, tagline: 'Zwei Routen. Du entscheidest, wohin die Reise geht.' } : isl, GL.run.islandIndex(run));
+        showScene(GL.data.altOpen(run, GL.run.islandIndex(run)) ? { id: isl.id, name: bs.name + ' oder ' + bs.alt.name, tagline: 'Zwei Routen. Du entscheidest, wohin die Reise geht.' } : isl, GL.run.islandIndex(run));
       }
       const stopKey = run.seed + ':' + run.step;
       if (run.phase === 'map' && ui.shownStop !== stopKey) {

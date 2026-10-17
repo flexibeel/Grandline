@@ -1,6 +1,11 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-18g', date: '18.10.', title: 'Fischmenscheninsel', items: [
+    'Neue Route ab Rang 12: Im zweiten Meer kannst du zur Fischmenscheninsel abtauchen, zehntausend Meter unter dem Meer',
+    'Zwei neue Bosse: Hody Jones auf dem Gyoncorde-Platz und Vander Decken IX über dem Ryugu-Palast',
+    'Fünf neue Kopfgeld-Ziele aus Hodys Bande: Hyouzou, Zeo, Daruma, Dosun und Ikaros Much',
+    'Wer Hody zweimal besiegt, kann ihn anheuern. Dazu zwei neue Duos mit Arlong und Jinbei' ] },
   { v: '2026-10-18f', date: '18.10.', title: 'Ruhiger Hafen', items: [
     'Tageskiste und Wochen-Aufgaben sind wieder raus: Grand Line bleibt ein gemütliches Spiel ohne Pflichten',
     'Erste Runs: kleine Hinweis-Sprechblasen erklären jeden neuen Bildschirm einmal, mit ✓ weg',

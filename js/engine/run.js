@@ -55,7 +55,7 @@ window.GL = window.GL || {};
     const S = GL.data.seaOf(run, si);
     const list = chapterIdx(run) === 0 ? S.small : S.big;
     // Zwei Routen offen: am Anfang des Meeres je eine Insel aus beiden Routen
-    if (chapterIdx(run) === 0 && base.alt && run.altOpen) {
+    if (chapterIdx(run) === 0 && GL.data.altOpen(run, si)) {
       run.courseOpts = [R.sample(run, base.small.map(x => x.id), 1)[0], R.sample(run, base.alt.small.map(x => x.id), 1)[0]];
     } else run.courseOpts = list.length > 2 ? R.sample(run, list.map(x => x.id), 2) : list.map(x => x.id);
     run.phase = 'course';
@@ -1006,6 +1006,7 @@ window.GL = window.GL || {};
         epics: (p.epics || []).slice(),
         hunt: p.hunt || null,
         altOpen: !!p.altOpen,
+        altOpen1: !!p.altOpen1,
         endlessSea: Number.isInteger(p.endlessSea) && p.endlessSea >= 0 && p.endlessSea < GL.data.islands.length ? p.endlessSea : null,
         alt: {},
         loot: [],
@@ -1013,7 +1014,7 @@ window.GL = window.GL || {};
         // GL.run.replay(run.seed, run.actions, run.start)
         start: {
           unlocked: (p.unlocked || []).slice(), epics: (p.epics || []).slice(),
-          upgrades: Object.assign({}, up), gear: Array.isArray(p.gear) ? p.gear.slice() : [], heat: p.heat || 0, hunt: p.hunt || null, altOpen: !!p.altOpen,
+          upgrades: Object.assign({}, up), gear: Array.isArray(p.gear) ? p.gear.slice() : [], heat: p.heat || 0, hunt: p.hunt || null, altOpen: !!p.altOpen, altOpen1: !!p.altOpen1,
           endlessSea: Number.isInteger(p.endlessSea) ? p.endlessSea : null,
           arts: (p.arts || []).map(a => ({ id: a.id, lvl: a.lvl })),
           items: (p.items || []).map(x => ({ uid: x.uid, id: x.id, r: x.r, lvl: x.lvl || 0 }))

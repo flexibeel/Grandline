@@ -76,6 +76,18 @@ GL.data.abilities = {
   kaku:        { name: 'Giraffen-Klinge', text: '30 % Krit-Chance. Seine Treffer schwächen: Ziel nimmt 3 Runden 25 % mehr Schaden.',
                  mods: [{ scope: 'char:kaku', crit: 0.3 }], status: { key: 'weak', rounds: 3, when: 'hit', target: 'target' } },
 
+  // Fischmenscheninsel
+  hody:    { name: 'Energie-Steroide',  text: '+20 % Schaden und 20 % Krit-Chance. Seine Bisse lassen bluten (2 Schaden pro Runde, 3 Runden).',
+             mods: [{ scope: 'char:hody', dmgPct: 0.2, crit: 0.2 }], status: { key: 'bleed', rounds: 3, when: 'hit', target: 'target', value: 2 } },
+  vander:  { name: 'Mato-Mato-Frucht',  kind: 'chain', value: 0.4, text: 'Seine Würfe treffen immer: Sie springen weiter (40 % Schaden). Alle 3 Runden ist der Vorderste markiert (geschwächt).',
+             status: { key: 'weak', rounds: 2, when: 'every', n: 3, target: 'front' } },
+  hyouzou: { name: 'Gift-Klingen',      text: 'Acht Arme, acht Schwerter: Treffer vergiften (2 pro Runde, 3 Runden).',
+             status: { key: 'poison', rounds: 3, when: 'hit', target: 'target', value: 2, chance: 0.6 } },
+  zeo:     { name: 'Unsichtbar',        text: 'Weicht 25 % aller Angriffe aus.', mods: [{ scope: 'char:zeo', dodge: 0.25 }] },
+  daruma:  { name: 'Zahnreihen',        text: 'Gräbt sich heran und beißt: Treffer lassen bluten (2 pro Runde, 2 Runden).',
+             status: { key: 'bleed', rounds: 2, when: 'hit', target: 'target', value: 2 } },
+  dosun:   { name: 'Hammerhai-Schädel', text: 'Erleidet 2 weniger Schaden pro Treffer.', mods: [{ scope: 'char:dosun', armor: 2 }] },
+  ikaros:  { name: 'Zehn Arme',         kind: 'double', text: 'Greift zweimal pro Runde an.' },
 
   // Thriller Bark
   moria:   { name: 'Schattenraub',      kind: 'curse', value: 0.18, text: 'Zu Kampfbeginn stiehlt er dem stärksten Gegner 18 % des Lebens. Seine Schatten machen Angst (Furcht, 2 Runden).',

@@ -67,6 +67,7 @@ GL.data.unlocks = [
   { unlock: 'hawkins', when: { daily: 7 },                             text: 'Spiele 7 Tageskarten.' },
   { unlock: 'apoo',    when: { endless: 3 },                           text: 'Schaffe 3 Runden in einer Endlos-Fahrt.' },
   // Thriller Bark
+  { unlock: 'hody',    when: { defeated: 'hody', times: 2 },           text: 'Besiege Hody Jones 2-mal (Fischmenscheninsel).' },
   { unlock: 'moria',   when: { defeated: 'moria', times: 2 },          text: 'Besiege Gecko Moria 2-mal.' },
   { unlock: 'absalom', when: { defeated: 'absalom', times: 2 },        text: 'Besiege Absalom 2-mal (Florian-Dreieck).' },
   { unlock: 'hogback', when: { defeated: 'hogback', times: 2 },        text: 'Besiege Dr. Hogback 2-mal (Hogbacks Labor).' }

@@ -477,6 +477,7 @@
       arts: GL.meta.takeArtifacts(profile), self: selfNow(), items: GL.meta.takeItems(profile),
       hunt: GL.meta.featureOpen(profile, 'jagd') ? (profile.hunt || null) : null,
       altOpen: GL.meta.featureOpen(profile, 'route'),
+      altOpen1: GL.meta.featureOpen(profile, 'route2'),
       endlessSea: Number.isInteger(endlessSea) && GL.meta.seasCleared(profile).includes(endlessSea) ? endlessSea : undefined
     });
     ui.newBest = false;

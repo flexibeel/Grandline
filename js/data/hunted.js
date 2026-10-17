@@ -30,6 +30,17 @@ GL.data.hunted = [
     look: { hair: '#c0392b', skin: '#f2c9a0', shirt: '#4a7a3a', pants: '#2a2a2a', hat: 'cap', hatColor: '#d0d0d0' } },
   { id: 'bellamy', name: 'Bellamy', type: 'kraft', island: 1, hpX: 2.0, atkX: 1.05, spd: 7, bounty: 55,
     look: { hair: '#e8d070', skin: '#e0b088', shirt: '#e0e0e0', pants: '#2a3a5a' } },
+  // Fischmenscheninsel (zweite Route des zweiten Meeres)
+  { id: 'hyouzou', name: 'Hyouzou', type: 'klinge', island: 1, sea: 'fischmenschen', hpX: 1.9, atkX: 1.0, spd: 7, bounty: 30,
+    look: { hair: '#2a2a3a', skin: '#e8a090', shirt: '#4a3a5a', pants: '#2a2a3a', mask: 'octo' } },
+  { id: 'zeo', name: 'Zeo', type: 'technik', island: 1, sea: 'fischmenschen', hpX: 1.8, atkX: 0.95, spd: 7, bounty: 28,
+    look: { hair: '#3a5a3a', skin: '#8ab08a', shirt: '#e8e0c8', pants: '#3a4a3a' } },
+  { id: 'daruma', name: 'Daruma', type: 'kraft', island: 1, sea: 'fischmenschen', hpX: 2.0, atkX: 0.95, spd: 5, bounty: 30,
+    look: { hair: '#2a2a2a', skin: '#8a8aa8', shirt: '#c0392b', pants: '#2a2a3a' } },
+  { id: 'dosun', name: 'Dosun', type: 'kraft', island: 1, sea: 'fischmenschen', hpX: 2.3, atkX: 1.0, spd: 4, bounty: 35,
+    look: { hair: '#2a2a2a', skin: '#7a90a8', shirt: '#e8d070', pants: '#3a3a4a', mask: 'shark' } },
+  { id: 'ikaros', name: 'Ikaros Much', type: 'technik', island: 1, sea: 'fischmenschen', hpX: 2.1, atkX: 1.0, spd: 6, bounty: 40,
+    look: { hair: '#f0f0f0', skin: '#e8d8e8', shirt: '#5a3a7a', pants: '#2a2a3a' } },
   // Enies Lobby
   { id: 'fukuro', name: 'Fukuro', type: 'kraft', island: 2, hpX: 2.5, atkX: 0.9, spd: 5, bounty: 70,
     look: { hair: '#2a2a2a', skin: '#f2c9a0', shirt: '#2a2a2a', pants: '#2a2a2a' } },

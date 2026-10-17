@@ -118,6 +118,8 @@ GL.data.crew = [
     look: { hair: '#1a1a1a', skin: '#7aa0c0', shirt: '#2a2a2a', pants: '#2a2a2a', hat: 'band', hatColor: '#1a1a1a' } },
   { id: 'chu',       name: 'Chu',         type: 'technik', role: 'kaempfer', faction: 'fischmensch', hp: 25, atk: 9, spd: 7, locked: true,
     look: { hair: '#2a2a2a', skin: '#8ab0c8', shirt: '#e86a3a', pants: '#3a3a5a', nose: '#e86a7a' } },
+  { id: 'hody',      name: 'Hody Jones',  type: 'kraft',   role: 'kaempfer', faction: 'fischmensch', hp: 30, atk: 8, spd: 5, locked: true,
+    look: { hair: '#1a1a2a', skin: '#7aa0c8', shirt: '#2a2a3a', pants: '#5a4a7a', mask: 'shark' } },
   // Revolutionsarmee
   { id: 'sabo',      name: 'Sabo',        type: 'kraft',   role: 'kaempfer', faction: 'revolution', hp: 30, atk: 9,  spd: 7, locked: true,
     look: { hair: '#f0d070', skin: '#f2c9a0', shirt: '#2a4a8a', pants: '#e8e8e8', hat: 'tophat', hatColor: '#2a2a3a' } },

@@ -88,6 +88,11 @@ GL.data.bosses = [
     look: { hair: '#222222', skin: '#f2c9a0', shirt: '#e8e8e8', pants: '#222222', hat: 'cap', hatColor: '#222222', mask: 'leopard' } },
   { id: 'kaku',      name: 'Kaku',      type: 'klinge',  hp: 160, atk: 17, spd: 7, escort: 2,
     look: { hair: '#8a5a2a', skin: '#f2c9a0', shirt: '#222222', pants: '#222222', hat: 'cap', hatColor: '#f0f0f0', mask: 'giraffe' } },
+  // Fischmenscheninsel (zweite Route des zweiten Meeres)
+  { id: 'hody',      name: 'Hody Jones', type: 'kraft',   hp: 112, atk: 14, spd: 6, escort: 2,
+    look: { hair: '#1a1a2a', skin: '#7aa0c8', shirt: '#2a2a3a', pants: '#5a4a7a', mask: 'shark' } },
+  { id: 'vander',    name: 'Vander Decken IX', type: 'technik', hp: 114, atk: 14, spd: 7, escort: 2,
+    look: { hair: '#d0d0d0', skin: '#8a9ac0', shirt: '#4a3a2a', pants: '#2a2a3a', hat: 'tricorn', hatColor: '#2a2a2a' } },
   // Thriller Bark (zweite Route des dritten Meeres)
   { id: 'moria',     name: 'Gecko Moria', type: 'technik', hp: 175, atk: 16, spd: 5, escort: 2,
     look: { hair: '#1a1a2a', skin: '#c8b8d8', shirt: '#2a1a3a', pants: '#2a1a3a', mask: 'bat' } },
