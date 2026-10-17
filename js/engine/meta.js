@@ -1,0 +1,250 @@
+// Dauerhafter Fortschritt über Runs hinweg (Profil).
+// Kein Zugriff auf Speicher oder Seite: main.js lädt und speichert das Profil.
+window.GL = window.GL || {};
+
+(function () {
+  const add = (list, id) => { if (id && !list.includes(id)) { list.push(id); return true; } return false; };
+
+  GL.meta = {
+    newProfile() {
+      return {
+        version: 1,
+        unlocked: [],      // freigeschaltete Figuren (Kapitäne)
+        epics: [],         // freigeschaltete epische Früchte
+        seen: { crew: [], bosses: [], fruits: [], relics: [] },
+        counts: {},        // z. B. { 'defeated:smoker': 2, 'reached:2': 1, win: 3 }
+        current: { seed: null, counted: [] },   // was im laufenden Run schon gezählt wurde
+        stats: { runs: 0, wins: 0, berryTotal: 0 },
+        berry: 0,          // Währung im Hauptquartier
+        upgrades: {},      // Werft-Stufen { rumpf: 2 }
+        gear: {},          // Lager: Anzahl je Ausrüstung { proviant: 2 }
+        loadout: [],       // was beim nächsten Run mitkommt
+        vault: {},         // Schatzkammer: Anzahl Funde je Artefakt { jitte: 2 } (Stufe = Anzahl, höchstens 5)
+        artLoadout: [],    // ausgerüstete Artefakte
+        rankXp: 0,         // Piratenrang (Account-Fortschritt)
+        heatMax: 0,        // höchste freigeschaltete Kopfgeld-Stufe
+        heat: 0            // gewählte Stufe für den nächsten Run
+      };
+    },
+
+    // Ältere Profile um neue Felder ergänzen
+    migrate(p) {
+      const fresh = GL.meta.newProfile();
+      Object.keys(fresh).forEach(k => { if (p[k] === undefined) p[k] = fresh[k]; });
+      Object.keys(fresh.stats).forEach(k => { if (p.stats[k] === undefined) p.stats[k] = fresh.stats[k]; });
+      return p;
+    },
+
+    // Berry für einen beendeten Run
+    berryFor(profile, run) {
+      const raids = (run.defeated || []).filter(id => GL.data.raids.some(r => r.id === id)).length;
+      const hunted = (run.defeated || []).filter(id => (GL.data.hunted || []).some(h => h.id === id)).length;
+      const base = run.step * 8 + run.bounties * 40 + raids * 40 + hunted * 12 + (run.phase === 'win' ? 120 : 0);
+      const heat = (run.heat || 0) * GL.config.heatBonus.berry;
+      // Rang-Bonus: jeder Piratenrang gibt dauerhaft +2 % Berry
+      const rankBonus = GL.meta.rankIndex(profile) * 0.02;
+      const artBonus = (run.arts || []).reduce((s, x) => {
+        const art = (GL.data.artifacts || []).find(t => t.id === x.id);
+        return s + (art && art.berry ? GL.run.artValue(art, x.lvl) : 0);
+      }, 0);
+      return Math.max(0, Math.round(base * (1 + GL.run.upgradeTotal(profile.upgrades, 'berry') + heat + rankBonus + artBonus)) + (run.berry || 0));
+    },
+
+    // ---------- Piratenrang ----------
+    rankIndex(profile) {
+      const R = GL.data.ranks;
+      let i = 0;
+      R.forEach((r, k) => { if (profile.rankXp >= r.xp) i = k; });
+      return i;
+    },
+
+    rankProgress(profile) {
+      const R = GL.data.ranks;
+      const i = GL.meta.rankIndex(profile);
+      const cur = R[i], next = R[i + 1];
+      if (!next) return { i, rank: cur, next: null, have: 1, need: 1 };
+      return { i, rank: cur, next, have: profile.rankXp - cur.xp, need: next.xp - cur.xp };
+    },
+
+    // Rang-Erfahrung für einen Run
+    rankXpFor(run) {
+      const raids = (run.defeated || []).filter(id => GL.data.raids.some(r => r.id === id)).length;
+      const hunted = (run.defeated || []).filter(id => (GL.data.hunted || []).some(h => h.id === id)).length;
+      const base = run.step * 3 + run.bounties * 15 + raids * 12 + hunted * 6 + (run.phase === 'win' ? 40 : 0);
+      return Math.round(base * (1 + (run.heat || 0) * 0.15));
+    },
+
+    // Rang-Erfahrung gutschreiben, Belohnungen verteilen. Gibt neue Ränge zurück.
+    addRankXp(profile, xp) {
+      const before = GL.meta.rankIndex(profile);
+      profile.rankXp += xp;
+      const after = GL.meta.rankIndex(profile);
+      const ups = [];
+      for (let k = before + 1; k <= after; k++) {
+        const r = GL.data.ranks[k];
+        if (r.reward.berry) profile.berry += r.reward.berry;
+        if (r.reward.gear) profile.gear[r.reward.gear] = (profile.gear[r.reward.gear] || 0) + 1;
+        ups.push(k);
+      }
+      return ups;
+    },
+
+    // ---------- Hauptquartier ----------
+    upgradeCost(profile, id) {
+      const u = GL.data.upgrades.find(x => x.id === id);
+      const lvl = profile.upgrades[id] || 0;
+      return lvl < u.costs.length ? u.costs[lvl] : null;
+    },
+
+    buyUpgrade(profile, id) {
+      const cost = GL.meta.upgradeCost(profile, id);
+      if (cost == null || profile.berry < cost) return false;
+      profile.berry -= cost;
+      profile.upgrades[id] = (profile.upgrades[id] || 0) + 1;
+      return true;
+    },
+
+    // Artefakt-Plätze: einer zu Beginn, dazu einer ab Rang 5, 9 und 13
+    artSlots(profile) {
+      return 1 + Math.floor(GL.meta.rankIndex(profile) / 4);
+    },
+
+    // Stufe aus der Anzahl der Funde: 1, 2, 4, 7, 11 Funde für Stufe 1 bis 5
+    artLevelFor(n) {
+      const need = GL.config.artLevels;
+      let lvl = 0;
+      need.forEach((x, k) => { if (n >= x) lvl = k + 1; });
+      return lvl;
+    },
+
+    artLevel(profile, id) {
+      return GL.meta.artLevelFor(profile.vault[id] || 0);
+    },
+
+    toggleArtifact(profile, id) {
+      const i = profile.artLoadout.indexOf(id);
+      if (i >= 0) { profile.artLoadout.splice(i, 1); return true; }
+      if (!(profile.vault[id] > 0) || profile.artLoadout.length >= GL.meta.artSlots(profile)) return false;
+      profile.artLoadout.push(id);
+      return true;
+    },
+
+    // Für GL.run.create: ausgerüstete Artefakte mit Stufe
+    takeArtifacts(profile) {
+      return profile.artLoadout.filter(id => profile.vault[id] > 0).slice(0, GL.meta.artSlots(profile))
+        .map(id => ({ id, lvl: GL.meta.artLevel(profile, id) }));
+    },
+
+    slots(profile) {
+      return 1 + GL.run.upgradeTotal(profile.upgrades, 'slots');
+    },
+
+    buyGear(profile, id) {
+      const g = GL.data.gear.find(x => x.id === id);
+      if (!g || profile.berry < g.cost) return false;
+      profile.berry -= g.cost;
+      profile.gear[id] = (profile.gear[id] || 0) + 1;
+      return true;
+    },
+
+    setHeat(profile, level) {
+      profile.heat = Math.max(0, Math.min(level, profile.heatMax));
+      return true;
+    },
+
+    toggleLoadout(profile, id) {
+      const i = profile.loadout.indexOf(id);
+      if (i >= 0) { profile.loadout.splice(i, 1); return true; }
+      if (!(profile.gear[id] > 0) || profile.loadout.length >= GL.meta.slots(profile)) return false;
+      profile.loadout.push(id);
+      return true;
+    },
+
+    // Beim Ablegen: Ausrüstung aus dem Lager nehmen. Gibt die Liste für GL.run.create zurück.
+    takeLoadout(profile) {
+      const used = profile.loadout.filter(id => profile.gear[id] > 0).slice(0, GL.meta.slots(profile));
+      used.forEach(id => { profile.gear[id]--; });
+      profile.loadout = profile.loadout.filter(id => profile.gear[id] > 0);
+      return used;
+    },
+
+    // Überträgt Entdeckungen aus dem laufenden Run ins Profil und prüft
+    // Freischaltungen. Gibt neu Freigeschaltetes zurück: [{ kind, id }]
+    update(profile, run) {
+      const news = [];
+      const seen = profile.seen;
+      run.crew.forEach(u => add(seen.crew, u.id));
+      (run.defeated || []).forEach(id => add(seen.bosses, id));
+      (run.eaten || []).forEach(id => add(seen.fruits, id));
+      (run.relics || []).forEach(x => add(seen.relics, x.id || x));
+      (run.epics || []).forEach(id => { if (add(profile.epics, id)) news.push({ kind: 'epic', id }); });
+
+      // Jedes Ereignis zählt nur einmal pro Run
+      if (profile.current.seed !== run.seed) profile.current = { seed: run.seed, counted: [] };
+      const counts = profile.counts;
+      const count = key => {
+        if (profile.current.counted.includes(key)) return false;
+        profile.current.counted.push(key);
+        counts[key] = (counts[key] || 0) + 1;
+        return true;
+      };
+      // Artefakte wandern sofort in die Schatzkammer (auch wenn der Run danach verloren geht)
+      (run.trophies || []).forEach((id, k) => {
+        if (!count('trophy:' + k)) return;
+        const isNew = !profile.vault[id];
+        profile.vault[id] = (profile.vault[id] || 0) + 1;
+        news.push({ kind: 'artifact', id, isNew, lvl: GL.meta.artLevelFor(profile.vault[id]) });
+        // Erstes Artefakt: automatisch ausrüsten, wenn ein Platz frei ist
+        if (isNew && profile.artLoadout.length < GL.meta.artSlots(profile)) profile.artLoadout.push(id);
+      });
+      (run.defeated || []).forEach(id => count('defeated:' + id));
+      for (let i = 0; i <= GL.run.islandIndex(run); i++) count('reached:' + i);
+      const won = run.phase === 'win';
+      if (won) count('win');
+
+      GL.data.unlocks.forEach(u => {
+        if (profile.unlocked.includes(u.unlock)) return;
+        const w = u.when;
+        const times = w.times || 1;
+        let ok = false;
+        if (w.defeated) ok = (counts['defeated:' + w.defeated] || 0) >= times;
+        if (w.reached !== undefined) ok = (counts['reached:' + w.reached] || 0) >= times;
+        if (w.win) ok = (counts.win || 0) >= times;
+        if (w.winWithout) ok = won && run.captain !== w.winWithout;
+        if (ok) { profile.unlocked.push(u.unlock); news.push({ kind: 'crew', id: u.unlock }); }
+      });
+      return news;
+    },
+
+    // Fortschritt zu einer Freischaltung, z. B. { have: 1, need: 3 }
+    progress(profile, u) {
+      const w = u.when;
+      const need = w.times || 1;
+      let have = 0;
+      if (w.defeated) have = profile.counts['defeated:' + w.defeated] || 0;
+      if (w.reached !== undefined) have = profile.counts['reached:' + w.reached] || 0;
+      if (w.win) have = profile.counts.win || 0;
+      if (w.winWithout) have = profile.unlocked.includes(u.unlock) ? 1 : 0;
+      return { have: Math.min(have, need), need };
+    },
+
+    // Einmal pro beendetem Run aufrufen
+    // Gibt die neu freigeschaltete Kopfgeld-Stufe zurück (oder 0)
+    finishRun(profile, run) {
+      profile.stats.runs++;
+      if (run.phase === 'win') profile.stats.wins++;
+      profile.lastHeatUnlock = 0;
+      if (run.phase === 'win' && (run.heat || 0) >= profile.heatMax && profile.heatMax < GL.data.heat.length) {
+        profile.heatMax++;
+        profile.heat = profile.heatMax;
+        profile.lastHeatUnlock = profile.heatMax;
+      }
+      const berry = GL.meta.berryFor(profile, run);
+      profile.berry += berry;
+      profile.stats.berryTotal += berry;
+      const xp = GL.meta.rankXpFor(run);
+      profile.lastRank = { xp, before: profile.rankXp, ups: GL.meta.addRankXp(profile, xp) };
+      return berry;
+    }
+  };
+})();

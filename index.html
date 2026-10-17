@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Grand Line</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600;700&family=Nunito:wght@400;600;700;800&family=Pirata+One&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<script>
+  // Design vor dem ersten Zeichnen setzen, damit nichts aufblitzt
+  try { if (localStorage.getItem('grandline.theme') === 'dark') document.documentElement.dataset.theme = 'dark'; } catch (e) {}
+</script>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Grand Line</h1>
+    <div class="head-right">
+      <div class="track" id="track" aria-label="Fortschritt"></div>
+      <div class="head-actions">
+        <button class="link theme-toggle" data-act="theme" id="theme-btn">Dunkel</button>
+        <button class="link" data-act="intro-open">Anleitung</button>
+        <button class="link" data-act="album">Sammelalbum</button>
+        <button class="link" id="restart" data-act="restart">Neu starten</button>
+      </div>
+    </div>
+  </header>
+  <div class="lbl crew-label" id="crew-label">Deine Crew</div>
+  <section class="crew" id="crew"></section>
+  <section id="syn" aria-label="Synergien und Schätze"></section>
+  <section class="stage" id="stage"></section>
+  <section id="album" class="album" hidden aria-label="Sammelalbum"></section>
+  <section id="sheet" class="sheet" hidden aria-label="Steckbrief"></section>
+  <div id="toasts" class="toasts" aria-live="polite"></div>
+  <section id="intro" class="intro" hidden></section>
+  <footer class="fan">Inoffizielles Fanprojekt. Nicht verbunden mit Eiichiro Oda, Shueisha oder Toei Animation.
+    One Piece und alle Figuren gehören ihren Rechteinhabern. Kostenlos und ohne kommerzielle Absicht.</footer>
+</main>
+<aside id="traits" class="traits" hidden aria-label="Aktive Boni"></aside>
+
+<!-- Reihenfolge ist wichtig: erst Daten, dann Spiellogik, dann Oberfläche -->
+<script src="js/data/config.js"></script>
+<script src="js/data/types.js"></script>
+<script src="js/data/roles.js"></script>
+<script src="js/data/factions.js"></script>
+<script src="js/data/abilities.js"></script>
+<script src="js/data/traits.js"></script>
+<script src="js/data/crew.js"></script>
+<script src="js/data/enemies.js"></script>
+<script src="js/data/hunted.js"></script>
+<script src="js/data/artifacts.js"></script>
+<script src="js/data/fruits.js"></script>
+<script src="js/data/relics.js"></script>
+<script src="js/data/islands.js"></script>
+<script src="js/data/upgrades.js"></script>
+<script src="js/data/gear.js"></script>
+<script src="js/data/events.js"></script>
+<script src="js/data/heat.js"></script>
+<script src="js/data/ranks.js"></script>
+<script src="js/data/unlocks.js"></script>
+<script src="js/world/neutral.js"></script>
+<script src="js/engine/rng.js"></script>
+<script src="js/engine/loot.js"></script>
+<script src="js/engine/effects.js"></script>
+<script src="js/engine/battle.js"></script>
+<script src="js/engine/run.js"></script>
+<script src="js/engine/meta.js"></script>
+<script src="js/ui/sprites.js"></script>
+<script src="js/ui/save.js"></script>
+<script src="js/ui/advice.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="js/ui/online.js"></script>
+<script src="js/ui/arena.js"></script>
+<script src="js/ui/render.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

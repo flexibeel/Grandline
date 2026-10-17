@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Balance-Test</title>
+<style>
+  body { font: 16px/1.5 system-ui, sans-serif; max-width: 680px; margin: 0 auto; padding: 16px; background: #fff; color: #222; }
+  @media (prefers-color-scheme: dark) { body { background: #111; color: #eee; } }
+  table { border-collapse: collapse; width: 100%; margin-top: 12px; }
+  td, th { text-align: left; padding: 4px 8px; border-bottom: 1px solid #8884; }
+  button { font: inherit; padding: 8px 14px; }
+</style>
+</head>
+<body>
+<h1>Balance-Test</h1>
+<p>Spielt viele Runs mit zufälligen Entscheidungen automatisch durch und zeigt, wie weit sie kommen.
+Ein echter Spieler entscheidet besser als der Zufall, die Gewinnrate hier ist also eine Untergrenze.
+Nach Änderungen in <code>js/data/config.js</code> einfach neu laden.</p>
+<label>Anzahl Runs <input id="n" type="number" value="2000" min="100" step="100"></label>
+<button id="go">Starten</button>
+<div id="out"></div>
+
+<script src="../js/data/config.js"></script>
+<script src="../js/data/types.js"></script>
+<script src="../js/data/roles.js"></script>
+<script src="../js/data/factions.js"></script>
+<script src="../js/data/abilities.js"></script>
+<script src="../js/data/traits.js"></script>
+<script src="../js/data/crew.js"></script>
+<script src="../js/data/enemies.js"></script>
+<script src="../js/data/hunted.js"></script>
+<script src="../js/data/artifacts.js"></script>
+<script src="../js/data/fruits.js"></script>
+<script src="../js/data/relics.js"></script>
+<script src="../js/data/islands.js"></script>
+<script src="../js/data/upgrades.js"></script>
+<script src="../js/data/gear.js"></script>
+<script src="../js/data/events.js"></script>
+<script src="../js/data/heat.js"></script>
+<script src="../js/data/ranks.js"></script>
+<script src="../js/engine/rng.js"></script>
+<script src="../js/engine/loot.js"></script>
+<script src="../js/engine/effects.js"></script>
+<script src="../js/engine/battle.js"></script>
+<script src="../js/engine/run.js"></script>
+<script>
+function playRandom(seed) {
+  const run = GL.run.create(seed);
+  const pickRng = { rng: seed ^ 0x9e3779b9 };
+  let guard = 0;
+  while (!GL.run.isFinished(run) && guard++ < 500) {
+    const p = run.phase;
+    if (p === 'starter') GL.run.act(run, { type: 'pick', index: seed % run.pool.length });
+    else if (p === 'map') GL.run.act(run, { type: 'node', index: GL.rng.int(pickRng, 0, run.options.length - 1) });
+    else if (p === 'prep') GL.run.act(run, { type: 'fight' });
+    else if (p === 'battle') GL.run.act(run, { type: 'continue' });
+    else if (p === 'awaken') GL.run.act(run, { type: 'pick', index: GL.rng.int(pickRng, 0, run.crew.length - 1) });
+    else GL.run.act(run, { type: 'pick', index: GL.rng.int(pickRng, 0, run.pool.length - 1) });
+  }
+  return run;
+}
+
+document.getElementById('go').onclick = () => {
+  const n = Math.max(1, Number(document.getElementById('n').value) || 1000);
+  const islands = GL.data.islands;
+  const died = islands.map(() => 0);
+  let wins = 0;
+  for (let s = 1; s <= n; s++) {
+    const run = playRandom(s);
+    if (run.phase === 'win') wins++;
+    else died[Math.min(Math.floor(run.step / GL.config.stepsPerIsland), islands.length - 1)]++;
+  }
+  const pct = x => (100 * x / n).toFixed(1) + ' %';
+  document.getElementById('out').innerHTML =
+    `<table><tr><th>Ergebnis</th><th>Anteil</th></tr>` +
+    islands.map((isl, i) => `<tr><td>Gescheitert in ${isl.name}</td><td>${pct(died[i])}</td></tr>`).join('') +
+    `<tr><td><b>Gewonnen</b></td><td><b>${pct(wins)}</b></td></tr></table>`;
+};
+</script>
+</body>
+</html>

@@ -1,0 +1,89 @@
+// Alle Figuren, die sich deiner Crew anschließen können.
+//
+// Neue Figur hinzufügen: einen Eintrag kopieren, eine neue id vergeben
+// (klein, ohne Leerzeichen) und Werte anpassen.
+//   type    = Kampfstil: 'kraft' | 'klinge' | 'technik' (siehe types.js)
+//   role    = Rolle: 'brecher' | 'kaempfer' | 'helfer' (siehe roles.js)
+//   faction = Bande: 'strohhut' | 'marine' | 'cp9' | 'baroque' (siehe factions.js)
+//   hp  = Leben, atk = Angriff, spd = Tempo (wer schneller ist, greift zuerst an)
+//   Fähigkeit: Eintrag mit derselben id in abilities.js
+//   look = Aussehen des Pixel-Sprites (siehe js/ui/sprites.js)
+//     hair, skin, shirt, pants: Farben
+//     hat: 'straw' | 'band' | 'cap' | 'afro' | 'hood' (optional), hatColor: Farbe dazu
+//     longHair: true für lange Haare
+//   locked: true = muss erst freigeschaltet werden (siehe unlocks.js)
+window.GL = window.GL || {};
+GL.data = GL.data || {};
+
+GL.data.crew = [
+  // Strohhutbande
+  { id: 'ruffy',   name: 'Ruffy',    type: 'kraft',   role: 'kaempfer', faction: 'strohhut', hp: 34, atk: 8,  spd: 6,
+    look: { hair: '#1a1a1a', skin: '#f2c9a0', shirt: '#d9423a', pants: '#3b5a8c', hat: 'straw', hatColor: '#e8c25a' } },
+  { id: 'zorro',   name: 'Zorro',    type: 'klinge',  role: 'kaempfer', faction: 'strohhut', hp: 30, atk: 10, spd: 5,
+    look: { hair: '#3f8f4f', skin: '#f2c9a0', shirt: '#e8e8e8', pants: '#2f3a2f', hat: 'band', hatColor: '#222222' } },
+  { id: 'nami',    name: 'Nami',     type: 'technik', role: 'helfer',   faction: 'strohhut', hp: 27, atk: 7,  spd: 8,
+    look: { hair: '#e07a2c', skin: '#f2c9a0', shirt: '#2f9bc2', pants: '#e8dcb0', longHair: true } },
+  { id: 'lysop',   name: 'Lysop',    type: 'technik', role: 'kaempfer', faction: 'strohhut', hp: 20, atk: 8,  spd: 7,
+    look: { hair: '#222222', skin: '#d9a87a', shirt: '#c9a23a', pants: '#6b4a2a', hat: 'afro' } },
+  { id: 'sanji',   name: 'Sanji',    type: 'kraft',   role: 'kaempfer', faction: 'strohhut', hp: 26, atk: 9,  spd: 7,
+    look: { hair: '#e8c95a', skin: '#f2c9a0', shirt: '#222222', pants: '#222222' } },
+  { id: 'chopper', name: 'Chopper',  type: 'technik', role: 'helfer',   faction: 'strohhut', hp: 28, atk: 5,  spd: 6,
+    look: { hair: '#6b4a2a', skin: '#c08a5a', shirt: '#d9709a', pants: '#d9709a', hat: 'cap', hatColor: '#d9709a' } },
+  { id: 'robin',   name: 'Robin',    type: 'technik', role: 'helfer',   faction: 'strohhut', hp: 24, atk: 8,  spd: 6,
+    look: { hair: '#1a1a1a', skin: '#f2c9a0', shirt: '#6b4fa0', pants: '#3a2a5a', longHair: true } },
+  { id: 'franky',  name: 'Franky',   type: 'kraft',   role: 'brecher',  faction: 'strohhut', hp: 38, atk: 7,  spd: 3,
+    look: { hair: '#3fa0e0', skin: '#d9a87a', shirt: '#e8c93a', pants: '#2f86c9' } },
+  { id: 'brook',   name: 'Brook',    type: 'klinge',  role: 'kaempfer', faction: 'strohhut', hp: 18, atk: 8,  spd: 8,
+    look: { hair: '#2a2a2a', skin: '#f0f0f0', shirt: '#1a1a1a', pants: '#1a1a1a', hat: 'afro' } },
+
+  // Marine
+  { id: 'garp',    name: 'Garp',     type: 'kraft',   role: 'brecher',  faction: 'marine',   hp: 40, atk: 7,  spd: 4,
+    look: { hair: '#d8d8d8', skin: '#e8b890', shirt: '#f0f0f0', pants: '#1f3a6a' } },
+  { id: 'hina',    name: 'Hina',     type: 'technik', role: 'brecher',  faction: 'marine',   hp: 34, atk: 6,  spd: 5,
+    look: { hair: '#e870a0', skin: '#f2c9a0', shirt: '#f0f0f0', pants: '#1f3a6a', longHair: true } },
+  { id: 'tashigi', name: 'Tashigi',  type: 'klinge',  role: 'helfer',   faction: 'marine',   hp: 22, atk: 6,  spd: 7,
+    look: { hair: '#1a1a2a', skin: '#f2c9a0', shirt: '#7aa0d0', pants: '#2a3a5a' } },
+  { id: 'koby',    name: 'Koby',     type: 'kraft',   role: 'kaempfer', faction: 'marine',   hp: 26, atk: 8,  spd: 7,
+    look: { hair: '#e870a0', skin: '#f2c9a0', shirt: '#f0f0f0', pants: '#5a7aa0', hat: 'cap', hatColor: '#f0f0f0' } },
+
+  // CP9
+  { id: 'kalifa',  name: 'Kalifa',   type: 'klinge',  role: 'kaempfer', faction: 'cp9',      hp: 24, atk: 8,  spd: 7,
+    look: { hair: '#e8d070', skin: '#f2c9a0', shirt: '#2a2a2a', pants: '#2a2a2a', longHair: true } },
+  { id: 'kumadori',name: 'Kumadori', type: 'technik', role: 'brecher',  faction: 'cp9',      hp: 30, atk: 6,  spd: 5,
+    look: { hair: '#d84a2a', skin: '#f0f0f0', shirt: '#e8b030', pants: '#7a3a2a', hat: 'afro' } },
+  { id: 'blueno',  name: 'Blueno',   type: 'kraft',   role: 'brecher',  faction: 'cp9',      hp: 36, atk: 6,  spd: 4,
+    look: { hair: '#1a1a1a', skin: '#e8c0a0', shirt: '#1a1a1a', pants: '#1a1a1a', hat: 'band', hatColor: '#1a1a1a' } },
+  { id: 'jabra',   name: 'Jabra',    type: 'kraft',   role: 'kaempfer', faction: 'cp9',      hp: 28, atk: 8,  spd: 6,
+    look: { hair: '#1a1a1a', skin: '#d9a87a', shirt: '#2a2a2a', pants: '#2a2a2a', longHair: true } },
+
+  // Baroque Works
+  { id: 'bonclay', name: 'Bon Clay', type: 'technik', role: 'brecher',  faction: 'baroque',  hp: 34, atk: 5,  spd: 5,
+    look: { hair: '#1a1a1a', skin: '#f2c9a0', shirt: '#e8789a', pants: '#f0f0f0' } },
+  { id: 'mr5',     name: 'Mr. 5',    type: 'kraft',   role: 'kaempfer', faction: 'baroque',  hp: 28, atk: 9,  spd: 6,
+    look: { hair: '#1a1a1a', skin: '#f2c9a0', shirt: '#e8d070', pants: '#3a3a3a', hat: 'cap', hatColor: '#3a3a3a' } },
+  { id: 'vivi',    name: 'Vivi',     type: 'klinge',  role: 'helfer',   faction: 'baroque',  hp: 24, atk: 6,  spd: 7,
+    look: { hair: '#6fc6e0', skin: '#f2c9a0', shirt: '#e8e0f0', pants: '#7a5aa0', longHair: true } },
+  { id: 'mr1',     name: 'Mr. 1',    type: 'klinge',  role: 'kaempfer', faction: 'baroque',  hp: 30, atk: 8,  spd: 5,
+    look: { hair: '#1a1a1a', skin: '#a8785a', shirt: '#3a3a3a', pants: '#3a3a3a' } },
+
+  // ---- Freischaltbar (locked: true). Bedingungen stehen in unlocks.js ----
+  // Danach als Kapitän wählbar und bei der Rekrutierung im Angebot.
+  { id: 'smoker',    name: 'Smoker',    type: 'klinge',  role: 'brecher',  faction: 'marine',  hp: 34, atk: 7, spd: 5, locked: true,
+    look: { hair: '#dddddd', skin: '#f2c9a0', shirt: '#3a4a3a', pants: '#3a4a3a' } },
+  { id: 'arlong',    name: 'Arlong',    type: 'kraft',   role: 'kaempfer',                    hp: 32, atk: 7, spd: 5, locked: true,
+    look: { hair: '#1a1a1a', skin: '#6aa0c8', shirt: '#e8d070', pants: '#3a5a3a' } },
+  { id: 'crocodile', name: 'Crocodile', type: 'technik', role: 'kaempfer', faction: 'baroque', hp: 30, atk: 7, spd: 6, locked: true,
+    look: { hair: '#111111', skin: '#f2c9a0', shirt: '#8a6d2f', pants: '#222222' } },
+  { id: 'enel',      name: 'Enel',      type: 'kraft',   role: 'kaempfer',                    hp: 26, atk: 8, spd: 7, locked: true,
+    look: { hair: '#f0f0f0', skin: '#f2c9a0', shirt: '#e8b030', pants: '#e8b030', hat: 'band', hatColor: '#e8e8e8' } },
+  { id: 'rob-lucci', name: 'Rob Lucci', type: 'kraft',   role: 'kaempfer', faction: 'cp9',     hp: 30, atk: 5, spd: 6, locked: true,
+    look: { hair: '#222222', skin: '#f2c9a0', shirt: '#e8e8e8', pants: '#222222', hat: 'cap', hatColor: '#222222' } },
+  { id: 'kaku',      name: 'Kaku',      type: 'klinge',  role: 'kaempfer', faction: 'cp9',     hp: 28, atk: 8, spd: 7, locked: true,
+    look: { hair: '#8a5a2a', skin: '#f2c9a0', shirt: '#222222', pants: '#222222', hat: 'cap', hatColor: '#f0f0f0' } },
+  { id: 'jinbei',    name: 'Jinbei',    type: 'kraft',   role: 'brecher',                     hp: 40, atk: 7, spd: 4, locked: true,
+    look: { hair: '#1a1a1a', skin: '#5a8fc2', shirt: '#e0e0d0', pants: '#2a3a5a' } },
+  { id: 'ace',       name: 'Ace',       type: 'kraft',   role: 'kaempfer',                    hp: 28, atk: 9, spd: 6, locked: true,
+    look: { hair: '#1a1a1a', skin: '#f2c9a0', shirt: '#f2c9a0', pants: '#3a3a3a', hat: 'cap', hatColor: '#e07a2c' } },
+  { id: 'law',       name: 'Law',       type: 'klinge',  role: 'helfer',                      hp: 26, atk: 7, spd: 6, locked: true,
+    look: { hair: '#1a1a1a', skin: '#e8c0a0', shirt: '#222222', pants: '#4a4030', hat: 'cap', hatColor: '#f0f0f0' } }
+];

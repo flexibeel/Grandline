@@ -1,0 +1,85 @@
+// Spielregeln und Balancing an einer Stelle.
+// Hier kannst du Zahlen ändern, ohne die Spiellogik anzufassen.
+window.GL = window.GL || {};
+
+GL.config = {
+  saveVersion: 9,
+  // Welt: 'onepiece' (Fanprojekt) oder 'neutral' (eigene Namen, siehe js/world/neutral.js)
+  world: 'onepiece',
+  // Eigene Online-Rangliste (Supabase). Leer lassen = Rangliste über die geteilte Claude-Seite.
+  online: { url: 'https://ahalqeebrtzpcrvpnyxf.supabase.co', key: 'sb_publishable_00GGB1JXueV7rpMb8JxX8A_FT6brXAm' },
+
+  // Aufbau eines Runs
+  stepsPerIsland: 5,      // 4 Inseln mit Routenwahl + 1 Inselboss
+  maxCrew: 6,
+  starters: ['ruffy', 'zorro', 'nami'],   // wählbare Kapitäne zu Beginn eines Runs
+  choicesPerPick: 3,      // wie viele Optionen bei Rekrutierung/Teufelsfrucht
+
+  // Raids und epische Früchte
+  // Spezialangriff: Ladung pro Sieg (Kopfgeldjäger zählen doppelt), voll bei specialMax
+  specialMax: 2,
+  // Taverne: Preise in Gold, Gold für Siege (+ Zinsen), Neu würfeln wird pro Besuch teurer
+  shop: { startGold: 30, base: 14, perStar: 10, perLevel: 3, locked: 12, sellShare: 0.5,
+          reroll: 6, rerollStep: 3, extraOffers: 1, interestMax: 3,
+          win: { battle: 10, elite: 16, boss: 28, raid: 28 } },
+  artLevels: [1, 2, 4, 7, 11],   // Funde, die ein Artefakt für Stufe 1 bis 5 braucht
+  trophyChance: { boss: 0.35, raid: 1, mini: 0.2 },   // Chance auf ein Artefakt
+  bossBounty: [30, 120, 400],  // Kopfgeld in Mio. Berry pro besiegtem Inselboss
+  specialBossCut: 0.22,   // Anteil Max-Leben, den der Boss verliert
+  specialEscortCut: 0.6,  // Anteil Max-Leben bei Begleitern
+  raidChance: 0.5,        // Chance pro Insel ab der 2. Insel, dass ein Raid auf der Seekarte liegt
+  raidEscapeHp: 0.25,     // verlorener Raid: Crew entkommt mit diesem Anteil Leben
+  epicChance: 0.3,        // Chance, dass eine freigeschaltete epische Frucht im Angebot ist
+
+  // Seltenheit von Schätzen und Teufelsfrüchten.
+  // q = Faktor auf die Werte, w = Gewicht beim Auswürfeln (normal / nach Kopfgeldjägern)
+  rarities: [
+    { id: 'common',    name: 'Gewöhnlich', q: 0.85, w: 60, wElite: 35 },
+    { id: 'rare',      name: 'Selten',     q: 1.05, w: 28, wElite: 38 },
+    { id: 'epic',      name: 'Episch',     q: 1.3,  w: 10, wElite: 21 },
+    { id: 'legendary', name: 'Legendär',   q: 1.6,  w: 2,  wElite: 6 }
+  ],
+
+  // Sterne neuer Crewmitglieder: Gewicht und Bonus auf die Grundwerte
+  stars: [
+    { n: 1, w: 50, hp: -3, atk: 0 },
+    { n: 2, w: 38, hp: 0,  atk: 0 },
+    { n: 3, w: 12, hp: 4,  atk: 1 }
+  ],
+
+  // Erfahrung und Level
+  xp: { battle: 10, elite: 16, boss: 26, raid: 26 },  // pro Sieg, Gefallene bekommen die Hälfte
+  xpNeed: { base: 14, perLevel: 8 },  // Level L -> L+1 braucht base + perLevel * L
+  levelUp: { hp: 2, points: 2 },      // pro Level-up automatisch, plus Statuspunkte
+  point: { hp: 5, atk: 1, spd: 1 },   // was ein Statuspunkt bringt
+
+  // Ereignisse auf See
+  eventChance: 0.2,       // Chance nach jeder Etappe
+
+  // Heilung
+  winHeal: 0.15,          // nach jedem gewonnenen Kampf (Anteil vom Max-Leben)
+  restHeal: 0.4,          // Rast an Land
+  reviveAfterBoss: 0.5,   // Gefallene kommen nach einem Inselboss mit diesem Anteil zurück
+
+  // Erwachen nach einem Inselboss
+  awaken: { atk: 4, hp: 10 },
+
+  // Gegnerstärke
+  enemyScale: 0.82,        // wie schnell normale Gegner pro Etappe stärker werden
+  eliteMult: 1.3,         // Kopfgeldjäger sind um diesen Faktor stärker
+  grunt: { hpBase: 12, hpPerLevel: 4, atkBase: 4, atkPerLevel: 1.2, spdMin: 3, spdMax: 7 },
+  maxGrunts: 4,
+
+  // Kampf
+  dmgSpread: 2,           // Schaden schwankt um +/- diesen Wert
+  critMult: 2,
+  typeStrong: 2,          // Schaden gegen einen Typ, gegen den man stark ist
+  typeWeak: 0.5,          // Schaden gegen einen Typ, gegen den man schwach ist
+  battleRoundsMax: 200,   // Sicherheitsgrenze gegen Endlos-Kämpfe
+
+  // Kopfgeld-Stufen: Bonus pro Stufe auf Berry und Punkte
+  heatBonus: { berry: 0.2, score: 0.25 },
+
+  // Punkte (für Highscore und spätere Rangliste)
+  score: { perStep: 100, perBounty: 500, perMio: 2 }   // Punkte: Etappen, Inselbosse, Kopfgeld in Mio.
+};
