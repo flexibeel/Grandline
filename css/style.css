@@ -105,7 +105,7 @@ button:focus-visible, .opt:focus-visible { outline: 3px solid var(--sea); outlin
 .ord button { all: unset; cursor: pointer; padding: 4px 10px; border: 1px solid var(--line); border-radius: 6px; }
 .ord button:disabled { opacity: .35; cursor: default; }
 
-.head-right { display: grid; justify-items: end; gap: 6px; }
+.head-right { display: grid; justify-items: end; gap: 6px; max-width: 100%; min-width: 0; }
 
 .u .tags { color: var(--mute); font-size: .76rem; margin-top: -2px; }
 .u.is-boss { border-color: var(--red); border-width: 2px; }
@@ -149,7 +149,8 @@ button:focus-visible, .opt:focus-visible { outline: 3px solid var(--sea); outlin
 
 
 
-.head-actions { display: flex; gap: 14px; }
+.head-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px 14px; max-width: 100%; }
+@media (max-width: 480px) { .head-actions { gap: 5px 10px; font-size: .92rem; } }
 
 /* ---------- Kampf-Arena ---------- */
 .battle-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
@@ -495,6 +496,8 @@ button:focus-visible, .opt:focus-visible { outline: 3px solid var(--sea); outlin
 @media (max-width: 520px) {
   .sum-row { grid-template-columns: 34px 1fr; }
   .sum-xp { grid-column: 1 / -1; }
+}
+@media (max-width: 340px) {
   .stats { grid-template-columns: 1fr; }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -1172,11 +1175,21 @@ h2 { letter-spacing: .015em; }
 .danger { font-size: .76rem; }
 
 
-/* ---------- Kopfgeld-Steckbrief (3D) ---------- */
-.bounty-chip {
-  font-style: normal; font-weight: 700; color: var(--gold); white-space: nowrap;
-  display: inline-block; transition: transform .2s;
+/* ---------- Kopf-Chips (Gold, Kopfgeld, Stufe, Duell): klar lesbar statt kleiner grauer Text ---------- */
+.track-loc { color: var(--mute); }
+.head-chips { display: inline-flex; gap: 8px; flex-wrap: wrap; margin-left: 8px; vertical-align: 2px; }
+.head-chips em { font-style: normal; }
+.gold-chip, .bounty-chip, .heat-chip, .duel-chip {
+  display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 999px;
+  font-size: .95rem; font-weight: 700; white-space: nowrap; border: 2px solid var(--line);
+  background: var(--panel); transition: transform .2s;
 }
+.gold-chip svg, .bounty-chip svg { width: 16px; height: 16px; }
+.gold-chip { color: #8a5a00; background: #fff6dc; border-color: #f2d27a; }
+.gold-chip b, .bounty-chip b, .heat-chip b { font-weight: 800; }
+.bounty-chip { color: #8a2c22; background: #ffe6e0; border-color: #e6a393; }
+:root[data-theme="dark"] .gold-chip { color: #f2d27a; background: color-mix(in srgb, #f2d27a 14%, var(--panel)); border-color: color-mix(in srgb, #f2d27a 40%, var(--line)); }
+:root[data-theme="dark"] .bounty-chip { color: #e6a393; background: color-mix(in srgb, #e6a393 14%, var(--panel)); border-color: color-mix(in srgb, #e6a393 40%, var(--line)); }
 .bounty-chip.bump { animation: chip-bump .6s cubic-bezier(.2,1.6,.4,1); }
 @keyframes chip-bump { 40% { transform: scale(1.35); color: #d9a63c; } }
 .bounty-pop {
@@ -2167,4 +2180,33 @@ body.on-title { overflow: hidden; }
 @media (max-width: 520px) { .item-card { grid-template-columns: 36px 1fr; } .item-card > .btn, .forge-btns { grid-column: 1 / -1; justify-content: flex-start; } }
 
 .end-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+
+/* ---------- Tooltips: Klick/Tipp statt nur Hover, damit es auch auf dem Handy geht ---------- */
+[data-tip] { position: relative; cursor: help; }
+[data-tip]::after {
+  content: attr(data-tip); position: absolute; left: 50%; bottom: calc(100% + 9px); transform: translateX(-50%) translateY(4px);
+  background: #1b2230; color: #fff; padding: 8px 11px; border-radius: 9px; font-family: var(--ui, "Nunito", system-ui, sans-serif);
+  font-size: 12.5px; font-weight: 600; line-height: 1.45; white-space: pre-line; width: max-content; max-width: 230px;
+  box-shadow: 0 10px 24px rgba(0,0,0,.35); opacity: 0; pointer-events: none; transition: opacity .12s, transform .12s; z-index: 500;
+}
+[data-tip]::before {
+  content: ''; position: absolute; left: 50%; bottom: calc(100% + 5px); transform: translateX(-50%);
+  border: 5px solid transparent; border-top-color: #1b2230; opacity: 0; transition: opacity .12s; pointer-events: none; z-index: 500;
+}
+[data-tip]:hover::after, [data-tip]:hover::before,
+[data-tip]:focus-visible::after, [data-tip]:focus-visible::before,
+[data-tip].tt-open::after, [data-tip].tt-open::before { opacity: 1; transform: translateX(-50%) translateY(0); }
+@media (max-width: 640px) { [data-tip]::after { max-width: 64vw; left: 0; transform: translateX(0) translateY(4px); }
+  [data-tip]:hover::after, [data-tip]:focus-visible::after, [data-tip].tt-open::after { transform: translateX(0) translateY(0); }
+  [data-tip]::before { left: 14px; transform: none; } }
+
+/* ---------- Hauptquartier-Kurzblick während eines laufenden Runs ---------- */
+.peek-wrap { position: fixed; inset: 0; z-index: 500; background: var(--bg); overflow-y: auto; }
+.peek-bar {
+  position: sticky; top: 0; z-index: 2; display: flex; align-items: center; justify-content: space-between;
+  gap: 10px; padding: 10px 16px; background: var(--panel); border-bottom: 2px solid var(--line);
+}
+.peek-bar b { font-family: var(--px); }
+.peek-body { padding: 4px 16px 28px; max-width: 980px; margin: 0 auto; }
+.peek-back { font-family: var(--px); }
 .end-actions .btn { margin-top: 0; }

@@ -245,7 +245,13 @@ window.GL = window.GL || {};
       `<i class="${i < run.step ? 'done' : i === run.step ? 'now' : ''}${i % per === per - 1 ? ' boss' : ''}"></i>`).join('');
     const island = GL.run.island(run).name;
     const pos = Math.min(run.step % per + 1, per);
-    return `${bars}<span>${island} · <b class="stop-name">${GL.run.stopName(run)}</b> <small class="muted">(${pos}/${per})</small> <em class="gold-chip">${GL.sprites.coin()} ${run.gold || 0}</em> <em class="bounty-chip" id="bounty-chip">Kopfgeld ${fmtBounty(run.bountyM || 0)}</em>${run.heat ? ` <em class="heat-chip">Stufe ${run.heat}</em>` : ''}${run.duel ? ` <em class="duel-chip">⚔ Duell ${run.duel}</em>` : ''}</span>`;
+    return `${bars}<span class="track-loc">${island} · <b class="stop-name">${GL.run.stopName(run)}</b> <small class="muted">(${pos}/${per})</small></span>
+      <span class="head-chips">
+        <em class="gold-chip" data-tip="Gold für die Taverne.\nGibt es für Siege, verfällt am Run-Ende.">${GL.sprites.coin()} <b>${run.gold || 0}</b></em>
+        <em class="bounty-chip" id="bounty-chip" data-tip="Kopfgeld deines Kapitäns.\nZählt für deinen Punktestand und die Rangliste 'Höchstes Kopfgeld'. Bringt sonst nichts im Run.">${GL.sprites.icon('node', 'elite')} <b>${fmtBounty(run.bountyM || 0)}</b></em>
+        ${run.heat ? `<em class="heat-chip">Stufe ${run.heat}</em>` : ''}
+        ${run.duel ? `<em class="duel-chip">⚔ Duell ${run.duel}</em>` : ''}
+      </span>`;
   }
 
   // ---------- Synergien und Schätze unter der Crew ----------
@@ -470,7 +476,7 @@ window.GL = window.GL || {};
       const steps = s.tiers.map(t => `<i class="${s.count >= t.n ? 'on' : ''}">${t.n}</i>`).join('<b>›</b>');
       const tip = s.tiers.map(t => `${s.count >= t.n ? '✓' : '·'} ${t.n}: ${t.text}`).join('\n');
       const icon = `<span class="tr-hex">${s.name.slice(0, 2)}</span>`;
-      return `<div class="tr tr-${lv}${s.kind === 'faction' ? ' tr-set' : ''}" title="${s.name}${s.kind === 'faction' ? ' (Set-Bonus)' : ''}\n${tip}">
+      return `<div class="tr tr-${lv}${s.kind === 'faction' ? ' tr-set' : ''}" tabindex="0" data-tip="${esc(s.name + (s.kind === 'faction' ? ' (Set-Bonus)' : '') + '\n' + tip)}">
         <span class="tr-icon">${icon}</span>
         <span class="tr-body"><b>${s.kind === 'type' ? `<i class="tr-dot t-${s.key}"></i>` : ''}${s.name}</b><span class="tr-steps">${steps}</span></span>
         <span class="tr-count">${s.count}${s.next ? `<small>/${s.next.n}</small>` : ''}</span>
@@ -649,13 +655,13 @@ window.GL = window.GL || {};
         ${stat('Leben', `${u.hp} / ${u.max}`)}
         ${stat('Angriff', unit.atk + diff(unit.atk, u.atk))}
         ${stat('Tempo', unit.spd + diff(unit.spd, u.spd))}
-        ${stat('Krit-Chance', pct(unit.crit))}
+        ${unit.crit > 0 ? stat('Krit-Chance', pct(unit.crit)) : ''}
         ${stat('Krit-Schaden', pct(unit.critMult))}
-        ${stat('Rüstung', unit.armor)}
-        ${stat('Ausweichen', pct(unit.dodge))}
-        ${stat('Schaden', '+' + pct(unit.dmgPct))}
-        ${stat('Gegen Bosse', '+' + pct(unit.bossPct))}
-        ${stat('Heilung pro Runde', unit.regen)}
+        ${unit.armor > 0 ? stat('Rüstung', unit.armor) : ''}
+        ${unit.dodge > 0 ? stat('Ausweichen', pct(unit.dodge)) : ''}
+        ${unit.dmgPct > 0 ? stat('Schaden', '+' + pct(unit.dmgPct)) : ''}
+        ${unit.bossPct > 0 ? stat('Gegen Bosse', '+' + pct(unit.bossPct)) : ''}
+        ${unit.regen > 0 ? stat('Heilung pro Runde', unit.regen) : ''}
       </div>
       ${sets.length ? `<div class="lbl">Aktive Boni für ${d.name}</div><ul class="sheet-sets">${sets.map(s =>
         `<li>${s.kind === 'faction' ? '<em class="set-tag">Set</em>' : ''}<b>${s.name} ${s.count}:</b> ${s.active.text}</li>`).join('')}</ul>` : ''}
@@ -1392,11 +1398,12 @@ window.GL = window.GL || {};
       <div class="hq-sail">
         <div class="sail-scene" aria-hidden="true"><div class="hq-ship">${GL.sprites.ship()}</div></div>
         <div class="sail-body">
-          <b>Bereit zum Ablegen?</b>
-          <small>${onBoard.length ? 'An Bord: ' + onBoard.join(', ') : 'Noch nichts an Bord. Ausrüstung und Artefakte findest du unten.'}</small>
-          <button class="btn sail" data-act="sail">Leinen los! ${keyHint('Leertaste')}</button>
+          ${uiRef && uiRef.peek
+            ? `<b>Dein Run läuft noch</b><small>Hier kannst du nachsehen, was du brauchst. Oben links geht es zurück zum Run.</small>`
+            : `<b>Bereit zum Ablegen?</b><small>${onBoard.length ? 'An Bord: ' + onBoard.join(', ') : 'Noch nichts an Bord. Ausrüstung und Artefakte findest du unten.'}</small>
+          <button class="btn sail" data-act="sail">Leinen los! ${keyHint('Leertaste')}</button>`}
         </div>
-        <div class="sail-heat">${heatBox}</div>
+        ${uiRef && uiRef.peek ? '' : `<div class="sail-heat">${heatBox}</div>`}
       </div>
 
       <div class="atabs hq-tabs" role="tablist">
@@ -1628,7 +1635,7 @@ window.GL = window.GL || {};
       if (ui.intro != null) introEl.innerHTML = intro(ui.intro);
       if (!run) {
         $('#track').innerHTML = '';
-        ['#crew', '#syn', '#crew-label', '#restart', '#sheet', '#traits'].forEach(sel => { $(sel).hidden = true; });
+        ['#crew', '#syn', '#crew-label', '#restart', '#sheet', '#traits', '#peek', '#peek-btn'].forEach(sel => { $(sel).hidden = true; });
         const html = hq(ui.profile, ui.hqTab || 'profil', ui);
         if (html !== ui.lastStage) {
           $('#stage').innerHTML = html; ui.lastStage = html;
@@ -1639,6 +1646,14 @@ window.GL = window.GL || {};
         $('#album').hidden = !ui.album;
         if (ui.album) $('#album').innerHTML = album(ui.profile, ui.album);
         return;
+      }
+      // Kurzblick ins Hauptquartier mitten im Run: Run bleibt unangetastet im Hintergrund bestehen
+      $('#peek-btn').hidden = GL.run.isFinished(run);
+      $('#peek').hidden = !ui.peek;
+      if (ui.peek) {
+        $('#peek').innerHTML = `<div class="peek-bar"><b>Hauptquartier (Kurzblick)</b>
+            <button class="btn mini peek-back" data-act="peek-close">← Zurück zum Run</button></div>
+          <div class="peek-body">${hq(ui.profile, ui.hqTab || 'profil', ui)}</div>`;
       }
       $('#restart').hidden = false;
       $('#track').innerHTML = header(run);

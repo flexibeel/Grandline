@@ -20,6 +20,7 @@
       char: { type: ch.type, role: ch.role, look: Object.assign({}, ch.look) },
       cos: Object.assign({ bg: 'meer', frame: 'holz', anim: 'ruhig', title: 'neuling' }, profile.cos || {})
     };
+    ui.profileFrom = ui.screen || 'hq';
     ui.screen = 'profile';
     draw();
   }
@@ -199,6 +200,13 @@
     anim = null;
   }
 
+  // Tooltips (data-tip): per Klick/Tipp auf- und zuklappen, damit es auch ohne Maus geht
+  document.addEventListener('click', e => {
+    const tip = e.target.closest('[data-tip]');
+    document.querySelectorAll('.tt-open').forEach(x => { if (x !== tip) x.classList.remove('tt-open'); });
+    if (tip) tip.classList.toggle('tt-open');
+  });
+
   document.addEventListener('click', e => {
     if (suppressClick) { suppressClick = false; e.stopPropagation(); return; }
     const el = e.target.closest('[data-act]');
@@ -223,6 +231,8 @@
       case 'skip': if (anim) { clearTimeout(anim.timer); anim.done = true; draw(); } break;
       case 'sail': sail(); break;
       case 'hq': toHq(); break;
+      case 'peek': ui.peek = true; draw(); break;
+      case 'peek-close': ui.peek = false; draw(); break;
       case 'restart':
         if (ui.restartArmed) toHq();
         else { ui.restartArmed = true; draw(); }
@@ -247,7 +257,7 @@
         draw();
         break;
       case 'title-go': ui.screen = null; ui.hqTab = el.dataset.tab; if (el.dataset.tab === 'album') { ui.album = 'crew'; ui.hqTab = null; } draw(); break;
-      case 'title-back': ui.screen = 'title'; draw(); break;
+      case 'title-back': ui.screen = ui.profileFrom === 'hq' ? null : 'title'; draw(); break;
       case 'profile-edit': openProfile(); break;
       case 'char-part': ui.draft.char.look[el.dataset.part] = el.dataset.v; draw(); break;
       case 'char-hat': ui.draft.char.look.hat = el.dataset.v; draw(); break;
