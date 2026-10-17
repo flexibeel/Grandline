@@ -25,7 +25,7 @@
     draw();
   }
 
-  const SPEED = { normal: 520, special: 950, fast: 90 };
+  const SPEED = { normal: 430, special: 820, ult: 900, fast: 90 };
 
   function draw() { GL.ui.render(run, anim, ui); }
 
@@ -226,7 +226,8 @@
     const log = document.getElementById('log');
     if (log) log.textContent = anim.log;
     // Fähigkeiten-Hinweise etwas länger stehen lassen, damit man sie lesen kann
-    const wait = ev.k === 'special' ? (anim.fast ? 900 : 1800) : anim.fast ? SPEED.fast : ev.k === 'hit' ? SPEED.normal : SPEED.special;
+    const wait = ev.k === 'special' ? (anim.fast ? 900 : 1800) : ev.k === 'ult' ? (anim.fast ? 350 : SPEED.ult)
+      : anim.fast ? SPEED.fast : ev.k === 'hit' ? SPEED.normal : SPEED.special;
     anim.timer = setTimeout(stepAnim, wait);
   }
 

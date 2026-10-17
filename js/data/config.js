@@ -72,11 +72,15 @@ GL.config = {
   enemyScale: 0.8,        // wie schnell normale Gegner pro Etappe stärker werden (längere Insel-Kapitel -> langsamer hochskalieren)
   eliteMult: 1.3,         // Kopfgeldjäger sind um diesen Faktor stärker
   // Mehr Leben, etwas weniger Angriff: Kämpfe dauern etwas länger, ohne insgesamt härter zu werden
-  grunt: { hpBase: 14, hpPerLevel: 4.3, atkBase: 3.7, atkPerLevel: 1.1, spdMin: 3, spdMax: 7 },
+  grunt: { hpBase: 16, hpPerLevel: 4.6, atkBase: 3.7, atkPerLevel: 1.1, spdMin: 3, spdMax: 7 },
   maxGrunts: 4,
 
   // Kampf
-  dmgSpread: 2,           // Schaden schwankt um +/- diesen Wert
+  dmgSpread: 2,           // (alt, nicht mehr genutzt)
+  dmgSpreadPct: 0.18,     // Schaden schwankt um +/- 18 %
+  baseCrit: 0.05,         // Grund-Krit-Chance für alle
+  // Ultis: Energie pro eigenem Treffer / eingestecktem Treffer, bei max feuert die Ulti. Bosse starten mit etwas Energie.
+  ult: { max: 100, gainHit: 40, gainHurt: 20, start: 20, bossStart: 40 },
   critMult: 2,
   typeStrong: 2,          // Schaden gegen einen Typ, gegen den man stark ist
   typeWeak: 0.5,          // Schaden gegen einen Typ, gegen den man schwach ist

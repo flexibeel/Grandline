@@ -15,14 +15,24 @@ window.GL = window.GL || {};
     return t ? `<em class="type t-${type}">${t.name}</em>` : '';
   }
 
+  // Start-Energie wie im Kampfsystem (Crew und Bösewichte/Bosse haben eine Ulti, einfache Gegner nicht)
+  function startEnergy(side, unit) {
+    const U = GL.config.ult || {};
+    if (side === 'crew') return U.start || 0;
+    if (unit.boss) return U.bossStart || 0;
+    if (unit.mini) return U.start || 0;
+    return null;
+  }
   function fighter(side, i, entry, unit, hp) {
     const pct = Math.max(0, 100 * hp / unit.max);
+    const en = startEnergy(side, unit);
     return `<div class="fighter${hp <= 0 ? ' ko' : ''}${unit.boss ? ' big' : ''}${unit.mini ? ' mini-boss' : ''}" data-side="${side}" data-i="${i}">
       <div class="f-status" aria-label="Zustände"></div>
       <div class="f-sprite">${GL.sprites.render(entry)}</div>
       <div class="f-info">
         <div class="f-name"><b>${entry.name}</b> ${badge(unit.type)}</div>
         <div class="f-bar"><i style="width:${pct}%"></i><s style="width:${pct}%"></s></div>
+        ${en != null ? `<div class="f-en" title="Ulti-Energie"><i style="width:${en}%"></i></div>` : ''}
         <div class="f-hp"><span>${hp}</span> / ${unit.max}</div>
       </div>
       <div class="fx" aria-hidden="true"></div>
@@ -56,6 +66,39 @@ window.GL = window.GL || {};
     f.classList.toggle('ko', hp <= 0);
     if (wasUp && hp <= 0) stamp(f);
     fieldHp(side, i, hp);
+  }
+
+  // Ulti-Energie: Leiste füllen, bei voll leuchten
+  function setEn(side, i, v) {
+    const f = el(side, i);
+    if (!f || v == null) return;
+    const bar = f.querySelector('.f-en i');
+    if (bar) bar.style.width = Math.min(100, v) + '%';
+    f.classList.toggle('charged', v >= 100);
+    const u = fu(side, i);
+    if (u) u.classList.toggle('charged', v >= 100);
+  }
+  // Ulti-Moment: großer Name über der Figur, Lichtblitz, Figur leuchtet auf
+  function ultFx(ev) {
+    const f = el(ev.side, ev.from);
+    setEn(ev.side, ev.from, 0);
+    if (f) pulse(f, 'ult-glow');
+    const field = $('#field');
+    if (field) {
+      const run = window.__glRun || {};
+      const list = ev.side === 'crew' ? run.crew : (run.battle || {}).enemies;
+      const d = list && list[ev.from] ? (crewData(list[ev.from].id) || enemyData(list[ev.from].id)) : null;
+      const old = field.querySelector('.ult-call');
+      if (old) old.remove();
+      const c = document.createElement('div');
+      c.className = 'ult-call ' + (ev.side === 'crew' ? 'us' : 'them');
+      c.innerHTML = `<small>${d ? d.name : ''} · Ulti</small><b>${ev.name}!</b>`;
+      field.appendChild(c);
+      setTimeout(() => c.remove(), 1500);
+    }
+    const u = fu(ev.side, ev.from);
+    if (u) { pulse(u, 'ult-glow'); fx('fx-flash', { x: 0, y: 0 }, 300); fx('fx-ring', center(u), 700); }
+    pulse($('#field'), 'zoom');
   }
 
   // K.o.-Stempel
@@ -342,9 +385,13 @@ window.GL = window.GL || {};
           if (ev.crit) pulse(root, 'shake');
         }
         setHp(tside, ev.to, ev.hp);
+        setEn(ev.side, ev.from, ev.ea);
+        setEn(tside, ev.to, ev.et);
+      } else if (ev.k === 'ult') {
+        ultFx(ev);
       } else if (ev.k === 'dmg') {
         // Schaden durch eine Fähigkeit: Name über dem Auslöser einblenden
-        if (GL.data.abilities[ev.by]) callout(ev.by, ev.side === 'crew' ? 'enemy' : 'crew');
+        if (GL.data.abilities[ev.by] && !ev.ult) callout(ev.by, ev.side === 'crew' ? 'enemy' : 'crew');
         ev.list.forEach(x => {
           pulse(el(ev.side, x.to), 'hit'); float(ev.side, x.to, '-' + x.dmg, 'burn'); setHp(ev.side, x.to, x.hp);
           const p = center(fu(ev.side, x.to));
@@ -353,7 +400,7 @@ window.GL = window.GL || {};
           fieldFloat(ev.side, x.to, '-' + x.dmg, 'burn');
         });
       } else if (ev.k === 'heal') {
-        if (GL.data.abilities[ev.by]) callout(ev.by, ev.side);
+        if (GL.data.abilities[ev.by] && !ev.ult) callout(ev.by, ev.side);
         ev.list.forEach(x => {
           pulse(el(ev.side, x.to), 'healed'); float(ev.side, x.to, '+' + x.amount, 'heal'); setHp(ev.side, x.to, x.hp);
           fx('fx-heal', center(fu(ev.side, x.to)), 900); fieldFloat(ev.side, x.to, '+' + x.amount, 'heal');
@@ -365,7 +412,7 @@ window.GL = window.GL || {};
           pulse(fu(ev.side, x.to), 'rise'); fx('fx-heal', center(fu(ev.side, x.to)), 900);
         });
       } else if (ev.k === 'status') {
-        if (GL.data.abilities[ev.by]) callout(ev.by, ev.side === 'crew' && ev.list[0] && GL.data.statuses[ev.list[0].key].good ? 'crew' : (ev.side === 'crew' ? 'enemy' : 'crew'));
+        if (GL.data.abilities[ev.by] && !ev.ult) callout(ev.by, ev.side === 'crew' && ev.list[0] && GL.data.statuses[ev.list[0].key].good ? 'crew' : (ev.side === 'crew' ? 'enemy' : 'crew'));
         ev.list.forEach(x => {
           const d = GL.data.statuses[x.key];
           addLive(ev.side, x.to, x.key, x.rounds);
@@ -400,7 +447,7 @@ window.GL = window.GL || {};
         pulse($('#field'), 'special');
       } else if (ev.k === 'note') {
         pulse(root, 'flash');
-        if (ev.by) callout(ev.by, ev.side);
+        if (ev.by && !ev.ult) callout(ev.by, ev.side);
       }
       markFront(root);
     }

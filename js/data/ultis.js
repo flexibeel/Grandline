@@ -1,0 +1,105 @@
+// Ultimative Fähigkeiten (Ultis): jede Figur lädt im Kampf Energie auf (eigene Treffer, eingesteckte
+// Treffer). Bei voller Leiste ersetzt die Ulti den nächsten normalen Angriff.
+// Aufbau: { name, text, fx: [Effekte] }. Effekte werden der Reihe nach ausgeführt (js/engine/battle.js):
+//   { do: 'strike', mult, target: 'front' | 'weakest' | 'all', pierce }  Schaden = Angriff × mult
+//                                                                          pierce: ignoriert Rüstung/Abwehr
+//   { do: 'status', key, rounds, value, target: 'front' | 'all' | 'hit' | 'allies' | 'self' }
+//                                                                          hit = wer vom strike davor getroffen wurde
+//   { do: 'heal', pct, target: 'self' | 'all' | 'lowest' }               Anteil vom Max-Leben
+//   { do: 'atk', value, target: 'self' | 'allies' }                      Angriff bis Kampfende
+//   { do: 'armor', value, target: 'self' | 'allies' }                    Rüstung bis Kampfende
+//   { do: 'cleanse', target: 'allies' }                                   entfernt alle schlechten Zustände
+window.GL = window.GL || {};
+GL.data = GL.data || {};
+
+GL.data.ultis = {
+  // Strohhutbande
+  ruffy:   { name: 'Gum-Gum-Gatling', text: 'Trifft alle Gegner (90 %) und wird +2 Angriff stärker.',
+             fx: [{ do: 'strike', mult: 0.9, target: 'all' }, { do: 'atk', value: 2, target: 'self' }] },
+  zorro:   { name: 'Santoryu: Oni Giri', text: 'Gewaltiger Hieb auf den Vordersten (260 %), Blutung 3 Runden.',
+             fx: [{ do: 'strike', mult: 2.6, target: 'front' }, { do: 'status', key: 'bleed', rounds: 3, value: 3, target: 'hit' }] },
+  nami:    { name: 'Thunderbolt Tempo', text: 'Blitz auf alle Gegner (100 %), der Vorderste ist betäubt.',
+             fx: [{ do: 'strike', mult: 1, target: 'all' }, { do: 'status', key: 'stun', rounds: 1, target: 'front' }] },
+  lysop:   { name: 'Feuerstern', text: 'Schuss auf den schwächsten Gegner (240 %), setzt ihn in Brand.',
+             fx: [{ do: 'strike', mult: 2.4, target: 'weakest' }, { do: 'status', key: 'burning', rounds: 2, value: 3, target: 'hit' }] },
+  sanji:   { name: 'Diable Jambe', text: 'Brennender Tritt (200 %), Ziel brennt 2 Runden.',
+             fx: [{ do: 'strike', mult: 2, target: 'front' }, { do: 'status', key: 'burning', rounds: 2, value: 3, target: 'hit' }] },
+  chopper: { name: 'Monster Point', text: 'Heilt die ganze Crew um 15 % und wird selbst +4 Angriff stärker.',
+             fx: [{ do: 'heal', pct: 0.15, target: 'all' }, { do: 'atk', value: 4, target: 'self' }] },
+  robin:   { name: 'Cien Fleur: Clutch', text: 'Würgegriff am Vordersten (180 %), betäubt ihn.',
+             fx: [{ do: 'strike', mult: 1.8, target: 'front' }, { do: 'status', key: 'stun', rounds: 1, target: 'hit' }] },
+  franky:  { name: 'Radikal Beam', text: 'Strahl durch alle Gegner (120 %).',
+             fx: [{ do: 'strike', mult: 1.2, target: 'all' }] },
+  brook:   { name: 'Seelenlied', text: 'Furcht für alle Gegner (2 Runden), Mut für die Crew.',
+             fx: [{ do: 'status', key: 'fear', rounds: 2, target: 'all' }, { do: 'status', key: 'brave', rounds: 2, target: 'allies' }] },
+
+  // Marine
+  garp:    { name: 'Faust der Liebe', text: 'Ein einziger, riesiger Schlag (300 %).',
+             fx: [{ do: 'strike', mult: 3, target: 'front' }] },
+  hina:    { name: 'Fesselkäfig', text: 'Fesselt den Vordersten (Betäubt), alle Gegner geschwächt (2 Runden).',
+             fx: [{ do: 'status', key: 'stun', rounds: 1, target: 'front' }, { do: 'status', key: 'weak', rounds: 2, target: 'all' }] },
+  tashigi: { name: 'Shigure', text: 'Präziser Schnitt (180 %), die Crew bekommt +1 Angriff.',
+             fx: [{ do: 'strike', mult: 1.8, target: 'front' }, { do: 'atk', value: 1, target: 'allies' }] },
+  koby:    { name: 'Soru-Stoß', text: 'Blitzschneller Stoß auf den Schwächsten (200 %), heilt sich um 15 %.',
+             fx: [{ do: 'strike', mult: 2, target: 'weakest' }, { do: 'heal', pct: 0.15, target: 'self' }] },
+
+  // CP9
+  kalifa:  { name: 'Golden Away', text: 'Seifenschaum: alle Gegner 3 Runden geschwächt.',
+             fx: [{ do: 'status', key: 'weak', rounds: 3, target: 'all' }] },
+  kumadori:{ name: 'Seimei Kikan', text: 'Heilt sich um 40 %.',
+             fx: [{ do: 'heal', pct: 0.4, target: 'self' }] },
+  blueno:  { name: 'Tekkai Go', text: 'Die ganze Crew erleidet bis Kampfende 2 weniger Schaden.',
+             fx: [{ do: 'armor', value: 2, target: 'allies' }] },
+  jabra:   { name: 'Wolfsrudel', text: 'Reißender Angriff (220 %), Blutung 3 Runden.',
+             fx: [{ do: 'strike', mult: 2.2, target: 'front' }, { do: 'status', key: 'bleed', rounds: 3, value: 3, target: 'hit' }] },
+
+  // Baroque Works
+  bonclay: { name: 'Okama Kenpo', text: 'Tänzelnder Tritt (200 %), Ziel in Furcht (2 Runden).',
+             fx: [{ do: 'strike', mult: 2, target: 'front' }, { do: 'status', key: 'fear', rounds: 2, target: 'hit' }] },
+  mr5:     { name: 'Nose Fancy Cannon', text: 'Explosion auf alle Gegner (110 %).',
+             fx: [{ do: 'strike', mult: 1.1, target: 'all' }] },
+  vivi:    { name: 'Pfauenfächer', text: 'Heilt die Crew um 18 % und entfernt schlechte Zustände.',
+             fx: [{ do: 'heal', pct: 0.18, target: 'all' }, { do: 'cleanse', target: 'allies' }] },
+  mr1:     { name: 'Atlas-Klinge', text: 'Klingenhieb (240 %), Blutung 3 Runden.',
+             fx: [{ do: 'strike', mult: 2.4, target: 'front' }, { do: 'status', key: 'bleed', rounds: 3, value: 3, target: 'hit' }] },
+
+  // Freischaltbare
+  jinbei:  { name: 'Vagabundendrill', text: 'Wasserwelle auf alle (100 %), selbst +2 Rüstung.',
+             fx: [{ do: 'strike', mult: 1, target: 'all' }, { do: 'armor', value: 2, target: 'self' }] },
+  ace:     { name: 'Hiken', text: 'Feuerfaust auf alle (110 %), alle brennen 2 Runden.',
+             fx: [{ do: 'strike', mult: 1.1, target: 'all' }, { do: 'status', key: 'burning', rounds: 2, value: 3, target: 'all' }] },
+  law:     { name: 'Gamma Knife', text: 'Schneidet von innen (250 %), ignoriert Rüstung.',
+             fx: [{ do: 'strike', mult: 2.5, target: 'front', pierce: true }] },
+
+  // Bosse und Bösewichte
+  smoker:      { name: 'White Blow', text: 'Rauchfaust (200 %), betäubt das Ziel.',
+                 fx: [{ do: 'strike', mult: 2, target: 'front' }, { do: 'status', key: 'stun', rounds: 1, target: 'hit' }] },
+  arlong:      { name: 'Shark on Darts', text: 'Durchbohrt den Vordersten (230 %), Blutung.',
+                 fx: [{ do: 'strike', mult: 2.3, target: 'front' }, { do: 'status', key: 'bleed', rounds: 3, value: 3, target: 'hit' }] },
+  crocodile:   { name: 'Desert Spada', text: 'Sandklinge durch alle (100 %).',
+                 fx: [{ do: 'strike', mult: 1, target: 'all' }] },
+  enel:        { name: 'El Thor', text: 'Gewaltiger Blitz auf alle (90 %).',
+                 fx: [{ do: 'strike', mult: 0.9, target: 'all' }] },
+  'rob-lucci': { name: 'Rokuogan', text: 'Schockwelle (220 %) auf den Vordersten.',
+                 fx: [{ do: 'strike', mult: 2.2, target: 'front' }] },
+  kaku:        { name: 'Amaashi', text: 'Klingenwind auf alle (90 %), alle geschwächt.',
+                 fx: [{ do: 'strike', mult: 0.9, target: 'all' }, { do: 'status', key: 'weak', rounds: 2, target: 'all' }] },
+  morgan:      { name: 'Axt-Urteil', text: 'Schwerer Axthieb (200 %).', fx: [{ do: 'strike', mult: 2, target: 'front' }] },
+  buggy:       { name: 'Muggy Ball', text: 'Kanonenkugel auf alle (80 %).', fx: [{ do: 'strike', mult: 0.8, target: 'all' }] },
+  kuro:        { name: 'Nuki Ashi', text: 'Lautlose Klingen auf alle (90 %).', fx: [{ do: 'strike', mult: 0.9, target: 'all' }] },
+  krieg:       { name: 'Daisenso', text: 'Explosion (180 %), Gift für alle.',
+                 fx: [{ do: 'strike', mult: 1.8, target: 'front' }, { do: 'status', key: 'poison', rounds: 2, value: 2, target: 'all' }] },
+  hatchan:     { name: 'Takoyaki-Punch', text: 'Sechs Fäuste (200 %).', fx: [{ do: 'strike', mult: 2, target: 'front' }] },
+  wapol:       { name: 'Baku-Baku-Kanone', text: 'Verschlingt und spuckt (180 %), heilt sich.',
+                 fx: [{ do: 'strike', mult: 1.8, target: 'front' }, { do: 'heal', pct: 0.15, target: 'self' }] }
+};
+
+// Wer keine eigene Ulti hat, bekommt eine nach seiner Rolle (Crew) bzw. einen starken Schlag (Gegner)
+GL.data.ultiDefaults = {
+  kaempfer: { name: 'Volltreffer', text: 'Wuchtiger Schlag auf den Vordersten (200 %).', fx: [{ do: 'strike', mult: 2, target: 'front' }] },
+  brecher:  { name: 'Bollwerk', text: 'Heilt sich um 25 % und erleidet bis Kampfende 2 weniger Schaden.',
+              fx: [{ do: 'heal', pct: 0.25, target: 'self' }, { do: 'armor', value: 2, target: 'self' }] },
+  helfer:   { name: 'Erste Hilfe', text: 'Heilt die Crew um 15 % und entfernt schlechte Zustände.',
+              fx: [{ do: 'heal', pct: 0.15, target: 'all' }, { do: 'cleanse', target: 'allies' }] },
+  foe:      { name: 'Wutschlag', text: 'Schwerer Schlag (180 %).', fx: [{ do: 'strike', mult: 1.8, target: 'front' }] }
+};

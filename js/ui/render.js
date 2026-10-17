@@ -125,6 +125,15 @@ window.GL = window.GL || {};
     const a = ability(id);
     return a ? `<span class="abil"><b>${a.name}:</b> ${abilityTag(a)} ${a.text}</span>` : '';
   }
+  // Ulti einer Figur (eigene oder nach Rolle)
+  function ultiOf(id, role) {
+    const U = GL.data.ultis || {}, D = GL.data.ultiDefaults || {};
+    return U[id] || (role ? D[role] : null) || null;
+  }
+  function ultiLine(id, role) {
+    const u = ultiOf(id, role);
+    return u ? `<span class="abil ulti-line"><b>⚡ Ulti ${u.name}:</b> ${u.text}</span>` : '';
+  }
 
   function xpBar(u) {
     const need = GL.run.xpNeed(u.lvl);
@@ -209,6 +218,7 @@ window.GL = window.GL || {};
       <span class="card-type">${badge(d.type)} ${tags(d)}</span>
       <span class="card-text">
         ${a ? `<b>${a.name}:</b> ${a.text}` : ''}
+        ${ultiOf(d.id, d.role) ? `<span class="card-ult" title="${esc(ultiOf(d.id, d.role).text)}">⚡ Ulti: <b>${ultiOf(d.id, d.role).name}</b></span>` : ''}
         ${t ? `<span class="card-trait"><b>${t.name}:</b> ${t.text}</span>` : ''}
         ${o.extra || ''}
       </span>
@@ -526,6 +536,7 @@ window.GL = window.GL || {};
     if (ev.k === 'note') return ev.text;
     if (ev.k === 'round') return '';
     if (ev.k === 'special') return `Spezialangriff: ${ev.name}!`;
+    if (ev.k === 'ult') return `${anyData(ev.by) ? anyData(ev.by).name : ''} entfesselt die Ulti: ${ev.name}!`;
     if (ev.k === 'skip') return `${targetName(run, ev.side, ev.to)} ist betäubt und setzt aus.`;
     if (ev.k === 'immune') return `${targetName(run, ev.side, ev.to)} lässt sich nicht beeindrucken (${GL.data.statuses[ev.key].name} abgewehrt).`;
     if (ev.k === 'cleanse') return `${anyData(ev.by) ? anyData(ev.by).name : 'Ein Helfer'} befreit ${targetName(run, ev.side, ev.to)} von ${GL.data.statuses[ev.key].name}.`;
@@ -551,7 +562,9 @@ window.GL = window.GL || {};
     }
 
     const actor = SPECIAL[ev.by] || (anyData(ev.by) ? anyData(ev.by).name : '');
-    const skill = ability(ev.by) ? ` (${ability(ev.by).name})` : '';
+    const cm = run.crew.find(x => x.id === ev.by);
+    const ulti = ev.ult ? ultiOf(ev.by, cm ? cm.role : 'foe') : null;
+    const skill = ulti ? ` (${ulti.name})` : ability(ev.by) ? ` (${ability(ev.by).name})` : '';
     const names = ev.list.map(x => targetName(run, ev.side, x.to));
     const many = ev.side === 'crew' ? 'die Crew' : (SPECIAL[ev.by] ? 'alle Gegner' : 'die anderen Gegner');
     const who = names.length > 2 ? many : names.join(' und ');
@@ -659,7 +672,7 @@ window.GL = window.GL || {};
         <button class="sheet-nav" data-act="sheet" data-i="${(i + 1) % run.crew.length}" aria-label="Nächste Figur">›</button>
       </div>
       <div class="sheet-tags">${badge(u.type)} <span>${tags(d)}</span> ${traitChip(u.trait)}</div>
-      <p class="sheet-abil">${abilityLine(u.id)}<span class="abil"><b>Eigenschaft ${t.name}:</b> ${t.text}</span></p>
+      <p class="sheet-abil">${abilityLine(u.id)}${ultiLine(u.id, u.role)}<span class="abil"><b>Eigenschaft ${t.name}:</b> ${t.text}</span></p>
 
       ${u.points > 0 ? `<div class="spend">
         <b>${u.points} Statuspunkte verteilen</b>

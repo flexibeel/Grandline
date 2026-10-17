@@ -97,6 +97,66 @@ window.GL = window.GL || {};
     }
     const statusOf = u => (GL.data.abilities[u.id] && GL.data.abilities[u.id].status) || null;
 
+    // ---------- Ultis: Energie laden, bei voller Leiste ersetzt die Ulti den nächsten Angriff ----------
+    const U = C.ult || { max: 100, gainHit: 25, gainHurt: 10, bossStart: 30 };
+    const UL = GL.data.ultis || {}, UD = GL.data.ultiDefaults || {};
+    const ultOf = u => {
+      if (u.side === 'crew') return UL[u.id] || UD[u.role] || UD.kaempfer || null;
+      if (u.boss || u.mini) return UL[u.id] || UD.foe || null;
+      return null;   // einfache Gegner haben keine Ulti
+    };
+    crew.concat(enemies).forEach(u => { u.ult = ultOf(u); u.energy = !u.ult ? 0 : u.side === 'enemy' && u.boss ? U.bossStart : (U.start || 0); });
+    const charge = (u, n) => { if (u.ult && u.hp > 0) u.energy = Math.min(U.max, u.energy + n); };
+
+    function ultStrike(u, t, mult, pierce) {
+      let m = typeMult(u.type, t.type);
+      if (m < 1 && u.ignoreWeak) m = 1;
+      if (m > 1 && u.side === 'crew') m += flags.effBonus;
+      let d = u.atk * mult * m * (1 + (u.dmgPct || 0));
+      if (t.boss || t.mini) d *= 1 + (u.bossPct || 0);
+      if (u.status.fear) d *= 0.65;
+      if (t.status.weak) d *= 1.25;
+      d = pierce ? Math.round(d) : Math.round(d * (1 - (t.guard || 0))) - (t.armor || 0);
+      return Math.max(1, d);
+    }
+    function doUlt(u) {
+      const ult = u.ult;
+      u.energy = 0;
+      events.push({ k: 'ult', side: u.side, from: idx(u), by: u.id, name: ult.name });
+      let hitList = [];
+      ult.fx.forEach(f => {
+        const foes = foesOf(u), al = allies(u);
+        if (f.do === 'strike') {
+          const living = alive(foes);
+          if (!living.length) return;
+          const targets = f.target === 'all' ? living
+            : f.target === 'weakest' ? [living.reduce((a, b) => (b.hp < a.hp ? b : a))] : [living[0]];
+          const list = targets.map(t => { const d = ultStrike(u, t, f.mult, f.pierce); return { to: foes.indexOf(t), dmg: Math.min(t.hp, d), hp: damage(t, d) }; });
+          hitList = targets;
+          events.push({ k: 'dmg', side: targets[0].side, list, by: u.id, ult: true });
+          checkRevives();
+        } else if (f.do === 'status') {
+          const list = f.target === 'all' ? alive(foes) : f.target === 'front' ? alive(foes).slice(0, 1)
+            : f.target === 'hit' ? hitList.filter(t => t.hp > 0) : f.target === 'allies' ? alive(al) : [u];
+          const got = list.map(t => addStatus(t, f.key, f.rounds, f.value)).filter(Boolean);
+          if (got.length) events.push({ k: 'status', side: list[0].side, list: got, by: u.id, ult: true });
+        } else if (f.do === 'heal') {
+          const pool = f.target === 'all' ? alive(al) : f.target === 'lowest' ? alive(al).sort((a, b) => a.hp / a.max - b.hp / b.max).slice(0, 1) : [u];
+          const hm = u.side === 'crew' ? flags.healMult : 1;
+          const list = pool.map(t => ({ to: idx(t), amount: heal(t, Math.max(1, Math.round(t.max * f.pct * hm))), hp: t.hp })).filter(x => x.amount > 0);
+          if (list.length) events.push({ k: 'heal', side: u.side, list, by: u.id, ult: true });
+        } else if (f.do === 'atk' || f.do === 'armor') {
+          (f.target === 'allies' ? alive(al) : [u]).forEach(t => { t[f.do] = (t[f.do] || 0) + f.value; });
+          events.push({ k: 'note', by: u.id, side: u.side, ult: true,
+            text: `${nameOf(u)}: ${f.target === 'allies' ? 'alle' : 'selbst'} +${f.value} ${f.do === 'atk' ? 'Angriff' : 'Rüstung'}.` });
+        } else if (f.do === 'cleanse') {
+          alive(al).forEach(t => DEBUFF_ORDER.forEach(k => {
+            if (t.status[k]) { delete t.status[k]; events.push({ k: 'cleanse', side: t.side, to: idx(t), key: k, by: u.id }); }
+          }));
+        }
+      });
+    }
+
     // ---------- Kampfbeginn ----------
     if (flags.cannon) {
       const list = enemies.map((u, i) => ({ to: i, dmg: Math.min(u.hp, flags.cannon), hp: damage(u, flags.cannon) }));
@@ -193,6 +253,7 @@ window.GL = window.GL || {};
           events.push({ k: 'skip', side: u.side, to: idx(u) });
           continue;
         }
+        if (u.ult && u.energy >= U.max) { doUlt(u); continue; }
         const foes = foesOf(u);
         const attacks = u.ability === 'double' ? 2 : 1;
 
@@ -209,9 +270,12 @@ window.GL = window.GL || {};
           if (mult < 1 && u.ignoreWeak) mult = 1;
           if (mult > 1 && u.side === 'crew') mult += flags.effBonus;
 
-          let dmg = (u.atk + R.int(run, -C.dmgSpread, C.dmgSpread)) * mult * (1 + u.dmgPct);
+          // Schaden schwankt prozentual (±dmgSpreadPct), dazu eine kleine Grund-Krit-Chance für alle
+          const sp = C.dmgSpreadPct != null ? C.dmgSpreadPct : 0.18;
+          let dmg = u.atk * (1 + (R.float(run) * 2 - 1) * sp) * mult * (1 + u.dmgPct);
           if (target.boss || target.mini) dmg *= 1 + u.bossPct;
-          const crit = u.crit > 0 && R.float(run) < u.crit;
+          const critCh = (u.crit || 0) + (C.baseCrit || 0);
+          const crit = critCh > 0 && R.float(run) < critCh;
           if (crit) dmg *= u.critMult;
           if (u.status.fear) dmg *= 0.65;
           if (target.status.weak) dmg *= 1.25;
@@ -223,8 +287,11 @@ window.GL = window.GL || {};
           else if (target.dodge > 0 && R.float(run) < target.dodge) { miss = true; dmg = 0; }
 
           damage(target, dmg);
+          charge(u, U.gainHit);
+          if (dmg > 0) charge(target, U.gainHurt);
           const eff = mult > 1 ? 'strong' : mult < 1 ? 'weak' : '';
-          events.push({ k: 'hit', side: u.side, from: idx(u), to, dmg, crit: crit && dmg > 0, eff, blocked, miss, hp: target.hp });
+          events.push({ k: 'hit', side: u.side, from: idx(u), to, dmg, crit: crit && dmg > 0, eff, blocked, miss, hp: target.hp,
+            ea: u.ult ? u.energy : null, et: target.ult ? target.energy : null });
 
           // Fähigkeiten nach einem Treffer
           if (dmg > 0) {
