@@ -218,7 +218,7 @@ window.GL = window.GL || {};
   // Erster Satz, ohne Klammern, höchstens ~56 Zeichen
   function shortText(t) {
     let s = String(t || '').replace(/\s*\([^)]*\)/g, '').split(/(?<=[.!])\s/)[0].replace(/[.!]$/, '');
-    return s.length > 56 ? s.slice(0, 54).replace(/\s+\S*$/, '') + '…' : s;
+    return s.length > 74 ? s.slice(0, 72).replace(/\s+\S*$/, '') + '…' : s;
   }
   function crewCardFace(d, m, opts) {
     const o = opts || {};
@@ -424,10 +424,9 @@ window.GL = window.GL || {};
       el.classList.add('fly');
       setTimeout(() => { el.remove(); if (chip) { chip.classList.remove('bump'); void chip.offsetWidth; chip.classList.add('bump'); } }, 650);
     };
-    // Klicks gehen durch (pointer-events: none), daher schließt jeder Tipp irgendwo das Plakat
-    const anyTap = () => { close(); document.removeEventListener('pointerdown', anyTap, true); };
-    document.addEventListener('pointerdown', anyTap, true);
-    setTimeout(close, 2400);
+    // Nur ein Tipp aufs Plakat selbst schließt es; der Tipp wird dabei verschluckt (nichts darunter wird ausgelöst)
+    el.querySelector('.bp-poster').addEventListener('click', e => { e.stopPropagation(); e.preventDefault(); close(); });
+    setTimeout(close, 2600);
   }
 
   // ---------- Seekarte (wie bei Pokelike) ----------
@@ -879,7 +878,7 @@ window.GL = window.GL || {};
           <div class="cards shop">${cards}</div>${tipLine(tip)}
           <div class="shop-actions">
             <button class="btn ghost" data-act="reroll"${gold < roll ? ' disabled' : ''}>Neu würfeln (${roll} Gold) ${keyHint('R')}</button>
-            <button class="btn" data-act="leave">Weitersegeln ${keyHint('Leertaste')}</button>
+            <div class="dock"><button class="btn" data-act="leave">Weitersegeln ${keyHint('Leertaste')}</button></div>
           </div>
           <div class="lbl">Deine Crew${full ? ' <small>Schiff voll: entlasse jemanden für Platz</small>' : ''}</div>
           <div class="sell-row">${sell}</div>`;
@@ -971,7 +970,7 @@ window.GL = window.GL || {};
           ${boss && ability(boss.id) ? `<p class="hint boss-mech"><b>${enemyData(boss.id).name}, ${ability(boss.id).name}:</b> ${abilityTag(ability(boss.id))} ${ability(boss.id).text}</p>` : ''}
           ${boss && ability(boss.id) && ability(boss.id).status ? counterHint(run, ability(boss.id).status.key) : ''}
           ${specialPanel(run)}
-          <button class="btn" data-act="fight">Kampf starten ${keyHint('Leertaste')}</button>`;
+          <div class="dock"><button class="btn" data-act="fight">Kampf starten ${keyHint('Leertaste')}</button></div>`;
       }
 
       case 'battle': {
@@ -992,7 +991,7 @@ window.GL = window.GL || {};
           ${GL.arena.html(run, anim)}
           <div class="log" id="log" role="status" aria-live="polite">${log}</div>
           ${done && b.win ? battleSummary(run) : ''}
-          ${controls}`;
+          <div class="dock">${controls}</div>`;
       }
 
       case 'awaken':
@@ -1036,7 +1035,7 @@ window.GL = window.GL || {};
         const duelHtml = run.daily ? `<div class="duel-sum"><span class="event-kicker">Tageskarte</span><span>Dein Ergebnis heute: <b>${GL.run.score(run).toLocaleString('de-DE')}</b> Punkte. Vergleiche dich in der Rangliste unter „Tageskarte“.</span></div>` : run.duel ? `<div class="duel-sum"><span class="event-kicker">Wettfahrt ${run.duel}</span>
           <span>Dein Ergebnis: <b>${GL.run.score(run).toLocaleString('de-DE')}</b> Punkte. Schick deinem Freund den Code <b>${run.duel}</b>, er spielt denselben Run.</span>
           <button class="btn mini ghost" data-act="duel-copy" data-id="${run.duel}">Code teilen</button></div>` : '';
-        return `${head}${duelHtml}${record}${berry}${troHtml}${itemSum}${rankHtml}${heatUp}<div class="end-actions"><button class="btn" data-act="again">${run.daily ? 'Neuer Run' : run.duel ? 'Normaler Run' : 'Nochmal!'} ${keyHint('Leertaste')}</button>
+        return `${head}${duelHtml}${record}${berry}${troHtml}${itemSum}${rankHtml}${heatUp}<div class="end-actions dock"><button class="btn" data-act="again">${run.daily ? 'Neuer Run' : run.duel ? 'Normaler Run' : 'Nochmal!'} ${keyHint('Leertaste')}</button>
           <button class="btn ghost" data-act="hq">Hauptquartier ${keyHint('H')}</button></div>`;
       }
     }
@@ -2279,9 +2278,9 @@ window.GL = window.GL || {};
   }
 
   // Einblendungen blockieren keine Klicks; ein Tipp irgendwo blendet sie sofort aus
+  // Einblendung per Tipp auf sie selbst schließen; der Tipp löst darunter nichts aus
   function dismissOnTap(el) {
-    const off = () => { el.classList.add('out'); setTimeout(() => el.remove(), 400); document.removeEventListener('pointerdown', off, true); };
-    setTimeout(() => document.addEventListener('pointerdown', off, true), 150);
+    el.addEventListener('click', e => { e.stopPropagation(); e.preventDefault(); el.classList.add('out'); setTimeout(() => el.remove(), 400); });
   }
 
   // Kleine Einblendung beim Erreichen einer neuen Insel innerhalb eines Meeres

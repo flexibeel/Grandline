@@ -123,8 +123,8 @@
     t.className = 'toast';
     t.innerHTML = html;
     box.appendChild(t);
-    setTimeout(() => t.classList.add('out'), 4200);
-    setTimeout(() => t.remove(), 4800);
+    setTimeout(() => t.classList.add('out'), 3400);
+    setTimeout(() => t.remove(), 3900);
   }
 
   function saveProfile() { if (profile.nickname) GL.code.ensure(profile); GL.save.storeProfile(profile); }
