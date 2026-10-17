@@ -53,6 +53,11 @@ window.GL = window.GL || {};
     },
 
     // ---------- Piratenrang ----------
+    // Prestige: Stufen nach dem letzten Rang (je GL.data.prestigeXp Rang-EP)
+    prestige(profile) {
+      const R = GL.data.ranks, last = R[R.length - 1].xp;
+      return Math.max(0, Math.floor(((profile.rankXp || 0) - last) / (GL.data.prestigeXp || 2500)));
+    },
     rankIndex(profile) {
       const R = GL.data.ranks;
       let i = 0;
@@ -64,7 +69,10 @@ window.GL = window.GL || {};
       const R = GL.data.ranks;
       const i = GL.meta.rankIndex(profile);
       const cur = R[i], next = R[i + 1];
-      if (!next) return { i, rank: cur, next: null, have: 1, need: 1 };
+      if (!next) {
+        const P = GL.data.prestigeXp || 2500;
+        return { i, rank: cur, next: null, prestige: GL.meta.prestige(profile), have: (profile.rankXp - cur.xp) % P, need: P };
+      }
       return { i, rank: cur, next, have: profile.rankXp - cur.xp, need: next.xp - cur.xp };
     },
 
@@ -207,7 +215,10 @@ window.GL = window.GL || {};
         artifacts: Object.keys(profile.vault || {}).length,
         reached: [0, 1, 2].filter(i => c['reached:' + i]).length - 1,
         islands: Object.keys(c).filter(k => k.startsWith('isle:')).length,
-        heat: profile.heatMax || 0
+        heat: profile.heatMax || 0,
+        duels: profile.squadW || 0,
+        quests: profile.questsDone || 0,
+        prestige: GL.meta.prestige(profile)
       };
     },
     cosmeticUnlocked(profile, item, vals) {
@@ -218,7 +229,7 @@ window.GL = window.GL || {};
     reqText(item) {
       const L = { rank: 'Rang', runs: 'Runs', wins: 'Siege', kos: 'K.o.s', maxHit: 'Schaden mit einem Schlag', bosses: 'Inselbosse besiegt',
         hunted: 'Kopfgeld-Ziele besiegt', raids: 'Raids gewonnen', artifacts: 'Artefakte gefunden', reached: 'Meer erreicht',
-        islands: 'verschiedene Inseln besucht', heat: 'Kopfgeld-Stufe' };
+        islands: 'verschiedene Inseln besucht', heat: 'Kopfgeld-Stufe', duels: 'Stammcrew-Duelle gewonnen', quests: 'Aufträge erledigt', prestige: 'Prestige-Stufe' };
       return Object.keys(item.req || {}).map(k => k === 'heat' ? `Kopfgeld-Stufe ${item.req.heat}` : k === 'rank' ? `Rang ${item.req.rank}` : k === 'reached' ? `${GL.data.islands[item.req.reached].name} erreichen` : `${item.req[k]} ${L[k]}`).join(', ') || 'frei';
     },
 

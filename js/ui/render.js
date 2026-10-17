@@ -1175,7 +1175,7 @@ window.GL = window.GL || {};
         <button class="link pcard-close" data-act="lb-view-close">✕</button>
         <div class="pcard-top">
           <span class="pcard-cap">${x.look ? portrait(x.look, x.cos, 'lg') : cap ? GL.sprites.render(cap) : ''}</span>
-          <b class="pcard-name">${medal(GL.meta.rankIndex({ rankXp: x.rankXp || 0 }), 'small')} ${esc(x.name || 'Unbekannter Pirat')}${isMe ? ' <em>du</em>' : ''}</b>
+          <b class="pcard-name">${medal(GL.meta.rankIndex({ rankXp: x.rankXp || 0 }), 'small')} ${esc(x.name || 'Unbekannter Pirat')} ${badgeIcon(x.cos, true)}${isMe ? ' <em>du</em>' : ''}</b>
           ${x.cos && x.cos.star ? '<span class="admin-tag big">★ Entwickler · hat dieses Spiel gebaut</span>' : ''}
           <small>${x.cos && x.cos.title ? esc(titleName(x.cos.title)) + ' · ' : ''}${esc(x.rank || '')}</small>
         </div>
@@ -1219,7 +1219,7 @@ window.GL = window.GL || {};
       return `<li class="lb-row${x.id === st.uid ? ' me' : ''}${k < 3 ? ' top' + (k + 1) : ''}${x.cos && x.cos.bg ? ' rowbg-' + x.cos.bg : ''}" data-act="lb-view" data-id="${esc(x.id)}" tabindex="0" role="button">
         <span class="lb-pos">${k + 1}</span>
         <span class="lb-cap">${x.look ? portrait(x.look, x.cos, 'sm') : cap ? GL.sprites.render(cap) : ''}</span>
-        <span class="lb-who"><b>${medal(GL.meta.rankIndex({ rankXp: x.rankXp || 0 }), 'tiny')} ${esc(x.name || 'Unbekannter Pirat')}${x.id === st.uid ? ' <em>du</em>' : ''}${x.cos && x.cos.star ? ' <em class="admin-tag" title="Der Entwickler dieses Spiels. Unbesiegbar (fast).">★ Entwickler</em>' : ''}</b>
+        <span class="lb-who"><b>${medal(GL.meta.rankIndex({ rankXp: x.rankXp || 0 }), 'tiny')} ${esc(x.name || 'Unbekannter Pirat')} ${badgeIcon(x.cos)}${x.id === st.uid ? ' <em>du</em>' : ''}${x.cos && x.cos.star ? ' <em class="admin-tag" title="Der Entwickler dieses Spiels. Unbesiegbar (fast).">★ Entwickler</em>' : ''}</b>
           <small>${x.cos && x.cos.title ? esc(titleName(x.cos.title)) + ' · ' : ''}${esc(x.rank || '')}${extra ? ' · ' + extra : ''}</small></span>
         <span class="lb-score"><b>${fmt(value)}</b><small>${unit}</small></span>
       </li>`;
@@ -1523,10 +1523,10 @@ window.GL = window.GL || {};
       <div class="sw">${list.map(c => `<button class="sw-c${d.char.look[part] === c ? ' on' : ''}" style="background:${c}" data-act="char-part" data-part="${part}" data-v="${c}" aria-label="${c}"></button>`).join('')}</div></div>`;
     const hats = { '': 'Ohne', straw: 'Strohhut', band: 'Kopftuch', cap: 'Mütze', hood: 'Kapuze', afro: 'Locken' };
     const opt = (act, cur, list) => list.map(([id, name]) => `<button class="seg${cur === id ? ' on' : ''}" data-act="${act}" data-v="${id}">${name}</button>`).join('');
-    const cosGrid = (kind, label, cls) => `<div class="cos-block"><span class="lbl">${label}</span><div class="cos-grid">${GL.data.cosmetics[kind].map(it => {
+    const cosGrid = (kind, label, cls) => `<div class="cos-block"><span class="lbl">${label}</span><div class="cos-grid">${(kind === 'badges' ? GL.data.badges : GL.data.cosmetics[kind]).map(it => {
       const ok = GL.meta.cosmeticUnlocked(profile, it, vals);
       const on = d.cos[cls] === it.id;
-      const prev = kind === 'titles' ? `<b class="cos-title">${esc(it.name)}</b>`
+      const prev = kind === 'titles' ? `<b class="cos-title">${esc(it.name)}</b>` : kind === 'badges' ? `<span class="badge-prev">${badgeSvg(it.id) || '–'}</span>`
         : portrait(d.char.look, Object.assign({}, d.cos, { [cls]: it.id }), 'xs');
       return `<button class="cos${on ? ' on' : ''}${ok ? '' : ' locked'}" data-act="cos-pick" data-kind="${cls}" data-v="${it.id}"${ok ? '' : ' disabled'} title="${esc(it.name)}${ok ? '' : ': ' + GL.meta.reqText(it)}">
         ${prev}<small>${ok ? esc(it.name) : '🔒 ' + GL.meta.reqText(it)}</small></button>`;
@@ -1555,12 +1555,13 @@ window.GL = window.GL || {};
           </div>
         </div>
         <div class="cos-all">
-          <p class="hint">Freischaltbar: Hintergründe, Rahmen, Animationen, Titel und Flaggen. Alle sehen sie in der Rangliste. Schwarz-weiße Felder zeigen, was dir noch fehlt.</p>
+          <p class="hint">Alles hier sehen andere in der Rangliste. 🔒 zeigt, was dir noch fehlt.</p>
           ${cosGrid('backgrounds', 'Hintergrund', 'bg')}
           ${cosGrid('frames', 'Rahmen', 'frame')}
           ${cosGrid('animations', 'Animation', 'anim')}
           ${cosGrid('titles', 'Titel', 'title')}
           ${cosGrid('flags', 'Piratenflagge', 'flag')}
+          ${cosGrid('badges', 'Abzeichen', 'badge')}
         </div>
         <div class="pf-actions">
           ${profile.nickname ? '<button class="btn ghost" data-act="title-back">Zurück</button>' : ''}
@@ -1615,6 +1616,26 @@ window.GL = window.GL || {};
     embCache[tier] = `<svg class="emb-svg" viewBox="0 -0.5 12 13.5" shape-rendering="crispEdges" aria-hidden="true">${depth}${px}</svg>`;
     return embCache[tier];
   }
+  // Abzeichen als Pixelbild mit Tiefenkante (leichter 3D-Effekt)
+  const badgeCache = {};
+  function badgeSvg(id) {
+    if (badgeCache[id] != null) return badgeCache[id];
+    const b = (GL.data.badges || []).find(x => x.id === id);
+    if (!b || !b.px.length) return (badgeCache[id] = '');
+    let depth = '', px = '';
+    b.px.forEach((row, y) => row.split('').forEach((ch, x) => {
+      if (ch === '.' || !b.pal[ch]) return;
+      depth += `<rect x="${x}" y="${y + 1}" width="1" height="1" fill="rgba(40,25,10,.35)"/>`;
+      px += `<rect x="${x}" y="${y}" width="1" height="1" fill="${b.pal[ch]}"/>`;
+    }));
+    return (badgeCache[id] = `<svg class="badge-svg" viewBox="0 0 12 13" shape-rendering="crispEdges" aria-hidden="true">${depth}${px}</svg>`);
+  }
+  function badgeIcon(cos, big) {
+    const id = cos && cos.badge;
+    if (!id || id === 'keins') return '';
+    const b = (GL.data.badges || []).find(x => x.id === id);
+    return b ? `<span class="badge-ico${big ? ' big' : ''}" data-tip="${esc(b.name)}: ${esc(b.desc)}">${badgeSvg(id)}</span>` : '';
+  }
   function medal(i, cls) {
     const t = rankTier(i);
     const step = Math.min(4, i % 5);
@@ -1643,8 +1664,8 @@ window.GL = window.GL || {};
           <div class="rank-body">
             <span class="event-kicker">Piratenrang ${rp.i + 1} von ${R.length} · ${TIER_NAME[rankTier(rp.i)]}</span>
             <b class="rank-name">${rp.rank.name}</b>
-            <div class="xpbar big rank-bar"><i style="width:${pct}%"></i><span class="rank-bar-txt">${rp.next ? `${fmt(rp.have)} / ${fmt(rp.need)} EP` : 'Maximum'}</span></div>
-            <small>${rp.next ? `Nächster Rang: <b>${rp.next.name}</b>${rankReward(rp.next)}` : 'Höchster Rang erreicht. Du bist der Piratenkönig!'}</small>
+            <div class="xpbar big rank-bar"><i style="width:${rp.next ? pct : Math.round(100 * rp.have / rp.need)}%"></i><span class="rank-bar-txt">${fmt(rp.have)} / ${fmt(rp.need)} EP</span></div>
+            <small>${rp.next ? `Nächster Rang: <b>${rp.next.name}</b>${rankReward(rp.next)}` : `<b>Prestige ${rp.prestige}</b>${rp.prestige ? '' : ' – du bist Piratenkönig!'} Weiter sammeln für Prestige ${rp.prestige + 1}.`}</small>
           </div>
           <div class="rank-perk"><b>+${bonus} %</b><small>Berry pro Run<br>(+2 % je Rang)</small></div>
         </div>

@@ -18,7 +18,7 @@
     ui.draft = {
       name: profile.nickname || '',
       char: { type: ch.type, role: ch.role, look: Object.assign({}, ch.look) },
-      cos: Object.assign({ bg: 'meer', frame: 'holz', anim: 'ruhig', title: 'neuling', flag: 'keine' }, profile.cos || {})
+      cos: Object.assign({ bg: 'meer', frame: 'holz', anim: 'ruhig', title: 'neuling', flag: 'keine', badge: 'keins' }, profile.cos || {})
     };
     ui.profileFrom = ui.screen || 'hq';
     ui.screen = 'profile';
@@ -44,11 +44,13 @@
   function saveProfile() { GL.save.storeProfile(profile); }
 
   // Neu freigespielte Kosmetik kurz zeigen (Hintergrund, Rahmen, Animation, Titel, Flagge)
-  const COS_KIND = { backgrounds: 'Hintergrund', frames: 'Rahmen', animations: 'Animation', titles: 'Titel', flags: 'Flagge' };
+  const COS_KIND = { backgrounds: 'Hintergrund', frames: 'Rahmen', animations: 'Animation', titles: 'Titel', flags: 'Flagge', badges: 'Abzeichen' };
+  const allCos = () => Object.assign({}, GL.data.cosmetics, { badges: GL.data.badges || [] });
   function checkCosmetics() {
     const vals = GL.meta.progressValues(profile);
     const now = [];
-    Object.keys(GL.data.cosmetics).forEach(k => GL.data.cosmetics[k].forEach(it => {
+    const ALL = allCos();
+    Object.keys(ALL).forEach(k => ALL[k].forEach(it => {
       if (Object.keys(it.req || {}).length && GL.meta.cosmeticUnlocked(profile, it, vals)) now.push(k + ':' + it.id);
     }));
     if (!profile.cosSeen) { profile.cosSeen = now; return; }
@@ -57,7 +59,7 @@
     profile.cosSeen = profile.cosSeen.concat(fresh);
     fresh.slice(0, 3).forEach(x => {
       const [k, id] = x.split(':');
-      const it = GL.data.cosmetics[k].find(y => y.id === id);
+      const it = ALL[k].find(y => y.id === id);
       toast(`<span><b>Neu für dein Profil: ${COS_KIND[k]} „${it.name}“</b>Im Profil ausrüsten, alle sehen es in der Rangliste.</span>`);
     });
     if (fresh.length > 3) toast(`<span><b>Und ${fresh.length - 3} weitere Profil-Teile</b>Schau im Profil vorbei.</span>`);
