@@ -985,7 +985,9 @@ window.GL = window.GL || {};
       run.bosses = GL.data.islands.map(isl => isl.bosses[R.int(run, 0, isl.bosses.length - 1)]);
       // Eigener Pirat steht als erster Kapitän zur Wahl
       if (p.self) { registerSelf(p.self); run.start.self = p.self; }
-      run.pool = (p.self ? ['self'] : []).concat(GL.config.starters, run.unlocked.filter(id => byId(GL.data.crew, id)))
+      // Nicht alle auf einmal: dein eigener Pirat plus eine kleine, zufällige Auswahl aus allen freigeschalteten Kapitänen
+      const capPool = GL.config.starters.concat(run.unlocked.filter(id => byId(GL.data.crew, id) && !GL.config.starters.includes(id)));
+      run.pool = (p.self ? ['self'] : []).concat(R.sample(run, capPool, Math.min(capPool.length, GL.config.captainChoices || 3)))
         .map(id => rollOffer(run, id));
       return run;
     },

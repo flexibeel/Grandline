@@ -3424,11 +3424,9 @@ button.duel-chip { all: unset; cursor: pointer; font-size: .8rem; font-weight: 7
 /* Tipp-Abzeichen bei Beutekarten innen statt am Rand (wurde abgeschnitten) */
 .opt.loot-opt.is-tip > .tip-badge { top: 6px !important; right: 6px !important; left: auto !important; transform: none !important; font-size: 11px; padding: 2px 7px; z-index: 5; }
 /* Nach dem Sieg: Kampfbild schrumpft, Ergebnis ohne Scrollen sichtbar */
-.battle3d.won .field { height: 150px !important; transition: height .45s ease; }
 .battle3d.won .arena.hud { display: none; }
 .battle3d.won + .log { display: none; }
 @media (max-width: 520px) {
-  .battle3d.won .field { height: 120px !important; }
   .summary { gap: 4px; }
   .sum-row { grid-template-columns: 28px minmax(70px, .9fr) 1.3fr; gap: 8px; padding: 5px 8px; }
   .sum-xp { grid-column: auto; }
@@ -3595,3 +3593,13 @@ body.reloading { opacity: .5; transition: opacity .12s; }
 .harbor-box b { display: block; margin: 2px 0 4px; }
 .harbor-box ul { margin: 0; padding-left: 18px; font-size: .84rem; color: #5a4a36; }
 .harbor-box li + li { margin-top: 2px; }
+/* Seltenes soll man sofort sehen: Epics leuchten lila, Legendäres golden mit Glanz */
+.opt.loot-opt.lr-epic { box-shadow: 0 0 0 2px #9a5bd0, 0 0 18px rgba(154,91,208,.45) !important; animation: deal .35s ease-out backwards, glow-epic 2.4s ease-in-out .4s infinite; }
+.opt.loot-opt.lr-legendary { box-shadow: 0 0 0 3px #e0a030, 0 0 24px rgba(224,160,48,.6) !important; animation: deal .35s ease-out backwards, glow-leg 2s ease-in-out .4s infinite; }
+@keyframes glow-epic { 50% { box-shadow: 0 0 0 2px #9a5bd0, 0 0 28px rgba(154,91,208,.65); } }
+@keyframes glow-leg { 50% { box-shadow: 0 0 0 3px #f2c050, 0 0 36px rgba(240,180,60,.8); } }
+.opt.loot-opt.lr-legendary::after { content: ''; position: absolute; inset: 0; pointer-events: none; border-radius: inherit;
+  background: linear-gradient(115deg, transparent 35%, rgba(255,255,255,.55) 48%, transparent 60%); background-size: 250% 100%; animation: c3-shine 3s ease-in-out infinite; mix-blend-mode: soft-light; }
+/* 3-Sterne-Figuren in Taverne und Auswahl: goldener Rahmen und Glanz */
+.opt.card .card-face.cf3.shiny { box-shadow: 0 0 0 2px #e2c27a, 0 0 18px rgba(226,194,122,.55), 0 10px 22px -12px rgba(60,40,15,.4) !important; }
+@media (prefers-reduced-motion: reduce) { .opt.loot-opt.lr-epic, .opt.loot-opt.lr-legendary { animation: none !important; } }

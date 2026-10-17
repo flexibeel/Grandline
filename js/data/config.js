@@ -17,6 +17,7 @@ GL.config = {
   maxCrew: 6,
   starters: ['ruffy', 'zorro', 'nami'],   // wählbare Kapitäne zu Beginn eines Runs
   choicesPerPick: 3,      // wie viele Optionen bei Rekrutierung/Teufelsfrucht
+  captainChoices: 3,      // so viele Kapitäne stehen beim Start zur Wahl (plus dein eigener Pirat)
 
   // Raids und epische Früchte
   // Spezialangriff: Ladung pro Sieg (Kopfgeldjäger zählen doppelt), voll bei specialMax
@@ -25,7 +26,7 @@ GL.config = {
   items: { dropElite: 0.6, dropBoss: 1, dropTreasure: 0.3, chestMax: 40, takeBase: 2, maxLevel: 5, forgeBase: 25 },
   // Taverne: Preise in Gold, Gold für Siege (+ Zinsen), Neu würfeln wird pro Besuch teurer
   shop: { startGold: 30, base: 14, perStar: 10, perLevel: 3, locked: 12, sellShare: 0.5,
-          reroll: 6, rerollStep: 3, extraOffers: 1, interestMax: 3,
+          reroll: 4, rerollStep: 3, extraOffers: 0, interestMax: 3,
           win: { battle: 10, elite: 16, boss: 28, raid: 28 } },
   artLevels: [1, 2, 4, 7, 11],   // Funde, die ein Artefakt für Stufe 1 bis 5 braucht
   trophyChance: { boss: 0.35, raid: 1, mini: 0.2 },   // Chance auf ein Artefakt
@@ -52,9 +53,9 @@ GL.config = {
 
   // Sterne neuer Crewmitglieder: Gewicht und Bonus auf die Grundwerte
   stars: [
-    { n: 1, w: 50, hp: -3, atk: 0 },
-    { n: 2, w: 38, hp: 0,  atk: 0 },
-    { n: 3, w: 12, hp: 4,  atk: 1 }
+    { n: 1, w: 44, hp: -3, atk: 0 },
+    { n: 2, w: 36, hp: 0,  atk: 0 },
+    { n: 3, w: 20, hp: 6,  atk: 2 }
   ],
 
   // Erfahrung und Level
@@ -78,7 +79,7 @@ GL.config = {
   enemyScale: 0.8,        // wie schnell normale Gegner pro Etappe stärker werden (längere Insel-Kapitel -> langsamer hochskalieren)
   eliteMult: 1.3,         // Kopfgeldjäger sind um diesen Faktor stärker
   // Mehr Leben, etwas weniger Angriff: Kämpfe dauern etwas länger, ohne insgesamt härter zu werden
-  grunt: { hpBase: 16, hpPerLevel: 4.6, atkBase: 3.7, atkPerLevel: 1.1, spdMin: 3, spdMax: 7 },
+  grunt: { hpBase: 16, hpPerLevel: 4.4, atkBase: 3.7, atkPerLevel: 1.06, spdMin: 3, spdMax: 7 },
   maxGrunts: 4,
   // Besondere Gegner (Sanitäter, Schildträger …): Chance pro normalem Gegner, wächst pro Meer; höchstens max pro Kampf
   foeKinds: { base: 0.14, perSea: 0.09, cap: 0.45, max: 2, fromStep: 2 },
