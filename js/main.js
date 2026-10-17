@@ -27,6 +27,7 @@
 
   const SPEED = { normal: 430, special: 820, ult: 900, fast: 90 };
 
+  const esc2 = t => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   let keyPick = false;   // Auswahl per Taste 1-9: ohne Bestätigung
   function draw() { GL.ui.render(run, anim, ui); }
 
@@ -494,9 +495,32 @@
         const v = inp ? inp.value.trim() : '';
         if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)) { toast('<span><b>E-Mail prüfen</b>Bitte eine gültige Adresse eingeben.</span>'); break; }
         (type === 'mail-link' ? GL.online.linkEmail(v) : GL.online.loginEmail(v)).then(res => {
+          ui.loginError = res.ok ? null : res.msg;
           if (!res.ok) toast(`<span><b>Hat nicht geklappt</b>${res.msg}</span>`);
+          const t = document.getElementById('title'); if (t) t.dataset.last = '';
           ui.lastStage = null; draw();
         });
+        break;
+      }
+      case 'xfer-copy': {
+        GL.transfer.exportCode(profile).then(code => {
+          ui.xferCode = code; ui.transferOpen = true;
+          const t = document.getElementById('title'); if (t) t.dataset.last = '';
+          draw();
+          const done = () => toast('<span><b>Code kopiert</b>Jetzt an dich selbst schicken und am anderen Gerät einfügen.</span>');
+          if (navigator.clipboard) navigator.clipboard.writeText(code).then(done, () => toast('<span><b>Bitte den Code markieren und kopieren</b>Er steht im Feld unter dem Knopf.</span>'));
+        });
+        break;
+      }
+      case 'xfer-import': {
+        const inp = document.getElementById('xfer-in');
+        GL.transfer.importCode(inp ? inp.value : '').then(p => {
+          p.savedAt = Date.now();
+          GL.save.replaceProfile(p);
+          try { localStorage.removeItem('grandline.run'); sessionStorage.setItem('gl.pulled', '1'); } catch (e2) { /* egal */ }
+          toast('<span><b>Spielstand übernommen</b>Lädt neu …</span>');
+          setTimeout(() => location.reload(), 600);
+        }).catch(err => toast(`<span><b>Hat nicht geklappt</b>${esc2(err.message)}</span>`));
         break;
       }
       case 'logout': {

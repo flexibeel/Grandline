@@ -1509,9 +1509,19 @@ window.GL = window.GL || {};
       <p class="ts-foot">${esc(document.querySelector('footer.fan') ? document.querySelector('footer.fan').textContent : '')}</p>
     </div>`;
   }
+  // Spielstand per Code übertragen (ohne Mail)
+  function transferBox(profile, ui) {
+    return `<details class="login-transfer"${ui && ui.transferOpen ? ' open' : ''}><summary>Ohne Mail: Spielstand per Code übertragen</summary>
+      <p class="hint">Auf dem alten Gerät „Code kopieren“, den Code an dich selbst schicken (z. B. WhatsApp), hier einfügen.</p>
+      ${profile.nickname ? `<button class="btn ghost mini" data-act="xfer-copy">📋 Code kopieren</button>${ui && ui.xferCode ? `<textarea class="xfer-out" readonly>${esc(ui.xferCode)}</textarea>` : ''}` : ''}
+      <textarea id="xfer-in" class="xfer-in" placeholder="Code hier einfügen (beginnt mit GL1.)"></textarea>
+      <button class="btn mini" data-act="xfer-import">Spielstand übernehmen</button>
+    </details>`;
+  }
   function loginScreen(profile, ui) {
     const st = GL.online ? GL.online.state() : {};
     const back = `<button class="link login-back" data-act="login-back">‹ Zurück</button>`;
+    const err = ui && ui.loginError ? `<p class="login-err">${esc(ui.loginError)}</p>` : '';
     if (st.backend !== 'supabase') {
       return `<div class="ts-inner login-card">${back}
         <div class="login-icon">⚓</div><h2>Anmelden</h2>
@@ -1522,6 +1532,7 @@ window.GL = window.GL || {};
         <div class="login-icon">✓</div><h2>Angemeldet</h2>
         <p class="hint">Angemeldet als <b>${esc(st.email)}</b>. Du bleibst angemeldet, bis du dich abmeldest. Auf jedem anderen Gerät reicht „Anmelden“ mit dieser Adresse.</p>
         <button class="btn" data-act="login-back">Fertig</button>
+        ${transferBox(profile, ui)}
         <button class="link" data-act="logout">${ui && ui.logoutArmed ? 'Wirklich abmelden? Nochmal tippen' : 'Abmelden'}</button></div>`;
     }
     // Schritt 2: Mail ist raus, Code eintippen (oder Link in der Mail antippen)
@@ -1530,6 +1541,7 @@ window.GL = window.GL || {};
         <div class="login-icon">✉</div><h2>Schau in dein Postfach</h2>
         <p class="hint">Mail an <b>${esc(st.mailSent)}</b> ist unterwegs. <b>Tippe in der Mail auf den Link</b>, dann bist du angemeldet. Am besten auf dem Gerät, auf dem du spielen willst.</p>
         <p class="login-alt">Keine Mail da? Spam-Ordner prüfen oder <button class="link" data-act="mail-again">andere Adresse / neu senden</button></p>
+        ${transferBox(profile, ui)}
         ${GL.config.online && GL.config.online.mailCode ? `<details class="login-code"><summary>Ich habe einen Code in der Mail</summary>
           <div class="login-field"><input id="mail-code" class="code-input" inputmode="numeric" autocomplete="one-time-code" maxlength="8" placeholder="123456"></div>
           <button class="btn login-main" data-act="mail-code">Bestätigen</button></details>` : ''}
@@ -1542,8 +1554,10 @@ window.GL = window.GL || {};
         <label for="mail">E-Mail-Adresse</label>
         <input id="mail" type="email" inputmode="email" placeholder="deine@email.de" autocomplete="email">
       </div>
+      ${err}
       <button class="btn login-main" data-act="mail-login">Anmelden</button>
-      ${profile.nickname ? `<p class="login-alt">Noch keinen Account? <button class="link" data-act="mail-link">Diesen Piraten mit der Mail sichern</button></p>` : ''}
+      ${profile.nickname ? `<p class="login-alt">Noch keinen Account? <button class="link" data-act="mail-link">Diesen Piraten mit der Mail sichern</button> <small>(danach den Bestätigungslink in der Mail antippen!)</small></p>` : ''}
+      ${transferBox(profile, ui)}
     </div>`;
   }
   function profileScreen(profile, ui) {

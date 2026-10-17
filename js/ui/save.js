@@ -51,3 +51,35 @@ window.GL = window.GL || {};
     }
   };
 })();
+
+// Spielstand-Code: ganzes Profil als kurzer Text (gzip + base64), z. B. per Messenger aufs andere Gerät.
+// Funktioniert ohne Anmeldung und ohne Mail.
+GL.transfer = {
+  async exportCode(profile) {
+    const json = JSON.stringify(profile);
+    let bytes = new TextEncoder().encode(json), tag = 'GL0.';
+    if (window.CompressionStream) {
+      const cs = new Blob([bytes]).stream().pipeThrough(new CompressionStream('gzip'));
+      bytes = new Uint8Array(await new Response(cs).arrayBuffer()); tag = 'GL1.';
+    }
+    let bin = ''; bytes.forEach(b => { bin += String.fromCharCode(b); });
+    return tag + btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  },
+  async importCode(code) {
+    const c = String(code || '').trim().replace(/\s+/g, '');
+    const m = c.match(/^GL([01])\.(.+)$/);
+    if (!m) throw new Error('Das ist kein Spielstand-Code.');
+    const b64 = m[2].replace(/-/g, '+').replace(/_/g, '/');
+    const bin = atob(b64 + '==='.slice((b64.length + 3) % 4));
+    let bytes = Uint8Array.from(bin, ch => ch.charCodeAt(0));
+    if (m[1] === '1') {
+      if (!window.DecompressionStream) throw new Error('Dieser Browser kann den Code nicht lesen.');
+      const ds = new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'));
+      bytes = new Uint8Array(await new Response(ds).arrayBuffer());
+    }
+    const p = JSON.parse(new TextDecoder().decode(bytes));
+    if (!p || typeof p !== 'object' || !p.stats) throw new Error('Der Code ist unvollständig.');
+    return p;
+  }
+};
+
