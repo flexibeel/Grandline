@@ -2676,13 +2676,13 @@ body.on-title { overflow: hidden; }
   display: flex !important; flex-direction: column; gap: 5px; height: 100%; min-height: 0 !important;
   padding: 0 0 8px !important; overflow: hidden; border-width: 3px !important; border-radius: 14px;
   box-shadow: 0 4px 0 var(--fc-d) !important; background: #fffaf0 !important; }
-.fac-strohhut  { --fc: #d9423a !important; --fc-d: #9a2a24 !important; }
-.fac-marine    { --fc: #2f6fb8 !important; --fc-d: #1d4b80 !important; }
-.fac-cp9       { --fc: #3a3a44 !important; --fc-d: #1c1c22 !important; }
-.fac-baroque   { --fc: #c08a2e !important; --fc-d: #84590e !important; }
-.fac-weissbart { --fc: #7a4fc4 !important; --fc-d: #4e2c8a !important; }
-.fac-samurai   { --fc: #2f8a8f !important; --fc-d: #1c5e62 !important; }
-.fac-none      { --fc: #8a7a66 !important; --fc-d: #5c4f40 !important; }
+.fac-strohhut  { --fc: #d98a72 !important; --fc-d: #b86c56 !important; }
+.fac-marine    { --fc: #7fa3c9 !important; --fc-d: #5f84aa !important; }
+.fac-cp9       { --fc: #8f8a9c !important; --fc-d: #6f6a7c !important; }
+.fac-baroque   { --fc: #c9a35c !important; --fc-d: #a8863f !important; }
+.fac-weissbart { --fc: #a7a0c8 !important; --fc-d: #86809f !important; }
+.fac-samurai   { --fc: #7fb0b3 !important; --fc-d: #5f8f92 !important; }
+.fac-none      { --fc: #c9b08a !important; --fc-d: #a88e68 !important; }
 .cf2 .cf-band { display: flex; align-items: center; justify-content: space-between; gap: 6px; padding: 4px 8px; background: var(--fc); color: #fff;
   font-size: .68rem; font-weight: 800; letter-spacing: .03em; text-transform: uppercase; }
 .cf2 .cf-band > span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -3254,3 +3254,52 @@ body.is-app input, body.is-app textarea { -webkit-user-select: text; user-select
 .fpop-card, .toast { box-shadow: 0 1px 0 rgba(255,255,255,.8) inset, 0 20px 44px -16px rgba(60,40,15,.45) !important; }
 /* Fokus sichtbar, aber warm */
 :focus-visible { outline: 2px solid #c4904f; outline-offset: 2px; border-radius: 8px; }
+/* ---------- Figurenkarten: ruhig, warm, wenig Text ---------- */
+.card-face.cf2 { --fc: #c9b08a; --fc-d: #a88e68; border-radius: 16px !important; border: 1px solid #eadcc2 !important; background: linear-gradient(180deg, #fffdf8, #fbf4e6) !important; box-shadow: var(--shadow-soft) !important; overflow: hidden; }
+/* Banden-Farben: gedämpft statt knallig */
+.cf2.fac-strohhut { --fc: #d98a72; --fc-d: #b86c56; } .cf2.fac-marine { --fc: #7fa3c9; --fc-d: #5f84aa; } .cf2.fac-cp9 { --fc: #8f8a9c; --fc-d: #6f6a7c; }
+.cf2.fac-baroque { --fc: #c9a35c; --fc-d: #a8863f; } .cf2.fac-weissbart { --fc: #a7b3b8; --fc-d: #86949a; } .cf2.fac-samurai { --fc: #9f8fbf; --fc-d: #7f6f9f; } .cf2.fac-none { --fc: #c9b08a; --fc-d: #a88e68; }
+.cf2 .cf-band { background: var(--fc) !important; color: #fff !important; font-size: .66rem !important; letter-spacing: .08em; padding: 4px 10px !important; text-shadow: 0 1px 0 rgba(0,0,0,.15); box-shadow: 0 1px 0 rgba(255,255,255,.25) inset; }
+.cf2 .card-art { background: radial-gradient(ellipse at 50% 70%, color-mix(in srgb, var(--fc) 22%, #fff) , color-mix(in srgb, var(--fc) 8%, #fff) 70%) !important; border: 0 !important; border-radius: 12px !important; margin: 8px 8px 0 !important; box-shadow: inset 0 -3px 0 color-mix(in srgb, var(--fc) 30%, transparent) !important; }
+.cf2 .card-art svg { filter: drop-shadow(0 3px 0 rgba(0,0,0,.18)); }
+.cf2 .card-name { background: none !important; box-shadow: none !important; color: #3a2a18 !important; font-size: 1.05rem !important; margin: 6px 0 0 !important; }
+.cf2 .cf-tags { gap: 4px; margin-top: 2px; }
+.cf2 .cf-tags .badge, .cf2 .cf-tags .role-chip { font-size: .66rem; padding: 1px 7px; opacity: .92; }
+.cf2 .card-text { background: none !important; border: 0 !important; box-shadow: none !important; padding: 6px 10px 2px !important; margin: 0 !important; display: grid; gap: 4px; text-align: left; }
+.cf2 .cf-line { display: grid; line-height: 1.2; font-size: .78rem; color: #6b5a44; }
+.cf2 .cf-line b { font-size: .8rem; color: #3a2a18; font-weight: 800; }
+.cf2 .cf-line i { font-style: normal; }
+.cf2 .cf-ult { display: inline-block; margin: 4px 10px 0; font-size: .74rem; font-weight: 800; color: #8a5a1a; background: #fbefd8; padding: 2px 8px; border-radius: 999px; }
+/* Werte: eine ruhige Leiste statt drei bunter Kästen */
+.cf2 .cf-stats { display: grid !important; grid-template-columns: repeat(3, 1fr); gap: 0 !important; margin: 8px 8px 8px !important; padding: 4px 0 !important; border-radius: 10px !important; background: #f6eedd !important; border: 0 !important; }
+.cf2 .cf-stats > span { background: none !important; border: 0 !important; box-shadow: none !important; display: grid; justify-items: center; line-height: 1.1; }
+.cf2 .cf-stats > span + span { border-left: 1px solid #eadcc2 !important; }
+.cf2 .cf-stats small { font-size: .6rem !important; letter-spacing: .06em; color: #8a7a62 !important; font-weight: 800; text-transform: uppercase; }
+.cf2 .cf-stats b { font-size: 1.05rem !important; color: #3a2a18 !important; font-weight: 700; }
+/* Handy: Karten kompakter, kein Endlos-Scrollen in der Taverne */
+@media (max-width: 520px) {
+  .cards { gap: 8px; }
+  .cf2 .card-art { margin: 6px 6px 0 !important; }
+  .cf2 .card-art svg { width: 44px !important; height: 52px !important; }
+  .cf2 .card-name { font-size: .95rem !important; }
+  .cf2 .card-text { padding: 4px 8px 0 !important; gap: 2px; }
+  .cf2 .cf-line { font-size: .72rem; }
+  .cf2 .cf-line b { font-size: .74rem; }
+  .cf2 .card-trait { display: none; }   /* Eigenschaft steht im Steckbrief */
+  .cf2 .cf-stats { margin: 6px 6px 6px !important; }
+  .cf2 .cf-stats b { font-size: .95rem !important; }
+  .opt.card .gain { font-size: .7rem; }
+  .stage > .hint { font-size: .85rem; }
+}
+.card-face.cf2[class*="fac-"] .cf-band { background: var(--fc) !important; border: 0 !important; }
+.card-face.cf2 .cf-band .stars, .card-face.cf2 .cf-band i { opacity: .95; }
+/* Kampfstil-Chips gedämpft (überall auf Karten) */
+.cf2 .badge.t-kraft, .cf2 .badge.kraft, .cf2 .badge[class*="kraft"] { background: #d98a72 !important; color: #fff !important; }
+.cf2 .badge.t-klinge, .cf2 .badge.klinge, .cf2 .badge[class*="klinge"] { background: #7fa98a !important; color: #fff !important; }
+.cf2 .badge.t-technik, .cf2 .badge.technik, .cf2 .badge[class*="technik"] { background: #7fa3c9 !important; color: #fff !important; }
+.cf2 .cf-ult { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: calc(100% - 20px); justify-self: center; }
+.card-face.cf2 { display: grid; }
+/* Kampfstil-Chips überall gedämpft */
+em.type.t-kraft { background: #d98a72 !important; color: #fff !important; }
+em.type.t-klinge { background: #7fa98a !important; color: #fff !important; }
+em.type.t-technik { background: #7fa3c9 !important; color: #fff !important; }

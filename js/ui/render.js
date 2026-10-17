@@ -215,6 +215,11 @@ window.GL = window.GL || {};
   // Figurenkarte: Bild, Name, Fähigkeit, Angriff unten links, Leben unten rechts
   const FAC_SHORT = { strohhut: 'Strohhut', marine: 'Marine', cp9: 'CP9', baroque: 'Baroque', weissbart: 'Weißbart', samurai: 'Samurai' };
   // Figurenkarte: Rahmen in der Farbe der Bande, oben das Banden-Band, unten klare Werte-Leiste
+  // Erster Satz, ohne Klammern, höchstens ~56 Zeichen
+  function shortText(t) {
+    let s = String(t || '').replace(/\s*\([^)]*\)/g, '').split(/(?<=[.!])\s/)[0].replace(/[.!]$/, '');
+    return s.length > 56 ? s.slice(0, 54).replace(/\s+\S*$/, '') + '…' : s;
+  }
   function crewCardFace(d, m, opts) {
     const o = opts || {};
     const a = ability(d.id);
@@ -227,11 +232,11 @@ window.GL = window.GL || {};
       <span class="card-name">${d.name}</span>
       <span class="cf-tags">${badge(d.type)}${roleChip(d.role)}</span>
       <span class="card-text">
-        ${a ? `<span class="cf-line"><b>${a.name}:</b> ${a.text}</span>` : ''}
-        ${u ? `<span class="cf-line cf-ult" title="${esc(u.text)}">⚡ <b>${u.name}</b></span>` : ''}
-        ${t ? `<span class="cf-line card-trait"><b>${t.name}:</b> ${t.text}</span>` : ''}
+        ${a ? `<span class="cf-line" title="${esc(a.text)}"><b>${a.name}</b><i>${esc(shortText(a.text))}</i></span>` : ''}
+        ${t ? `<span class="cf-line card-trait" title="${esc(t.text)}"><b>${t.name}</b><i>${esc(shortText(t.text))}</i></span>` : ''}
         ${o.extra || ''}
       </span>
+      ${u ? `<span class="cf-ult" title="${esc(u.text)}">⚡ ${esc(u.name)}</span>` : ''}
       <span class="cf-stats"><span><small>Leben</small><b>${m.max}</b></span><span><small>Angriff</small><b>${m.atk}</b></span><span><small>Tempo</small><b>${m.spd}</b></span></span>
     </span>`;
   }
