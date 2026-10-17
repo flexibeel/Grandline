@@ -1433,9 +1433,9 @@ window.GL = window.GL || {};
     const shown = ui && ui.codeShow;
     return `<div class="code-box">
       <div class="cb-head"><b>🔑 Dein Spielercode</b>${st.codeReady === false ? '<em class="cb-warn">Abgleich noch nicht eingerichtet</em>' : ''}</div>
-      <button class="cb-code${shown ? ' on' : ''}" data-act="code-show" aria-label="Spielercode anzeigen">${shown ? esc(profile.playerCode) : '••••-••••-••••-••••'}<small>${shown ? 'antippen zum Verbergen' : 'antippen zum Anzeigen'}</small></button>
+      <button class="cb-code${shown ? ' on' : ''}" data-act="${shown ? 'code-copy' : 'code-show'}" aria-label="${shown ? 'Spielercode kopieren' : 'Spielercode anzeigen'}">${shown ? esc(profile.playerCode) : '••••-••••-••••-••••'}<small>${shown ? '📋 antippen zum Kopieren' : '👁 antippen zum Anzeigen'}</small></button>
       <p class="cb-warn-txt">⚠ Zeig diesen Code niemandem. Er ist wie ein Passwort: Wer ihn hat, spielt mit deinem Account. Damit meldest du dich auf jedem Gerät an, dein Fortschritt gleicht sich dann automatisch ab.</p>
-      <div class="cb-actions"><button class="btn mini ghost" data-act="code-copy">Kopieren</button><button class="btn mini ghost" data-act="code-mail">An mich mailen</button></div>
+      <div class="cb-actions">${shown ? '<button class="btn mini ghost" data-act="code-show">Verbergen</button>' : '<button class="btn mini ghost" data-act="code-copy">Kopieren</button>'}<button class="btn mini ghost" data-act="code-mail">An mich mailen</button></div>
     </div>`;
   }
 
