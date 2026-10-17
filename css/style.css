@@ -2897,3 +2897,11 @@ button, .opt, .map-node, .lb-row { touch-action: manipulation; }
 .cb-code { white-space: nowrap; font-size: 1.1rem; }
 .cb-code:not(.on) { letter-spacing: .02em !important; }
 @media (max-width: 380px) { .cb-code { font-size: .95rem; letter-spacing: .06em; } }
+.login-more { width: 100%; margin-top: 8px; text-align: left; }
+.login-more > summary { cursor: pointer; text-align: center; font-size: .85rem; font-weight: 700; color: var(--mute); padding: 6px; list-style: none; }
+.login-more > summary::after { content: ' ▾'; }
+.login-more[open] > summary::after { content: ' ▴'; }
+.login-more[open] { display: grid; gap: 8px; padding: 12px; border-radius: 14px; background: var(--panel-2); border: 1px solid var(--line); }
+.lm-lbl { font-size: .78rem; font-weight: 800; color: var(--mute); }
+.login-more .login-transfer { margin-top: 2px; background: var(--panel); }
+#code-in { text-align: center; }

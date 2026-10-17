@@ -1561,25 +1561,22 @@ window.GL = window.GL || {};
       </div>`;
     }
     const codeLogin = `<div class="login-field">
-        <label for="code-in">Mit Spielercode</label>
-        <input id="code-in" class="code-input" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="ABC-123" maxlength="9">
+        <input id="code-in" class="code-input" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="ABC-123" maxlength="9" enterkeyhint="go" aria-label="Spielercode">
       </div>
       ${ui && ui.codeError ? `<p class="login-err">${esc(ui.codeError)}</p>` : ''}
-      <button class="btn login-main" data-act="code-login">Mit Code anmelden</button>
-      <p class="login-alt">Deinen Code findest du auf dem anderen Gerät im Hauptquartier unter Profil.</p>
-      <div class="login-or"><span>oder per Mail</span></div>`;
+      <button class="btn login-main" data-act="code-login">Weiterspielen</button>
+      <p class="login-alt">Deinen Code findest du auf dem anderen Gerät: Hauptquartier → Profil → 🔑 Spielercode.</p>`;
     return `<div class="ts-inner login-card">${back}
-      <div class="login-icon">⚓</div><h2>Anmelden</h2>
+      <div class="login-icon">🔑</div><h2>Mit Spielercode anmelden</h2>
       ${codeLogin}
-      <p class="hint">Kein Passwort nötig: Mail eingeben, Link in der Mail antippen, fertig. Auf jedem Gerät mit derselben Adresse spielst du mit demselben Piraten weiter.</p>
-      <div class="login-field">
-        <label for="mail">E-Mail-Adresse</label>
-        <input id="mail" type="email" inputmode="email" placeholder="deine@email.de" autocomplete="email">
-      </div>
-      ${err}
-      <button class="btn login-main" data-act="mail-login">Anmelden</button>
-      ${profile.nickname ? `<p class="login-alt">Noch keinen Account? <button class="link" data-act="mail-link">Diesen Piraten mit der Mail sichern</button> <small>(danach den Bestätigungslink in der Mail antippen!)</small></p>` : ''}
-      ${transferBox(profile, ui)}
+      <details class="login-more"${err ? ' open' : ''}><summary>Andere Wege</summary>
+        <span class="lm-lbl">Per Mail (Link in der Mail antippen)</span>
+        <div class="login-field"><input id="mail" type="email" inputmode="email" placeholder="deine@email.de" autocomplete="email" aria-label="E-Mail-Adresse"></div>
+        ${err}
+        <button class="btn ghost login-main" data-act="mail-login">Link schicken</button>
+        ${profile.nickname ? `<p class="login-alt"><button class="link" data-act="mail-link">Diesen Piraten mit der Mail sichern</button></p>` : ''}
+        ${transferBox(profile, ui)}
+      </details>
     </div>`;
   }
   function profileScreen(profile, ui) {
