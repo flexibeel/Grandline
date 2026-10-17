@@ -1,6 +1,13 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-17zi', date: '17.10.', title: 'Wiki und Meta-Liste', items: [
+    'Neu: Wiki (Buch-Knopf oben). Kampfstile, Rollen, alle Banden mit Stufen, Bündnisse, Duos und alle Bosse mit ihrer Schwäche',
+    'Meta-Liste: welche Figuren die besten Spieler gerade nutzen und was in tausenden Bot-Runs am häufigsten gewinnt. Nur zum Nachschlagen',
+    'Schätze und Früchte: erster Tipp wählt aus, zweiter Tipp nimmt. Kein versehentliches Danebentippen mehr',
+    'Musik spielt nur noch im Startbildschirm, der Noten-Knopf schaltet sie zuverlässig an und aus',
+    'Schnelles Tippen hintereinander wird nicht mehr verschluckt',
+    'Koala, Chu, Cabaji, Mohji und Ivankov etwas stärker' ] },
   { v: '2026-10-17zh', date: '17.10.', title: 'Taverne mit Boni-Vorschau, sicheres Entlassen', items: [
     'Taverne: oben die Boni-Leiste. Wählst du ein Angebot, leuchtet, was es dazugibt (+1, neue Stufe, Duo)',
     'Angebote zeigen, ob sie einen Bonus freischalten, ein Duo bilden oder deine Bande näher an die nächste Stufe bringen',

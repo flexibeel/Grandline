@@ -12,7 +12,7 @@ window.GL = window.GL || {};
   let ctx = null, master = null, wet = null, timer = null, mode = 'off', unlocked = false;
   let nextTime = 0, step = 0;
   const BPM = 84, EIGHTH = 60 / BPM / 2;
-  const VOL = { title: 0.55, hq: 0.24, run: 0.15, off: 0 };
+  const VOL = { title: 0.55, hq: 0, run: 0, off: 0 };   // nur im Startbildschirm
 
   const N = n => 440 * Math.pow(2, (n - 69) / 12);       // MIDI-Nummer -> Hz
   const nm = s => { const m = /^([A-G])(#?)(\d)$/.exec(s); return 12 * (+m[3] + 1) + { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 }[m[1]] + (m[2] ? 1 : 0); };
@@ -149,15 +149,20 @@ window.GL = window.GL || {};
   }
   function apply() {
     const want = on && unlocked ? VOL[mode] || 0 : 0;
-    if (!want) { fadeTo(0, 0.8); return; }
+    if (!want) {
+      fadeTo(0, 0.8);
+      clearTimeout(apply.t); apply.t = setTimeout(() => { if (ctx && !(on && unlocked && VOL[mode])) ctx.suspend(); if (silentEl && !(on && VOL[mode])) silentEl.pause(); }, 1200);
+      return;
+    }
+    if (silentEl && silentEl.paused) { const p = silentEl.play(); if (p && p.catch) p.catch(() => {}); }
     if (!init()) return;
     run(); fadeTo(want, 2.2);
-    startWaves(); wavesLevel(mode === 'title' ? 0.11 : 0.025);
+    startWaves(); wavesLevel(mode === 'title' ? 0.11 : 0);
   }
 
   // iPhone: Web-Audio ist bei Stummschalter sonst still. Als „Wiedergabe“ anmelden und einmal
   // ein stilles <audio> abspielen, das schaltet die Audio-Sitzung auf Medien-Wiedergabe.
-  let silentDone = false;
+  let silentDone = false, silentEl = null;
   function silentKick() {
     if (silentDone) return; silentDone = true;
     try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch (e) {}
@@ -167,13 +172,13 @@ window.GL = window.GL || {};
       w(0, 'RIFF'); v.setUint32(4, 36 + n * 2, true); w(8, 'WAVE'); w(12, 'fmt '); v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
       v.setUint32(24, sr, true); v.setUint32(28, sr * 2, true); v.setUint16(32, 2, true); v.setUint16(34, 16, true); w(36, 'data'); v.setUint32(40, n * 2, true);
       const a = new Audio(URL.createObjectURL(new Blob([b], { type: 'audio/wav' })));
-      a.setAttribute('playsinline', ''); a.loop = true; a.volume = 0.01;
+      a.setAttribute('playsinline', ''); a.loop = true; a.volume = 0.01; silentEl = a;
       const p = a.play(); if (p && p.catch) p.catch(() => {});
     } catch (e) {}
   }
   // Jede Berührung: Audio freischalten bzw. wieder aufwecken (Browser erlauben Ton nur nach einer Geste)
   const unlock = () => {
-    if (on) silentKick();
+    if (on && VOL[mode]) silentKick();
     if (!unlocked) { unlocked = true; apply(); }
     else if (ctx && ctx.state !== 'running' && on && VOL[mode]) ctx.resume();
   };

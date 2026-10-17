@@ -335,8 +335,11 @@ window.GL = window.GL || {};
 
   function cardButton(i, face, cls, tip) {
     const isTip = tip && tip.index === i;
-    return `<button class="opt card${cls ? ' ' + cls : ''}${isTip ? ' is-tip' : ''}" data-act="pick" data-i="${i}">
-      ${i < 9 ? `<kbd class="key">${i + 1}</kbd>` : ''}${isTip ? '<span class="tip-badge">Tipp</span>' : ''}${face}</button>`;
+    const r = window.__glRunRef;
+    const picked = GL.pickSel && r && GL.pickSel.key === r.seed + ':' + r.step + ':' + r.phase && GL.pickSel.i === i;
+    const anyPicked = GL.pickSel && r && GL.pickSel.key === r.seed + ':' + r.step + ':' + r.phase;
+    return `<button class="opt card${cls ? ' ' + cls : ''}${isTip ? ' is-tip' : ''}${picked ? ' picked' : anyPicked ? ' unpicked' : ''}" data-act="pick" data-i="${i}">
+      ${i < 9 ? `<kbd class="key">${i + 1}</kbd>` : ''}${isTip ? '<span class="tip-badge">Tipp</span>' : ''}${face}${picked ? '<span class="pick-ok">Nochmal tippen: nehmen ✓</span>' : ''}</button>`;
   }
 
   // Kurze Begründung unter einer Auswahl, falls es einen Tipp gibt
@@ -660,7 +663,7 @@ window.GL = window.GL || {};
       <span class="event-kicker">Deine Boni</span>
       <p class="hint">Gleiche Banden, Kampfstile und Rollen in der Crew schalten Boni frei. Zwei aktive Banden-Boni können zusätzlich ein <b>Bündnis</b> bilden.</p>
       <div class="syn-pop-list">${traitRail(run)}</div>
-      <div class="fpop-btns"><button class="btn" data-act="pop-close">Alles klar</button></div></div>`;
+      <div class="fpop-btns"><button class="btn ghost" data-act="wiki-open" data-v="boni">Alle Banden im Wiki</button><button class="btn" data-act="pop-close">Alles klar</button></div></div>`;
   }
 
   // ---------- Kampftexte ----------
@@ -1878,6 +1881,79 @@ window.GL = window.GL || {};
         <em class="goal-left">${pr.need > 1 ? `${pr.have}/${pr.need}` : left > 0 ? 'offen' : '✓'}</em></div>`;
     }).join('')}</div>`;
   }
+
+  // ---------- Wiki: einfach erklärt, mit kleinen Bildern. Plus Meta-Liste (was ist gerade stark) ----------
+  const WIKI_TABS = [['basis', 'Grundlagen'], ['boni', 'Boni'], ['bosse', 'Bosse'], ['meta', 'Meta']];
+  const STRAT_NAME = { kraft: 'Kraft-Team', klinge: 'Klingen-Team', technik: 'Technik-Team', mix: 'Bunte Mischung', brecher: 'Viele Brecher', kaempfer: 'Viele Kämpfer', helfer: 'Viele Helfer', greedy: 'Boni sammeln', strohhut: 'Strohhutbande', marine: 'Marine', cp9: 'CP9', baroque: 'Baroque Works' };
+  const stratName = id => id.startsWith('f_') ? (GL.data.factions[id.slice(2)] || {}).name || id : STRAT_NAME[id] || id;
+  function wikiPop(tab, profile) {
+    const t = tab || 'basis';
+    const T = GL.data.types, Rl = GL.data.roles, F = GL.data.factions;
+    const known = id => !GL.data.crew.find(c => c.id === id && c.locked) || (profile && profile.unlocked.includes(id)) || GL.devAll;
+    const mini = (d, dim) => `<i class="wk-spr${dim ? ' dim' : ''}" data-tip="${esc(d.name)}">${GL.sprites.render(d)}</i>`;
+    const tabs = `<div class="wk-tabs">${WIKI_TABS.map(([id, name]) => `<button class="wk-tab${t === id ? ' on' : ''}" data-act="wiki-tab" data-v="${id}">${name}${id === 'meta' ? ' <i class="wk-new">neu</i>' : ''}</button>`).join('')}</div>`;
+    let body = '';
+    if (t === 'basis') {
+      const m = GL.battle && GL.battle.typeMult ? GL.battle.typeMult('kraft', 'technik') : 1.5;
+      body = `<section class="wk-sec"><h3>Kampfstile</h3><p>Wie Schere, Stein, Papier: Wer im Vorteil ist, macht <b>×${String(m).replace('.', ',')}</b> Schaden.</p>
+          <div class="wk-tri">${Object.keys(T).map(k => `<div class="wk-card">${pxIcon(k, 'lg')}<b>${T[k].name}</b><small>schlägt ${pxIcon(T[k].strong)} ${T[T[k].strong].name}</small></div>`).join('')}</div></section>
+        <section class="wk-sec"><h3>Rollen</h3><div class="wk-tri">${Object.keys(Rl).map(k => `<div class="wk-card">${pxIcon(k, 'lg')}<b>${Rl[k].name}</b><small>${{ brecher: 'Steht vorne, steckt ein', kaempfer: 'Macht den Schaden', helfer: 'Heilt und stärkt' }[k] || ''}</small></div>`).join('')}</div>
+          <p>Vor jedem Kampf stellt sich die Crew <b>automatisch</b> auf: Brecher vorne, Kämpfer in der Mitte, Helfer hinten.</p></section>
+        <section class="wk-sec"><h3>So läuft ein Run</h3><ol class="wk-steps">
+          <li><b>Kapitän wählen.</b> Er bleibt den ganzen Run.</li>
+          <li><b>Route segeln.</b> Kämpfe, Taverne, Schätze, Früchte, Rast.</li>
+          <li><b>Crew bauen.</b> Gleiche Banden, Stile und Rollen schalten Boni frei.</li>
+          <li><b>Boss besiegen.</b> Pro Meer ein Bösewicht und ein Boss. Drei Meere bis zum Ziel.</li></ol></section>
+        <section class="wk-sec"><h3>Zustände im Kampf</h3><div class="wk-list">${Object.keys(GL.data.statuses).map(k => { const x = GL.data.statuses[k]; return `<div class="wk-row"><i class="wk-st ${x.good ? 'good' : 'bad'}">${esc(x.icon)}</i><span><b>${esc(x.name)}</b><small>${esc(x.text)}</small></span></div>`; }).join('')}</div></section>
+        <section class="wk-sec"><h3>Ultis</h3><p>Jede Figur lädt im Kampf ihre Ulti-Leiste. Ist sie voll, kommt die Spezialattacke. Kapitäne und Ausrüstung können mit Energie starten.</p></section>`;
+    } else if (t === 'boni') {
+      const tiers = x => `<div class="wk-tiers">${x.tiers.map(tt => `<span><b>${tt.n}</b> ${esc(tt.text)}</span>`).join('')}</div>`;
+      body = `<section class="wk-sec"><h3>Banden</h3><p>Mehrere Figuren derselben Bande geben einen <b>Set-Bonus</b>. Die Stufen stehen daneben.</p>
+        ${Object.keys(F).map(k => { const mem = GL.data.crew.filter(c => c.faction === k); return `<div class="wk-fac">
+          <div class="wk-fac-h">${pxIcon(k, 'lg')}<b>${esc(F[k].name)}</b><span class="wk-mem">${mem.map(d => mini(d, !known(d.id))).join('')}</span></div>${tiers(F[k])}</div>`; }).join('')}</section>
+        <section class="wk-sec"><h3>Bündnisse</h3><p>Sind die Set-Boni <b>zweier</b> Banden gleichzeitig aktiv, gibt es einen Extra-Bonus.</p>
+        <div class="wk-list">${(GL.data.alliances || []).map(a => `<div class="wk-row"><span class="wk-pair">${pxIcon(a.a)}<em>+</em>${pxIcon(a.b)}</span><span><b>${esc(a.name)}</b><small>${esc(F[a.a].name)} + ${esc(F[a.b].name)}: ${esc(a.text)}</small></span></div>`).join('')}</div></section>
+        <section class="wk-sec"><h3>Kampfstile & Rollen</h3>${Object.keys(T).concat(Object.keys(Rl)).map(k => { const x = T[k] || Rl[k]; return `<div class="wk-fac"><div class="wk-fac-h">${pxIcon(k, 'lg')}<b>${esc(x.name)}</b></div>${tiers(x)}</div>`; }).join('')}</section>
+        <section class="wk-sec"><h3>Duos</h3><p>Zwei bestimmte Figuren zusammen stärken sich. ${GL.data.duos.length} Duos gibt es, zum Beispiel:</p>
+        <div class="wk-list">${GL.data.duos.slice(-8).map(d => { const A = crewData(d.a), B = crewData(d.b); return `<div class="wk-row"><span class="wk-pair">${mini(A, !known(A.id))}${mini(B, !known(B.id))}</span><span><b>${esc(d.name)}</b><small>${esc(d.text)}</small></span></div>`; }).join('')}</div></section>`;
+    } else if (t === 'bosse') {
+      const list = GL.data.bosses.concat(GL.data.raids || []);
+      body = `<section class="wk-sec"><h3>Bosse und wie man sie knackt</h3><p>Nimm Figuren mit dem Kampfstil, gegen den der Boss schwach ist.</p>
+        <div class="wk-list">${list.map(b => { const info = bossInfo(b); const ab = ability(b.id); const beat = (profile && profile.counts && profile.counts['defeated:' + b.id]) || 0;
+          return `<div class="wk-boss${b.raid ? ' raid' : ''}"><i class="wk-bspr">${GL.sprites.render(b)}</i>
+            <span class="wk-bb"><b>${esc(b.name)}</b> ${badge(b.type)}${b.raid ? ' <em class="wk-raid">Raid</em>' : ''}
+            <small>Schwach gegen ${pxIcon(info.counter)} <b>${esc(T[info.counter].name)}</b>${beat ? ` · ${beat}-mal besiegt` : ''}</small>
+            ${ab ? `<small>${esc(ab.name)}: ${esc(ab.text)}</small>` : ''}</span></div>`; }).join('')}</div></section>`;
+    } else {
+      // Live: was nutzen die besten Spieler gerade?
+      const st = GL.online ? GL.online.state() : { rows: [] };
+      const teams = (st.rows || []).filter(r => r.best && Array.isArray(r.best.team) && r.best.team.length).sort((a, b) => (b.score || 0) - (a.score || 0)).slice(0, 40);
+      const cnt = {}, fcnt = {}, caps = {};
+      teams.forEach(r => {
+        const ids = r.best.team.map(x => x.id).filter(id => id !== 'self');
+        ids.forEach(id => { cnt[id] = (cnt[id] || 0) + 1; });
+        const crew = ids.map(id => crewData(id)).filter(Boolean).map(d => ({ id: d.id, type: d.type, role: d.role, faction: d.faction }));
+        GL.effects.status(crew).filter(s => s.kind === 'faction' && s.active).forEach(s => { fcnt[s.key] = (fcnt[s.key] || 0) + 1; });
+        const c = r.best.captain; if (c) { caps[c] = caps[c] || { n: 0, sc: 0 }; caps[c].n++; caps[c].sc += r.score || 0; }
+      });
+      const topC = Object.keys(cnt).filter(id => crewData(id)).sort((a, b) => cnt[b] - cnt[a]).slice(0, 8);
+      const topF = Object.keys(fcnt).sort((a, b) => fcnt[b] - fcnt[a]).slice(0, 4);
+      const live = teams.length >= 3 ? `<section class="wk-sec"><h3>Bei den besten Spielern gerade beliebt</h3><p>Aus den Bestwert-Crews der Top ${teams.length} der Rangliste.</p>
+          <div class="wk-meta-row">${topC.map(id => `<span class="wk-mc">${mini(crewData(id))}<b>${esc(crewData(id).name)}</b><small>${cnt[id]}× dabei</small></span>`).join('')}</div>
+          ${topF.length ? `<div class="wk-list">${topF.map(f => `<div class="wk-row"><span class="wk-pair">${pxIcon(f)}</span><span><b>${esc(F[f].name)}</b><small>Set-Bonus aktiv in ${fcnt[f]} von ${teams.length} Top-Crews</small></span><span class="wk-bar"><i style="width:${Math.round(100 * fcnt[f] / teams.length)}%"></i></span></div>`).join('')}</div>` : ''}</section>`
+        : `<section class="wk-sec"><h3>Bei den besten Spielern</h3><p class="muted">Sobald genug Spieler online sind, siehst du hier, welche Figuren die Top-Crews nutzen.</p></section>`;
+      const M = GL.data.metaSim;
+      const pct = v => Math.round(v * 100) + ' %';
+      const sim = M ? `<section class="wk-sec"><h3>Aus der Simulation</h3><p>Bots haben ${M.runs.toLocaleString('de-DE')} Runs gespielt, alle Figuren frei (Stand ${esc(M.date.split('-').reverse().join('.'))}). Siegquote im Schnitt: ${pct(M.winAll)}.</p>
+          <h4>Stärkste Strategien</h4><div class="wk-list">${M.strategies.filter((x, k, a) => a.findIndex(y => stratName(y.id) === stratName(x.id)) === k).slice(0, 6).map((x, k) => `<div class="wk-row"><span class="wk-rank">${k + 1}</span><span><b>${esc(stratName(x.id))}</b></span><span class="wk-bar"><i style="width:${Math.round(100 * x.win / M.strategies[0].win)}%"></i></span><em class="wk-pct">${pct(x.win)}</em></div>`).join('')}</div>
+          <h4>Figuren, die oft gewinnen</h4><div class="wk-meta-row">${M.chars.slice(0, 8).map(x => crewData(x.id) ? `<span class="wk-mc">${mini(crewData(x.id), !known(x.id))}<b>${esc(crewData(x.id).name)}</b><small>${pct(x.win)} Siege</small></span>` : '').join('')}</div>
+          ${M.alliances && M.alliances.length ? `<h4>Bündnisse</h4><div class="wk-list">${M.alliances.slice(0, 4).map(x => `<div class="wk-row"><span><b>${esc(x.name)}</b><small>${x.n} Runs, ${pct(x.win)} Siege</small></span></div>`).join('')}</div>` : ''}
+          <p class="muted">Nur zum Nachschlagen: Jede Crew kann gewinnen. Die Liste wird mit Updates neu berechnet.</p></section>` : '';
+      body = live + sim;
+    }
+    return `<div class="fpop-card wiki-pop"><div class="wk-head"><span class="event-kicker">Wiki</span><b>Nachschlagen</b></div>${tabs}<div class="wk-body">${body}</div>
+      <div class="fpop-btns"><button class="btn" data-act="pop-close">Schließen</button></div></div>`;
+  }
   const askDismiss = i => !!(GL.uiConfirm && GL.uiConfirm.i === i && Date.now() < GL.uiConfirm.until);
   // Pixel-Notenschlüssel als Musik-Schalter (an/aus)
   function musicBtn(cls) {
@@ -1940,7 +2016,7 @@ window.GL = window.GL || {};
     const pulse = day ? `<div class="ts-pulse" title="Spieler, die gerade spielen und in den letzten 24 Stunden aktiv waren"><i class="tp-dot"></i><b>${live}</b> gerade auf See <span>·</span> <b>${day}</b> heute an Bord</div>`
       : st.status === 'connecting' ? `<div class="ts-pulse wait"><i class="tp-dot"></i>Funk zur Flotte <span class="tp-dots"><i></i><i></i><i></i></span></div>` : '';
     return `<div class="ts-inner">
-      <div class="ts-top">${profile.nickname ? profileChip(profile) : '<span></span>'}${musicBtn()}</div>
+      <div class="ts-top">${profile.nickname ? profileChip(profile) : '<span></span>'}<span class="ts-tbtn"><button class="mu-btn wk-btn${profile.wikiSeen ? '' : ' fresh'}" data-act="wiki-open" aria-label="Wiki" title="Wiki: Nachschlagen und Meta">${GL.ui.wikiIcon}</button>${musicBtn()}</span></div>
       <div class="ts-logo"><b>${esc(W)}</b><small>Ein Piraten-Roguelike</small></div>
       <div class="ts-scene" aria-hidden="true">
         <div class="ts-sun"></div>
@@ -2846,6 +2922,8 @@ window.GL = window.GL || {};
 
   GL.ui = {
     introSteps: INTRO.length,
+    wikiIcon: '<svg viewBox="0 0 9 8" shape-rendering="crispEdges" aria-hidden="true"><path d="M0 1h3v1h1v5h-1v-1h-3zM5 2h1v-1h3v5h-3v1h-1z"/><path fill="#c9a46a" d="M1 2h2v3h-2zM6 2h2v3h-2z"/></svg>',
+    wikiPop,
     goalList,
     musicBtn,
     synPop,
@@ -2860,6 +2938,7 @@ window.GL = window.GL || {};
 
     render(run, anim, ui) {
       GL.devAll = isAdmin();
+      window.__glRunRef = run;
       const titleEl = $('#title');
       titleEl.hidden = !ui.screen;
       document.body.classList.toggle('on-title', !!ui.screen);

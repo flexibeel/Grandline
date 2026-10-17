@@ -42,7 +42,7 @@
     if (!GL.music) return;
     GL.music.setMode(ui.screen || ui.intro != null ? 'title' : run && !GL.run.isFinished(run) ? 'run' : 'hq');
     const slot = document.getElementById('mu-slot');
-    if (slot) { const h = GL.ui.musicBtn('head'); if (slot.innerHTML !== h) slot.innerHTML = h; }
+    if (slot) { const h = `<button class="mu-btn head wk-btn${profile.wikiSeen ? '' : ' fresh'}" data-act="wiki-open" aria-label="Wiki öffnen" title="Wiki: Nachschlagen und Meta">${GL.ui.wikiIcon}</button>`; if (slot.innerHTML !== h) slot.innerHTML = h; }
   }
   // Automatische Aufstellung vor jedem Kampf: Brecher vorne, Kämpfer in der Mitte, Helfer hinten.
   // Läuft über normale Tausch-Aktionen, damit Replays gleich bleiben. Kein Umsortieren per Hand mehr.
@@ -578,12 +578,7 @@
   // App-Gefühl: kein Zoomen per Zwei-Finger-Geste oder Doppeltipp (iOS ignoriert sonst user-scalable)
   ['gesturestart', 'gesturechange'].forEach(ev => document.addEventListener(ev, e => e.preventDefault(), { passive: false }));
   document.addEventListener('touchmove', e => { if (e.touches.length > 1) e.preventDefault(); }, { passive: false });
-  let lastTap = 0;
-  document.addEventListener('touchend', e => {
-    const now = Date.now();
-    if (now - lastTap < 300 && !(e.target.closest && e.target.closest('input, textarea'))) e.preventDefault();
-    lastTap = now;
-  }, { passive: false });
+  // Doppeltipp-Zoom verhindert schon touch-action: manipulation (CSS), schnelle Tipps bleiben so erhalten
 
   // ---------- Finger als Zeiger: kurz halten, dann gleiten = Infos wie mit der Maus ----------
   // Normales Wischen scrollt weiter. Erst wer den Finger kurz stillhält, „scrubbt“: die Seite bleibt stehen,
@@ -707,7 +702,15 @@
         act(rival ? { type: 'node', index: i, rival } : { type: 'node', index: i });
         break;
       }
-      case 'pick': ui.tvSel = null; act({ type: 'pick', index: i }); break;
+      case 'pick': {
+        // Schätze und Früchte: erster Tipp wählt aus (Karte hebt sich), zweiter Tipp nimmt. Tastatur nimmt sofort.
+        const two = run && ['treasure', 'fruit'].includes(run.phase) && el.classList.contains('card') && !(e && e.detail === 0);
+        const key = run ? run.seed + ':' + run.step + ':' + run.phase : '';
+        if (two && !(GL.pickSel && GL.pickSel.key === key && GL.pickSel.i === i)) {
+          GL.pickSel = { key, i }; ui.lastStage = null; draw(); break;
+        }
+        GL.pickSel = null; ui.tvSel = null; act({ type: 'pick', index: i }); break;
+      }
       case 'tv-sel': ui.tvSel = i; ui.lastStage = null; draw(); break;
       case 'up':   act({ type: 'swap', a: i, b: i - 1 }); break;
       case 'down': act({ type: 'swap', a: i, b: i + 1 }); break;
@@ -859,6 +862,15 @@
         const onNow = GL.music && GL.music.toggle();
         toast(onNow ? '<span><b>Musik an</b>Leise, gemütlich, selbst komponiert.</span>' : '<span><b>Musik aus</b>Mit ♪ jederzeit wieder an.</span>');
         ui.lastStage = null; const t = document.getElementById('title'); if (t) t.dataset.last = ''; draw();
+        break;
+      }
+      case 'wiki-open': case 'wiki-tab': {
+        ui.wikiTab = el.dataset.v || ui.wikiTab || 'basis';
+        if (!profile.wikiSeen) { profile.wikiSeen = 1; saveProfile(); }
+        if (type === 'wiki-tab') { const c = document.querySelector('#fpop .fpop-card'); if (c) { const h = GL.ui.wikiPop(ui.wikiTab, profile); const tmp = document.createElement('div'); tmp.innerHTML = h; c.replaceWith(tmp.firstElementChild); break; } }
+        openGearPop(GL.ui.wikiPop(ui.wikiTab, profile));
+        if (GL.online && GL.online.refresh && ui.wikiTab === 'meta') GL.online.refresh();
+        ui.lastStage = null; draw();
         break;
       }
       case 'syn-open': {
