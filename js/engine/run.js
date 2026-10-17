@@ -844,6 +844,10 @@ window.GL = window.GL || {};
         if (x.hp) run.mod.hp += x.hp;
         if (x.luck) run.luck = Math.max(run.luck, x.luck);
         if (x.points) run.startPoints += x.points;
+        if (x.gold) run.gold = (run.gold || 0) + x.gold;
+        if (x.ult) run.ultBonus = (run.ultBonus || 0) + x.ult;
+        if (x.atk) run.mod.atk += x.atk;
+        if (x.spd) run.mod.spd += x.spd;
         if (x.fruit) { applyEffect(run, GL.loot.fruit({ id: x.fruit, r: x.r }).effect); run.eaten.push(x.fruit); }
       });
       // Ausgerüstete Artefakte: Start-Wirkungen (Kampfwerte stehen in effects.js)

@@ -164,6 +164,26 @@ window.GL = window.GL || {};
       profile.berry += val;
       return val;
     },
+    // Verschmelzen: 3 Teile gleicher Seltenheit (nicht ausgerüstet, niedrigste Stufe zuerst) -> 1 zufälliges Teil der nächsten Seltenheit
+    fuseCost(r) { return 40 * (r + 1); },
+    fusable(profile, r) {
+      const on = profile.itemLoadout || [];
+      return (profile.chest || []).filter(x => x.r === r && !on.includes(x.uid)).sort((a, b) => (a.lvl || 0) - (b.lvl || 0));
+    },
+    fuse(profile, r) {
+      const max = GL.config.rarities.length - 1;
+      const pool = GL.meta.fusable(profile, r);
+      const cost = GL.meta.fuseCost(r);
+      if (r >= max || pool.length < 3 || profile.berry < cost) return null;
+      const used = pool.slice(0, 3).map(x => x.uid);
+      profile.chest = profile.chest.filter(x => !used.includes(x.uid));
+      profile.berry -= cost;
+      const defs = GL.data.items;
+      const def = defs[Math.floor(Math.random() * defs.length)];
+      const it = { uid: 'f' + Date.now().toString(36) + Math.floor(Math.random() * 1e4).toString(36), id: def.id, r: r + 1, lvl: 0 };
+      profile.chest.push(it);
+      return it;
+    },
     takeItems(profile) {
       return (profile.itemLoadout || []).map(uid => (profile.chest || []).find(x => x.uid === uid)).filter(Boolean)
         .slice(0, GL.meta.itemSlots(profile)).map(x => ({ uid: x.uid, id: x.id, r: x.r, lvl: x.lvl || 0 }));

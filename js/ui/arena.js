@@ -16,9 +16,10 @@ window.GL = window.GL || {};
   }
 
   // Start-Energie wie im Kampfsystem (Crew und Bösewichte/Bosse haben eine Ulti, einfache Gegner nicht)
+  let curRun = null;
   function startEnergy(side, unit) {
     const U = GL.config.ult || {};
-    if (side === 'crew') return U.start || 0;
+    if (side === 'crew') return Math.min(100, (U.start || 0) + ((curRun && curRun.ultBonus) || 0));
     if (unit.boss) return U.bossStart || 0;
     if (unit.mini) return U.start || 0;
     return null;
@@ -337,6 +338,7 @@ window.GL = window.GL || {};
 
   GL.arena = {
     html(run, anim) {
+      curRun = run;
       const b = run.battle;
       const done = !anim || anim.done;
       const crewHp = done ? run.crew.map(u => u.hp) : anim.crewHp;

@@ -2577,3 +2577,17 @@ body.on-title { overflow: hidden; }
 .lb-who b .medal.tiny, .pcard-name .medal.small { vertical-align: middle; margin-right: 2px; }
 .lb-who b .medal.tiny { display: inline-grid; }
 .pcard-name { display: inline-flex; align-items: center; gap: 8px; }
+
+/* ---------- Schmiede: Verschmelzen, Schatzkammer: aktive Boni ---------- */
+.fuse-box { display: grid; gap: 8px; padding: 14px; border-radius: 14px; background: var(--panel-2); border: 1px solid var(--line); margin-bottom: 12px; }
+.fuse-box > small { color: var(--mute); }
+.fuse-step { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 8px 10px; border-radius: 10px; background: var(--panel); border: 1px solid var(--line); }
+.fuse-step.ready { border-color: var(--gold); box-shadow: 0 0 0 2px color-mix(in srgb, var(--gold) 25%, transparent); }
+.fuse-step .btn { margin: 0 0 0 auto; }
+.fuse-from small { color: var(--mute); font-weight: 700; }
+.fuse-arrow { color: var(--mute); font-weight: 800; }
+.vault-active { padding: 12px 14px; border-radius: 14px; background: color-mix(in srgb, var(--epic) 8%, var(--panel)); border: 1px solid color-mix(in srgb, var(--epic) 30%, var(--line)); margin: 8px 0 12px; }
+.vault-active ul { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 8px; }
+.vault-active li { display: grid; grid-template-columns: 34px 1fr; gap: 10px; align-items: center; font-size: .88rem; }
+.va-ico svg { width: 30px; height: 35px; shape-rendering: crispEdges; }
+.vault-active small { color: var(--mute); }

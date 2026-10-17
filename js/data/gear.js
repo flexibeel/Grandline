@@ -23,5 +23,13 @@ GL.data.gear = [
   { id: 'trainbuch',  name: 'Trainingsbuch',       cost: 50,  grant: { points: 3 },
     text: 'Dein Kapitän startet mit 3 Statuspunkten.' },
   { id: 'fruchtkorb', name: 'Fruchtkorb',          cost: 110, grant: { fruit: 'gum-gum', r: 1 },
-    text: 'Zu Beginn isst die Crew eine Gum-Gum-Frucht (Selten).' }
+    text: 'Zu Beginn isst die Crew eine Gum-Gum-Frucht (Selten).' },
+  { id: 'kriegskasse', name: 'Kriegskasse',        cost: 60,  grant: { gold: 25 },
+    text: 'Startet mit 25 Gold mehr für die Taverne.' },
+  { id: 'kampfgeist', name: 'Kampfgeist-Trank',    cost: 85,  grant: { ult: 30 },
+    text: 'Die Crew startet jeden Kampf mit 30 % mehr Ulti-Energie.' },
+  { id: 'schleifstein', name: 'Schleifstein',      cost: 70,  grant: { atk: 1 },
+    text: 'Die ganze Crew hat in diesem Run +1 Angriff.' },
+  { id: 'rumfass',    name: 'Rumfass',             cost: 55,  grant: { spd: 1 },
+    text: 'Die ganze Crew hat in diesem Run +1 Tempo.' }
 ];

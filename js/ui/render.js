@@ -1262,7 +1262,18 @@ window.GL = window.GL || {};
         <button class="link" data-act="scrap" data-id="${it.uid}" title="Einschmelzen für Berry">einschmelzen</button></span>`;
       return itemCard(it, btns, on ? 'on' : '');
     }).join('');
+    const R = GL.config.rarities;
+    const fuseBar = R.slice(0, -1).map((rr, r) => {
+      const n = GL.meta.fusable(profile, r).length;
+      const cost = GL.meta.fuseCost(r);
+      const ok = n >= 3 && profile.berry >= cost;
+      return `<div class="fuse-step ir-${rr.id}${ok ? ' ready' : ''}">
+        <span class="fuse-from">${rarityPill(r)} <small>${n >= 3 ? `${n} da` : `${n} von 3`}</small></span><span class="fuse-arrow">→</span>${rarityPill(r + 1)}
+        <button class="btn mini${ok ? '' : ' ghost'}" data-act="fuse" data-r="${r}"${ok ? '' : ' disabled'}>Verschmelzen · ${GL.sprites.coin()} ${cost}</button>
+      </div>`;
+    }).join('');
     return `<section class="hq-sec">
+      <div class="fuse-box"><b>Verschmelzen</b><small>3 Teile gleicher Seltenheit (nicht ausgewählt, niedrigste Stufe zuerst) werden zu 1 zufälligen Teil der nächsten Seltenheit.</small>${fuseBar}</div>
       <p class="hint">Ausrüstung aus deinen Runs landet hier. Verbessere sie mit Berry (bis +${GL.config.items.maxLevel}) und nimm bis zu <b>${slots}</b> Stück in den nächsten Run mit (mehr Plätze ab Rang 6, 11, 16, 21). Im Run legst du sie im Steckbrief einer Figur an.</p>
       ${chest.length ? `<div class="item-grid">${cards}</div>` : '<p class="muted">Noch leer. Besiege Kopfgeld-Ziele und Bosse, dann füllt sich die Truhe.</p>'}
     </section>`;
@@ -1331,6 +1342,11 @@ window.GL = window.GL || {};
         <p class="hint">Epische Artefakte bleiben für immer. Sie fallen bei Inselbossen, Raids und Kopfgeld-Zielen. Jeder weitere Fund hebt die Stufe (bis 5).</p>
         <div class="vault-slots"><b>${profile.artLoadout.length} / ${slotsA}</b><small>Plätze${nextSlotRank != null ? `<br>nächster ab Rang ${nextSlotRank + 1}` : ''}</small></div>
       </div>
+      ${profile.artLoadout.length ? `<div class="vault-active"><b>Aktive Boni im nächsten Run</b><ul>${profile.artLoadout.map(id => {
+        const a = A.find(x => x.id === id); if (!a) return '';
+        const lv = GL.meta.artLevel(profile, id);
+        return `<li><span class="va-ico">${artIcon(a)}</span><span><b>${a.name}</b> <small>Stufe ${lv}</small><br>${fmtArt(a, GL.run.artValue(a, lv))}</span></li>`;
+      }).join('')}</ul></div>` : ''}
       <div class="lbl">Artefakte <small>${found} von ${A.length} gefunden</small></div>
       <div class="art-grid">${A.map(a => artifactCard(profile, a)).join('')}</div>
       <div class="lbl">Erwachte Teufelsfrüchte</div>

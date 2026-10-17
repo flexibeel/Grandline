@@ -106,7 +106,7 @@ window.GL = window.GL || {};
       if (u.boss || u.mini) return UL[u.id] || UD.foe || null;
       return null;   // einfache Gegner haben keine Ulti
     };
-    crew.concat(enemies).forEach(u => { u.ult = ultOf(u); u.energy = !u.ult ? 0 : u.side === 'enemy' && u.boss && !(u.ref && u.ref.pvp) ? U.bossStart : (U.start || 0); });
+    crew.concat(enemies).forEach(u => { u.ult = ultOf(u); u.energy = !u.ult ? 0 : u.side === 'enemy' && u.boss && !(u.ref && u.ref.pvp) ? U.bossStart : (U.start || 0) + (u.side === 'crew' ? (run.ultBonus || 0) : 0); });
     const charge = (u, n) => { if (u.ult && u.hp > 0) u.energy = Math.min(U.max, u.energy + n); };
 
     function ultStrike(u, t, mult, pierce) {

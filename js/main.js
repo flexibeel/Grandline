@@ -298,6 +298,16 @@
       case 'login-open': ui.loginFrom = ui.screen || 'hq'; ui.screen = 'login'; draw(); break;
       case 'login-back': ui.screen = ui.loginFrom === 'hq' ? null : 'title'; draw(); break;
       case 'cap-filter': ui.capFilter = el.dataset.v; ui.lastStage = null; draw(); break;
+      case 'fuse': {
+        const it = GL.meta.fuse(profile, Number(el.dataset.r));
+        if (it) {
+          const d = GL.data.items.find(x => x.id === it.id);
+          const R = GL.config.rarities[it.r];
+          toast(`<span class="toast-item ir-${R.id}"><b>Verschmolzen: ${R.name} ${d ? d.name : ''}</b>Liegt jetzt in der Schmiede.</span>`);
+          saveProfile(); ui.lastStage = null; draw();
+        }
+        break;
+      }
       case 'squad-toggle': {
         const ids = GL.meta.squadIds(profile).slice();
         const id = el.dataset.id;
