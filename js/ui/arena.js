@@ -99,6 +99,10 @@ window.GL = window.GL || {};
       c.innerHTML = `<small>${d ? d.name : ''} · ${ev.spark ? '✨ Glücksfunke!' : 'Ulti'}</small><b>${ev.name}!</b>${extra}`;
       field.appendChild(c);
       setTimeout(() => c.remove(), 1500);
+      if (ev.tier === 'perfect') {
+        pulse(field, 'perfect-hit');
+        const fl = document.createElement('div'); fl.className = 'perfect-flash'; field.appendChild(fl); setTimeout(() => fl.remove(), 700);
+      }
     }
     const u = fu(ev.side, ev.from);
     const fld = $('#field');
