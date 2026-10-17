@@ -81,7 +81,8 @@ window.GL = window.GL || {};
       const raids = (run.defeated || []).filter(id => GL.data.raids.some(r => r.id === id)).length;
       const hunted = (run.defeated || []).filter(id => (GL.data.hunted || []).some(h => h.id === id)).length;
       const base = run.step * 3 + run.bounties * 15 + raids * 12 + hunted * 6 + (run.phase === 'win' ? 40 : 0);
-      return Math.round(base * (1 + (run.heat || 0) * 0.15));
+      // Kleiner Trost: auch ein kurzer Run bringt etwas Rang-EP
+      return Math.max(10, Math.round(base * (1 + (run.heat || 0) * 0.15)));
     },
 
     // Rang-Erfahrung gutschreiben, Belohnungen verteilen. Gibt neue Ränge zurück.
