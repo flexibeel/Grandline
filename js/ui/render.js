@@ -558,14 +558,21 @@ window.GL = window.GL || {};
 
   function targetName(run, side, to) {
     const u = side === 'crew' ? run.crew[to] : run.battle.enemies[to];
-    return u ? anyData(u.id).name : '';
+    return u ? unitName(u) : '';
+  }
+
+  // Name einer Figur im Kampf, auch für fremde Crews (Begegnung auf See, Duelle)
+  function unitName(u) {
+    if (!u) return '';
+    const d = u.def || anyData(u.id) || crewData(u.id);
+    return u.name && u.id === 'rival' ? u.name : (d && d.name) || u.name || 'Pirat';
   }
 
   const SPECIAL = {
     kanone: 'Die Schiffskanone',
     seestein: 'Das Seestein-Netz',
     vivre: 'Die Vivre Card',
-    helfer: 'Die Helfer',
+    helfer: 'Ein Helfer',
     bleed: 'Wunden, Gift und Feuer',
     special: 'Der Spezialangriff'
   };
@@ -595,7 +602,7 @@ window.GL = window.GL || {};
     if (ev.k === 'hit') {
       const attacker = ev.side === 'crew'
         ? crewData(run.crew[ev.from].id).name
-        : enemyData(run.battle.enemies[ev.from].id).name;
+        : unitName(run.battle.enemies[ev.from]);
       const target = targetName(run, ev.side === 'crew' ? 'enemy' : 'crew', ev.to);
       if (ev.blocked) return `${attacker} greift ${target} an, aber der Impact Dial wehrt ab.`;
       if (ev.miss) return `${target} weicht ${attacker} aus.`;
@@ -1002,7 +1009,7 @@ window.GL = window.GL || {};
           </div>
           ${tipLine(formTip)}
           <p class="hint form-hint">↕ Ziehen zum Umsortieren. <b>Oben steht vorne</b> und wird zuerst angegriffen. ${typeChart()}</p>
-          ${boss && ability(boss.id) ? `<p class="hint boss-mech"><b>${enemyData(boss.id).name}, ${ability(boss.id).name}:</b> ${abilityTag(ability(boss.id))} ${ability(boss.id).text}</p>` : ''}
+          ${boss && ability(boss.id) && !run.pending.rival ? `<p class="hint boss-mech"><b>${unitName(boss)}, ${ability(boss.id).name}:</b> ${abilityTag(ability(boss.id))} ${ability(boss.id).text}</p>` : ''}
           ${boss && ability(boss.id) && ability(boss.id).status ? counterHint(run, ability(boss.id).status.key) : ''}
           ${specialPanel(run)}
           <div class="dock"><button class="btn" data-act="fight">Kampf starten ${keyHint('Leertaste')}</button></div>`;

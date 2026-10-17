@@ -3660,3 +3660,4 @@ body.cg-dragging { user-select: none; }
 .match-pop .sq-row { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; } .match-pop .sq-u { min-width: 0; padding: 4px 2px; } .match-pop .sq-name { font-size: .7rem; }
 .cg-foot { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
 .cg-shards { display: block; margin-top: 6px; font-size: .72rem; color: #5b7ea3; }
+.boss-intro.rival .bi-card small { color: #8fd0ff; }

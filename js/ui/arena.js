@@ -450,6 +450,12 @@ window.GL = window.GL || {};
         if (b0 && (b0.boss || b0.raid)) { const d = enemyData(b0.id) || crewData(b0.id); fieldEl.dataset.boss = (run.battle.kind === 'raid' ? 'Raid: ' : 'Boss: ') + (d ? d.name : ''); }
         lowShown = false;
         if (bossIdx(run) >= 0 && !run.battle.enemies.some(e => e.ref && e.ref.pvp)) bossIntro(run);
+        else if (run.pending && run.pending.rival) {
+          const n = document.createElement('div');
+          n.className = 'boss-intro rival';
+          n.innerHTML = `<i class="bi-bar top"></i><i class="bi-bar bot"></i><span class="bi-card"><small>Begegnung auf See</small><b>${String(run.pending.rival.name).replace(/[<>&"]/g, '')}</b><em>Stammcrew eines Mitspielers</em></span>`;
+          fieldEl.appendChild(n); setTimeout(() => n.remove(), 2300);
+        }
         fieldEl.classList.add('enter');
         setTimeout(() => fieldEl.classList.remove('enter'), 2500);
       }

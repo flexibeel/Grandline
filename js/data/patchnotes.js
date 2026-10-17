@@ -1,6 +1,9 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-17u', date: '17.10.', title: 'Fehler behoben: Begegnung auf See', items: [
+    'Der Kampf gegen die Crew eines Mitspielers startet jetzt richtig',
+    'Begegnungen bekommen einen eigenen Auftritt mit dem Namen des Spielers' ] },
   { v: '2026-10-17t', date: '17.10.', title: 'Duelle zügiger', items: [
     '„Gegner suchen“ zeigt zuerst eine Karte: Crew, Ausrüstung, Stärke beider Seiten und deine Siegchance',
     'Angreifen oder anderen Gegner suchen. Nach dem Kampf geht es direkt zum nächsten',
