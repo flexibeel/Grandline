@@ -149,8 +149,13 @@
     const trophiesBefore = (run.trophies || []).length;
     const itemsBefore = (run.items || []).length;
     const luckyBefore = run.luckyN || 0;
+    const lootBefore = (run.loot || []).length;
     if (!GL.run.act(run, action)) return;
     if (profile.settings && profile.settings.autoTrain && action.type !== 'spend' && run.crew.some(u => u.points > 0)) autoTrainAll(true);
+    if ((run.loot || []).length > lootBefore) run.loot.slice(lootBefore).forEach((id, k) => {
+      const l = (GL.data.huntLoot || []).find(x => x.id === id);
+      if (l) setTimeout(() => toast(`<span class="toast-item ir-${l.r >= 3 ? 'legendary' : 'epic'}"><b>Raid-Beute: ${l.name}</b>${l.r >= 3 ? 'Legendär!' : 'Episch.'} Kommt nach dem Run in deine Vitrine.</span>`), 1400 + k * 600);
+    });
     if ((run.luckyN || 0) > luckyBefore && run.lucky) toast(`<span><b>🍀 Glücksfund!</b>Eine Goldtruhe: +${run.lucky.gold} Gold${run.lucky.item ? ' und seltene Ausrüstung' : ''}.</span>`);
     // Neue Ausrüstung gefunden: kurze Meldung in der Farbe der Seltenheit
     if ((run.items || []).length > itemsBefore) {
@@ -229,7 +234,8 @@
     const gear = GL.meta.takeLoadout(profile);
     run = GL.run.create(undefined, {
       unlocked: profile.unlocked, epics: profile.epics, upgrades: profile.upgrades, gear, heat: profile.heat,
-      arts: GL.meta.takeArtifacts(profile), self: selfNow(), items: GL.meta.takeItems(profile)
+      arts: GL.meta.takeArtifacts(profile), self: selfNow(), items: GL.meta.takeItems(profile),
+      hunt: GL.meta.featureOpen(profile, 'jagd') ? (profile.hunt || null) : null
     });
     ui.newBest = false;
     ui.lastBerry = null;
@@ -489,6 +495,8 @@
         saveProfile(); draw();
         break;
       case 'hq-tab': if (GL.meta.featureOpen(profile, el.dataset.tab)) { ui.hqTab = el.dataset.tab; draw(); } break;
+      case 'hunt-pick': profile.hunt = profile.hunt === el.dataset.id ? null : el.dataset.id; saveProfile(); ui.lastStage = null; draw(); break;
+      case 'showcase': if (GL.meta.toggleShowcase(profile, el.dataset.id)) { saveProfile(); ui.lastStage = null; draw(); if (GL.online && GL.online.register) GL.online.register(profile); } break;
       case 'fpop-go': closeFeature(el.dataset.id, true); break;
       case 'fpop-close': closeFeature(el.dataset.id, false); break;
       case 'buy-upgrade': if (GL.meta.buyUpgrade(profile, el.dataset.id)) { saveProfile(); draw(); } break;

@@ -291,6 +291,18 @@ window.GL = window.GL || {};
       if (!profile.seenFeatures) { profile.seenFeatures = (profile.rankXp || 0) > 0 ? open.map(f => f.id) : []; }
       return open.filter(f => !profile.seenFeatures.includes(f.id));
     },
+    // Raid-Jagd: wählbare Ziele (Shanks erst, wenn man ihn einmal besiegt hat)
+    huntTargets(profile) {
+      return GL.data.raids.map(r => ({ raid: r, open: !r.rare || ((profile.counts || {})['defeated:' + r.id] || 0) > 0 }));
+    },
+    toggleShowcase(profile, id) {
+      if (!(profile.loot || {})[id]) return false;
+      profile.showcase = profile.showcase || [];
+      const i = profile.showcase.indexOf(id);
+      if (i >= 0) profile.showcase.splice(i, 1);
+      else { if (profile.showcase.length >= 3) profile.showcase.shift(); profile.showcase.push(id); }
+      return true;
+    },
     featureSeen(profile, id) {
       profile.seenFeatures = profile.seenFeatures || [];
       if (!profile.seenFeatures.includes(id)) profile.seenFeatures.push(id);
@@ -574,6 +586,10 @@ window.GL = window.GL || {};
       }
       // Ausrüstung aus dem Run kommt in die Truhe (mitgenommene kehren zurück)
       GL.meta.storeItems(profile, run);
+      // Raid-Beute in die Vitrine
+      profile.loot = profile.loot || {};
+      (run.loot || []).forEach(id => { profile.loot[id] = (profile.loot[id] || 0) + 1; });
+      profile.lastLoot = (run.loot || []).slice();
       // Lebenslange Rekorde für Kosmetik und Rangliste
       const S = run.stats || {};
       const R = profile.records || (profile.records = { kos: 0, maxHit: 0, dmg: 0 });

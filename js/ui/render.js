@@ -1221,6 +1221,7 @@ window.GL = window.GL || {};
           <div><b>${fmt(x.kos)}</b><span>K.o.s</span></div>
           <div><b>${fmt(x.topBounty)}</b><span>Mio. ฿ Kopfgeld</span></div>
         </div>
+        ${(x.showcase || []).length ? `<div class="pcard-sec showcase"><b>Vitrine</b><div class="vc-row">${x.showcase.map(id => { const l = lootDef(id); return l ? `<span class="sc-item lr-${l.r}">${lootArt(l)}<small>${esc(l.name)}</small></span>` : ''; }).join('')}</div></div>` : ''}
         ${(x.vaultTop || []).length ? `<div class="pcard-sec"><b>Artefakte</b><div class="vc-row">${x.vaultTop.map(vaultChip).join('')}</div></div>` : ''}
         ${(x.chestTop || []).length ? `<div class="pcard-sec"><b>Seltene Funde</b><div class="vc-row">${x.chestTop.map(chestChip).join('')}</div></div>` : ''}
         ${sq}
@@ -1253,7 +1254,7 @@ window.GL = window.GL || {};
       return `<li class="lb-row${x.id === st.uid ? ' me' : ''}${k < 3 ? ' top' + (k + 1) : ''}${x.cos && x.cos.bg ? ' rowbg-' + x.cos.bg : ''}" data-act="lb-view" data-id="${esc(x.id)}" tabindex="0" role="button">
         <span class="lb-pos">${k + 1}</span>
         <span class="lb-cap">${x.look ? portrait(x.look, x.cos, 'sm') : cap ? GL.sprites.render(cap) : ''}</span>
-        <span class="lb-who"><b>${medal(GL.meta.rankIndex({ rankXp: x.rankXp || 0 }), 'tiny')} ${esc(x.name || 'Unbekannter Pirat')} ${badgeIcon(x.cos)}${x.id === st.uid ? ' <em>du</em>' : ''}${x.cos && x.cos.star ? ' <em class="admin-tag" title="Der Entwickler dieses Spiels. Unbesiegbar (fast).">★ Entwickler</em>' : ''}</b>
+        <span class="lb-who"><b>${medal(GL.meta.rankIndex({ rankXp: x.rankXp || 0 }), 'tiny')} ${esc(x.name || 'Unbekannter Pirat')} ${badgeIcon(x.cos)}${x.id === st.uid ? ' <em>du</em>' : ''}${x.cos && x.cos.star ? ' <em class="admin-tag" title="Der Entwickler dieses Spiels. Unbesiegbar (fast).">★ Entwickler</em>' : ''}${(x.showcase || []).length ? `<span class="lb-show">${x.showcase.map(lootChip).join('')}</span>` : ''}</b>
           <small>${x.cos && x.cos.title ? esc(titleName(x.cos.title)) + ' · ' : ''}${esc(x.rank || '')}${extra ? ' · ' + extra : ''}</small>
           ${x.squadOn && (x.squad || []).length ? `<span class="lb-crew">${squadMini(x.squad)}${leagueChip(x.squadRating)}</span>` : ''}</span>
         <span class="lb-score"><b>${fmt(value)}</b><small>${unit}</small></span>
@@ -1813,6 +1814,36 @@ window.GL = window.GL || {};
     return `<span class="atsea" data-tip="Wer in den letzten 10 Minuten gespielt hat (du zählst mit). Aktualisiert sich von selbst."><i class="atsea-dot" aria-hidden="true"></i>${txt}</span>`;
   }
 
+  // ---------- Raid-Beute: Pixelbild, Vitrine, Jagd-Ziel ----------
+  const lootDef = id => (GL.data.huntLoot || []).find(x => x.id === id);
+  function lootArt(l) {
+    const P = GL.data.huntPal;
+    let rects = '';
+    l.art.forEach((row, y) => row.split('').forEach((ch, x) => { if (P[ch]) rects += `<rect x="${x}" y="${y}" width="1.02" height="1.02" fill="${P[ch]}"/>`; }));
+    return `<svg viewBox="0 0 12 12" shape-rendering="crispEdges" aria-hidden="true">${rects}</svg>`;
+  }
+  const lootChip = id => { const l = lootDef(id); return l ? `<span class="loot-chip lr-${l.r}" title="${esc(l.name)}">${lootArt(l)}</span>` : ''; };
+  function vitrine(profile) {
+    if (!GL.meta.featureOpen(profile, 'jagd')) return '';
+    const have = profile.loot || {}, show = profile.showcase || [];
+    const cards = GL.data.raids.map(raid => GL.data.huntFor(raid.id).map(l => {
+      const n = have[l.id] || 0, on = show.includes(l.id);
+      return n ? `<button class="loot-card lr-${l.r}${on ? ' on' : ''}" data-act="showcase" data-id="${l.id}" aria-pressed="${on}">
+          <span class="lc-art">${lootArt(l)}</span><b>${esc(l.name)}</b><small>${l.r >= 3 ? 'Legendär' : 'Episch'} · ${esc(raid.name)}${n > 1 ? ` · ${n}×` : ''}</small>
+          <em>${on ? '✓ Ausgestellt' : 'Ausstellen'}</em></button>`
+        : `<div class="loot-card empty lr-${l.r}"><span class="lc-art">${lootArt(l)}</span><b>???</b><small>${l.r >= 3 ? 'Legendär' : 'Episch'} · ${esc(raid.name)}</small></div>`;
+    }).join('')).join('');
+    return `<div class="vitrine"><div class="vit-head"><b>Vitrine</b><small>Bis zu 3 Stücke sind auf deiner Visitenkarte zu sehen.</small></div><div class="vit-grid">${cards}</div></div>`;
+  }
+  function huntPicker(profile) {
+    if (!GL.meta.featureOpen(profile, 'jagd')) return '';
+    const cur = profile.hunt || null;
+    const chips = GL.meta.huntTargets(profile).map(({ raid, open }) => open
+      ? `<button class="hunt-chip${cur === raid.id ? ' on' : ''}" data-act="hunt-pick" data-id="${raid.id}" aria-pressed="${cur === raid.id}">${GL.sprites.render(raid)}<span>${esc(raid.name.replace(/^Admiral |^Rothaar /, ''))}</span></button>`
+      : `<span class="hunt-chip locked" title="Einmal zufällig im Raid besiegen, dann jagbar">${GL.sprites.render(raid)}<span>???</span></span>`).join('');
+    return `<div class="hunt-row"><span class="hunt-lbl">Raid-Jagd</span>${chips}</div>`;
+  }
+
   // ---------- Freischaltungen: kleine Pixelbilder und ruhiges Pop-up ----------
   const FEAT_ART = {
     pal: { k: '#4a3a2c', d: '#7a6a5a', m: '#a89a88', l: '#d8d0c4', w: '#9a6a3a', W: '#c4904f', g: '#e2b44a', G: '#f6dc8a', r: '#c0533f', R: '#e07a5f', p: '#f4ecdc', b: '#4f7fa8', B: '#8ab6d6', s: '#3f8a52' },
@@ -1940,6 +1971,7 @@ window.GL = window.GL || {};
           <button class="btn sail" data-act="sail">⚓ Leinen los! ${keyHint('Leertaste')}</button>
           ${heatBox}
         </div>
+        ${huntPicker(profile)}
         ${board.length || GL.meta.featureOpen(profile, 'schmiede') ? `<div class="sail-board"><span class="sb-lbl">An Bord</span>${board.length ? board.join('') : '<small class="muted">noch nichts dabei</small>'}</div>` : ''}`}
       </div>
 
@@ -1975,6 +2007,7 @@ window.GL = window.GL || {};
       ${tab === 'schmiede' ? forgeSection(profile) : ''}
       ${tab === 'rangliste' ? leaderboard(profile, uiRef) : ''}
       ${tab === 'lager' ? `<section class="hq-sec">
+        ${vitrine(profile)}
         <p class="hint">${profile.loadout.length} von ${slots} Plätzen belegt. Ausgewählte Ausrüstung kommt mit in den nächsten Run und wird dabei verbraucht.</p>
         <div class="hq-list">${storage}</div></section>` : ''}
 

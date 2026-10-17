@@ -3009,3 +3009,38 @@ h1, h2, h3, .rank-name, .my-name, .duel-head b, .poster h3, .card-name, .tp-name
 .fpop-more { margin: -4px 0 12px; font-size: .82rem; color: #8a7a62; display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; align-items: center; }
 .fpop-more span { display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px 3px 4px; border-radius: 999px; background: #f6eedd; color: #4a3a28; font-weight: 700; }
 .fpop-more svg { width: 16px; height: 16px; }
+/* Raid-Jagd und Vitrine */
+.hunt-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin: 10px 0 2px; }
+.hunt-lbl { font-size: .72rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--mute); margin-right: 2px; }
+.hunt-chip { all: unset; box-sizing: border-box; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px 3px 4px; border-radius: 999px; border: 1px solid var(--line); background: var(--panel); font-size: .8rem; font-weight: 700; color: var(--ink, #3a2a18); }
+.hunt-chip svg, .hunt-chip img { width: 22px; height: 22px; }
+.hunt-chip.on { border-color: #c4904f; background: #fbefd8; box-shadow: 0 0 0 2px rgba(196, 144, 79, .25); }
+.hunt-chip.locked { cursor: default; opacity: .5; filter: grayscale(1); }
+.vitrine { margin: 0 0 14px; padding: 12px; border-radius: 16px; background: linear-gradient(180deg, #fbf3e2, #f4e8cf); border: 1px solid #e6d5b2; }
+.vit-head { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+.vit-head b { font-size: 1rem; color: #4a3a28; }
+.vit-head small { color: var(--mute); font-size: .78rem; }
+.vit-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 8px; }
+.loot-card { all: unset; box-sizing: border-box; cursor: pointer; display: grid; justify-items: center; text-align: center; gap: 2px; padding: 10px 8px; border-radius: 14px; background: #fffaf0; border: 1px solid #eadcc2; }
+.loot-card .lc-art { width: 46px; height: 46px; }
+.loot-card .lc-art svg { width: 100%; height: 100%; display: block; }
+.loot-card b { font-size: .82rem; line-height: 1.2; color: #3a2a18; }
+.loot-card small { font-size: .7rem; color: var(--mute); }
+.loot-card em { font-style: normal; font-size: .72rem; font-weight: 800; color: #9a7a4a; margin-top: 2px; }
+.loot-card.lr-2 { box-shadow: inset 0 -3px 0 #b48ad8; }
+.loot-card.lr-3 { box-shadow: inset 0 -3px 0 #e2b44a; }
+.loot-card.on { border-color: #c4904f; background: #fff3dc; }
+.loot-card.on em { color: #3f8a52; }
+.loot-card.empty { cursor: default; opacity: .55; }
+.loot-card.empty .lc-art { filter: brightness(0) opacity(.25); }
+.loot-chip { display: inline-grid; width: 18px; height: 18px; vertical-align: -3px; }
+.loot-chip svg { width: 100%; height: 100%; }
+.lb-show { display: inline-flex; gap: 2px; margin-left: 4px; }
+.pcard-sec.showcase .vc-row { display: flex; gap: 10px; flex-wrap: wrap; }
+.sc-item { display: grid; justify-items: center; gap: 2px; width: 74px; text-align: center; }
+.sc-item svg { width: 40px; height: 40px; padding: 4px; border-radius: 12px; background: #fbf1dc; }
+.sc-item.lr-3 svg { box-shadow: 0 0 0 2px #e2b44a; }
+.sc-item.lr-2 svg { box-shadow: 0 0 0 2px #b48ad8; }
+.sc-item small { font-size: .68rem; line-height: 1.2; }
+.hunt-row { flex-direction: row !important; } .hunt-row .hunt-chip { width: auto !important; flex: none !important; margin: 0 !important; } .hunt-row .hunt-lbl { width: 100%; }
+.hq-sail div.hunt-row { display: flex !important; flex-wrap: wrap; }

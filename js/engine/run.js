@@ -238,7 +238,7 @@ window.GL = window.GL || {};
     // Allererster Ort: mindestens ein Kampf
     if (run.step === 0 && !rows[0].some(n => n.t === 'battle')) rows[0][1].t = 'battle';
     // Seltener Raid ab dem zweiten Meer, auf der großen Insel
-    if (isl >= 1 && ch === 1 && !run.raidIslands.includes(isl) && R.float(run) < C.raidChance) {
+    if (isl >= 1 && ch === 1 && !run.raidIslands.includes(isl) && R.float(run) < (run.hunt && C.hunt ? C.hunt.raidChance : C.raidChance)) {
       const r = R.int(run, 0, per - 2);
       rows[r][R.int(run, 0, rows[r].length - 1)].t = 'raid';
     }
@@ -315,6 +315,8 @@ window.GL = window.GL || {};
       const rare = GL.data.raids.filter(r => r.rare), normal = GL.data.raids.filter(r => !r.rare);
       const pool = rare.length && R.float(run) < (C.rareRaidChance || 0) ? rare : normal;
       boss = pool[R.int(run, 0, pool.length - 1)];
+      const target = run.hunt && GL.data.raids.find(r => r.id === run.hunt);
+      if (target) boss = target;
     }
     let count;
     if (boss) count = boss.escort + H.bossEscort;
@@ -562,6 +564,14 @@ window.GL = window.GL || {};
       }
       run.defeated.push(raid.id);
       rollTrophy(run, raid.id, C.trophyChance.raid);
+      // Raid-Beute (episch / legendär), nur gegen diesen Boss
+      if (C.hunt && GL.data.huntFor) {
+        run.loot = run.loot || [];
+        GL.data.huntFor(raid.id).forEach(l => {
+          const ch = l.r >= 3 ? C.hunt.legendary + (run.heat || 0) * C.hunt.legendaryPerHeat : C.hunt.epic;
+          if (R.float(run) < ch) run.loot.push(l.id);
+        });
+      }
       const reward = byId(GL.data.raids, raid.id).reward;
       if (!run.epics.includes(reward)) run.epics.push(reward);
       heal(run, C.winHeal);
@@ -867,11 +877,13 @@ window.GL = window.GL || {};
         arts: (p.arts || []).map(a => ({ id: a.id, lvl: a.lvl })),   // ausgerüstete Artefakte
         unlocked: (p.unlocked || []).slice(),
         epics: (p.epics || []).slice(),
+        hunt: p.hunt || null,
+        loot: [],
         // Stand der Freischaltungen beim Start, für ein exaktes Replay:
         // GL.run.replay(run.seed, run.actions, run.start)
         start: {
           unlocked: (p.unlocked || []).slice(), epics: (p.epics || []).slice(),
-          upgrades: Object.assign({}, up), gear: Array.isArray(p.gear) ? p.gear.slice() : [], heat: p.heat || 0,
+          upgrades: Object.assign({}, up), gear: Array.isArray(p.gear) ? p.gear.slice() : [], heat: p.heat || 0, hunt: p.hunt || null,
           arts: (p.arts || []).map(a => ({ id: a.id, lvl: a.lvl })),
           items: (p.items || []).map(x => ({ uid: x.uid, id: x.id, r: x.r, lvl: x.lvl || 0 }))
         },

@@ -279,6 +279,7 @@ window.GL = window.GL || {};
       artifacts: Object.keys(profile.vault || {}).length,
       vaultTop,
       chestTop,
+      showcase: (profile.showcase || []).slice(0, 3),
       squad: GL.meta.squadRefs(profile),
       squadPower: GL.meta.squadPower(GL.meta.squadRefs(profile)),
       squadW: profile.squadW || 0,

@@ -21,6 +21,8 @@ GL.data.features = [
     or: p => (p.artifacts && Object.keys(p.artifacts).length > 0) || Object.keys(p.vault || {}).length > 0 },
   { id: 'rangliste', lvl: 5, tab: 'rangliste', name: 'Die Rangliste', art: 'podium', text: 'Ab jetzt stehst du sichtbar neben den anderen Piraten. Tipp auf einen Namen, um seine Karte zu sehen.',
     steps: ['Jeder Run zählt für deinen Rang', 'Tipp auf Spieler für ihre Visitenkarte'] },
+  { id: 'jagd',      lvl: 6, tab: 'lager', name: 'Raid-Jagd', art: 'chest', text: 'Wähle vor dem Ablegen einen Raid-Boss als Ziel. Jeder hat zwei seltene Beutestücke für deine Vitrine.',
+    steps: ['Ziel unter „Leinen los“ wählen', 'Ab dem zweiten Meer wartet der Raid', 'Beute landet in der Vitrine im Lager'] },
   { id: 'stammcrew', lvl: 10, tab: 'stammcrew', name: 'Deine Stammcrew', art: 'flag', text: 'Deine feste Crew für Duelle gegen andere Spieler. Sie wächst mit jedem Duell.',
     steps: ['Vier Figuren fest aufstellen', 'Gegner ähnlicher Stärke herausfordern', 'Siege bringen Liga-Punkte'],
     or: p => p.stats && p.stats.wins > 0 }

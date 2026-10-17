@@ -34,7 +34,9 @@ GL.config = {
   specialEscortCut: 0.6,  // Anteil Max-Leben bei Begleitern
   raidChance: 0.5,
   rareRaidChance: 0.15,   // Anteil der Raids, die gegen den seltenen Raid-Boss (Shanks) gehen        // Chance pro Insel ab der 2. Insel, dass ein Raid auf der Seekarte liegt
-  raidEscapeHp: 0.25,     // verlorener Raid: Crew entkommt mit diesem Anteil Leben
+  raidEscapeHp: 0.25,
+  // Raid-Jagd (ab Rang, siehe features.js): Raid erscheint fast sicher, Beute-Chancen pro Sieg (+ pro Kopfgeld-Stufe)
+  hunt: { raidChance: 0.85, epic: 0.35, legendary: 0.12, legendaryPerHeat: 0.03 },     // verlorener Raid: Crew entkommt mit diesem Anteil Leben
   epicChance: 0.3,        // Chance, dass eine freigeschaltete epische Frucht im Angebot ist
 
   // Seltenheit von Schätzen und Teufelsfrüchten.
