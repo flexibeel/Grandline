@@ -1243,6 +1243,7 @@ window.GL = window.GL || {};
     const list = bag.slice().sort((a, b) => b.r - a.r || GL.cgear.power(b) - GL.cgear.power(a));
     return `<div class="cg-panel">
       <div class="cg-head"><b>Ausrüstung</b><small>${bag.length}/${GL.data.crewGear.bagMax} in der Tasche</small></div>
+      ${bag.length ? '<p class="cg-hint">Teil auf einen passenden Platz ziehen oder den Platz antippen.</p>' : ''}
       ${rows}
       ${list.length ? `<div class="cg-bag">${GL.data.crewGear.slots.map(sl => { const grp = list.filter(it => GL.cgear.slotOf(it) === sl.id); return grp.length ? `<div class="cg-grp"><small class="cg-grp-t">${CG_ICON[sl.id]} ${sl.id === 'trophae' ? 'Trophäen' : sl.id === 'waffe' ? 'Waffen' : sl.name} <em>${grp.length}</em></small><div class="cg-grp-items">${grp.map(it => `<span class="cg-bagit${fresh.includes(it.uid) ? ' new' : ''}${GL.cgear.wornBy(profile, it.uid) ? ' worn' : ''}">${cgChip(it, 'cg-item', `data-uid="${it.uid}"`)}</span>`).join('')}</div></div>` : ''; }).join('')}</div>`
         : '<p class="hint">Noch leer. Bosse und Raids lassen ab jetzt Waffen, Kleidung und Schmuck fallen, im Endlos-Modus öfter und besser.</p>'}
@@ -2049,6 +2050,12 @@ window.GL = window.GL || {};
     return `<div class="vitrine"><div class="vit-head"><b>Vitrine</b><small>Bis zu 3 Stücke sind auf deiner Visitenkarte zu sehen.</small></div><div class="vit-grid">${cards}</div></div>`;
   }
   // Endlos-Fahrt: eigener Modus, freigeschaltet mit dem ersten besiegten Meeres-Boss (und Rang 4)
+  // Kleiner Punkt am Reiter, wenn dort etwas Sinnvolles wartet (leistbarer Ausbau, neue Ausrüstung …)
+  function tabAlert(profile, id) {
+    if (id === 'werft') return GL.data.upgrades.some(u => { const c = GL.meta.upgradeCost(profile, u.id); return c != null && profile.berry >= c; });
+    if (id === 'stammcrew') return !!(GL.cgear && (profile.gearNew || []).length);
+    return false;
+  }
   function endlessRow(profile) {
     const seas = GL.meta.seasCleared(profile);
     if (!GL.meta.featureOpen(profile, 'endlos')) {
@@ -2228,8 +2235,9 @@ window.GL = window.GL || {};
       const pips = u.costs.map((_, k) => `<i class="${k < lvl ? 'on' : ''}"></i>`).join('');
       const now = lvl ? fmtUpgrade(u, lvl * u.per) : 'Noch nicht gebaut.';
       const next = cost != null ? `Nächste Stufe: ${fmtUpgrade(u, (lvl + 1) * u.per)}` : 'Voll ausgebaut.';
-      return `<div class="hq-card${cost == null ? ' maxed' : ''}">
-        <div class="hq-card-head"><b>${u.name}</b><span class="lvpips">${pips}</span></div>
+      const can = cost != null && profile.berry >= cost;
+      return `<div class="hq-card${cost == null ? ' maxed' : ''}${can ? ' can-buy' : ''}">
+        <div class="hq-card-head"><b>${u.name}</b>${can ? '<em class="can-tag">Leistbar</em>' : ''}<span class="lvpips">${pips}</span></div>
         <p>${now}</p><p class="muted">${next}</p>
         ${cost != null ? `<button class="btn mini buy" data-act="buy-upgrade" data-id="${u.id}"${profile.berry < cost ? ' disabled' : ''}>
           ${GL.sprites.coin()} ${fmt(cost)}</button>` : ''}
@@ -2298,7 +2306,7 @@ window.GL = window.GL || {};
 
       <div class="atabs hq-tabs" role="tablist">
         ${[['profil', 'Profil'], ['stammcrew', '⚔ Stammcrew'], ['werft', 'Werft'], ['rangliste', 'Rangliste'], ['schmiede', `Schmiede <small>${(profile.itemLoadout || []).length}/${GL.meta.itemSlots(profile)}</small>`], ['kammer', `Schatzkammer <small>${profile.artLoadout.length}/${GL.meta.artSlots(profile)}</small>`], ['lager', `Lager <small>${profile.loadout.length}/${slots}</small>`], ['haendler', 'Händler']].filter(([id]) => GL.meta.featureOpen(profile, id)).map(([id, name]) =>
-          `<button class="atab${tab === id ? ' on' : ''}" role="tab" aria-selected="${tab === id}" data-act="hq-tab" data-tab="${id}">${name}</button>`).join('')}
+          `<button class="atab${tab === id ? ' on' : ''}" role="tab" aria-selected="${tab === id}" data-act="hq-tab" data-tab="${id}">${name}${tabAlert(profile, id) ? '<i class="tab-dot" title="Hier gibt es etwas zu tun"></i>' : ''}</button>`).join('')}
       </div>
       ${featureNextLine(profile)}
 

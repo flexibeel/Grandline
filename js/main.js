@@ -515,6 +515,50 @@
     if (tip) tip.classList.toggle('tt-open');
   });
 
+  // ---------- Ausrüstung per Hand ziehen: Teil aus der Tasche auf einen Platz einer Figur ----------
+  (function gearDrag() {
+    let drag = null;
+    document.addEventListener('pointerdown', e => {
+      const chip = e.target.closest('.cg-bagit .cg-chip[data-uid]');
+      if (!chip || e.button > 0) return;
+      const it = GL.cgear && GL.cgear.bag(profile).find(x => x.uid === chip.dataset.uid);
+      if (!it) return;
+      drag = { chip, it, slot: GL.cgear.slotOf(it), x: e.clientX, y: e.clientY, on: false, ghost: null, id: e.pointerId };
+    });
+    document.addEventListener('pointermove', e => {
+      if (!drag || e.pointerId !== drag.id) return;
+      if (!drag.on) {
+        if (Math.hypot(e.clientX - drag.x, e.clientY - drag.y) < 8) return;
+        drag.on = true;
+        drag.ghost = drag.chip.cloneNode(true); drag.ghost.classList.add('cg-ghost'); document.body.appendChild(drag.ghost);
+        document.querySelectorAll(`.cg-row [data-act="cg-slot"][data-slot="${drag.slot}"]`).forEach(x => x.classList.add('drop-ok'));
+        document.body.classList.add('cg-dragging');
+      }
+      e.preventDefault();
+      drag.ghost.style.left = e.clientX + 'px'; drag.ghost.style.top = e.clientY + 'px';
+      const t = document.elementFromPoint(e.clientX, e.clientY);
+      document.querySelectorAll('.drop-hover').forEach(x => x.classList.remove('drop-hover'));
+      const slot = t && t.closest('.drop-ok'); if (slot) slot.classList.add('drop-hover');
+    }, { passive: false });
+    const end = e => {
+      if (!drag || e.pointerId !== drag.id) return;
+      const d = drag; drag = null;
+      if (!d.on) return;
+      suppressClick = true; setTimeout(() => { suppressClick = false; }, 400);
+      if (d.ghost) d.ghost.remove();
+      document.body.classList.remove('cg-dragging');
+      const t = document.elementFromPoint(e.clientX, e.clientY);
+      const slot = t && t.closest('[data-act="cg-slot"]');
+      document.querySelectorAll('.drop-ok, .drop-hover').forEach(x => x.classList.remove('drop-ok', 'drop-hover'));
+      if (!slot) return;
+      if (slot.dataset.slot !== d.slot) { toast('<span><b>Passt hier nicht</b>Dieses Teil gehört auf den Platz „' + ((GL.data.crewGear.slots.find(s => s.id === d.slot) || {}).name || '') + '“.</span>'); return; }
+      GL.cgear.equip(profile, slot.dataset.id, d.it.uid); profile.gearNew = []; saveProfile(); ui.lastStage = null; draw();
+      toast('<span><b>Angelegt</b>' + GL.cgear.name(d.it) + '</span>');
+    };
+    document.addEventListener('pointerup', end);
+    document.addEventListener('pointercancel', e => { if (drag && drag.ghost) drag.ghost.remove(); document.body.classList.remove('cg-dragging'); document.querySelectorAll('.drop-ok, .drop-hover').forEach(x => x.classList.remove('drop-ok', 'drop-hover')); drag = null; });
+  })();
+
   document.addEventListener('click', e => {
     if (suppressClick) { suppressClick = false; e.stopPropagation(); return; }
     const el = e.target.closest('[data-act]');

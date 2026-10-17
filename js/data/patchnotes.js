@@ -1,11 +1,13 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
-  { v: '2026-10-17p', date: '17.10.', title: 'Endlos-Fahrt als eigener Modus', items: [
+  { v: '2026-10-17q', date: '17.10.', title: 'Endlos-Fahrt als eigener Modus', items: [
     'Neu im Hauptquartier: Endlos-Fahrt. Wähle ein Meer, dessen Boss du besiegt hast, und segle es Runde um Runde, immer härter',
     'Freigeschaltet mit dem ersten besiegten Meeres-Boss und Rang 4. Tiefere Meere zählen mehr',
     'Zwischen den Runden legst du im Hafen an: Crew umstellen, entlassen, anheuern',
-    'Endlos-Rangliste: tiefstes Meer und meiste Runden zählen' ] },
+    'Endlos-Rangliste: tiefstes Meer und meiste Runden zählen',
+    'Ausrüstung per Hand auf die Figuren ziehen, passende Plätze leuchten grün',
+    'Werft und Stammcrew zeigen mit einem Punkt, wenn sich dort etwas lohnt (leistbarer Ausbau, neue Beute)' ] },
   { v: '2026-10-17o', date: '17.10.', title: 'Begegnung auf See', items: [
     'Manchmal kreuzt statt eines normalen Kampfes die Stammcrew eines echten Mitspielers deinen Kurs, auf dein Level angepasst',
     'Sieg gegen einen Mitspieler bringt Extra-Gold',
