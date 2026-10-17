@@ -159,9 +159,25 @@ window.GL = window.GL || {};
     return Math.max(1, Math.round((S.base + S.perStar * ((u.stars || 1) - 1) + S.perLevel * ((u.lvl || 1) - 1)) * S.sellShare));
   }
   function rerollCost(run) { return GL.config.shop.reroll + GL.config.shop.rerollStep * (run.shopRolls || 0); }
-  function openShop(run) {
+  // Taverne wie bei TFT: Figuren aus Banden, die schon in der Crew sind, tauchen etwas häufiger auf.
+  // So bleiben Banden-Boni erreichbar, auch wenn man viele Figuren freigeschaltet hat.
+  function shopOffers(run) {
     const free = availableCrew(run).filter(id => !run.crew.some(u => u.id === id));
-    run.pool = R.sample(run, free, choices(run) + GL.config.shop.extraOffers).map(id => rollOffer(run, id));
+    const n = choices(run) + GL.config.shop.extraOffers;
+    const fw = GL.config.shop.factionWeight || 1;
+    const have = new Set(run.crew.map(u => u.faction).filter(Boolean));
+    if (fw === 1 || !have.size) return R.sample(run, free, n);
+    const pool = free.map(id => { const d = byId(GL.data.crew, id); return { id, w: d && d.faction && have.has(d.faction) ? fw : 1 }; });
+    const out = [];
+    while (out.length < n && pool.length) {
+      let x = R.float(run) * pool.reduce((a, b) => a + b.w, 0), k = 0;
+      for (; k < pool.length - 1; k++) { x -= pool[k].w; if (x < 0) break; }
+      out.push(pool.splice(k, 1)[0].id);
+    }
+    return out;
+  }
+  function openShop(run) {
+    run.pool = shopOffers(run).map(id => rollOffer(run, id));
     run.shopRolls = 0;
     run.phase = 'recruit';
   }
@@ -844,6 +860,12 @@ window.GL = window.GL || {};
           });
           // Siege laden den Spezialangriff auf (Kopfgeldjäger doppelt)
           if (res.win) { earnGold(run, run.pending.kind); S.won = (S.won || 0) + 1; }
+          // Kopfgeld-Serie: Siege in Folge, bei denen niemand aus der Crew fällt. Ab 3 gibt es Extra-Gold.
+          const fell = run.crew.some((u, k) => crewStart[k] > 0 && u.hp <= 0);
+          run.streak = res.win && !fell ? (run.streak || 0) + 1 : 0;
+          run.bestStreak = Math.max(run.bestStreak || 0, run.streak);
+          run.streakGold = res.win && run.streak >= 3 ? (run.streak >= 6 ? 2 : 1) : 0;
+          if (run.streakGold) run.gold = (run.gold || 0) + run.streakGold;
           if (res.win && run.pending.rival) { run.gold = (run.gold || 0) + (C.rival ? C.rival.gold : 12); run.rivals = (run.rivals || 0) + 1; }
           if (res.win && !special) {
             const gain = run.pending.kind === 'elite' ? 2 : run.pending.kind === 'battle' ? 1 : 0;
@@ -894,8 +916,7 @@ window.GL = window.GL || {};
           if ((run.gold || 0) < cost) return false;
           run.gold -= cost;
           run.shopRolls = (run.shopRolls || 0) + 1;
-          const free = availableCrew(run).filter(id => !run.crew.some(u => u.id === id));
-          run.pool = R.sample(run, free, choices(run) + GL.config.shop.extraOffers).map(id => rollOffer(run, id));
+          run.pool = shopOffers(run).map(id => rollOffer(run, id));
           return true;
         }
         if (a.type === 'leave') {

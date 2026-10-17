@@ -321,6 +321,8 @@ window.GL = window.GL || {};
       squadOn: GL.meta.squadUnlocked(profile),
       squadRating: profile.squadRating == null ? 1000 : profile.squadRating,
       captains: (profile.unlocked || []).length + GL.config.starters.length,
+      refBy: profile.refBy || null,
+      invites: (profile.invites || []).length,
       updated: new Date().toISOString()
     };
   }
@@ -360,7 +362,10 @@ window.GL = window.GL || {};
         kos: n(o.kos) + entry.kos,
         crits: n(o.crits) + entry.crits,
         bossKills: n(o.bossKills) + entry.bosses,
-        duels
+        duels,
+        // Letzte Runs (ohne Replay) für die Live-Meta im Wiki: wer war dabei, wie weit kam man
+        runLog: [{ t: (entry.team || []).map(x => x.id), c: entry.captain, w: entry.won ? 1 : 0, s: entry.step, h: entry.heat || 0, d: entry.date, e: entry.duel && /^T/.test(entry.duel) ? 1 : 0 }]
+          .concat(Array.isArray(o.runLog) ? o.runLog : []).slice(0, 25)
       }));
       return better ? 'best' : 'saved';
     } catch (e) { return fail(e); }

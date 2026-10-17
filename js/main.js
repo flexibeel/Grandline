@@ -873,6 +873,56 @@
         ui.lastStage = null; draw();
         break;
       }
+      case 'sticker': {
+        GL.sticker.make(GL.ui.stickerInfo(profile)).then(blob => { ui.stickerBlob = blob; openGearPop(GL.ui.stickerPop(URL.createObjectURL(blob))); }).catch(() => toast('<span><b>Sticker ging gerade nicht</b></span>'));
+        break;
+      }
+      case 'sticker-copy': {
+        if (!ui.stickerBlob) break;
+        GL.sticker.copy(ui.stickerBlob).then(ok => toast(ok ? '<span><b>Sticker kopiert</b>In WhatsApp einfügen und abschicken.</span>' : '<span><b>Kopieren geht hier nicht</b>Nimm „Teilen“ oder „Speichern“.</span>')).catch(() => toast('<span><b>Kopieren geht hier nicht</b>Nimm „Teilen“ oder „Speichern“.</span>'));
+        break;
+      }
+      case 'sticker-share': {
+        if (!ui.stickerBlob) break;
+        GL.sticker.share(ui.stickerBlob, profile.nickname).then(ok => { if (!ok) GL.sticker.download(ui.stickerBlob, profile.nickname); }).catch(() => {});
+        break;
+      }
+      case 'sticker-save': if (ui.stickerBlob) GL.sticker.download(ui.stickerBlob, profile.nickname); break;
+      case 'friends-open': {
+        openGearPop(GL.ui.friendsPop(profile));
+        if (GL.online && GL.online.refresh) GL.online.refresh();
+        if (GL.friends) GL.friends.qr(GL.friends.link()).then(svg => { const q = document.getElementById('fr-qr'); if (q) q.innerHTML = svg; }).catch(() => { const q = document.getElementById('fr-qr'); if (q) q.innerHTML = '<small>QR-Code gerade nicht verfügbar</small>'; });
+        break;
+      }
+      case 'friend-add': {
+        const inp = document.getElementById('fr-code');
+        const c = inp ? inp.value : '';
+        if (!GL.friends.add(profile, c)) { toast('<span><b>Code passt nicht</b>Freundescodes haben 6 Zeichen, z. B. K7Q-F9X.</span>'); break; }
+        saveProfile(); toast(`<span><b>Freund hinzugefügt</b>${GL.friends.rowOf(c) ? esc2(GL.friends.rowOf(c).name) + ' ist jetzt in deiner Liste.' : 'Sobald er online ist, siehst du ihn hier.'}</span>`);
+        const c2 = document.querySelector('#fpop .fpop-card'); if (c2) { const t = document.createElement('div'); t.innerHTML = GL.ui.friendsPop(profile); c2.replaceWith(t.firstElementChild); }
+        GL.friends.qr(GL.friends.link()).then(svg => { const q = document.getElementById('fr-qr'); if (q) q.innerHTML = svg; }).catch(() => {});
+        break;
+      }
+      case 'friend-del': {
+        const c = el.dataset.id;
+        if (!(GL.uiConfirm && GL.uiConfirm.fr === c && Date.now() < GL.uiConfirm.until)) { GL.uiConfirm = { fr: c, until: Date.now() + 3000 }; el.textContent = 'Wirklich?'; el.classList.add('ask'); break; }
+        GL.friends.remove(profile, c); saveProfile(); GL.uiConfirm = null;
+        const c2 = document.querySelector('#fpop .fpop-card'); if (c2) { const t = document.createElement('div'); t.innerHTML = GL.ui.friendsPop(profile); c2.replaceWith(t.firstElementChild); }
+        GL.friends.qr(GL.friends.link()).then(svg => { const q = document.getElementById('fr-qr'); if (q) q.innerHTML = svg; }).catch(() => {});
+        break;
+      }
+      case 'friend-share': {
+        const url = GL.friends.link();
+        const text = `Ahoi! Spiel mit mir Grand Line, ein gemütliches One-Piece-Roguelike. Mein Freundescode: ${GL.friends.mine()}`;
+        if (navigator.share) navigator.share({ title: 'Grand Line', text, url }).catch(() => {});
+        else if (navigator.clipboard) navigator.clipboard.writeText(text + ' ' + url).then(() => toast('<span><b>Link kopiert</b>Schick ihn deinem besten Kumpel.</span>')).catch(() => {});
+        break;
+      }
+      case 'friend-copy': {
+        if (navigator.clipboard) navigator.clipboard.writeText(GL.friends.mine()).then(() => toast('<span><b>Freundescode kopiert</b></span>')).catch(() => {});
+        break;
+      }
+      case 'friend-view': { closePop(); ui.viewPlayer = el.dataset.id; draw(); break; }
       case 'syn-open': {
         if (run) openGearPop(GL.ui.synPop(run));
         break;
@@ -936,6 +986,7 @@
         profile.char = ui.draft.char;
         profile.cos = ui.draft.cos;
         profile.nickname = name.slice(0, 24);
+        if (GL.friends && GL.friends.applyRef(profile)) setTimeout(() => toast('<span><b>Willkommen an Bord!</b>Ein Freund hat dich eingeladen: +150 Berry als Geschenk.</span>'), 1200);
         GL.run.registerSelf(selfNow());
         GL.online.rename(profile, name).then(ok => {
           saveProfile();
@@ -1267,7 +1318,7 @@
         }
         break;
       }
-      case 'album': ui.album = 'crew'; draw(); break;
+      case 'album': ui.album = el.dataset.tab || 'stats'; draw(); break;
       case 'album-tab': ui.album = el.dataset.tab; draw(); break;
       case 'album-close': ui.album = null; draw(); break;
     }
@@ -1482,6 +1533,12 @@
   } catch (e) { /* egal */ }
   // Online-Rangliste: neu zeichnen, wenn sich Einträge ändern (nur im Hauptquartier sichtbar)
   if (GL.online) {
+    GL.online.onChange(() => {
+      if (GL.friends && profile.nickname) {
+        const got = GL.friends.checkInvites(profile);
+        if (got.length) { saveProfile(); openGearPop(GL.ui.invitePop(got, profile)); }
+      }
+    });
     GL.online.onChange(() => { checkDailyPay(); if ((!run || ui.screen) && document.activeElement && document.activeElement.id !== 'nick') draw(); });
     // Online liegt ein neuerer Spielstand (anderes Gerät): übernehmen und neu laden
     GL.online.onRemoteProfile(remote => {

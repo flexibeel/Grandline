@@ -68,6 +68,12 @@ window.GL = window.GL || {};
     rows.forEach((row, y) => row.split('').forEach((ch, x) => { if (c[ch]) r += `<rect x="${x}" y="${y}" width="1" height="1" fill="${c[ch]}"/>`; }));
     return `<svg class="px-grave" viewBox="0 0 10 11" shape-rendering="crispEdges" aria-hidden="true">${r}</svg>`;
   })();
+  const PX_FLAME = (() => {
+    const rows = ['....Y.....', '...YY..Y..', '...YOY.YY.', '..YOOYYOY.', '..YOROOOY.', '.YORRROOY.', '.YORRRROY.', '.YOORRROY.', '..YOOOOY..', '...YYYY...'];
+    const c = { Y: '#f2d24a', O: '#f29a2e', R: '#e0483b' };
+    let r = ''; rows.forEach((row, y) => row.split('').forEach((ch, x) => { if (c[ch]) r += `<rect x="${x}" y="${y}" width="1" height="1" fill="${c[ch]}"/>`; }));
+    return `<svg class="px-flame" viewBox="0 0 10 10" shape-rendering="crispEdges" aria-hidden="true">${r}</svg>`;
+  })();
   // Kleine Pixel-Pfeile für Vergleiche (besser/schlechter)
   const PX_UP = '<svg viewBox="0 0 5 3" aria-hidden="true"><rect x="2" y="0" width="1" height="1"/><rect x="1" y="1" width="3" height="1"/><rect x="0" y="2" width="5" height="1"/></svg>';
   const PX_DOWN = '<svg viewBox="0 0 5 3" aria-hidden="true"><rect x="0" y="0" width="5" height="1"/><rect x="1" y="1" width="3" height="1"/><rect x="2" y="2" width="1" height="1"/></svg>';
@@ -339,9 +345,16 @@ window.GL = window.GL || {};
     const picked = GL.pickSel && r && GL.pickSel.key === r.seed + ':' + r.step + ':' + r.phase && GL.pickSel.i === i;
     const anyPicked = GL.pickSel && r && GL.pickSel.key === r.seed + ':' + r.step + ':' + r.phase;
     return `<button class="opt card${cls ? ' ' + cls : ''}${isTip ? ' is-tip' : ''}${picked ? ' picked' : anyPicked ? ' unpicked' : ''}" data-act="pick" data-i="${i}">
-      ${i < 9 ? `<kbd class="key">${i + 1}</kbd>` : ''}${isTip ? '<span class="tip-badge">Tipp</span>' : ''}${face}${picked ? '<span class="pick-ok">Nochmal tippen: nehmen ✓</span>' : ''}</button>`;
+      ${i < 9 ? `<kbd class="key">${i + 1}</kbd>` : ''}${isTip ? '<span class="tip-badge">Tipp</span>' : ''}${face}${picked ? '<span class="pick-ok">✓</span>' : ''}</button>`;
   }
 
+  // Nach dem ersten Tipp auf eine Karte: großer Bestätigen-Knopf unten (zweiter Tipp auf die Karte geht auch)
+  function pickDock(run, items) {
+    const key = run.seed + ':' + run.step + ':' + run.phase;
+    if (!(GL.pickSel && GL.pickSel.key === key && items[GL.pickSel.i])) return `<p class="hint pick-hint">Antippen zum Auswählen, dann bestätigen.</p>`;
+    const it = items[GL.pickSel.i];
+    return `<div class="dock pick-dock"><button class="btn" data-act="pick" data-i="${GL.pickSel.i}">✓ ${esc(it.name || 'Nehmen')} nehmen</button></div>`;
+  }
   // Kurze Begründung unter einer Auswahl, falls es einen Tipp gibt
   function tipLine(tip) {
     return tip ? `<p class="tip-line"><span class="tip-badge">Tipp</span>${tip.why}</p>` : '';
@@ -370,7 +383,7 @@ window.GL = window.GL || {};
     return `${bars}<span class="track-loc">${island} · <b class="stop-name">${run.phase === 'course' ? 'Kurs setzen' : run.phase === 'starter' ? 'Kapitän wählen' : GL.run.stopName(run)}</b>${run.phase === 'course' || run.phase === 'starter' ? '' : ` <small class="muted">(${pos}/${GL.config.chapterSteps})</small>`}</span>
       <span class="head-chips">
         <em class="gold-chip" data-tip="Gold für die Taverne.\nGibt es für Siege, verfällt am Run-Ende.">${GL.sprites.coin()} <b>${run.gold || 0}</b></em>
-        <em class="bounty-chip" id="bounty-chip" data-tip="Kopfgeld deines Kapitäns.\nZählt für deinen Punktestand und die Rangliste 'Höchstes Kopfgeld'. Bringt sonst nichts im Run.">${GL.sprites.icon('node', 'elite')} <b>${fmtBounty(run.bountyM || 0)}</b></em>
+        <em class="bounty-chip" id="bounty-chip" data-tip="Kopfgeld deines Kapitäns.\nZählt für deinen Punktestand und die Rangliste 'Höchstes Kopfgeld'. Bringt sonst nichts im Run.">${GL.sprites.icon('node', 'elite')} <b>${fmtBounty(run.bountyM || 0)}</b></em>${(run.streak || 0) >= 2 ? `<em class="streak-chip${run.streak >= 6 ? ' hot' : run.streak >= 3 ? ' warm' : ''}" data-tip="Kopfgeld-Serie: ${run.streak} Siege in Folge ohne K.O.\nAb 3 Siegen +1 Gold pro Sieg, ab 6 +2. Am Run-Ende Extra-Berry.\nFällt jemand, beginnt die Serie neu.">${PX_FLAME}<b>${run.streak}</b></em>` : ''}
         ${run.heat ? `<em class="heat-chip">Stufe ${run.heat}</em>` : ''}
         ${run.loop ? `<em class="duel-chip endless-chip">Endlos ${run.loop + 1}</em>` : ''}
         ${run.daily ? '<em class="duel-chip">Tageskarte</em>' : run.duel ? `<button class="duel-chip" data-act="duel-copy" data-id="${run.duel}" title="Code teilen">Wettfahrt ${run.duel} · teilen</button>` : ''}
@@ -1084,7 +1097,7 @@ window.GL = window.GL || {};
           <div class="cards loot">${items.map((f, i) => {
           const rid = f.awakened ? 'awakened' : f.rarity >= 0 ? GL.config.rarities[f.rarity].id : 'unique';
           return cardButton(i, lootCardFace(f, 'fruit'), `loot-opt lr-${rid}`, tip);
-        }).join('')}</div>${tipLine(tip)}`;
+        }).join('')}</div>${tipLine(tip)}${pickDock(run, items)}`;
       }
 
       case 'treasure': {
@@ -1095,7 +1108,7 @@ window.GL = window.GL || {};
           <div class="cards loot">${items.map((r, i) => {
             const rid = r.rarity >= 0 ? GL.config.rarities[r.rarity].id : 'unique';
             return cardButton(i, lootCardFace(r, 'relic'), `loot-opt lr-${rid}`, tip);
-          }).join('')}</div>${tipLine(tip)}`;
+          }).join('')}</div>${tipLine(tip)}${pickDock(run, items)}`;
       }
 
       case 'prep': {
@@ -1194,7 +1207,7 @@ window.GL = window.GL || {};
         const heatUp = ui.profile && ui.profile.lastHeatUnlock
           ? `<div class="heat-unlock"><span class="event-kicker">Neu freigeschaltet</span><b>Kopfgeld-Stufe ${ui.profile.lastHeatUnlock}: ${GL.data.heat[ui.profile.lastHeatUnlock - 1].name}</b><small>${GL.data.heat[ui.profile.lastHeatUnlock - 1].text} Dafür mehr Berry.</small></div>` : '';
         const berry = ui.lastBerry != null
-          ? `<div class="berry-gain">${GL.sprites.coin()} <b>+${ui.lastBerry}</b> Berry für das Hauptquartier</div>` : '';
+          ? `<div class="berry-gain">${GL.sprites.coin()} <b>+${ui.lastBerry}</b> Berry für das Hauptquartier${(run.bestStreak || 0) >= 3 ? `<small class="streak-note">${PX_FLAME} Längste Kopfgeld-Serie: ${run.bestStreak} Siege (+${(run.bestStreak - 2) * 3} Berry)</small>` : ''}</div>` : '';
         const lr = ui.profile && ui.profile.lastRank;
         let rankHtml = '';
         if (lr && ui.lastBerry != null) {
@@ -1830,6 +1843,7 @@ window.GL = window.GL || {};
     </div>`;
     const shown = ui && ui.codeShow;
     return `<div class="code-box">
+      ${isGuest(profile) ? `<p class="guest-warn"><b>Du spielst als Gast.</b> Schreib dir diesen Code auf oder verknüpfe unten eine E-Mail, sonst ist dein Stand bei einem neuen Gerät weg. Gäste, die 60 Tage nicht spielen, werden aus der Rangliste gelöscht.</p>` : ''}
       <div class="cb-head"><b>🔑 Dein Spielercode</b>${st.codeReady === false ? `<em class="cb-warn">${esc(st.codeError || 'Abgleich noch nicht eingerichtet')}</em>` : !profile.codeClaimed ? '<em class="cb-wait">wird eingerichtet …</em>' : ''}</div>
       <button class="cb-code${shown ? ' on' : ''}" data-act="${shown ? 'code-copy' : 'code-show'}" aria-label="${shown ? 'Spielercode kopieren' : 'Spielercode anzeigen'}">${shown ? esc(profile.playerCode) : '•••-•••'}<small>${shown ? '📋 antippen zum Kopieren' : '👁 antippen zum Anzeigen'}</small></button>
       <p class="cb-warn-txt">⚠ Zeig diesen Code niemandem. Er ist wie ein Passwort: Wer ihn hat, spielt mit deinem Account. Damit meldest du dich auf jedem Gerät an, dein Fortschritt gleicht sich dann automatisch ab.</p>
@@ -1949,6 +1963,19 @@ window.GL = window.GL || {};
           <div class="wk-meta-row">${topC.map(id => `<span class="wk-mc">${mini(crewData(id))}<b>${esc(crewData(id).name)}</b><small>${cnt[id]}× dabei</small></span>`).join('')}</div>
           ${topF.length ? `<div class="wk-list">${topF.map(f => `<div class="wk-row"><span class="wk-pair">${pxIcon(f)}</span><span><b>${esc(F[f].name)}</b><small>Set-Bonus aktiv in ${fcnt[f]} von ${teams.length} Top-Crews</small></span><span class="wk-bar"><i style="width:${Math.round(100 * fcnt[f] / teams.length)}%"></i></span></div>`).join('')}</div>` : ''}</section>`
         : `<section class="wk-sec"><h3>Bei den besten Spielern</h3><p class="muted">Sobald genug Spieler online sind, siehst du hier, welche Figuren die Top-Crews nutzen.</p></section>`;
+      // Live aus echten Runs: jeder abgeschlossene Run aller Spieler (letzte 14 Tage)
+      const cutD = new Date(Date.now() - 14 * 864e5).toISOString().slice(0, 10);
+      const runs = [].concat(...(st.rows || []).map(r => Array.isArray(r.runLog) ? r.runLog : [])).filter(x => x && Array.isArray(x.t) && (!x.d || x.d >= cutD));
+      const total = GL.run.totalSteps ? GL.run.totalSteps() : 18;
+      const agg = {};
+      runs.forEach(x => x.t.filter(id => id !== 'self').forEach(id => { const a = agg[id] || (agg[id] = { n: 0, w: 0, s: 0 }); a.n++; a.w += x.w ? 1 : 0; a.s += Math.min(1, (x.s || 0) / total); }));
+      const minN = runs.length >= 60 ? 6 : 3;
+      const realTop = Object.keys(agg).filter(id => crewData(id) && agg[id].n >= minN).map(id => ({ id, n: agg[id].n, w: agg[id].w / agg[id].n, s: agg[id].s / agg[id].n }))
+        .sort((a, b) => (b.w * 2 + b.s) - (a.w * 2 + a.s)).slice(0, 8);
+      const realWin = runs.length ? runs.filter(x => x.w).length / runs.length : 0;
+      const real = runs.length >= 10 ? `<section class="wk-sec"><h3>Aus echten Runs <i class="wk-new">live</i></h3><p>${runs.length} abgeschlossene Runs aller Spieler (14 Tage), ${Math.round(realWin * 100)} % davon gewonnen. Aktualisiert sich bei jedem Run.</p>
+          <div class="wk-meta-row">${realTop.map(x => `<span class="wk-mc">${mini(crewData(x.id), !known(x.id))}<b>${esc(crewData(x.id).name)}</b><small>${Math.round(x.w * 100)} % Siege</small><small class="wk-sub">${x.n} Runs · Ø ${Math.round(x.s * 100)} % Strecke</small></span>`).join('')}</div></section>`
+        : `<section class="wk-sec"><h3>Aus echten Runs <i class="wk-new">live</i></h3><p class="muted">Sammelt gerade: Jeder abgeschlossene Run fließt hier ein (bisher ${runs.length}). Ab 10 Runs gibt es die ersten Zahlen.</p></section>`;
       const M = GL.data.metaSim;
       const pct = v => Math.round(v * 100) + ' %';
       const sim = M ? `<section class="wk-sec"><h3>Aus der Simulation</h3><p>Bots haben ${M.runs.toLocaleString('de-DE')} Runs gespielt, alle Figuren frei (Stand ${esc(M.date.split('-').reverse().join('.'))}). Siegquote im Schnitt: ${pct(M.winAll)}.</p>
@@ -1956,10 +1983,43 @@ window.GL = window.GL || {};
           <h4>Figuren, die oft gewinnen</h4><div class="wk-meta-row">${M.chars.slice(0, 8).map(x => crewData(x.id) ? `<span class="wk-mc">${mini(crewData(x.id), !known(x.id))}<b>${esc(crewData(x.id).name)}</b><small>${pct(x.win)} Siege</small></span>` : '').join('')}</div>
           ${M.alliances && M.alliances.length ? `<h4>Bündnisse</h4><div class="wk-list">${M.alliances.slice(0, 4).map(x => `<div class="wk-row"><span><b>${esc(x.name)}</b><small>${x.n} Runs, ${pct(x.win)} Siege</small></span></div>`).join('')}</div>` : ''}
           <p class="muted">Nur zum Nachschlagen: Jede Crew kann gewinnen. Die Liste wird mit Updates neu berechnet.</p></section>` : '';
-      body = live + sim;
+      body = real + live + sim;
     }
     return `<div class="fpop-card wiki-pop"><div class="wk-head"><span class="event-kicker">Wiki</span><b>Nachschlagen</b></div>${tabs}<div class="wk-body">${body}</div>
       <div class="fpop-btns"><button class="btn" data-act="pop-close">Schließen</button></div></div>`;
+  }
+
+  // ---------- Freunde: Code, QR, Einladen, Liste ----------
+  function friendsPop(profile) {
+    const F = GL.friends, me = F ? F.mine() : '';
+    const st = GL.online ? GL.online.state() : { rows: [] };
+    const list = (profile.friends || []).map(c => ({ c, r: F.rowOf(c) }));
+    const inv = (profile.invites || []).length;
+    const goal = (n, txt, done) => `<span class="fr-goal${done ? ' done' : ''}"><b>${n}</b><small>${txt}</small></span>`;
+    const row = x => x.r ? `<div class="fr-row">${onDot(x.r)}<button class="fr-who" data-act="friend-view" data-id="${esc(x.r.id)}"><i class="fr-av">${portrait(x.r.look || {}, x.r.cos || {}, 'xs')}</i><span><b>${esc(x.r.name)}</b><small>${esc(x.r.rank || '')} · ${(x.r.score || 0).toLocaleString('de-DE')} Punkte</small></span></button><button class="link fr-del" data-act="friend-del" data-id="${esc(x.c)}" aria-label="Entfernen">✕</button></div>`
+      : `<div class="fr-row off"><span class="fr-who"><i class="fr-av">?</i><span><b>${esc(F.fmt(x.c))}</b><small>noch nicht in der Rangliste</small></span></span><button class="link fr-del" data-act="friend-del" data-id="${esc(x.c)}" aria-label="Entfernen">✕</button></div>`;
+    return `<div class="fpop-card friends-pop">
+      <div class="wk-head"><span class="event-kicker">Freunde</span><b>Deine Crew an Land</b></div>
+      ${me ? `<div class="fr-me">
+        <div class="fr-qr" id="fr-qr"><span class="fr-qr-wait">QR lädt …</span></div>
+        <div class="fr-me-r"><small>Dein Freundescode</small><button class="fr-code" data-act="friend-copy" title="Kopieren">${esc(me)}</button>
+          <span class="fr-btns"><button class="btn fr-share" data-act="friend-share">Link teilen</button><button class="btn ghost fr-stk" data-act="sticker">Sticker</button></span>
+          <small class="muted">QR scannen oder Link öffnen.</small></div></div>
+      <div class="fr-gift"><span class="event-kicker">Danke fürs Einladen</span>
+        <div class="fr-goals">${goal(1, 'Legendäres Teil + Rahmen, Flagge, Titel', inv >= 1)}${goal(2, 'Hintergrund Freundesschiff', inv >= 2)}${goal(3, 'Freundes-Aura', inv >= 3)}${goal(5, 'Titel Herr der Flotte', inv >= 5)}</div>
+        <small class="muted">Zählt nach dem ersten Run deines Freundes, jeder bringt ein legendäres Teil. Bisher: <b>${inv}</b>. Er bekommt 150 Berry.</small></div>`
+        : `<p class="hint">Freunde gibt es, sobald du online bist (nach deinem ersten Run).</p>`}
+      <div class="fr-add"><input id="fr-code" maxlength="8" placeholder="Code eines Freundes" autocomplete="off"><button class="btn" data-act="friend-add">Hinzufügen</button></div>
+      <div class="fr-list">${list.length ? list.map(row).join('') : '<p class="muted fr-empty">Noch keine Freunde in der Liste.</p>'}</div>
+      <div class="fpop-btns"><button class="btn ghost" data-act="pop-close">Schließen</button></div></div>`;
+  }
+  function invitePop(got, profile) {
+    return `<div class="fpop-card invite-pop"><span class="event-kicker">Danke fürs Teilen!</span>
+      <h3>${got.map(g => esc(g.name)).join(', ')} ${got.length > 1 ? 'sind' : 'ist'} an Bord</h3>
+      <p>Weil du ${got.length > 1 ? 'sie' : 'ihn'} eingeladen hast, bekommst du:</p>
+      <div class="inv-items">${got.filter(g => g.item).map(g => `<span class="trophy-chip cr-legendary">${cgArt(g.item)} ${esc(GL.cgear.name(g.item))}</span>`).join('')}</div>
+      <p class="hint">Dazu exklusive Profil-Teile, die man nur durchs Einladen bekommt. Schau im Kapitänsbuch.</p>
+      <div class="fpop-btns"><button class="btn" data-act="pop-close">Super!</button></div></div>`;
   }
   const askDismiss = i => !!(GL.uiConfirm && GL.uiConfirm.i === i && Date.now() < GL.uiConfirm.until);
   // Pixel-Notenschlüssel als Musik-Schalter (an/aus)
@@ -2001,12 +2061,14 @@ window.GL = window.GL || {};
       <span><b>Tester-Modus</b><small>Nach jedem Run kommt wieder ein Tipp-Fenster, jeder dritte Run fragt nach einer Bewertung. So siehst du alles wie ein neuer Spieler.</small></span>
       <button class="btn mini${profile.testerPops ? '' : ' ghost'}" data-act="admin-tester">${profile.testerPops ? 'An' : 'Aus'}</button></div>`;
   }
+  // Gast: online, aber ohne verknüpfte E-Mail
+  function isGuest(profile) { const st = GL.online ? GL.online.state() : {}; return !!(profile.nickname && st.uid && !st.email); }
   function profileChip(profile) {
     const rp = GL.meta.rankProgress(profile);
     const pct = rp.next ? Math.min(100, 100 * rp.have / rp.need) : 100;
     return `<button class="pf-chip" data-act="profile-edit" title="Profil bearbeiten">
       ${portrait(lookOf(profile), cosOf(profile), 'sm')}
-      <span class="pf-txt"><b>${esc(profile.nickname || 'Neuer Pirat')}</b>
+      <span class="pf-txt"><b>${esc(profile.nickname || 'Neuer Pirat')}${isGuest(profile) ? ' <em class="guest-tag" data-tip="Du spielst als Gast. Merk dir deinen Spielercode (Kapitänsbuch) oder verknüpfe eine E-Mail. Gäste, die 60 Tage nicht spielen, fliegen aus der Rangliste.">Gast</em>' : ''}</b>
         <small>${esc(titleName(cosOf(profile).title))} · Rang ${rp.i + 1}</small>
         <i class="pf-xp"><i style="width:${pct}%"></i></i></span>
     </button>`;
@@ -2376,6 +2438,7 @@ window.GL = window.GL || {};
       const t = profile.hunt && GL.data.raids.find(r => r.id === profile.hunt);
       tiles.push(`<button class="ad-tile" data-act="hunt-open"><i class="ad-ico">${t ? GL.sprites.render(t) : '🎯'}</i><b>Raid-Ziel</b><small>${t ? esc(t.name.replace(/^Admiral |^Rothaar /, '')) : 'keins'}</small></button>`);
     }
+    if (profile.nickname) tiles.push(`<button class="ad-tile friends${(profile.invites || []).length ? '' : ' hot'}" data-act="friends-open"><i class="ad-ico">♥</i><b>Freunde</b><small>${(profile.friends || []).length ? (profile.friends || []).length + ' an Bord' : 'Einladen'}</small></button>`);
     return tiles.length ? `<div class="action-dock">${tiles.join('')}</div>` : '';
   }
   function endlessPop(profile) {
@@ -2684,6 +2747,7 @@ window.GL = window.GL || {};
         <div class="hq-grid">${upgrades}</div></section>` : ''}
 
       ${tab === 'profil' ? `<section class="hq-sec">
+        <div class="pf-quick"><button class="btn ghost" data-act="album" data-tab="stats">📊 Statistik</button><button class="btn ghost" data-act="sticker">Sticker</button><button class="btn ghost" data-act="friends-open">♥ Freunde</button></div>
         ${rankHtml}
         <div class="hq-stats">
           <div><b>${profile.stats.runs}</b><span>Runs</span></div>
@@ -2769,19 +2833,48 @@ window.GL = window.GL || {};
     };
     const all = Object.values(lists).flat();
     const total = all.filter(x => x.known).length;
-    const tabs = ALBUM_TABS.map(t => {
+    const tabs = `<button class="atab${tab === 'stats' ? ' on' : ''}" data-act="album-tab" data-tab="stats">Statistik</button>` + ALBUM_TABS.map(t => {
       const l = lists[t.id];
       return `<button class="atab${t.id === tab ? ' on' : ''}" data-act="album-tab" data-tab="${t.id}">${t.name}
         <small>${l.filter(x => x.known).length}/${l.length}</small></button>`;
     }).join('');
     return `<div class="album-inner">
       <div class="album-head">
-        <div><h2>Sammelalbum</h2>
+        <div><h2>Album & Statistik</h2>
           <p class="hint">${total} von ${all.length} entdeckt. ${profile.stats.runs} ${profile.stats.runs === 1 ? 'Run' : 'Runs'} gespielt, ${profile.stats.wins} gewonnen.</p></div>
         <button class="btn ghost" data-act="album-close">Schließen</button>
       </div>
       <div class="atabs" role="tablist">${tabs}</div>
-      <div class="agrid">${lists[tab].map(x => x.html).join('')}</div>
+      ${tab === 'stats' ? statsView(profile, lists) : `<div class="agrid">${lists[tab].map(x => x.html).join('')}</div>`}
+    </div>`;
+  }
+  // Statistik: eigene Werte, Fortschritt beim Sammeln, beste Figuren
+  function statsView(profile, lists) {
+    const v = GL.meta.progressValues(profile), R = profile.records || {}, L = profile.life || {};
+    const best = GL.save.best();
+    const n = x => (x || 0).toLocaleString('de-DE');
+    const big = (val, lbl, ico) => `<div class="stv-n"><i>${ico}</i><b>${val}</b><small>${lbl}</small></div>`;
+    const bar = (lbl, have, need) => `<div class="stv-bar"><span>${lbl}</span><i><b style="width:${Math.round(100 * have / Math.max(1, need))}%"></b></i><em>${have}/${need}</em></div>`;
+    const cosAll = Object.values(GL.data.cosmetics).flat(), cosHave = cosAll.filter(it => GL.meta.cosmeticUnlocked(profile, it, v)).length;
+    const caps = GL.data.crew.filter(c => !c.self);
+    const capHave = caps.filter(c => !c.locked || profile.unlocked.includes(c.id)).length;
+    const known = l => l.filter(x => x.known).length;
+    const CS = profile.charStats || {};
+    const top = Object.keys(CS).filter(id => id === 'self' || crewData(id)).sort((a, b) => CS[b].dmg - CS[a].dmg).slice(0, 12);
+    const who = id => id === 'self' ? avatarOf(profile) : crewData(id);
+    return `<div class="stv">
+      <div class="stv-grid">
+        ${big(n(profile.stats.runs), 'Runs', '⚓')}${big(n(profile.stats.wins), 'Siege', '★')}${big(n(best ? best.score : 0), 'Bestwert', '♛')}
+        ${big(n(Math.max(R.kos || 0, L.kos || 0)), 'K.o.s', '✊')}${big(n(R.maxHit), 'Härtester Treffer', '⚡')}${big(n(Math.max(R.dmg || 0, L.dmg || 0)), 'Schaden gesamt', '⚔')}
+        ${big(n(v.bosses), 'Inselbosse', '☠')}${big(n(v.raids), 'Raids', '✦')}${big(n(v.islands), 'Inseln', '⛰')}
+      </div>
+      <h3 class="stv-h">Gesammelt</h3>
+      ${bar('Kapitäne frei', capHave, caps.length)}${bar('Figuren getroffen', known(lists.crew), lists.crew.length)}${bar('Gegner besiegt', known(lists.bosses), lists.bosses.length)}
+      ${bar('Früchte', known(lists.fruits), lists.fruits.length)}${bar('Schätze', known(lists.relics), lists.relics.length)}${bar('Profil-Teile', cosHave, cosAll.length)}
+      <h3 class="stv-h">Deine Figuren</h3>
+      ${top.length ? `<div class="stv-tbl"><div class="stv-tr head"><span></span><span>Figur</span><span>Runs</span><span>Siege</span><span>Schaden</span><span>K.o.s</span></div>
+        ${top.map(id => { const x = CS[id], d = who(id); return `<div class="stv-tr" data-tip="${esc(d.name + '\nBester Treffer: ' + n(x.best) + ' · Kämpfe: ' + n(x.fights))}"><i>${GL.sprites.render(d)}</i><b>${esc(d.name)}</b><span>${n(x.runs)}</span><span>${x.runs ? Math.round(100 * x.wins / x.runs) : 0} %</span><span>${n(x.dmg)}</span><span>${n(x.kos)}</span></div>`; }).join('')}</div>`
+        : '<p class="muted">Ab deinem nächsten Run sammeln sich hier die Werte jeder Figur.</p>'}
     </div>`;
   }
 
@@ -2929,6 +3022,18 @@ window.GL = window.GL || {};
 
   GL.ui = {
     introSteps: INTRO.length,
+    stickerInfo(profile) {
+      const rp = GL.meta.rankProgress(profile);
+      return { svg: GL.sprites.renderShaded(avatarOf(profile)), name: profile.nickname || 'Pirat', sub: (titleName(cosOf(profile).title) || rp.rank.name) + ' · ' + rp.rank.name };
+    },
+    stickerPop(url) {
+      return `<div class="fpop-card sticker-pop"><span class="event-kicker">Dein Sticker</span>
+        <img class="st-prev" src="${url}" alt="Sticker mit deinem Piraten">
+        <p class="hint">Kopieren und in WhatsApp einfügen, oder teilen und als Sticker speichern.</p>
+        <div class="st-btns"><button class="btn" data-act="sticker-copy">Kopieren</button><button class="btn ghost" data-act="sticker-share">Teilen</button><button class="btn ghost" data-act="sticker-save">Speichern</button></div>
+        <div class="fpop-btns"><button class="btn ghost" data-act="pop-close">Schließen</button></div></div>`;
+    },
+    friendsPop, invitePop,
     wikiIcon: '<svg viewBox="0 0 9 8" shape-rendering="crispEdges" aria-hidden="true"><path d="M0 1h3v1h1v5h-1v-1h-3zM5 2h1v-1h3v5h-3v1h-1z"/><path fill="#c9a46a" d="M1 2h2v3h-2zM6 2h2v3h-2z"/></svg>',
     wikiPop,
     goalList,

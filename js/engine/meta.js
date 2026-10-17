@@ -219,7 +219,8 @@ window.GL = window.GL || {};
         heat: profile.heatMax || 0,
         duels: profile.squadW || 0,
         quests: profile.questsDone || 0,
-        prestige: GL.meta.prestige(profile)
+        prestige: GL.meta.prestige(profile),
+        invites: (profile.invites || []).length
       };
     },
     cosmeticUnlocked(profile, item, vals) {
@@ -232,7 +233,7 @@ window.GL = window.GL || {};
     reqText(item) {
       const L = { rank: 'Rang', runs: 'Runs', wins: 'Siege', kos: 'K.o.s', maxHit: 'Schaden mit einem Schlag', bosses: 'Inselbosse besiegt',
         hunted: 'Kopfgeld-Ziele besiegt', raids: 'Raids gewonnen', artifacts: 'Artefakte gefunden', reached: 'Meer erreicht',
-        islands: 'verschiedene Inseln besucht', heat: 'Kopfgeld-Stufe', duels: 'Stammcrew-Duelle gewonnen', quests: 'Aufträge erledigt', prestige: 'Prestige-Stufe' };
+        islands: 'verschiedene Inseln besucht', heat: 'Kopfgeld-Stufe', duels: 'Stammcrew-Duelle gewonnen', quests: 'Aufträge erledigt', prestige: 'Prestige-Stufe', invites: 'Freund eingeladen' };
       return Object.keys(item.req || {}).map(k => k === 'heat' ? `Kopfgeld-Stufe ${item.req.heat}` : k === 'rank' ? `Rang ${item.req.rank}` : k === 'reached' ? `${GL.data.islands[item.req.reached].name} erreichen` : `${item.req[k]} ${L[k]}`).join(', ') || 'frei';
     },
 
@@ -557,6 +558,24 @@ window.GL = window.GL || {};
         // Erstes Artefakt: automatisch ausrüsten, wenn ein Platz frei ist
         if (isNew && profile.artLoadout.length < GL.meta.artSlots(profile)) profile.artLoadout.push(id);
       });
+      // Figuren-Statistik: Schaden, K.o.s und Einsätze je Figur (für die Statistik-Seite)
+      if (run.battle && run.battle.events && run.stats && run.stats.fights) {
+        const bk = 'bt:' + run.stats.fights;
+        if (!profile.current.counted.includes(bk)) {
+          profile.current.counted.push(bk);
+          const CS = profile.charStats = profile.charStats || {};
+          const at = i => { const u = run.crew[i]; return u ? (CS[u.id] = CS[u.id] || { dmg: 0, kos: 0, fights: 0, best: 0, runs: 0, wins: 0 }) : null; };
+          run.crew.forEach((u, i) => { const x = at(i); if (x) x.fights++; });
+          run.battle.events.forEach(ev => {
+            if (ev.k === 'hit' && ev.side === 'crew' && ev.dmg > 0) { const x = at(ev.from); if (x) { x.dmg += ev.dmg; x.best = Math.max(x.best, ev.dmg); if (ev.hp <= 0) x.kos++; } }
+          });
+        }
+      }
+      if (GL.run.isFinished(run) && !profile.current.counted.includes('cs-end')) {
+        profile.current.counted.push('cs-end');
+        const CS = profile.charStats = profile.charStats || {};
+        run.crew.forEach(u => { const x = CS[u.id] = CS[u.id] || { dmg: 0, kos: 0, fights: 0, best: 0, runs: 0, wins: 0 }; x.runs++; if (run.phase === 'win') x.wins++; });
+      }
       if (!E) (run.defeated || []).forEach(id => count('defeated:' + id));
       GL.meta.trackLife(profile, run);
       if (!E) for (let i = 0; i <= GL.run.islandIndex(run); i++) count('reached:' + i);
@@ -667,7 +686,9 @@ window.GL = window.GL || {};
         profile.shards = (profile.shards || 0) + got; profile.lastShards = got;
         profile.shardPaid = { seed: run.seed, n: run.loop || 0 };
       }
-      const berry = GL.meta.berryFor(profile, eff);
+      // Kopfgeld-Serie: längste Serie im Run gibt Extra-Berry
+      profile.lastStreak = run.bestStreak || 0;
+      const berry = GL.meta.berryFor(profile, eff) + Math.max(0, (run.bestStreak || 0) - 2) * 3;
       profile.berry += berry;
       profile.stats.berryTotal += berry;
       const xp = GL.meta.rankXpFor(eff);

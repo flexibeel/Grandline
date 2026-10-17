@@ -28,7 +28,8 @@ GL.data.cosmetics = {
     { id: 'zirkus',     name: 'Zirkuszelt',        req: { hunted: 12, runs: 15 } },
     { id: 'fischinsel', name: 'Fischmenscheninsel', req: { bosses: 12, islands: 14 } },
     { id: 'nebel',      name: 'Nebelschiff',       req: { reached: 2, runs: 30 } },
-    { id: 'kaiserflagge', name: 'Rote Flagge',     req: { raids: 6, wins: 8 } }
+    { id: 'kaiserflagge', name: 'Rote Flagge',     req: { raids: 6, wins: 8 } },
+    { id: 'sunny',      name: 'Freundesschiff',    req: { invites: 2 } }
   ],
   frames: [
     { id: 'holz',       name: 'Holz',              req: {} },
@@ -46,7 +47,8 @@ GL.data.cosmetics = {
     { id: 'regenbogen', name: 'Regenbogen',        req: { wins: 10 } },
     { id: 'seetang',    name: 'Seetang',           req: { islands: 12, runs: 20 } },
     { id: 'knochen',    name: 'Knochen',           req: { kos: 1200 } },
-    { id: 'kaiser',     name: 'Kaiserlich',        req: { rank: 18, wins: 15 } }
+    { id: 'kaiser',     name: 'Kaiserlich',        req: { rank: 18, wins: 15 } },
+    { id: 'freund',     name: 'Bande fürs Leben',  req: { invites: 1 } }
   ],
   animations: [
     { id: 'ruhig',      name: 'Ruhig',             req: {} },
@@ -62,7 +64,8 @@ GL.data.cosmetics = {
     { id: 'konfetti',   name: 'Konfetti',          req: { wins: 4 } },
     { id: 'schnee',     name: 'Schneegestöber',    req: { islands: 10, runs: 20 } },
     { id: 'herzen',     name: 'Herzchen',          req: { runs: 40 } },
-    { id: 'haki',       name: 'Königs-Haki',       req: { rank: 15, raids: 5 } }
+    { id: 'haki',       name: 'Königs-Haki',       req: { rank: 15, raids: 5 } },
+    { id: 'freundesaura', name: 'Freundes-Aura',   req: { invites: 3 } }
   ],
   titles: [
     { id: 'neuling',    name: 'Neuling auf See',   req: {} },
@@ -92,7 +95,9 @@ GL.data.cosmetics = {
     { id: 'gemuetlich', name: 'Gemütlicher Kapitän', req: { runs: 75 } },
     { id: 'schlaeger',  name: 'Faust der Meere',   req: { maxHit: 200 } },
     { id: 'hundert',    name: 'Hundert Inseln',    req: { islands: 24 } },
-    { id: 'unbeugsam',  name: 'Unbeugsam',         req: { heat: 5 } }
+    { id: 'unbeugsam',  name: 'Unbeugsam',         req: { heat: 5 } },
+    { id: 'gastgeber',  name: 'Gastgeber der Grand Line', req: { invites: 1 } },
+    { id: 'flottenchef', name: 'Herr der Flotte',  req: { invites: 5 } }
   ],
   // Piratenflagge: kleines Abzeichen am Porträt (Profil, Rangliste)
   flags: [
@@ -108,7 +113,8 @@ GL.data.cosmetics = {
     { id: 'drache',     name: 'Drache',            req: { wins: 8 } },
     { id: 'clownnase',  name: 'Clownsnase',        req: { hunted: 15 } },
     { id: 'narbe',      name: 'Drei Narben',       req: { raids: 4, rank: 12 } },
-    { id: 'faust',      name: 'Faust',             req: { kos: 800 } }
+    { id: 'faust',      name: 'Faust',             req: { kos: 800 } },
+    { id: 'freunde',    name: 'Freundschaft',      req: { invites: 1 } }
   ]
 };
 

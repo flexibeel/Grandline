@@ -157,7 +157,7 @@ window.GL = window.GL || {};
     if (silentEl && silentEl.paused) { const p = silentEl.play(); if (p && p.catch) p.catch(() => {}); }
     if (!init()) return;
     run(); fadeTo(want, 2.2);
-    startWaves(); wavesLevel(mode === 'title' ? 0.11 : 0);
+    // Wellenrauschen entfernt (klang wie Wind)
   }
 
   // iPhone: Web-Audio ist bei Stummschalter sonst still. Als „Wiedergabe“ anmelden und einmal

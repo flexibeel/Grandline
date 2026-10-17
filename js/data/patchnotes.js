@@ -1,6 +1,18 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-17zk', date: '17.10.', title: 'Freunde, Sticker, Statistik', items: [
+    'Neu: Freunde. Dein Freundescode mit QR-Code und Teilen-Link, Freunde per Code hinzufügen und ihre Karte ansehen',
+    'Danke fürs Einladen: Für jeden Freund, der über deinen Link kommt und einen Run spielt, gibt es ein legendäres Ausrüstungsteil. Dazu exklusive Profil-Teile (Rahmen, Flagge, Titel, Hintergrund, Aura), die es nur so gibt. Dein Freund bekommt 150 Berry',
+    'Sticker: dein Pirat als Bild zum Kopieren oder Teilen, z. B. für WhatsApp (Kapitänsbuch oder Freunde)',
+    'Statistik: eigene Rekorde, was du schon gesammelt hast und welche Figur wie viel Schaden und K.o.s gemacht hat (oben „Statistik“)',
+    'Kopfgeld-Serie: Siege in Folge ohne K.O. Ab 3 gibt es Extra-Gold, am Ende Extra-Berry',
+    'Taverne: Figuren aus deinen Banden tauchen etwas öfter auf',
+    'Schatz und Frucht: auswählen, dann großer grüner Knopf zum Bestätigen. Am Handy alle Karten nebeneinander',
+    'Taverne am Handy kompakter: alles auf einen Blick, Neu würfeln und Weitersegeln nebeneinander',
+    'Meta im Wiki wertet jetzt jeden abgeschlossenen Run aller Spieler live aus',
+    'Gäste sind markiert und bekommen einen Hinweis, ihren Spielercode zu sichern',
+    'Musik: das Rauschen ist raus, nur noch die Melodie' ] },
   { v: '2026-10-17zj', date: '17.10.', title: 'Wiki und Meta-Liste', items: [
     'Neu: Wiki (Buch-Knopf oben). Kampfstile, Rollen, alle Banden mit Stufen, Bündnisse, Duos und alle Bosse mit ihrer Schwäche',
     'Meta-Liste: welche Figuren die besten Spieler gerade nutzen und was in tausenden Bot-Runs am häufigsten gewinnt. Nur zum Nachschlagen',
