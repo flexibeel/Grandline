@@ -3154,3 +3154,17 @@ body.is-app { padding-top: env(safe-area-inset-top); padding-bottom: env(safe-ar
 .lb-more > summary::after { content: ' ▾'; }
 .lb-more[open] > summary::after { content: ' ▴'; }
 .lb-more > .lb-cats { flex-basis: 100%; margin-top: 2px; }
+/* App-Hinweis */
+.ip-phone { width: 64px; height: 104px; margin: 8px auto 8px; border-radius: 14px; border: 3px solid #4a3a2c; background: #f3e3c3; display: grid; place-items: center; animation: ip-nudge 2.6s ease-in-out infinite; box-shadow: 0 6px 14px rgba(60, 40, 15, .18); }
+.ip-screen img { width: 40px; height: 40px; border-radius: 10px; display: block; image-rendering: pixelated; }
+@keyframes ip-nudge { 0%, 70%, 100% { transform: translateY(0) rotate(0); } 78% { transform: translateY(-6px) rotate(-4deg); } 86% { transform: translateY(0) rotate(3deg); } 92% { transform: rotate(-1deg); } }
+.ip-share { width: 18px; height: 18px; vertical-align: -4px; color: #2f6a9a; animation: ip-bob 1.4s ease-in-out infinite; }
+@keyframes ip-bob { 50% { transform: translateY(-3px); } }
+@media (prefers-reduced-motion: reduce) { .ip-phone, .ip-share { animation: none; } }
+
+/* Handy: wie eine App nur hoch und runter, nichts seitlich verrutschen */
+html, body { overflow-x: hidden; overscroll-behavior-x: none; }
+button, .btn, a, [data-act] { touch-action: manipulation; }
+body.is-app { overscroll-behavior-y: none; -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; }
+body.is-app input, body.is-app textarea { -webkit-user-select: text; user-select: text; }
+main { max-width: 100%; }

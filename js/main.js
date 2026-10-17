@@ -37,7 +37,9 @@
   function featureCheck() {
     const old = document.getElementById('fpop');
     if (old && old.dataset.id === 'feedback') return;
+    if (old && old.dataset.id === 'install') return;
     if (!run && !ui.screen && ui.intro == null && !old && feedbackDue()) { openFeedback(); return; }
+    if (!run && !ui.screen && ui.intro == null && !old && installDue()) { openInstall(); return; }
     if (run || ui.screen || ui.intro != null || !profile.nickname || !GL.meta.featuresNew) { if (old && !ui.fpop) old.remove(); return; }
     const fresh = !profile.seenFeatures;
     const list = GL.meta.featuresNew(profile).slice().sort((a, b) => (!!b.tab - !!a.tab) || a.lvl - b.lvl), f = list[0];
@@ -52,6 +54,32 @@
     document.body.appendChild(el);
     requestAnimationFrame(() => el.classList.add('in'));
   }
+  // Als App installieren: einmal nach dem 1. Run (bei „Später“ noch einmal nach dem 5.), nur auf dem Handy im Browser
+  let installEvt = null;
+  window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
+  const isAppMode = () => { try { return matchMedia('(display-mode: fullscreen), (display-mode: standalone)').matches || navigator.standalone; } catch (e) { return false; } };
+  const isPhone = () => { try { return matchMedia('(pointer: coarse)').matches && Math.min(screen.width, screen.height) < 900; } catch (e) { return false; } };
+  function installDue() {
+    if (!profile.nickname || isAppMode() || !isPhone() || ui.instOpen === false) return false;
+    if (GL.meta.featuresNew && GL.meta.featuresNew(profile).length) return false;
+    const runs = (profile.stats && profile.stats.runs) || 0, n = profile.installAsked || 0;
+    return (n === 0 && runs >= 1) || (n === 1 && runs >= 5);
+  }
+  function openInstall() {
+    const ios = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    const el = document.createElement('div');
+    el.id = 'fpop'; el.className = 'fpop'; el.dataset.id = 'install';
+    el.innerHTML = GL.ui.installPop(ios ? 'ios' : installEvt ? 'prompt' : 'android');
+    document.body.appendChild(el);   // kein Wegtippen über den Rand: bewusst „Verstanden“ oder „Später“ wählen
+    requestAnimationFrame(() => el.classList.add('in'));
+  }
+  function closeInstall() {
+    profile.installAsked = (profile.installAsked || 0) + 1; saveProfile();
+    ui.instOpen = false;
+    const el = document.getElementById('fpop');
+    if (el) { el.classList.remove('in'); el.classList.add('out'); setTimeout(() => { el.remove(); ui.instOpen = null; }, 260); }
+  }
+
   // Bewertung nach dem 2. Run (und bei „Später“ noch einmal nach dem 6.)
   function feedbackDue() {
     if (!profile.nickname || GL.sandbox.on() || ui.fbOpen === false) return false;
@@ -290,7 +318,7 @@
   // Tageskarte: gleicher Seed für alle, keine dauerhaften Boni, ein Versuch pro Tag
   function startDaily() {
     const day = GL.daily.today();
-    if (profile.daily && profile.daily.d === day) { toast('<span><b>Heute schon gesegelt</b>Morgen gibt es eine neue Tageskarte.</span>'); return; }
+    if (GL.daily.done(profile) || (run && run.daily === day)) { toast('<span><b>Heute schon gesegelt</b>Morgen gibt es eine neue Tageskarte.</span>'); return; }
     stopAnim();
     ui.sheet = null; ui.album = null;
     run = GL.run.create(GL.daily.seed(day), { heat: 0, self: selfNow() });
@@ -612,6 +640,14 @@
       case 'fpop-go': closeFeature(el.dataset.id, true); break;
       case 'fpop-close': closeFeature(el.dataset.id, false); break;
       case 'fb-open': openFeedback(); break;
+      case 'inst-go': {
+        if (installEvt) { installEvt.prompt(); installEvt.userChoice.finally(() => { installEvt = null; }); profile.installAsked = 2; closeInstall(); }
+        else if (document.documentElement.requestFullscreen) { document.documentElement.requestFullscreen({ navigationUI: 'hide' }).catch(() => {}); closeInstall(); }
+        else closeInstall();
+        break;
+      }
+      case 'inst-done': profile.installAsked = 1; closeInstall(); break;
+      case 'inst-later': closeInstall(); break;
       case 'fb-star': {
         ui.fbStars = Number(el.dataset.i);
         document.querySelectorAll('.fb-star').forEach(b => { const n = Number(b.dataset.i); b.classList.toggle('on', n <= ui.fbStars); b.setAttribute('aria-checked', String(n === ui.fbStars)); });

@@ -1031,7 +1031,7 @@ window.GL = window.GL || {};
         const duelHtml = run.daily ? `<div class="duel-sum"><span class="event-kicker">Tageskarte</span><span>Dein Ergebnis heute: <b>${GL.run.score(run).toLocaleString('de-DE')}</b> Punkte. Vergleiche dich in der Rangliste unter „Tageskarte“.</span></div>` : run.duel ? `<div class="duel-sum"><span class="event-kicker">Wettfahrt ${run.duel}</span>
           <span>Dein Ergebnis: <b>${GL.run.score(run).toLocaleString('de-DE')}</b> Punkte. Schick deinem Freund den Code <b>${run.duel}</b>, er spielt denselben Run.</span>
           <button class="btn mini ghost" data-act="duel-copy" data-id="${run.duel}">Code teilen</button></div>` : '';
-        return `${head}${duelHtml}${record}${berry}${troHtml}${itemSum}${rankHtml}${heatUp}<div class="end-actions"><button class="btn" data-act="again">Nochmal! ${keyHint('Leertaste')}</button>
+        return `${head}${duelHtml}${record}${berry}${troHtml}${itemSum}${rankHtml}${heatUp}<div class="end-actions"><button class="btn" data-act="again">${run.daily ? 'Neuer Run' : run.duel ? 'Normaler Run' : 'Nochmal!'} ${keyHint('Leertaste')}</button>
           <button class="btn ghost" data-act="hq">Hauptquartier ${keyHint('H')}</button></div>`;
       }
     }
@@ -1900,10 +1900,11 @@ window.GL = window.GL || {};
   }
   function dailyCard(profile) {
     if (!GL.meta.featureOpen(profile, 'daily')) return '';
-    const day = GL.daily.today(), done = profile.daily && profile.daily.d === day;
+    const day = GL.daily.today(), dd = GL.daily.done(profile), done = !!dd;
+    const dScore = dd ? dd.score : null;
     return `<div class="daily-card${done ? ' done' : ''}">
       <span class="dc-ico" aria-hidden="true">${featureArt('scroll')}</span>
-      <span class="dc-txt"><b>Tageskarte${(profile.dailyStreak || 0) > 1 && profile.daily && (profile.daily.d === day || profile.daily.d === yesterday()) ? ` <em class="dc-streak">${profile.dailyStreak} Tage in Folge</em>` : ''}</b><small>${done ? (profile.daily.score != null ? `Heute: ${Number(profile.daily.score).toLocaleString('de-DE')} Punkte. Morgen gibt es eine neue.` : 'Heute schon gestartet. Morgen gibt es eine neue.') : 'Gleiche Route für alle, ohne Ausbauten. Ein Versuch.'}</small></span>
+      <span class="dc-txt"><b>Tageskarte${(profile.dailyStreak || 0) > 1 && profile.daily && (profile.daily.d === day || profile.daily.d === yesterday()) ? ` <em class="dc-streak">${profile.dailyStreak} Tage in Folge</em>` : ''}</b><small>${done ? (dScore != null ? `Heute: ${Number(dScore).toLocaleString('de-DE')} Punkte. Morgen gibt es eine neue.` : 'Heute schon gestartet. Morgen gibt es eine neue.') : 'Gleiche Route für alle, ohne Ausbauten. Ein Versuch.'}</small></span>
       ${done ? '<em class="dc-done">✓</em>' : '<button class="btn mini" data-act="daily-start">Starten</button>'}
     </div>`;
   }
@@ -1939,6 +1940,23 @@ window.GL = window.GL || {};
     grid.forEach((row, y) => row.split('').forEach((ch, x) => { if (P[ch]) rects += `<rect x="${x}" y="${y}" width="1.02" height="1.02" fill="${P[ch]}"/>`; }));
     return `<svg viewBox="0 0 12 12" shape-rendering="crispEdges" aria-hidden="true">${rects}</svg>`;
   }
+  // Hinweis: als App auf den Home-Bildschirm (Vollbild ohne Browserleisten)
+  function installPop(kind) {
+    const shareIco = `<svg viewBox="0 0 24 24" class="ip-share" aria-hidden="true"><path d="M12 3v12M7.5 7.5 12 3l4.5 4.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 11H5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1h-1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>`;
+    const steps = kind === 'ios'
+      ? `<ol class="fpop-steps"><li>Unten in Safari auf ${shareIco} <b>Teilen</b> tippen</li><li><b>„Zum Home-Bildschirm“</b> wählen</li><li>Grand Line wie eine App öffnen</li></ol>`
+      : kind === 'prompt' ? ''
+      : `<ol class="fpop-steps"><li>Oben rechts im Browser auf <b>⋮</b> tippen</li><li><b>„Zum Startbildschirm hinzufügen“</b> wählen</li><li>Grand Line wie eine App öffnen</li></ol>`;
+    return `<div class="fpop-card ip-card" role="dialog" aria-labelledby="ip-t">
+      <span class="fpop-kicker">Tipp für dein Handy</span>
+      <div class="ip-phone" aria-hidden="true"><span class="ip-screen"><img src="img/icon-192.png" alt=""></span></div>
+      <h3 id="ip-t">Im Vollbild spielt es sich schöner</h3>
+      <p>Als App auf dem Home-Bildschirm: keine Browserleisten, kein versehentliches Wegwischen.</p>
+      ${steps}
+      <div class="fpop-btns">${kind === 'prompt' ? '<button class="btn" data-act="inst-go">Als App installieren</button>' : '<button class="btn" data-act="inst-done">Verstanden</button>'}<button class="btn ghost" data-act="inst-later">Später</button></div>
+    </div>`;
+  }
+
   // Kurze Bewertung: 1 bis 5 Sterne, optional ein Satz
   function feedbackPop(stars) {
     const s = stars || 0;
@@ -2326,6 +2344,7 @@ window.GL = window.GL || {};
     trophyPop,
     featurePop,
     feedbackPop,
+    installPop,
     toggleMail() { mailShown = !mailShown; },
 
     render(run, anim, ui) {

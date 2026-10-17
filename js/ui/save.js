@@ -163,5 +163,14 @@ GL.sandbox = { on: () => GL.slots.active() !== 0 };
 GL.daily = {
   today() { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); },
   code(day) { return 'T' + String(day || GL.daily.today()).replace(/-/g, ''); },
+  // Heute schon gespielt? (dieses Gerät oder online, z. B. auf dem anderen Handy)
+  done(profile) {
+    const day = GL.daily.today();
+    if (profile.daily && profile.daily.d === day) return { local: true, score: profile.daily.score };
+    const st = GL.online && GL.online.state ? GL.online.state() : null;
+    const me = st && st.uid && (st.rows || []).find(x => x.id === st.uid || (profile.nickname && x.name === profile.nickname));
+    const e = me && me.duels && me.duels[GL.daily.code(day)];
+    return e ? { online: true, score: e.score } : null;
+  },
   seed(day) { let h = 2166136261; const t = 'grandline-' + (day || GL.daily.today()); for (let i = 0; i < t.length; i++) { h ^= t.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
 };
