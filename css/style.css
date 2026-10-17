@@ -2110,6 +2110,9 @@ body.on-title { overflow: hidden; }
   border: 2px solid var(--line); background: var(--panel); color: var(--ink); }
 .login-field input:focus { outline: none; border-color: var(--gold); }
 .login-main { width: 100%; margin-top: 4px; text-align: center; }
+.login-field .code-input { font-family: var(--px); font-size: 1.6rem; letter-spacing: .35em; text-align: center; }
+.acc-line { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: .88rem; color: var(--mute); margin: 8px 0 0; }
+.acc-line b { color: var(--ink); }
 .login-sent { width: 100%; margin: 0; padding: 10px 12px; border-radius: 10px; background: color-mix(in srgb, var(--hp) 14%, var(--panel)); color: var(--ink); font-size: .9rem; }
 .login-alt { font-size: .85rem; color: var(--mute); margin: 2px 0 0; }
 .login-alt .link { font-size: inherit; }

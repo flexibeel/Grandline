@@ -17,6 +17,31 @@ window.GL = window.GL || {};
   let registered = false;
   let profileRef = null;
 
+  // Gleicher Name = gleicher Spieler (z. B. neues Gerät, neue Sitzung): nur einmal zeigen.
+  // Eigener Eintrag hat Vorrang, Bestwerte aus den alten Einträgen werden übernommen.
+  const MAXF = ['score', 'wins', 'runs', 'topBounty', 'bestDmg', 'maxHit', 'totalDmg', 'kos', 'crits', 'bossKills', 'rankXp', 'artifacts', 'heatMax', 'captains'];
+  function dedupe(rows) {
+    const groups = {};
+    const out = [];
+    rows.forEach(r => {
+      const key = String(r.name || '').trim().toLowerCase();
+      if (!key || key === '-' || key === 'unbekannter pirat' || key === 'pirat') { out.push(r); return; }
+      (groups[key] = groups[key] || []).push(r);
+    });
+    Object.values(groups).forEach(g => {
+      if (g.length === 1) { out.push(g[0]); return; }
+      const top = g.slice().sort((a, b) => (Number(b.score) || 0) - (Number(a.score) || 0))[0];
+      const keep = Object.assign({}, g.find(r => r.id === state.uid) || top);
+      MAXF.forEach(k => { keep[k] = Math.max(...g.map(r => Number(r[k]) || 0)); });
+      if (top !== keep && (Number(top.score) || 0) >= (Number(keep.score) || 0) && top.best) keep.best = top.best;
+      if (!keep.vaultTop && top.vaultTop) keep.vaultTop = top.vaultTop;
+      if (!keep.chestTop && top.chestTop) keep.chestTop = top.chestTop;
+      keep.updated = g.map(r => r.updated || '').sort().pop();
+      out.push(keep);
+    });
+    return out.sort((a, b) => (Number(b.score) || 0) - (Number(a.score) || 0));
+  }
+
   function emit() { listeners.forEach(fn => { try { fn(); } catch (e) { /* Anzeige-Fehler ignorieren */ } }); }
 
   function afterRows() {
@@ -60,7 +85,7 @@ window.GL = window.GL || {};
       async refresh() {
         const { data: d, error } = await client.from('scores').select('id,name,score,data').order('score', { ascending: false }).limit(300);
         if (error) throw error;
-        state.rows = (d || []).map(toRow).filter(r => !r.deleted);
+        state.rows = dedupe((d || []).map(toRow).filter(r => !r.deleted));
         afterRows();
       }
     };
@@ -91,17 +116,33 @@ window.GL = window.GL || {};
   async function linkEmail(email) {
     if (!client) return { ok: false, msg: 'Online-Speichern geht nur auf der Website.' };
     const { error } = await client.auth.updateUser({ email }, { emailRedirectTo: location.origin + location.pathname });
-    if (error) return { ok: false, msg: error.message };
-    state.mailSent = email; emit();
+    if (error) return { ok: false, msg: niceError(error) };
+    state.mailSent = email; state.mailKind = 'link'; emit();
     return { ok: true };
   }
-  // Auf einem neuen Gerät: Anmeldelink per Mail
+  // Auf einem neuen Gerät: Anmeldelink bzw. Code per Mail
   async function loginEmail(email) {
     if (!client) return { ok: false, msg: 'Online-Speichern geht nur auf der Website.' };
     const { error } = await client.auth.signInWithOtp({ email, options: { shouldCreateUser: false, emailRedirectTo: location.origin + location.pathname } });
-    if (error) return { ok: false, msg: error.message };
-    state.mailSent = email; emit();
+    if (error) return { ok: false, msg: niceError(error) };
+    state.mailSent = email; state.mailKind = 'login'; emit();
     return { ok: true };
+  }
+  // 6-stelliger Code aus der Mail: Anmelden im selben Fenster, ohne Link
+  async function verifyCode(code) {
+    if (!client || !state.mailSent) return { ok: false, msg: 'Erst die E-Mail-Adresse eingeben.' };
+    const type = state.mailKind === 'link' ? 'email_change' : 'email';
+    const { error } = await client.auth.verifyOtp({ email: state.mailSent, token: String(code).trim(), type });
+    if (error) return { ok: false, msg: niceError(error) };
+    return { ok: true };
+  }
+  function niceError(e) {
+    const m = String((e && e.message) || e || '');
+    if (/signups not allowed|user not found|not found/i.test(m)) return 'Zu dieser Adresse gibt es noch keinen Account. Spiel erst einen Piraten und sichere ihn dann mit dieser Mail.';
+    if (/already been registered|already registered|exists/i.test(m)) return 'Diese Adresse gehört schon zu einem Account. Nutze stattdessen „Anmelden“.';
+    if (/expired|invalid/i.test(m)) return 'Der Code stimmt nicht oder ist abgelaufen. Fordere einfach einen neuen an.';
+    if (/rate|seconds/i.test(m)) return 'Kurz warten, dann nochmal versuchen (Mail-Limit).';
+    return m;
   }
 
   // ---------- Speicherort 2: geteilte Claude-Seite ----------
@@ -121,7 +162,7 @@ window.GL = window.GL || {};
       async refresh() { /* live über onSnapshot */ }
     };
     db.collection('scores').limit(300).onSnapshot(snap => {
-      state.rows = snap.docs.map(x => Object.assign({ id: x.id }, x.data())).filter(r => !r.deleted);
+      state.rows = dedupe(snap.docs.map(x => Object.assign({ id: x.id }, x.data())).filter(r => !r.deleted));
       afterRows();
     }, () => { state.status = 'error'; emit(); });
   }
@@ -258,6 +299,6 @@ window.GL = window.GL || {};
     return register(profile);
   }
 
-  GL.online = { init, submit, rename, register, pushSave, linkEmail, loginEmail, wipe, liveFields,
+  GL.online = { init, submit, rename, register, pushSave, linkEmail, loginEmail, verifyCode, wipe, liveFields,
     onRemoteProfile(fn) { onRemote = fn; }, state: () => state, onChange(fn) { listeners.push(fn); } };
 })();

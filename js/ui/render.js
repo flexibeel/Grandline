@@ -1264,6 +1264,15 @@ window.GL = window.GL || {};
     setTimeout(() => el.remove(), 3900);
   }
 
+  // Eine Zeile: mit welcher Mail ist dieser Account verbunden?
+  function accountLine() {
+    const st = GL.online ? GL.online.state() : {};
+    if (st.backend !== 'supabase') return '';
+    return !st.anon && st.email
+      ? `<p class="acc-line">✓ Account: <b>${esc(st.email)}</b></p>`
+      : `<p class="acc-line">Noch nicht mit einer Mail verbunden. <button class="link" data-act="login-open">Jetzt sichern</button></p>`;
+  }
+
   // Auf allen Geräten spielen: Kurzstatus im Profil, das eigentliche Anmelden läuft über den Login-Screen
   function devicesBox() {
     const st = GL.online ? GL.online.state() : {};
@@ -1339,16 +1348,28 @@ window.GL = window.GL || {};
         <p class="hint">Dieser Account ist mit <b>${esc(st.email)}</b> verknüpft. Auf jedem Gerät reicht „Anmelden“ mit dieser Adresse, dein Fortschritt ist immer dabei.</p>
         <button class="btn" data-act="login-back">Fertig</button></div>`;
     }
+    // Schritt 2: Mail ist raus, Code eintippen (oder Link in der Mail antippen)
+    if (st.mailSent) {
+      return `<div class="ts-inner login-card">${back}
+        <div class="login-icon">✉</div><h2>Code eingeben</h2>
+        <p class="hint">Wir haben eine Mail an <b>${esc(st.mailSent)}</b> geschickt. Tippe den 6-stelligen Code hier ein, oder tippe in der Mail einfach auf den Link.</p>
+        <div class="login-field">
+          <label for="mail-code">Code aus der Mail</label>
+          <input id="mail-code" class="code-input" inputmode="numeric" autocomplete="one-time-code" maxlength="8" placeholder="123456">
+        </div>
+        <button class="btn login-main" data-act="mail-code">Bestätigen</button>
+        <p class="login-alt">Keine Mail da? Spam-Ordner prüfen oder <button class="link" data-act="mail-again">andere Adresse / neu senden</button></p>
+      </div>`;
+    }
     return `<div class="ts-inner login-card">${back}
       <div class="login-icon">⚓</div><h2>Anmelden</h2>
-      <p class="hint">Kein Passwort nötig: Mail eingeben, Link antippen, fertig. Auf jedem Gerät mit derselben Adresse spielst du mit demselben Piraten weiter.</p>
+      <p class="hint">Kein Passwort nötig: Mail eingeben, Code bekommen, fertig. Auf jedem Gerät mit derselben Adresse spielst du mit demselben Piraten weiter.</p>
       <div class="login-field">
         <label for="mail">E-Mail-Adresse</label>
         <input id="mail" type="email" inputmode="email" placeholder="deine@email.de" autocomplete="email">
       </div>
-      ${st.mailSent ? `<p class="login-sent">Link an <b>${esc(st.mailSent)}</b> geschickt. Postfach (auch Spam-Ordner) prüfen.</p>` : ''}
       <button class="btn login-main" data-act="mail-login">Anmelden</button>
-      ${profile.nickname ? `<p class="login-alt">Spielst du hier zum ersten Mal mit dieser Mail? <button class="link" data-act="mail-link">Diesen Piraten jetzt sichern</button></p>` : ''}
+      ${profile.nickname ? `<p class="login-alt">Noch keinen Account? <button class="link" data-act="mail-link">Diesen Piraten mit der Mail sichern</button></p>` : ''}
     </div>`;
   }
   function profileScreen(profile, ui) {
@@ -1402,7 +1423,7 @@ window.GL = window.GL || {};
           ${profile.nickname ? '<button class="btn ghost" data-act="title-back">Zurück</button>' : ''}
           <button class="btn" data-act="profile-save">${profile.nickname ? 'Speichern' : 'Profil erstellen'} ${keyHint('Enter')}</button>
         </div>
-        ${profile.nickname ? dangerZone(ui) : ''}
+        ${profile.nickname ? accountLine() + dangerZone(ui) : ''}
       </div>
     </div>`;
   }
@@ -1577,6 +1598,7 @@ window.GL = window.GL || {};
           <div><b>${profile.unlocked.length + GL.config.starters.length}</b><span>Kapitäne</span></div>
         </div>
         <button class="btn ghost" data-act="profile-edit">Pirat und Aussehen bearbeiten</button>
+        ${accountLine()}
         ${chapterPanel(profile)}
         ${devicesBox()}
         ${dangerZone(uiRef)}</section>` : ''}
@@ -1781,7 +1803,7 @@ window.GL = window.GL || {};
         if (titleEl.dataset.last !== html) {
           titleEl.innerHTML = html; titleEl.dataset.last = html;
           if (ui.screen === 'profile') setTimeout(() => { const i = $('#pf-name'); if (i) i.focus(); }, 30);
-          if (ui.screen === 'login') setTimeout(() => { const i = $('#mail'); if (i) i.focus(); }, 30);
+          if (ui.screen === 'login') setTimeout(() => { const i = $('#mail-code') || $('#mail'); if (i) i.focus(); }, 30);
         }
       } else { titleEl.dataset.last = ''; }
       const introEl = $('#intro');

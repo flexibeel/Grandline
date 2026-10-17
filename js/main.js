@@ -384,9 +384,33 @@
         const v = inp ? inp.value.trim() : '';
         if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)) { toast('<span><b>E-Mail prüfen</b>Bitte eine gültige Adresse eingeben.</span>'); break; }
         (type === 'mail-link' ? GL.online.linkEmail(v) : GL.online.loginEmail(v)).then(res => {
-          toast(res.ok ? '<span><b>E-Mail unterwegs</b>Klicke auf den Link in der Mail, dann ist dein Profil auf allen Geräten.</span>' : `<span><b>Hat nicht geklappt</b>${res.msg}</span>`);
+          if (!res.ok) toast(`<span><b>Hat nicht geklappt</b>${res.msg}</span>`);
           ui.lastStage = null; draw();
         });
+        break;
+      }
+      case 'mail-code': {
+        const inp = document.getElementById('mail-code');
+        const v = inp ? inp.value.replace(/\D/g, '') : '';
+        if (v.length < 6) { toast('<span><b>Code prüfen</b>Der Code aus der Mail hat 6 Ziffern.</span>'); break; }
+        el.disabled = true; el.textContent = 'Prüfe …';
+        GL.online.verifyCode(v).then(res => {
+          if (res.ok) {
+            toast('<span><b>Angemeldet</b>Dein Account wird geladen …</span>');
+            try { sessionStorage.removeItem('gl.pulled'); } catch (e2) { /* egal */ }
+            setTimeout(() => location.reload(), 700);
+          } else {
+            toast(`<span><b>Hat nicht geklappt</b>${res.msg}</span>`);
+            ui.lastStage = null; draw();
+          }
+        });
+        break;
+      }
+      case 'mail-again': {
+        const st = GL.online.state();
+        st.mailSent = ''; ui.lastStage = null;
+        const t = document.getElementById('title'); if (t) t.dataset.last = '';
+        draw();
         break;
       }
       case 'set-nick': {
