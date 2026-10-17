@@ -291,6 +291,8 @@ button:focus-visible, .opt:focus-visible { outline: 3px solid var(--sea); outlin
 .toast i svg { width: 36px; height: 42px; shape-rendering: crispEdges; }
 .toast i .icon { width: 34px; height: 34px; }
 .toast span { display: grid; font-size: .9rem; }
+.toast > span:only-child { grid-column: 1 / -1; }
+.toast { border-width: 1px; border-color: color-mix(in srgb, var(--gold) 55%, var(--line)); }
 .toast.out { opacity: 0; transform: translateY(8px); transition: all .5s; }
 @keyframes toast-in { from { opacity: 0; transform: translateY(14px); } }
 
@@ -1790,6 +1792,23 @@ h2 { letter-spacing: .015em; }
 .hq-reset { margin-top: 18px; text-align: center; }
 .danger-link { color: var(--red) !important; font-size: .85rem; }
 .toasts, .toast { pointer-events: none; }
+/* Kurze Einblendungen dürfen nie Klicks blockieren: alles darunter bleibt bedienbar */
+.scene, .bounty-pop, .trophy-pop, .stop-banner { pointer-events: none !important; cursor: default; }
+.scene { background: rgba(30, 20, 10, .38) !important; backdrop-filter: none !important; }
+.bounty-pop { background: radial-gradient(circle at 50% 45%, rgba(10,12,18,.12), rgba(10,12,18,.3)) !important; }
+.trophy-pop { background: radial-gradient(circle at 50% 45%, rgba(60,30,110,.18), rgba(8,6,14,.38)) !important; }
+/* Handy: Hinweise oben als kompakte Pille statt großem Banner (wie iOS-Mitteilungen) */
+@media (max-width: 560px) {
+  .toasts { top: calc(8px + env(safe-area-inset-top)); bottom: auto; width: calc(100% - 20px); }
+  .toast { padding: 8px 12px !important; border-radius: 14px !important; font-size: .85rem;
+    box-shadow: 0 6px 20px rgba(40,25,10,.18) !important; backdrop-filter: blur(8px); }
+  .toast.out { transform: translateY(-8px); }
+  .stop-banner { top: calc(10px + env(safe-area-inset-top)); padding: 6px 16px; border-radius: 999px; }
+  .stop-banner b { font-size: 1.2rem !important; }
+  .stop-banner small { font-size: .62rem; }
+  .scene-card h2 { font-size: 2.4rem !important; }
+  .bp-poster, .tp-card { transform: scale(.82); }
+}
 
 /* Eigenes Profil in der Rangliste */
 .my-card { display: grid; gap: 12px; margin: 4px 0 16px; padding: 14px; border-radius: 14px; border: 2px solid var(--sea);

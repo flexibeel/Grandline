@@ -399,8 +399,10 @@ window.GL = window.GL || {};
       el.classList.add('fly');
       setTimeout(() => { el.remove(); if (chip) { chip.classList.remove('bump'); void chip.offsetWidth; chip.classList.add('bump'); } }, 650);
     };
-    el.addEventListener('click', close);
-    setTimeout(close, 3200);
+    // Klicks gehen durch (pointer-events: none), daher schließt jeder Tipp irgendwo das Plakat
+    const anyTap = () => { close(); document.removeEventListener('pointerdown', anyTap, true); };
+    document.addEventListener('pointerdown', anyTap, true);
+    setTimeout(close, 2400);
   }
 
   // ---------- Seekarte (wie bei Pokelike) ----------
@@ -1258,10 +1260,10 @@ window.GL = window.GL || {};
         <small>Liegt jetzt in der Schatzkammer im Hauptquartier.</small>
         <span class="tp-rays" aria-hidden="true"></span>
       </div>`;
-    el.addEventListener('click', () => el.remove());
+    dismissOnTap(el);
     document.body.appendChild(el);
-    setTimeout(() => el.classList.add('out'), 3300);
-    setTimeout(() => el.remove(), 3900);
+    setTimeout(() => el.classList.add('out'), 2600);
+    setTimeout(() => el.remove(), 3150);
   }
 
   // Eine Zeile: mit welcher Mail ist dieser Account verbunden?
@@ -1759,6 +1761,12 @@ window.GL = window.GL || {};
     </div>`;
   }
 
+  // Einblendungen blockieren keine Klicks; ein Tipp irgendwo blendet sie sofort aus
+  function dismissOnTap(el) {
+    const off = () => { el.classList.add('out'); setTimeout(() => el.remove(), 400); document.removeEventListener('pointerdown', off, true); };
+    setTimeout(() => document.addEventListener('pointerdown', off, true), 150);
+  }
+
   // Kleine Einblendung beim Erreichen einer neuen Insel innerhalb eines Meeres
   function showStop(name, sub) {
     const old = document.getElementById('stop-banner');
@@ -1769,8 +1777,8 @@ window.GL = window.GL || {};
     el.setAttribute('role', 'status');
     el.innerHTML = `<small>${sub || 'Ankunft'}</small><b>${name}</b>`;
     document.body.appendChild(el);
-    setTimeout(() => el.classList.add('out'), 1700);
-    setTimeout(() => el.remove(), 2300);
+    setTimeout(() => el.classList.add('out'), 1300);
+    setTimeout(() => el.remove(), 1850);
   }
 
   function showScene(isl, idx) {
@@ -1783,10 +1791,10 @@ window.GL = window.GL || {};
     el.innerHTML = `<div class="scene-card"><span class="event-kicker">Meer ${idx + 1} von ${GL.data.islands.length}</span>
       <h2>${isl.name}</h2><p>${isl.tagline || ''}</p>
       <p class="scene-stops">Kleine Insel → Bösewicht → Große Insel → <b>Boss des Meeres</b></p></div>`;
-    el.addEventListener('click', () => el.remove());
+    dismissOnTap(el);
     document.body.appendChild(el);
-    setTimeout(() => el.classList.add('out'), 1900);
-    setTimeout(() => el.remove(), 2500);
+    setTimeout(() => el.classList.add('out'), 1500);
+    setTimeout(() => el.remove(), 2050);
   }
 
   GL.ui = {
@@ -1852,8 +1860,9 @@ window.GL = window.GL || {};
         const r = GL.run.rowIdx(run);
         const last = r === GL.config.chapterSteps - 1;
         const here = GL.run.chapterIsland(run);
+        // Nur die wichtigen Momente einblenden: Ankunft auf einer Insel und der Endkampf
         if (r === 0 && here) showStop(here.name, 'Ankunft auf');
-        else showStop(GL.run.stopName(run), last ? (GL.run.chapterIdx(run) === 0 ? 'Endstation: Bösewicht' : 'Endstation: Boss des Meeres') : 'Weiter nach');
+        else if (last) showStop(GL.run.stopName(run), GL.run.chapterIdx(run) === 0 ? 'Endstation: Bösewicht' : 'Endstation: Boss des Meeres');
       }
       const inBattle = run.phase === 'battle' && anim && !anim.done;
       // Im Kampf zeigt die Arena die Crew, daher Crew-Liste und Synergien ausblenden
