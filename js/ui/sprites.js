@@ -33,9 +33,25 @@ window.GL = window.GL || {};
 
   // Masken/Kostüme für Bosse: ersetzen die oberen Zeilen (G/g = Kostüm hell/dunkel, Y = Augen, T = Zähne)
   const MASKS = {
-    croc: { 0: '.gYg....gYg.', 1: 'GGGGGGGGGGGG', 2: 'GTGTGTGTGTGG', 3: 'GTSSESSESSTG', 4: 'GGSSSSSSSSGG', 5: 'gGTSSSSSSTGg' }
+    croc:    { 0: '.gYg....gYg.', 1: 'GGGGGGGGGGGG', 2: 'GTGTGTGTGTGG', 3: 'GTSSESSESSTG', 4: 'GGSSSSSSSSGG', 5: 'gGTSSSSSSTGg' },
+    shark:   { 0: '.....GG.....', 1: '...GGGGGG...', 2: '..GTTTTTTG..' },
+    leopard: { 0: '.GG......GG.', 1: '.GYGgGGgGYG.', 2: '..GGGGgGGG..' },
+    giraffe: { 0: '..g......g..', 1: '..G......G..', 2: '..GGgGGgGG..' },
+    bat:     { 0: 'G..........G', 1: 'GG.GGGGGG.GG', 2: '.GGGGGGGGGG.' },
+    cloud:   { 0: '..WW..WWW...', 1: '.WWWWWWWWWW.', 2: '..WWWWWWWW..' },
+    bolt:    { 0: '..Y..Y..Y...', 1: '..YY.YY.YY..', 2: '..YYYYYYYY..' },
+    bear:    { 0: '.GG......GG.', 1: '.GgGGGGGGgG.', 2: '..GGGGGGGG..' }
   };
-  const MASK_COL = { croc: { G: '#5c9a42', g: '#2f5a24', Y: '#f2d24a', T: '#f4f0e0' } };
+  const MASK_COL = {
+    croc: { G: '#5c9a42', g: '#2f5a24', Y: '#f2d24a', T: '#f4f0e0' },
+    shark: { G: '#6f8fb0', T: '#f4f0e0' },
+    leopard: { G: '#e0b040', g: '#6a4a1a', Y: '#f4d98a' },
+    giraffe: { G: '#e8c060', g: '#8a5a2a' },
+    bat: { G: '#4a3260' },
+    cloud: { W: '#eef0f2' },
+    bolt: { Y: '#f2d24a' },
+    bear: { G: '#6a4a30', g: '#c89a70' }
+  };
   function applyLook(grid, look) {
     const hat = HATS[look.hat];
     if (hat) Object.keys(hat).forEach(y => { hat[y].split('').forEach((ch, x) => { if (ch !== '.') grid[y][x] = ch; }); });
