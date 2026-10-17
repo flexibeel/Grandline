@@ -290,6 +290,7 @@ window.GL = window.GL || {};
         <em class="gold-chip" data-tip="Gold für die Taverne.\nGibt es für Siege, verfällt am Run-Ende.">${GL.sprites.coin()} <b>${run.gold || 0}</b></em>
         <em class="bounty-chip" id="bounty-chip" data-tip="Kopfgeld deines Kapitäns.\nZählt für deinen Punktestand und die Rangliste 'Höchstes Kopfgeld'. Bringt sonst nichts im Run.">${GL.sprites.icon('node', 'elite')} <b>${fmtBounty(run.bountyM || 0)}</b></em>
         ${run.heat ? `<em class="heat-chip">Stufe ${run.heat}</em>` : ''}
+        ${run.loop ? `<em class="duel-chip endless-chip">Endlos ${run.loop + 1}</em>` : ''}
         ${run.daily ? '<em class="duel-chip">Tageskarte</em>' : run.duel ? `<button class="duel-chip" data-act="duel-copy" data-id="${run.duel}" title="Code teilen">Wettfahrt ${run.duel} · teilen</button>` : ''}
       </span>`;
   }
@@ -1035,7 +1036,12 @@ window.GL = window.GL || {};
         const duelHtml = run.daily ? `<div class="duel-sum"><span class="event-kicker">Tageskarte</span><span>Dein Ergebnis heute: <b>${GL.run.score(run).toLocaleString('de-DE')}</b> Punkte. Vergleiche dich in der Rangliste unter „Tageskarte“.</span></div>` : run.duel ? `<div class="duel-sum"><span class="event-kicker">Wettfahrt ${run.duel}</span>
           <span>Dein Ergebnis: <b>${GL.run.score(run).toLocaleString('de-DE')}</b> Punkte. Schick deinem Freund den Code <b>${run.duel}</b>, er spielt denselben Run.</span>
           <button class="btn mini ghost" data-act="duel-copy" data-id="${run.duel}">Code teilen</button></div>` : '';
-        return `${head}${duelHtml}${record}${berry}${troHtml}${itemSum}${rankHtml}${heatUp}<div class="end-actions dock"><button class="btn" data-act="again">${run.daily ? 'Neuer Run' : run.duel ? 'Normaler Run' : 'Nochmal!'} ${keyHint('Leertaste')}</button>
+        // Endlos-Modus: nach einem Sieg (nicht bei Tageskarte/Wettfahrt) weitersegeln
+        const canEndless = run.phase === 'win' && !run.daily && !run.duel;
+        const endlessHtml = canEndless ? `<div class="endless-box"><span class="event-kicker">Endlos-Modus</span>
+          <b>Die Grand Line ist bezwungen${run.loop ? ` – zum ${run.loop + 1}. Mal` : ''}!</b>
+          <span>Weitersegeln? Deine Crew bleibt, die Gegner werden mit jeder Runde stärker. Alles bisher Erreichte ist schon gutgeschrieben.</span></div>` : '';
+        return `${head}${duelHtml}${endlessHtml}${record}${berry}${troHtml}${itemSum}${rankHtml}${heatUp}<div class="end-actions dock">${canEndless ? `<button class="btn" data-act="endless">Weitersegeln ⚓</button>` : ''}<button class="btn${canEndless ? ' ghost' : ''}" data-act="again">${run.daily ? 'Neuer Run' : run.duel ? 'Normaler Run' : 'Nochmal!'} ${keyHint('Leertaste')}</button>
           <button class="btn ghost" data-act="hq">Hauptquartier ${keyHint('H')}</button></div>`;
       }
     }
@@ -1101,6 +1107,7 @@ window.GL = window.GL || {};
     { id: 'rankXp',    name: 'Piratenrang',       get: x => x.rankXp,    unit: 'Rang-EP' },
     { id: 'artifacts', name: 'Artefakte',         get: x => x.artifacts, unit: 'Artefakte gefunden' },
     { id: 'squadRating', name: 'Crew-Liga',       get: x => x.squadOn ? (x.squadRating || 1000) : 0, unit: 'Crew-Rating' },
+    { id: 'endless',   name: 'Endlos',            get: x => x.endlessBest || 0, unit: 'Etappen im Endlos-Modus' },
     { id: 'squadW',    name: 'Crew-Duelle',       get: x => x.squadW,    unit: 'Stammcrew-Siege' }
   ];
   // Dein Profil als Karte: Name, Rang, wichtigste Werte

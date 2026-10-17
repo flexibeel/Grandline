@@ -548,6 +548,14 @@
         break;
       }
       case 'daily-start': startDaily(); break;
+      case 'endless': {
+        if (!run || run.phase !== 'win') break;
+        stopAnim(); ui.newBest = false; ui.lastBerry = null;
+        act({ type: 'endless' });
+        toast(`<span><b>Endlos-Runde ${run.loop + 1}</b>Die Gegner sind jetzt stärker. Viel Glück!</span>`);
+        window.scrollTo(0, 0);
+        break;
+      }
       case 'daily-day': ui.dailyDay = el.dataset.id; ui.lastStage = null; draw(); break;
       case 'mail-reveal': GL.ui.toggleMail(); ui.lastStage = null; { const t = document.getElementById('title'); if (t) t.dataset.last = ''; } draw(); break;
       case 'slot-switch': case 'slot-fresh': {

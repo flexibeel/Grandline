@@ -290,6 +290,7 @@ window.GL = window.GL || {};
       showcase: (profile.showcase || []).slice(0, 3),
       bestStep: profile.bestStep || 0,
       bestPlace: profile.bestPlace || null,
+      endlessBest: profile.endlessBest || 0,
       seasDone: GL.data.islands.filter((x, i) => GL.meta.chapterProgress(profile, i).complete).length,
       pos: GL.livePos ? Object.assign({}, GL.livePos) : null,
       squad: GL.meta.squadRefs(profile),

@@ -1,6 +1,9 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-17e', date: '17.10.', title: 'Endlos-Modus', items: [
+    'Nach dem Sieg weitersegeln: jede Endlos-Runde stärkere Gegner, auch die Bosse',
+    'Neue Rangliste „Endlos“: wer kommt am weitesten?' ] },
   { v: '2026-10-17d', date: '17.10.', title: 'Wettfahrt teilen', items: [
     'Wettfahrt: Code mit kurzer Erklärung, Teilen-Knopf und Link für den Kumpel',
     'Wer den Link öffnet, kann die Herausforderung direkt annehmen',

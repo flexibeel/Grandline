@@ -313,7 +313,7 @@ window.GL = window.GL || {};
     const C = GL.config;
     const g = C.grunt;
     const H = run.H || heatMods(0);
-    const level = run.step * C.enemyScale;
+    const level = (run.step + (run.loopSteps || 0)) * C.enemyScale;
     const mult = (kind === 'elite' ? (gate && islandIndex(run) === 0 ? 1 : C.eliteMult) + H.eliteMult : 1) * (gate ? C.gateMult : 1);
 
     let boss = kind === 'boss' ? currentBoss(run) : null;
@@ -356,6 +356,15 @@ window.GL = window.GL || {};
       enemies.unshift({
         id: boss.id, type: boss.type, boss: true, raid: !!boss.raid, hp, max: hp,
         atk: Math.round(boss.atk * (1 + H.enemyAtk + H.bossAtk)), spd: boss.spd + H.enemySpd
+      });
+    }
+    // Endlos-Modus: jede Runde deutlich stärker (auch Bosse, die sonst feste Werte haben)
+    if (run.loop) {
+      const E = C.endless || { hp: 0.45, atk: 0.3 };
+      enemies.forEach(e => {
+        e.max = e.hp = Math.round(e.max * (1 + E.hp * run.loop));
+        e.atk = Math.round(e.atk * (1 + E.atk * run.loop));
+        e.spd += Math.min(3, run.loop);
       });
     }
     return enemies;
@@ -659,8 +668,28 @@ window.GL = window.GL || {};
     return true;
   }
 
+  // Endlos-Modus: nach dem Sieg weitersegeln. Alles bisher Erreichte ist schon gutgeschrieben,
+  // die neue Runde beginnt wieder im ersten Meer, aber die Gegner bleiben so stark wie zuletzt und wachsen weiter.
+  function endless(run) {
+    if (run.phase !== 'win') return false;
+    const S = GL.config.score;
+    run.loop = (run.loop || 0) + 1;
+    run.loopScore = (run.loopScore || 0) + Math.round((run.step * S.perStep + run.bounties * S.perBounty) * (1 + (run.heat || 0) * GL.config.heatBonus.score));
+    run.loopSteps = (run.loopSteps || 0) + run.step;
+    run.step = 0; run.bounties = 0; run.course = []; run.alt = {}; run.raidIslands = [];
+    run.defeated = []; run.trophies = []; run.loot = [];
+    run.stats = { dmg: 0, maxHit: 0, kos: 0, crits: 0, taken: 0, fights: 0 };
+    run.bosses = GL.data.islands.map(isl => isl.bosses[R.int(run, 0, isl.bosses.length - 1)]);
+    run.crew.forEach(u => { u.hp = u.max; });
+    run.gold = (run.gold || 0) + GL.config.shop.startGold;
+    run.pending = null; run.pool = [];
+    openCourse(run);
+    return true;
+  }
+
   function handle(run, a) {
     const C = GL.config;
+    if (a.type === 'endless') return endless(run);
     if (a.type === 'spend') return spend(run, a);
     if (a.type === 'swap') return swap(run, a);
     if (a.type === 'dismiss') return dismiss(run, a);
@@ -969,7 +998,7 @@ window.GL = window.GL || {};
 
     score(run) {
       const S = GL.config.score;
-      return Math.round((run.step * S.perStep + run.bounties * S.perBounty + (run.bountyM || 0) * (S.perMio || 0)) * (1 + (run.heat || 0) * GL.config.heatBonus.score));
+      return (run.loopScore || 0) + Math.round((run.step * S.perStep + run.bounties * S.perBounty + (run.bountyM || 0) * (S.perMio || 0)) * (1 + (run.heat || 0) * GL.config.heatBonus.score));
     },
 
     heatMods,
@@ -1013,7 +1042,7 @@ window.GL = window.GL || {};
     estimate(run, kind) {
       const C = GL.config;
       const g = C.grunt;
-      const level = run.step * C.enemyScale;
+      const level = (run.step + (run.loopSteps || 0)) * C.enemyScale;
       const H = run.H || heatMods(0);
       const mult = kind === 'elite' ? C.eliteMult + H.eliteMult : 1;
       let hp = 0, atk = 0, count;

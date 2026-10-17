@@ -603,7 +603,9 @@ window.GL = window.GL || {};
       profile.stats.berryTotal += berry;
       const xp = GL.meta.rankXpFor(run);
       const reachNow = run.phase === 'win' ? GL.run.totalSteps() : (run.step || 0);
-      if (reachNow >= (profile.bestStep || 0)) {
+      // Endlos-Modus: weiteste Strecke über alle Runden
+      if (run.loop) profile.endlessBest = Math.max(profile.endlessBest || 0, (run.loopSteps || 0) + reachNow);
+      if (!run.loop && reachNow >= (profile.bestStep || 0)) {
         // Weiteste Fahrt mit Meer und Insel-Kapitel merken (für die Rangliste)
         const st = Math.max(0, Math.min(reachNow, GL.run.totalSteps() - 1));
         const si = Math.min(Math.floor(st / GL.config.stepsPerIsland), GL.data.islands.length - 1);
