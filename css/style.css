@@ -3638,3 +3638,10 @@ body.cg-dragging { user-select: none; }
 .cg-chip.drop-ok { border-color: #3f8a52 !important; border-style: solid !important; background: #eef8ef !important; animation: dot-pulse 1.2s ease-in-out infinite; }
 .cg-chip.drop-hover { transform: scale(1.15); box-shadow: 0 0 0 3px #3f8a52, 0 0 14px rgba(63,138,82,.5); }
 .cg-hint { margin: -2px 0 6px; font-size: .74rem; color: #8a7a62; }
+/* Schiff anpassen */
+.ship-all { margin-top: 14px; }
+.ship-big { display: grid; place-items: center; padding: 10px; border-radius: 14px; background: linear-gradient(180deg, #cfe3f2, #8ab6d6); margin: 6px 0; }
+.ship-big svg { width: 160px; height: 120px; shape-rendering: crispEdges; }
+.ship-prev svg { width: 56px; height: 42px; shape-rendering: crispEdges; }
+.ship-opt .ship-prev { display: grid; place-items: center; background: linear-gradient(180deg, #e3eef7, #b7d3e8); border-radius: 8px; padding: 4px; }
+.ship-grp + .ship-grp { margin-top: 8px; }

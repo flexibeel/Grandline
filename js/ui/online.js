@@ -299,6 +299,7 @@ window.GL = window.GL || {};
       name: (profile.nickname || '').slice(0, 24) || 'Unbekannter Pirat',
       look: profile.char ? profile.char.look : null,
       cos: profile.cos || null,
+      ship: profile.ship || null,
       rank: GL.meta.rankProgress(profile).rank.name,
       rankXp: profile.rankXp || 0,
       heatMax: profile.heatMax || 0,

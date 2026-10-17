@@ -1,6 +1,10 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-17r', date: '17.10.', title: 'Dein eigenes Schiff', items: [
+    'Im Profil kannst du jetzt dein Schiff anpassen: Segel, Rumpf, Flagge und Galionsfigur',
+    'Neue Teile schaltest du mit Rängen, Siegen, Raids und Funden frei',
+    'Dein Schiff segelt im Hauptquartier, auf der Seekarte und im Startbild' ] },
   { v: '2026-10-17q', date: '17.10.', title: 'Endlos-Fahrt als eigener Modus', items: [
     'Neu im Hauptquartier: Endlos-Fahrt. Wähle ein Meer, dessen Boss du besiegt hast, und segle es Runde um Runde, immer härter',
     'Freigeschaltet mit dem ersten besiegten Meeres-Boss und Rang 4. Tiefere Meere zählen mehr',

@@ -163,15 +163,29 @@ window.GL = window.GL || {};
   ];
 
   GL.sprites = {
-    ship() {
-      if (cache.ship) return cache.ship;
-      const c = { S: '#f1eee8', M: '#5a4433', H: '#6b4a32', R: '#3a2a1e', F: '#1a1a1a' };
+    // Schiff mit eigenen Teilen (look = { sail, hull, flag, deco } aus GL.data.shipParts); ohne Angabe: das eigene Schiff
+    ship(look) {
+      const L = look || GL.sprites.myShip || {};
+      const P = GL.data.shipParts || {};
+      const pick = (k, id) => ((P[k] || []).find(x => x.id === id) || (P[k] || [])[0] || {});
+      const sail = pick('sail', L.sail), hull = pick('hull', L.hull), flag = pick('flag', L.flag), deco = pick('deco', L.deco);
+      const key = 'ship:' + [sail.id, hull.id, flag.id, deco.id].join('/');
+      if (cache[key]) return cache[key];
+      const c = { S: sail.c || '#f1eee8', M: '#5a4433', H: hull.c || '#6b4a32', R: hull.r || '#3a2a1e', F: flag.c || '#1a1a1a' };
+      const rows = SHIP.map(r => r.split(''));
+      if (flag.big) { rows[0][8] = 'F'; rows[1][10] = 'F'; rows[0][9] = 'F'; }
       let r = '';
-      SHIP.forEach((row, y) => row.split('').forEach((ch, x) => {
-        if (ch !== '.') r += `<rect x="${x}" y="${y}" width="1" height="1" fill="${c[ch]}"/>`;
+      rows.forEach((row, y) => row.forEach((ch, x) => {
+        if (ch === '.') return;
+        let col = c[ch];
+        if (ch === 'S' && sail.pat === 'streifen' && y % 2 === 1) col = sail.c2;
+        if (ch === 'S' && sail.pat === 'flicken' && (x * 7 + y * 3) % 9 === 0) col = sail.c2;
+        if (ch === 'S' && sail.pat === 'stern' && ((x === 5 && y === 3) || (x === 9 && y === 4) || (x === 10 && y === 2))) col = sail.c2;
+        r += `<rect x="${x}" y="${y}" width="1" height="1" fill="${col}"/>`;
       }));
-      cache.ship = `<svg viewBox="0 0 16 12" aria-hidden="true">${r}</svg>`;
-      return cache.ship;
+      Object.keys(deco.px || {}).forEach(col => deco.px[col].forEach(([x, y]) => { r += `<rect x="${x}" y="${y}" width="1" height="1" fill="${col}"/>`; }));
+      cache[key] = `<svg viewBox="0 0 16 12" aria-hidden="true">${r}</svg>`;
+      return cache[key];
     },
 
     coin() {

@@ -603,6 +603,14 @@
         break;
       case 'skip': if (anim) { clearTimeout(anim.timer); anim.done = true; draw(); } break;
       case 'sail': sail(); break;
+      case 'ship-pick': {
+        const it = (GL.data.shipParts[el.dataset.k] || []).find(x => x.id === el.dataset.v);
+        if (!it || !GL.meta.cosmeticUnlocked(profile, it)) break;
+        profile.ship = Object.assign({}, profile.ship, { [el.dataset.k]: it.id }); saveProfile();
+        const t = document.getElementById('title'); if (t) t.dataset.last = '';
+        draw();
+        break;
+      }
       case 'endless-start': sail(Number(el.dataset.i)); break;
       case 'hq': toHq(); break;
       case 'peek': ui.peek = true; draw(); break;

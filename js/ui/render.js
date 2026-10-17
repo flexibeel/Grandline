@@ -1819,6 +1819,19 @@ window.GL = window.GL || {};
       </details>
     </div>`;
   }
+  // Dein Schiff: Teile, die man im Laufe der Zeit freischaltet
+  function shipBlock(profile, vals) {
+    const P = GL.data.shipParts, cur = Object.assign({ sail: 'weiss', hull: 'eiche', flag: 'schwarz', deco: 'keine' }, profile.ship || {});
+    const grp = (k, label) => `<div class="ship-grp"><span class="lbl">${label}</span><div class="cos-grid">${P[k].map(it => {
+      const ok = GL.meta.cosmeticUnlocked(profile, it, vals);
+      return `<button class="cos ship-opt${cur[k] === it.id ? ' on' : ''}${ok ? '' : ' locked'}" data-act="ship-pick" data-k="${k}" data-v="${it.id}"${ok ? '' : ' disabled'} title="${esc(it.name)}${ok ? '' : ': ' + GL.meta.reqText(it)}">
+        <span class="ship-prev">${GL.sprites.ship(Object.assign({}, cur, { [k]: it.id }))}</span><small>${ok ? esc(it.name) : '🔒 ' + GL.meta.reqText(it)}</small></button>`;
+    }).join('')}</div></div>`;
+    return `<div class="cos-all ship-all"><span class="event-kicker">Dein Schiff</span>
+      <div class="ship-big">${GL.sprites.ship(cur)}</div>
+      <p class="hint">Dein Schiff segelt im Hauptquartier und auf der Seekarte. Neue Teile schaltest du mit Rängen, Siegen und Funden frei.</p>
+      ${grp('sail', 'Segel')}${grp('hull', 'Rumpf')}${grp('flag', 'Flagge')}${grp('deco', 'Galionsfigur')}</div>`;
+  }
   function profileScreen(profile, ui) {
     const d = ui.draft;
     const P = GL.data.charParts;
@@ -1867,6 +1880,7 @@ window.GL = window.GL || {};
           ${cosGrid('flags', 'Piratenflagge', 'flag')}
           ${cosGrid('badges', 'Abzeichen', 'badge')}
         </div>
+        ${profile.nickname ? shipBlock(profile, vals) : ''}
         <div class="pf-actions">
           ${profile.nickname ? '<button class="btn ghost" data-act="title-back">Zurück</button>' : ''}
           <button class="btn" data-act="profile-save">${profile.nickname ? 'Speichern' : 'Profil erstellen'} ${keyHint('Enter')}</button>
@@ -2572,6 +2586,7 @@ window.GL = window.GL || {};
       titleEl.hidden = !ui.screen;
       document.body.classList.toggle('on-title', !!ui.screen);
       seenRef = ui.profile && ui.profile.seen;
+      GL.sprites.myShip = (ui.profile && ui.profile.ship) || null;
       const nb = document.getElementById('notes-btn');
       if (nb && ui.profile) nb.innerHTML = 'Neuigkeiten' + (ui.profile.notesSeen !== GL.version ? ' <i class="new-dot"></i>' : '');
       document.body.classList.toggle('streamer', streamOn());
