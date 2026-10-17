@@ -2719,3 +2719,23 @@ body.on-title { overflow: hidden; }
   white-space: nowrap; font-size: .72rem; font-weight: 800; padding: 3px 10px; border-radius: 999px; background: var(--hp); color: #fff; box-shadow: 0 2px 6px rgba(0,0,0,.2); }
 .opt.card, .opt.course-opt { position: relative; }
 .slot-info .role-chip small { color: #fff !important; }
+
+/* ---------- Training nach Level-up ---------- */
+.train { margin-bottom: 14px; padding: 12px; border-radius: 14px; background: linear-gradient(180deg, #fff6dc, #fdeec4); border: 2px solid #f2c94c;
+  box-shadow: 0 3px 0 #e2b23a; animation: train-in .35s cubic-bezier(.2,.9,.3,1.2); }
+@keyframes train-in { from { transform: translateY(-8px) scale(.98); opacity: 0; } }
+.train-head { display: grid; grid-template-columns: 40px 1fr auto; gap: 10px; align-items: center; margin-bottom: 10px; }
+.train-head > span:nth-child(2) { display: grid; }
+.train-head small { color: var(--mute); }
+.train-av svg { width: 36px; height: 42px; shape-rendering: crispEdges; animation: bob 1s steps(2) infinite; }
+.train-opts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.train-opt { all: unset; box-sizing: border-box; cursor: pointer; position: relative; display: grid; justify-items: center; gap: 2px; padding: 10px 4px 8px;
+  border-radius: 12px; background: var(--panel); border: 2px solid var(--line); text-align: center; box-shadow: 0 2px 0 var(--line); }
+.train-opt:hover { border-color: var(--gold); transform: translateY(-1px); }
+.train-opt:active { transform: translateY(1px); box-shadow: none; }
+.train-opt.rec { border-color: var(--hp); }
+.train-opt i { font-style: normal; font-size: 1.3rem; }
+.train-opt b { font-size: .78rem; }
+.train-opt small { font-size: .7rem; color: var(--mute); }
+.train-opt .tip-badge { position: absolute; top: -9px; left: 50%; transform: translateX(-50%); }
+@media (max-width: 520px) { .train-opts { grid-template-columns: repeat(2, 1fr); } }

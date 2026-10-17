@@ -510,6 +510,26 @@
       case 'toggle-art': if (GL.meta.toggleArtifact(profile, el.dataset.id)) { saveProfile(); draw(); } break;
       case 'sheet': ui.sheet = i; draw(); break;
       case 'sheet-close': ui.sheet = null; draw(); break;
+      case 'train': {
+        const u = run && run.crew[i];
+        if (!u) break;
+        const plan = { atk: ['atk'], hp: ['hp'], spd: ['spd'], mix: ['hp', 'atk'] }[el.dataset.c] || ['atk'];
+        let k = 0;
+        while (run.crew[i].points > 0) { act({ type: 'spend', index: i, stat: plan[k % plan.length] }); k++; if (k > 40) break; }
+        break;
+      }
+      case 'train-auto': {
+        if (!run) break;
+        let g = 0;
+        run.crew.forEach((u, j) => {
+          while (run.crew[j].points > 0 && g++ < 200) {
+            const rec = GL.advice.stat(run, j);
+            act({ type: 'spend', index: j, stat: rec ? rec.stat : 'atk' });
+          }
+        });
+        toast('<span><b>Training erledigt</b>Alle haben das empfohlene Training bekommen.</span>');
+        break;
+      }
       case 'spend': {
         act({ type: 'spend', index: i, stat: el.dataset.stat });
         // Fertig geskillt: direkt zur nächsten Figur mit offenen Punkten, sonst Steckbrief schließen

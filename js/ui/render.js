@@ -613,8 +613,7 @@ window.GL = window.GL || {};
           <span class="sum-xp-top"><em class="lv">Lv <span class="lvnum">${before.lvl}</span></em>${xp ? `<small>+${xp.gain} EP</small>` : ''}</span>
           <span class="xpbar big"><i class="xpfill" style="width:${fromPct}%" data-to="${toPct}" data-levels="${levels}" data-newlv="${u.lvl}"></i></span>
         </span>
-        <span class="lvup" hidden>Level ${u.lvl}! +${levels * GL.config.levelUp.points} Statuspunkte
-          <button class="btn mini" data-act="sheet" data-i="${i}">Punkte verteilen</button></span>
+        <span class="lvup" hidden>Level ${u.lvl}! Training wartet</span>
       </div>`;
     }).join('');
     const g = run.lastGold && b.win ? `<div class="sum-gold">${GL.sprites.coin()} +${run.lastGold.base} Gold${run.lastGold.interest ? ` <small>+${run.lastGold.interest} Zinsen</small>` : ''}</div>` : '';
@@ -751,7 +750,7 @@ window.GL = window.GL || {};
   // ---------- Hauptbereich je nach Phase ----------
 
   function stage(run, anim, ui) {
-    return pointsBanner(run) + phaseStage(run, anim, ui);
+    return phaseStage(run, anim, ui);
   }
 
   function phaseStage(run, anim, ui) {
@@ -1987,6 +1986,29 @@ window.GL = window.GL || {};
     setTimeout(() => el.remove(), 2050);
   }
 
+  // Training nach Level-up: kurze Wahl aus Trainingskarten statt Punkte einzeln verteilen
+  const TRAIN = [
+    { c: 'atk', ico: '⚔', name: 'Kampftraining', fx: p => `+${p * GL.config.point.atk} Angriff` },
+    { c: 'hp',  ico: '❤', name: 'Ausdauer',      fx: p => `+${p * GL.config.point.hp} Leben` },
+    { c: 'spd', ico: '⚡', name: 'Sprinttraining', fx: p => `+${p * GL.config.point.spd} Tempo` },
+    { c: 'mix', ico: '⚖', name: 'Ausgewogen',     fx: p => `+${Math.ceil(p / 2) * GL.config.point.hp} Leben, +${Math.floor(p / 2) * GL.config.point.atk} Angriff` }
+  ];
+  function trainPanel(run) {
+    const i = run.crew.findIndex(u => u.points > 0);
+    if (i < 0) return '';
+    const u = run.crew[i];
+    const d = crewData(u.id);
+    const rec = GL.advice.stat(run, i);
+    const others = run.crew.filter(x => x.points > 0).length - 1;
+    return `<div class="train">
+      <div class="train-head"><span class="train-av">${GL.sprites.render(d)}</span>
+        <span><b>${d.name} hat trainiert!</b><small>Lv ${u.lvl} · wähle ein Training${others > 0 ? ` · danach noch ${others} weitere` : ''}</small></span>
+        <button class="link" data-act="train-auto" title="Für alle das empfohlene Training wählen">Auto für alle</button></div>
+      <div class="train-opts">${TRAIN.map(t => `<button class="train-opt${rec && rec.stat === t.c ? ' rec' : ''}" data-act="train" data-i="${i}" data-c="${t.c}">
+        ${rec && rec.stat === t.c ? '<span class="tip-badge">Tipp</span>' : ''}<i>${t.ico}</i><b>${t.name}</b><small>${t.fx(u.points)}</small></button>`).join('')}</div>
+    </div>`;
+  }
+
   GL.ui = {
     introSteps: INTRO.length,
     bountyPoster,
@@ -2067,7 +2089,7 @@ window.GL = window.GL || {};
       const firstPts = run.crew.findIndex(u => u.points > 0);
       $('#crew-label').innerHTML = `<span class="nowrap">Deine Crew ${run.crew.length ? `<small>${run.crew.length}/${GL.run.crewLimit(run)}</small>` : ''}</span>
         <span class="nowrap charge-wrap">Spezial ${chargePips(run)}</span>
-        ${openPts > 0 ? `<button class="skill-btn" data-act="sheet" data-i="${firstPts}">✦ ${openPts} Statuspunkte verteilen</button>` : ''}
+
         <button class="link" data-act="crew-toggle" aria-expanded="${!!ui.crewOpen}">${ui.crewOpen ? 'Kompakt' : 'Details'}</button>`;
       $('#crew').classList.toggle('compact', !ui.crewOpen);
       $('#crew').title = 'Ziehen zum Umsortieren: Wer vorne steht, wird im Kampf zuerst angegriffen.';
@@ -2079,7 +2101,8 @@ window.GL = window.GL || {};
       if (open && $('#syn details')) $('#syn details').open = true;
 
       // Hauptbereich nur neu aufbauen, wenn sich etwas geändert hat (sonst starten Animationen neu)
-      const html = stage(run, anim, ui);
+      const canTrain = ['map', 'prep', 'recruit', 'fruit', 'treasure', 'course', 'event'].includes(run.phase);
+      const html = (canTrain ? trainPanel(run) : '') + stage(run, anim, ui);
       if (html !== ui.lastStage) {
         $('#stage').innerHTML = html;
         ui.lastStage = html;
