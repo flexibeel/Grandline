@@ -23,15 +23,15 @@ GL.data.cosmetics = {
     { id: 'tiefsee',    name: 'Tiefsee',           req: { runs: 25 } },
     { id: 'marine',     name: 'Marine-Basis',      req: { hunted: 15 } },
     { id: 'lava',       name: 'Vulkan',            req: { maxHit: 120 } },
-    { id: 'galaxie',    name: 'Sternenmeer',       req: { rank: 12 } },
+    { id: 'galaxie',    name: 'Sternenmeer',       req: { rank: 16 } },
     { id: 'regenbogen', name: 'Regenbogen',        req: { islands: 18 } }
   ],
   frames: [
     { id: 'holz',       name: 'Holz',              req: {} },
     { id: 'tau',        name: 'Schiffstau',        req: { runs: 5 } },
-    { id: 'silber',     name: 'Silber',            req: { rank: 5 } },
+    { id: 'silber',     name: 'Silber',            req: { rank: 6 } },
     { id: 'steckbrief', name: 'Steckbrief',        req: { hunted: 5 } },
-    { id: 'gold',       name: 'Gold',              req: { rank: 9 } },
+    { id: 'gold',       name: 'Gold',              req: { rank: 11 } },
     { id: 'krone',      name: 'Krone',             req: { wins: 3 } },
     { id: 'rottau',     name: 'Rotes Tau',         req: { runs: 10 } },
     { id: 'eisen',      name: 'Eisen',             req: { bosses: 5 } },
@@ -73,7 +73,8 @@ GL.data.cosmetics = {
     { id: 'marinefeind', name: 'Albtraum der Marine', req: { kos: 500 } },
     { id: 'reisender',  name: 'Weltreisender',     req: { islands: 18 } },
     { id: 'unermuedlich', name: 'Unermüdlich',     req: { runs: 50 } },
-    { id: 'kaiser',     name: 'Kaiser der Meere',  req: { rank: 14 } }
+    { id: 'kaiser',     name: 'Kaiser der Meere',  req: { rank: 21 } },
+    { id: 'koenig',     name: 'Piratenkönig',      req: { rank: 22 } }
   ],
   // Piratenflagge: kleines Abzeichen am Porträt (Profil, Rangliste)
   flags: [

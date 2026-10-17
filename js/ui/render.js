@@ -1161,7 +1161,7 @@ window.GL = window.GL || {};
         <button class="link pcard-close" data-act="lb-view-close">✕</button>
         <div class="pcard-top">
           <span class="pcard-cap">${x.look ? portrait(x.look, x.cos, 'lg') : cap ? GL.sprites.render(cap) : ''}</span>
-          <b class="pcard-name">${esc(x.name || 'Unbekannter Pirat')}${isMe ? ' <em>du</em>' : ''}</b>
+          <b class="pcard-name">${medal(GL.meta.rankIndex({ rankXp: x.rankXp || 0 }), 'small')} ${esc(x.name || 'Unbekannter Pirat')}${isMe ? ' <em>du</em>' : ''}</b>
           <small>${x.cos && x.cos.title ? esc(titleName(x.cos.title)) + ' · ' : ''}${esc(x.rank || '')}</small>
         </div>
         <div class="pcard-stats">
@@ -1204,7 +1204,7 @@ window.GL = window.GL || {};
       return `<li class="lb-row${x.id === st.uid ? ' me' : ''}${k < 3 ? ' top' + (k + 1) : ''}${x.cos && x.cos.bg ? ' rowbg-' + x.cos.bg : ''}" data-act="lb-view" data-id="${esc(x.id)}" tabindex="0" role="button">
         <span class="lb-pos">${k + 1}</span>
         <span class="lb-cap">${x.look ? portrait(x.look, x.cos, 'sm') : cap ? GL.sprites.render(cap) : ''}</span>
-        <span class="lb-who"><b>${esc(x.name || 'Unbekannter Pirat')}${x.id === st.uid ? ' <em>du</em>' : ''}</b>
+        <span class="lb-who"><b>${medal(GL.meta.rankIndex({ rankXp: x.rankXp || 0 }), 'tiny')} ${esc(x.name || 'Unbekannter Pirat')}${x.id === st.uid ? ' <em>du</em>' : ''}</b>
           <small>${x.cos && x.cos.title ? esc(titleName(x.cos.title)) + ' · ' : ''}${esc(x.rank || '')}${extra ? ' · ' + extra : ''}</small></span>
         <span class="lb-score"><b>${fmt(value)}</b><small>${unit}</small></span>
       </li>`;
@@ -1263,7 +1263,7 @@ window.GL = window.GL || {};
       return itemCard(it, btns, on ? 'on' : '');
     }).join('');
     return `<section class="hq-sec">
-      <p class="hint">Ausrüstung aus deinen Runs landet hier. Verbessere sie mit Berry (bis +${GL.config.items.maxLevel}) und nimm bis zu <b>${slots}</b> Stück in den nächsten Run mit (mehr Plätze ab Rang 5, 9, 13). Im Run legst du sie im Steckbrief einer Figur an.</p>
+      <p class="hint">Ausrüstung aus deinen Runs landet hier. Verbessere sie mit Berry (bis +${GL.config.items.maxLevel}) und nimm bis zu <b>${slots}</b> Stück in den nächsten Run mit (mehr Plätze ab Rang 6, 11, 16, 21). Im Run legst du sie im Steckbrief einer Figur an.</p>
       ${chest.length ? `<div class="item-grid">${cards}</div>` : '<p class="muted">Noch leer. Besiege Kopfgeld-Ziele und Bosse, dann füllt sich die Truhe.</p>'}
     </section>`;
   }
@@ -1315,7 +1315,7 @@ window.GL = window.GL || {};
     const A = GL.data.artifacts || [];
     const found = A.filter(a => profile.vault[a.id] > 0).length;
     const slotsA = GL.meta.artSlots(profile);
-    const nextSlotRank = [4, 8, 12].find(k => k > GL.meta.rankIndex(profile));
+    const nextSlotRank = [5, 10, 15, 20].find(k => k > GL.meta.rankIndex(profile));
     const epics = GL.data.fruits.filter(f => f.awakened).map(f => {
       const have = profile.epics.includes(f.id);
       const raid = GL.data.raids.find(x => x.reward === f.id);
@@ -1529,13 +1529,56 @@ window.GL = window.GL || {};
 
   // ---------- Piratenrang im Hauptquartier ----------
   // Medaille in Bronze, Silber, Gold oder Legende, darunter die Belohnungsstraße aller Ränge
+  // 5 Stufen à 5 Ränge, jede mit eigenem Pixel-Emblem
   function rankTier(i) {
-    return i >= 12 ? 'legend' : i >= 8 ? 'gold' : i >= 4 ? 'silver' : 'bronze';
+    return i >= 20 ? 'mythic' : i >= 15 ? 'legend' : i >= 10 ? 'gold' : i >= 5 ? 'silver' : 'bronze';
+  }
+  // Pixel-Embleme: linke Hälfte (6 Spalten), wird gespiegelt. O = Kontur, B = Körper, S = Symbol.
+  // Körper wird automatisch schattiert (oben hell, unten dunkel), dazu eine Tiefenkante für den 3D-Look.
+  const EMBLEMS = {
+    bronze: ['...OOO', '.OOBBB', '.OBBBS', 'OBBBSB', 'OBBBBS', 'OBSSSS', 'OBBBBS', 'OBSBBS', 'OBBSSS', '.OBBBB', '.OOBBB', '...OOO'],
+    silver: ['OOOOOO', 'OBBBBB', 'OBSBBB', 'OBBSBB', 'OBBBSB', 'OBBBBS', 'OBBBSB', 'OBBSBB', '.OBBBB', '.OBBBB', '..OOBB', '....OO'],
+    gold:   ['.....O', '....OB', '...OBB', 'OOOOBB', 'OBBBBS', '.OBBSS', '..OBBS', '..OBBB', '.OBBOO', '.OBO..', 'OBO...', 'OO....'],
+    legend: ['.O..OO', '.OBOBB', '.OBBBB', '.OOOOO', '..OBBB', '.OBBBB', '.OBSSB', '.OBSSB', '.OBBBS', '..OBBB', '..OBSB', '...OOO'],
+    mythic: ['......', '...OOO', '..OBBB', '..OBBB', '..OSSS', 'OOOBBB', 'OBBBBB', '.OOOOO', '......', '......', '......', '......']
+  };
+  const EMB_COL = {
+    bronze: { o: '#4a2a12', hi: '#f6c08a', mid: '#cf8446', sh: '#8a4a1e', s: '#fff1d6', depth: '#2e1808' },
+    silver: { o: '#28303c', hi: '#ffffff', mid: '#c8d1db', sh: '#7d8896', s: '#2f5f8f', depth: '#161c24' },
+    gold:   { o: '#5a3a00', hi: '#fff3b0', mid: '#f2b632', sh: '#b07812', s: '#e0483b', depth: '#3a2400' },
+    legend: { o: '#1a1020', hi: '#ffffff', mid: '#e6def2', sh: '#a493c4', s: '#7a2fd0', depth: '#0c0612' },
+    mythic: { o: '#3a2200', hi: '#fff3b0', mid: '#f2c94c', sh: '#c08a2e', s: '#d0303a', depth: '#241400' }
+  };
+  const embCache = {};
+  function emblemSvg(tier) {
+    if (embCache[tier]) return embCache[tier];
+    const rows = EMBLEMS[tier].map(h => h + h.split('').reverse().join(''));
+    const C = EMB_COL[tier];
+    const cell = (x, y) => (rows[y] && rows[y][x]) || '.';
+    const solid = ch => ch !== '.';
+    let depth = '', px = '';
+    rows.forEach((row, y) => row.split('').forEach((ch, x) => {
+      if (!solid(ch)) return;
+      depth += `<rect x="${x}" y="${y + 1}" width="1" height="1" fill="${C.depth}"/>`;
+      let col = C.o;
+      if (ch === 'S') col = C.s;
+      else if (ch === 'B') {
+        const up = cell(x, y - 1), down = cell(x, y + 1);
+        col = (up === 'O' || up === '.') ? C.hi : (down === 'O' || down === '.') ? C.sh : C.mid;
+      }
+      px += `<rect x="${x}" y="${y}" width="1" height="1" fill="${col}"/>`;
+    }));
+    embCache[tier] = `<svg class="emb-svg" viewBox="0 -0.5 12 13.5" shape-rendering="crispEdges" aria-hidden="true">${depth}${px}</svg>`;
+    return embCache[tier];
   }
   function medal(i, cls) {
-    return `<span class="medal m-${rankTier(i)}${cls ? ' ' + cls : ''}" aria-hidden="true">
-      <span class="medal-face"><span class="medal-num">${i + 1}</span></span><span class="medal-shine"></span></span>`;
+    const t = rankTier(i);
+    const step = Math.min(4, i % 5);
+    return `<span class="medal emb m-${t}${cls ? ' ' + cls : ''}" aria-hidden="true">${emblemSvg(t)}
+      <span class="emb-pips">${'<i class="on"></i>'.repeat(step + 1)}${'<i></i>'.repeat(4 - step)}</span>
+      <span class="emb-num">${i + 1}</span></span>`;
   }
+  const TIER_NAME = { bronze: 'Bronze', silver: 'Silber', gold: 'Gold', legend: 'Legende', mythic: 'Mythisch' };
   function rankPanel(profile, rp, fmt) {
     const R = GL.data.ranks;
     const pct = rp.next ? Math.min(100, 100 * rp.have / rp.need) : 100;
@@ -1554,7 +1597,7 @@ window.GL = window.GL || {};
         <div class="rank-top">
           ${medal(rp.i, 'big')}
           <div class="rank-body">
-            <span class="event-kicker">Piratenrang ${rp.i + 1} von ${R.length}</span>
+            <span class="event-kicker">Piratenrang ${rp.i + 1} von ${R.length} · ${TIER_NAME[rankTier(rp.i)]}</span>
             <b class="rank-name">${rp.rank.name}</b>
             <div class="xpbar big rank-bar"><i style="width:${pct}%"></i><span class="rank-bar-txt">${rp.next ? `${fmt(rp.have)} / ${fmt(rp.need)} EP` : 'Maximum'}</span></div>
             <small>${rp.next ? `Nächster Rang: <b>${rp.next.name}</b>${rankReward(rp.next)}` : 'Höchster Rang erreicht. Du bist der Piratenkönig!'}</small>

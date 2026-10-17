@@ -115,8 +115,8 @@ window.GL = window.GL || {};
       const base = { kraft: { hp: 33, atk: 8, spd: 5 }, klinge: { hp: 29, atk: 9, spd: 6 }, technik: { hp: 27, atk: 8, spd: 7 } }[ch.type] || { hp: 30, atk: 8, spd: 6 };
       return {
         name: profile.nickname, type: ch.type || 'kraft', role: ch.role || 'kaempfer', look: ch.look,
-        hp: base.hp + k * 2, atk: base.atk + Math.floor(k / 2), spd: base.spd + Math.floor(k / 5),
-        rally: 1 + Math.floor(k / 3)
+        hp: base.hp + Math.round(k * 1.4), atk: base.atk + Math.floor(k / 3), spd: base.spd + Math.floor(k / 7),
+        rally: 1 + Math.floor(k / 5)
       };
     },
 
@@ -136,7 +136,7 @@ window.GL = window.GL || {};
       }
       profile.itemLoadout = (profile.itemLoadout || []).filter(uid => profile.chest.some(x => x.uid === uid));
     },
-    itemSlots(profile) { return GL.config.items.takeBase + Math.floor(GL.meta.rankIndex(profile) / 4); },
+    itemSlots(profile) { return GL.config.items.takeBase + Math.min(4, Math.floor(GL.meta.rankIndex(profile) / 5)); },
     toggleItem(profile, uid) {
       profile.itemLoadout = profile.itemLoadout || [];
       const i = profile.itemLoadout.indexOf(uid);
@@ -204,7 +204,7 @@ window.GL = window.GL || {};
 
     // Artefakt-Plätze: einer zu Beginn, dazu einer ab Rang 5, 9 und 13
     artSlots(profile) {
-      return 1 + Math.floor(GL.meta.rankIndex(profile) / 4);
+      return 1 + Math.min(4, Math.floor(GL.meta.rankIndex(profile) / 5));
     },
 
     // Stufe aus der Anzahl der Funde: 1, 2, 4, 7, 11 Funde für Stufe 1 bis 5
@@ -250,7 +250,7 @@ window.GL = window.GL || {};
       return s.length ? s : pool.slice(0, GL.meta.squadSize);
     },
     squadLevel(profile) {
-      return Math.min(15, 1 + Math.floor(GL.meta.rankIndex(profile) * 0.9));
+      return Math.min(15, 1 + Math.floor(GL.meta.rankIndex(profile) * 0.65));
     },
     squadRefs(profile) {
       const lvl = GL.meta.squadLevel(profile);
