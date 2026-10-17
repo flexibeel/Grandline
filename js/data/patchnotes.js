@@ -1,7 +1,7 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
-  { v: '2026-10-17zf', date: '17.10.', title: 'Vier neue Banden, 19 neue Gesichter', items: [
+  { v: '2026-10-17zg', date: '17.10.', title: 'Vier neue Banden, 19 neue Gesichter', items: [
     'Neu: Buggy-Piraten, Arlong-Bande, Revolutionsarmee und Rothaar-Piraten, jede mit eigenem Wappen und Set-Bonus',
     '19 neue Figuren zum Freischalten: Buggy, Alvida, Cabaji, Mohji, Hatchan, Kuroobi, Chu, Sabo, Ivankov, Koala, Dragon, Ben Beckman, Lucky Roo, Yasopp, Aokiji, Fukuro, Vista, Kuma und Perona',
     'Bündnisse: Sind die Set-Boni zweier Banden gleichzeitig aktiv, gibt es einen Extra-Bonus (z. B. Strohhut + Revolution = Wille des D.)',
@@ -12,7 +12,7 @@ GL.patchNotes = [
     'Besiegte Crew zeigt einen Grabstein. In der Taverne tauschst du sie mit einem Tipp gegen ein Angebot',
     'Bosse und Bösewichte haben vor dem Kampf einen großen Auftritt',
     'K.O., KRIT und Konter als kleine Pixel-Schilder, Tempo-Knopf im Holz-Look',
-    'Leise, gemütliche Musik, selbst komponiert. Mit dem Noten-Knopf ein- und ausschalten',
+    'Leise, gemütliche Musik, selbst komponiert: Spieluhr, warme Flöte und Wellenrauschen am Hafen. Mit dem Noten-Knopf ein- und ausschalten',
     'Finger kurz halten und gleiten: Infos wie mit dem Mauszeiger, die Seite bleibt stehen',
     'Mehr Profil-Teile (Hüte, Bart, Clownsnase, Hintergründe, Rahmen, Titel), manche brauchen jetzt mehr Einsatz' ] },
   { v: '2026-10-17ze', date: '17.10.', title: 'Echte Attacken', items: [

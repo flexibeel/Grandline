@@ -24,6 +24,15 @@ window.GL = window.GL || {};
     'E5 . G5 . A5 G5 E5 .', 'C5 . E5 . D5 . C5 .', 'A4 . C5 . F5 E5 D5 .', 'D5 . E5 D5 B4 . G4 .',
     'E5 . G5 . C6 . B5 A5', 'G5 . E5 . D5 E5 G5 .', 'A5 G5 F5 . E5 . D5 .', 'D5 . E5 . C5 . . .'
   ].map(b => b.split(' '));
+  // B-Teil: Flöte über F – G – Em – Am, F – G – C – C (der „Heimweg am Abend“)
+  const CHORDS_B = [['F2', 'A2', 'C3'], ['G2', 'B2', 'D3'], ['E2', 'G2', 'B2'], ['A2', 'C3', 'E3'],
+                    ['F2', 'A2', 'C3'], ['G2', 'B2', 'D3'], ['C3', 'E3', 'G3'], ['C3', 'E3', 'G3']];
+  const FLUTE = [ // [Takt, Achtel, Ton, Länge in Achteln]
+    [0, 0, 'A5', 3], [0, 3, 'G5', 1], [0, 4, 'F5', 4], [1, 0, 'G5', 3], [1, 3, 'A5', 1], [1, 4, 'B5', 4],
+    [2, 0, 'G5', 6], [2, 6, 'E5', 2], [3, 0, 'C5', 4], [3, 4, 'E5', 4],
+    [4, 0, 'F5', 3], [4, 3, 'E5', 1], [4, 4, 'D5', 4], [5, 0, 'E5', 2], [5, 2, 'F5', 2], [5, 4, 'D5', 4],
+    [6, 0, 'C5', 8], [7, 0, 'E5', 2], [7, 2, 'G5', 2], [7, 4, 'C6', 4]
+  ];
   // Zweiter Durchgang: ruhige Variante, nur einzelne Töne
   const MEL2 = [
     'G5 . . . E5 . . .', 'E5 . . . C5 . . .', 'F5 . . . A4 . . .', 'D5 . . . B4 . . .',
@@ -69,6 +78,30 @@ window.GL = window.GL || {};
       o.connect(f); f.connect(g); out(g, 0.7); o.start(t); o.stop(t + dur * 1.05);
     }));
   }
+  // Weiche Flöte: Sinus mit langsamem Anblasen und leichtem Vibrato
+  function flute(t, f, dur, v) {
+    const o = ctx.createOscillator(), g = ctx.createGain(), lfo = ctx.createOscillator(), lg = ctx.createGain(), o2 = ctx.createOscillator(), g2 = ctx.createGain();
+    o.type = 'sine'; o.frequency.value = f; o2.type = 'triangle'; o2.frequency.value = f * 2; g2.gain.value = 0.08;
+    lfo.frequency.value = 5; lg.gain.value = f * 0.006; lfo.connect(lg); lg.connect(o.frequency);
+    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(v, t + 0.09); g.gain.setValueAtTime(v * 0.85, t + dur * 0.7); g.gain.linearRampToValueAtTime(0, t + dur + 0.12);
+    o.connect(g); o2.connect(g2); g2.connect(g); out(g, 0.75);
+    [o, o2, lfo].forEach(x => { x.start(t); x.stop(t + dur + 0.2); });
+  }
+  // Hafen-Rauschen fürs Titelbild: gefiltertes Rauschen, das langsam an- und abschwillt wie Wellen
+  let waves = null;
+  function startWaves() {
+    if (waves) return;
+    const len = ctx.sampleRate * 4, buf = ctx.createBuffer(1, len, ctx.sampleRate), d = buf.getChannelData(0);
+    let last = 0; for (let i = 0; i < len; i++) { last = (last + 0.02 * (Math.random() * 2 - 1)) / 1.02; d[i] = last * 3.2; }
+    const src = ctx.createBufferSource(); src.buffer = buf; src.loop = true;
+    const f = ctx.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = 520;
+    const g = ctx.createGain(); g.gain.value = 0;
+    const lfo = ctx.createOscillator(), lg = ctx.createGain(); lfo.frequency.value = 0.11; lg.gain.value = 0.05;
+    lfo.connect(lg); lg.connect(g.gain);
+    src.connect(f); f.connect(g); g.connect(master); src.start(); lfo.start();
+    waves = { g };
+  }
+  function wavesLevel(v) { if (waves) { const t = ctx.currentTime; waves.g.gain.cancelScheduledValues(t); waves.g.gain.linearRampToValueAtTime(v, t + 2); } }
   function bass(t, n, v) {
     const o = ctx.createOscillator(), g = ctx.createGain();
     o.type = 'sine'; o.frequency.value = N(nm(n) - 12);
@@ -78,8 +111,19 @@ window.GL = window.GL || {};
 
   function schedule() {
     while (nextTime < ctx.currentTime + 0.25) {
-      const bar = Math.floor(step / 8) % 8, pos = step % 8, pass = Math.floor(step / 64) % 2;
-      const ch = CHORDS[bar], t = nextTime, calm = mode !== 'title';
+      // Form: A (Spieluhr) – A' (ruhig) – B (Flöte) – A, dann von vorn. 8 Takte pro Teil.
+      const bar = Math.floor(step / 8) % 8, pos = step % 8, part = Math.floor(step / 64) % 4;
+      const isB = part === 2;
+      const ch = (isB ? CHORDS_B : CHORDS)[bar], t = nextTime, calm = mode !== 'title';
+      const pass = part === 1 ? 1 : 0;
+      if (isB) {
+        if (pos === 0) { pad(t, ch, EIGHTH * 8, calm ? 0.045 : 0.055); bass(t, ch[0], 0.2); }
+        if (pos === 4) bass(t, ch[2], 0.12);
+        if (pos % 2 === 1) pluck(t, N(nm(ch[(pos >> 1) % 3]) + 12), 0.045);
+        FLUTE.filter(x => x[0] === bar && x[1] === pos).forEach(x => flute(t, N(nm(x[2])), x[3] * EIGHTH, calm ? 0.06 : 0.085));
+        nextTime += EIGHTH; step++;
+        continue;
+      }
       if (pos === 0) { pad(t, ch, EIGHTH * 8, calm ? 0.05 : 0.06); bass(t, ch[0], 0.22); }
       if (pos === 4) bass(t, ch[0], 0.14);
       // Begleit-Arpeggio, sehr leise
@@ -106,6 +150,7 @@ window.GL = window.GL || {};
     if (!want) { fadeTo(0, 0.8); return; }
     if (!init()) return;
     run(); fadeTo(want, 2.2);
+    startWaves(); wavesLevel(mode === 'title' ? 0.11 : 0.025);
   }
 
   // Erste Berührung schaltet Audio frei
