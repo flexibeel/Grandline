@@ -349,6 +349,7 @@
     if (type !== 'restart') ui.restartArmed = false;
     if (type !== 'acc-reset' && type !== 'acc-delete') ui.accArmed = null;
     if (type !== 'logout') ui.logoutArmed = false;
+    if (type !== 'slot-del') ui.slotDel = null;
 
     switch (type) {
       case 'node': act({ type: 'node', index: i }); break;
@@ -404,6 +405,22 @@
           toast(`<span class="toast-item ir-${R.id}"><b>Verschmolzen: ${R.name} ${d ? d.name : ''}</b>Liegt jetzt in der Schmiede.</span>`);
           saveProfile(); ui.lastStage = null; draw();
         }
+        break;
+      }
+      case 'mail-reveal': GL.ui.toggleMail(); ui.lastStage = null; { const t = document.getElementById('title'); if (t) t.dataset.last = ''; } draw(); break;
+      case 'slot-switch': case 'slot-fresh': {
+        let to = type === 'slot-fresh' ? -1 : Number(el.dataset.i);
+        if (type === 'slot-fresh') { for (let k = 1; k < GL.slots.max; k++) if (k !== GL.slots.active() && !GL.slots.info(k)) { to = k; break; } }
+        if (to < 0) { toast('<span><b>Kein freier Platz</b>Lösche zuerst einen Zweitpiraten unter „Spielstände“.</span>'); break; }
+        stopAnim();
+        saveProfile(); if (run) GL.save.storeRun(run);
+        if (GL.slots.switchTo(to)) { try { sessionStorage.removeItem('gl.pulled'); } catch (e2) { /* egal */ } location.reload(); }
+        break;
+      }
+      case 'slot-del': {
+        const k = Number(el.dataset.i);
+        if (ui.slotDel !== k) { ui.slotDel = k; ui.lastStage = null; draw(); break; }
+        ui.slotDel = null; GL.slots.remove(k); ui.lastStage = null; draw();
         break;
       }
       case 'admin-star': {

@@ -7,7 +7,10 @@ window.GL = window.GL || {};
   const crewData = id => byId(GL.data.crew, id);
   // Streamer-Modus: Mail, Spielercode und Kopier-Codes werden nirgends im Klartext gezeigt
   const streamOn = () => !!(GL.streamer && GL.streamer.on());
-  const mailOut = m => streamOn() ? '<span class="redact">versteckt</span>' : esc(m);
+  let mailShown = false;
+  const mailOut = m => streamOn() ? '<span class="redact">versteckt</span>'
+    : mailShown ? `<button class="link mail-reveal" data-act="mail-reveal">${esc(m)}</button>`
+    : '<button class="link mail-reveal" data-act="mail-reveal">•••@••• <small>anzeigen</small></button>';
   const enemyData = id => byId(GL.data.grunts, id) || byId(GL.data.bosses, id) || byId(GL.data.raids, id) || byId(GL.data.hunted || [], id);
   const anyData = id => crewData(id) || enemyData(id);
   const ability = id => GL.data.abilities[id];
@@ -1450,7 +1453,7 @@ window.GL = window.GL || {};
 
   // Persönlicher Spielercode im Profil: verdeckt, antippen zum Anzeigen
   function codeBox(profile, ui) {
-    if (!profile.playerCode) return '';
+    if (!profile.playerCode || GL.sandbox.on()) return '';
     const st = GL.online ? GL.online.state() : {};
     if (streamOn()) return `<div class="code-box">
       <div class="cb-head"><b>🔑 Dein Spielercode</b></div>
@@ -1469,6 +1472,7 @@ window.GL = window.GL || {};
   // Eine Zeile: mit welcher Mail ist dieser Account verbunden?
   function accountLine() {
     const st = GL.online ? GL.online.state() : {};
+    if (GL.sandbox.on()) return '';
     if (st.backend !== 'supabase') return '';
     return !st.anon && st.email
       ? `<p class="acc-line">✓ Angemeldet: <b>${mailOut(st.email)}</b> <button class="link" data-act="login-open">Konto</button></p>`
@@ -1478,6 +1482,7 @@ window.GL = window.GL || {};
   // Auf allen Geräten spielen: Kurzstatus im Profil, das eigentliche Anmelden läuft über den Login-Screen
   function devicesBox() {
     const st = GL.online ? GL.online.state() : {};
+    if (GL.sandbox.on()) return '';
     if (st.backend !== 'supabase') return `<div class="dev-box"><b>Auf allen Geräten spielen</b><small>Geht auf der Website (flexibeel.github.io/Grandline).</small></div>`;
     if (!st.anon && st.email) return `<div class="dev-box ok"><b>Account ✓</b><small>Angemeldet als ${mailOut(st.email)}. Dein Fortschritt ist auf allen Geräten da.</small></div>`;
     return `<div class="dev-box"><b>Auf allen Geräten spielen</b>
@@ -1504,12 +1509,31 @@ window.GL = window.GL || {};
     const st = GL.online ? GL.online.state() : {};
     return !!(st.email && /^westerholt\.felix/i.test(st.email));
   }
+  // Spielstände: bis zu 3 Piraten, Platz 1 ist der Hauptpirat
+  function slotsBox(uiRef) {
+    const cur = GL.slots.active();
+    const rows = [];
+    for (let i = 0; i < GL.slots.max; i++) {
+      const s = GL.slots.info(i), act = i === cur, armed = uiRef && uiRef.slotDel === i;
+      rows.push(`<div class="slot-row${act ? ' on' : ''}">
+        <span class="sr-av">${s && s.look ? GL.sprites.render({ id: 'self', look: s.look }) : '<i class="sr-empty">+</i>'}</span>
+        <span class="sr-txt"><b>${s ? esc(GL.safeName ? GL.safeName(s.name) : s.name) : 'Freier Platz'}</b>
+          <small>${i === 0 ? 'Hauptpirat · online' : 'Nur dieses Gerät'}${s ? ` · Rang ${GL.meta.rankIndex({ rankXp: s.rankXp }) + 1}` : ''}</small></span>
+        ${act ? '<em class="sr-cur">Aktiv</em>'
+          : `<button class="btn mini${s ? ' ghost' : ''}" data-act="slot-switch" data-i="${i}">${s ? 'Spielen' : 'Neu starten'}</button>${s && i !== 0 ? `<button class="btn mini ghost danger-btn" data-act="slot-del" data-i="${i}" aria-label="Spielstand löschen">${armed ? 'Sicher?' : '🗑'}</button>` : ''}`}
+      </div>`);
+    }
+    return `<div class="slots-box"><b>Spielstände</b><small>Probier andere Kapitäne aus. Zweitpiraten zählen nicht für die Rangliste.</small>${rows.join('')}</div>`;
+  }
   function adminBox(profile) {
     if (!isAdmin()) return '';
     const on = !!(profile.cos && profile.cos.star);
     return `<div class="admin-box"><span class="portrait sm star-power demo">${GL.sprites.render({ id: 'self', look: lookOf(profile) })}</span>
       <span><b>Entwickler-Modus</b><small>Regenbogen-Stern wie in Mario Kart. Alle sehen ihn in der Rangliste. Nur du kannst ihn einschalten.</small></span>
-      <button class="btn mini${on ? '' : ' ghost'}" data-act="admin-star">${on ? '★ An' : 'Aus'}</button></div>`;
+      <button class="btn mini${on ? '' : ' ghost'}" data-act="admin-star">${on ? '★ An' : 'Aus'}</button></div>
+      <div class="admin-box"><span class="admin-ico" aria-hidden="true">🧪</span>
+      <span><b>Als neuer Spieler testen</b><small>Startet einen frischen Piraten in einem freien Spielstand. Dein Hauptpirat bleibt unberührt. Zurück über „Spielstände“.</small></span>
+      <button class="btn mini ghost" data-act="slot-fresh">Starten</button></div>`;
   }
   function profileChip(profile) {
     const rp = GL.meta.rankProgress(profile);
@@ -1544,7 +1568,7 @@ window.GL = window.GL || {};
           <button class="btn ghost" data-act="title-go" data-tab="album">Sammelalbum</button>
           <button class="btn ghost" data-act="intro-open">Anleitung</button>
         </div>
-        <button class="link ts-login" data-act="login-open">${st.anon === false && st.email ? (streamOn() ? 'Angemeldet ✓' : `Angemeldet als ${esc(st.email)}`) : 'Anmelden'}</button>
+        <button class="link ts-login" data-act="login-open">${st.anon === false && st.email ? 'Angemeldet ✓' : 'Anmelden'}</button>
         ${streamToggle()}
       </div>
       <p class="ts-foot">Inoffizielles Fanprojekt, kostenlos und ohne kommerzielle Absicht. One Piece gehört seinen Rechteinhabern. <a href="legal.html">Rechtliches &amp; Datenschutz</a></p>
@@ -1787,11 +1811,11 @@ window.GL = window.GL || {};
     const armed = uiRef && uiRef.accArmed;
     const lo = uiRef && uiRef.logoutArmed;
     return `<div class="danger-zone">
-      <b>Account</b>
-      <div class="dz-row dz-logout">
+      <b>${GL.sandbox.on() ? 'Dieser Spielstand' : 'Account'}</b>
+      ${GL.sandbox.on() ? '' : `<div class="dz-row dz-logout">
         <span><b>Abmelden</b><small>Nur auf diesem Gerät. Dein Fortschritt bleibt gespeichert, zurück kommst du mit deinem Spielercode.</small></span>
         <button class="btn mini ghost" data-act="logout">${lo ? 'Code notiert? Abmelden' : 'Abmelden'}</button>
-      </div>
+      </div>`}
       <div class="dz-row">
         <span><b>Fortschritt zurücksetzen</b><small>Rang, Berry, Freischaltungen und Funde weg. Name und Aussehen bleiben.</small></span>
         <button class="btn mini ghost danger-btn" data-act="acc-reset">${armed === 'reset' ? 'Sicher? Nochmal klicken' : 'Zurücksetzen'}</button>
@@ -1998,6 +2022,7 @@ window.GL = window.GL || {};
         <button class="btn ghost" data-act="profile-edit">Pirat und Aussehen bearbeiten</button>
         ${codeBox(profile, uiRef)}
         ${accountLine()}
+        ${slotsBox(uiRef)}
         ${adminBox(profile)}
         ${chapterPanel(profile)}
         ${devicesBox()}
@@ -2232,12 +2257,19 @@ window.GL = window.GL || {};
     bountyPoster,
     trophyPop,
     featurePop,
+    toggleMail() { mailShown = !mailShown; },
 
     render(run, anim, ui) {
       const titleEl = $('#title');
       titleEl.hidden = !ui.screen;
       document.body.classList.toggle('on-title', !!ui.screen);
       document.body.classList.toggle('streamer', streamOn());
+      let sb = document.getElementById('sandbox-bar');
+      if (GL.sandbox.on() && !sb) {
+        sb = document.createElement('div'); sb.id = 'sandbox-bar';
+        sb.innerHTML = `<span>Spielstand ${GL.slots.active() + 1} · nur auf diesem Gerät</span><button class="link" data-act="slot-switch" data-i="0">Zum Hauptpiraten</button>`;
+        document.body.appendChild(sb);
+      } else if (!GL.sandbox.on() && sb) sb.remove();
       if (ui.screen) {
         const html = ui.screen === 'profile' ? profileScreen(ui.profile, ui) : ui.screen === 'login' ? loginScreen(ui.profile, ui) : titleScreen(run, ui.profile);
         if (titleEl.dataset.last !== html) {

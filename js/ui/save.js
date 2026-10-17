@@ -117,3 +117,44 @@ GL.streamer = (function () {
     set(v) { mem = !!v; try { localStorage.setItem(KEY, mem ? '1' : '0'); } catch (e) {} return mem; }
   };
 })();
+
+// Spielstände: Platz 1 ist der Hauptpirat (online, Rangliste, Spielercode).
+// Platz 2 und 3 sind Zweitpiraten nur auf diesem Gerät: zum Ausprobieren, ohne Online-Speichern.
+// Gespeichert wird immer unter den normalen Schlüsseln; beim Wechseln wird umgeräumt.
+GL.slots = (function () {
+  const ACTIVE = 'grandline.slot', KEYS = ['grandline.profile', 'grandline.run', 'grandline.best'], MAX = 3;
+  const store = i => k => k + (i === 0 ? '.real' : '.s' + i);
+  let cur = 0;
+  try { cur = Math.max(0, Math.min(MAX - 1, Number(localStorage.getItem(ACTIVE)) || 0)); } catch (e) {}
+  // Altlast aus dem ersten Testmodus
+  try { if (localStorage.getItem('grandline.sandbox') === '1' && !localStorage.getItem(ACTIVE)) { cur = 1; localStorage.setItem(ACTIVE, '1'); } localStorage.removeItem('grandline.sandbox'); } catch (e) {}
+  function read(i) {
+    try {
+      const raw = i === cur ? localStorage.getItem(KEYS[0]) : localStorage.getItem(store(i)(KEYS[0]));
+      if (!raw) return null;
+      const p = JSON.parse(raw);
+      return p && p.nickname ? { name: p.nickname, rankXp: p.rankXp || 0, runs: (p.stats && p.stats.runs) || 0, look: p.char && p.char.look, savedAt: p.savedAt || 0 } : null;
+    } catch (e) { return null; }
+  }
+  return {
+    max: MAX,
+    active: () => cur,
+    info: read,
+    switchTo(i) {
+      if (i === cur || i < 0 || i >= MAX) return false;
+      try {
+        KEYS.forEach(k => { const v = localStorage.getItem(k); if (v != null) localStorage.setItem(store(cur)(k), v); else localStorage.removeItem(store(cur)(k)); });
+        KEYS.forEach(k => { const v = localStorage.getItem(store(i)(k)); localStorage.removeItem(k); if (v != null) localStorage.setItem(k, v); localStorage.removeItem(store(i)(k)); });
+        cur = i; localStorage.setItem(ACTIVE, String(i));
+      } catch (e) { return false; }
+      return true;
+    },
+    remove(i) {
+      if (i === 0 || i === cur) return false;
+      try { KEYS.forEach(k => localStorage.removeItem(store(i)(k))); } catch (e) { return false; }
+      return true;
+    }
+  };
+})();
+// Für die Online-Funktionen: Zweitpiraten werden nie online gespeichert
+GL.sandbox = { on: () => GL.slots.active() !== 0 };

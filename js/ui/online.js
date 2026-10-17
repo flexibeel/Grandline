@@ -101,6 +101,7 @@ window.GL = window.GL || {};
   // ---------- Online-Spielstand (alle Geräte) ----------
   // Tabelle saves: eine Zeile pro Spieler mit dem ganzen Profil
   async function pullSave() {
+    if (GL.sandbox && GL.sandbox.on()) return;
     try {
       const { data: d, error } = await client.from('saves').select('data,updated_at').eq('id', state.uid).maybeSingle();
       if (error) return;
@@ -119,6 +120,7 @@ window.GL = window.GL || {};
     } catch (e) { /* ohne Tabelle läuft alles lokal weiter */ }
   }
   function pushSave(profile) {
+    if (GL.sandbox && GL.sandbox.on()) return;
     if (!client || !state.uid) return;
     clearTimeout(pushTimer);
     pushTimer = setTimeout(async () => {
@@ -131,6 +133,7 @@ window.GL = window.GL || {};
   const codeMsg = e => /function|does not exist|schema cache/i.test(e.message || '') ? 'Der Spielercode-Speicher ist noch nicht eingerichtet (Admin: tools/spielercode.sql ausführen).' : (e.message || String(e));
   // Neuen Code beim Server reservieren; ist er vergeben, neuen würfeln
   async function codeClaim(profile) {
+    if (GL.sandbox && GL.sandbox.on()) return;
     if (!client || !profile || !profile.nickname || profile.codeClaimed) return;
     for (let k = 0; k < 6; k++) {
       GL.code.ensure(profile);
@@ -141,6 +144,7 @@ window.GL = window.GL || {};
     }
   }
   async function codeSave(profile) {
+    if (GL.sandbox && GL.sandbox.on()) return;
     if (!client || !profile || !profile.playerCode || !profile.codeClaimed || state.codeReady === false) return;
     try {
       const { error } = await client.rpc('code_save', { p_code: GL.code.key(profile.playerCode), p_name: profile.nickname || null, p_data: profile });
@@ -157,6 +161,7 @@ window.GL = window.GL || {};
   }
   // Beim Start: Code reservieren bzw. neueren Stand von einem anderen Gerät übernehmen
   async function codeSync() {
+    if (GL.sandbox && GL.sandbox.on()) return;
     const local = profileRef;
     if (!local || !local.nickname) return;
     try {
@@ -247,6 +252,7 @@ window.GL = window.GL || {};
 
   // Nach einem beendeten Run: Eintrag aktualisieren (Bestwert bleibt, Zähler steigen)
   async function submit(profile, run) {
+    if (GL.sandbox && GL.sandbox.on()) return false;
     const S = run.stats || {};
     const entry = {
       score: GL.run.score(run),
@@ -330,6 +336,7 @@ window.GL = window.GL || {};
 
   // Profil eintragen, ohne einen Run zu spielen
   async function register(profile) {
+    if (GL.sandbox && GL.sandbox.on()) return false;
     if (!store || !state.uid || state.readOnly) return false;
     try {
       const old = await store.get(state.uid);
@@ -346,6 +353,7 @@ window.GL = window.GL || {};
   // Account zurücksetzen (full = false: Name und Aussehen bleiben) oder ganz löschen (full = true).
   // Online-Spielstand wird überschrieben, damit ihn kein Gerät zurückholt.
   async function wipe(full, keep) {
+    if (GL.sandbox && GL.sandbox.on()) return;   // Zweitpirat: nur lokal löschen, nie den Hauptaccount
     clearTimeout(pushTimer);
     if (state.backend === 'supabase' && client && state.uid) {
       const now = new Date().toISOString();

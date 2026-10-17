@@ -3047,3 +3047,20 @@ h1, h2, h3, .rank-name, .my-name, .duel-head b, .poster h3, .card-name, .tp-name
 .fight-ctrl { display: flex; gap: 8px; margin-top: 10px; }
 .fight-ctrl .btn { flex: 1; margin: 0; padding: 9px 10px; font-size: .92rem; }
 .callout.on-field { top: -18px; z-index: 30; font-size: .72rem; }
+#sandbox-bar { position: fixed; left: 50%; bottom: 10px; transform: translateX(-50%); z-index: 90; display: flex; align-items: center; gap: 10px; padding: 6px 8px 6px 14px; border-radius: 999px; background: #3a2f5a; color: #fff; font-size: .8rem; font-weight: 700; box-shadow: 0 6px 18px rgba(0,0,0,.25); white-space: nowrap; }
+#sandbox-bar .link { color: #ffe08a; background: rgba(255,255,255,.12); padding: 4px 10px; border-radius: 999px; text-decoration: none; }
+.admin-ico { font-size: 1.6rem; width: 44px; text-align: center; }
+.mail-reveal { font-weight: 700; }
+.mail-reveal small { font-weight: 600; opacity: .7; margin-left: 4px; }
+.slots-box { display: grid; gap: 6px; margin: 12px 0; padding: 12px; border-radius: 16px; border: 1px solid var(--line); background: var(--panel); }
+.slots-box > small { color: var(--mute); font-size: .78rem; margin-top: -4px; }
+.slot-row { display: grid; grid-template-columns: 40px 1fr auto auto; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 12px; background: var(--panel-2, #f6eedd); }
+.slot-row.on { box-shadow: inset 0 0 0 2px #c4904f; background: #fff3dc; }
+.sr-av { width: 40px; height: 40px; display: grid; place-items: center; }
+.sr-av svg, .sr-av img { width: 34px; height: 34px; }
+.sr-empty { font-style: normal; font-size: 1.2rem; color: var(--mute); width: 32px; height: 32px; border-radius: 10px; border: 2px dashed #d8c7a6; display: grid; place-items: center; }
+.sr-txt { display: grid; line-height: 1.2; min-width: 0; }
+.sr-txt b { font-size: .92rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sr-txt small { color: var(--mute); font-size: .74rem; }
+.sr-cur { font-style: normal; font-size: .74rem; font-weight: 800; color: #3f8a52; grid-column: span 2; justify-self: end; }
+.slot-row .btn.mini { margin: 0; }
