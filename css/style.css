@@ -3076,3 +3076,10 @@ h1, h2, h3, .rank-name, .my-name, .duel-head b, .poster h3, .card-name, .tp-name
 .hi-item.lr-2 svg { box-shadow: 0 0 0 2px #b48ad8; }
 .hi-item small { font-size: .74rem; line-height: 1.2; font-weight: 700; }
 .hi-item em { font-style: normal; font-weight: 600; color: var(--mute); }
+/* Vollbild / App-Modus */
+.ts-small { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 10px; margin-top: 6px; }
+.ts-small .stream-tg { margin: 0; }
+.ts-fs { font-weight: 700; }
+.ts-fs-tip { color: var(--mute); font-size: .75rem; }
+.fs-btn { font-size: 1.05rem; line-height: 1; }
+body.is-app { padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); }

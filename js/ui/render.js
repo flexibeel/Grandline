@@ -1445,6 +1445,16 @@ window.GL = window.GL || {};
   }
 
   // Schalter für den Streamer-Modus
+  // Vollbild: auf Handys ohne Vollbild-Funktion (iPhone) Tipp für den Home-Bildschirm
+  const fsApp = () => { try { return matchMedia('(display-mode: fullscreen), (display-mode: standalone)').matches || navigator.standalone; } catch (e) { return false; } };
+  function fsLink() {
+    if (fsApp()) return '';
+    if (document.fullscreenEnabled || document.webkitFullscreenEnabled) {
+      const on = !!(document.fullscreenElement || document.webkitFullscreenElement);
+      return `<button class="link ts-fs" data-act="fullscreen">${on ? 'Vollbild beenden' : '⛶ Vollbild'}</button>`;
+    }
+    return `<small class="ts-fs-tip">Tipp für Vollbild: Teilen → „Zum Home-Bildschirm“</small>`;
+  }
   function streamToggle() {
     const on = streamOn();
     return `<button class="stream-tg${on ? ' on' : ''}" data-act="stream-toggle" aria-pressed="${on}">
@@ -1569,7 +1579,7 @@ window.GL = window.GL || {};
           <button class="btn ghost" data-act="intro-open">Anleitung</button>
         </div>
         <button class="link ts-login" data-act="login-open">${st.anon === false && st.email ? 'Angemeldet ✓' : 'Anmelden'}</button>
-        ${streamToggle()}
+        <div class="ts-small">${fsLink()}${streamToggle()}</div>
       </div>
       <p class="ts-foot">Inoffizielles Fanprojekt, kostenlos und ohne kommerzielle Absicht. One Piece gehört seinen Rechteinhabern. <a href="legal.html">Rechtliches &amp; Datenschutz</a></p>
     </div>`;
@@ -2270,6 +2280,9 @@ window.GL = window.GL || {};
       titleEl.hidden = !ui.screen;
       document.body.classList.toggle('on-title', !!ui.screen);
       document.body.classList.toggle('streamer', streamOn());
+      document.body.classList.toggle('is-app', !!fsApp());
+      const fsb = document.querySelector('.fs-btn');
+      if (fsb) fsb.hidden = fsApp() || !(document.fullscreenEnabled || document.webkitFullscreenEnabled);
       let sb = document.getElementById('sandbox-bar');
       if (GL.sandbox.on() && !sb) {
         sb = document.createElement('div'); sb.id = 'sandbox-bar';

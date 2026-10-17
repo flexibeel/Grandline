@@ -31,6 +31,7 @@
   const esc2 = t => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   let keyPick = false;   // Auswahl per Taste 1-9: ohne Bestätigung
   function draw() { GL.ui.render(run, anim, ui); featureCheck(); }
+  ['fullscreenchange', 'webkitfullscreenchange'].forEach(ev => document.addEventListener(ev, () => { const t = document.getElementById('title'); if (t) t.dataset.last = ''; ui.lastStage = null; draw(); }));
 
   // Neu freigeschaltete Bereiche im Hauptquartier: ein ruhiges Pop-up nach dem anderen
   function featureCheck() {
@@ -405,6 +406,15 @@
           toast(`<span class="toast-item ir-${R.id}"><b>Verschmolzen: ${R.name} ${d ? d.name : ''}</b>Liegt jetzt in der Schmiede.</span>`);
           saveProfile(); ui.lastStage = null; draw();
         }
+        break;
+      }
+      case 'fullscreen': {
+        const d = document, de = d.documentElement;
+        const isOn = d.fullscreenElement || d.webkitFullscreenElement;
+        try {
+          if (isOn) (d.exitFullscreen || d.webkitExitFullscreen).call(d);
+          else { const p = (de.requestFullscreen || de.webkitRequestFullscreen).call(de, { navigationUI: 'hide' }); if (p && p.catch) p.catch(() => {}); }
+        } catch (e2) { /* nicht unterstützt */ }
         break;
       }
       case 'mail-reveal': GL.ui.toggleMail(); ui.lastStage = null; { const t = document.getElementById('title'); if (t) t.dataset.last = ''; } draw(); break;
