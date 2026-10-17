@@ -412,12 +412,15 @@
       crewHp: b.crewStart.slice(),
       enemyHp: b.enemies.map(e => e.hp),
       log: 'Der Kampf beginnt!',
-      fast: false,
+      speed: (profile.settings && profile.settings.speed) || 2,
       done: b.events.length === 0,
       timer: null
     };
-    anim.timer = setTimeout(stepAnim, SPEED.normal);
+    document.body.classList.toggle('fast', anim.speed >= 3);
+    anim.timer = setTimeout(stepAnim, SPEED.normal * SPEEDF[anim.speed]);
   }
+  // Drei Tempostufen statt Überspringen: Man sieht den Kampf immer, aber er quält nicht
+  const SPEEDF = [1, 0.9, 0.55, 0.32];
 
   function stepAnim() {
     if (!anim || anim.done) return;
@@ -426,15 +429,17 @@
     const setHp = (side, to, hp) => { (side === 'crew' ? anim.crewHp : anim.enemyHp)[to] = hp; };
     if (ev.k === 'hit') setHp(ev.side === 'crew' ? 'enemy' : 'crew', ev.to, ev.hp);
     else if (ev.list) ev.list.forEach(x => { if (x.hp !== undefined) setHp(ev.side, x.to, x.hp); });
-    if (ev.k === 'round') { anim.timer = setTimeout(stepAnim, anim.fast ? 0 : 60); GL.arena.play(ev); return; }
+    if (ev.k === 'round') { anim.timer = setTimeout(stepAnim, anim.speed >= 3 ? 0 : 60); GL.arena.play(ev); return; }
     anim.log = GL.ui.battleText(run, ev) || anim.log;
     // Arena direkt verändern statt neu zu zeichnen, damit Animationen laufen
     GL.arena.play(ev);
     const log = document.getElementById('log');
     if (log) log.textContent = anim.log;
     // Fähigkeiten-Hinweise etwas länger stehen lassen, damit man sie lesen kann
-    const wait = ev.k === 'special' ? (anim.fast ? 900 : 1800) : ev.k === 'ult' ? (anim.fast ? 350 : SPEED.ult)
-      : anim.fast ? SPEED.fast : ev.k === 'hit' ? SPEED.normal : SPEED.special;
+    const f = SPEEDF[anim.speed] || 0.55;
+    const big = ev.k === 'rage' || ev.k === 'will' || ev.k === 'weather' || ev.final;   // Wendepunkte bekommen immer etwas Zeit
+    const wait = ev.k === 'special' ? Math.max(900, 1800 * f) : ev.k === 'ult' ? Math.max(500, SPEED.ult * f)
+      : big ? Math.max(900, 1500 * f) : ev.k === 'hit' ? SPEED.normal * f : SPEED.special * f;
     anim.timer = setTimeout(stepAnim, wait);
   }
 
@@ -506,7 +511,12 @@
       case 'special': act({ type: 'special' }); break;
       case 'continue': stopAnim(); act({ type: 'continue' }); break;
       case 'fast':
-        if (anim) { anim.fast = true; document.body.classList.add('fast'); }
+        if (anim) {
+          anim.speed = anim.speed >= 3 ? 1 : anim.speed + 1;
+          profile.settings = Object.assign({}, profile.settings, { speed: anim.speed }); saveProfile();
+          document.body.classList.toggle('fast', anim.speed >= 3);
+          const b = document.querySelector('[data-act=fast]'); if (b) b.innerHTML = GL.ui.speedLabel(anim.speed);
+        }
         break;
       case 'skip': if (anim) { clearTimeout(anim.timer); anim.done = true; draw(); } break;
       case 'sail': sail(); break;
@@ -999,7 +1009,7 @@
     if ((e.key === 'Enter' || e.key === ' ') && !(e.target.matches && e.target.matches('button, .member, .crewmini'))) {
       e.preventDefault();
       if (anim && !anim.done) {
-        stage.querySelector(anim.fast ? '[data-act=skip]' : '[data-act=fast]')?.click();
+        stage.querySelector('[data-act=fast]')?.click();
         return;
       }
       const main = stage.querySelector('[data-act=continue], [data-act=fight], [data-act=sail], [data-act=again], [data-act=hq], [data-act=leave]');

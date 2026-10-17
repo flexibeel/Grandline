@@ -93,6 +93,18 @@ GL.config = {
   // Ultis: Energie pro eigenem Treffer / eingestecktem Treffer, bei max feuert die Ulti. Bosse starten mit etwas Energie.
   ult: { max: 100, gainHit: 40, gainHurt: 20, start: 20, bossStart: 40, fireChance: 0.6, maxWait: 2, spark: 0.05 },
   critMult: 2,
+  // Kampfwetter (nur normale Kämpfe und Kopfgeldjäger): so oft kommt eins, und was es tut
+  // Bosskampf: länger je Meer, Boss weicht manchmal aus und kontert
+  bossFight: { hp: 0.2, hpPerSea: 0.12, atk: 0.92, dodge: 0.08, counter: 0.15, counterMult: 0.6 },
+  weatherChance: 0.35,
+  weather: [
+    { id: 'nebel',  name: 'Nebel',        text: 'Alle verfehlen öfter.',              miss: 0.12 },
+    { id: 'wind',   name: 'Rückenwind',   text: 'Deine Crew ist schneller.',          crewSpd: 2 },
+    { id: 'sturm',  name: 'Gegenwind',    text: 'Die Gegner sind schneller.',         foeSpd: 2 },
+    { id: 'mond',   name: 'Vollmond',     text: 'Ulti-Leisten laden schneller.',      gain: 1.5 },
+    { id: 'hitze',  name: 'Hitzewelle',   text: 'Mehr kritische Treffer für alle.',   crit: 0.1 },
+    { id: 'jubel',  name: 'Schatzfieber', text: 'Deine Crew trifft härter.',          crewDmg: 0.12 }
+  ],
   typeStrong: 2,          // Schaden gegen einen Typ, gegen den man stark ist
   typeWeak: 0.5,          // Schaden gegen einen Typ, gegen den man schwach ist
   battleRoundsMax: 200,   // Sicherheitsgrenze gegen Endlos-Kämpfe

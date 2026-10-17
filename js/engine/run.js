@@ -352,10 +352,13 @@ window.GL = window.GL || {};
       });
     }
     if (boss) {
-      const hp = Math.round(boss.hp * (1 + H.enemyHp + H.bossHp));
+      // Bosskämpfe dauern länger, je weiter man kommt (mehr Leben, etwas weniger Angriff: länger mitfiebern, nicht unfairer)
+      const BF = C.bossFight || { hp: 0, hpPerSea: 0, atk: 1 };
+      const len = 1 + BF.hp + BF.hpPerSea * islandIndex(run);
+      const hp = Math.round(boss.hp * (1 + H.enemyHp + H.bossHp) * len);
       enemies.unshift({
         id: boss.id, type: boss.type, boss: true, raid: !!boss.raid, hp, max: hp,
-        atk: Math.round(boss.atk * (1 + H.enemyAtk + H.bossAtk)), spd: boss.spd + H.enemySpd
+        atk: Math.round(boss.atk * (1 + H.enemyAtk + H.bossAtk) * BF.atk), spd: boss.spd + H.enemySpd
       });
     }
     // Endlos-Modus: jede Runde deutlich stärker (auch Bosse, die sonst feste Werte haben)

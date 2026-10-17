@@ -575,6 +575,9 @@ window.GL = window.GL || {};
     if (ev.k === 'round') return '';
     if (ev.k === 'special') return `Spezialangriff: ${ev.name}!`;
     if (ev.k === 'ult') return `${anyData(ev.by) ? anyData(ev.by).name : ''} entfesselt die Ulti: ${ev.name}!${ev.tier === 'perfect' ? ' Perfekt, alles stärker!' : ev.bonus ? ` Bonus: ${ev.bonus}.` : ''}`;
+    if (ev.k === 'counter') return `Konter! ${targetName(run, 'enemy', ev.from)} schlägt sofort zurück: ${ev.dmg} Schaden an ${targetName(run, 'crew', ev.to)}.`;
+    if (ev.k === 'weather') return `Kampfwetter: ${ev.name}. ${ev.text}`;
+    if (ev.k === 'rage' && ev.phase === 3) return `Endphase! ${anyData(ev.by) ? anyData(ev.by).name : 'Der Boss'} setzt alles auf eine Karte.`;
     if (ev.k === 'rage') return `${anyData(ev.by) ? anyData(ev.by).name : 'Der Boss'} wird wütend: stärker und schneller!`;
     if (ev.k === 'will') return 'Letzter Wille: Die Crew gibt nicht auf! Ulti-Leisten laden, alle bekommen Mut.';
     if (ev.k === 'skip') return `${targetName(run, ev.side, ev.to)} ist betäubt und setzt aus.`;
@@ -627,6 +630,9 @@ window.GL = window.GL || {};
   }
 
   // Auswertung nach dem Kampf: Schaden pro Figur, Erfahrung, Level-ups
+  function speedLabel(n) {
+    return `<span class="spd-dots" aria-hidden="true">${[1, 2, 3].map(k => `<i class="${k <= n ? 'on' : ''}">▶</i>`).join('')}</span> Tempo ${['', 'gemütlich', 'zügig', 'schnell'][n]}`;
+  }
   function battleSummary(run) {
     const b = run.battle;
     const dealt = run.crew.map(() => 0);
@@ -1005,7 +1011,7 @@ window.GL = window.GL || {};
           controls = `<button class="btn" data-act="continue">Weiter ${keyHint('Leertaste')}</button>`;
         } else {
           log = anim.log;
-          controls = `<div class="fight-ctrl"><button class="btn ghost" data-act="fast">Schneller ${keyHint('F')}</button><button class="btn ghost" data-act="skip">Überspringen ${keyHint('S')}</button></div>`;
+          controls = `<div class="fight-ctrl"><button class="btn ghost speed-btn" data-act="fast" aria-label="Tempo ändern">${speedLabel(anim.speed || 2)}</button></div>`;
         }
         const title = b.kind === 'raid' ? 'Raid' : b.kind === 'boss' ? 'Bosskampf' : 'Kampf';
         return `<div class="battle-head"><h2>${title}</h2>${done ? `<span class="result ${b.win ? 'win' : 'lose'}">${b.win ? 'Sieg' : 'Niederlage'}</span>` : ''}</div>
@@ -2330,7 +2336,7 @@ window.GL = window.GL || {};
       body: `<ul class="intro-list">
         <li>Jeder Run bringt <b>Berry</b>. Damit baust du dein Schiff aus und kaufst Ausrüstung.</li>
         <li>Besiegte Bosse kannst du später als <b>Kapitän</b> spielen.</li>
-        <li><b>Tastatur:</b> <kbd class="key inline">Leertaste</kbd> geht weiter, <kbd class="key inline">1</kbd> bis <kbd class="key inline">9</kbd> wählt.</li></ul>`
+        <li class="kbd-only"><b>Tastatur:</b> <kbd class="key inline">Leertaste</kbd> geht weiter, <kbd class="key inline">1</kbd> bis <kbd class="key inline">9</kbd> wählt.</li></ul>`
     }
   ];
 
@@ -2552,6 +2558,7 @@ window.GL = window.GL || {};
       restart.textContent = ui.restartArmed ? 'Wirklich aufgeben?' : 'Run aufgeben';
       restart.hidden = GL.run.isFinished(run);
     },
-    battleText
+    battleText,
+    speedLabel
   };
 })();

@@ -516,6 +516,21 @@ window.GL = window.GL || {};
           fieldFloat(ev.side, x.to, d.name + '!', d.good ? 'buff' : 'debuff');
           float(ev.side, x.to, d.name + '!', 'tag ' + (d.good ? 'buff' : 'debuff'));
         });
+      } else if (ev.k === 'counter') {
+        fieldFloat('enemy', ev.from, 'Konter!', 'debuff');
+        pulse(fu('enemy', ev.from), 'atk'); pulse($('#field'), 'boss-slam');
+        pulse(el('crew', ev.to), 'hit'); float('crew', ev.to, '-' + ev.dmg, 'crit');
+        fx('fx-slash', center(fu('crew', ev.to)), 500); pulse(fu('crew', ev.to), 'hurt');
+        fieldFloat('crew', ev.to, '-' + ev.dmg, 'crit'); setHp('crew', ev.to, ev.hp);
+      } else if (ev.k === 'weather') {
+        banner('us wx', `<small>Kampfwetter</small><b>${ev.name}</b><em>${ev.text}</em>`, 1900);
+        const fld = $('#field'); if (fld) fld.classList.add('wx-' + ev.id);
+      } else if (ev.k === 'rage' && ev.phase === 3) {
+        const d = enemyData(ev.by) || crewData(ev.by);
+        banner('them rage final', `<small>Endphase</small><b>${d ? d.name : 'Der Boss'} setzt alles auf eine Karte!</b><em>Ulti voll geladen</em>`, 1800);
+        const fld = $('#field'); if (fld) fld.classList.add('phase3');
+        pulse(fld, 'perfect-hit'); setEn('enemy', ev.to, ev.ea);
+        if (ev.heal) { setHp('enemy', ev.to, ev.hp); fieldFloat('enemy', ev.to, '+' + ev.heal, 'heal'); }
       } else if (ev.k === 'rage') {
         const d = enemyData(ev.by) || crewData(ev.by);
         banner('them rage', `<small>Halbes Leben</small><b>${d ? d.name : 'Der Boss'} wird wütend!</b><em>stärker und schneller</em>`, 1700);

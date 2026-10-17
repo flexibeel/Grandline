@@ -107,7 +107,8 @@ window.GL = window.GL || {};
       return null;   // einfache Gegner haben keine Ulti
     };
     crew.concat(enemies).forEach(u => { u.ult = ultOf(u); u.energy = !u.ult ? 0 : u.side === 'enemy' && u.boss && !(u.ref && u.ref.pvp) ? U.bossStart : (U.start || 0) + (u.side === 'crew' ? (run.ultBonus || 0) : 0); });
-    const charge = (u, n) => { if (u.ult && u.hp > 0) u.energy = Math.min(U.max, u.energy + n); };
+    let gainMult = 1;
+    const charge = (u, n) => { if (u.ult && u.hp > 0) u.energy = Math.min(U.max, u.energy + Math.round(n * gainMult)); };
 
     function ultStrike(u, t, mult, pierce) {
       let m = typeMult(u.type, t.type);
@@ -259,8 +260,20 @@ window.GL = window.GL || {};
     // ---------- Wendepunkte: machen jeden Kampf zur kleinen Geschichte ----------
     //   Boss-Wut: Bosse und Raid-Bosse werden bei halbem Leben wütend (stärker, schneller, Ulti lädt)
     //   Letzter Wille: Fällt die Crew unter ein Drittel ihres Lebens, rafft sie sich einmal auf
-    const DR = Object.assign({ rageAt: 0.5, rageAtk: 0.2, rageEnergy: 50, willAt: 0.3, willEnergy: 50 }, C.drama || {});
+    const DR = Object.assign({ rageAt: 0.6, rageAtk: 0.2, rageEnergy: 50, finalAt: 0.25, finalAtk: 0.15, finalHeal: 0.08, willAt: 0.3, willEnergy: 50 }, C.drama || {});
     let willUsed = false;
+    const BF = C.bossFight || {};
+    if (!pvp) enemies.forEach(e => { if (e.boss || e.raid) e.dodge = (e.dodge || 0) + (BF.dodge || 0); });
+    // ---------- Kampfwetter: manche Kämpfe bekommen eine Bedingung, damit sie sich nicht gleich anfühlen ----------
+    const WX = C.weather || [];
+    const wx = !pvp && (kind === 'battle' || kind === 'elite') && WX.length && R.float(run) < (C.weatherChance || 0) ? WX[Math.floor(R.float(run) * WX.length)] : null;
+    const wxMiss = wx && wx.miss || 0, wxCrit = wx && wx.crit || 0, wxGain = wx && wx.gain || 1, wxDmg = wx && wx.crewDmg || 0;
+    if (wx) {
+      if (wx.crewSpd) crew.forEach(u => { u.spd += wx.crewSpd; });
+      if (wx.foeSpd) enemies.forEach(u => { u.spd += wx.foeSpd; });
+      events.push({ k: 'weather', id: wx.id, name: wx.name, text: wx.text });
+      gainMult = wxGain;
+    }
     function drama() {
       if (pvp) return;
       enemies.forEach(e => {
@@ -269,6 +282,14 @@ window.GL = window.GL || {};
           e.atk = Math.round(e.atk * (1 + DR.rageAtk)); e.spd += 1;
           if (e.ult) e.energy = Math.min(U.max, e.energy + DR.rageEnergy);
           events.push({ k: 'rage', side: 'enemy', to: idx(e), by: e.id, ea: e.ult ? e.energy : null });
+        }
+        // Endphase: letzter Akt mit voller Ulti und einem kleinen Atemzug
+        if (e.hp > 0 && e.raged && !e.lastAct && e.hp <= e.max * DR.finalAt) {
+          e.lastAct = true;
+          e.atk = Math.round(e.atk * (1 + DR.finalAtk));
+          if (e.ult) e.energy = U.max;
+          const got = heal(e, Math.round(e.max * DR.finalHeal));
+          events.push({ k: 'rage', phase: 3, side: 'enemy', to: idx(e), by: e.id, ea: e.ult ? e.energy : null, heal: got, hp: e.hp });
         }
       });
       if (!willUsed && alive(enemies).length) {
@@ -335,7 +356,8 @@ window.GL = window.GL || {};
           const sp = C.dmgSpreadPct != null ? C.dmgSpreadPct : 0.18;
           let dmg = u.atk * (1 + (R.float(run) * 2 - 1) * sp) * mult * (1 + u.dmgPct);
           if (target.boss || target.mini) dmg *= 1 + u.bossPct;
-          const critCh = (u.crit || 0) + (C.baseCrit || 0);
+          if (u.side === 'crew') dmg *= 1 + wxDmg;
+          const critCh = (u.crit || 0) + (C.baseCrit || 0) + wxCrit;
           const crit = critCh > 0 && R.float(run) < critCh;
           if (crit) dmg *= u.critMult;
           if (u.status.fear) dmg *= 0.65;
@@ -345,7 +367,7 @@ window.GL = window.GL || {};
           let blocked = false;
           let miss = false;
           if (u.side === 'enemy' && firstBlock > 0) { blocked = true; firstBlock--; dmg = 0; }
-          else if (target.dodge > 0 && R.float(run) < target.dodge) { miss = true; dmg = 0; }
+          else if ((target.dodge || 0) + wxMiss > 0 && R.float(run) < (target.dodge || 0) + wxMiss) { miss = true; dmg = 0; }
 
           // Volltreffer: seltener Glücksschlag der eigenen Crew
           let lucky = false;
@@ -357,6 +379,13 @@ window.GL = window.GL || {};
           events.push({ k: 'hit', side: u.side, from: idx(u), to, dmg, crit: crit && dmg > 0, lucky, eff, blocked, miss, hp: target.hp,
             ea: u.ult ? u.energy : null, et: target.ult ? target.energy : null });
 
+          // Konter: Bosse schlagen manchmal sofort zurück
+          if (!pvp && dmg > 0 && target.hp > 0 && (target.boss || target.raid) && u.side === 'crew' && !target.status.stun && R.float(run) < (BF.counter || 0)) {
+            const cd = Math.max(1, Math.round(target.atk * (BF.counterMult || 0.6) * typeMult(target.type, u.type) * (1 - (u.guard || 0))) - (u.armor || 0));
+            damage(u, cd);
+            events.push({ k: 'counter', side: 'enemy', from: idx(target), to: idx(u), dmg: cd, hp: u.hp });
+            checkRevives();
+          }
           // Fähigkeiten nach einem Treffer
           if (dmg > 0) {
             const st = statusOf(u);

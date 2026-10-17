@@ -3530,3 +3530,20 @@ body.reloading { opacity: .5; transition: opacity .12s; }
 /* Bosse: größer, mit warmem Schein am Boden */
 .fu.boss .fu-shadow { box-shadow: 0 0 18px 6px rgba(240,120,80,.35); }
 .field.raid .fu.boss .fu-shadow { box-shadow: 0 0 18px 6px rgba(160,110,230,.4); }
+/* Kampfwetter: Banner und leichte Färbung des Feldes */
+.ult-call.wx { top: 44%; background: linear-gradient(180deg, #ffffff, #e9f1f8); color: #2b3a4a; border-color: #fff; }
+.ult-call.wx small { color: #5b7ea3; } .ult-call.wx em { display: block; font-style: normal; font-size: .72rem; font-weight: 700; color: #5a6a7a; }
+.field.wx-nebel .f-stage::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(180deg, rgba(240,244,248,.0), rgba(240,244,248,.45) 55%, rgba(240,244,248,.2)); z-index: 300; }
+.field.wx-mond .f-sky { filter: brightness(.6) saturate(.8) hue-rotate(200deg); }
+.field.wx-hitze .f-stage { filter: saturate(1.25) sepia(.15); }
+.field.wx-wind .f-clouds, .field.wx-sturm .f-clouds { animation-duration: 6s !important; }
+.field.wx-jubel .f-sun { filter: drop-shadow(0 0 18px #ffd75e); }
+/* Endphase: der Himmel färbt sich */
+.field.phase3 .f-stage::before { content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 1; background: radial-gradient(ellipse at 70% 30%, rgba(200,50,40,.28), transparent 70%); animation: p3-pulse 1.6s ease-in-out infinite; }
+@keyframes p3-pulse { 50% { opacity: .45; } }
+.ult-call.rage.final { background: linear-gradient(180deg, #8a2a22, #4a120e); }
+/* Tempo-Knopf: drei kleine Pfeile zeigen die Stufe */
+.speed-btn { min-width: 180px; }
+.spd-dots { display: inline-flex; gap: 1px; margin-right: 6px; font-size: .7rem; vertical-align: middle; }
+.spd-dots i { font-style: normal; opacity: .25; } .spd-dots i.on { opacity: 1; color: var(--accent, #b8742a); }
+@media (pointer: coarse) { .kbd-only { display: none !important; } }
