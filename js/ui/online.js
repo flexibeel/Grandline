@@ -337,6 +337,23 @@ window.GL = window.GL || {};
     } catch (e) { return fail(e); }
   }
 
+  // ---------- Stammcrew-Verteidigung (Tabelle duel_events, siehe tools/update-2026-10-17.sql) ----------
+  async function duelReport(defender, attackerWon, delta, name) {
+    if (!client || !state.uid || (GL.sandbox && GL.sandbox.on())) return;
+    if (!/^[0-9a-f-]{36}$/i.test(String(defender || '')) || defender === state.uid) return;
+    try { await client.from('duel_events').insert({ defender, attacker_won: !!attackerWon, delta: Math.max(0, Math.min(64, Math.round(delta || 0))), attacker_name: String(name || 'Pirat').slice(0, 24) }); } catch (e) { /* ohne Tabelle egal */ }
+  }
+  // Neue Angriffe auf die eigene Stammcrew abholen (und danach löschen)
+  async function duelInbox() {
+    if (!client || !state.uid || (GL.sandbox && GL.sandbox.on())) return [];
+    try {
+      const { data, error } = await client.from('duel_events').select('id,attacker_name,attacker_won,delta,created_at').eq('defender', state.uid).order('created_at', { ascending: true }).limit(50);
+      if (error || !data || !data.length) return [];
+      try { await client.from('duel_events').delete().in('id', data.map(x => x.id)); } catch (e) { /* egal */ }
+      return data;
+    } catch (e) { return []; }
+  }
+
   // Profil eintragen, ohne einen Run zu spielen
   async function register(profile) {
     if (GL.sandbox && GL.sandbox.on()) return false;
@@ -381,6 +398,6 @@ window.GL = window.GL || {};
     return register(profile);
   }
 
-  GL.online = { init, submit, rename, register, pushSave, linkEmail, loginEmail, verifyCode, logout, wipe, liveFields, codeLoad, codeSave, codeClaim,
+  GL.online = { init, submit, rename, register, pushSave, duelReport, duelInbox, linkEmail, loginEmail, verifyCode, logout, wipe, liveFields, codeLoad, codeSave, codeClaim,
     onRemoteProfile(fn) { onRemote = fn; }, state: () => state, onChange(fn) { listeners.push(fn); } };
 })();

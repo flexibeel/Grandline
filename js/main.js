@@ -334,6 +334,7 @@
       battle: { kind: 'duel', events: res.events, shown: false,
         enemies: res.foe.map(r => Object.assign({}, r, { hp: r.max, def: r.id === 'rival' ? { id: 'self', name: r.name, look: r.look, type: r.type } : null })) } };
     ui.squadFight = { id: row.id, res, xp, ratingDelta, playing: true, i: 0, dRun, theirName: row.name };
+    if (!row.npc && GL.online.duelReport) GL.online.duelReport(row.id, res.win, Math.abs(ratingDelta || 0), profile.nickname);
     saveProfile(); draw();
     GL.arena.mounted(dRun);
     ui.squadFight.timer = setTimeout(playDuel, 900);
@@ -987,5 +988,30 @@
       location.reload();
     });
     GL.online.init(profile);
+    // Angriffe auf die eigene Stammcrew seit dem letzten Besuch (kurz nach dem Start, dann alle 5 Min.)
+    const checkDefense = () => {
+      if (!profile.nickname || !GL.meta.squadUnlocked(profile) || !GL.online.duelInbox) return;
+      GL.online.duelInbox().then(list => {
+        if (!list.length) return;
+        let held = 0, lost = 0, change = 0;
+        list.forEach(x => { if (x.attacker_won) { lost++; change -= x.delta; } else { held++; change += Math.max(1, Math.round(x.delta / 2)); } });
+        profile.squadRating = Math.max(0, (profile.squadRating == null ? 1000 : profile.squadRating) + change);
+        profile.squadDef = { held: (profile.squadDef && profile.squadDef.held || 0) + held, lost: (profile.squadDef && profile.squadDef.lost || 0) + lost };
+        saveProfile();
+        if (GL.online.register) GL.online.register(profile);
+        const last = list[list.length - 1];
+        const who = GL.safeName ? GL.safeName(last.attacker_name || 'Pirat') : (last.attacker_name || 'Pirat');
+        const head = list.length === 1
+          ? `${esc2(who)} hat deine Stammcrew herausgefordert`
+          : `${list.length} Piraten haben deine Stammcrew herausgefordert`;
+        const body = list.length === 1
+          ? (last.attacker_won ? 'und gewonnen.' : 'und verloren. Deine Crew hat gehalten!')
+          : `${held}× gehalten, ${lost}× verloren.`;
+        toast(`<span><b>${head}</b>${body} Crew-Rating ${change >= 0 ? '+' : ''}${change}.</span>`);
+        ui.lastStage = null; draw();
+      });
+    };
+    setTimeout(checkDefense, 6000);
+    setInterval(() => { if (!document.hidden) checkDefense(); }, 300000);
   }
 })();
