@@ -3661,3 +3661,30 @@ body.cg-dragging { user-select: none; }
 .cg-foot { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
 .cg-shards { display: block; margin-top: 6px; font-size: .72rem; color: #5b7ea3; }
 .boss-intro.rival .bi-card small { color: #8fd0ff; }
+/* ---------- Hauptquartier als Hafen: Holzschilder zu den Räumen ---------- */
+.hub { margin: 14px 0 6px; }
+.hub-lbl { display: block; font-size: .7rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: #a08560; margin: 0 2px 6px; }
+.hub-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+@media (max-width: 520px) { .hub-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.hub-tile { position: relative; display: grid; justify-items: center; align-content: start; gap: 3px; padding: 10px 4px 8px; border-radius: 14px; cursor: pointer;
+  background: linear-gradient(180deg, #f7ead0 0%, #efdcb8 100%); border: 2px solid #c9a87a;
+  box-shadow: 0 3px 0 #b08a5a, 0 6px 12px -8px rgba(60,40,15,.5); color: #4a3520; transition: transform .1s ease; }
+.hub-tile:hover { transform: translateY(-1px); }
+.hub-tile:active { transform: translateY(2px); box-shadow: 0 1px 0 #b08a5a; }
+.hub-art { width: 40px; height: 34px; display: grid; place-items: center; }
+.hub-art svg { width: 36px; height: 32px; shape-rendering: crispEdges; }
+.hub-tile b { font-size: .8rem; line-height: 1.1; text-align: center; }
+.hub-tile small { font-size: .62rem; color: #8a6d48; text-align: center; }
+.hub-tile .tab-dot { top: 6px; right: 6px; }
+/* Raum-Ansicht */
+.room-head { position: sticky; top: 0; z-index: 30; display: flex; align-items: center; gap: 10px; margin: 6px -4px 6px; padding: 8px 6px; border-radius: 12px;
+  background: color-mix(in srgb, var(--panel, #fffaf0) 92%, transparent); backdrop-filter: blur(4px); box-shadow: 0 6px 14px -12px rgba(60,40,15,.5); }
+.room-back { flex: none; padding: 6px 12px; border-radius: 999px; border: 2px solid #c9a87a; background: #f7ead0; font-weight: 800; color: #4a3520; cursor: pointer; box-shadow: 0 2px 0 #b08a5a; }
+.room-title { display: inline-flex; align-items: center; gap: 6px; font-family: var(--px); font-size: 1.2rem; font-weight: 600; color: #3a2a18; }
+.hub-art.sm { width: 28px; height: 24px; } .hub-art.sm svg { width: 26px; height: 22px; }
+.room-hop { display: flex; gap: 6px; overflow-x: auto; padding: 2px 2px 8px; scrollbar-width: none; }
+.room-hop::-webkit-scrollbar { display: none; }
+.room-chip { position: relative; flex: none; padding: 4px 10px; border-radius: 999px; border: 1px solid #d8c4a0; background: #fffaf0; font-size: .74rem; font-weight: 700; color: #6b5a44; cursor: pointer; }
+.room-chip .tab-dot { top: -2px; right: -2px; }
+.room-foot { margin: 16px 0 6px; text-align: center; }
+.hq-more { margin: 12px 0 4px; display: grid; gap: 8px; } .hq-more .endless-row { margin-top: 0; }

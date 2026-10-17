@@ -1,6 +1,11 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-17v', date: '17.10.', title: 'Neues Hauptquartier: der Hafen', items: [
+    'Alle Räume als Holzschilder direkt unter „Leinen los“: Stammcrew, Rangliste, Werft, Schmiede und mehr',
+    'Ein Raum füllt die Seite, oben „‹ Hafen“ zum Zurückgehen und kleine Sprungknöpfe zu den anderen Räumen',
+    'Tageskarte und Endlos-Fahrt stehen gesammelt unter „Besondere Fahrten“',
+    'Gegnersuche wechselt die Gegner ab, statt immer denselben zu zeigen' ] },
   { v: '2026-10-17u', date: '17.10.', title: 'Fehler behoben: Begegnung auf See', items: [
     'Der Kampf gegen die Crew eines Mitspielers startet jetzt richtig',
     'Begegnungen bekommen einen eigenen Auftritt mit dem Namen des Spielers' ] },

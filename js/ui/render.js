@@ -2133,7 +2133,7 @@ window.GL = window.GL || {};
     const info = t
       ? `<div class="hunt-info"><b>Ziel: ${esc(t.name)}</b><span>Ab dem 2. Meer wartet fast sicher sein Raid. Gewinnst du, kann er fallen lassen:</span>
           <span class="hi-loot">${GL.data.huntFor(t.id).map(l => `<span class="hi-item lr-${l.r}${have[l.id] ? ' got' : ''}">${lootArt(l)}<small>${have[l.id] ? esc(l.name) : '???'}<br><em>${l.r >= 3 ? 'Legendär' : 'Episch'}</em></small></span>`).join('')}</span></div>`
-      : `<div class="hunt-info muted">Tippe einen Raid-Boss an, um ihn gezielt zu jagen. Jeder hat zwei seltene Beutestücke für deine Vitrine im Lager.</div>`;
+      : `<div class="hunt-info muted">Raid-Boss antippen, um ihn im nächsten Run zu jagen.</div>`;
     return `<div class="hunt-row"><span class="hunt-lbl">Raid-Jagd</span>${chips}</div>${info}`;
   }
 
@@ -2266,8 +2266,33 @@ window.GL = window.GL || {};
     return `<section class="quests"><div class="q-head"><b>Aufträge</b><small>Abgeholt? Sofort kommt ein neuer. Jeden Tag frische.</small></div>${cards}</section>`;
   }
 
+  // Hauptquartier als Hafen: oben Ablegen, darunter Holzschilder zu den Räumen. Ein Raum füllt die Seite, mit „Zurück zum Hafen“.
+  const ROOMS = [
+    { id: 'stammcrew', name: 'Stammcrew', art: 'flag', sub: p => GL.meta.squadUnlocked(p) ? `⚔ ${GL.meta.squadPower(GL.meta.squadRefs(p))}` : '' },
+    { id: 'rangliste', name: 'Rangliste', art: 'podium', sub: () => '' },
+    { id: 'werft', name: 'Werft', art: 'ship', sub: () => 'Ausbauten' },
+    { id: 'schmiede', name: 'Schmiede', art: 'anvil', sub: p => `${(p.itemLoadout || []).length}/${GL.meta.itemSlots(p)} dabei` },
+    { id: 'kammer', name: 'Schatzkammer', art: 'chest', sub: p => `${p.artLoadout.length}/${GL.meta.artSlots(p)} dabei` },
+    { id: 'lager', name: 'Lager', art: 'crate', sub: p => `${p.loadout.length}/${GL.meta.slots(p)} dabei` },
+    { id: 'haendler', name: 'Händler', art: 'stall', sub: () => 'Proviant' },
+    { id: 'profil', name: 'Kapitänsbuch', art: 'scroll', sub: () => 'Rang, Code, Konto' }
+  ];
+  const roomArt = a => a === 'ship' ? GL.sprites.ship() : featureArt(a);
+  function hubTiles(profile, tab) {
+    const open = ROOMS.filter(r => GL.meta.featureOpen(profile, r.id));
+    return `<nav class="hub" aria-label="Räume im Hauptquartier"><span class="hub-lbl">Im Hafen</span><div class="hub-grid">${open.map(r =>
+      `<button class="hub-tile" data-act="hq-tab" data-tab="${r.id}"><i class="hub-art">${roomArt(r.art)}</i><b>${r.name}</b>${r.sub(profile) ? `<small>${r.sub(profile)}</small>` : ''}${tabAlert(profile, r.id) ? '<i class="tab-dot" title="Hier gibt es etwas zu tun"></i>' : ''}</button>`).join('')}</div></nav>`;
+  }
+  function roomHead(profile, tab) {
+    const r = ROOMS.find(x => x.id === tab) || ROOMS[ROOMS.length - 1];
+    const others = ROOMS.filter(x => x.id !== tab && GL.meta.featureOpen(profile, x.id));
+    return `<div class="room-head"><button class="room-back" data-act="hq-home">‹ Hafen</button><span class="room-title"><i class="hub-art sm">${roomArt(r.art)}</i>${r.name}</span></div>
+      <div class="room-hop">${others.map(x => `<button class="room-chip" data-act="hq-tab" data-tab="${x.id}">${x.name}${tabAlert(profile, x.id) ? '<i class="tab-dot"></i>' : ''}</button>`).join('')}</div>`;
+  }
+  function roomFoot() { return `<div class="room-foot"><button class="btn ghost" data-act="hq-home">‹ Zurück zum Hafen</button></div>`; }
   function hq(profile, tab, uiRef) {
     if (!GL.meta.featureOpen(profile, tab)) tab = 'profil';
+    const room = !!(uiRef && uiRef.hqRoom && GL.meta.featureOpen(profile, uiRef.hqRoom));
     const best = GL.save.best();
     const slots = GL.meta.slots(profile);
     const fmt = n => n.toLocaleString('de-DE');
@@ -2327,7 +2352,7 @@ window.GL = window.GL || {};
         <div class="berry">${GL.sprites.coin()} <b>${fmt(profile.berry)}</b> <small>Berry</small></div>
       </div>
 
-      <div class="hq-sail game">
+      ${room ? '' : `<div class="hq-sail game">
         <div class="sail-stage" aria-hidden="true">
           <div class="ss-sun"></div><div class="ss-cloud c1"></div><div class="ss-cloud c2"></div>
           <div class="ss-sea"></div><div class="ss-ship">${GL.sprites.ship()}</div>
@@ -2339,20 +2364,16 @@ window.GL = window.GL || {};
           <button class="btn sail" data-act="sail">⚓ Leinen los! ${keyHint('Leertaste')}</button>
           ${heatBox}
         </div>
-        ${endlessRow(profile)}
         ${huntPicker(profile)}
-        ${dailyCard(profile)}
         ${board.length || GL.meta.featureOpen(profile, 'schmiede') ? `<div class="sail-board"><span class="sb-lbl">An Bord</span>${board.length ? board.join('') : '<small class="muted">noch nichts dabei</small>'}</div>` : ''}`}
-      </div>
+      </div>`}
 
-      ${uiRef && uiRef.peek ? '' : questBoard(profile)}
+      ${room ? roomHead(profile, tab) : hubTiles(profile, tab)}
+      ${room || (uiRef && uiRef.peek) ? '' : (() => { const extra = dailyCard(profile) + endlessRow(profile); return extra ? `<section class="hq-more"><span class="hub-lbl">Besondere Fahrten</span>${extra}</section>` : ''; })()}
+      ${room ? '' : featureNextLine(profile)}
+      ${room || (uiRef && uiRef.peek) ? '' : questBoard(profile)}
 
-      <div class="atabs hq-tabs" role="tablist">
-        ${[['profil', 'Profil'], ['stammcrew', '⚔ Stammcrew'], ['werft', 'Werft'], ['rangliste', 'Rangliste'], ['schmiede', `Schmiede <small>${(profile.itemLoadout || []).length}/${GL.meta.itemSlots(profile)}</small>`], ['kammer', `Schatzkammer <small>${profile.artLoadout.length}/${GL.meta.artSlots(profile)}</small>`], ['lager', `Lager <small>${profile.loadout.length}/${slots}</small>`], ['haendler', 'Händler']].filter(([id]) => GL.meta.featureOpen(profile, id)).map(([id, name]) =>
-          `<button class="atab${tab === id ? ' on' : ''}" role="tab" aria-selected="${tab === id}" data-act="hq-tab" data-tab="${id}">${name}${tabAlert(profile, id) ? '<i class="tab-dot" title="Hier gibt es etwas zu tun"></i>' : ''}</button>`).join('')}
-      </div>
-      ${featureNextLine(profile)}
-
+      ${!room ? '' : `
       ${tab === 'werft' ? `<section class="hq-sec">
         <p class="hint">Dauerhafte Ausbauten für dein Schiff. Sie gelten für jeden zukünftigen Run.</p>
         <div class="hq-grid">${upgrades}</div></section>` : ''}
@@ -2386,6 +2407,7 @@ window.GL = window.GL || {};
       ${tab === 'haendler' ? `<section class="hq-sec">
         <p class="hint">Gekaufte Ausrüstung landet im Lager.</p>
         <div class="hq-list">${shop}</div></section>` : ''}
+      ${roomFoot()}`}
     </div>`;
   }
 

@@ -146,7 +146,7 @@
     const f = fst || (GL.data.features || []).find(x => x.id === id);
     const el = document.getElementById('fpop');
     if (el) { el.classList.remove('in'); el.classList.add('out'); setTimeout(() => { el.remove(); draw(); }, 260); }
-    if (go && f && f.tab) { ui.hqTab = f.tab; ui.lastStage = null; }
+    if (go && f && f.tab) { ui.hqTab = f.tab; ui.hqRoom = f.tab; ui.lastStage = null; window.scrollTo(0, 0); }
     if (!el) draw();
   }
 
@@ -424,6 +424,7 @@
     if (run && !GL.run.isFinished(run)) GL.meta.finishRun(profile, Object.assign({}, run, { phase: 'over', step: 0, bounties: 0, defeated: [], berry: 0 }));
     run = null;
     ui.sheet = null;
+    ui.hqRoom = null;
     ui.restartArmed = false;
     GL.save.clearRun();
     saveProfile();
@@ -639,7 +640,7 @@
         draw();
         break;
       case 'title-go': if (!GL.meta.featureOpen(profile, el.dataset.tab)) { toast('<span><b>Noch ein bisschen segeln</b>Die Rangliste öffnet sich nach deinem ersten Run.</span>'); break; }
-        ui.screen = null; ui.hqTab = el.dataset.tab; if (el.dataset.tab === 'album') { ui.album = 'crew'; ui.hqTab = null; } draw(); break;
+        ui.screen = null; ui.hqTab = el.dataset.tab; ui.hqRoom = el.dataset.tab; if (el.dataset.tab === 'album') { ui.album = 'crew'; ui.hqTab = null; } draw(); break;
       case 'title-back': ui.screen = ui.profileFrom === 'hq' ? null : 'title'; draw(); break;
       case 'profile-edit': openProfile(); break;
       case 'login-open': ui.loginFrom = ui.screen || 'hq'; ui.screen = 'login'; draw(); break;
@@ -737,8 +738,13 @@
         const me = String(profile.nickname || '').trim().toLowerCase();
         const myR = profile.squadRating == null ? 1000 : profile.squadRating;
         const pool = (st.rows || []).filter(x => x.id !== st.uid && x.squadOn && (x.squad || []).length && String(x.name || '').trim().toLowerCase() !== me)
-          .map(x => ({ x, d: Math.abs((x.squadPower || GL.meta.squadPower(x.squad)) - mine) + Math.abs((x.squadRating || 1000) - myR) / 4 })).sort((p, q) => p.d - q.d).slice(0, 3);
-        let row = pool.length ? pool[Math.floor(Math.random() * pool.length)].x : null;
+          .map(x => ({ x, d: Math.abs((x.squadPower || GL.meta.squadPower(x.squad)) - mine) + Math.abs((x.squadRating || 1000) - myR) / 4 })).sort((p, q) => p.d - q.d).slice(0, 5);
+        // Abwechslung: zuletzt gezeigte Gegner zuerst überspringen (falls es andere passende gibt)
+        ui.recentFoes = ui.recentFoes || [];
+        const fresh = pool.filter(p => !ui.recentFoes.includes(p.x.id));
+        const pickFrom = fresh.length ? fresh : pool;
+        let row = pickFrom.length ? pickFrom[Math.floor(Math.random() * Math.min(3, pickFrom.length))].x : null;
+        if (row) { ui.recentFoes.push(row.id); if (ui.recentFoes.length > 3) ui.recentFoes.shift(); }
         if (!row) {
           // Niemand passendes online: Übungscrew der Marine auf deinem Niveau
           const lvl = GL.meta.squadLevel(profile);
@@ -803,7 +809,8 @@
         profile.tips = Object.assign(profile.tips || {}, { intro: true });
         saveProfile(); draw();
         break;
-      case 'hq-tab': if (GL.meta.featureOpen(profile, el.dataset.tab)) { ui.hqTab = el.dataset.tab; draw(); if (/rangliste|stammcrew/.test(ui.hqTab) && GL.online && GL.online.refresh) GL.online.refresh(); } break;
+      case 'hq-home': ui.hqRoom = null; draw(); window.scrollTo(0, 0); break;
+      case 'hq-tab': if (GL.meta.featureOpen(profile, el.dataset.tab)) { ui.hqTab = el.dataset.tab; ui.hqRoom = el.dataset.tab; draw(); window.scrollTo(0, 0); if (/rangliste|stammcrew/.test(ui.hqTab) && GL.online && GL.online.refresh) GL.online.refresh(); } break;
       case 'hunt-pick': profile.hunt = profile.hunt === el.dataset.id ? null : el.dataset.id; saveProfile(); ui.lastStage = null; draw(); break;
       case 'showcase': if (GL.meta.toggleShowcase(profile, el.dataset.id)) { saveProfile(); ui.lastStage = null; draw(); if (GL.online && GL.online.register) GL.online.register(profile); } break;
       case 'fpop-go': closeFeature(el.dataset.id, true); break;
@@ -1130,6 +1137,7 @@
       return;
     }
     if (e.key === 'Escape' && (ui.album || ui.sheet != null)) { ui.album = null; ui.sheet = null; draw(); return; }
+    if (e.key === 'Escape' && !run && ui.hqRoom) { ui.hqRoom = null; draw(); return; }
     if (ui.album || ui.sheet != null) return;
     const stage = document.getElementById('stage');
     if (/^[1-9]$/.test(e.key)) {
