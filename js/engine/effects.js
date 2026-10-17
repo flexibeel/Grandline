@@ -55,9 +55,21 @@ window.GL = window.GL || {};
     return (GL.data.duos || []).filter(d => (d.a === id && ids.has(d.b)) || (d.b === id && ids.has(d.a)));
   }
 
-  // Aktive Synergie-mods (nur die höchste erreichte Stufe pro Synergie) plus Duos
+  // Bündnisse: beide Banden haben gleichzeitig einen aktiven Set-Bonus
+  function alliances(crew) {
+    const on = new Set(status(crew).filter(s => s.kind === 'faction' && s.active).map(s => s.key));
+    return (GL.data.alliances || []).filter(a => on.has(a.a) && on.has(a.b));
+  }
+  // Bündnisse, denen nur noch eine Bande fehlt (für Hinweise)
+  function alliancesNear(crew) {
+    const on = new Set(status(crew).filter(s => s.kind === 'faction' && s.active).map(s => s.key));
+    return (GL.data.alliances || []).filter(a => on.has(a.a) !== on.has(a.b));
+  }
+
+  // Aktive Synergie-mods (nur die höchste erreichte Stufe pro Synergie) plus Duos und Bündnisse
   function synergyMods(crew) {
-    return status(crew).filter(s => s.active).flatMap(s => s.active.mods).concat(duos(crew).flatMap(d => d.mods));
+    return status(crew).filter(s => s.active).flatMap(s => s.active.mods)
+      .concat(duos(crew).flatMap(d => d.mods)).concat(alliances(crew).flatMap(a => a.mods));
   }
 
   // Gefundene Schätze mit ausgewürfelten Werten
@@ -155,5 +167,5 @@ window.GL = window.GL || {};
     return { crew, enemies, flags: flags(run) };
   }
 
-  GL.effects = { counts, status, flags, setup, relicList, duos, duosWith };
+  GL.effects = { counts, status, flags, setup, relicList, duos, duosWith, alliances, alliancesNear };
 })();

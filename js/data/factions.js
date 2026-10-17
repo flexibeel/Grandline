@@ -46,5 +46,45 @@ GL.data.factions = {
       { n: 2, text: 'Ganze Crew +2 Tempo', mods: [{ scope: 'all', spd: 2 }] },
       { n: 4, text: 'Ganze Crew +3 Tempo und +2 Angriff', mods: [{ scope: 'all', spd: 3, atk: 2 }] }
     ]
+  },
+  buggy: {
+    name: 'Buggy-Piraten',
+    tiers: [
+      { n: 2, text: 'Großes Kino: ganze Crew +20 % Schaden gegen Bosse', mods: [{ scope: 'all', bossPct: 0.2 }] },
+      { n: 4, text: 'Großes Kino: ganze Crew +45 % Schaden gegen Bosse und +1 Tempo', mods: [{ scope: 'all', bossPct: 0.45, spd: 1 }] }
+    ]
+  },
+  fischmensch: {
+    name: 'Arlong-Bande',
+    tiers: [
+      { n: 2, text: 'Fischmenschen +3 Angriff und erleiden 1 weniger Schaden', mods: [{ scope: 'faction:fischmensch', atk: 3, armor: 1 }] },
+      { n: 3, text: 'Fischmenschen +6 Angriff, erleiden 3 weniger Schaden. Ganze Crew heilt 1 pro Runde', mods: [{ scope: 'faction:fischmensch', atk: 6, armor: 3 }, { scope: 'all', regen: 1 }] }
+    ]
+  },
+  revolution: {
+    name: 'Revolutionsarmee',
+    tiers: [
+      { n: 2, text: 'Ganze Crew +1 Tempo und +30 % Krit-Schaden', mods: [{ scope: 'all', spd: 1, critMult: 0.3 }] },
+      { n: 4, text: 'Ganze Crew +2 Tempo, +70 % Krit-Schaden und +10 % Krit-Chance', mods: [{ scope: 'all', spd: 2, critMult: 0.7, crit: 0.1 }] }
+    ]
+  },
+  rothaar: {
+    name: 'Rothaar-Piraten',
+    tiers: [
+      { n: 2, text: 'Haki: ganze Crew +10 % Schaden und erleidet 1 weniger Schaden', mods: [{ scope: 'all', dmgPct: 0.1, armor: 1 }] },
+      { n: 4, text: 'Königs-Haki: ganze Crew +22 % Schaden, erleidet 2 weniger Schaden', mods: [{ scope: 'all', dmgPct: 0.22, armor: 2 }] }
+    ]
   }
 };
+
+// Bündnisse: Sind die Set-Boni zweier Banden GLEICHZEITIG aktiv, gibt es einen Extra-Bonus.
+// So lohnt es sich, zwei Banden gezielt zu mischen statt nur eine voll zu machen.
+GL.data.alliances = [
+  { a: 'strohhut', b: 'revolution', name: 'Wille des D.',       text: 'Ganze Crew +12 % Krit-Chance.',                         mods: [{ scope: 'all', crit: 0.12 }] },
+  { a: 'marine',   b: 'cp9',        name: 'Weltregierung',      text: 'Ganze Crew erleidet 10 % weniger Schaden.',              mods: [{ scope: 'all', guard: 0.1 }] },
+  { a: 'weissbart', b: 'rothaar',   name: 'Treffen der Kaiser', text: 'Ganze Crew +10 % Schaden und +20 % gegen Bosse.',        mods: [{ scope: 'all', dmgPct: 0.1, bossPct: 0.2 }] },
+  { a: 'buggy',    b: 'baroque',    name: 'Impel-Down-Ausbruch', text: 'Ganze Crew +2 Tempo und +8 % Ausweichen.',              mods: [{ scope: 'all', spd: 2, dodge: 0.08 }] },
+  { a: 'fischmensch', b: 'samurai', name: 'Fischmenscheninsel', text: 'Ganze Crew heilt 2 pro Runde und erleidet 1 weniger Schaden.', mods: [{ scope: 'all', regen: 2, armor: 1 }] },
+  { a: 'strohhut', b: 'samurai',    name: 'Piratenbündnis',     text: 'Ganze Crew +10 % Schaden.',                              mods: [{ scope: 'all', dmgPct: 0.1 }] },
+  { a: 'revolution', b: 'marine',   name: 'Familie Monkey',     text: 'Ganze Crew +3 Angriff.',                                 mods: [{ scope: 'all', atk: 3 }] }
+];

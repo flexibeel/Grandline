@@ -10,7 +10,7 @@ GL.data = GL.data || {};
 GL.data.cosmetics = {
   backgrounds: [
     { id: 'meer',       name: 'Ruhige See',        req: {} },
-    { id: 'morgen',     name: 'Morgenrot',         req: { rank: 2 } },
+    { id: 'morgen',     name: 'Morgenrot',         req: { rank: 3 } },
     { id: 'wueste',     name: 'Wüstenwind',        req: { reached: 1 } },
     { id: 'nacht',      name: 'Sternennacht',      req: { reached: 2 } },
     { id: 'sturm',      name: 'Gewittersturm',     req: { raids: 1 } },
@@ -24,27 +24,34 @@ GL.data.cosmetics = {
     { id: 'marine',     name: 'Marine-Basis',      req: { hunted: 15 } },
     { id: 'lava',       name: 'Vulkan',            req: { maxHit: 120 } },
     { id: 'galaxie',    name: 'Sternenmeer',       req: { rank: 16 } },
-    { id: 'regenbogen', name: 'Regenbogen',        req: { islands: 18 } }
+    { id: 'regenbogen', name: 'Regenbogen',        req: { islands: 18 } },
+    { id: 'zirkus',     name: 'Zirkuszelt',        req: { hunted: 12, runs: 15 } },
+    { id: 'fischinsel', name: 'Fischmenscheninsel', req: { bosses: 12, islands: 14 } },
+    { id: 'nebel',      name: 'Nebelschiff',       req: { reached: 2, runs: 30 } },
+    { id: 'kaiserflagge', name: 'Rote Flagge',     req: { raids: 6, wins: 8 } }
   ],
   frames: [
     { id: 'holz',       name: 'Holz',              req: {} },
-    { id: 'tau',        name: 'Schiffstau',        req: { runs: 5 } },
+    { id: 'tau',        name: 'Schiffstau',        req: { runs: 8 } },
     { id: 'silber',     name: 'Silber',            req: { rank: 6 } },
     { id: 'steckbrief', name: 'Steckbrief',        req: { hunted: 5 } },
     { id: 'gold',       name: 'Gold',              req: { rank: 11 } },
-    { id: 'krone',      name: 'Krone',             req: { wins: 3 } },
+    { id: 'krone',      name: 'Krone',             req: { wins: 6 } },
     { id: 'rottau',     name: 'Rotes Tau',         req: { runs: 10 } },
     { id: 'eisen',      name: 'Eisen',             req: { bosses: 5 } },
     { id: 'rubin',      name: 'Rubin',             req: { hunted: 10 } },
     { id: 'saphir',     name: 'Saphir',            req: { artifacts: 9 } },
     { id: 'smaragd',    name: 'Smaragd',           req: { heat: 2 } },
     { id: 'feuer',      name: 'Feuer',             req: { kos: 500 } },
-    { id: 'regenbogen', name: 'Regenbogen',        req: { wins: 10 } }
+    { id: 'regenbogen', name: 'Regenbogen',        req: { wins: 10 } },
+    { id: 'seetang',    name: 'Seetang',           req: { islands: 12, runs: 20 } },
+    { id: 'knochen',    name: 'Knochen',           req: { kos: 1200 } },
+    { id: 'kaiser',     name: 'Kaiserlich',        req: { rank: 18, wins: 15 } }
   ],
   animations: [
     { id: 'ruhig',      name: 'Ruhig',             req: {} },
-    { id: 'wippen',     name: 'Wippen',            req: { runs: 2 } },
-    { id: 'huepfen',    name: 'Hüpfen',            req: { kos: 50 } },
+    { id: 'wippen',     name: 'Wippen',            req: { runs: 4 } },
+    { id: 'huepfen',    name: 'Hüpfen',            req: { kos: 150 } },
     { id: 'drehen',     name: 'Pirouette',         req: { bosses: 3 } },
     { id: 'funkeln',    name: 'Funkeln',           req: { artifacts: 3 } },
     { id: 'flammen',    name: 'Flammen-Aura',      req: { maxHit: 60 } },
@@ -52,17 +59,20 @@ GL.data.cosmetics = {
     { id: 'puls',       name: 'Herzschlag',        req: { runs: 15 } },
     { id: 'zittern',    name: 'Kampfeslust',       req: { kos: 250 } },
     { id: 'blitz',      name: 'Blitz-Aura',        req: { raids: 3 } },
-    { id: 'konfetti',   name: 'Konfetti',          req: { wins: 2 } }
+    { id: 'konfetti',   name: 'Konfetti',          req: { wins: 4 } },
+    { id: 'schnee',     name: 'Schneegestöber',    req: { islands: 10, runs: 20 } },
+    { id: 'herzen',     name: 'Herzchen',          req: { runs: 40 } },
+    { id: 'haki',       name: 'Königs-Haki',       req: { rank: 15, raids: 5 } }
   ],
   titles: [
     { id: 'neuling',    name: 'Neuling auf See',   req: {} },
-    { id: 'kaempfer',   name: 'Raufbold',          req: { kos: 100 } },
+    { id: 'kaempfer',   name: 'Raufbold',          req: { kos: 200 } },
     { id: 'jaeger',     name: 'Kopfgeldjäger',     req: { hunted: 3 } },
     { id: 'bezwinger',  name: 'Bossbezwinger',     req: { bosses: 6 } },
     { id: 'sammler',    name: 'Sammler',           req: { artifacts: 6 } },
     { id: 'wuchtig',    name: 'Der Wuchtige',      req: { maxHit: 80 } },
     { id: 'legende',    name: 'Legende der Meere', req: { wins: 5 } },
-    { id: 'matrose',    name: 'Matrose',           req: { runs: 3 } },
+    { id: 'matrose',    name: 'Matrose',           req: { runs: 5 } },
     { id: 'rookie',     name: 'Super-Rookie',      req: { rank: 4 } },
     { id: 'entdecker',  name: 'Entdecker',         req: { islands: 6 } },
     { id: 'schatz',     name: 'Schatzjäger',       req: { artifacts: 3 } },
@@ -74,7 +84,15 @@ GL.data.cosmetics = {
     { id: 'reisender',  name: 'Weltreisender',     req: { islands: 18 } },
     { id: 'unermuedlich', name: 'Unermüdlich',     req: { runs: 50 } },
     { id: 'kaiser',     name: 'Kaiser der Meere',  req: { rank: 21 } },
-    { id: 'koenig',     name: 'Piratenkönig',      req: { rank: 22 } }
+    { id: 'koenig',     name: 'Piratenkönig',      req: { rank: 22 } },
+    { id: 'clown',      name: 'Großer Clown',      req: { hunted: 20 } },
+    { id: 'fischfreund', name: 'Freund der Fischmenschen', req: { bosses: 15 } },
+    { id: 'revolutionaer', name: 'Revolutionär',   req: { wins: 12 } },
+    { id: 'vize',       name: 'Vizekapitän',       req: { rank: 12, runs: 30 } },
+    { id: 'gemuetlich', name: 'Gemütlicher Kapitän', req: { runs: 75 } },
+    { id: 'schlaeger',  name: 'Faust der Meere',   req: { maxHit: 200 } },
+    { id: 'hundert',    name: 'Hundert Inseln',    req: { islands: 24 } },
+    { id: 'unbeugsam',  name: 'Unbeugsam',         req: { heat: 5 } }
   ],
   // Piratenflagge: kleines Abzeichen am Porträt (Profil, Rangliste)
   flags: [
@@ -87,7 +105,10 @@ GL.data.cosmetics = {
     { id: 'blume',      name: 'Blüte',             req: { rank: 7 } },
     { id: 'blitz',      name: 'Blitz',             req: { raids: 1 } },
     { id: 'krone',      name: 'Krone',             req: { bosses: 6 } },
-    { id: 'drache',     name: 'Drache',            req: { wins: 8 } }
+    { id: 'drache',     name: 'Drache',            req: { wins: 8 } },
+    { id: 'clownnase',  name: 'Clownsnase',        req: { hunted: 15 } },
+    { id: 'narbe',      name: 'Drei Narben',       req: { raids: 4, rank: 12 } },
+    { id: 'faust',      name: 'Faust',             req: { kos: 800 } }
   ]
 };
 
@@ -97,6 +118,17 @@ GL.data.charParts = {
   skin:   ['#f8dcc0', '#f2c9a0', '#d9a87a', '#b07a50', '#7a4a2a', '#6aa0c8'],
   shirt:  ['#d9423a', '#2f6fb0', '#3d6b46', '#e8c25a', '#f0f0f0', '#222222', '#7a4fc4', '#e8862a', '#e870a0'],
   pants:  ['#3b5a8c', '#2a2a2a', '#5a3a2a', '#3a4a3a', '#e8e8e8', '#7a2a2a'],
-  hat:    ['', 'straw', 'band', 'cap', 'hood', 'afro'],
-  hatColor: ['#e8c25a', '#222222', '#c0392b', '#f0f0f0', '#2f6fb0', '#3d6b46']
+  hat:    ['', 'straw', 'band', 'cap', 'hood', 'afro', 'tophat', 'tricorn', 'ears'],
+  hatColor: ['#e8c25a', '#222222', '#c0392b', '#f0f0f0', '#2f6fb0', '#3d6b46', '#7a4fc4', '#e8862a'],
+  beard:  ['', '#1a1a1a', '#6b4a2a', '#c8a040', '#f0f0f0', '#c0392b'],
+  nose:   ['', '#e0302a']
+};
+// Besondere Teile für den eigenen Piraten müssen erst verdient werden (Bedingungen wie bei der Kosmetik)
+GL.data.charLocks = {
+  'hat:tophat':  { name: 'Zylinder',       req: { wins: 3 } },
+  'hat:tricorn': { name: 'Dreispitz',      req: { hunted: 10 } },
+  'hat:ears':    { name: 'Tierohren',      req: { runs: 12 } },
+  'hat:afro':    { name: 'Locken',         req: { rank: 4 } },
+  'beard':       { name: 'Bart',           req: { rank: 6 } },
+  'nose':        { name: 'Clownsnase',     req: { hunted: 20 } }
 };

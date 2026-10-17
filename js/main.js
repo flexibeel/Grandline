@@ -36,7 +36,61 @@
 
   const esc2 = t => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   let keyPick = false;   // Auswahl per Taste 1-9: ohne Bestätigung
-  function draw() { GL.ui.render(run, anim, ui); featureCheck(); livePos(); }
+  function draw() { autoArrange(); GL.ui.render(run, anim, ui); featureCheck(); livePos(); musicMode(); }
+  // Musik: Titelbild etwas hörbarer, Hauptquartier leise, auf Fahrt ganz leise
+  function musicMode() {
+    if (!GL.music) return;
+    GL.music.setMode(ui.screen || ui.intro != null ? 'title' : run && !GL.run.isFinished(run) ? 'run' : 'hq');
+    const slot = document.getElementById('mu-slot');
+    if (slot) { const h = GL.ui.musicBtn('head'); if (slot.innerHTML !== h) slot.innerHTML = h; }
+  }
+  // Automatische Aufstellung vor jedem Kampf: Brecher vorne, Kämpfer in der Mitte, Helfer hinten.
+  // Läuft über normale Tausch-Aktionen, damit Replays gleich bleiben. Kein Umsortieren per Hand mehr.
+  const ROLE_ORDER = { brecher: 0, kaempfer: 1, helfer: 2 };
+  // Großer Auftritt vor Boss, Raid und Bösewicht: Figur fährt ins Bild, dann startet der Kampf
+  function startFight() {
+    if (!run || run.phase !== 'prep') return;
+    const p = run.pending || {};
+    const big = p.enemies && p.enemies.find(e => e.boss || e.mini || e.raid);
+    if (!big || p.rival || document.querySelector('.boss-show')) { act({ type: 'fight' }); return; }
+    const d = (GL.data.bosses.concat(GL.data.raids || [], GL.data.hunted || [])).find(x => x.id === big.id) || GL.data.crew.find(x => x.id === big.id) || {};
+    const kind = p.kind === 'raid' ? 'Raid-Boss' : p.kind === 'boss' ? 'Boss des Meeres' : p.gate ? 'Bösewicht der Insel' : 'Kopfgeld-Ziel';
+    const ab = GL.data.abilities[big.id];
+    const esc = t => String(t || '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+    const el = document.createElement('div');
+    el.className = 'boss-show' + (p.kind === 'raid' ? ' raid' : p.kind === 'boss' ? ' boss' : ' mini');
+    el.innerHTML = `<div class="bs-rays"></div><div class="bs-stripe"></div>
+      <div class="bs-fig">${GL.sprites.renderShaded ? GL.sprites.renderShaded(d.look ? d : big) : GL.sprites.render(d)}</div>
+      <div class="bs-card"><small>${kind}</small><b>${esc(d.name || big.name)}</b>
+        ${d.bounty ? `<em>Kopfgeld ${d.bounty} Mio. ฿</em>` : ''}${ab ? `<i>${esc(ab.name)}</i>` : ''}</div>
+      <span class="bs-tap">Tippen zum Starten</span>`;
+    let done = false;
+    const go = () => { if (done) return; done = true; el.classList.add('out'); setTimeout(() => el.remove(), 260); act({ type: 'fight' }); };
+    el.addEventListener('click', go);
+    document.body.appendChild(el);
+    requestAnimationFrame(() => el.classList.add('in'));
+    setTimeout(go, document.body.classList.contains('fast') ? 1200 : 2000);
+  }
+  function autoArrange() {
+    if (!run || run.phase !== 'prep' || !run.crew || run.crew.length < 2) return;
+    const key = run.seed + ':' + run.step + ':' + (run.actions ? run.actions.length : 0);
+    if (ui.arranged === key) return;
+    const rank = u => {
+      const d = GL.data.crew.find(c => c.id === u.id) || {};
+      const role = u.role || d.role;
+      return (u.hp <= 0 ? 10 : 0) + (ROLE_ORDER[role] != null ? ROLE_ORDER[role] : 1);
+    };
+    const want = run.crew.map((u, i) => ({ i, r: rank(u), hp: u.max || u.hp })).sort((a, b) => a.r - b.r || b.hp - a.hp || a.i - b.i).map(x => x.i);
+    // Auswahl-Sortierung mit Nachbar-Tausch (wenige Aktionen)
+    const order = run.crew.map((_, i) => i);
+    let changed = false;
+    for (let pos = 0; pos < want.length; pos++) {
+      let at = order.indexOf(want[pos]);
+      while (at > pos) { if (!GL.run.act(run, { type: 'swap', a: at - 1, b: at })) return; [order[at - 1], order[at]] = [order[at], order[at - 1]]; at--; changed = true; }
+    }
+    ui.arranged = run.seed + ':' + run.step + ':' + (run.actions ? run.actions.length : 0);
+    if (changed) GL.save.storeRun(run);
+  }
   // Wo bin ich gerade? (für die Rangliste: „gerade auf See“)
   function livePos() {
     if (!run || GL.run.isFinished(run) || run.phase === 'starter') { GL.livePos = null; return; }
@@ -167,6 +221,7 @@
   const COS_KIND = { backgrounds: 'Hintergrund', frames: 'Rahmen', animations: 'Animation', titles: 'Titel', flags: 'Flagge', badges: 'Abzeichen' };
   const allCos = () => Object.assign({}, GL.data.cosmetics, { badges: GL.data.badges || [] });
   function checkCosmetics() {
+    if (GL.devAll) return;   // Entwickler-Konto hat alles frei, keine Flut an Meldungen
     const vals = GL.meta.progressValues(profile);
     const now = [];
     const ALL = allCos();
@@ -520,6 +575,66 @@
     if (tip) tip.classList.toggle('tt-open');
   });
 
+  // App-Gefühl: kein Zoomen per Zwei-Finger-Geste oder Doppeltipp (iOS ignoriert sonst user-scalable)
+  ['gesturestart', 'gesturechange'].forEach(ev => document.addEventListener(ev, e => e.preventDefault(), { passive: false }));
+  document.addEventListener('touchmove', e => { if (e.touches.length > 1) e.preventDefault(); }, { passive: false });
+  let lastTap = 0;
+  document.addEventListener('touchend', e => {
+    const now = Date.now();
+    if (now - lastTap < 300 && !(e.target.closest && e.target.closest('input, textarea'))) e.preventDefault();
+    lastTap = now;
+  }, { passive: false });
+
+  // ---------- Finger als Zeiger: kurz halten, dann gleiten = Infos wie mit der Maus ----------
+  // Normales Wischen scrollt weiter. Erst wer den Finger kurz stillhält, „scrubbt“: die Seite bleibt stehen,
+  // und eine Blase über dem Finger zeigt die Info zu dem, worüber man gerade fährt.
+  (function fingerScrub() {
+    let hold = null, scrub = false, bubble = null, lastEl = null, sx = 0, sy = 0, hideT = null;
+    const tipOf = el => el && el.closest && el.closest('[data-tip]');
+    const show = (x, y) => {
+      const t = tipOf(document.elementFromPoint(x, y));
+      if (t !== lastEl) {
+        if (lastEl) lastEl.classList.remove('scrub-on');
+        lastEl = t;
+        if (t) { t.classList.add('scrub-on'); if (navigator.vibrate) try { navigator.vibrate(6); } catch (e) {} }
+      }
+      if (!bubble) { bubble = document.createElement('div'); bubble.className = 'scrub-tip'; document.body.appendChild(bubble); }
+      const txt = t ? t.getAttribute('data-tip') : '';
+      bubble.hidden = !txt;
+      if (!txt) return;
+      const esc = s => s.replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[c]);
+      const lines = txt.split('\n');
+      const html = `<b>${esc(lines[0])}</b>${lines.slice(1).map(l => `<span>${esc(l)}</span>`).join('')}`;
+      if (bubble.innerHTML !== html) bubble.innerHTML = html;
+      const w = bubble.offsetWidth, h = bubble.offsetHeight;
+      bubble.style.left = Math.max(8, Math.min(window.innerWidth - w - 8, x - w / 2)) + 'px';
+      bubble.style.top = Math.max(8, y - h - 56) + 'px';
+    };
+    const stop = () => {
+      clearTimeout(hold); hold = null;
+      if (!scrub) return;
+      scrub = false; document.body.classList.remove('scrubbing');
+      clearTimeout(hideT);
+      hideT = setTimeout(() => { if (bubble) bubble.hidden = true; if (lastEl) lastEl.classList.remove('scrub-on'); lastEl = null; }, 900);
+    };
+    document.addEventListener('touchstart', e => {
+      if (e.touches.length !== 1) { stop(); return; }
+      const p = e.touches[0]; sx = p.clientX; sy = p.clientY;
+      if (!tipOf(e.target)) return;
+      clearTimeout(hold);
+      hold = setTimeout(() => { hold = null; scrub = true; suppressClick = true; document.body.classList.add('scrubbing'); clearTimeout(hideT); show(sx, sy); }, 280);
+    }, { passive: true });
+    document.addEventListener('touchmove', e => {
+      const p = e.touches[0];
+      if (!scrub) { if (hold && Math.hypot(p.clientX - sx, p.clientY - sy) > 9) { clearTimeout(hold); hold = null; } return; }
+      e.preventDefault();
+      show(p.clientX, p.clientY);
+    }, { passive: false });
+    document.addEventListener('touchend', () => { const was = scrub; stop(); if (was) setTimeout(() => { suppressClick = false; }, 60); }, { passive: true });
+    document.addEventListener('touchcancel', stop, { passive: true });
+    document.addEventListener('contextmenu', e => { if (scrub || tipOf(e.target)) e.preventDefault(); });
+  })();
+
   // ---------- Ausrüstung per Hand ziehen: Teil aus der Tasche auf einen Platz einer Figur ----------
   (function gearDrag() {
     let drag = null;
@@ -596,7 +711,7 @@
       case 'tv-sel': ui.tvSel = i; ui.lastStage = null; draw(); break;
       case 'up':   act({ type: 'swap', a: i, b: i - 1 }); break;
       case 'down': act({ type: 'swap', a: i, b: i + 1 }); break;
-      case 'fight': act({ type: 'fight' }); break;
+      case 'fight': startFight(); break;
       case 'special': act({ type: 'special' }); break;
       case 'continue': stopAnim(); act({ type: 'continue' }); break;
       case 'fast':
@@ -738,6 +853,16 @@
         const st = GL.online.state();
         const row = (st.rows || []).find(x => x.id === el.dataset.id) || (ui.npcRow && ui.npcRow.id === el.dataset.id ? ui.npcRow : null);
         if (row) startSquadDuel(row);
+        break;
+      }
+      case 'music': {
+        const onNow = GL.music && GL.music.toggle();
+        toast(onNow ? '<span><b>Musik an</b>Leise, gemütlich, selbst komponiert.</span>' : '<span><b>Musik aus</b>Mit ♪ jederzeit wieder an.</span>');
+        ui.lastStage = null; const t = document.getElementById('title'); if (t) t.dataset.last = ''; draw();
+        break;
+      }
+      case 'syn-open': {
+        if (run) openGearPop(GL.ui.synPop(run));
         break;
       }
       case 'squad-match': {
@@ -904,6 +1029,12 @@
       }
       case 'leave': act({ type: 'leave' }); break;
       case 'dismiss': act({ type: 'dismiss', index: i }); ui.sheet = null; draw(); break;
+      case 'tv-swap': {
+        // Ein Tipp: Besiegte bzw. schwächste Figur entlassen und das Angebot direkt anheuern
+        const j = Number(el.dataset.j);
+        if (run && run.crew[j]) { act({ type: 'dismiss', index: j }); act({ type: 'pick', index: i }); ui.tvSel = null; }
+        draw(); break;
+      }
       case 'lb-cat': ui.lbCat = el.dataset.id; draw(); break;
       case 'duel-view': ui.duelView = el.dataset.id; draw(); break;
       case 'duel-new': openDuelPop(duelCode(GL.rng.newSeed()), false); break;
@@ -1194,7 +1325,8 @@
   // Gezogen werden kann in der Aufstellung (#slots) und in der Crew-Leiste oben (#crew).
   // Ablauf: Die Figur hängt als Kopie am Zeiger, das Original bleibt als halbdurchsichtiger
   // Platzhalter in der Liste und rückt live an die Stelle, an der man loslassen würde.
-  const DRAG_SEL = '#slots .slot, #crew .crewmini, #crew .member';
+  // Umsortieren per Hand ist abgeschaltet (Aufstellung passiert automatisch, siehe autoArrange)
+  const DRAG_SEL = '.no-manual-reorder';
   const ITEM_SEL = ':scope > .slot, :scope > .crewmini, :scope > .member';
   let drag = null;
   let suppressClick = false;
@@ -1271,7 +1403,7 @@
   window.addEventListener('blur', () => endDrag(false));
 
   document.addEventListener('keydown', e => {
-    const slot = e.target.closest && e.target.closest('#slots .slot, #crew .crewmini, #crew .member');
+    const slot = e.target.closest && e.target.closest('.no-manual-reorder');
     if (!slot || !run) return;
     const back = e.key === 'ArrowUp' || e.key === 'ArrowLeft';
     const fwd = e.key === 'ArrowDown' || e.key === 'ArrowRight';
@@ -1327,7 +1459,7 @@
   } catch (e) { /* egal */ }
   // Online-Rangliste: neu zeichnen, wenn sich Einträge ändern (nur im Hauptquartier sichtbar)
   if (GL.online) {
-    GL.online.onChange(() => { checkDailyPay(); if (!run && document.activeElement && document.activeElement.id !== 'nick') draw(); });
+    GL.online.onChange(() => { checkDailyPay(); if ((!run || ui.screen) && document.activeElement && document.activeElement.id !== 'nick') draw(); });
     // Online liegt ein neuerer Spielstand (anderes Gerät): übernehmen und neu laden
     GL.online.onRemoteProfile(remote => {
       if (sessionStorage.getItem('gl.pulled')) return;

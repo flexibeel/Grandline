@@ -28,7 +28,10 @@ window.GL = window.GL || {};
     band:  { 1: '..BBBBBBBB..' },
     cap:   { 0: '...BBBBBB...', 1: '..BBBBBBBB..' },
     afro:  { 0: '.HHHHHHHHHH.', 1: 'HHHHHHHHHHHH' },
-    hood:  { 0: '..BBBBBBBB..', 1: '.BBBBBBBBBB.', 2: '.B........B.', 3: '.B........B.' }
+    hood:  { 0: '..BBBBBBBB..', 1: '.BBBBBBBBBB.', 2: '.B........B.', 3: '.B........B.' },
+    tophat: { 0: '...BBBBBB...', 1: '.BBBBBBBBBB.' },
+    ears:  { 0: '.BB......BB.', 1: '.BBBBBBBBBB.' },
+    tricorn: { 0: '.B..BBBB..B.', 1: 'BBBBBBBBBBBB' }
   };
 
   // Masken/Kostüme für Bosse: ersetzen die oberen Zeilen (G/g = Kostüm hell/dunkel, Y = Augen, T = Zähne)
@@ -40,7 +43,8 @@ window.GL = window.GL || {};
     bat:     { 0: 'G..........G', 1: 'GG.GGGGGG.GG', 2: '.GGGGGGGGGG.' },
     cloud:   { 0: '..WW..WWW...', 1: '.WWWWWWWWWW.', 2: '..WWWWWWWW..' },
     bolt:    { 0: '..Y..Y..Y...', 1: '..YY.YY.YY..', 2: '..YYYYYYYY..' },
-    bear:    { 0: '.GG......GG.', 1: '.GgGGGGGGgG.', 2: '..GGGGGGGG..' }
+    bear:    { 0: '.GG......GG.', 1: '.GgGGGGGGgG.', 2: '..GGGGGGGG..' },
+    octo:    { 0: '..GG...GG...', 1: '.GGGGGGGGGG.', 2: '.gGGGGGGGGg.' }
   };
   const MASK_COL = {
     croc: { G: '#5c9a42', g: '#2f5a24', Y: '#f2d24a', T: '#f4f0e0' },
@@ -50,12 +54,15 @@ window.GL = window.GL || {};
     bat: { G: '#4a3260' },
     cloud: { W: '#eef0f2' },
     bolt: { Y: '#f2d24a' },
-    bear: { G: '#6a4a30', g: '#c89a70' }
+    bear: { G: '#6a4a30', g: '#c89a70' },
+    octo: { G: '#e88a9a', g: '#b85a6a' }
   };
   function applyLook(grid, look) {
     const hat = HATS[look.hat];
     if (hat) Object.keys(hat).forEach(y => { hat[y].split('').forEach((ch, x) => { if (ch !== '.') grid[y][x] = ch; }); });
     if (look.longHair) [2, 3, 4, 5].forEach(y => { grid[y][1] = 'H'; grid[y][10] = 'H'; });
+    if (look.beard) { grid[5] = '...DDDDDD...'.split(''); grid[4][3] = 'D'; grid[4][8] = 'D'; }
+    if (look.nose) { grid[4][5] = 'N'; grid[4][6] = 'N'; }
     const m = MASKS[look.mask];
     if (m) Object.keys(m).forEach(y => { grid[y] = m[y].split(''); });
   }
@@ -67,7 +74,7 @@ window.GL = window.GL || {};
     applyLook(grid, look);
     const colors = Object.assign({
       H: look.hair, S: look.skin, E: '#1a1a1a', C: look.shirt,
-      P: look.pants, O: '#2a1f14', B: look.hatColor || look.hair
+      P: look.pants, O: '#2a1f14', B: look.hatColor || look.hair, D: look.beard, N: look.nose
     }, MASK_COL[look.mask] || {});
     let rects = '';
     grid.forEach((row, y) => row.forEach((ch, x) => {
@@ -85,7 +92,7 @@ window.GL = window.GL || {};
   function svgShaded(look) {
     const grid = BASE.map(r => r.split(''));
     applyLook(grid, look);
-    const colors = Object.assign({ H: look.hair, S: look.skin, E: '#1a1a1a', C: look.shirt, P: look.pants, O: '#2a1f14', B: look.hatColor || look.hair }, MASK_COL[look.mask] || {});
+    const colors = Object.assign({ H: look.hair, S: look.skin, E: '#1a1a1a', C: look.shirt, P: look.pants, O: '#2a1f14', B: look.hatColor || look.hair, D: look.beard, N: look.nose }, MASK_COL[look.mask] || {});
     const at = (x, y) => (grid[y] && grid[y][x]) || '.';
     let rects = '';
     grid.forEach((row, y) => row.forEach((ch, x) => {
@@ -224,18 +231,18 @@ window.GL = window.GL || {};
     renderShaded(entry) {
       if (!entry) return '';
       if (entry.image) return `<img src="${entry.image}" alt="" class="sprite-img">`;
-      const key = 'sh:' + (entry.id === 'self' ? 'self:' + JSON.stringify(entry.look) : entry.id);
-      if (!cache[key]) cache[key] = svgShaded(entry.look);
+      const key = 'sh:' + entry.id + ':' + JSON.stringify(entry.look || {});
+      if (!cache[key]) cache[key] = svgShaded(entry.look || {});
       return cache[key];
     },
     render(entry) {
       if (!entry) return '';
       if (entry.image) return `<img src="${entry.image}" alt="" class="sprite-img">`;
       // Der eigene Pirat kann sein Aussehen ändern: Aussehen gehört mit zum Schlüssel
-      const key = entry.id === 'self' ? 'self:' + JSON.stringify(entry.look) : entry.id;
-      if (!cache[key]) cache[key] = svg(entry.look);
-      if (entry.id === 'self') return cache[key];
-      return cache[entry.id];
+      // Schlüssel mit Aussehen: Figuren mit gleicher id (z. B. Buggy als Gegner und als Crew) bleiben getrennt
+      const key = entry.id + ':' + JSON.stringify(entry.look || {});
+      if (!cache[key]) cache[key] = svg(entry.look || {});
+      return cache[key];
     }
   };
 })();

@@ -34,6 +34,10 @@ window.GL = window.GL || {};
     weissbart: { c: { W: '#f4f0e8', P: '#7b5ab0', K: '#4a3a2a' }, rows: ['..........', '..........', '..........', 'W........W', 'WW......WW', '.WWW..WWW.', '..WWWWWW..', '...WWWW...', '..........', '..........'] },
     samurai:   { c: { S: '#d0d6de', K: '#3a2a20', T: '#5a9a96' }, rows: ['S........S', '.S......S.', '..S....S..', '...S..S...', '....SS....', '....SS....', '...K..K...', '..K....K..', '.T......T.', 'T........T'] },
     baroque:   { c: { G: '#e0b040', g: '#a07a20' }, rows: ['....GG....', '....GG....', '...GGGG...', 'GGGGGGGGGG', '.GGGGGGGG.', '..GGGGGG..', '..GGggGG..', '.GGG..GGG.', '.GG....GG.', '..........'] },
+    buggy:     { c: { R: '#e0302a', r: '#a81e1a', W: '#ffd0c8', B: '#2f5aa8' }, rows: ['..B....B..', '.BBB..BBB.', '...RRRR...', '..RWWRRR..', '.RRWRRRRR.', '.RRRRRRRR.', '.rRRRRRRr.', '..rRRRRr..', '...rrrr...', '..........'] },
+    fischmensch: { c: { F: '#6f8fb0', f: '#4a6a8a', W: '#4fa8d8', w: '#2f7ab0' }, rows: ['....F.....', '...FF.....', '...FFF....', '..FFfF....', '..FFffF...', '.FFFffFF..', 'WWWWWWWWWW', '.ww..ww..w', 'w..ww..ww.', '..........'] },
+    revolution: { c: { K: '#5a3a20', G: '#3a7a4a', g: '#2a5a36', W: '#eef0e8' }, rows: ['K.........', 'KGGGGGG...', 'KGGGGGGGG.', 'KGGWWGGGG.', 'KGWWWWGGG.', 'KGGWWGGgg.', 'KGGGGgg...', 'K.........', 'K.........', 'KK........'] },
+    rothaar:   { c: { R: '#c0302a', r: '#8a1e1a', S: '#f2c9a0', K: '#2a1a10', c: '#a8402a' }, rows: ['....R.....', '..R.RR.R..', '..RRRRRR..', '.RRRRRRRR.', 'RRrRRRRrRR', 'RRSSSSScRR', 'RSSKSSKcSR', '.SSSSSScS.', '..SSSSSS..', '...SSSS...'] },
     // Kampfstile
     kraft:     { c: { R: '#d98a72', r: '#a8573f' }, rows: ['..........', '..RR.RR...', '.RRRRRRR..', '.RRRRRRRR.', '.RRRRRRRR.', '.rRRRRRRR.', '..rRRRRR..', '...rrrr...', '..........', '..........'] },
     klinge:    { c: { S: '#7fa98a', K: '#3f6b4a', W: '#e8f2ea' }, rows: ['........WS', '.......WS.', '......WS..', '.....WS...', '....WS....', '.K.WS.....', '..KS......', '..KK......', '.K..K.....', 'K.........'] },
@@ -56,6 +60,14 @@ window.GL = window.GL || {};
     const tip = F ? `${F.name}: Bande. Mehrere Figuren derselben Bande geben einen Set-Bonus.` : T ? `${T.name}: Kampfstil. Stark gegen ${(GL.data.types[T.strong] || {}).name || '?'}.` : Rl ? `${Rl.name}: Rolle. ${{ brecher: 'Steht vorne und steckt ein.', kaempfer: 'Macht den meisten Schaden.', helfer: 'Heilt und unterstützt.' }[id] || ''}` : '';
     return `<i class="px-ico ${cls || ''}" data-tip="${esc(tip)}" tabindex="0">${iconCache[id]}</i>`;
   }
+  // Pixel-Grabstein für besiegte Crewmitglieder (mit kleinem Strohhut-Kreuz und Gras)
+  const PX_GRAVE = (() => {
+    const rows = ['...KKKK...', '..KSSSSK..', '.KSSWSSSK.', '.KSWWWSSK.', '.KSSWSSsK.', '.KSSWSSsK.', '.KSSSSSsK.', '.KSSSSSsK.', '.KsssssssK', 'GGKKKKKKGG', 'gGGgGGgGGg'];
+    const c = { K: '#3a2a20', S: '#b8b4ac', s: '#8a857c', W: '#efe9dc', G: '#6fae5a', g: '#4a8a3e' };
+    let r = '';
+    rows.forEach((row, y) => row.split('').forEach((ch, x) => { if (c[ch]) r += `<rect x="${x}" y="${y}" width="1" height="1" fill="${c[ch]}"/>`; }));
+    return `<svg class="px-grave" viewBox="0 0 10 11" shape-rendering="crispEdges" aria-hidden="true">${r}</svg>`;
+  })();
   // Kleine Pixel-Pfeile für Vergleiche (besser/schlechter)
   const PX_UP = '<svg viewBox="0 0 5 3" aria-hidden="true"><rect x="2" y="0" width="1" height="1"/><rect x="1" y="1" width="3" height="1"/><rect x="0" y="2" width="5" height="1"/></svg>';
   const PX_DOWN = '<svg viewBox="0 0 5 3" aria-hidden="true"><rect x="0" y="0" width="5" height="1"/><rect x="1" y="1" width="3" height="1"/><rect x="2" y="2" width="1" height="1"/></svg>';
@@ -215,6 +227,7 @@ window.GL = window.GL || {};
         title="${d.name}: ${d.role ? GL.data.roles[d.role].name + ', ' : ''}Level ${u.lvl}, ${u.hp}/${u.max} Leben${u.points > 0 ? `, ${u.points} Statuspunkte offen` : ''}">
       ${roleBadge(d.role)}
       <i>${GL.sprites.render(d)}</i>
+      ${u.hp <= 0 ? `<span class="down-mark">${PX_GRAVE}<b>K.O.</b></span>` : ''}
       <em class="lvtag">Lv ${u.lvl}</em>
 
       <div class="bar"><i style="width:${Math.max(0, 100 * u.hp / u.max)}%"></i></div>
@@ -258,7 +271,7 @@ window.GL = window.GL || {};
 
   // ---------- Karten im Sammelkarten-Stil ----------
   // Figurenkarte: Bild, Name, Fähigkeit, Angriff unten links, Leben unten rechts
-  const FAC_SHORT = { strohhut: 'Strohhut', marine: 'Marine', cp9: 'CP9', baroque: 'Baroque', weissbart: 'Weißbart', samurai: 'Samurai' };
+  const FAC_SHORT = { strohhut: 'Strohhut', marine: 'Marine', cp9: 'CP9', baroque: 'Baroque', weissbart: 'Weißbart', samurai: 'Samurai', buggy: 'Buggy', fischmensch: 'Arlong', revolution: 'Revolution', rothaar: 'Rothaar' };
   // Figurenkarte: Rahmen in der Farbe der Bande, oben das Banden-Band, unten klare Werte-Leiste
   // Erster Satz, ohne Klammern, höchstens ~56 Zeichen
   function shortText(t) {
@@ -595,8 +608,42 @@ window.GL = window.GL || {};
         <span class="tr-body"><b>${esc(d.name)}</b><span class="tr-steps">Duo</span></span>
         <span class="tr-text">${esc(d.text)}</span>
       </div>`).join('');
-    return `<div class="tr-head">Aktive Boni</div>${active.map(row).join('') + duoRows || '<p class="tr-empty">Noch keine</p>'}
-      ${rest.length ? `<div class="tr-head sub">Fast geschafft</div>${rest.map(row).join('')}` : ''}`;
+    const allyRows = GL.effects.alliances(run.crew).map(a => `<div class="tr tr-ally" tabindex="0" data-tip="${esc('Bündnis: ' + a.name + '\n' + a.text)}">
+        <span class="tr-icon"><span class="tr-hex px">${pxIcon(a.a)}</span></span>
+        <span class="tr-body"><b>${esc(a.name)}</b><span class="tr-steps">Bündnis</span></span>
+        <span class="tr-text">${esc(a.text)}</span>
+      </div>`).join('');
+    const near = GL.effects.alliancesNear(run.crew).slice(0, 3).map(a => {
+      const F = GL.data.factions, miss = GL.effects.status(run.crew).find(s => s.kind === 'faction' && s.key === a.a && s.active) ? a.b : a.a;
+      return `<div class="tr tr-off tr-ally-near" tabindex="0"><span class="tr-icon"><span class="tr-hex px">${pxIcon(miss)}</span></span>
+        <span class="tr-body"><b>${esc(a.name)}</b><span class="tr-steps">Bündnis</span></span>
+        <span class="tr-text"><em>Fehlt: Set-Bonus ${esc(F[miss].name)}. ${esc(a.text)}</em></span></div>`;
+    }).join('');
+    return `<div class="tr-head">Aktive Boni</div>${active.map(row).join('') + allyRows + duoRows || '<p class="tr-empty">Noch keine</p>'}
+      ${rest.length ? `<div class="tr-head sub">Fast geschafft</div>${rest.map(row).join('')}` : ''}
+      ${near ? `<div class="tr-head sub">Bündnisse in Reichweite</div>${near}` : ''}`;
+  }
+  // Handy: kompakte Leiste wie bei TFT. Ein Abzeichen pro Bonus mit Stufe, Tippen öffnet alle Details.
+  function synBar(run) {
+    const list = GL.effects.status(run.crew).filter(s => s.count > 0);
+    const duos = GL.effects.duos(run.crew), allies = GL.effects.alliances(run.crew);
+    if (!list.length) return '';
+    const tierIdx = s => s.active ? s.tiers.indexOf(s.active) : -1;
+    list.sort((a, b) => (!!b.active - !!a.active) || (tierIdx(b) - tierIdx(a)) || (b.count - a.count));
+    const lv = s => !s.active ? 'off' : tierIdx(s) === s.tiers.length - 1 ? 'gold' : tierIdx(s) >= 1 ? 'silver' : 'bronze';
+    const chip = s => `<span class="sb-c sb-${lv(s)}${s.kind === 'faction' ? ' sb-set' : ''}">
+        <i class="sb-ic">${ICON_ART[s.key] ? pxIcon(s.key) : esc(s.name.slice(0, 2))}</i><b>${s.count}</b>${s.next ? `<small>/${s.next.n}</small>` : ''}</span>`;
+    const on = list.filter(s => s.active), off = list.filter(s => !s.active);
+    return `<button class="sb" data-act="syn-open" aria-label="Alle Boni anzeigen">
+      <span class="sb-row">${on.map(chip).join('')}${allies.length ? `<span class="sb-c sb-ally"><i class="sb-ic">⚑</i><b>${allies.length}</b></span>` : ''}${duos.length ? `<span class="sb-c sb-duo"><i class="sb-ic">♥</i><b>${duos.length}</b></span>` : ''}${off.length ? `<span class="sb-sep"></span>${off.slice(0, 4).map(chip).join('')}` : ''}</span>
+      <span class="sb-more">Boni ▸</span></button>`;
+  }
+  function synPop(run) {
+    return `<div class="fpop-card syn-pop">
+      <span class="event-kicker">Deine Boni</span>
+      <p class="hint">Gleiche Banden, Kampfstile und Rollen in der Crew schalten Boni frei. Zwei aktive Banden-Boni können zusätzlich ein <b>Bündnis</b> bilden.</p>
+      <div class="syn-pop-list">${traitRail(run)}</div>
+      <div class="fpop-btns"><button class="btn" data-act="pop-close">Alles klar</button></div></div>`;
   }
 
   // ---------- Kampftexte ----------
@@ -683,7 +730,9 @@ window.GL = window.GL || {};
 
   // Auswertung nach dem Kampf: Schaden pro Figur, Erfahrung, Level-ups
   function speedLabel(n) {
-    return `<span class="spd-seg" aria-hidden="true">${[1, 2, 3, 4].map(k => `<i class="${k <= n ? 'on s' + n : ''}"></i>`).join('')}</span><b class="spd-x">×${n}</b> ${['', 'Gemütlich', 'Zügig', 'Schnell', 'Turbo'][n]}`;
+    // Pixel-Vorspulpfeile: je schneller, desto mehr Pfeile leuchten
+    const chev = on => `<svg class="spd-ch${on ? ' on' : ''}" viewBox="0 0 4 7" shape-rendering="crispEdges" aria-hidden="true"><path d="M0 0h1v1h1v1h1v1h1v1h-1v1h-1v1h-1v1h-1z"/></svg>`;
+    return `<span class="spd-arrows s${n}" aria-hidden="true">${[1, 2, 3, 4].map(k => chev(k <= n)).join('')}</span><b class="spd-x">×${n}</b><small class="spd-name">${['', 'Gemütlich', 'Zügig', 'Schnell', 'Turbo'][n]}</small>`;
   }
   function battleSummary(run) {
     const b = run.battle;
@@ -940,7 +989,9 @@ window.GL = window.GL || {};
         const sel = ui.tvSel != null && run.pool[ui.tvSel] ? ui.tvSel : (tip ? tip.index : null);
         const pw = u => u.max * 0.5 + u.atk * 4 + u.spd * 2;
         const others = run.crew.filter(u => u.id !== run.captain);
-        const weak = (others.length ? others : run.crew).slice().sort((a, b) => pw(a) - pw(b))[0];
+        // Besiegte zuerst ersetzen, sonst die schwächste Figur
+        const weak = (others.length ? others : run.crew).slice().sort((a, b) => ((a.hp <= 0) ? -1e6 : pw(a)) - ((b.hp <= 0) ? -1e6 : pw(b)))[0];
+        const downN = run.crew.filter(u => u.hp <= 0).length;
         const cmp = (a, b) => { if (!b) return ''; const r = (a - b) / Math.max(1, b); return r >= 0.2 ? 'uu' : r >= 0.05 ? 'u' : r <= -0.2 ? 'dd' : r <= -0.05 ? 'd' : 'e'; };
         const arrow = k => k === 'e' || !k ? '<i class="pa pa-eq">=</i>' : `<i class="pa ${k[0] === 'u' ? 'pa-up' : 'pa-dn'}">${k.split('').map(() => k[0] === 'u' ? PX_UP : PX_DOWN).join('')}</i>`;
         const tiles = run.pool.map((o, i) => {
@@ -973,24 +1024,29 @@ window.GL = window.GL || {};
             ${t ? `<p class="tv-ab"><b>${esc(t.name)}</b> ${esc(t.text)}</p>` : ''}
             ${u ? `<p class="tv-ab ult">✦ <b>${esc(u.name)}</b> ${esc(u.text)}</p>` : ''}
             ${unlockPreview(run, d)}
-            <button class="btn tv-buy" data-act="pick" data-i="${sel}"${can ? '' : ' disabled'}>${o.sold ? 'Schon angeheuert' : full ? 'Schiff voll: erst jemanden entlassen' : gold < price ? `Zu wenig Gold (${price})` : `Anheuern für ${price} Gold`}</button>
+            ${full && !o.sold && weak && weak.id !== run.captain
+              ? `<button class="btn tv-buy tv-swap${weak.hp <= 0 ? ' down' : ''}" data-act="tv-swap" data-i="${sel}" data-j="${run.crew.indexOf(weak)}"${gold + GL.run.sellValue(weak) >= price ? '' : ' disabled'}>
+                  <span class="tv-swap-out">${GL.sprites.render(crewData(weak.id))}${weak.hp <= 0 ? PX_GRAVE : ''}</span><span class="tv-swap-arrow">➜</span><span class="tv-swap-in">${GL.sprites.render(d)}</span>
+                  <span>${gold + GL.run.sellValue(weak) >= price ? `Tauschen gegen ${esc(crewData(weak.id).name)}${weak.hp <= 0 ? ' (K.O.)' : ''} · ${price} Gold` : `Zu wenig Gold (${price})`}</span></button>`
+              : `<button class="btn tv-buy" data-act="pick" data-i="${sel}"${can ? '' : ' disabled'}>${o.sold ? 'Schon angeheuert' : full ? 'Schiff voll: erst jemanden entlassen' : gold < price ? `Zu wenig Gold (${price})` : `Anheuern für ${price} Gold`}</button>`}
           </div>`;
         }
         const roll = GL.run.rerollCost(run);
         const crewRow = run.crew.map((u, i) => {
           const d = crewData(u.id), cap = u.id === run.captain;
-          return `<span class="tv-mem pxf${weak && full && u === weak ? ' weak' : ''}"><i>${GL.sprites.render(d)}</i><small>${esc(d.name)}</small><em>Lv ${u.lvl}</em>
-            ${cap ? '<span class="tv-cap">Kapitän</span>' : `<button class="tv-x" data-act="dismiss" data-i="${i}" title="Entlassen (+${GL.run.sellValue(u)} Gold)">✕ ${GL.run.sellValue(u)}</button>`}</span>`;
+          const down = u.hp <= 0;
+          return `<span class="tv-mem pxf${weak && full && u === weak ? ' weak' : ''}${down ? ' down' : ''}"><i>${GL.sprites.render(d)}</i>${down ? `<span class="down-mark">${PX_GRAVE}<b>K.O.</b></span>` : ''}<small>${esc(d.name)}</small><em>${down ? 'Besiegt' : 'Lv ' + u.lvl}</em>
+            ${cap ? '<span class="tv-cap">Kapitän</span>' : `<button class="tv-x${down ? ' hot' : ''}" data-act="dismiss" data-i="${i}" title="Entlassen (+${GL.run.sellValue(u)} Gold)">✕ ${GL.run.sellValue(u)}</button>`}</span>`;
         }).join('');
         const harbor = run.harbor ? `<div class="harbor-box pxf"><span class="event-kicker">${run.loop ? `Zwischenhafen · Runde ${run.loop + 1}` : 'Endlos-Fahrt · Hafen'}</span>
             <b>${run.loop ? 'Kurz durchatmen, dann wird es härter.' : 'Stell deine Crew zusammen, dann legst du ab.'}</b>
-            <small>Reihenfolge: Figuren oben in der Crew-Leiste ziehen. Vorne steckt am meisten ein.</small></div>` : '';
+            <small>Aufstellung passiert automatisch: Brecher vorne, Helfer hinten.</small></div>` : '';
         return `${harbor}<div class="tavern">
             <div class="tv-head"><h2>${run.harbor ? 'Hafentaverne' : 'Taverne'}</h2><span class="gold">${GL.sprites.coin()} <b>${gold}</b></span></div>
             ${run.shopFree ? '<p class="tv-free">Der erste Kauf ist gratis.</p>' : ''}
             <div class="tv-grid">${tiles}</div>
             ${detail}
-            <div class="tv-crew-head"><span>Deine Crew ${run.crew.length}/${lim}</span>${weak && full ? '<small><span class="weak-key"></span> = schwächste Figur, Pfeile vergleichen mit ihr</small>' : ''}</div>
+            <div class="tv-crew-head"><span>Deine Crew ${run.crew.length}/${lim}</span>${downN ? `<span class="down-chip">${PX_GRAVE} ${downN} besiegt: austauschen oder bei einer Rast heilen</span>` : weak && full ? '<small><span class="weak-key"></span> = schwächste Figur, Pfeile vergleichen mit ihr</small>' : ''}</div>
             <div class="tv-crew">${crewRow}</div>
             <div class="tv-actions">
               <button class="btn ghost" data-act="reroll"${gold < roll ? ' disabled' : ''}>Neu würfeln · ${roll} ${keyHint('R')}</button>
@@ -1028,40 +1084,30 @@ window.GL = window.GL || {};
         const mult = (a, d) => GL.battle.typeMult(a, d);
         const fmtMult = m => (m === 1 ? '' : '×' + String(m).replace('.', ','));
         const firstAlive = run.crew.findIndex(u => u.hp > 0);
-        const formTip = GL.advice.formation(run, front);
+        // Kompakte Vorschau: kleine Figuren nebeneinander statt langer Liste. Aufstellung ist automatisch.
         const crewRows = run.crew.map((u, i) => {
           const d = crewData(u.id);
           const atk = mult(u.type, front.type);
-          const def = mult(front.type, u.type);
           const isFront = i === firstAlive;
-          return `<div class="slot role-bg-${d.role || ''}${u.hp <= 0 ? ' down' : ''}${isFront ? ' is-front' : ''}${formTip && formTip.index === i ? ' is-tip' : ''}" data-slot="${i}" tabindex="0"
-              role="listitem" aria-label="Platz ${i + 1}: ${d.name}${isFront ? ', vorne' : ''}, ${d.role ? GL.data.roles[d.role].name : ''}">
-            <span class="slot-pos">${isFront ? '<i class="shield" aria-hidden="true"></i>' : i + 1}</span>
-            <span class="slot-sprite">${GL.sprites.render(d)}</span>
-            <span class="slot-info">
-              <b>${d.name} ${badge(u.type)}</b>
-              <span class="slot-bar"><i style="width:${Math.max(0, 100 * u.hp / u.max)}%"></i></span>
-              <span class="slot-stats">${roleChip(d.role)}<span class="ss">Leben ${u.hp}/${u.max}</span><span class="ss">Angriff ${u.atk}</span><span class="ss">Tempo ${u.spd}</span></span>
-              <span class="slot-tags">
-                ${u.hp <= 0 ? '<em class="mu bad">Besiegt</em>' : ''}
-                ${atk > 1 ? `<em class="mu good">Schaden ${fmtMult(atk)}</em>` : atk < 1 ? `<em class="mu bad">Schaden ${fmtMult(atk)}</em>` : ''}
-                ${isFront && def > 1 ? `<em class="mu bad">nimmt ${fmtMult(def)}</em>` : ''}
-                ${isFront && def < 1 ? `<em class="mu good">nimmt ${fmtMult(def)}</em>` : ''}
-              </span>
-            </span>
-            <span class="grip" aria-hidden="true"></span>
+          const tag = atk > 1 ? `<em class="pv-m good">${fmtMult(atk)}</em>` : atk < 1 ? `<em class="pv-m bad">${fmtMult(atk)}</em>` : '';
+          return `<div class="pv-u role-bg-${d.role || ''}${u.hp <= 0 ? ' down' : ''}${isFront ? ' is-front' : ''}" tabindex="0"
+              data-tip="${esc(`${d.name} · ${d.role ? GL.data.roles[d.role].name : ''}\nLeben ${u.hp}/${u.max} · Angriff ${u.atk} · Tempo ${u.spd}${atk !== 1 ? `\nSchaden gegen den Vordersten ${fmtMult(atk)}` : ''}`)}">
+            ${isFront ? '<i class="pv-front" aria-hidden="true"></i>' : ''}
+            <span class="pv-s">${GL.sprites.render(d)}</span>${tag}
+            <i class="pv-hp"><b style="width:${Math.max(0, 100 * u.hp / u.max)}%"></b></i>
+            <small>${esc(d.name.split(' ')[0])}</small>
           </div>`;
         }).join('');
         const foeRows = foes.map((e, i) => {
           const d = GL.data.foeDef(e) || enemyData(e.id);
           const fk = e.kind && GL.data.foeKind(e.kind);
-          return `<div class="slot foe${e.boss ? ' boss' : ''}${fk ? ' special' : ''}${i === 0 ? ' is-front' : ''}">
-            <span class="slot-sprite">${GL.sprites.render(d)}</span>
-            <span class="slot-info"><b>${d.name} ${badge(e.type)}</b>
-              <span class="slot-bar"><i style="width:100%"></i></span>
-              <small>${e.hp} Leben, ${e.atk} Angriff</small>
-              ${fk ? `<em class="foe-tag fk-${fk.key}" title="${esc(fk.text)}" data-tip="${esc(fk.text)}">${fk.tag}</em>` : ''}</span>
-            <span class="slot-pos">${i === 0 ? '<i class="shield" aria-hidden="true"></i>' : i + 1}</span>
+          return `<div class="pv-u foe${e.boss ? ' boss' : ''}${fk ? ' special' : ''}${i === 0 ? ' is-front' : ''}" tabindex="0"
+              data-tip="${esc(`${d.name}\n${e.hp} Leben · ${e.atk} Angriff${fk ? '\n' + fk.text : ''}`)}">
+            ${i === 0 ? '<i class="pv-front" aria-hidden="true"></i>' : ''}
+            <span class="pv-s">${GL.sprites.render(d)}</span>
+            ${fk ? `<em class="pv-m fk fk-${fk.key}">${fk.tag}</em>` : ''}
+            <i class="pv-hp"><b style="width:100%"></b></i>
+            <small>${e.hp} ♥</small>
           </div>`;
         }).join('');
         const huntedT = boss && boss.mini ? enemyData(boss.id) : null;
@@ -1071,20 +1117,12 @@ window.GL = window.GL || {};
         return `${rivalBox}<h2>${run.pending.rival ? 'Aufstellung' : run.pending.kind === 'raid' ? 'Raid: ' + enemyData(boss.id).name : run.pending.kind === 'boss' ? 'Bosskampf: Aufstellung' : huntedT ? (run.pending.gate ? 'Bösewicht der Insel: ' : 'Kopfgeld-Ziel: ') + huntedT.name : 'Aufstellung'}</h2>
           ${huntedT ? `<p class="hint">Auf ${huntedT.name} sind <b>${huntedT.bounty} Mio. ฿</b> ausgesetzt. Sieg: Das Kopfgeld geht an deinen Kapitän, dazu ein Schatz.</p>` : ''}
           ${run.pending.kind === 'raid' ? `<p class="hint">Gewinnst du, gehört dir eine erwachte Teufelsfrucht für immer. Verlierst du, entkommt deine Crew mit wenig Leben.</p>` : ''}
-          <div class="formation isl-${GL.run.island(run).id}${run.pending.kind === 'raid' ? ' raid' : ''}">
-            <div class="arena-sky" aria-hidden="true"></div>
-            <div class="form-side">
-              <span class="form-label">Deine Crew ${dangerTag(run, run.pending.kind)}</span>
-              <div class="slots" id="slots" role="list">${crewRows}</div>
-            </div>
-            <div class="form-vs" aria-hidden="true">VS</div>
-            <div class="form-side">
-              <span class="form-label">Gegner</span>
-              <div class="slots">${foeRows}</div>
-            </div>
+          <div class="pv isl-${GL.run.island(run).id}${run.pending.kind === 'raid' ? ' raid' : ''}">
+            <div class="pv-side"><span class="pv-label">Deine Crew ${dangerTag(run, run.pending.kind)}</span><div class="pv-row">${crewRows}</div></div>
+            <div class="pv-vs" aria-hidden="true">VS</div>
+            <div class="pv-side"><span class="pv-label">Gegner</span><div class="pv-row">${foeRows}</div></div>
           </div>
-          ${tipLine(formTip)}
-          <p class="hint form-hint">↕ Ziehen zum Umsortieren. <b>Oben steht vorne</b> und wird zuerst angegriffen. ${typeChart()}</p>
+          <p class="hint form-hint">Aufstellung automatisch: <b>Brecher vorne</b>, Helfer hinten. ${typeChart()}</p>
           ${boss && ability(boss.id) && !run.pending.rival ? `<p class="hint boss-mech"><b>${unitName(boss)}, ${ability(boss.id).name}:</b> ${abilityTag(ability(boss.id))} ${ability(boss.id).text}</p>` : ''}
           ${boss && ability(boss.id) && ability(boss.id).status ? counterHint(run, ability(boss.id).status.key) : ''}
           ${specialPanel(run)}
@@ -1102,7 +1140,7 @@ window.GL = window.GL || {};
           controls = `<button class="btn" data-act="continue">Weiter ${keyHint('Leertaste')}</button>`;
         } else {
           log = anim.log;
-          controls = `<div class="fight-ctrl"><button class="btn ghost speed-btn" data-act="fast" aria-label="Tempo ändern">${speedLabel(anim.speed || 2)}</button></div>`;
+          controls = `<div class="fight-ctrl"><button class="speed-btn px-btn" data-act="fast" aria-label="Tempo ändern">${speedLabel(anim.speed || 2)}</button></div>`;
         }
         const title = b.kind === 'raid' ? 'Raid' : b.kind === 'boss' ? 'Bosskampf' : run.pending && run.pending.rival ? 'Begegnung: ' + esc(run.pending.rival.name) : 'Kampf';
         return `<div class="battle-head"><h2>${title}</h2>${done ? `<span class="result ${b.win ? 'win' : 'lose'}">${b.win ? 'Sieg' : 'Niederlage'}</span>` : ''}</div>
@@ -1167,7 +1205,8 @@ window.GL = window.GL || {};
         const endlessHtml = canEndless ? `<div class="endless-box"><span class="event-kicker">Endlos-Modus</span>
           <b>Die Grand Line ist bezwungen${run.loop ? ` – zum ${run.loop + 1}. Mal` : ''}!</b>
           <span>Weitersegeln? Deine Crew bleibt, die Gegner werden mit jeder Runde stärker. Alles bisher Erreichte ist schon gutgeschrieben.</span></div>` : '';
-        return `${head}${duelHtml}${endlessHtml}${record}${berry}${shardHtml}${cgHtml}${troHtml}${itemSum}${rankHtml}${heatUp}<div class="end-actions dock">${canEndless ? `<button class="btn" data-act="endless">Weitersegeln ⚓</button>` : ''}<button class="btn${canEndless ? ' ghost' : ''}" data-act="again">${run.daily ? 'Neuer Run' : run.duel ? 'Normaler Run' : 'Nochmal!'} ${keyHint('Leertaste')}</button>
+        const goals = ui.profile && ui.lastBerry != null ? goalList(ui.profile, 3) : '';
+        return `${head}${duelHtml}${endlessHtml}${record}${berry}${shardHtml}${cgHtml}${troHtml}${itemSum}${rankHtml}${heatUp}${goals}<div class="end-actions dock">${canEndless ? `<button class="btn" data-act="endless">Weitersegeln ⚓</button>` : ''}<button class="btn${canEndless ? ' ghost' : ''}" data-act="again">${run.daily ? 'Neuer Run' : run.duel ? 'Normaler Run' : 'Nochmal!'} ${keyHint('Leertaste')}</button>
           <button class="btn ghost" data-act="hq">Hauptquartier ${keyHint('H')}</button></div>`;
       }
     }
@@ -1806,6 +1845,27 @@ window.GL = window.GL || {};
     return `<span class="portrait bg-${c.bg} fr-${c.frame} an-${c.anim}${star}${size ? ' ' + size : ''}">${GL.sprites.render({ id: 'self', look: look || DEFAULT_LOOK })}${flag}${c.star ? '<i class="star-tag" aria-hidden="true">★</i>' : ''}</span>`;
   }
   // Easter Egg: nur der Entwickler (Account westerholt.felix…) darf den Regenbogen-Stern einschalten
+  // Nächste Freischaltungen mit Fortschrittsbalken („Noch 1× … → Figur“)
+  function goalList(profile, n) {
+    const L = GL.meta.nextUnlocks(profile, n);
+    if (!L.length) return '';
+    return `<div class="goal-box pxf"><span class="event-kicker">Als Nächstes freischalten</span>${L.map(({ u, pr }) => {
+      const d = crewData(u.unlock), left = pr.need - pr.have;
+      const fac = d.faction ? GL.data.factions[d.faction] : null;
+      return `<div class="goal-row" data-tip="${esc(d.name + (fac ? ' · ' + fac.name : '') + '\n' + u.text)}" tabindex="0">
+        <i class="goal-spr">${GL.sprites.render(d)}</i>
+        <span class="goal-b"><b>${esc(d.name)}${fac ? ` <small>${pxIcon(d.faction)}${esc(fac.name)}</small>` : ''}</b>
+          <small>${esc(u.text)}</small>
+          <span class="goal-bar"><i style="width:${Math.round(100 * pr.have / Math.max(1, pr.need))}%"></i></span></span>
+        <em class="goal-left">${pr.need > 1 ? `${pr.have}/${pr.need}` : left > 0 ? 'offen' : '✓'}</em></div>`;
+    }).join('')}</div>`;
+  }
+  // Pixel-Notenschlüssel als Musik-Schalter (an/aus)
+  function musicBtn(cls) {
+    const on = GL.music && GL.music.isOn();
+    const note = `<svg viewBox="0 0 8 9" shape-rendering="crispEdges" aria-hidden="true"><path d="M3 0h5v2h-4v4h-1v1h-2v-1h-1v-1h1v-1h2zM7 2h1v4h-1v1h-2v-1h-1v-1h1v-1h2z"/></svg>`;
+    return `<button class="mu-btn${on ? ' on' : ''}${cls ? ' ' + cls : ''}" data-act="music" aria-label="Musik ${on ? 'aus' : 'an'}schalten" title="Musik ${on ? 'aus' : 'an'}">${note}${on ? '' : '<i class="mu-off"></i>'}</button>`;
+  }
   function isAdmin() {
     const st = GL.online ? GL.online.state() : {};
     return !!(st.email && /^westerholt\.felix/i.test(st.email));
@@ -1858,9 +1918,10 @@ window.GL = window.GL || {};
     const now = Date.now();
     const day = (st.rows || []).filter(x => x.updated && now - Date.parse(x.updated) < 864e5).length;
     const live = (st.rows || []).filter(x => isOnline(x)).length;
-    const pulse = day ? `<div class="ts-pulse" title="Spieler, die gerade spielen und in den letzten 24 Stunden aktiv waren"><i class="tp-dot"></i><b>${live}</b> gerade auf See <span>·</span> <b>${day}</b> heute an Bord</div>` : '';
+    const pulse = day ? `<div class="ts-pulse" title="Spieler, die gerade spielen und in den letzten 24 Stunden aktiv waren"><i class="tp-dot"></i><b>${live}</b> gerade auf See <span>·</span> <b>${day}</b> heute an Bord</div>`
+      : st.status === 'connecting' ? `<div class="ts-pulse wait"><i class="tp-dot"></i>Funk zur Flotte <span class="tp-dots"><i></i><i></i><i></i></span></div>` : '';
     return `<div class="ts-inner">
-      <div class="ts-top">${profile.nickname ? profileChip(profile) : '<span></span>'}</div>
+      <div class="ts-top">${profile.nickname ? profileChip(profile) : '<span></span>'}${musicBtn()}</div>
       <div class="ts-logo"><b>${esc(W)}</b><small>Ein Piraten-Roguelike</small></div>
       <div class="ts-scene" aria-hidden="true">
         <div class="ts-sun"></div>
@@ -1958,15 +2019,24 @@ window.GL = window.GL || {};
     const vals = GL.meta.progressValues(profile);
     const sw = (part, list) => `<div class="sw-row"><span>${{ hair: 'Haare', skin: 'Haut', shirt: 'Oberteil', pants: 'Hose', hatColor: 'Hutfarbe' }[part]}</span>
       <div class="sw">${list.map(c => `<button class="sw-c${d.char.look[part] === c ? ' on' : ''}" style="background:${c}" data-act="char-part" data-part="${part}" data-v="${c}" aria-label="${c}"></button>`).join('')}</div></div>`;
-    const hats = { '': 'Ohne', straw: 'Strohhut', band: 'Kopftuch', cap: 'Mütze', hood: 'Kapuze', afro: 'Locken' };
-    const opt = (act, cur, list) => list.map(([id, name]) => `<button class="seg${cur === id ? ' on' : ''}" data-act="${act}" data-v="${id}">${name}</button>`).join('');
+    const hats = { '': 'Ohne', straw: 'Strohhut', band: 'Kopftuch', cap: 'Mütze', hood: 'Kapuze', afro: 'Locken', tophat: 'Zylinder', tricorn: 'Dreispitz', ears: 'Tierohren' };
+    // Gesperrte Teile zeigen ein Schloss und die Bedingung
+    const lockOf = key => { const L = (GL.data.charLocks || {})[key]; return L && !GL.meta.cosmeticUnlocked(profile, L, vals) ? L : null; };
+    const opt = (act, cur, list, part) => list.map(([id, name]) => {
+      const L = part && id ? lockOf(part + ':' + id) : null;
+      return `<button class="seg${cur === id ? ' on' : ''}${L ? ' locked' : ''}" data-act="${act}" data-v="${id}"${L ? ` disabled title="${esc(GL.meta.reqText(L))}"` : ''}>${L ? '🔒 ' : ''}${name}</button>`;
+    }).join('');
+    const swOpt = (part, label, list) => {
+      const L = lockOf(part);
+      return `<div class="sw-row"><span>${label}</span>${L ? `<small class="muted">🔒 ${esc(GL.meta.reqText(L))}</small>` : `<div class="sw">${list.map(c => `<button class="sw-c${(d.char.look[part] || '') === c ? ' on' : ''}" style="background:${c || 'transparent'}" data-act="char-part" data-part="${part}" data-v="${c}" aria-label="${c || 'ohne'}">${c ? '' : '✕'}</button>`).join('')}</div>`}</div>`;
+    };
     const cosGrid = (kind, label, cls) => `<div class="cos-block"><span class="lbl">${label}</span><div class="cos-grid">${(kind === 'badges' ? GL.data.badges : GL.data.cosmetics[kind]).map(it => {
       const ok = GL.meta.cosmeticUnlocked(profile, it, vals);
       const on = d.cos[cls] === it.id;
       const prev = kind === 'titles' ? `<b class="cos-title">${esc(it.name)}</b>` : kind === 'badges' ? `<span class="badge-prev">${badgeSvg(it.id) || '–'}</span>`
         : portrait(d.char.look, Object.assign({}, d.cos, { [cls]: it.id }), 'xs');
       return `<button class="cos${on ? ' on' : ''}${ok ? '' : ' locked'}" data-act="cos-pick" data-kind="${cls}" data-v="${it.id}"${ok ? '' : ' disabled'} title="${esc(it.name)}${ok ? '' : ': ' + GL.meta.reqText(it)}">
-        ${prev}<small>${ok ? esc(it.name) : '🔒 ' + GL.meta.reqText(it)}</small></button>`;
+        ${prev}<small>${ok ? esc(it.name) : '🔒 ' + GL.meta.reqText(it)}</small>${GL.devAll && Object.keys(it.req || {}).length ? `<em class="cos-req">${esc(GL.meta.reqText(it))}</em>` : ''}</button>`;
     }).join('')}</div></div>`;
     const def = GL.meta.selfDef(Object.assign({}, profile, { nickname: d.name || 'Pirat', char: d.char }));
     return `<div class="ts-inner pf-screen wide">
@@ -1987,8 +2057,9 @@ window.GL = window.GL || {};
             <span class="lbl">Rolle</span><div class="segs">${opt('char-role', d.char.role, [['kaempfer', 'Kämpfer'], ['brecher', 'Brecher'], ['helfer', 'Helfer']])}</div>
             <span class="lbl">Aussehen</span>
             ${sw('hair', P.hair)}${sw('skin', P.skin)}${sw('shirt', P.shirt)}${sw('pants', P.pants)}
-            <div class="sw-row"><span>Hut</span><div class="segs small">${opt('char-hat', d.char.look.hat || '', P.hat.map(h => [h, hats[h]]))}</div></div>
+            <div class="sw-row"><span>Hut</span><div class="segs small">${opt('char-hat', d.char.look.hat || '', P.hat.map(h => [h, hats[h]]), 'hat')}</div></div>
             ${d.char.look.hat ? sw('hatColor', P.hatColor) : ''}
+            ${P.beard ? swOpt('beard', 'Bart', P.beard) : ''}${P.nose ? swOpt('nose', 'Nase', P.nose) : ''}
           </div>
         </div>
         <div class="cos-all">
@@ -2503,6 +2574,7 @@ window.GL = window.GL || {};
 
       ${room ? roomHead(profile, tab) : hubTiles(profile, tab)}
       ${room ? '' : featureNextLine(profile)}
+      ${room || (uiRef && uiRef.peek) ? '' : goalList(profile, 2).replace('goal-box pxf', 'goal-box pxf hq-goals')}
 
       ${!room ? '' : `
       ${tab === 'werft' ? `<section class="hq-sec">
@@ -2755,6 +2827,9 @@ window.GL = window.GL || {};
 
   GL.ui = {
     introSteps: INTRO.length,
+    goalList,
+    musicBtn,
+    synPop,
     bountyPoster,
     trophyPop,
     featurePop,
@@ -2765,6 +2840,7 @@ window.GL = window.GL || {};
     toggleMail() { mailShown = !mailShown; },
 
     render(run, anim, ui) {
+      GL.devAll = isAdmin();
       const titleEl = $('#title');
       titleEl.hidden = !ui.screen;
       document.body.classList.toggle('on-title', !!ui.screen);
@@ -2820,7 +2896,7 @@ window.GL = window.GL || {};
       } else $('#pcard').dataset.last = '';
       if (!run) {
         $('#track').innerHTML = '';
-        ['#crew', '#syn', '#crew-label', '#restart', '#sheet', '#traits', '#peek', '#peek-btn'].forEach(sel => { $(sel).hidden = true; });
+        ['#crew', '#syn', '#crew-label', '#restart', '#sheet', '#traits', '#synbar', '#peek', '#peek-btn'].forEach(sel => { $(sel).hidden = true; });
         const html = hq(ui.profile, ui.hqTab || 'profil', ui);
         if (html !== ui.lastStage) {
           $('#stage').innerHTML = html; ui.lastStage = html;
@@ -2845,6 +2921,9 @@ window.GL = window.GL || {};
       const rail = run.crew.length && !['over', 'win', 'starter'].includes(run.phase) ? traitRail(run) : '';
       $('#traits').hidden = !rail;
       if ($('#traits').innerHTML !== rail) $('#traits').innerHTML = rail;
+      const sbar = rail ? synBar(run) : '';
+      $('#synbar').hidden = !sbar;
+      if ($('#synbar').innerHTML !== sbar) $('#synbar').innerHTML = sbar;
       // Szenenwechsel: beim Erreichen einer neuen Insel kurz ihren Namen einblenden
       const isl = GL.run.island(run);
       if (run.phase === 'course' && run.step % GL.config.stepsPerIsland === 0 && ui.shownIsland !== isl.id + run.seed) {
@@ -2870,13 +2949,14 @@ window.GL = window.GL || {};
       $('#crew-label').hidden = !run.crew.length || battle;
       const openPts = run.crew.reduce((s, u) => s + u.points, 0);
       const firstPts = run.crew.findIndex(u => u.points > 0);
-      $('#crew-label').innerHTML = `<span class="nowrap">Deine Crew ${run.crew.length ? `<small>${run.crew.length}/${GL.run.crewLimit(run)}</small>` : ''}</span>
+      const downN = run.crew.filter(u => u.hp <= 0).length;
+      $('#crew-label').innerHTML = `<span class="nowrap">Deine Crew ${run.crew.length ? `<small>${run.crew.length}/${GL.run.crewLimit(run)}</small>` : ''}</span>${downN ? `<span class="down-chip sm">${PX_GRAVE} ${downN} K.O.</span>` : ''}
         <span class="nowrap charge-wrap">Spezial ${chargePips(run)}</span>
         ${autoCheck(ui.profile, 'mini')}
 
         <button class="link" data-act="crew-toggle" aria-expanded="${!!ui.crewOpen}">${ui.crewOpen ? 'Kompakt' : 'Details'}</button>`;
       $('#crew').classList.toggle('compact', !ui.crewOpen);
-      $('#crew').title = 'Ziehen zum Umsortieren: Wer vorne steht, wird im Kampf zuerst angegriffen.';
+      $('#crew').title = 'Deine Crew. Vor jedem Kampf stellt sie sich automatisch auf: Brecher vorne, Helfer hinten.';
       $('#crew').innerHTML = ui.crewOpen
         ? run.crew.map((u, i) => crewCard(u, i, inBattle ? anim.crewHp[i] : u.hp)).join('')
         : run.crew.map((u, i) => miniCard(u, i).replace('class="crewmini', `class="crewmini${i === run.crew.findIndex(x => x.hp > 0) ? ' is-front' : ''}`)).join('') + `<div class="chips">${synergyChips(run)}${GL.effects.relicList(run).length ? `<span class="chip relic-chip">${GL.effects.relicList(run).length} ${GL.effects.relicList(run).length === 1 ? 'Schatz' : 'Schätze'}</span>` : ''}</div>`;

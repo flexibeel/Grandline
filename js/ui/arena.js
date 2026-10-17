@@ -412,7 +412,15 @@ window.GL = window.GL || {};
   function fieldFloat(side, i, text, cls) {
     const p = center(fu(side, i));
     if (!p) return;
-    const n = fx('fnum ' + (cls || ''), { x: p.x + (Math.random() * 30 - 15), y: p.y - 24 }, 1100);
+    // Worte (Ausgewichen, Konter, Betäubt …) als kleines Pixel-Abzeichen, Zahlen bleiben Zahlen
+    const word = !/^[-+]\d/.test(String(text));
+    const n = fx((word ? 'ptag ' : 'fnum ') + (cls || ''), { x: p.x + (word ? 0 : Math.random() * 30 - 15), y: p.y - (word ? 40 : 24) }, word ? 1000 : 1100);
+    if (n) n.textContent = text;
+  }
+  function tagAt(side, i, text, cls, dy) {
+    const p = center(fu(side, i));
+    if (!p) return;
+    const n = fx('ptag ' + (cls || ''), { x: p.x, y: p.y - (dy || 44) }, 1000);
     if (n) n.textContent = text;
   }
   function typeOf(side, i) {
@@ -463,7 +471,8 @@ window.GL = window.GL || {};
       else fx('fx-impact', T, 600);
       if (ev.eff === 'strong') fx('fx-ring', T, 700);
       pulse(tgt, ev.crit ? 'hurt-crit' : 'hurt');
-      fieldFloat(tside, ev.to, (ev.crit ? 'KRIT ' : '') + '-' + ev.dmg, (ev.crit ? 'crit' : ev.eff === 'strong' ? 'strong' : ev.eff === 'weak' ? 'weak' : '') + bigNum(tside, ev.to, ev.dmg));
+      if (ev.crit) tagAt(tside, ev.to, 'KRIT!', 'crit', 56);
+      fieldFloat(tside, ev.to, '-' + ev.dmg, (ev.crit ? 'crit' : ev.eff === 'strong' ? 'strong' : ev.eff === 'weak' ? 'weak' : '') + bigNum(tside, ev.to, ev.dmg));
       if (ev.crit) { pulse($('#field'), 'zoom'); fx('fx-flash', { x: 0, y: 0 }, 300); }
       if (ev.final) finale(tside, ev.to);
       if (ev.side === 'enemy' && curRun && curRun.battle && curRun.battle.enemies[ev.from] && (curRun.battle.enemies[ev.from].boss || curRun.battle.enemies[ev.from].raid)) {
@@ -495,7 +504,7 @@ window.GL = window.GL || {};
     tension();
     const was = !u.classList.contains('ko');
     u.classList.toggle('ko', hp <= 0);
-    if (was && hp <= 0) { const p = center(u); fx('fx-ko', p, 900); }
+    if (was && hp <= 0) { const p = center(u); fx('fx-ko', p, 900); const t = fx('ptag ko', { x: p.x, y: p.y - 30 }, 1100); if (t) t.textContent = 'K.O.'; }
   }
   function fieldAura(side, i) {
     const u = fu(side, i);
@@ -531,8 +540,8 @@ window.GL = window.GL || {};
         const b0 = run.battle.enemies[0];
         if (b0 && (b0.boss || b0.raid)) { const d = enemyData(b0.id) || crewData(b0.id); fieldEl.dataset.boss = (run.battle.kind === 'raid' ? 'Raid: ' : 'Boss: ') + (d ? d.name : ''); }
         lowShown = false;
-        if (bossIdx(run) >= 0 && !run.battle.enemies.some(e => e.ref && e.ref.pvp)) bossIntro(run);
-        else if (run.pending && run.pending.rival) {
+        // Bosse bekommen ihren großen Auftritt schon vor dem Kampf (siehe startFight in main.js)
+        if (run.pending && run.pending.rival) {
           const n = document.createElement('div');
           n.className = 'boss-intro rival';
           n.innerHTML = `<i class="bi-bar top"></i><i class="bi-bar bot"></i><span class="bi-card"><small>Begegnung auf See</small><b>${String(run.pending.rival.name).replace(/[<>&"]/g, '')}</b><em>Stammcrew eines Mitspielers</em></span>`;

@@ -111,7 +111,35 @@ GL.data.ultis = {
                  fx: [{ do: 'strike', mult: 1.8, target: 'front' }, { do: 'status', key: 'poison', rounds: 2, value: 2, target: 'all' }] },
   hatchan:     { name: 'Takoyaki-Punch', text: 'Sechs Fäuste (200 %).', fx: [{ do: 'strike', mult: 2, target: 'front' }] },
   wapol:       { name: 'Baku-Baku-Kanone', text: 'Verschlingt und spuckt (180 %), heilt sich.',
-                 fx: [{ do: 'strike', mult: 1.8, target: 'front' }, { do: 'heal', pct: 0.15, target: 'self' }] }
+                 fx: [{ do: 'strike', mult: 1.8, target: 'front' }, { do: 'heal', pct: 0.15, target: 'self' }] },
+  // Inhalts-Update
+  sabo:    { name: 'Hiken', text: 'Feuerfaust (240 %), Ziel brennt 3 Runden.',
+             fx: [{ do: 'strike', mult: 2.4, target: 'front' }, { do: 'status', key: 'burning', rounds: 3, value: 3, target: 'hit' }] },
+  ivankov: { name: 'Death Wink', text: 'Zwinkern mit Sturmkraft (150 %), heilt die Crew um 12 %.',
+             fx: [{ do: 'strike', mult: 1.5, target: 'front' }, { do: 'heal', pct: 0.12, target: 'all' }] },
+  koala:   { name: 'Gyojin-Karate', text: 'Wasserstoß durch alle Gegner (90 %).', fx: [{ do: 'strike', mult: 0.9, target: 'all' }] },
+  dragon:  { name: 'Orkan', text: 'Sturm über alle Gegner (110 %), alle geschwächt (2 Runden).',
+             fx: [{ do: 'strike', mult: 1.1, target: 'all' }, { do: 'status', key: 'weak', rounds: 2, target: 'all' }] },
+  aokiji:  { name: 'Ice Time', text: 'Friert alle ein: Treffer (80 %), der Vorderste ist betäubt.',
+             fx: [{ do: 'strike', mult: 0.8, target: 'all' }, { do: 'status', key: 'stun', rounds: 1, target: 'front' }] },
+  yasopp:  { name: 'Augenschuss', text: 'Schuss auf den Schwächsten (260 %).', fx: [{ do: 'strike', mult: 2.6, target: 'weakest' }] },
+  beckman: { name: 'Gewehrkolben', text: 'Präziser Schlag (180 %), die Crew bekommt +2 Angriff.',
+             fx: [{ do: 'strike', mult: 1.8, target: 'front' }, { do: 'atk', value: 2, target: 'allies' }] },
+  roo:     { name: 'Festmahl', text: 'Heilt die ganze Crew um 20 %.', fx: [{ do: 'heal', pct: 0.2, target: 'all' }] },
+  alvida:  { name: 'Eisenkeule', text: 'Rutschiger Keulenhieb (200 %), heilt sich um 15 %.',
+             fx: [{ do: 'strike', mult: 2, target: 'front' }, { do: 'heal', pct: 0.15, target: 'self' }] },
+  cabaji:  { name: 'Feuer-Akrobatik', text: 'Brennende Klingen auf alle (80 %).',
+             fx: [{ do: 'strike', mult: 0.8, target: 'all' }, { do: 'status', key: 'burning', rounds: 2, value: 2, target: 'all' }] },
+  mohji:   { name: 'Löwenbrüller', text: 'Richie springt (170 %), Ziel in Furcht (2 Runden).',
+             fx: [{ do: 'strike', mult: 1.7, target: 'front' }, { do: 'status', key: 'fear', rounds: 2, target: 'hit' }] },
+  kuroobi: { name: 'Karate-Welle', text: 'Wasserwelle auf alle (90 %).', fx: [{ do: 'strike', mult: 0.9, target: 'all' }] },
+  chu:     { name: 'Wasserkugel', text: 'Durchschlagender Schuss auf den Schwächsten (230 %).', fx: [{ do: 'strike', mult: 2.3, target: 'weakest' }] },
+  vista:   { name: 'Blütenmeer', text: 'Zwei Klingen auf alle (100 %).', fx: [{ do: 'strike', mult: 1.0, target: 'all' }] },
+  fukuro:  { name: 'Jugon', text: 'Fingerpistole im Wirbel (190 %), heilt sich um 10 %.',
+             fx: [{ do: 'strike', mult: 1.9, target: 'front' }, { do: 'heal', pct: 0.1, target: 'self' }] },
+  perona:  { name: 'Ghost Rap', text: 'Geister explodieren auf allen Gegnern (85 %), alle in Furcht (1 Runde).',
+             fx: [{ do: 'strike', mult: 0.85, target: 'all' }, { do: 'status', key: 'fear', rounds: 1, target: 'all' }] }
+
 };
 
 // Wer keine eigene Ulti hat, bekommt eine nach seiner Rolle (Crew) bzw. einen starken Schlag (Gegner)

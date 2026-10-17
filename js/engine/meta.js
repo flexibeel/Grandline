@@ -223,6 +223,8 @@ window.GL = window.GL || {};
       };
     },
     cosmeticUnlocked(profile, item, vals) {
+      // Entwickler-Konto: alles Optische frei (Bedingung bleibt sichtbar)
+      if (GL.devAll) return true;
       const v = vals || GL.meta.progressValues(profile);
       return Object.keys(item.req || {}).every(k => (v[k] || 0) >= item.req[k]);
     },
@@ -561,6 +563,15 @@ window.GL = window.GL || {};
       (run.course || []).forEach(id => { if (id) count('isle:' + id); });
       const won = run.phase === 'win' && !E;
       if (won) count('win');
+      // Für neue Freischalt-Ziele: mit wem gewonnen, welche Bande, Tageskarten
+      if (won) {
+        run.crew.forEach(u => count('winWith:' + u.id));
+        if (run.captain) count('winWith:' + run.captain);
+        const fc = {};
+        run.crew.forEach(u => { if (u.faction) fc[u.faction] = (fc[u.faction] || 0) + 1; });
+        Object.keys(fc).forEach(f => { for (let k = 1; k <= fc[f]; k++) count('winFaction:' + f + ':' + k); });
+      }
+      if (run.daily && GL.run.isFinished(run)) count('daily');
 
       GL.data.unlocks.forEach(u => {
         if (profile.unlocked.includes(u.unlock)) return;
@@ -575,11 +586,25 @@ window.GL = window.GL || {};
         if (w.epic) ok = (profile.epics || []).includes(w.epic);
         if (w.raids) ok = GL.data.raids.reduce((s2, r) => s2 + (counts['defeated:' + r.id] || 0), 0) >= w.raids;
         if (w.heat) ok = (profile.heatMax || 0) >= w.heat;
+        if (w.runs) ok = (profile.stats.runs || 0) >= w.runs;
+        if (w.winWith) ok = (counts['winWith:' + w.winWith] || 0) >= times;
+        if (w.winFaction) ok = (counts['winFaction:' + w.winFaction + ':' + (w.n || 1)] || 0) >= times;
+        if (w.isle) ok = (counts['isle:' + w.isle] || 0) >= times;
+        if (w.kos) ok = GL.meta.lifeKos(profile) >= w.kos;
+        if (w.daily) ok = (counts.daily || 0) >= w.daily;
+        if (w.endless) ok = Math.max(0, ...Object.values(profile.endlessSeaBest || {})) >= w.endless;
         if (ok) { profile.unlocked.push(u.unlock); news.push({ kind: 'crew', id: u.unlock }); }
       });
       return news;
     },
 
+    // Die nächsten Freischaltungen, am weitesten fortgeschrittene zuerst
+    nextUnlocks(profile, n) {
+      return GL.data.unlocks.filter(u => !profile.unlocked.includes(u.unlock) && GL.data.crew.some(c => c.id === u.unlock))
+        .map(u => { const pr = GL.meta.progress(profile, u); return { u, pr, f: pr.have / Math.max(1, pr.need) }; })
+        .sort((a, b) => b.f - a.f || a.pr.need - b.pr.need).slice(0, n || 3);
+    },
+    lifeKos(profile) { return Math.max((profile.life && profile.life.kos) || 0, (profile.records && profile.records.kos) || 0); },
     // Fortschritt zu einer Freischaltung, z. B. { have: 1, need: 3 }
     progress(profile, u) {
       const w = u.when;
@@ -593,6 +618,13 @@ window.GL = window.GL || {};
       if (w.epic) have = (profile.epics || []).includes(w.epic) ? 1 : 0;
       if (w.raids) return { have: Math.min(GL.data.raids.reduce((s2, r) => s2 + (profile.counts['defeated:' + r.id] || 0), 0), w.raids), need: w.raids };
       if (w.heat) return { have: Math.min(profile.heatMax || 0, w.heat), need: w.heat };
+      if (w.runs) return { have: Math.min(profile.stats.runs || 0, w.runs), need: w.runs };
+      if (w.winWith) have = profile.counts['winWith:' + w.winWith] || 0;
+      if (w.winFaction) have = profile.counts['winFaction:' + w.winFaction + ':' + (w.n || 1)] || 0;
+      if (w.isle) have = profile.counts['isle:' + w.isle] || 0;
+      if (w.kos) return { have: Math.min(GL.meta.lifeKos(profile), w.kos), need: w.kos };
+      if (w.daily) return { have: Math.min(profile.counts.daily || 0, w.daily), need: w.daily };
+      if (w.endless) return { have: Math.min(Math.max(0, ...Object.values(profile.endlessSeaBest || {})), w.endless), need: w.endless };
       return { have: Math.min(have, need), need };
     },
 

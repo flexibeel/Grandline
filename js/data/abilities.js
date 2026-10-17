@@ -131,7 +131,31 @@ GL.data.abilities = {
   kizaru:      { name: 'Lichtgeschwindigkeit', kind: 'double', text: 'Greift zweimal pro Runde an. Alle 2 Runden blendet er alle (Furcht, 1 Runde).',
                  status: { key: 'fear', rounds: 1, when: 'every', n: 2, target: 'all' } },
   doflamingo:  { name: 'Fadenkäfig',      kind: 'chain', value: 0.6,   text: 'Fäden springen über (60 % Schaden). Zu Kampfbeginn: Furcht für die ganze Crew (3 Runden).',
-                 status: { key: 'fear', rounds: 3, when: 'start', target: 'all' } }
+                 status: { key: 'fear', rounds: 3, when: 'start', target: 'all' } },
+
+  // ---- Inhalts-Update: neue Crewmitglieder ----
+  alvida:  { name: 'Sube-Sube-Frucht', text: 'Glatte Haut: erleidet 2 weniger Schaden und weicht 10 % aus.', mods: [{ scope: 'char:alvida', armor: 2, dodge: 0.1 }] },
+  cabaji:  { name: 'Akrobaten-Klinge', text: '+20 % Krit-Chance und +1 Tempo.', mods: [{ scope: 'char:cabaji', crit: 0.2, spd: 1 }] },
+  mohji:   { name: 'Richie, fass!',    kind: 'rally', value: 1, text: 'Sein Löwe brüllt: zu Kampfbeginn +1 Angriff für die ganze Crew. Gegner zittern (Furcht, 1 Runde).',
+             status: { key: 'fear', rounds: 1, when: 'start', target: 'all' } },
+  kuroobi: { name: 'Senbonzuke',       kind: 'thorns', value: 2, text: 'Fischmenschen-Karate: wer ihn trifft, erleidet 2 Schaden. Erleidet selbst 1 weniger.',
+             mods: [{ scope: 'char:kuroobi', armor: 1 }] },
+  chu:     { name: 'Hundert Wasserpistolen', kind: 'sniper', text: 'Spuckt gezielt: greift immer den Gegner mit den wenigsten Leben an. +10 % Krit-Chance.',
+             mods: [{ scope: 'char:chu', crit: 0.1 }] },
+  sabo:    { name: 'Drachenklaue',     kind: 'execute', value: 0.4, text: 'Gegner unter 25 % Leben besiegt er mit 40 % Chance sofort. Seine Treffer setzen in Brand.',
+             status: { key: 'burning', rounds: 2, when: 'hit', target: 'target', value: 2, chance: 0.3 } },
+  ivankov: { name: 'Hormon-Frucht',    kind: 'oasis', value: 10, text: 'Zu Kampfbeginn heilt die ganze Crew 10 Leben und ist 2 Runden mutig.',
+             status: { key: 'brave', rounds: 2, when: 'start', target: 'allies' } },
+  koala:   { name: 'Fischmenschen-Karate', kind: 'lifesteal', value: 0.3, text: 'Heilt sich um 30 % ihres Schadens.' },
+  dragon:  { name: 'Sturm der Revolution', kind: 'slow', value: 3, text: 'Zu Kampfbeginn verlieren alle Gegner 3 Tempo und sind 2 Runden geschwächt.',
+             status: { key: 'weak', rounds: 2, when: 'start', target: 'all' } },
+  beckman: { name: 'Vizekapitän',      kind: 'rally', value: 2, text: 'Ruhiger Kopf: zu Kampfbeginn +2 Angriff für die ganze Crew.' },
+  roo:     { name: 'Grillfleisch',     kind: 'medic', value: 5, text: 'Teilt sein Fleisch: heilt am Rundenende das am schwersten verletzte Crewmitglied um 5.' },
+  yasopp:  { name: 'Meisterschütze',   kind: 'sniper', text: 'Trifft immer den schwächsten Gegner. +25 % Krit-Chance.', mods: [{ scope: 'char:yasopp', crit: 0.25 }] },
+  aokiji:  { name: 'Ice Age',          kind: 'slow', value: 3, text: 'Zu Kampfbeginn verlieren alle Gegner 3 Tempo. Alle 4 Runden friert er den Vordersten ein (Betäubt).',
+             status: { key: 'stun', rounds: 1, when: 'every', n: 4, target: 'front' } },
+  vista:   { name: 'Blumenschwert',    text: '+20 % Krit-Chance und härtere Krits.', mods: [{ scope: 'char:vista', crit: 0.2, critMult: 0.3 }] }
+
 };
 // Seltener Raid: Shanks nutzt im Raid dieselbe Fähigkeit wie als Crewmitglied (Königs-Haki)
 
