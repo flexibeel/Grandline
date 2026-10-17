@@ -1,13 +1,14 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
-  { v: '2026-10-18b', date: '18.10.', title: 'Supernovas, Thriller Bark und Launen der See', items: [
+  { v: '2026-10-18c', date: '18.10.', title: 'Supernovas, Thriller Bark und Launen der See', items: [
     'Zwei neue Banden: Schlimmste Generation (Eustass Kid, Killer, Bonney, Drake, Hawkins, Apoo) und Thriller-Bark-Piraten (Gecko Moria, Absalom, Dr. Hogback, Perona)',
     'Neue Bündnisse: Chaos auf Sabaody (Supernovas + Strohhut) und Schattenspiel (Thriller Bark + Baroque Works), dazu 9 neue Duos',
     'Laune der See: Ab deinem dritten Run hat jede Fahrt eine Besonderheit, z. B. Goldrausch, Wilde See, Kopfgeldjagd, Flaute, Schatzfieber oder Rückenwind. Steht oben im Run',
     'Tiere kämpfen jetzt mit eigenen Tricks: Wildschwein wird wütend, Krabbe piekst zurück, Möwe stürzt sich auf Schwache, Krokodil beißt blutig, Wolf heult, Seekönig schlägt mit dem Schwanz, Fledermaus saugt Leben',
     'In der Kampf-Vorschau steht bei Tieren ihr Trick, Details per Finger halten',
-    'Training nach einem Level-up kompakt: vier kleine Knöpfe in einer Reihe statt großer Kästen' ] },
+    'Training nach einem Level-up kompakt: vier kleine Knöpfe in einer Reihe statt großer Kästen',
+    'Fünf neue Ereignisse auf See: Wildschweine am Strand, Krabbenmarkt, Möwenpost, Geisterschiff im Nebel, Flaschenpost' ] },
   { v: '2026-10-17zq', date: '17.10.', title: 'English, Teil 2', items: [
     'Englisch umfasst jetzt fast alles: Fähigkeiten, Ultis, Banden, Duos, Schätze, Früchte, Inseln, Ereignisse, Bosse',
     'English now covers nearly everything: abilities, ultimates, crews, duos, treasures, fruits, islands, events and bosses. Luffy, Zoro and Usopp use their English names' ] },

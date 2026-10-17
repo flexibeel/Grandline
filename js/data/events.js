@@ -141,5 +141,47 @@ GL.data.events = [
         text: 'Die Angeln sind eingeholt.' },
       { label: 'Ablehnen', hint: 'Nichts passiert', outcome: {}, text: 'Ihr lasst die Fischer in Ruhe.' }
     ]
+  },
+  {
+    id: 'wildschweine', title: 'Wildschweine am Strand',
+    text: 'Beim Wasserholen stürmt eine Rotte Wildschweine aus dem Dickicht. Sanji würde sagen: Abendessen!',
+    choices: [
+      { label: 'Jagen', hint: '60 %: ganze Crew heilt 30 %, sonst -10 % Leben', outcome: { chance: 0.6, win: { heal: 0.3 }, lose: { hurt: 0.1 } },
+        text: 'Die Jagd ist vorbei. Am Feuer wird erzählt, was passiert ist.' },
+      { label: 'Leise zurückziehen', hint: '+6 Erfahrung', outcome: { xp: 6 }, text: 'Ihr schleicht zurück zum Schiff und lernt dabei, leise zu sein.' }
+    ]
+  },
+  {
+    id: 'krabbenmarkt', title: 'Schwimmender Krabbenmarkt',
+    text: 'Ein Händler auf einem riesigen Krabbenpanzer winkt euch heran. Er hat Gold und Gerüchte.',
+    choices: [
+      { label: 'Handeln', hint: '+12 Gold', outcome: { gold: 12 }, text: 'Der Krabbenhändler zahlt fair: 12 Gold für eure alten Seile.' },
+      { label: 'Gerüchte hören', hint: 'Schatz wählen', outcome: { pick: 'treasure' }, text: 'Das Gerücht führt zu einer versteckten Kiste.' }
+    ]
+  },
+  {
+    id: 'moewenpost', title: 'Die Möwenpost bringt Zeitung',
+    text: 'Eine Möwe mit Mütze landet an Deck. In der Zeitung: Steckbriefe, und euer Kapitän ist auch drin!',
+    choices: [
+      { label: 'Zeitung kaufen', hint: '-3 Gold, +2 Statuspunkte', outcome: { gold: -3, points: 2 }, text: 'Stolz auf den Steckbrief trainiert der Kapitän doppelt so hart.' },
+      { label: 'Möwe füttern', hint: '+20 Berry', outcome: { berry: 20 }, text: 'Die Möwe lässt aus Dank ein paar Münzen fallen.' }
+    ]
+  },
+  {
+    id: 'nebelschiff', title: 'Ein Geisterschiff im Nebel',
+    text: 'Im dichten Nebel taucht ein zerfallenes Schiff auf. Von Deck klingt leise Geigenmusik.',
+    choices: [
+      { label: 'An Bord gehen', hint: '50 %: seltener Schatz, sonst Furcht kostet 15 % Leben', outcome: { chance: 0.5, win: { relic: 1 }, lose: { hurt: 0.15 } },
+        text: 'Der Nebel lichtet sich, das Geisterschiff ist verschwunden.' },
+      { label: 'Abdrehen', hint: 'Nichts passiert', outcome: {}, text: 'Ihr dreht ab. Die Musik verklingt hinter euch.' }
+    ]
+  },
+  {
+    id: 'flaschenpost', title: 'Flaschenpost',
+    text: 'Eine Flasche schaukelt neben dem Bug. Darin eine Karte mit einem roten Kreuz.',
+    choices: [
+      { label: 'Der Karte folgen', hint: 'Teufelsfrucht wählen', outcome: { pick: 'fruit' }, text: 'Am Kreuz liegt eine seltsame Frucht mit Wirbelmuster.' },
+      { label: 'Für später aufheben', hint: '+25 Berry', outcome: { berry: 25 }, text: 'Ein Sammler im Hafen zahlt gut für alte Karten.' }
+    ]
   }
 ];
