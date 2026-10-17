@@ -573,6 +573,7 @@
         break;
       }
       case 'logout': {
+        if (profile.nickname && !profile.codeClaimed && !(GL.online.state().email)) { toast('<span><b>Noch nicht gesichert</b>Dein Spielercode ist noch nicht online. Ohne Verbindung wäre der Fortschritt nach dem Abmelden weg.</span>'); break; }
         if (!ui.logoutArmed) { ui.logoutArmed = true; const t = document.getElementById('title'); if (t) t.dataset.last = ''; draw(); break; }
         el.disabled = true; el.textContent = 'Melde ab …';
         const done = () => {
@@ -580,7 +581,8 @@
           try { ['grandline.run', 'grandline.profile', 'grandline.best', 'grandline.uid'].forEach(k => localStorage.removeItem(k)); sessionStorage.removeItem('gl.pulled'); } catch (e2) { /* egal */ }
           location.reload();
         };
-        Promise.race([GL.online.logout(), new Promise(r => setTimeout(r, 3000))]).then(done, done);
+        const bye = (async () => { try { if (profile.playerCode) await GL.online.codeSave(profile); } catch (e2) { /* egal */ } await GL.online.logout(); })();
+        Promise.race([bye, new Promise(r => setTimeout(r, 4000))]).then(done, done);
         break;
       }
       case 'mail-code': {

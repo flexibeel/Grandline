@@ -1782,8 +1782,13 @@ window.GL = window.GL || {};
   // Account zurücksetzen oder löschen (auch im Profil-Editor)
   function dangerZone(uiRef) {
     const armed = uiRef && uiRef.accArmed;
+    const lo = uiRef && uiRef.logoutArmed;
     return `<div class="danger-zone">
       <b>Account</b>
+      <div class="dz-row dz-logout">
+        <span><b>Abmelden</b><small>Nur auf diesem Gerät. Dein Fortschritt bleibt gespeichert, zurück kommst du mit deinem Spielercode.</small></span>
+        <button class="btn mini ghost" data-act="logout">${lo ? 'Code notiert? Abmelden' : 'Abmelden'}</button>
+      </div>
       <div class="dz-row">
         <span><b>Fortschritt zurücksetzen</b><small>Rang, Berry, Freischaltungen und Funde weg. Name und Aussehen bleiben.</small></span>
         <button class="btn mini ghost danger-btn" data-act="acc-reset">${armed === 'reset' ? 'Sicher? Nochmal klicken' : 'Zurücksetzen'}</button>
