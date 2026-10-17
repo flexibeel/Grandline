@@ -3613,3 +3613,5 @@ body.reloading { opacity: .5; transition: opacity .12s; }
 .cg-slots { gap: 4px; }
 .cg-row { grid-template-columns: 30px minmax(0, 1fr) auto; }
 @media (max-width: 400px) { .cg-chip { width: 38px; height: 38px; } .cg-chip .cg-art { width: 24px; height: 24px; } }
+.rival-box { margin: 0 0 10px; padding: 10px 14px; border-radius: 14px; background: linear-gradient(180deg, #fbeee6, #f6efe0); box-shadow: inset 0 0 0 1px rgba(170,90,60,.3); }
+.rival-box b { display: block; margin: 2px 0; } .rival-box small { color: #8a7a62; }

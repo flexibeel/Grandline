@@ -529,7 +529,19 @@
     if (type !== 'slot-del') ui.slotDel = null;
 
     switch (type) {
-      case 'node': act({ type: 'node', index: i }); break;
+      case 'node': {
+        // Begegnung auf See: manchmal kreuzt die Crew eines anderen Spielers deinen Kurs (statt eines normalen Kampfes)
+        const RV = GL.config.rival;
+        let rival = null;
+        if (RV && run && run.options && run.options[i] === 'battle' && !run.daily && !run.duel && !GL.sandbox.on() && Math.random() < RV.chance) {
+          const st = GL.online && GL.online.state ? GL.online.state() : {};
+          const cands = (st.rows || []).filter(r => r.id !== st.uid && (r.squad || []).length >= 2 && !r.npc);
+          const r = cands[Math.floor(Math.random() * cands.length)];
+          if (r) rival = { name: r.name, team: r.squad.map(x => ({ id: x.id === 'rival' ? 'self' : x.id, type: x.type, look: x.look || null })) };
+        }
+        act(rival ? { type: 'node', index: i, rival } : { type: 'node', index: i });
+        break;
+      }
       case 'pick': act({ type: 'pick', index: i }); break;
       case 'up':   act({ type: 'swap', a: i, b: i - 1 }); break;
       case 'down': act({ type: 'swap', a: i, b: i + 1 }); break;

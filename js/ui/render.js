@@ -982,7 +982,10 @@ window.GL = window.GL || {};
           </div>`;
         }).join('');
         const huntedT = boss && boss.mini ? enemyData(boss.id) : null;
-        return `<h2>${run.pending.kind === 'raid' ? 'Raid: ' + enemyData(boss.id).name : run.pending.kind === 'boss' ? 'Bosskampf: Aufstellung' : huntedT ? (run.pending.gate ? 'Bösewicht der Insel: ' : 'Kopfgeld-Ziel: ') + huntedT.name : 'Aufstellung'}</h2>
+        const rivalBox = run.pending.rival ? `<div class="rival-box"><span class="event-kicker">Begegnung auf See</span>
+          <b>${esc(run.pending.rival.name)}s Crew kreuzt deinen Kurs!</b>
+          <small>Die echte Stammcrew eines Mitspielers, auf dein Level angepasst. Sieg bringt Extra-Gold.</small></div>` : '';
+        return `${rivalBox}<h2>${run.pending.rival ? 'Aufstellung' : run.pending.kind === 'raid' ? 'Raid: ' + enemyData(boss.id).name : run.pending.kind === 'boss' ? 'Bosskampf: Aufstellung' : huntedT ? (run.pending.gate ? 'Bösewicht der Insel: ' : 'Kopfgeld-Ziel: ') + huntedT.name : 'Aufstellung'}</h2>
           ${huntedT ? `<p class="hint">Auf ${huntedT.name} sind <b>${huntedT.bounty} Mio. ฿</b> ausgesetzt. Sieg: Das Kopfgeld geht an deinen Kapitän, dazu ein Schatz.</p>` : ''}
           ${run.pending.kind === 'raid' ? `<p class="hint">Gewinnst du, gehört dir eine erwachte Teufelsfrucht für immer. Verlierst du, entkommt deine Crew mit wenig Leben.</p>` : ''}
           <div class="formation isl-${GL.run.island(run).id}${run.pending.kind === 'raid' ? ' raid' : ''}">
@@ -1018,7 +1021,7 @@ window.GL = window.GL || {};
           log = anim.log;
           controls = `<div class="fight-ctrl"><button class="btn ghost speed-btn" data-act="fast" aria-label="Tempo ändern">${speedLabel(anim.speed || 2)}</button></div>`;
         }
-        const title = b.kind === 'raid' ? 'Raid' : b.kind === 'boss' ? 'Bosskampf' : 'Kampf';
+        const title = b.kind === 'raid' ? 'Raid' : b.kind === 'boss' ? 'Bosskampf' : run.pending && run.pending.rival ? 'Begegnung: ' + esc(run.pending.rival.name) : 'Kampf';
         return `<div class="battle-head"><h2>${title}</h2>${done ? `<span class="result ${b.win ? 'win' : 'lose'}">${b.win ? 'Sieg' : 'Niederlage'}</span>` : ''}</div>
           ${GL.arena.html(run, anim)}
           <div class="log" id="log" role="status" aria-live="polite">${log}</div>

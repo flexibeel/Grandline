@@ -309,6 +309,23 @@ window.GL = window.GL || {};
     return out;
   }
 
+  // Anderer Spieler als kleiner Zwischenboss: auf dein Level skaliert und etwas abgeschwächt
+  function makeRival(run, rv) {
+    const C = GL.config, g = C.grunt, H = run.H || heatMods(0);
+    const level = (run.step + (run.loopSteps || 0)) * C.enemyScale;
+    const RV = C.rival || { hp: 1.05, atk: 0.9, max: 4 };
+    const n = Math.max(2, Math.min(RV.max, 1 + Math.floor((level + 1) / 2) + 1));
+    const team = rv.team.filter(t => t && (t.id === 'self' || byId(GL.data.crew, t.id))).slice(0, n);
+    return team.map((t, i) => {
+      const d = t.id === 'self' ? { type: t.type || 'kraft', spd: 5 } : byId(GL.data.crew, t.id);
+      const max = Math.round((g.hpBase + level * g.hpPerLevel) * RV.hp * (i === 0 ? 1.25 : 1) * (1 + H.enemyHp));
+      const e = { id: t.id === 'self' ? 'rival' : t.id, type: d.type, hp: max, max,
+        atk: Math.round((g.atkBase + level * g.atkPerLevel) * RV.atk * (1 + H.enemyAtk)), spd: Math.min(9, d.spd || 5) + H.enemySpd };
+      if (i === 0) { e.mini = true; e.name = String(rv.name || 'Pirat').slice(0, 24); }
+      if (t.id === 'self') { e.name = String(rv.name || 'Pirat').slice(0, 24); e.def = { id: 'rival', name: e.name, type: e.type, look: t.look || { hair: '#3a2a1a', skin: '#f2c9a0', shirt: '#7a3a3a', pants: '#2a2a3a', hat: 'band', hatColor: '#2a2a2a' } }; }
+      return e;
+    });
+  }
   function makeEnemies(run, kind, who, gate) {
     const C = GL.config;
     const g = C.grunt;
@@ -749,7 +766,10 @@ window.GL = window.GL || {};
           const cn = run.chart && run.optCols ? run.chart.rows[rowIdx(run)][run.optCols[a.index]] : null;
           const who = node === 'elite' && cn ? cn.who : null;
           const gate = !!(cn && cn.gate);
-          run.pending = { kind: node, who, gate, enemies: makeEnemies(run, node, who, gate) };
+          // Begegnung auf See: ein anderer Pirat (Crew kommt in der Aktion mit, damit das Replay gleich bleibt)
+          const rv = node === 'battle' && a.rival && Array.isArray(a.rival.team) && a.rival.team.length ? a.rival : null;
+          run.pending = rv ? { kind: node, rival: { name: String(rv.name || 'Pirat').slice(0, 24) }, enemies: makeRival(run, rv) }
+            : { kind: node, who, gate, enemies: makeEnemies(run, node, who, gate) };
           run.phase = 'prep';
         } else if (node === 'recruit') {
           openShop(run);
@@ -794,6 +814,7 @@ window.GL = window.GL || {};
           });
           // Siege laden den Spezialangriff auf (Kopfgeldjäger doppelt)
           if (res.win) { earnGold(run, run.pending.kind); S.won = (S.won || 0) + 1; }
+          if (res.win && run.pending.rival) { run.gold = (run.gold || 0) + (C.rival ? C.rival.gold : 12); run.rivals = (run.rivals || 0) + 1; }
           if (res.win && !special) {
             const gain = run.pending.kind === 'elite' ? 2 : run.pending.kind === 'battle' ? 1 : 0;
             run.charge = Math.min(C.specialMax, (run.charge || 0) + gain);

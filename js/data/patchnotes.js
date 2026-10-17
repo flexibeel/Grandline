@@ -1,6 +1,10 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-17o', date: '17.10.', title: 'Begegnung auf See', items: [
+    'Manchmal kreuzt statt eines normalen Kampfes die Stammcrew eines echten Mitspielers deinen Kurs, auf dein Level angepasst',
+    'Sieg gegen einen Mitspieler bringt Extra-Gold',
+    'Ausrüstung: Waffen, Kleidung, Schmuck und Trophäen klar beschriftet und sortiert' ] },
   { v: '2026-10-17n', date: '17.10.', title: 'Trophäen und Zwischenhafen', items: [
     'Raid-Beute aus der Vitrine ist jetzt auch eine Trophäe für deine Stammcrew: eigene Spezialfähigkeit plus zufällige Werte',
     'Endlos-Modus: Vor jeder neuen Runde legst du im Zwischenhafen an. Crew umstellen, entlassen, neu anheuern',

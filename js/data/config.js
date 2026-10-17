@@ -97,6 +97,8 @@ GL.config = {
   // Kampfwetter (nur normale Kämpfe und Kopfgeldjäger): so oft kommt eins, und was es tut
   // Bosskampf: länger je Meer, Boss weicht manchmal aus und kontert
   bossFight: { hp: 0.2, hpPerSea: 0.12, atk: 0.92, dodge: 0.08, counter: 0.15, counterMult: 0.6 },
+  // Begegnung auf See mit der Crew eines anderen Spielers (statt eines normalen Kampfes)
+  rival: { chance: 0.2, hp: 1.05, atk: 0.9, max: 4, gold: 12 },
   weatherChance: 0.35,
   weather: [
     { id: 'nebel',  name: 'Nebel',        text: 'Alle verfehlen öfter.',              miss: 0.12 },

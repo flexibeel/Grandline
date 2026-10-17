@@ -42,9 +42,11 @@ GL.data.foeKinds = [
 GL.data.foeKind = key => GL.data.foeKinds.find(k => k.key === key) || null;
 // Darstellung eines Gegners (Name, Aussehen) inkl. besonderer Gegner
 GL.data.foeDef = e => {
+  if (e.def) return e.def;
   const base = GL.data.grunts.find(x => x.id === e.id) || GL.data.bosses.find(x => x.id === e.id) || (GL.data.raids || []).find(x => x.id === e.id) || (GL.data.hunted || []).find(x => x.id === e.id);
   const k = e.kind && GL.data.foeKind(e.kind);
-  if (!base || !k) return base;
+  if (!base) return (GL.data.crew || []).find(x => x.id === e.id);   // z. B. Crew eines anderen Spielers (Begegnung auf See)
+  if (!k) return base;
   return Object.assign({}, base, { name: k.name, kind: k.key, look: Object.assign({}, base.look, k.look) });
 };
 
