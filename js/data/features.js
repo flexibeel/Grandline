@@ -32,3 +32,19 @@ GL.data.features = [
     steps: ['Vier Figuren fest aufstellen', 'Gegner ähnlicher Stärke herausfordern', 'Siege bringen Liga-Punkte'],
     or: p => p.stats && p.stats.wins > 0 }
 ];
+
+// Erste Funde: einmal kurz erklären, was man da gerade bekommen hat (wann es zählt: has(profile))
+GL.data.firsts = [
+  { id: 'first-loot', kicker: 'Erster Fund', art: 'chest', tab: 'lager', name: 'Dein erstes Raid-Beutestück!',
+    text: 'Raid-Beute ist selten und gehört dir für immer. Sie liegt in deiner Vitrine im Lager. Bis zu drei Stücke kannst du ausstellen, die sehen alle auf deiner Karte in der Rangliste.',
+    steps: ['Lager öffnen, ganz unten ist die Vitrine', '„Ausstellen“ antippen', 'Freunde sehen es auf deiner Karte'],
+    has: p => Object.keys(p.loot || {}).length > 0 },
+  { id: 'first-epic', kicker: 'Erster Fund', art: 'anvil', tab: 'schmiede', name: 'Episch! Besondere Ausrüstung',
+    text: 'Epische und legendäre Ausrüstung ist deutlich stärker als normale. Heb sie gut auf: In der Schmiede verbesserst du sie und nimmst sie mit auf See.',
+    steps: ['Liegt jetzt in der Schmiede', 'Mit Berry eine Stufe höher schmieden', 'Antippen = beim nächsten Run dabei'],
+    has: p => (p.chest || []).some(it => it.r >= 2) },
+  { id: 'first-artifact', kicker: 'Erster Fund', art: 'chest', tab: 'kammer', name: 'Ein Artefakt!',
+    text: 'Artefakte lassen Bosse und Raids fallen. Findest du dasselbe noch einmal, wird es stärker.',
+    steps: ['Liegt in der Schatzkammer', 'Bis zu drei kommen mit auf See'],
+    has: p => Object.keys(p.vault || {}).length > 0 }
+];

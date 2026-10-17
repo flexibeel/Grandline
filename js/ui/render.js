@@ -2049,7 +2049,7 @@ window.GL = window.GL || {};
   }
   function featurePop(f, more) {
     return `<div class="fpop-card" role="dialog" aria-labelledby="fpop-t">
-      <span class="fpop-kicker">Neu freigeschaltet</span>
+      <span class="fpop-kicker">${esc(f.kicker || 'Neu freigeschaltet')}</span>
       <div class="fpop-art">${featureArt(f.art)}</div>
       <h3 id="fpop-t">${esc(f.name)}</h3>
       <p>${esc(f.text)}</p>

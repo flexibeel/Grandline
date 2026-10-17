@@ -47,7 +47,11 @@
     if (!run && !ui.screen && ui.intro == null && !old && installDue()) { openInstall(); return; }
     if (run || ui.screen || ui.intro != null || !profile.nickname || !GL.meta.featuresNew) { if (old && !ui.fpop) old.remove(); return; }
     const fresh = !profile.seenFeatures;
-    const list = GL.meta.featuresNew(profile).slice().sort((a, b) => (!!b.tab - !!a.tab) || a.lvl - b.lvl), f = list[0];
+    // Erste Funde zuerst (ein Fenster, kurz und freundlich). Bestehende Spieler: alte Funde gelten als gesehen.
+    if (!profile.firstSeen) { profile.firstSeen = {}; if ((profile.rankXp || 0) > 0 && !profile.testerPops) (GL.data.firsts || []).forEach(x => { if (x.has(profile)) profile.firstSeen[x.id] = 1; }); saveProfile(); }
+    const first = (GL.data.firsts || []).find(x => !profile.firstSeen[x.id] && x.has(profile));
+    const list = first ? [Object.assign({}, first, { tab: first.tab && GL.meta.featureOpen(profile, first.tab === 'lager' ? 'lager' : first.tab) ? first.tab : null })]
+      : GL.meta.featuresNew(profile).slice().sort((a, b) => (!!b.tab - !!a.tab) || a.lvl - b.lvl), f = list[0];
     if (fresh) saveProfile();
     if (!f) { if (old) old.remove(); return; }
     if (old && old.dataset.id === f.id) return;
@@ -112,9 +116,10 @@
     if (el) { el.classList.remove('in'); el.classList.add('out'); setTimeout(() => { el.remove(); ui.fbOpen = null; }, 260); }
   }
   function closeFeature(id, go) {
-    GL.meta.featuresNew(profile).forEach(x => GL.meta.featureSeen(profile, x.id));
-    GL.meta.featureSeen(profile, id); saveProfile();
-    const f = (GL.data.features || []).find(x => x.id === id);
+    const fst = (GL.data.firsts || []).find(x => x.id === id);
+    if (fst) { profile.firstSeen = profile.firstSeen || {}; profile.firstSeen[id] = 1; saveProfile(); }
+    else { GL.meta.featuresNew(profile).forEach(x => GL.meta.featureSeen(profile, x.id)); GL.meta.featureSeen(profile, id); saveProfile(); }
+    const f = fst || (GL.data.features || []).find(x => x.id === id);
     const el = document.getElementById('fpop');
     if (el) { el.classList.remove('in'); el.classList.add('out'); setTimeout(() => { el.remove(); draw(); }, 260); }
     if (go && f && f.tab) { ui.hqTab = f.tab; ui.lastStage = null; }
