@@ -237,6 +237,21 @@ window.GL = window.GL || {};
       return 1 + GL.run.upgradeTotal(profile.upgrades, 'slots');
     },
 
+    // Kapitel-Fortschritt eines Meeres: die 4 Bösewichte der kleinen Inseln plus beide Insel-Bosse.
+    // Da pro Run nur 2 von 4 kleinen Inseln und einer von 2 Bossen drankommen, braucht es mehrere Runs,
+    // bis alle sechs einmal besiegt wurden - daher ein eigener Fortschrittsbalken über Runs hinweg.
+    chapterTargets(seaIdx) {
+      const isl = GL.data.islands[seaIdx];
+      if (!isl) return [];
+      return [...new Set(isl.small.map(s => s.villain).concat(isl.bosses))];
+    },
+    chapterProgress(profile, seaIdx) {
+      const targets = GL.meta.chapterTargets(seaIdx);
+      const counts = profile.counts || {};
+      const done = targets.filter(id => (counts['defeated:' + id] || 0) > 0).length;
+      return { done, total: targets.length, pct: targets.length ? Math.round(100 * done / targets.length) : 0, complete: targets.length > 0 && done >= targets.length };
+    },
+
     buyGear(profile, id) {
       const g = GL.data.gear.find(x => x.id === id);
       if (!g || profile.berry < g.cost) return false;

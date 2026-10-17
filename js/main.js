@@ -62,6 +62,19 @@
     if (fresh.length > 3) toast(`<span><b>Und ${fresh.length - 3} weitere Profil-Teile</b>Schau im Profil vorbei.</span>`);
   }
 
+  // Kapitel-Fortschritt: alle Bösewichte + Bosse eines Meeres einmal besiegt -> Berry-Belohnung
+  function checkChapters() {
+    if (!profile.chapterSeen) profile.chapterSeen = [];
+    GL.data.islands.forEach((isl, i) => {
+      if (profile.chapterSeen.includes(isl.id)) return;
+      if (!GL.meta.chapterProgress(profile, i).complete) return;
+      profile.chapterSeen.push(isl.id);
+      const reward = 150 * (i + 1);
+      profile.berry = (profile.berry || 0) + reward;
+      toast(`<span><b>Kapitel abgeschlossen: ${isl.name}</b>Alle Bösewichte und Bosse dieses Meeres besiegt. +${reward} Berry.</span>`);
+    });
+  }
+
   function syncProfile() {
     if (!run) return saveProfile();
     GL.meta.update(profile, run).forEach(n => {
@@ -73,6 +86,7 @@
         toast(`<i>${GL.sprites.icon('fruit', f.id, true)}</i><span><b>Epische Frucht: ${f.name}</b>Taucht ab jetzt in deinen Runs auf.</span>`);
       }
     });
+    checkChapters();
     checkCosmetics();
     GL.save.storeProfile(profile);
   }

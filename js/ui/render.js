@@ -1430,6 +1430,22 @@ window.GL = window.GL || {};
       </div>`;
   }
 
+  // Kapitel-Fortschritt: pro Meer alle Bösewichte + Bosse über mehrere Runs besiegen
+  function chapterPanel(profile) {
+    const rows = GL.data.islands.map((isl, i) => {
+      const cp = GL.meta.chapterProgress(profile, i);
+      return `<div class="chapter-row${cp.complete ? ' done' : ''}">
+        <span class="chapter-name">${esc(isl.name)}${cp.complete ? ' ✓' : ''}</span>
+        <div class="xpbar big chapter-bar"><i style="width:${cp.pct}%"></i><span class="rank-bar-txt">${cp.done} / ${cp.total}</span></div>
+      </div>`;
+    }).join('');
+    return `<div class="chapter-panel">
+      <span class="event-kicker">Kapitel-Fortschritt</span>
+      <p class="hint">Jeden Bösewicht und jeden Inselboss eines Meeres mindestens einmal besiegen (über mehrere Runs verteilt). Belohnung: einmalig Berry pro abgeschlossenem Meer.</p>
+      ${rows}
+    </div>`;
+  }
+
   // Account zurücksetzen oder löschen (auch im Profil-Editor)
   function dangerZone(uiRef) {
     const armed = uiRef && uiRef.accArmed;
@@ -1533,6 +1549,7 @@ window.GL = window.GL || {};
           <div><b>${profile.unlocked.length + GL.config.starters.length}</b><span>Kapitäne</span></div>
         </div>
         <button class="btn ghost" data-act="profile-edit">Pirat und Aussehen bearbeiten</button>
+        ${chapterPanel(profile)}
         ${devicesBox()}
         ${dangerZone(uiRef)}</section>` : ''}
       ${tab === 'kammer' ? vaultSection(profile) : ''}
