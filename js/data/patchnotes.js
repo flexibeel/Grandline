@@ -1,6 +1,9 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-17zm', date: '17.10.', title: 'English!', items: [
+    'Neu: Umschalten zwischen Deutsch und Englisch (EN/DE-Knopf oben). Menüs, Knöpfe und Werte sind übersetzt, Fähigkeiten folgen',
+    'New: switch between German and English with the EN/DE button. Menus, buttons and stats are translated, ability texts will follow' ] },
   { v: '2026-10-17zl', date: '17.10.', title: 'Tiere der Grand Line', items: [
     'Neue Gegner: Wildschwein, Riesenkrabbe und Möwe im East Blue, Bananen-Krokodil und Steppenwolf im Paradies, Seekönig und Riesenfledermaus im dritten Meer',
     'Kampf-Karten unter dem Kampfbild im Pixel-Holz-Look statt weißer Kästen',

@@ -42,7 +42,7 @@
     if (!GL.music) return;
     GL.music.setMode(ui.screen || ui.intro != null ? 'title' : run && !GL.run.isFinished(run) ? 'run' : 'hq');
     const slot = document.getElementById('mu-slot');
-    if (slot) { const h = `<button class="mu-btn head wk-btn${profile.wikiSeen ? '' : ' fresh'}" data-act="wiki-open" aria-label="Wiki öffnen" title="Wiki: Nachschlagen und Meta">${GL.ui.wikiIcon}</button>`; if (slot.innerHTML !== h) slot.innerHTML = h; }
+    if (slot) { const h = `<button class="mu-btn head lang-btn" data-act="lang" title="Deutsch / English">${GL.i18n && GL.i18n.lang() === 'en' ? 'DE' : 'EN'}</button><button class="mu-btn head wk-btn${profile.wikiSeen ? '' : ' fresh'}" data-act="wiki-open" aria-label="Wiki öffnen" title="Wiki: Nachschlagen und Meta">${GL.ui.wikiIcon}</button>`; if (slot.innerHTML !== h) slot.innerHTML = h; }
   }
   // Automatische Aufstellung vor jedem Kampf: Brecher vorne, Kämpfer in der Mitte, Helfer hinten.
   // Läuft über normale Tausch-Aktionen, damit Replays gleich bleiben. Kein Umsortieren per Hand mehr.
@@ -866,6 +866,7 @@
         if (row) startSquadDuel(row);
         break;
       }
+      case 'lang': if (GL.i18n) GL.i18n.set(GL.i18n.lang() === 'en' ? 'de' : 'en'); break;
       case 'music': {
         const onNow = GL.music && GL.music.toggle();
         toast(onNow ? '<span><b>Musik an</b>Leise, gemütlich, selbst komponiert.</span>' : '<span><b>Musik aus</b>Mit ♪ jederzeit wieder an.</span>');
