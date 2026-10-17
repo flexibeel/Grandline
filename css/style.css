@@ -2829,3 +2829,8 @@ button, .opt, .map-node, .lb-row { touch-action: manipulation; }
 .heat-pill[data-tip]::before, .sb-chip[data-tip]::before, .atsea[data-tip]::before { bottom: auto; top: calc(100% + 0px); border-top-color: transparent; border-bottom-color: #1b2230; }
 /* Kopfgeld-Tooltip auf dem Handy nicht über den Rand hinaus */
 @media (max-width: 640px) { .heat-pill[data-tip]::after { left: auto; right: 0; } }
+@media (min-width: 760px) {
+  .quests { grid-template-columns: repeat(3, 1fr); }
+  .quests .q-head { grid-column: 1 / -1; }
+  .quest { grid-template-columns: 28px 1fr auto; align-items: start; }
+}
