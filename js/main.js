@@ -27,6 +27,7 @@
 
   const SPEED = { normal: 430, special: 820, ult: 900, fast: 90 };
 
+  let keyPick = false;   // Auswahl per Taste 1-9: ohne Bestätigung
   function draw() { GL.ui.render(run, anim, ui); }
 
   // Neue Freischaltungen kurz einblenden
@@ -268,7 +269,21 @@
 
     switch (type) {
       case 'node': act({ type: 'node', index: i }); break;
-      case 'pick': act({ type: 'pick', index: i }); break;
+      case 'pick': {
+        // Karten und Kurswahl: erster Tipp markiert, zweiter nimmt (Tastatur 1-9 nimmt sofort)
+        const two = (el.classList.contains('card') || el.classList.contains('course-opt')) && !keyPick && !el.classList.contains('sold');
+        keyPick = false;
+        const key = run ? run.phase + ':' + run.step + ':' + i : '';
+        if (two && ui.armedPick !== key) {
+          ui.armedPick = key;
+          document.querySelectorAll('.opt.armed').forEach(x => x.classList.remove('armed'));
+          el.classList.add('armed');
+          break;
+        }
+        ui.armedPick = null;
+        act({ type: 'pick', index: i });
+        break;
+      }
       case 'up':   act({ type: 'swap', a: i, b: i - 1 }); break;
       case 'down': act({ type: 'swap', a: i, b: i + 1 }); break;
       case 'fight': act({ type: 'fight' }); break;
@@ -542,7 +557,7 @@
     if (/^[1-9]$/.test(e.key)) {
       const opts = stage.querySelectorAll('.opt, .map-node.can');
       const b = opts[Number(e.key) - 1];
-      if (b && !b.disabled) { e.preventDefault(); b.click(); }
+      if (b && !b.disabled) { e.preventDefault(); keyPick = true; b.click(); keyPick = false; }
       return;
     }
     // Leertaste/Enter = Universal-Weiter: Kampf starten, schneller, überspringen, weiter

@@ -205,25 +205,26 @@ window.GL = window.GL || {};
 
   // ---------- Karten im Sammelkarten-Stil ----------
   // Figurenkarte: Bild, Name, Fähigkeit, Angriff unten links, Leben unten rechts
+  const FAC_SHORT = { strohhut: 'Strohhut', marine: 'Marine', cp9: 'CP9', baroque: 'Baroque', weissbart: 'Weißbart', samurai: 'Samurai' };
+  // Figurenkarte: Rahmen in der Farbe der Bande, oben das Banden-Band, unten klare Werte-Leiste
   function crewCardFace(d, m, opts) {
     const o = opts || {};
     const a = ability(d.id);
     const t = o.trait ? trait(o.trait) : null;
-    return `<span class="card-face frame-s${o.stars || 2}${o.gold ? ' frame-gold' : ''}">
-      ${o.lvl ? `<span class="gem gem-lv" title="Level">${o.lvl}</span>` : ''}
-      ${o.stars ? `<span class="card-stars">${stars(o.stars)}</span>` : ''}
-      <span class="gem gem-spd" title="Tempo"><b>${m.spd}</b></span>
-      <span class="card-art art-${d.type}">${GL.sprites.render(d)}</span>
+    const fac = d.faction && GL.data.factions[d.faction];
+    const u = ultiOf(d.id, d.role);
+    return `<span class="card-face cf2 fac-${d.faction || 'none'}${o.gold ? ' frame-gold' : ''}">
+      <span class="cf-band" title="${fac ? esc(fac.name) : 'Ohne Bande'}"><span>${fac ? esc(FAC_SHORT[d.faction] || fac.name) : 'Ohne Bande'}</span>${o.stars ? stars(o.stars) : ''}</span>
+      <span class="card-art art-${d.type}">${GL.sprites.render(d)}${o.lvl ? `<em class="cf-lv">Lv ${o.lvl}</em>` : ''}</span>
       <span class="card-name">${d.name}</span>
-      <span class="card-type">${badge(d.type)} ${tags(d)}</span>
+      <span class="cf-tags">${badge(d.type)}${roleChip(d.role)}</span>
       <span class="card-text">
-        ${a ? `<b>${a.name}:</b> ${a.text}` : ''}
-        ${ultiOf(d.id, d.role) ? `<span class="card-ult" title="${esc(ultiOf(d.id, d.role).text)}">⚡ Ulti: <b>${ultiOf(d.id, d.role).name}</b></span>` : ''}
-        ${t ? `<span class="card-trait"><b>${t.name}:</b> ${t.text}</span>` : ''}
+        ${a ? `<span class="cf-line"><b>${a.name}:</b> ${a.text}</span>` : ''}
+        ${u ? `<span class="cf-line cf-ult" title="${esc(u.text)}">⚡ <b>${u.name}</b></span>` : ''}
+        ${t ? `<span class="cf-line card-trait"><b>${t.name}:</b> ${t.text}</span>` : ''}
         ${o.extra || ''}
       </span>
-      <span class="gem gem-atk" title="Angriff">${m.atk}</span>
-      <span class="gem gem-hp" title="Leben">${m.max}</span>
+      <span class="cf-stats"><span title="Leben">❤ <b>${m.max}</b></span><span title="Angriff">⚔ <b>${m.atk}</b></span><span title="Tempo">⚡ <b>${m.spd}</b></span></span>
     </span>`;
   }
 
@@ -940,7 +941,7 @@ window.GL = window.GL || {};
             </div>
           </div>
           ${tipLine(formTip)}
-          <p class="hint form-hint">Figuren an die gewünschte Stelle ziehen (oder anwählen und Pfeiltasten). Wer ganz oben steht, steht <b>vorne</b> und wird zuerst angegriffen. Alle greifen den vordersten Gegner an. ${typeChart()}</p>
+          <p class="hint form-hint">↕ Ziehen zum Umsortieren. <b>Oben steht vorne</b> und wird zuerst angegriffen. ${typeChart()}</p>
           ${boss && ability(boss.id) ? `<p class="hint boss-mech"><b>${enemyData(boss.id).name}, ${ability(boss.id).name}:</b> ${abilityTag(ability(boss.id))} ${ability(boss.id).text}</p>` : ''}
           ${boss && ability(boss.id) && ability(boss.id).status ? counterHint(run, ability(boss.id).status.key) : ''}
           ${specialPanel(run)}

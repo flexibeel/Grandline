@@ -2668,3 +2668,54 @@ body.on-title { overflow: hidden; }
 .sq-xp span { display: grid; gap: 2px; }
 .sq-xp small { font-size: .62rem; color: var(--mute); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .sq-xp .xpbar { height: 5px; }
+
+/* =====================================================================
+   SAMMELKARTEN v3: Bande als Farbe, klare Werte-Leiste, gleich große Karten
+   ===================================================================== */
+.cards { align-items: stretch; }
+.opt.card { height: 100%; }
+.card-face.cf2 { --fc: #8a93a3; --fc-d: #5f6776;
+  display: flex !important; flex-direction: column; gap: 5px; height: 100%; min-height: 0 !important;
+  padding: 0 0 8px !important; overflow: hidden; border-width: 3px !important; border-radius: 14px;
+  box-shadow: 0 4px 0 var(--fc-d) !important; background: #fffaf0 !important; }
+.fac-strohhut  { --fc: #d9423a !important; --fc-d: #9a2a24 !important; }
+.fac-marine    { --fc: #2f6fb8 !important; --fc-d: #1d4b80 !important; }
+.fac-cp9       { --fc: #3a3a44 !important; --fc-d: #1c1c22 !important; }
+.fac-baroque   { --fc: #c08a2e !important; --fc-d: #84590e !important; }
+.fac-weissbart { --fc: #7a4fc4 !important; --fc-d: #4e2c8a !important; }
+.fac-samurai   { --fc: #2f8a8f !important; --fc-d: #1c5e62 !important; }
+.fac-none      { --fc: #8a7a66 !important; --fc-d: #5c4f40 !important; }
+.cf2 .cf-band { display: flex; align-items: center; justify-content: space-between; gap: 6px; padding: 4px 8px; background: var(--fc); color: #fff;
+  font-size: .68rem; font-weight: 800; letter-spacing: .03em; text-transform: uppercase; }
+.cf2 .cf-band > span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cf2 .cf-band .stars { font-size: .72rem; color: #ffe27a; text-shadow: 0 1px 0 rgba(0,0,0,.35); white-space: nowrap; }
+.cf2 .cf-band .stars i { color: rgba(255,255,255,.35); font-style: normal; }
+.cf2 .card-art { position: relative; margin: 4px 8px 0 !important; height: 78px !important; border-color: color-mix(in srgb, var(--fc) 45%, #ddd2b4) !important; }
+.cf2 .card-art svg { width: 52px !important; height: 61px !important; }
+.cf2 .cf-lv { position: absolute; left: 4px; top: 4px; font-style: normal; font-size: .64rem; font-weight: 800; padding: 1px 5px; border-radius: 6px;
+  background: rgba(0,0,0,.55); color: #fff; }
+.cf2 .card-name { margin: -12px auto 0 !important; background: var(--fc) !important; box-shadow: 0 2px 0 var(--fc-d) !important; font-size: .95rem !important; }
+.cf2 .cf-tags { display: flex; justify-content: center; gap: 4px; flex-wrap: wrap; padding: 0 6px; }
+.cf2 .cf-tags .type, .cf2 .cf-tags .role-chip { font-size: .64rem; }
+.cf2 .card-text { flex: 1; margin: 0 8px !important; padding: 6px 7px !important; font-size: .76rem !important; line-height: 1.3 !important; font-weight: 600;
+  display: grid; align-content: start; gap: 4px; }
+.cf2 .cf-ult { color: #8a5a00; }
+.cf2 .cf-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; margin: 0 8px; }
+.cf2 .cf-stats span { display: grid; place-items: center; padding: 3px 0; border-radius: 8px; font-size: .7rem; color: #5a4a36; background: #f3e9d2; }
+.cf2 .cf-stats span:nth-child(1) { background: #fbe1dc; color: #a33a30; }
+.cf2 .cf-stats span:nth-child(2) { background: #fbefd2; color: #8a5a00; }
+.cf2 .cf-stats span:nth-child(3) { background: #dff0f4; color: #1d5f80; }
+.cf2 .cf-stats b { font-family: var(--px); font-size: 1rem; line-height: 1.1; }
+.cf2 .gem, .cf2 .card-stars { display: none !important; }
+.opt.card .key { bottom: auto !important; top: 30px; right: 6px !important; left: auto !important; transform: none !important; }
+.opt.card:hover .card-face.cf2 { box-shadow: 0 6px 0 var(--fc-d), 0 0 0 3px color-mix(in srgb, var(--fc) 35%, transparent) !important; }
+@media (max-width: 520px) {
+  .cf2 .card-art { height: 66px !important; }
+  .cf2 .card-text { font-size: .72rem !important; }
+}
+/* Auswahl in zwei Schritten (gegen Fehlklicks): erster Tipp markiert, zweiter nimmt */
+.opt.card.armed .card-face, .opt.course-opt.armed { outline: 3px solid var(--hp); outline-offset: 2px; }
+.opt.card.armed::after, .opt.course-opt.armed::after { content: '✓ Nochmal tippen'; position: absolute; left: 50%; bottom: -12px; transform: translateX(-50%); z-index: 8;
+  white-space: nowrap; font-size: .72rem; font-weight: 800; padding: 3px 10px; border-radius: 999px; background: var(--hp); color: #fff; box-shadow: 0 2px 6px rgba(0,0,0,.2); }
+.opt.card, .opt.course-opt { position: relative; }
+.slot-info .role-chip small { color: #fff !important; }
