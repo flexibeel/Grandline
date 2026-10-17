@@ -2023,6 +2023,23 @@ window.GL = window.GL || {};
       <div class="fpop-btns"><button class="btn" data-act="pop-close">Super!</button></div></div>`;
   }
   const askDismiss = i => !!(GL.uiConfirm && GL.uiConfirm.i === i && Date.now() < GL.uiConfirm.until);
+  // Tageszeit nach der Uhr des Spielers: Morgen, Tag, Abendrot, Nacht
+  function timeOfDay() {
+    const h = new Date().getHours();
+    return h >= 5 && h < 10 ? { id: 'morning', hi: 'Guten Morgen' } : h < 17 ? { id: 'day', hi: 'Ahoi' } : h < 21 ? { id: 'dusk', hi: 'Guten Abend' } : { id: 'night', hi: 'Noch wach' };
+  }
+  // Persönliche Begrüßung im Hafen, wechselt je Besuch
+  function greeting(profile, t) {
+    const n = (profile.nickname || 'Kapitän').split(' ')[0];
+    const lines = {
+      morning: [`${t.hi}, ${n}! Die Crew hat Kaffee gekocht.`, `${t.hi}, ${n}! Frischer Wind in den Segeln.`, `${t.hi}, ${n}! Die Möwen sind schon wach.`],
+      day: [`${t.hi}, ${n}! Die Grand Line ruft.`, `${t.hi}, ${n}! Perfektes Wetter zum Segeln.`, `${t.hi}, ${n}! Das Schiff ist startklar.`],
+      dusk: [`${t.hi}, ${n}! Noch eine Fahrt vorm Essen?`, `${t.hi}, ${n}! Das Abendrot färbt das Meer.`, `${t.hi}, ${n}! Die Laternen sind an.`],
+      night: [`${t.hi}, ${n}? Eine Nachtfahrt geht immer.`, `${t.hi}, ${n}? Die Crew schnarcht schon.`, `${t.hi}, ${n}? Die Sterne zeigen den Weg.`]
+    }[t.id];
+    const k = Math.floor(Date.now() / 36e5) % lines.length;
+    return lines[k];
+  }
   // Pixel-Notenschlüssel als Musik-Schalter (an/aus)
   function musicBtn(cls) {
     const on = GL.music && GL.music.isOn();
@@ -2439,7 +2456,6 @@ window.GL = window.GL || {};
       const t = profile.hunt && GL.data.raids.find(r => r.id === profile.hunt);
       tiles.push(`<button class="ad-tile" data-act="hunt-open"><i class="ad-ico">${t ? GL.sprites.render(t) : '🎯'}</i><b>Raid-Ziel</b><small>${t ? esc(t.name.replace(/^Admiral |^Rothaar /, '')) : 'keins'}</small></button>`);
     }
-    if (profile.nickname) tiles.push(`<button class="ad-tile friends${(profile.invites || []).length ? '' : ' hot'}" data-act="friends-open"><i class="ad-ico">♥</i><b>Freunde</b><small>${(profile.friends || []).length ? (profile.friends || []).length + ' an Bord' : 'Einladen'}</small></button>`);
     return tiles.length ? `<div class="action-dock">${tiles.join('')}</div>` : '';
   }
   function endlessPop(profile) {
@@ -2724,11 +2740,14 @@ window.GL = window.GL || {};
       </div>
 
       ${room ? '' : `<div class="hq-sail game">
-        <div class="sail-stage" aria-hidden="true">
-          <div class="ss-sun"></div><div class="ss-cloud c1"></div><div class="ss-cloud c2"></div>
+        ${(() => { const t = timeOfDay(); const crew = (GL.meta.squadUnlocked(profile) ? GL.meta.squadIds(profile) : ['self'].concat(GL.config.starters.slice(0, 2))).slice(0, 4);
+          const fig = id => { const d = id === 'self' ? avatarOf(profile) : crewData(id); return d ? `<i class="ss-mate">${GL.sprites.renderShaded ? GL.sprites.renderShaded(d) : GL.sprites.render(d)}</i>` : ''; };
+          return `<div class="sail-stage tod-${t.id}" aria-hidden="true">
+          <div class="ss-sun"></div>${t.id === 'night' ? '<div class="ss-stars"></div>' : ''}<div class="ss-cloud c1"></div><div class="ss-cloud c2"></div>
           <div class="ss-sea"></div><div class="ss-ship">${GL.sprites.ship()}</div>
-          <span class="ss-title">${uiRef && uiRef.peek ? 'Dein Run läuft noch' : 'Die Grand Line ruft!'}</span>
-        </div>
+          <div class="ss-dock"><span class="ss-lamp"></span>${crew.map(fig).join('')}</div>
+          <span class="ss-title">${uiRef && uiRef.peek ? 'Dein Run läuft noch' : esc(greeting(profile, t))}</span>
+        </div>`; })()}
         ${atSeaBox()}
         ${uiRef && uiRef.peek ? `<small class="sail-note">Oben links geht es zurück zum Run.</small>` : `
         <div class="sail-row">
@@ -3023,6 +3042,8 @@ window.GL = window.GL || {};
 
   GL.ui = {
     introSteps: INTRO.length,
+    // Kleines Freunde-Symbol (zwei Pixel-Köpfe) für die Ecke oben
+    friendsIcon: '<svg viewBox="0 0 11 8" shape-rendering="crispEdges" aria-hidden="true"><path fill="currentColor" d="M2 0h3v1h1v2h-1v1h-3v-1h-1v-2h1zM1 5h5v1h1v2h-7v-2h1zM7 1h2v1h1v2h-1v1h-2zM8 5h2v1h1v2h-3v-2h-1z"/></svg>',
     stickerInfo(profile) {
       const rp = GL.meta.rankProgress(profile);
       return { svg: GL.sprites.renderShaded(avatarOf(profile)), name: profile.nickname || 'Pirat', sub: (titleName(cosOf(profile).title) || rp.rank.name) + ' · ' + rp.rank.name };

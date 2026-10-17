@@ -4541,3 +4541,34 @@ body { overscroll-behavior: none; -webkit-tap-highlight-color: transparent; }
 .room-x { margin-left: auto; width: 34px; height: 32px; display: grid; place-items: center; font: 700 16px/1 "Pixelify Sans", monospace; color: #4a3520; background: #fff6e0; border: 0; cursor: pointer;
   box-shadow: inset 0 -3px 0 rgba(0,0,0,.12), 0 -2px 0 #c9a46a, 0 2px 0 #c9a46a, -2px 0 0 #c9a46a, 2px 0 0 #c9a46a; }
 .room-x:active { transform: translateY(2px); }
+
+/* ---------- Hafen nach Tageszeit, eigene Crew am Steg ---------- */
+.sail-stage.tod-morning { background: linear-gradient(#ffd9b0 0%, #ffeccc 30%, #cfe8f2 58%, #5aa6cf 58%, #3a86b8 100%) !important; }
+.sail-stage.tod-day { background: linear-gradient(#a8d8f0 0%, #cfeaf7 58%, #4f9ccc 58%, #2f7fb0 100%) !important; }
+.sail-stage.tod-dusk { background: linear-gradient(#f2a06a 0%, #f6c88a 35%, #f0d8b0 58%, #5a7aa8 58%, #3a5a88 100%) !important; }
+.sail-stage.tod-dusk .ss-sun { background: #ffb36b; top: 52px; box-shadow: 0 0 0 6px rgba(255,170,110,.4), 0 0 26px rgba(255,140,80,.8); }
+.sail-stage.tod-night { background: linear-gradient(#1c2240 0%, #2c3460 58%, #1c2a4a 58%, #121c34 100%) !important; }
+.sail-stage.tod-night .ss-sun { background: #f4f0d8; width: 26px; height: 26px; box-shadow: 0 0 0 5px rgba(244,240,216,.15), 0 0 20px rgba(244,240,216,.5); }
+.sail-stage.tod-night .ss-cloud { opacity: .25; }
+.sail-stage.tod-night .ss-title { color: #f4ead0 !important; text-shadow: 0 2px 0 rgba(0,0,0,.4) !important; }
+.ss-stars { position: absolute; inset: 0 0 45% 0; background:
+  radial-gradient(circle 1px at 12% 20%, #fff 99%, transparent), radial-gradient(circle 1px at 30% 40%, #fff 99%, transparent), radial-gradient(circle 1.5px at 52% 14%, #fff 99%, transparent),
+  radial-gradient(circle 1px at 68% 36%, #fff 99%, transparent), radial-gradient(circle 1px at 84% 50%, #fff 99%, transparent), radial-gradient(circle 1px at 44% 52%, #fff 99%, transparent);
+  animation: tp-blink 3s steps(2) infinite; }
+.ss-dock { position: absolute; left: 0; right: 0; bottom: 0; height: 26px; display: flex; align-items: flex-end; gap: 2px; padding-left: 12px;
+  background: linear-gradient(#a8784a 0 5px, #8a5a32 5px 100%); box-shadow: inset 0 2px 0 rgba(255,255,255,.2); }
+.ss-dock::before { content: ''; position: absolute; left: 0; right: 0; top: 9px; height: 2px; background: repeating-linear-gradient(90deg, #6a4424 0 24px, transparent 24px 26px); }
+.ss-mate { position: relative; bottom: 16px; width: 24px; height: 28px; display: block; animation: ts-bob 2.4s steps(2) infinite; }
+.ss-mate:nth-child(odd) { animation-delay: -1.2s; }
+.ss-mate svg { width: 100%; height: 100%; display: block; }
+.ss-lamp { position: absolute; right: 14px; bottom: 22px; width: 6px; height: 22px; background: linear-gradient(#f2d24a 0 7px, #4a3520 7px 100%); }
+.tod-dusk .ss-lamp, .tod-night .ss-lamp { box-shadow: 0 0 12px 4px rgba(242,210,74,.55); }
+.sail-stage { height: 168px !important; }
+.ss-dock { flex-direction: row !important; flex-wrap: nowrap; }
+.ss-dock .ss-mate { position: relative !important; display: inline-block !important; flex: none; left: auto !important; top: auto !important; bottom: 16px !important; margin: 0 !important; }
+.sail-stage .ss-title { font-size: 14px !important; max-width: 62%; line-height: 1.25; }
+.sail-stage .ss-dock { display: flex !important; }
+.fr-btn { position: relative; color: #c0507a !important; }
+.fr-btn svg { width: 17px !important; height: 13px !important; }
+.fr-on { position: absolute; top: -7px; right: -7px; min-width: 15px; height: 15px; padding: 0 3px; font: 700 10px/15px "Pixelify Sans", monospace; font-style: normal; color: #fff; background: #4f9a5a; border-radius: 8px; box-shadow: 0 0 0 2px #fff6e0; }
+@media (max-width: 560px) { body.in-run .head-actions .lang-btn, body.in-run .head-actions .fr-btn { display: none !important; } }

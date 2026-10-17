@@ -42,7 +42,8 @@
     if (!GL.music) return;
     GL.music.setMode(ui.screen || ui.intro != null ? 'title' : run && !GL.run.isFinished(run) ? 'run' : 'hq');
     const slot = document.getElementById('mu-slot');
-    if (slot) { const h = `<button class="mu-btn head lang-btn" data-act="lang" title="Deutsch / English">${GL.i18n && GL.i18n.lang() === 'en' ? 'DE' : 'EN'}</button><button class="mu-btn head wk-btn${profile.wikiSeen ? '' : ' fresh'}" data-act="wiki-open" aria-label="Wiki öffnen" title="Wiki: Nachschlagen und Meta">${GL.ui.wikiIcon}</button>`; if (slot.innerHTML !== h) slot.innerHTML = h; }
+    if (slot) { const fc = (profile.friends || []).length, onl = GL.friends && GL.online ? (profile.friends || []).filter(c => { const r = GL.friends.rowOf(c); return r && Date.now() - Date.parse(r.updated || 0) < 240000; }).length : 0;
+      const h = (profile.nickname ? `<button class="mu-btn head fr-btn" data-act="friends-open" aria-label="Freunde" title="Freunde${fc ? ': ' + fc : ''}">${GL.ui.friendsIcon}${onl ? `<em class="fr-on">${onl}</em>` : ''}</button>` : '') + `<button class="mu-btn head lang-btn" data-act="lang" title="Deutsch / English">${GL.i18n && GL.i18n.lang() === 'en' ? 'DE' : 'EN'}</button><button class="mu-btn head wk-btn${profile.wikiSeen ? '' : ' fresh'}" data-act="wiki-open" aria-label="Wiki öffnen" title="Wiki: Nachschlagen und Meta">${GL.ui.wikiIcon}</button>`; if (slot.innerHTML !== h) slot.innerHTML = h; }
   }
   // Automatische Aufstellung vor jedem Kampf: Brecher vorne, Kämpfer in der Mitte, Helfer hinten.
   // Läuft über normale Tausch-Aktionen, damit Replays gleich bleiben. Kein Umsortieren per Hand mehr.

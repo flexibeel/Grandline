@@ -1,6 +1,10 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-17zo', date: '17.10.', title: 'Gemütlicher Hafen', items: [
+    'Der Hafen folgt deiner Uhrzeit: Morgenrot, Tag, Abendrot mit Laterne, Nacht mit Mond und Sternen',
+    'Persönliche Begrüßung mit deinem Namen, deine Crew steht auf dem Steg',
+    'Freunde jetzt als kleines Symbol oben in der Ecke, mit grüner Zahl, wenn Freunde gerade online sind' ] },
   { v: '2026-10-17zn', date: '17.10.', title: 'Beute geht nicht mehr verloren', items: [
     'Spielstand-Abgleich (z. B. Handy und PC): Statt den älteren Stand zu überschreiben, werden Ausrüstung, Truhe, Freischaltungen, Funde und Rekorde jetzt zusammengeführt. Zerlegtes kommt nicht zurück',
     'Esc schließt Fenster, Spielerkarten, Album und Räume im Hafen. Jeder Raum hat oben rechts ein ✕' ] },
