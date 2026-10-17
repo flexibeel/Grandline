@@ -4,6 +4,11 @@
 -- Spieler kommen nur über die Funktionen dran (und nur mit dem richtigen Code).
 -- Rateschutz: max. 25 falsche Codes pro Gerät und Stunde.
 
+-- Alte Version (lange Codes) aufräumen, falls sie schon ausgeführt wurde
+drop function if exists public.code_load(text);
+drop function if exists public.code_save(text, jsonb);
+drop table if exists public.player_codes cascade;
+
 create table if not exists public.accounts (
   code       text primary key check (code ~ '^[2-9A-HJ-KM-NP-Z]{6}$'),
   name       text,
@@ -58,7 +63,3 @@ revoke all on function public.code_save(text, text, jsonb) from public;
 grant execute on function public.code_claim(text, text, jsonb) to anon, authenticated;
 grant execute on function public.code_load(text) to anon, authenticated;
 grant execute on function public.code_save(text, text, jsonb) to anon, authenticated;
-
--- Alte Version (lange Codes) aufräumen, falls schon ausgeführt
-drop function if exists public.code_load(text, text);
-drop table if exists public.player_codes cascade;
