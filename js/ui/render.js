@@ -1462,6 +1462,17 @@ window.GL = window.GL || {};
     </div>`;
   }
 
+  // Witziges Gimmick: wie viele andere Kopfgeldjäger gerade ungefähr unterwegs sind
+  // (grob geschätzt: Profile, die in den letzten 10 Minuten etwas eingetragen haben)
+  function atSeaBox() {
+    const st = GL.online ? GL.online.state() : {};
+    if (st.backend !== 'supabase' || !(st.rows || []).length) return '';
+    const now = Date.now();
+    const n = st.rows.filter(x => x.id !== st.uid && x.updated && now - new Date(x.updated).getTime() < 10 * 60 * 1000).length;
+    if (!n) return '';
+    return `<div class="atsea"><i class="atsea-dot" aria-hidden="true"></i>${n === 1 ? 'Gerade ist 1 anderer Kopfgeldjäger auf See' : `Gerade sind ${n} andere Kopfgeldjäger auf See`}</div>`;
+  }
+
   function hq(profile, tab, uiRef) {
     const best = GL.save.best();
     const slots = GL.meta.slots(profile);
@@ -1530,6 +1541,7 @@ window.GL = window.GL || {};
         </div>
         ${uiRef && uiRef.peek ? '' : `<div class="sail-heat">${heatBox}</div>`}
       </div>
+      ${atSeaBox()}
 
       <div class="atabs hq-tabs" role="tablist">
         ${[['profil', 'Profil'], ['werft', 'Werft'], ['rangliste', 'Rangliste'], ['schmiede', `Schmiede <small>${(profile.itemLoadout || []).length}/${GL.meta.itemSlots(profile)}</small>`], ['kammer', `Schatzkammer <small>${profile.artLoadout.length}/${GL.meta.artSlots(profile)}</small>`], ['lager', `Lager <small>${profile.loadout.length}/${slots}</small>`], ['haendler', 'Händler']].map(([id, name]) =>
