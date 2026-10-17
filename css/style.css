@@ -3337,3 +3337,12 @@ em.type.t-technik { background: #7fa3c9 !important; color: #fff !important; }
 .lb-journey small.live { color: #2f7a46; font-weight: 700; }
 .lb-who > b { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
 .lb-who > small { display: none; }
+/* Neuigkeiten */
+.notes-card { max-height: min(78vh, 620px); display: grid; grid-template-rows: auto auto 1fr auto; }
+.notes-list { overflow-y: auto; text-align: left; display: grid; gap: 10px; margin: 4px 0 12px; padding-right: 2px; }
+.notes-list section { background: #f6eedd; border-radius: 12px; padding: 8px 12px; }
+.notes-list b { font-size: .92rem; color: #3a2a18; }
+.notes-list small { float: right; color: var(--mute); font-size: .74rem; }
+.notes-list ul { margin: 6px 0 2px; padding-left: 18px; font-size: .84rem; color: #5a4a36; line-height: 1.35; }
+.new-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #d9774f; vertical-align: 2px; margin-left: 3px; }
+.ts-notes { font-weight: 700; }

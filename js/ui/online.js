@@ -412,6 +412,11 @@ window.GL = window.GL || {};
     return register(profile);
   }
 
-  GL.online = { init, submit, rename, register, pushSave, duelReport, duelInbox, sendFeedback, linkEmail, loginEmail, verifyCode, logout, wipe, liveFields, codeLoad, codeSave, codeClaim,
+  // Beim Zurückkehren in die App: neueren Stand von anderen Geräten holen
+  async function resync() {
+    if (!client || !state.uid || (GL.sandbox && GL.sandbox.on())) return;
+    try { await pullSave(); await codeSync(); if (store && store.refresh) await store.refresh(); } catch (e) { /* egal */ }
+  }
+  GL.online = { init, submit, rename, register, pushSave, resync, duelReport, duelInbox, sendFeedback, linkEmail, loginEmail, verifyCode, logout, wipe, liveFields, codeLoad, codeSave, codeClaim,
     onRemoteProfile(fn) { onRemote = fn; }, state: () => state, onChange(fn) { listeners.push(fn); } };
 })();

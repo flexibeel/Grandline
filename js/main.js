@@ -42,7 +42,7 @@
   function featureCheck() {
     const old = document.getElementById('fpop');
     if (old && old.dataset.id === 'feedback') return;
-    if (old && old.dataset.id === 'install') return;
+    if (old && (old.dataset.id === 'install' || old.dataset.id === 'notes')) return;
     if (!run && !ui.screen && ui.intro == null && !old && feedbackDue()) { openFeedback(); return; }
     if (!run && !ui.screen && ui.intro == null && !old && installDue()) { openInstall(); return; }
     if (run || ui.screen || ui.intro != null || !profile.nickname || !GL.meta.featuresNew) { if (old && !ui.fpop) old.remove(); return; }
@@ -645,6 +645,17 @@
       case 'fpop-go': closeFeature(el.dataset.id, true); break;
       case 'fpop-close': closeFeature(el.dataset.id, false); break;
       case 'fb-open': openFeedback(); break;
+      case 'notes-open': {
+        profile.notesSeen = GL.version; saveProfile();
+        const old = document.getElementById('fpop'); if (old) old.remove();
+        const el = document.createElement('div');
+        el.id = 'fpop'; el.className = 'fpop'; el.dataset.id = 'notes';
+        el.innerHTML = GL.ui.notesPop();
+        el.addEventListener('click', e => { if (e.target === el || e.target.closest('[data-act=notes-close]')) { el.classList.remove('in'); el.classList.add('out'); setTimeout(() => el.remove(), 260); ui.lastStage = null; draw(); } });
+        document.body.appendChild(el);
+        requestAnimationFrame(() => el.classList.add('in'));
+        break;
+      }
       case 'inst-go': {
         if (installEvt) { installEvt.prompt(); installEvt.userChoice.finally(() => { installEvt = null; }); profile.installAsked = 2; closeInstall(); }
         else if (document.documentElement.requestFullscreen) { document.documentElement.requestFullscreen({ navigationUI: 'hide' }).catch(() => {}); closeInstall(); }
@@ -1128,6 +1139,22 @@
       });
     };
     setTimeout(checkDefense, 6000);
+    // App wieder vorne: neuere Version laden bzw. Spielstand vom anderen Gerät holen
+    let lastSync = Date.now();
+    const backToApp = () => {
+      if (document.hidden || Date.now() - lastSync < 20000) return;
+      lastSync = Date.now();
+      const idle = !run || GL.run.isFinished(run);
+      fetch('version.json?t=' + Date.now(), { cache: 'no-store' }).then(r => r.json()).then(j => {
+        if (j && j.v && GL.version && j.v !== GL.version) {
+          if (idle) location.reload();
+          else toast('<span><b>Neue Version da</b>Nach diesem Run einmal neu laden.</span>');
+        }
+      }).catch(() => {});
+      if (idle) { try { sessionStorage.removeItem('gl.pulled'); } catch (e2) { /* egal */ } GL.online.resync && GL.online.resync(); }
+    };
+    document.addEventListener('visibilitychange', backToApp);
+    window.addEventListener('focus', backToApp);
     setInterval(() => { if (!document.hidden) checkDefense(); }, 300000);
   }
 })();

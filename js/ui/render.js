@@ -1625,7 +1625,7 @@ window.GL = window.GL || {};
           <button class="btn ghost" data-act="intro-open">Anleitung</button>
         </div>
         <button class="link ts-login" data-act="login-open">${st.anon === false && st.email ? 'Angemeldet ✓' : 'Anmelden'}</button>
-        <div class="ts-small">${fsLink()}${streamToggle()}</div>
+        <div class="ts-small"><button class="link ts-notes" data-act="notes-open">Neuigkeiten${profile.nickname && profile.notesSeen !== GL.version ? ' <i class="new-dot"></i>' : ''}</button>${fsLink()}${streamToggle()}</div>
       </div>
       <p class="ts-foot">Inoffizielles Fanprojekt, kostenlos und ohne kommerzielle Absicht. One Piece gehört seinen Rechteinhabern. <a href="legal.html">Rechtliches &amp; Datenschutz</a></p>
     </div>`;
@@ -1959,6 +1959,15 @@ window.GL = window.GL || {};
     grid.forEach((row, y) => row.split('').forEach((ch, x) => { if (P[ch]) rects += `<rect x="${x}" y="${y}" width="1.02" height="1.02" fill="${P[ch]}"/>`; }));
     return `<svg viewBox="0 0 12 12" shape-rendering="crispEdges" aria-hidden="true">${rects}</svg>`;
   }
+  // Neuigkeiten
+  function notesPop() {
+    return `<div class="fpop-card notes-card" role="dialog" aria-labelledby="nt-t">
+      <span class="fpop-kicker">Neuigkeiten</span>
+      <h3 id="nt-t">Was ist neu?</h3>
+      <div class="notes-list">${(GL.patchNotes || []).slice(0, 4).map(n => `<section><b>${esc(n.title)}</b><small>${esc(n.date)}</small><ul>${n.items.map(i => `<li>${esc(i)}</li>`).join('')}</ul></section>`).join('')}</div>
+      <div class="fpop-btns"><button class="btn" data-act="notes-close">Schön</button></div>
+    </div>`;
+  }
   // Hinweis: als App auf den Home-Bildschirm (Vollbild ohne Browserleisten)
   function installPop(kind) {
     const shareIco = `<svg viewBox="0 0 24 24" class="ip-share" aria-hidden="true"><path d="M12 3v12M7.5 7.5 12 3l4.5 4.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 11H5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1h-1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>`;
@@ -2127,7 +2136,7 @@ window.GL = window.GL || {};
         ${codeBox(profile, uiRef)}
         ${accountLine()}
         ${slotsBox(uiRef)}
-        <p class="fb-link"><button class="link" data-act="fb-open">★ Feedback geben</button> · <a href="legal.html">Rechtliches &amp; Datenschutz</a></p>
+        <p class="fb-link"><button class="link" data-act="notes-open">Neuigkeiten${profile.notesSeen !== GL.version ? ' <i class="new-dot"></i>' : ''}</button> · <button class="link" data-act="fb-open">★ Feedback</button> · <a href="legal.html">Rechtliches</a></p>
         ${adminBox(profile)}
         ${chapterPanel(profile)}
         ${devicesBox()}
@@ -2364,6 +2373,7 @@ window.GL = window.GL || {};
     featurePop,
     feedbackPop,
     installPop,
+    notesPop,
     toggleMail() { mailShown = !mailShown; },
 
     render(run, anim, ui) {
