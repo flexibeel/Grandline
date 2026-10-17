@@ -1043,7 +1043,8 @@ window.GL = window.GL || {};
     { id: 'bossKills', name: 'Inselbosse',        get: x => x.bossKills, unit: 'Bosse besiegt' },
     { id: 'wins',      name: 'Siege',             get: x => x.wins,      unit: 'gewonnene Runs' },
     { id: 'rankXp',    name: 'Piratenrang',       get: x => x.rankXp,    unit: 'Rang-EP' },
-    { id: 'artifacts', name: 'Artefakte',         get: x => x.artifacts, unit: 'Artefakte gefunden' }
+    { id: 'artifacts', name: 'Artefakte',         get: x => x.artifacts, unit: 'Artefakte gefunden' },
+    { id: 'squadW',    name: 'Duell-Siege',       get: x => x.squadW,    unit: 'Stammcrew-Siege' }
   ];
   // Dein Profil als Karte: Name, Rang, wichtigste Werte
   function myCard(profile, mine, best, fmt) {
@@ -1068,6 +1069,65 @@ window.GL = window.GL || {};
       </div>
     </div>`;
   }
+  // ---------- Stammcrew ----------
+  function squadSprite(r) {
+    const d = (r.id === 'self' || r.id === 'rival') ? { id: 'self', name: r.name, look: r.look } : crewData(r.id);
+    return d ? GL.sprites.render(d) : '';
+  }
+  function squadRow(refs, hpList) {
+    return `<div class="sq-row">${(refs || []).map((r, i) => {
+      const hp = hpList ? hpList[i] : r.max;
+      return `<span class="sq-u role-bg-${r.role || ''}${hp <= 0 ? ' ko' : ''}" title="${esc(r.name)} · Lv ${r.lvl || 1}">
+        <i>${squadSprite(r)}</i>${roleBadge(r.role)}<em class="lvtag">Lv ${r.lvl || 1}</em>
+        <b class="sq-name">${esc(r.name)}</b>
+        <span class="bar"><i style="width:${Math.max(0, 100 * hp / r.max)}%"></i></span></span>`;
+    }).join('')}</div>`;
+  }
+  function squadSection(profile) {
+    const refs = GL.meta.squadRefs(profile);
+    const pool = GL.meta.squadPool(profile);
+    const ids = GL.meta.squadIds(profile);
+    const N = GL.meta.squadSize;
+    const pick = pool.map(id => {
+      const d = id === 'self' ? avatarOf(profile) : crewData(id);
+      const dd = id === 'self' ? { type: profile.char.type, role: profile.char.role } : d;
+      const k = ids.indexOf(id);
+      return `<button class="sq-pick${k >= 0 ? ' on' : ''}" data-act="squad-toggle" data-id="${id}" title="${esc(d.name)}">
+        ${k >= 0 ? `<em class="sq-num">${k + 1}</em>` : ''}<i>${GL.sprites.render(d)}</i>
+        <small>${esc(d.name)}</small>${badge(dd.type)}</button>`;
+    }).join('');
+    const w = profile.squadW || 0, l = profile.squadL || 0;
+    return `<section class="hq-sec squad-sec">
+      <div class="squad-head">
+        <div><span class="event-kicker">Deine Stammcrew</span>
+          <b class="squad-power">⚔ ${GL.meta.squadPower(refs)} Stärke</b>
+          <small>Level ${GL.meta.squadLevel(profile)} (wächst mit deinem Rang) · ${w} Siege, ${l} Niederlagen</small></div>
+      </div>
+      ${squadRow(refs)}
+      <p class="hint">Deine Stammcrew verteidigt dich, auch wenn du offline bist: Andere Spieler können sie über ihre Visitenkarte in der Rangliste herausfordern, und du ihre. Wähle bis zu ${N} Figuren. <b>Zuerst gewählt steht vorne</b> und wird zuerst angegriffen.</p>
+      <div class="sq-pool">${pick}</div>
+    </section>`;
+  }
+  function duelReport(res, theirName) {
+    const lines = [];
+    const nm = (side, i) => { const r = (side === 'crew' ? res.me : res.foe)[i]; return r ? r.name : '?'; };
+    res.events.forEach(e => {
+      if (lines.length >= 8) return;
+      if (e.k === 'ult') lines.push(`<li class="${e.side === 'crew' ? 'us' : 'them'}">⚡ ${esc(nm(e.side, e.from))}: <b>${esc(e.name)}</b></li>`);
+      if (e.k === 'hit' && e.hp <= 0) lines.push(`<li class="${e.side === 'crew' ? 'us' : 'them'}">✖ ${esc(nm(e.side === 'crew' ? 'enemy' : 'crew', e.to))} ist k.o.</li>`);
+      if (e.k === 'dmg' && e.list) e.list.filter(x => x.hp <= 0).forEach(x => lines.push(`<li class="${e.side === 'crew' ? 'them' : 'us'}">✖ ${esc(nm(e.side, x.to))} ist k.o.</li>`));
+    });
+    const mvp = res.me[res.mvp];
+    return `<div class="duel-res ${res.win ? 'won' : 'lost'}">
+      <b class="duel-verdict">${res.win ? 'Sieg!' : 'Niederlage'}</b>
+      <small>${res.win ? `Deine Stammcrew hat ${esc(theirName)} geschlagen.` : `${esc(theirName)} war diesmal stärker. Probier eine andere Reihenfolge.`}</small>
+      <div class="duel-teams"><div><span class="lbl">Du</span>${squadRow(res.me, res.me.map(r => r.hp))}</div>
+        <div><span class="lbl">${esc(theirName)}</span>${squadRow(res.foe, res.foe.map(r => r.hp))}</div></div>
+      ${mvp ? `<p class="duel-mvp">MVP: <b>${esc(mvp.name)}</b> mit ${res.dealt.crew[res.mvp]} Schaden</p>` : ''}
+      <ol class="duel-log">${lines.join('')}</ol>
+    </div>`;
+  }
+
   // Visitenkarte eines Spielers: aus der Rangliste anklickbar, zeigt Werte, Artefakte und seltene Items
   function vaultChip(v) {
     const art = (GL.data.artifacts || []).find(a => a.id === v.id);
@@ -1079,7 +1139,21 @@ window.GL = window.GL || {};
     const rid = GL.config.rarities[Math.max(0, it.r)].id;
     return `<span class="vc-chip ir-${rid}">${itemIcon(it)}<b>${esc(d.name || it.id)}${it.lvl ? ' +' + it.lvl : ''}</b>${rarityPill(it.r)}</span>`;
   }
-  function playerCard(x, isMe) {
+  function playerCard(x, isMe, ui) {
+    const res = ui && ui.squadFight && ui.squadFight.id === x.id ? ui.squadFight.res : null;
+    const sq = (x.squad || []).length
+      ? `<div class="pcard-sec"><b>Stammcrew ${x.squadPower ? `<small>⚔ ${x.squadPower}</small>` : ''}</b>${squadRow(x.squad)}
+          ${isMe ? '' : `<button class="btn pcard-duel" data-act="squad-fight" data-id="${esc(x.id)}">⚔ ${res ? 'Nochmal herausfordern' : 'Herausfordern'}</button>`}</div>`
+      : `<div class="pcard-sec"><b>Stammcrew</b><small class="muted">Noch keine Stammcrew aufgestellt.</small></div>`;
+    if (res) return `<div class="pcard-bg" data-act="lb-view-close"><div class="pcard" data-act="noop">
+        <button class="link pcard-close" data-act="lb-view-close">✕</button>
+        ${duelReport(res, x.name || 'Gegner')}
+        <div class="duel-actions"><button class="btn" data-act="squad-fight" data-id="${esc(x.id)}">⚔ Nochmal</button>
+          <button class="btn ghost" data-act="squad-back">Zur Visitenkarte</button></div>
+      </div></div>`;
+    return playerCardBody(x, isMe, sq);
+  }
+  function playerCardBody(x, isMe, sq) {
     const fmt = n => Number(n || 0).toLocaleString('de-DE');
     const cap = crewData(x.captain || (x.best && x.best.captain));
     return `<div class="pcard-bg" data-act="lb-view-close">
@@ -1100,6 +1174,7 @@ window.GL = window.GL || {};
         </div>
         ${(x.vaultTop || []).length ? `<div class="pcard-sec"><b>Artefakte</b><div class="vc-row">${x.vaultTop.map(vaultChip).join('')}</div></div>` : ''}
         ${(x.chestTop || []).length ? `<div class="pcard-sec"><b>Seltene Funde</b><div class="vc-row">${x.chestTop.map(chestChip).join('')}</div></div>` : ''}
+        ${sq}
       </div>
     </div>`;
   }
@@ -1605,7 +1680,7 @@ window.GL = window.GL || {};
       ${atSeaBox()}
 
       <div class="atabs hq-tabs" role="tablist">
-        ${[['profil', 'Profil'], ['werft', 'Werft'], ['rangliste', 'Rangliste'], ['schmiede', `Schmiede <small>${(profile.itemLoadout || []).length}/${GL.meta.itemSlots(profile)}</small>`], ['kammer', `Schatzkammer <small>${profile.artLoadout.length}/${GL.meta.artSlots(profile)}</small>`], ['lager', `Lager <small>${profile.loadout.length}/${slots}</small>`], ['haendler', 'Händler']].map(([id, name]) =>
+        ${[['profil', 'Profil'], ['stammcrew', '⚔ Stammcrew'], ['werft', 'Werft'], ['rangliste', 'Rangliste'], ['schmiede', `Schmiede <small>${(profile.itemLoadout || []).length}/${GL.meta.itemSlots(profile)}</small>`], ['kammer', `Schatzkammer <small>${profile.artLoadout.length}/${GL.meta.artSlots(profile)}</small>`], ['lager', `Lager <small>${profile.loadout.length}/${slots}</small>`], ['haendler', 'Händler']].map(([id, name]) =>
           `<button class="atab${tab === id ? ' on' : ''}" role="tab" aria-selected="${tab === id}" data-act="hq-tab" data-tab="${id}">${name}</button>`).join('')}
       </div>
 
@@ -1626,6 +1701,7 @@ window.GL = window.GL || {};
         ${chapterPanel(profile)}
         ${devicesBox()}
         ${dangerZone(uiRef)}</section>` : ''}
+      ${tab === 'stammcrew' ? squadSection(profile) : ''}
       ${tab === 'kammer' ? vaultSection(profile) : ''}
       ${tab === 'schmiede' ? forgeSection(profile) : ''}
       ${tab === 'rangliste' ? leaderboard(profile, uiRef) : ''}
@@ -1842,7 +1918,10 @@ window.GL = window.GL || {};
       const st0 = GL.online ? GL.online.state() : { rows: [] };
       const viewRow = ui.viewPlayer ? (st0.rows || []).find(x => x.id === ui.viewPlayer) : null;
       $('#pcard').hidden = !viewRow;
-      if (viewRow) $('#pcard').innerHTML = playerCard(viewRow, ui.viewPlayer === st0.uid);
+      if (viewRow) {
+        const h = playerCard(viewRow, ui.viewPlayer === st0.uid, ui);
+        if ($('#pcard').dataset.last !== h) { $('#pcard').innerHTML = h; $('#pcard').dataset.last = h; }
+      } else $('#pcard').dataset.last = '';
       if (!run) {
         $('#track').innerHTML = '';
         ['#crew', '#syn', '#crew-label', '#restart', '#sheet', '#traits', '#peek', '#peek-btn'].forEach(sel => { $(sel).hidden = true; });

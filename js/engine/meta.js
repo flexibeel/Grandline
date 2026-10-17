@@ -237,6 +237,40 @@ window.GL = window.GL || {};
       return 1 + GL.run.upgradeTotal(profile.upgrades, 'slots');
     },
 
+    // ---------- Stammcrew: feste Offline-Crew, gegen die andere Spieler antreten können ----------
+    // Level wächst mit dem Piratenrang, Werft-Ausbauten zählen mit, Synergien gelten wie im Run.
+    squadSize: 4,
+    squadPool(profile) {
+      const ids = (profile.char && profile.nickname ? ['self'] : []).concat(GL.config.starters, profile.unlocked || []);
+      return ids.filter((v, i, a) => a.indexOf(v) === i && (v === 'self' || GL.data.crew.some(c => c.id === v && !c.self)));
+    },
+    squadIds(profile) {
+      const pool = GL.meta.squadPool(profile);
+      const s = (profile.squad || []).filter(id => pool.includes(id)).slice(0, GL.meta.squadSize);
+      return s.length ? s : pool.slice(0, GL.meta.squadSize);
+    },
+    squadLevel(profile) {
+      return Math.min(15, 1 + Math.floor(GL.meta.rankIndex(profile) * 0.9));
+    },
+    squadRefs(profile) {
+      const lvl = GL.meta.squadLevel(profile);
+      const up = profile.upgrades || {};
+      const mod = { atk: GL.run.upgradeTotal(up, 'atk'), hp: GL.run.upgradeTotal(up, 'hp'), spd: GL.run.upgradeTotal(up, 'spd') };
+      const self = GL.meta.selfDef(profile);
+      return GL.meta.squadIds(profile).map(id => {
+        const d = id === 'self' ? self : GL.data.crew.find(c => c.id === id);
+        if (!d) return null;
+        const max = d.hp + (lvl - 1) * 3 + mod.hp;
+        const r = { id, name: d.name, type: d.type, role: d.role, faction: d.faction || null, lvl,
+          hp: max, max, atk: d.atk + Math.floor((lvl - 1) * 0.45) + mod.atk, spd: d.spd + mod.spd };
+        if (id === 'self') { r.look = self.look; r.rally = self.rally; }
+        return r;
+      }).filter(Boolean);
+    },
+    squadPower(refs) {
+      return Math.round((refs || []).reduce((s, r) => s + r.max * 0.5 + r.atk * 4 + r.spd * 2, 0));
+    },
+
     // Kapitel-Fortschritt eines Meeres: die 4 Bösewichte der kleinen Inseln plus beide Insel-Bosse.
     // Da pro Run nur 2 von 4 kleinen Inseln und einer von 2 Bossen drankommen, braucht es mehrere Runs,
     // bis alle sechs einmal besiegt wurden - daher ein eigener Fortschrittsbalken über Runs hinweg.

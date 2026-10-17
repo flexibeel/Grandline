@@ -100,8 +100,8 @@ window.GL = window.GL || {};
   function unit(side, ref, base) {
     return Object.assign({
       side, ref, id: ref.id, type: ref.type, role: ref.role, faction: ref.faction, boss: !!ref.boss, mini: !!ref.mini,
-      ability: (GL.data.abilities[ref.id] && GL.data.abilities[ref.id].kind) || null,
-      power: (GL.data.abilities[ref.id] && GL.data.abilities[ref.id].value) || 0,
+      ability: ref.ability || (GL.data.abilities[ref.id] && GL.data.abilities[ref.id].kind) || null,
+      power: ref.power || (GL.data.abilities[ref.id] && GL.data.abilities[ref.id].value) || 0,
       hp: ref.hp, max: ref.max, atk: ref.atk, spd: ref.spd,
       crit: 0, critMult: GL.config.critMult, armor: 0, guard: 0, dodge: 0, dmgPct: 0, bossPct: 0, regen: 0,
       ignoreWeak: false, revived: false
@@ -131,6 +131,11 @@ window.GL = window.GL || {};
     enemies.forEach(u => abilityMods().forEach(m => {
       if (m.scope === 'char:' + u.id) applyMod(u, m, run);
     }));
+    // Stammcrew eines anderen Spielers: Synergien wie bei einer Crew
+    if (enemyRefs.some(r => r.pvp)) {
+      const sm = synergyMods(enemyRefs);
+      enemies.forEach(u => sm.forEach(m => { if (applies(m.scope, u)) applyMod(u, m, run); }));
+    }
     return { crew, enemies, flags: flags(run) };
   }
 

@@ -298,8 +298,33 @@
       case 'login-open': ui.loginFrom = ui.screen || 'hq'; ui.screen = 'login'; draw(); break;
       case 'login-back': ui.screen = ui.loginFrom === 'hq' ? null : 'title'; draw(); break;
       case 'cap-filter': ui.capFilter = el.dataset.v; ui.lastStage = null; draw(); break;
+      case 'squad-toggle': {
+        const ids = GL.meta.squadIds(profile).slice();
+        const id = el.dataset.id;
+        const k = ids.indexOf(id);
+        if (k >= 0) { if (ids.length > 1) ids.splice(k, 1); }
+        else if (ids.length < GL.meta.squadSize) ids.push(id);
+        else { ids.pop(); ids.push(id); }
+        profile.squad = ids;
+        saveProfile(); ui.lastStage = null; draw();
+        clearTimeout(ui.squadPush);
+        ui.squadPush = setTimeout(() => { if (GL.online && GL.online.register) GL.online.register(profile); }, 1500);
+        break;
+      }
+      case 'squad-fight': {
+        const st = GL.online.state();
+        const row = (st.rows || []).find(x => x.id === el.dataset.id);
+        if (!row || !(row.squad || []).length) break;
+        const res = GL.squad.fight(GL.meta.squadRefs(profile), row.squad, (Date.now() ^ (Math.random() * 1e9)) >>> 0);
+        if (res.win) profile.squadW = (profile.squadW || 0) + 1; else profile.squadL = (profile.squadL || 0) + 1;
+        ui.squadFight = { id: row.id, res };
+        saveProfile(); draw();
+        if (GL.online && GL.online.register) GL.online.register(profile);
+        break;
+      }
+      case 'squad-back': ui.squadFight = null; draw(); break;
       case 'lb-view': ui.viewPlayer = el.dataset.id; draw(); break;
-      case 'lb-view-close': ui.viewPlayer = null; draw(); break;
+      case 'lb-view-close': ui.viewPlayer = null; ui.squadFight = null; draw(); break;
       case 'noop': break;
       case 'char-part': ui.draft.char.look[el.dataset.part] = el.dataset.v; draw(); break;
       case 'char-hat': ui.draft.char.look.hat = el.dataset.v; draw(); break;

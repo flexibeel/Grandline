@@ -1442,6 +1442,48 @@ h2 { letter-spacing: .015em; }
 .rank-v2 .rank-bar i { border-radius: 9px; box-shadow: inset 0 -3px 0 rgba(0,0,0,.12); }
 .rank-bar-txt { position: absolute; inset: 0; display: grid; place-items: center; font-size: .78rem; font-weight: 800; color: var(--ink); mix-blend-mode: normal; }
 
+/* ---------- Stammcrew + Duell ---------- */
+.squad-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 10px; }
+.squad-head > div { display: grid; gap: 2px; }
+.squad-power { font-family: var(--px); font-size: 1.5rem; }
+.squad-head small { color: var(--mute); }
+.sq-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(78px, 1fr)); gap: 8px; }
+.sq-u { position: relative; display: grid; justify-items: center; gap: 2px; padding: 6px 4px 6px; border-radius: 12px;
+  background: var(--panel); border: 1px solid var(--line); box-shadow: var(--shadow); }
+.sq-u.role-bg-brecher { border-bottom: 3px solid #4f86c6; }
+.sq-u.role-bg-kaempfer { border-bottom: 3px solid #d0564a; }
+.sq-u.role-bg-helfer { border-bottom: 3px solid #5bb36c; }
+.sq-u > i svg { width: 34px; height: 40px; shape-rendering: crispEdges; }
+.sq-u .lvtag { position: absolute; top: 3px; left: 4px; font-size: .62rem; }
+.sq-u .role-ico { position: absolute; top: 2px; right: 4px; font-size: .7rem; margin: 0; }
+.sq-u .sq-name { font-size: .72rem; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sq-u .bar { width: 100%; height: 5px; margin: 0; }
+.sq-u.ko { opacity: .45; filter: grayscale(.8); }
+.sq-pool { display: grid; grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); gap: 8px; margin-top: 8px; }
+.sq-pick { all: unset; box-sizing: border-box; cursor: pointer; position: relative; display: grid; justify-items: center; gap: 2px; padding: 8px 4px;
+  border-radius: 12px; border: 2px solid var(--line); background: var(--panel); text-align: center; }
+.sq-pick:hover { border-color: var(--gold); }
+.sq-pick.on { border-color: var(--btn); background: color-mix(in srgb, var(--gold) 10%, var(--panel)); }
+.sq-pick i svg { width: 30px; height: 35px; shape-rendering: crispEdges; }
+.sq-pick small { font-size: .72rem; font-weight: 700; }
+.sq-pick .type { font-size: .62rem; }
+.sq-num { position: absolute; top: -8px; left: -6px; width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--btn); color: var(--btnink); font-style: normal; font-weight: 800; font-size: .8rem; }
+.pcard-sec .sq-row { margin-top: 4px; }
+.pcard-duel { width: 100%; text-align: center; margin-top: 10px; }
+.duel-res { display: grid; gap: 8px; text-align: center; }
+.duel-verdict { font-family: var(--px); font-size: 2.2rem; line-height: 1; margin-top: 6px; }
+.duel-res.won .duel-verdict { color: var(--hp); }
+.duel-res.lost .duel-verdict { color: var(--red); }
+.duel-res > small { color: var(--mute); }
+.duel-teams { display: grid; gap: 10px; text-align: left; }
+.duel-mvp { margin: 0; font-size: .9rem; }
+.duel-log { text-align: left; margin: 0; padding: 8px 12px 8px 26px; border-radius: 10px; background: var(--panel-2); font-size: .82rem; display: grid; gap: 3px; }
+.duel-log li.us { color: #2f7a45; }
+.duel-log li.them { color: #a33a30; }
+.duel-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 10px; }
+.duel-actions .btn { margin-top: 0; }
+
 /* ---------- Ulti: Energieleiste, Aufladung, Einblendung ---------- */
 .f-en { position: relative; height: 4px; border-radius: 2px; background: rgba(0,0,0,.12); overflow: hidden; margin: 2px 0 1px; }
 .f-en i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #f2b632, #ffe27a); transition: width .3s ease; }

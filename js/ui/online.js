@@ -19,7 +19,7 @@ window.GL = window.GL || {};
 
   // Gleicher Name = gleicher Spieler (z. B. neues Gerät, neue Sitzung): nur einmal zeigen.
   // Eigener Eintrag hat Vorrang, Bestwerte aus den alten Einträgen werden übernommen.
-  const MAXF = ['score', 'wins', 'runs', 'topBounty', 'bestDmg', 'maxHit', 'totalDmg', 'kos', 'crits', 'bossKills', 'rankXp', 'artifacts', 'heatMax', 'captains'];
+  const MAXF = ['score', 'wins', 'runs', 'topBounty', 'bestDmg', 'maxHit', 'totalDmg', 'kos', 'crits', 'bossKills', 'rankXp', 'artifacts', 'heatMax', 'captains', 'squadW'];
   function dedupe(rows) {
     const groups = {};
     const out = [];
@@ -36,6 +36,7 @@ window.GL = window.GL || {};
       if (top !== keep && (Number(top.score) || 0) >= (Number(keep.score) || 0) && top.best) keep.best = top.best;
       if (!keep.vaultTop && top.vaultTop) keep.vaultTop = top.vaultTop;
       if (!keep.chestTop && top.chestTop) keep.chestTop = top.chestTop;
+      if (!keep.squad && top.squad) { keep.squad = top.squad; keep.squadPower = top.squadPower; }
       keep.updated = g.map(r => r.updated || '').sort().pop();
       out.push(keep);
     });
@@ -50,7 +51,9 @@ window.GL = window.GL || {};
     const profile = profileRef;
     if (!profile || state.readOnly || !state.uid) return;
     const mine = state.rows.some(r => r.id === state.uid);
-    if (profile.nickname && !registered && !mine) { registered = true; register(profile); }
+    const mineRow = state.rows.find(r => r.id === state.uid);
+    // Neu eintragen, oder einmal aktualisieren, wenn dem Eintrag noch neue Felder fehlen (z. B. Stammcrew)
+    if (profile.nickname && !registered && (!mine || (mineRow && !mineRow.squad))) { registered = true; register(profile); }
     if (pending == null && !mine && profile.onlineBest) { pending = profile.onlineBest; flush(profile); }
   }
 
@@ -216,6 +219,9 @@ window.GL = window.GL || {};
       artifacts: Object.keys(profile.vault || {}).length,
       vaultTop,
       chestTop,
+      squad: GL.meta.squadRefs(profile),
+      squadPower: GL.meta.squadPower(GL.meta.squadRefs(profile)),
+      squadW: profile.squadW || 0,
       captains: (profile.unlocked || []).length + GL.config.starters.length,
       updated: new Date().toISOString()
     };

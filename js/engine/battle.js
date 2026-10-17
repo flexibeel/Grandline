@@ -48,6 +48,7 @@ window.GL = window.GL || {};
     }
 
     const nameOf = u => {
+      if (u.ref && u.ref.name) return u.ref.name;
       const d = GL.data.crew.find(x => x.id === u.id) || GL.data.bosses.find(x => x.id === u.id) || (GL.data.hunted || []).find(x => x.id === u.id) || GL.data.grunts.find(x => x.id === u.id);
       return d ? d.name : u.id;
     };
@@ -78,7 +79,7 @@ window.GL = window.GL || {};
       const def = GL.data.statuses[key];
       if (def && !def.good) {
         const brave = u.status.brave && (key === 'fear' || key === 'stun');
-        const tank = key === 'fear' && u.side === 'crew' && u.role === 'brecher';
+        const tank = key === 'fear' && u.role === 'brecher';
         if (brave || tank) { events.push({ k: 'immune', side: u.side, to: idx(u), key }); return null; }
       }
       const cur = u.status[key];
@@ -101,11 +102,11 @@ window.GL = window.GL || {};
     const U = C.ult || { max: 100, gainHit: 25, gainHurt: 10, bossStart: 30 };
     const UL = GL.data.ultis || {}, UD = GL.data.ultiDefaults || {};
     const ultOf = u => {
-      if (u.side === 'crew') return UL[u.id] || UD[u.role] || UD.kaempfer || null;
+      if (u.side === 'crew' || (u.ref && u.ref.pvp)) return UL[u.id] || UD[u.role] || UD.kaempfer || null;
       if (u.boss || u.mini) return UL[u.id] || UD.foe || null;
       return null;   // einfache Gegner haben keine Ulti
     };
-    crew.concat(enemies).forEach(u => { u.ult = ultOf(u); u.energy = !u.ult ? 0 : u.side === 'enemy' && u.boss ? U.bossStart : (U.start || 0); });
+    crew.concat(enemies).forEach(u => { u.ult = ultOf(u); u.energy = !u.ult ? 0 : u.side === 'enemy' && u.boss && !(u.ref && u.ref.pvp) ? U.bossStart : (U.start || 0); });
     const charge = (u, n) => { if (u.ult && u.hp > 0) u.energy = Math.min(U.max, u.energy + n); };
 
     function ultStrike(u, t, mult, pierce) {
@@ -232,6 +233,7 @@ window.GL = window.GL || {};
       events.push({ k: 'status', side: 'crew', list: got.filter(Boolean), by: 'special' });
     }
 
+    const pvp = enemies.some(u => u.ref && u.ref.pvp);
     let firstBlock = flags.firstBlock;  // Anzahl abgewehrter Treffer pro Kampf
     let rounds = 0;
 
@@ -244,7 +246,12 @@ window.GL = window.GL || {};
         const st = statusOf(u);
         if (st && st.when === 'every' && rounds % st.n === 0) spreadStatus(u, st);
       });
-      const queue = crew.concat(enemies).filter(u => u.hp > 0).sort((a, b) => b.spd - a.spd);
+      const queue = crew.concat(enemies).filter(u => u.hp > 0);
+      if (pvp) {
+        // Duell: bei gleichem Tempo entscheidet der Zufall, wer zuerst handelt (sonst hätte der Angreifer immer Vorteil)
+        queue.forEach(u => { u.tb = R.float(run); });
+        queue.sort((a, b) => b.spd - a.spd || b.tb - a.tb);
+      } else queue.sort((a, b) => b.spd - a.spd);
 
       for (const u of queue) {
         if (u.hp <= 0) continue;
@@ -345,13 +352,13 @@ window.GL = window.GL || {};
         if (list.length) events.push({ k: 'dmg', side, list, by: 'bleed' });
       });
       checkRevives();
-      // Konter: jeder Helfer der Crew entfernt einen schlechten Zustand (Furcht zuerst)
-      alive(crew).filter(u => u.role === 'helfer').forEach(h => {
+      // Konter: jeder Helfer entfernt einen schlechten Zustand im eigenen Team (Furcht zuerst)
+      [crew, enemies].forEach(team => alive(team).filter(u => u.role === 'helfer').forEach(h => {
         for (const key of DEBUFF_ORDER) {
-          const t = alive(crew).find(f => f.status[key]);
-          if (t) { delete t.status[key]; events.push({ k: 'cleanse', side: 'crew', to: idx(t), key, by: h.id }); break; }
+          const t = alive(team).find(f => f.status[key]);
+          if (t) { delete t.status[key]; events.push({ k: 'cleanse', side: t.side, to: idx(t), key, by: h.id }); break; }
         }
-      });
+      }));
       // Zustände laufen ab (Betäubung erst, wenn sie gewirkt hat)
       crew.concat(enemies).forEach(u => {
         Object.keys(u.status).forEach(k => {
@@ -359,14 +366,16 @@ window.GL = window.GL || {};
           if (--u.status[k].rounds <= 0) delete u.status[k];
         });
       });
-      const regenList = [];
-      crew.forEach((u, i) => {
-        if (u.hp > 0 && u.regen > 0) {
-          const got = heal(u, Math.round(u.regen * flags.healMult));
-          if (got > 0) regenList.push({ to: i, amount: got, hp: u.hp });
-        }
+      [crew, enemies].forEach(team => {
+        const regenList = [];
+        team.forEach((u, i) => {
+          if (u.hp > 0 && u.regen > 0) {
+            const got = heal(u, Math.round(u.regen * (u.side === 'crew' ? flags.healMult : 1)));
+            if (got > 0) regenList.push({ to: i, amount: got, hp: u.hp });
+          }
+        });
+        if (regenList.length) events.push({ k: 'heal', side: team === crew ? 'crew' : 'enemy', list: regenList, by: 'helfer' });
       });
-      if (regenList.length) events.push({ k: 'heal', side: 'crew', list: regenList, by: 'helfer' });
 
       crew.concat(enemies).filter(u => u.hp > 0 && u.ability === 'medic').forEach(u => {
         const hurt = alive(allies(u)).filter(f => f.hp < f.max).sort((a, b) => a.hp / a.max - b.hp / b.max)[0];
