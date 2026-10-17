@@ -602,7 +602,15 @@ window.GL = window.GL || {};
       profile.berry += berry;
       profile.stats.berryTotal += berry;
       const xp = GL.meta.rankXpFor(run);
-      profile.bestStep = Math.max(profile.bestStep || 0, run.phase === 'win' ? GL.run.totalSteps() : (run.step || 0));
+      const reachNow = run.phase === 'win' ? GL.run.totalSteps() : (run.step || 0);
+      if (reachNow >= (profile.bestStep || 0)) {
+        // Weiteste Fahrt mit Meer und Insel-Kapitel merken (für die Rangliste)
+        const st = Math.max(0, Math.min(reachNow, GL.run.totalSteps() - 1));
+        const si = Math.min(Math.floor(st / GL.config.stepsPerIsland), GL.data.islands.length - 1);
+        const isl = GL.run.chapterIsland(run, st);
+        profile.bestPlace = { sea: GL.data.seaOf(run, si).name, isl: isl ? isl.name : null, won: run.phase === 'win' };
+      }
+      profile.bestStep = Math.max(profile.bestStep || 0, reachNow);
       profile.lastRank = { xp, before: profile.rankXp, ups: GL.meta.addRankXp(profile, xp) };
       return berry;
     }

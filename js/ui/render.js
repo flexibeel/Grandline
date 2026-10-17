@@ -1069,9 +1069,11 @@ window.GL = window.GL || {};
       return `<i class="jd ${cls}" title="${esc(s.name)}"></i>`;
     }).join('');
     const live = isOnline(x) && x.pos;
-    const txt = live ? `⛵ ${esc(x.pos.isl || x.pos.sea)}${x.pos.daily ? ' (Tageskarte)' : ''}`
-      : reach >= GL.run.totalSteps() ? 'Ziel erreicht ✓'
-      : reach ? `bis ${esc((seas[Math.min(seas.length - 1, Math.floor(Math.max(0, reach - 1) / per))] || {}).name || '')}` : 'im Hafen';
+    const bp = x.bestPlace;
+    const place = bp ? esc(bp.sea + (bp.isl && bp.isl !== bp.sea ? ' · ' + bp.isl : '')) + (bp.won ? ' ✓' : '')
+      : reach ? esc((seas[Math.min(seas.length - 1, Math.floor(Math.max(0, reach - 1) / per))] || {}).name || '') + (reach >= GL.run.totalSteps() ? ' ✓' : '') : '';
+    const txt = live ? `⛵ ${esc(x.pos.sea)}${x.pos.isl && x.pos.isl !== x.pos.sea ? ' · ' + esc(x.pos.isl) : ''}${x.pos.daily ? ' (Tageskarte)' : ''}`
+      : place || 'noch im Hafen';
     return `<span class="lb-journey"><span class="jdots">${dots}</span><small${live ? ' class="live"' : ''}>${txt}</small></span>`;
   }
   // Grüner Punkt: Spieler hat sich in den letzten 4 Minuten gemeldet (Lebenszeichen alle 2 Min.)
