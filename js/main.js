@@ -666,6 +666,11 @@
   });
 
   updateThemeButton();
+  // Lebenszeichen für die Live-Anzeige "auf See": alle 2 Minuten, solange das Spiel offen ist
+  setInterval(() => {
+    if (document.hidden || !profile.nickname || !GL.online || !GL.online.register) return;
+    GL.online.register(profile);
+  }, 120000);
   syncProfile();
   draw();
   // Online-Rangliste: neu zeichnen, wenn sich Einträge ändern (nur im Hauptquartier sichtbar)

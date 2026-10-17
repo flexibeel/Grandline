@@ -1636,7 +1636,7 @@ window.GL = window.GL || {};
     }).join('');
     return `<div class="chapter-panel">
       <span class="event-kicker">Kapitel-Fortschritt</span>
-      <p class="hint">Jeden Bösewicht und jeden Inselboss eines Meeres mindestens einmal besiegen (über mehrere Runs verteilt). Belohnung: einmalig Berry pro abgeschlossenem Meer.</p>
+      <p class="hint">Besiege jeden Bösewicht und Boss eines Meeres einmal. Belohnung: Berry.</p>
       ${rows}
     </div>`;
   }
@@ -1661,11 +1661,11 @@ window.GL = window.GL || {};
   // (grob geschätzt: Profile, die in den letzten 10 Minuten etwas eingetragen haben)
   function atSeaBox() {
     const st = GL.online ? GL.online.state() : {};
-    if (st.backend !== 'supabase' || !(st.rows || []).length) return '';
+    if (st.backend !== 'supabase') return '';
     const now = Date.now();
-    const n = st.rows.filter(x => x.id !== st.uid && x.updated && now - new Date(x.updated).getTime() < 10 * 60 * 1000).length;
-    if (!n) return '';
-    return `<div class="atsea"><i class="atsea-dot" aria-hidden="true"></i>${n === 1 ? 'Gerade ist 1 anderer Kopfgeldjäger auf See' : `Gerade sind ${n} andere Kopfgeldjäger auf See`}</div>`;
+    const n = (st.rows || []).filter(x => x.updated && now - new Date(x.updated).getTime() < 10 * 60 * 1000 && x.id !== st.uid).length + 1;
+    const txt = n === 1 ? 'Nur du auf See' : `${n} Kopfgeldjäger*innen auf See`;
+    return `<span class="atsea" data-tip="Wer in den letzten 10 Minuten gespielt hat (du zählst mit). Aktualisiert sich von selbst."><i class="atsea-dot" aria-hidden="true"></i>${txt}</span>`;
   }
 
   function hq(profile, tab, uiRef) {
@@ -1704,39 +1704,43 @@ window.GL = window.GL || {};
         <button class="btn mini buy" data-act="buy-gear" data-id="${g.id}"${profile.berry < g.cost ? ' disabled' : ''}>${GL.sprites.coin()} ${fmt(g.cost)}</button>
       </div>`).join('');
 
-    const loadout = profile.loadout.map(id => byId(GL.data.gear, id).name);
     const H = GL.data.heat;
-    const heatBox = profile.heatMax > 0 ? `<div class="heat">
-        <span class="heat-label">Kopfgeld-Stufe</span>
+    // Kopfgeld-Stufe als kompakte Pille (Details im Tooltip)
+    const heatTip = profile.heat ? H.filter(h => h.lvl <= profile.heat).map(h => `${h.name}: ${h.text}`).join(' · ') + ` · Dafür +${Math.round(profile.heat * GL.config.heatBonus.berry * 100)} % Berry, +${Math.round(profile.heat * GL.config.heatBonus.score * 100)} % Punkte` : 'Normale Schwierigkeit. Höher = schwerer, aber mehr Berry und Punkte.';
+    const heatBox = profile.heatMax > 0 ? `<div class="heat-pill" data-tip="${esc(heatTip)}">
+        <span>🔥 Kopfgeld-Stufe</span>
         <button class="btn mini ghost" data-act="heat" data-d="-1" aria-label="Stufe senken"${profile.heat <= 0 ? ' disabled' : ''}>−</button>
         <b class="heat-num">${profile.heat}</b>
         <button class="btn mini ghost" data-act="heat" data-d="1" aria-label="Stufe erhöhen"${profile.heat >= profile.heatMax ? ' disabled' : ''}>+</button>
-        <small>${profile.heat ? `+${Math.round(profile.heat * GL.config.heatBonus.berry * 100)} % Berry, +${Math.round(profile.heat * GL.config.heatBonus.score * 100)} % Punkte` : 'Normale Schwierigkeit'}</small>
-        ${profile.heat ? `<ul class="heat-list">${H.filter(h => h.lvl <= profile.heat).map(h => `<li><b>${h.name}:</b> ${h.text}</li>`).join('')}</ul>` : ''}
-      </div>` : `<small class="muted">Gewinne einen Run, um Kopfgeld-Stufen freizuschalten: schwerer, aber mehr Berry.</small>`;
+      </div>` : `<div class="heat-pill locked" data-tip="Gewinne einen Run, dann kannst du die Schwierigkeit erhöhen: mehr Berry, mehr Punkte.">🔒 Kopfgeld-Stufen</div>`;
 
     const rp = GL.meta.rankProgress(profile);
     const rankHtml = rankPanel(profile, rp, fmt);
 
-    const onBoard = loadout.concat(profile.artLoadout.map(id => GL.data.artifacts.find(x => x.id === id).name),
-      GL.meta.takeItems(profile).map(x => itemName(x)));
+    // Was kommt mit in den nächsten Run: kleine Symbole statt Text
+    const board = profile.loadout.map(id => { const g = byId(GL.data.gear, id); return g ? `<span class="sb-chip" data-tip="${esc(g.name)}: ${esc(g.text)}">${GL.sprites.icon('relic', g.id)}</span>` : ''; })
+      .concat(profile.artLoadout.map(id => { const a = GL.data.artifacts.find(x => x.id === id); return a ? `<span class="sb-chip art" data-tip="${esc(a.name)}">${artIcon(a)}</span>` : ''; }))
+      .concat(GL.meta.takeItems(profile).map(x => `<span class="sb-chip" data-tip="${esc(itemName(x))}">${itemIcon(x)}</span>`)).filter(Boolean);
     return `<div class="hq">
       <div class="hq-bar">
         ${profileChip(profile)}
         <div class="berry">${GL.sprites.coin()} <b>${fmt(profile.berry)}</b> <small>Berry</small></div>
       </div>
 
-      <div class="hq-sail">
-        <div class="sail-scene" aria-hidden="true"><div class="hq-ship">${GL.sprites.ship()}</div></div>
-        <div class="sail-body">
-          ${uiRef && uiRef.peek
-            ? `<b>Dein Run läuft noch</b><small>Hier kannst du nachsehen, was du brauchst. Oben links geht es zurück zum Run.</small>`
-            : `<b>Bereit zum Ablegen?</b><small>${onBoard.length ? 'An Bord: ' + onBoard.join(', ') : 'Noch nichts an Bord. Ausrüstung und Artefakte findest du unten.'}</small>
-          <button class="btn sail" data-act="sail">Leinen los! ${keyHint('Leertaste')}</button>`}
+      <div class="hq-sail game">
+        <div class="sail-stage" aria-hidden="true">
+          <div class="ss-sun"></div><div class="ss-cloud c1"></div><div class="ss-cloud c2"></div>
+          <div class="ss-sea"></div><div class="ss-ship">${GL.sprites.ship()}</div>
+          <span class="ss-title">${uiRef && uiRef.peek ? 'Dein Run läuft noch' : 'Die Grand Line ruft!'}</span>
         </div>
-        ${uiRef && uiRef.peek ? '' : `<div class="sail-heat">${heatBox}</div>`}
+        ${atSeaBox()}
+        ${uiRef && uiRef.peek ? `<small class="sail-note">Oben links geht es zurück zum Run.</small>` : `
+        <div class="sail-row">
+          <button class="btn sail" data-act="sail">⚓ Leinen los! ${keyHint('Leertaste')}</button>
+          ${heatBox}
+        </div>
+        <div class="sail-board"><span class="sb-lbl">An Bord</span>${board.length ? board.join('') : '<small class="muted">nichts – Lager, Schmiede, Schatzkammer</small>'}</div>`}
       </div>
-      ${atSeaBox()}
 
       <div class="atabs hq-tabs" role="tablist">
         ${[['profil', 'Profil'], ['stammcrew', '⚔ Stammcrew'], ['werft', 'Werft'], ['rangliste', 'Rangliste'], ['schmiede', `Schmiede <small>${(profile.itemLoadout || []).length}/${GL.meta.itemSlots(profile)}</small>`], ['kammer', `Schatzkammer <small>${profile.artLoadout.length}/${GL.meta.artSlots(profile)}</small>`], ['lager', `Lager <small>${profile.loadout.length}/${slots}</small>`], ['haendler', 'Händler']].map(([id, name]) =>

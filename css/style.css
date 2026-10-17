@@ -1538,7 +1538,7 @@ h2 { letter-spacing: .015em; }
 .locked-wrap > summary small { font-weight: 700; padding: 1px 7px; border-radius: 999px; background: var(--panel-2); border: 1px solid var(--line); }
 
 /* ---------- Gimmick: wer ist gerade (ungefähr) auf See ---------- */
-.atsea { display: flex; align-items: center; gap: 7px; font-size: .82rem; color: var(--mute); margin: 6px 2px 2px; }
+.atsea { position: relative; justify-self: start; display: inline-flex; align-items: center; gap: 7px; font-size: .78rem; font-weight: 700; color: #2f7a45; padding: 4px 10px; border-radius: 999px; background: color-mix(in srgb, var(--hp) 12%, var(--panel)); border: 1px solid color-mix(in srgb, var(--hp) 35%, var(--line)); }
 .atsea-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--hp); flex: none; animation: atsea-pulse 1.6s ease-in-out infinite; }
 @keyframes atsea-pulse { 50% { opacity: .3; transform: scale(.8); } }
 
@@ -2591,3 +2591,42 @@ body.on-title { overflow: hidden; }
 .vault-active li { display: grid; grid-template-columns: 34px 1fr; gap: 10px; align-items: center; font-size: .88rem; }
 .va-ico svg { width: 30px; height: 35px; shape-rendering: crispEdges; }
 .vault-active small { color: var(--mute); }
+
+/* ---------- Ablegen: wie ein Spiel-Startbildschirm ---------- */
+.hq-sail.game { display: grid !important; grid-template-columns: 1fr !important; gap: 10px; padding: 10px !important; }
+.sail-stage { position: relative; height: 150px; border-radius: 12px; overflow: hidden;
+  background: linear-gradient(#ffe6b8 0%, #bfe3f5 38%, #bfe3f5 58%, #4f9ccc 58%, #2f7fb0 100%); }
+.ss-sun { position: absolute; right: 26px; top: 14px; width: 34px; height: 34px; background: #fff3b0; box-shadow: 0 0 0 6px rgba(255,243,176,.4), 0 0 24px rgba(255,220,120,.8); }
+.ss-cloud { position: absolute; height: 10px; width: 46px; background: #fff; opacity: .9; box-shadow: 10px -8px 0 -2px #fff, 24px -4px 0 0 #fff; animation: ss-cloud 22s linear infinite; }
+.ss-cloud.c1 { top: 30px; left: -60px; }
+.ss-cloud.c2 { top: 54px; left: -60px; animation-delay: -11s; animation-duration: 30s; transform: scale(.7); }
+@keyframes ss-cloud { to { left: 110%; } }
+.ss-sea { position: absolute; left: 0; right: 0; top: 58%; height: 6px; background: repeating-linear-gradient(90deg, rgba(255,255,255,.7) 0 14px, transparent 14px 40px); animation: ts-sea 2s steps(6) infinite; }
+.ss-ship { position: absolute; left: 50%; top: 30%; transform: translateX(-50%); animation: ts-bob 1.6s steps(4) infinite; }
+.ss-ship svg { width: 104px; height: 78px; shape-rendering: crispEdges; display: block; filter: drop-shadow(0 4px 0 rgba(0,0,0,.18)); }
+.ss-title { position: absolute; left: 12px; top: 10px; font-family: var(--px); font-weight: 700; font-size: 1.15rem; color: #3a2400;
+  text-shadow: 0 2px 0 rgba(255,255,255,.7); }
+.sail-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.sail-row .btn.sail { margin: 0; flex: 1 1 200px; text-align: center; font-size: 1.3rem; padding: 14px 18px; }
+.heat-pill { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 999px; border: 2px solid var(--line); background: var(--panel-2); font-size: .82rem; font-weight: 700; position: relative; }
+.heat-pill .btn.mini { margin: 0; padding: 2px 8px; min-width: 0; }
+.heat-pill .heat-num { font-family: var(--px); font-size: 1.1rem; min-width: 14px; text-align: center; }
+.heat-pill.locked { color: var(--mute); }
+.sail-board { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; min-height: 34px; }
+.sb-lbl { font-size: .74rem; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; color: var(--mute); margin-right: 4px; }
+.sb-chip { width: 34px; height: 34px; display: grid; place-items: center; border-radius: 9px; background: var(--panel-2); border: 1px solid var(--line); position: relative; }
+.sb-chip svg { width: 24px; height: 24px; shape-rendering: crispEdges; }
+.sb-chip.art { border-color: color-mix(in srgb, var(--epic) 45%, var(--line)); }
+.sail-note { color: var(--mute); }
+@media (prefers-reduced-motion: reduce) { .ss-cloud, .ss-sea, .ss-ship { animation: none !important; } }
+
+/* Kapitel-Fortschritt: Text im Balken nicht abschneiden */
+.xpbar.chapter-bar { height: 18px; border-radius: 9px; overflow: hidden; position: relative; }
+.xpbar.chapter-bar i { height: 100%; }
+.xpbar.chapter-bar .rank-bar-txt { font-size: .74rem; line-height: 18px; }
+.hq-sail.game .sail-row, .hq-sail.game .sail-board { display: flex !important; }
+.hq-sail.game .heat-pill { display: inline-flex !important; }
+.hq-sail.game .sail-stage { display: block !important; }
+.hq-bar { flex-wrap: nowrap !important; }
+.hq-bar .berry { flex: none; }
+.hq-bar .pf-chip { min-width: 0; }
