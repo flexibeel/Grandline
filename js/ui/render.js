@@ -1424,21 +1424,28 @@ window.GL = window.GL || {};
   }
   // Gegner-Vorschau vor einem Duell: wer, welche Crew, Stärke und Chance
   function matchPop(row, profile, chance) {
-    const mine = GL.meta.squadPower(GL.meta.squadRefs(profile)), theirs = row.squadPower || GL.meta.squadPower(row.squad);
+    const mineR = GL.meta.squadRefs(profile), foeR = row.squad || [];
+    const mine = GL.meta.squadPower(mineR), theirs = row.squadPower || GL.meta.squadPower(foeR);
     const ch = chance >= 65 ? 'gut' : chance >= 40 ? 'offen' : 'schwer';
+    const pw = r => r.max * 0.5 + r.atk * 4 + r.spd * 2;
+    // Kompakt: zwei Reihen kleiner Figuren, Platz gegen Platz. Pfeil = wer auf dem Platz stärker ist. Details per Hover/Finger halten.
+    const tile = (r, o, foe) => {
+      if (!r) return '<span class="mp-u empty"></span>';
+      const gear = (r.gear || []).map(g => GL.cgear.name(g)).join(', ');
+      const tip = `${r.name}${r.lvl ? ' · Lv ' + r.lvl : ''}\nLeben ${r.max} · Angriff ${r.atk} · Tempo ${r.spd}${gear ? '\nAusrüstung: ' + gear : ''}`;
+      return `<span class="mp-u${foe ? ' foe' : ''}" data-tip="${esc(tip)}" tabindex="0"><i>${squadSprite(r)}</i>${o && !foe ? `<span class="mp-cmp">${cmpArrow(pw(r), pw(o))}</span>` : ''}${(r.gear || []).length ? `<em class="mp-gn cr-${GL.cgear.RID[Math.max(...r.gear.map(g => g.r))]}">${r.gear.length}</em>` : ''}<small>${esc(String(r.name).split(' ')[0])}</small></span>`;
+    };
+    const n = Math.max(mineR.length, foeR.length);
+    const idx = Array.from({ length: n }, (_, i) => i);
     return `<div class="fpop-card match-pop" role="dialog" aria-labelledby="fpop-t">
-      <span class="fpop-kicker">Gegner gefunden</span>
-      <h3 id="fpop-t">${esc(row.name || 'Pirat')}</h3>
-      <small class="muted">${esc(row.rank || '')} ${row.squadRating ? leagueChip(row.squadRating, true) : ''}</small>
-      ${(() => { const mineR = GL.meta.squadRefs(profile), n = Math.max(mineR.length, (row.squad || []).length);
-        const cell = (r, o) => r ? `<span class="h2h-u"><i>${squadSprite(r)}</i><b>${esc(r.name)}</b><small>♥${r.max}${o ? cmpArrow(r.max, o.max) : ''} ⚔${r.atk}${o ? cmpArrow(r.atk, o.atk) : ''} ➤${r.spd}${o ? cmpArrow(r.spd, o.spd) : ''}</small></span>` : '<span class="h2h-u empty">–</span>';
-        return `<div class="h2h"><div class="h2h-head"><span>Deine Crew</span><span>Platz</span><span>Gegner</span></div>${Array.from({ length: n }, (_, i) =>
-          `<div class="h2h-row">${cell(mineR[i], (row.squad || [])[i])}<em>${i + 1}</em>${cell((row.squad || [])[i], null)}</div>`).join('')}</div>`; })()}
-      ${(row.squad || []).some(r => (r.gear || []).length) ? `<div class="mp-gear">${row.squad.map(r => (r.gear || []).map(g => `<span class="mp-g cr-${GL.cgear.RID[g.r]}" title="${esc(GL.cgear.name(g))}">${cgArt(g)}</span>`).join('')).join('')}</div>` : ''}
-      <div class="mp-vs"><span><small>Deine Crew</small><b>⚔ ${mine}</b></span><em>VS</em><span><small>Gegner</small><b>⚔ ${theirs}</b></span></div>
+      <div class="mp-head"><span class="fpop-kicker">Gegner gefunden</span>
+        <h3 id="fpop-t">${esc(row.name || 'Pirat')}</h3>${row.squadRating ? leagueChip(row.squadRating, true) : ''}</div>
+      <div class="mp-teams">
+        <span class="mp-lbl">Du <b>⚔ ${mine}</b></span><div class="mp-row">${idx.map(i => tile(mineR[i], foeR[i], false)).join('')}</div>
+        <span class="mp-lbl foe">${esc(String(row.name || 'Gegner').slice(0, 14))} <b>⚔ ${theirs}</b></span><div class="mp-row">${idx.map(i => tile(foeR[i], null, true)).join('')}</div>
+      </div>
       <div class="mp-chance ch-${ch}"><span>Siegchance</span><b>${chance} %</b><i style="width:${chance}%"></i></div>
-      <div class="fpop-btns"><button class="btn" data-act="squad-attack">⚔ Angreifen</button><button class="btn ghost" data-act="squad-match">Anderer Gegner</button></div>
-      <p class="wb-links"><button class="link" data-act="pop-close">Abbrechen</button></p>
+      <div class="mp-btns"><button class="btn" data-act="squad-attack">⚔ Angreifen</button><button class="btn ghost" data-act="squad-match">Anderer</button><button class="btn ghost mp-x" data-act="pop-close" aria-label="Abbrechen">✕</button></div>
     </div>`;
   }
   function squadSection(profile) {
