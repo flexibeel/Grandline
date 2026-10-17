@@ -8,6 +8,10 @@
   let anim = null;                       // läuft gerade eine Kampfanimation?
   const ui = { restartArmed: false, newBest: false, album: null, sheet: null, profile, lastStage: null, lastBerry: null,
     intro: null, screen: 'title' };   // screen: 'title' (Startbildschirm) | 'profile' (Profil anlegen) | null
+  // Willkommen zurück: nach mehr als drei Tagen Pause einmal kurz zeigen, was neu ist
+  if (profile.nickname && (profile.rankXp || 0) > 0 && profile.lastVisit && Date.now() - profile.lastVisit > 3 * 864e5) ui.welcomeDue = true;
+  ui.welcomeFrom = profile.lastVersion || null;
+  profile.lastVisit = Date.now(); profile.lastVersion = GL.version;
 
   // Eigener Pirat: beim Laden eintragen, damit Avatar und Name überall stimmen
   const selfNow = () => GL.meta.selfDef(profile);
@@ -43,6 +47,7 @@
     const old = document.getElementById('fpop');
     if (old && old.dataset.id === 'feedback') return;
     if (old && (old.dataset.id === 'install' || old.dataset.id === 'notes' || old.dataset.id === 'duel')) return;
+    if (!run && !ui.screen && ui.intro == null && !old && ui.welcomeDue) { ui.welcomeDue = false; openWelcome(); return; }
     if (!run && !ui.screen && ui.intro == null && !old && feedbackDue()) { openFeedback(); return; }
     if (!run && !ui.screen && ui.intro == null && !old && installDue()) { openInstall(); return; }
     if (run || ui.screen || ui.intro != null || !profile.nickname || !GL.meta.featuresNew) { if (old && !ui.fpop) old.remove(); return; }
@@ -97,6 +102,14 @@
     if (fb.sent) return false;
     if (!fb.asked) return runs >= 2;
     return fb.asked === 1 && runs >= 6;
+  }
+  function openWelcome() {
+    const el = document.createElement('div');
+    el.id = 'fpop'; el.className = 'fpop'; el.dataset.id = 'welcome';
+    el.innerHTML = GL.ui.welcomePop(profile, ui.welcomeFrom);
+    el.addEventListener('click', e => { if (e.target === el) closePop(); });
+    document.body.appendChild(el);
+    requestAnimationFrame(() => el.classList.add('in'));
   }
   function openFeedback() {
     const old = document.getElementById('fpop'); if (old) old.remove();
@@ -266,6 +279,7 @@
           profile.seenFeatures = (profile.seenFeatures || []).filter(id => id !== open[profile.testerIdx].id);
         }
         if (((profile.stats && profile.stats.runs) || 0) % 3 === 0) { profile.fb = {}; ui.fbOpen = null; }
+        if (((profile.stats && profile.stats.runs) || 0) % 4 === 0) { ui.welcomeDue = true; ui.welcomeFrom = (GL.patchNotes[3] || {}).v; }
         profile.firstSeen = {};
       }
       if (run.daily) {
@@ -705,6 +719,7 @@
       case 'showcase': if (GL.meta.toggleShowcase(profile, el.dataset.id)) { saveProfile(); ui.lastStage = null; draw(); if (GL.online && GL.online.register) GL.online.register(profile); } break;
       case 'fpop-go': closeFeature(el.dataset.id, true); break;
       case 'fpop-close': closeFeature(el.dataset.id, false); break;
+      case 'wb-close': closePop(); break;
       case 'fb-open': openFeedback(); break;
       case 'notes-open': {
         profile.notesSeen = GL.version; saveProfile();
@@ -775,7 +790,7 @@
       case 'acc-reset':
       case 'acc-delete': {
         const kind = type === 'acc-reset' ? 'reset' : 'delete';
-        if (ui.accArmed !== kind) { ui.accArmed = kind; ui.lastStage = null; draw(); if (ui.screen) { document.getElementById('title').dataset.last = ''; draw(); } break; }
+        if (ui.accArmed !== kind) { ui.accArmed = kind; if (el.closest('#fpop')) { el.textContent = 'Sicher? Nochmal tippen'; break; } ui.lastStage = null; draw(); if (ui.screen) { document.getElementById('title').dataset.last = ''; draw(); } break; }
         el.disabled = true; el.textContent = 'Einen Moment …';
         const keep = { nickname: profile.nickname, char: profile.char, cos: profile.cos };
         const done = () => {

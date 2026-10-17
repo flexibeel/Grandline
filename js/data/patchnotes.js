@@ -1,12 +1,14 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
-  { v: '2026-10-17j', date: '17.10.', title: 'Bosse mit drei Phasen, Kampfwetter, Tempo statt Überspringen', items: [
+  { v: '2026-10-17k', date: '17.10.', title: 'Bosse mit drei Phasen, Kampfwetter, Tempo statt Überspringen', items: [
     'Bosskämpfe dauern länger, je weiter du kommst. Bosse weichen manchmal aus und kontern sofort',
     'Drei Phasen: ab 60 % wird der Boss wütend, ab 25 % kommt die Endphase mit voller Ulti und kurzem Durchatmen',
     'Kampfwetter: Manche Kämpfe haben Nebel, Rückenwind, Vollmond, Hitzewelle … jeder Kampf fühlt sich anders an',
     'Überspringen ist weg. Stattdessen drei Tempostufen (gemütlich, zügig, schnell), die sich das Spiel merkt',
-    'Erste Funde erklären sich kurz selbst: Raid-Beute, epische Ausrüstung, Artefakte' ] },
+    'Erste Funde erklären sich kurz selbst: Raid-Beute, epische Ausrüstung, Artefakte',
+    'Bosse im Kostüm: Crocodile als Krokodil, Arlong als Hai, Lucci mit Leopardenohren und mehr',
+    'Willkommen zurück: Nach einer Pause zeigt eine kleine Karte, was neu ist' ] },
   { v: '2026-10-17i', date: '17.10.', title: 'Bosskämpfe als Ereignis', items: [
     'Bosse treten mit eigenem Auftritt an: Kinobalken, Name, Kopfgeld',
     'Boss-Leiste oben im Kampf. Bei halbem Leben wird der Boss wütend: stärker, schneller, rot leuchtend',

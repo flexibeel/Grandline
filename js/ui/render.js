@@ -2053,6 +2053,18 @@ window.GL = window.GL || {};
       <small class="fb-note">Anonym. Hilft, das Spiel besser zu machen.</small>
     </div>`;
   }
+  function welcomePop(profile, fromV) {
+    const news = GL.patchNotes.filter(n => !fromV || n.v > fromV).slice(0, 3);
+    return `<div class="fpop-card" role="dialog" aria-labelledby="fpop-t">
+      <span class="fpop-kicker">Willkommen zurück</span>
+      <div class="fpop-art">${featureArt('flag')}</div>
+      <h3 id="fpop-t">Schön, dass du wieder da bist, ${esc(profile.nickname || 'Pirat')}!</h3>
+      ${news.length ? `<p>Seit deinem letzten Besuch ist einiges neu:</p><ol class="fpop-steps">${news.map(n => `<li>${esc(n.title)}</li>`).join('')}</ol>` : ''}
+      <p class="wb-note">Grand Line ist noch in Entwicklung, Spielstände können irgendwann zurückgesetzt werden. Lust, alles Neue von vorn zu erleben? Dann fang frisch an.</p>
+      <div class="fpop-btns"><button class="btn" data-act="wb-close">Weiterspielen</button><button class="btn ghost" data-act="acc-reset">Neu anfangen</button></div>
+      <p class="wb-links"><button class="link" data-act="notes-open">Alle Neuigkeiten</button> · <button class="link" data-act="fb-open">★ Spiel bewerten</button></p>
+    </div>`;
+  }
   function featurePop(f, more) {
     return `<div class="fpop-card" role="dialog" aria-labelledby="fpop-t">
       <span class="fpop-kicker">${esc(f.kicker || 'Neu freigeschaltet')}</span>
@@ -2559,6 +2571,7 @@ window.GL = window.GL || {};
       restart.hidden = GL.run.isFinished(run);
     },
     battleText,
-    speedLabel
+    speedLabel,
+    welcomePop
   };
 })();
