@@ -23,6 +23,7 @@ window.GL = window.GL || {};
   function dedupe(rows) {
     const groups = {};
     const out = [];
+    if (GL.safeName) rows.forEach(r => { if (r && r.name && !GL.nameCheck(r.name).ok) r.name = 'Pirat'; });
     rows.forEach(r => {
       const key = String(r.name || '').trim().toLowerCase();
       if (!key || key === '-' || key === 'unbekannter pirat' || key === 'pirat') { out.push(r); return; }
@@ -362,7 +363,9 @@ window.GL = window.GL || {};
   }
 
   async function rename(profile, name) {
-    profile.nickname = String(name || '').trim().slice(0, 24);
+    const n = String(name || '').trim().slice(0, 24);
+    if (GL.nameCheck && !GL.nameCheck(n).ok) return false;
+    profile.nickname = n;
     return register(profile);
   }
 

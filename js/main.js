@@ -422,6 +422,9 @@
         const inp = document.getElementById('pf-name');
         const name = inp ? inp.value.trim() : '';
         if (!name) { inp && inp.focus(); inp && inp.classList.add('shake'); break; }
+        const nc = GL.nameCheck(name);
+        if (!nc.ok) { ui.nameError = nc.msg; ui.draft.name = name; ui.lastStage = null; const t = document.getElementById('title'); if (t) t.dataset.last = ''; draw(); break; }
+        ui.nameError = null;
         profile.char = ui.draft.char;
         profile.cos = ui.draft.cos;
         profile.nickname = name.slice(0, 24);
@@ -606,6 +609,8 @@
       }
       case 'set-nick': {
         const inp = document.getElementById('nick');
+        const nc = GL.nameCheck(inp ? inp.value : '');
+        if (!nc.ok) { toast(`<span><b>Name nicht erlaubt</b>${esc2(nc.msg)}</span>`); break; }
         GL.online.rename(profile, inp ? inp.value : '').then(ok => {
           saveProfile(); ui.lastStage = null; draw();
           toast(ok ? '<span><b>Eingetragen</b>Dein Profil steht jetzt in der Rangliste.</span>' : '<span><b>Name gespeichert</b>In die Online-Rangliste kommst du in der geteilten Version.</span>');

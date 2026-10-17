@@ -1634,7 +1634,7 @@ window.GL = window.GL || {};
           </div>
           <div class="pf-form">
             <label for="pf-name">Piratenname</label>
-            <input id="pf-name" maxlength="24" autocomplete="off" placeholder="z. B. Felix der Furchtlose" value="${esc(d.name || '')}">
+            <input id="pf-name" maxlength="24" autocomplete="off" placeholder="z. B. Felix der Furchtlose" value="${esc(d.name || '')}">${ui.nameError ? `<p class="login-err">${esc(ui.nameError)}</p>` : ''}
             <span class="lbl">Kampfstil</span><div class="segs">${opt('char-type', d.char.type, [['kraft', 'Kraft'], ['klinge', 'Klinge'], ['technik', 'Technik']])}</div>
             <span class="lbl">Rolle</span><div class="segs">${opt('char-role', d.char.role, [['kaempfer', 'Kämpfer'], ['brecher', 'Brecher'], ['helfer', 'Helfer']])}</div>
             <span class="lbl">Aussehen</span>
