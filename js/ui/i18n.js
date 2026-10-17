@@ -82,6 +82,10 @@ window.GL = window.GL || {};
     'Unermüdlich': 'Tireless', 'Kaiser der Meere': 'Emperor of the seas', 'Piratenkönig': 'Pirate King', 'Großer Clown': 'Great clown', 'Revolutionär': 'Revolutionary',
     'Vizekapitän': 'First mate', 'Gemütlicher Kapitän': 'Cozy captain', 'Faust der Meere': 'Fist of the seas', 'Hundert Inseln': 'Hundred islands', 'Unbeugsam': 'Unbreakable',
     'Gastgeber der Grand Line': 'Host of the Grand Line', 'Herr der Flotte': 'Lord of the fleet', 'Schiffsjunge': 'Cabin boy',
+    // Figurennamen wie im englischen Original
+    'Ruffy': 'Luffy', 'Zorro': 'Zoro', 'Lysop': 'Usopp', 'Bon Clay': 'Bon Clay', 'Whitebeard': 'Whitebeard', 'Rob Lucci': 'Rob Lucci', 'Hancock': 'Hancock',
+    'Vollbild': 'Fullscreen', 'Weiterspielen': 'Continue', 'Rechtliches & Datenschutz': 'Legal & privacy',
+    'Inoffizielles Fanprojekt, kostenlos und ohne kommerzielle Absicht. One Piece gehört seinen Rechteinhabern.': 'Unofficial fan project, free and non-commercial. One Piece belongs to its rights holders.',
     'Willkommen zurück': 'Welcome back', 'Neu anfangen': 'Start over', 'Alle Neuigkeiten': 'All news', '★ Spiel bewerten': '★ Rate the game', 'Update verfügbar': 'Update available'
   };
   // Muster mit Zahlen
@@ -120,7 +124,9 @@ window.GL = window.GL || {};
     if (cache.has(text)) return cache.get(text);
     const lead = text.match(/^\s*/)[0], trail = text.match(/\s*$/)[0], core = text.trim();
     let out = null;
+    const X = GL.data && GL.data.en;
     if (D[core] != null) out = D[core];
+    else if (X && X[core] != null) out = X[core];
     else for (const [re, rep] of P) { if (re.test(core)) { out = core.replace(re, rep); break; } }
     if (out == null && core.includes(' · ')) { const parts = core.split(' · '); const t = parts.map(x => tr(x)); if (t.some((x, i) => x !== parts[i])) out = t.join(' · '); }
     const res = out == null ? text : lead + out + trail;

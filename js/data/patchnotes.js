@@ -1,6 +1,9 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-17zq', date: '17.10.', title: 'English, Teil 2', items: [
+    'Englisch umfasst jetzt fast alles: Fähigkeiten, Ultis, Banden, Duos, Schätze, Früchte, Inseln, Ereignisse, Bosse',
+    'English now covers nearly everything: abilities, ultimates, crews, duos, treasures, fruits, islands, events and bosses. Luffy, Zoro and Usopp use their English names' ] },
   { v: '2026-10-17zp', date: '17.10.', title: 'Kräftigere Figuren, Accessoires', items: [
     'Alle Figuren, Gegner und Tiere haben jetzt einen dunklen Pixel-Umriss: klarer, kräftiger, besser zu erkennen',
     'Neue Extras für deinen Piraten: Augenklappe, Narbe, Brille, Ohrring, Pfeife, Blume im Haar. Manche muss man sich erst verdienen',
