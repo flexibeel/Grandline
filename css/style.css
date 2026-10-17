@@ -3889,3 +3889,35 @@ body.has-tabbar main { padding-bottom: 86px; }
   border-style: solid; border-width: 5px; border-image: var(--pxf-light) 5 fill / 5px / 0 stretch; }
 :root:not([data-theme="dark"]) .head-actions .link:active { transform: translateY(1px); }
 :root:not([data-theme="dark"]) .head-actions { gap: 6px !important; flex-wrap: wrap; }
+.ts-pulse { display: inline-flex; align-items: center; gap: 5px; margin: 0 auto 8px; padding: 3px 10px; font-size: .74rem; font-weight: 700; color: #4a3520;
+  border-style: solid; border-width: 5px; border-image: var(--pxf-light) 5 fill / 5px / 0 stretch; }
+.ts-pulse span { opacity: .4; }
+.tp-dot { width: 8px; height: 8px; background: #3f8a52; box-shadow: 0 0 0 2px #cfe8d4; animation: dot-pulse 1.8s ease-in-out infinite; }
+/* ---------- Pixel-Effekte im Kampf ---------- */
+#field .fx3.pxfx { display: block !important; width: 34px; height: 34px; z-index: 40; filter: drop-shadow(0 2px 0 rgba(0,0,0,.35)); }
+#field .fx3.pxfx svg { width: 100%; height: 100%; display: block; }
+#field .fx3.pxfx.big { width: 44px; height: 44px; animation: pxfx-slam .55s steps(5) forwards; }
+#field .fx3.pxfx.huge { width: 64px; height: 64px; animation: pxfx-slam .6s steps(6) forwards; }
+#field .fx3.pxfx.echo { width: 90px; height: 90px; opacity: .35; animation: pxfx-echo .6s steps(5) forwards; }
+@keyframes pxfx-slam { 0% { transform: translate(-50%, -50%) scale(2.2) rotate(-12deg); opacity: 0; } 20% { opacity: 1; transform: translate(-50%, -50%) scale(.9) rotate(0); } 40% { transform: translate(-50%, -50%) scale(1.1); } 100% { transform: translate(-50%, -60%) scale(1); opacity: 0; } }
+@keyframes pxfx-echo { from { transform: translate(-50%, -50%) scale(.6); opacity: .5; } to { transform: translate(-50%, -50%) scale(1.5); opacity: 0; } }
+#field .fx3.pxfx.st { width: 20px; height: 20px; margin-top: -30px; animation: pxfx-st 1s steps(6) forwards; }
+@keyframes pxfx-st { 0% { transform: translate(-50%, -20%) scale(.6); opacity: 0; } 25% { opacity: 1; transform: translate(-50%, -50%) scale(1.15); } 100% { transform: translate(-50%, -110%) scale(1); opacity: 0; } }
+#field .fx3.pxfx.rise { width: 18px; height: 18px; animation: pxfx-rise 1s steps(6) forwards; }
+@keyframes pxfx-rise { 0% { transform: translate(-50%, 0) scale(.5); opacity: 0; } 30% { opacity: 1; } 100% { transform: translate(-50%, -160%) scale(1.1); opacity: 0; } }
+/* Welle über die ganze Seite bei Flächen-Ultis */
+.ult-wave { position: absolute; top: 30%; bottom: 8%; width: 55%; z-index: 35; pointer-events: none; opacity: .0;
+  background: repeating-linear-gradient(90deg, transparent 0 6px, var(--wc) 6px 12px); mask-image: linear-gradient(90deg, transparent, #000 30%, #000 70%, transparent); animation: ult-wave .8s steps(8) forwards; }
+.ult-wave.enemy { right: 0; } .ult-wave.crew { left: 0; }
+.ult-wave.t-kraft { --wc: rgba(217,138,114,.55); } .ult-wave.t-klinge { --wc: rgba(232,242,234,.7); } .ult-wave.t-technik { --wc: rgba(255,242,122,.6); }
+@keyframes ult-wave { 0% { opacity: 0; transform: translateX(-30%) skewX(-12deg); } 30% { opacity: 1; } 100% { opacity: 0; transform: translateX(20%) skewX(-12deg); } }
+@media (prefers-reduced-motion: reduce) { #field .fx3.pxfx, .ult-wave { animation-duration: .01s !important; } }
+/* Auswahl als Fenster über dem Run (Taverne, Früchte, Schätze, Ereignisse) */
+body.choice-open .stage { position: fixed !important; z-index: 800; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(560px, calc(100vw - 16px)); max-height: calc(100vh - 24px);
+  overflow-y: auto; margin: 0 !important; overscroll-behavior: contain; animation: choice-in .22s cubic-bezier(.2,.9,.3,1.1); }
+@keyframes choice-in { from { opacity: 0; transform: translate(-50%, -46%) scale(.97); } }
+body.choice-open::before { content: ''; position: fixed; inset: 0; z-index: 790; background: rgba(30,20,10,.45); }
+body.choice-open .stage .dock { position: sticky; bottom: -2px; }
+@supports (height: 100dvh) { body.choice-open .stage { max-height: calc(100dvh - 24px); } }
+/* Symbole antippen = kurze Erklärung */
+.px-ico[data-tip] { cursor: help; }

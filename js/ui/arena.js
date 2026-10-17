@@ -80,10 +80,61 @@ window.GL = window.GL || {};
     if (u) u.classList.toggle('charged', v >= 100);
   }
   // Ulti-Moment: großer Name über der Figur, Lichtblitz, Figur leuchtet auf
+
+  // ---------- Pixel-Effekte für Ultis und Zustände: auf dem Feld passiert sichtbar etwas ----------
+  const PX = {
+    fist:   { rows: ['..AA.AA...', '.AAAAAAAA.', 'AABAAAAAAA', 'AABAAAAAAA', 'AAAAAAAAAA', '.AAAAAAAA.', '..AAAAAA..', '...BBBB...'], c: { A: '#f2c9a0', B: '#c08a5a' } },
+    slash:  { rows: ['W........W', '.W......W.', '..W....W..', '...W..W...', '....WW....', '....WW....', '...W..W...', '..W....W..', '.W......W.', 'W........W'], c: { W: '#ffffff' } },
+    bolt:   { rows: ['....YY', '...YY.', '..YYY.', '.YYYYY', '...YY.', '..YY..', '.YY...', 'YY....'], c: { Y: '#fff27a' } },
+    flame:  { rows: ['...R....', '..RR..R.', '.RRYR.R.', '.RYYRRR.', 'RRYYYRR.', 'RYYWYYR.', '.RYYYR..', '..RRR...'], c: { R: '#e0603a', Y: '#f6c94a', W: '#fff6c8' } },
+    drop:   { rows: ['..R..', '.RRR.', 'RRRRR', 'RRWRR', '.RRR.'], c: { R: '#c2412f', W: '#f6a89a' } },
+    skull:  { rows: ['.PPPPP.', 'PPPPPPP', 'PKPPPKP', 'PPPPPPP', '.PPKPP.', '.P.P.P.'], c: { P: '#c9a8ff', K: '#3a2a50' } },
+    crack:  { rows: ['K...K', '.K.K.', '..K..', '.K.K.', 'K...K'], c: { K: '#5a4a6a' } },
+    spark:  { rows: ['..G..', '..G..', 'GGWGG', '..G..', '..G..'], c: { G: '#6fd08a', W: '#ffffff' } },
+    star:   { rows: ['..Y..', '.YYY.', 'YYYYY', '.Y.Y.'], c: { Y: '#ffe04a' } },
+    shield: { rows: ['SSSSSS', 'SWWWWS', 'SWSSWS', '.SWWS.', '..SS..'], c: { S: '#e0b040', W: '#fff2b8' } }
+  };
+  const pxSvgCache = {};
+  function pxSvg(k) {
+    if (pxSvgCache[k]) return pxSvgCache[k];
+    const a = PX[k], w = a.rows[0].length, h = a.rows.length;
+    let r = '';
+    a.rows.forEach((row, y) => row.split('').forEach((ch, x) => { if (a.c[ch]) r += `<rect x="${x}" y="${y}" width="1" height="1" fill="${a.c[ch]}"/>`; }));
+    return (pxSvgCache[k] = `<svg viewBox="0 0 ${w} ${h}" shape-rendering="crispEdges">${r}</svg>`);
+  }
+  function pxFx(kind, pos, cls, life, delay) {
+    if (!pos) return;
+    setTimeout(() => { const n = fx('pxfx ' + kind + ' ' + (cls || ''), pos, life || 800); if (n) n.innerHTML = pxSvg(kind); }, delay || 0);
+  }
+  const TYPE_FX = { kraft: 'fist', klinge: 'slash', technik: 'bolt' };
+  // Ulti: Signatur-Effekt je Kampfstil auf die Ziele, bei „alle“ eine Welle über die ganze Gegnerseite
+  function ultSignature(ev) {
+    const run = window.__glRun || {};
+    const list = ev.side === 'crew' ? run.crew : (run.battle || {}).enemies;
+    const u = list && list[ev.from];
+    const ult = (GL.data.ultis || {})[ev.by] || null;
+    const type = (u && (u.type || (u.def && u.def.type))) || 'kraft';
+    const foe = ev.side === 'crew' ? 'enemy' : 'crew';
+    const strike = ult && (ult.fx || []).find(f => f.do === 'strike');
+    const heal = ult && (ult.fx || []).find(f => f.do === 'heal');
+    const targets = [...document.querySelectorAll(`#field .fu-${foe}:not(.ko)`)];
+    if (strike && strike.target === 'all') {
+      const field = $('#field');
+      if (field) { const w = document.createElement('div'); w.className = 'ult-wave ' + foe + ' t-' + type; field.appendChild(w); setTimeout(() => w.remove(), 900); }
+      targets.forEach((t, k) => pxFx(TYPE_FX[type], center(t), 'big', 700, 250 + k * 90));
+    } else if (strike) {
+      const t = strike.target === 'weakest' ? targets.slice().sort((a, b) => (parseFloat(a.querySelector('.fu-bar i').style.width) || 0) - (parseFloat(b.querySelector('.fu-bar i').style.width) || 0))[0] : targets[0];
+      if (t) { pxFx(TYPE_FX[type], center(t), 'huge', 800, 250); pxFx(TYPE_FX[type], center(t), 'echo', 800, 420); }
+    }
+    if (heal) [...document.querySelectorAll(`#field .fu-${ev.side}:not(.ko)`)].forEach((t, k) => pxFx('spark', center(t), 'rise', 1000, 200 + k * 80));
+  }
+  const ST_FX = { burning: 'flame', bleed: 'drop', poison: 'drop', fear: 'skull', weak: 'crack', stun: 'star', brave: 'shield' };
+
   function ultFx(ev) {
     const f = el(ev.side, ev.from);
     setEn(ev.side, ev.from, 0);
     if (f) pulse(f, 'ult-glow');
+    try { ultSignature(ev); } catch (e) { /* Effekt ist Deko */ }
     const field = $('#field');
     if (field) {
       const run = window.__glRun || {};
@@ -519,6 +570,7 @@ window.GL = window.GL || {};
           addLive(ev.side, x.to, x.key, x.rounds);
           pulse(el(ev.side, x.to), d.good ? 'healed' : 'debuffed');
           fx(d.good ? 'fx-heal' : 'fx-curse', center(fu(ev.side, x.to)), 800);
+          if (ST_FX[x.key]) pxFx(ST_FX[x.key], center(fu(ev.side, x.to)), 'st', 1000, 100);
           fieldFloat(ev.side, x.to, d.name + '!', d.good ? 'buff' : 'debuff');
           float(ev.side, x.to, d.name + '!', 'tag ' + (d.good ? 'buff' : 'debuff'));
         });

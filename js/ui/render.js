@@ -52,7 +52,9 @@ window.GL = window.GL || {};
       a.rows.forEach((row, y) => row.split('').forEach((ch, x) => { if (a.c[ch]) r += `<rect x="${x}" y="${y}" width="1" height="1" fill="${a.c[ch]}"/>`; }));
       iconCache[id] = `<svg viewBox="0 0 10 10" shape-rendering="crispEdges" aria-hidden="true">${r}</svg>`;
     }
-    return `<i class="px-ico ${cls || ''}" title="${esc((GL.data.factions[id] || GL.data.types[id] || (GL.data.roles || {})[id] || {}).name || '')}">${iconCache[id]}</i>`;
+    const F = GL.data.factions[id], T = GL.data.types[id], Rl = (GL.data.roles || {})[id];
+    const tip = F ? `${F.name}: Bande. Mehrere Figuren derselben Bande geben einen Set-Bonus.` : T ? `${T.name}: Kampfstil. Stark gegen ${(GL.data.types[T.strong] || {}).name || '?'}.` : Rl ? `${Rl.name}: Rolle. ${{ brecher: 'Steht vorne und steckt ein.', kaempfer: 'Macht den meisten Schaden.', helfer: 'Heilt und unterstützt.' }[id] || ''}` : '';
+    return `<i class="px-ico ${cls || ''}" data-tip="${esc(tip)}" tabindex="0">${iconCache[id]}</i>`;
   }
   // Kleine Pixel-Pfeile für Vergleiche (besser/schlechter)
   const PX_UP = '<svg viewBox="0 0 5 3" aria-hidden="true"><rect x="2" y="0" width="1" height="1"/><rect x="1" y="1" width="3" height="1"/><rect x="0" y="2" width="5" height="1"/></svg>';
@@ -1853,7 +1855,10 @@ window.GL = window.GL || {};
     const crew = (profile.char ? [avatarOf(profile)] : []).concat(ids.map(id => crewData(id))).slice(0, 4)
       .map(dd => `<span class="ts-hop">${GL.sprites.render(dd)}</span>`).join('');
     const st = GL.online ? GL.online.state() : { status: 'local', rows: [] };
-    const players = (st.rows || []).length;
+    const now = Date.now();
+    const day = (st.rows || []).filter(x => x.updated && now - Date.parse(x.updated) < 864e5).length;
+    const live = (st.rows || []).filter(x => isOnline(x)).length;
+    const pulse = day ? `<div class="ts-pulse" title="Spieler, die gerade spielen und in den letzten 24 Stunden aktiv waren"><i class="tp-dot"></i><b>${live}</b> gerade auf See <span>·</span> <b>${day}</b> heute an Bord</div>` : '';
     return `<div class="ts-inner">
       <div class="ts-top">${profile.nickname ? profileChip(profile) : '<span></span>'}</div>
       <div class="ts-logo"><b>${esc(W)}</b><small>Ein Piraten-Roguelike</small></div>
@@ -1864,9 +1869,10 @@ window.GL = window.GL || {};
         <div class="ts-crew">${crew}</div>
       </div>
       <div class="ts-menu">
+        ${pulse}
         <button class="btn ts-play" data-act="title-play">${run ? 'Weiterspielen' : profile.nickname ? 'Spielen' : 'Neues Spiel'} ${keyHint('Leertaste')}</button>
         <div class="ts-row">
-          ${GL.meta.featureOpen(profile, 'rangliste') ? `<button class="btn ghost" data-act="title-go" data-tab="rangliste">Rangliste${players ? ` <small>${players}</small>` : ''}</button>` : `<button class="btn ghost locked" data-act="title-go" data-tab="rangliste" title="Ab Rang 2">Rangliste <small>ab Rang 2</small></button>`}
+          ${GL.meta.featureOpen(profile, 'rangliste') ? `<button class="btn ghost" data-act="title-go" data-tab="rangliste">Rangliste</button>` : `<button class="btn ghost locked" data-act="title-go" data-tab="rangliste" title="Ab Rang 2">Rangliste <small>ab Rang 2</small></button>`}
           <button class="btn ghost" data-act="title-go" data-tab="album">Sammelalbum</button>
           <button class="btn ghost" data-act="intro-open">Anleitung</button>
         </div>
@@ -2784,6 +2790,8 @@ window.GL = window.GL || {};
       document.body.classList.toggle('streamer', streamOn());
       document.body.classList.toggle('is-app', !!fsApp());
       document.body.classList.toggle('in-run', !!run && !ui.screen);
+      // Auswahl-Bildschirme (Taverne, Früchte, Schätze, Ereignisse) als Fenster über dem Run: kein Scrollen durch Crew und Boni
+      document.body.classList.toggle('choice-open', !!run && !ui.screen && ['recruit', 'fruit', 'treasure', 'awaken', 'event'].includes(run.phase));
       const fsb = document.querySelector('.fs-btn');
       if (fsb) fsb.hidden = fsApp() || !touchDev() || !(document.fullscreenEnabled || document.webkitFullscreenEnabled);
       let sb = document.getElementById('sandbox-bar');

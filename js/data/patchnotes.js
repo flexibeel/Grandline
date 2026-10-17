@@ -1,6 +1,12 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-17zd', date: '17.10.', title: 'Mehr Leben im Kampf, Auswahl als Fenster', items: [
+    'Ultis zeigen eigene Pixel-Effekte: Faust bei Kraft, Klingenhieb bei Klinge, Blitz bei Technik, bei Flächen-Ultis eine Welle über alle Gegner',
+    'Zustände sieht man auf dem Feld: Flammen, Blutstropfen, Sterne, Totenkopf, Schild, Heil-Funken',
+    'Taverne, Früchte, Schätze und Ereignisse öffnen als Fenster über dem Run: alles auf einen Blick, kein Scrollen',
+    'Symbole antippen erklärt kurz, was sie bedeuten',
+    'Startbildschirm: statt Spielerzahl an der Rangliste zeigt ein kleines Schild, wer gerade auf See und heute an Bord war' ] },
   { v: '2026-10-17zc', date: '17.10.', title: 'Banden-Wappen und neue Symbole', items: [
     'Jede Bande hat ein eigenes Pixel-Wappen (Strohhut, Marine, CP9, Weißbart, Samurai, Baroque Works), dazu Symbole für Kampfstil und Rolle',
     'Taverne: Wappen und Symbole auf jedem Angebot, „+ Bonus“ zeigt, wenn eine Figur einen Bonus freischaltet',
