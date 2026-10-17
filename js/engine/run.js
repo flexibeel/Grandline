@@ -493,7 +493,24 @@ window.GL = window.GL || {};
     const it = { uid: 'i' + run.seed.toString(36) + '-' + run.itemSeq, id: def.id, r, lvl: 0, isNew: true };
     run.items.push(it);
     run.lastItem = it.uid;
+    autoEquip(run);
     return it;
+  }
+  // Freie Ausrüstung automatisch an Crewmitglieder ohne Ausrüstung geben:
+  // Schutz (Leben/Rüstung) an die vorderste Figur, Angriff an die stärkste. Umhängen geht weiter per Hand.
+  function autoEquip(run) {
+    if (run.autoEquip === false) return;
+    const worn = new Set(run.crew.map(u => u.item).filter(Boolean));
+    const free = run.items.filter(it => !worn.has(it.uid)).sort((a, b) => b.r - a.r || (b.lvl || 0) - (a.lvl || 0));
+    free.forEach(it => {
+      const open = run.crew.filter(u => !u.item && u.hp > 0);
+      if (!open.length) return;
+      const st = itemStats(it);
+      const defensive = (st.hp || 0) + (st.armor || 0) * 4 > (st.atk || 0) * 2 + (st.dmgPct || 0) * 40 + (st.crit || 0) * 30;
+      const u = defensive ? open[0] : open.slice().sort((a, b) => b.atk - a.atk)[0];
+      u.item = it.uid; setItemHp(u, it, 1);
+      it.auto = u.id;
+    });
   }
   // Leben aus Ausrüstung gilt dauerhaft, solange sie angelegt ist
   function setItemHp(u, it, sign) {
@@ -637,7 +654,7 @@ window.GL = window.GL || {};
         if (a.type !== 'pick') return false;
         const offer = run.pool[a.index];
         if (!offer) return false;
-        run.crew.push(makeMember(run, offer));
+        run.crew.push(makeMember(run, offer)); autoEquip(run);
         run.crew[0].points += run.startPoints || 0;
         run.captain = offer.id;
         run.pool = [];
@@ -785,7 +802,7 @@ window.GL = window.GL || {};
         run.gold -= price;
         run.shopFree = false;
         offer.sold = true;
-        run.crew.push(makeMember(run, offer));
+        run.crew.push(makeMember(run, offer)); autoEquip(run);
         return true;
       }
       case 'fruit':
@@ -801,7 +818,7 @@ window.GL = window.GL || {};
         } else {
           const item = run.pool[a.index];
           if (!item) return false;
-          if (run.phase === 'recruit') run.crew.push(makeMember(run, item));
+          if (run.phase === 'recruit') { run.crew.push(makeMember(run, item)); autoEquip(run); }
           else if (run.phase === 'treasure') run.relics.push(item);
           else { applyEffect(run, GL.loot.fruit(item).effect); run.eaten.push(item.id); }
         }

@@ -116,7 +116,9 @@
       const it = run.items[run.items.length - 1];
       const d = GL.data.items.find(x => x.id === it.id);
       const R = GL.config.rarities[it.r];
-      setTimeout(() => toast(`<span class="toast-item ir-${R.id}"><b>${R.name}: ${d.name}</b>Im Steckbrief einer Figur anlegen.</span>`), 900);
+      const wearer = it.auto && run.crew.find(u => u.item === it.uid);
+      const wName = wearer ? ((GL.data.crew.find(c => c.id === wearer.id) || {}).name || wearer.name || 'Crew') : '';
+      setTimeout(() => toast(`<span class="toast-item ir-${R.id}"><b>${R.name}: ${d.name}</b>${wearer ? `Automatisch angelegt: <b>${esc2(wName)}</b>. Tippe eine Figur an, um umzuhängen.` : 'Liegt in der Truhe. Tippe eine Figur an und wähle „Ausrüstung“, um sie anzulegen.'}</span>`), 900);
     }
     // Artefakt gefunden: nach dem Kopfgeld-Steckbrief einblenden
     if ((run.trophies || []).length > trophiesBefore) {
