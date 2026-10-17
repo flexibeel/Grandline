@@ -3360,3 +3360,58 @@ button.duel-chip { all: unset; cursor: pointer; font-size: .8rem; font-weight: 7
 .endless-box b { font-size: 1rem; color: #3a2a18; }
 .endless-box span:last-child { font-size: .85rem; color: #6b5a44; }
 .endless-chip { background: #fbe9c8 !important; color: #8a5a1a !important; }
+/* ---------- Figurenkarten v4: echte Sammelkarten, warm und mit Liebe ---------- */
+.card-face.cf3 { --fc: #c9b08a; --fc2: #e8d5b0; position: relative; display: flex !important; flex-direction: column; align-items: stretch; gap: 0;
+  padding: 0 !important; min-height: 0 !important; overflow: hidden; border-radius: 18px !important; text-align: center;
+  background: linear-gradient(180deg, #fffdf8 0%, #fbf3e3 100%) !important; border: 1px solid color-mix(in srgb, var(--fc) 40%, #eadcc2) !important;
+  box-shadow: 0 1px 0 rgba(255,255,255,.8) inset, 0 10px 22px -12px rgba(60,40,15,.4) !important; }
+.cf3.fac-strohhut { --fc: #e0977c; --fc2: #f7d9c8; } .cf3.fac-marine { --fc: #86aed3; --fc2: #d8e7f4; } .cf3.fac-cp9 { --fc: #9a93ab; --fc2: #e2deea; }
+.cf3.fac-baroque { --fc: #d3ad66; --fc2: #f3e3bf; } .cf3.fac-weissbart { --fc: #a9a3cc; --fc2: #e4e1f2; } .cf3.fac-samurai { --fc: #84b8b8; --fc2: #d7ebea; } .cf3.fac-none { --fc: #c9b08a; --fc2: #efe2c6; }
+/* Bildbereich: weicher Himmel in Bandenfarbe, feines Muster, Licht von oben */
+.c3-top { position: relative; height: 128px; display: block;
+  background: radial-gradient(ellipse 80% 60% at 50% 18%, rgba(255,255,255,.75), transparent 70%),
+    repeating-linear-gradient(135deg, rgba(255,255,255,.12) 0 6px, transparent 6px 14px),
+    linear-gradient(180deg, var(--fc2) 0%, color-mix(in srgb, var(--fc) 70%, var(--fc2)) 100%); }
+.c3-head { position: absolute; left: 0; right: 0; top: 0; display: flex; justify-content: space-between; align-items: center; padding: 7px 10px; z-index: 2; }
+.c3-fac { font-size: .62rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: #fff; background: color-mix(in srgb, var(--fc) 85%, #000 8%); padding: 2px 8px; border-radius: 999px; box-shadow: 0 1px 0 rgba(255,255,255,.3) inset; }
+.c3-head .stars { font-size: .78rem; color: #f6c94a; text-shadow: 0 1px 0 rgba(120,80,20,.35); }
+.c3-head .stars i { color: rgba(255,255,255,.55); font-style: normal; }
+.c3-ped { position: absolute; left: 50%; bottom: 10px; width: 92px; height: 22px; transform: translateX(-50%); border-radius: 50%;
+  background: radial-gradient(ellipse, rgba(255,255,255,.75), rgba(255,255,255,.25) 55%, transparent 72%); box-shadow: 0 6px 10px -6px rgba(60,40,15,.45); }
+.c3-sprite { position: absolute; left: 50%; bottom: 16px; transform: translateX(-50%); z-index: 1; }
+.c3-sprite svg { width: 66px; height: 77px; display: block; shape-rendering: crispEdges; filter: drop-shadow(0 4px 0 rgba(60,40,15,.22)); }
+.opt.card:hover .c3-sprite svg { animation: fu-breathe 1.6s ease-in-out infinite; }
+.c3-lv { position: absolute; left: 8px; bottom: 8px; z-index: 2; font-style: normal; font-size: .62rem; font-weight: 800; color: #fff; background: rgba(40,28,18,.55); padding: 1px 6px; border-radius: 999px; }
+.c3-name { display: block; margin: 8px 8px 0; font-family: var(--px); font-weight: 600; font-size: 1.12rem; color: #3a2a18; line-height: 1.1; }
+.c3-sub { display: inline-flex; justify-content: center; align-items: center; gap: 5px; margin-top: 2px; font-size: .72rem; font-weight: 700; color: #8a7a62; }
+.c3-sub span { opacity: .5; }
+.c3-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+.c3-dot.t-kraft { background: #d98a72; } .c3-dot.t-klinge { background: #7fa98a; } .c3-dot.t-technik { background: #7fa3c9; }
+.c3-ab { display: grid; gap: 4px; margin: 8px 10px 0; text-align: left; font-size: .76rem; line-height: 1.3; color: #6b5a44; }
+.c3-ab b { color: #3a2a18; font-weight: 800; }
+.c3-ab .gain { display: block; color: #3f8a52; font-weight: 700; font-size: .72rem; }
+.c3-ult { align-self: center; margin: 8px 10px 0; padding: 2px 10px; border-radius: 999px; font-size: .72rem; font-weight: 800; color: #8a5a1a; background: #fbefd8; max-width: calc(100% - 20px); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* Werte als drei kleine Abzeichen */
+.c3-stats { display: flex; justify-content: center; gap: 6px; margin: 10px 10px 10px; margin-top: auto; padding-top: 10px; }
+.c3-stats > span { display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px; border-radius: 999px; font-weight: 800; font-size: .86rem; color: #3a2a18; background: #f6eedd; box-shadow: 0 1px 0 rgba(255,255,255,.7) inset; }
+.c3-stats i { font-style: normal; font-size: .78rem; }
+.c3-stats .hp i { color: #d0675a; } .c3-stats .atk i { color: #b98a3a; } .c3-stats .spd i { color: #5f94bf; }
+/* Seltene Karten (3 Sterne): ganz sanfter Glanz */
+.cf3.shiny::after { content: ''; position: absolute; inset: 0; pointer-events: none; border-radius: inherit;
+  background: linear-gradient(115deg, transparent 35%, rgba(255,255,255,.45) 48%, transparent 60%); background-size: 250% 100%; animation: c3-shine 4.5s ease-in-out infinite; mix-blend-mode: soft-light; }
+@keyframes c3-shine { 0%, 60% { background-position: 120% 0; } 100% { background-position: -60% 0; } }
+.cf3.frame-gold { border-color: #e2c27a !important; box-shadow: 0 0 0 2px rgba(226,194,122,.35), 0 10px 22px -12px rgba(60,40,15,.4) !important; }
+.opt.card:hover .card-face.cf3 { transform: translateY(-2px) !important; box-shadow: 0 1px 0 rgba(255,255,255,.8) inset, 0 16px 30px -14px rgba(60,40,15,.5) !important; }
+.opt.card .card-face.cf3 { height: 100%; }
+@media (max-width: 520px) {
+  .c3-top { height: 104px; }
+  .c3-sprite svg { width: 52px; height: 61px; }
+  .c3-ped { width: 74px; }
+  .c3-name { font-size: 1rem; margin-top: 6px; }
+  .c3-ab { font-size: .7rem; margin: 6px 8px 0; }
+  .c3-ab .c3-trait { display: none; }
+  .c3-ult { font-size: .68rem; margin-top: 6px; }
+  .c3-stats { gap: 4px; margin: 8px 6px; padding-top: 8px; }
+  .c3-stats > span { padding: 2px 7px; font-size: .78rem; }
+}
+@media (prefers-reduced-motion: reduce) { .cf3.shiny::after { animation: none; } }

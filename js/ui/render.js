@@ -226,18 +226,29 @@ window.GL = window.GL || {};
     const t = o.trait ? trait(o.trait) : null;
     const fac = d.faction && GL.data.factions[d.faction];
     const u = ultiOf(d.id, d.role);
-    return `<span class="card-face cf2 fac-${d.faction || 'none'}${o.gold ? ' frame-gold' : ''}">
-      <span class="cf-band" title="${fac ? esc(fac.name) : 'Ohne Bande'}"><span>${fac ? esc(FAC_SHORT[d.faction] || fac.name) : 'Ohne Bande'}</span>${o.stars ? stars(o.stars) : ''}</span>
-      <span class="card-art art-${d.type}">${GL.sprites.render(d)}${o.lvl ? `<em class="cf-lv">Lv ${o.lvl}</em>` : ''}</span>
-      <span class="card-name">${d.name}</span>
-      <span class="cf-tags">${badge(d.type)}${roleChip(d.role)}</span>
-      <span class="card-text">
-        ${a ? `<span class="cf-line" title="${esc(a.text)}"><b>${a.name}</b><i>${esc(shortText(a.text))}</i></span>` : ''}
-        ${t ? `<span class="cf-line card-trait" title="${esc(t.text)}"><b>${t.name}</b><i>${esc(shortText(t.text))}</i></span>` : ''}
+    const R = GL.data.roles && GL.data.roles[d.role];
+    const T = GL.data.types && GL.data.types[d.type];
+    const rare = (o.stars || 0) >= 3;
+    return `<span class="card-face cf3 fac-${d.faction || 'none'} ty-${d.type}${o.gold ? ' frame-gold' : ''}${rare ? ' shiny' : ''}">
+      <span class="c3-top">
+        <span class="c3-head"><span class="c3-fac">${fac ? esc(FAC_SHORT[d.faction] || fac.name) : 'Ohne Bande'}</span>${o.stars ? stars(o.stars) : ''}</span>
+        <span class="c3-ped" aria-hidden="true"></span>
+        <span class="c3-sprite">${GL.sprites.renderShaded ? GL.sprites.renderShaded(d) : GL.sprites.render(d)}</span>
+        ${o.lvl ? `<em class="c3-lv">Lv ${o.lvl}</em>` : ''}
+      </span>
+      <span class="c3-name">${d.name}</span>
+      <span class="c3-sub"><i class="c3-dot t-${d.type}"></i>${T ? esc(T.name) : ''}<span>·</span>${R ? esc(R.name) : ''}</span>
+      <span class="c3-ab">
+        ${a ? `<span title="${esc(a.text)}"><b>${a.name}</b> ${esc(shortText(a.text))}</span>` : ''}
+        ${t ? `<span class="c3-trait" title="${esc(t.text)}"><b>${t.name}</b> ${esc(shortText(t.text))}</span>` : ''}
         ${o.extra || ''}
       </span>
-      ${u ? `<span class="cf-ult" title="${esc(u.text)}">⚡ ${esc(u.name)}</span>` : ''}
-      <span class="cf-stats"><span><small>Leben</small><b>${m.max}</b></span><span><small>Angriff</small><b>${m.atk}</b></span><span><small>Tempo</small><b>${m.spd}</b></span></span>
+      ${u ? `<span class="c3-ult" title="${esc(u.text)}">✦ ${esc(u.name)}</span>` : ''}
+      <span class="c3-stats" aria-label="Leben ${m.max}, Angriff ${m.atk}, Tempo ${m.spd}">
+        <span class="hp" title="Leben"><i aria-hidden="true">♥</i>${m.max}</span>
+        <span class="atk" title="Angriff"><i aria-hidden="true">⚔</i>${m.atk}</span>
+        <span class="spd" title="Tempo"><i aria-hidden="true">➤</i>${m.spd}</span>
+      </span>
     </span>`;
   }
 
