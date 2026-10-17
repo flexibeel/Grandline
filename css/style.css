@@ -2834,3 +2834,8 @@ button, .opt, .map-node, .lb-row { touch-action: manipulation; }
   .quests .q-head { grid-column: 1 / -1; }
   .quest { grid-template-columns: 28px 1fr auto; align-items: start; }
 }
+.cf2 .cf-stats small { display: block; font-size: .56rem; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; opacity: .75; line-height: 1; }
+.cf2 .cf-stats span { padding: 3px 0 4px; }
+.opt.card.armed::after, .opt.course-opt.armed::after { display: none; }
+.login-code { width: 100%; margin-top: 4px; }
+.login-code summary { cursor: pointer; font-size: .82rem; color: var(--mute); }

@@ -30,7 +30,7 @@ window.GL = window.GL || {};
   function roleChip(role) {
     const r = GL.data.roles[role];
     if (!r) return '';
-    return `<em class="role-chip rc-${role}">${ROLE_ICON[role] || ''} ${esc(r.name)} <small>${ROLE_HINT[role] || ''}</small></em>`;
+    return `<em class="role-chip rc-${role}" title="${esc(ROLE_HINT[role] || '')}">${esc(r.name)}</em>`;
   }
 
   function tags(d) {
@@ -224,7 +224,7 @@ window.GL = window.GL || {};
         ${t ? `<span class="cf-line card-trait"><b>${t.name}:</b> ${t.text}</span>` : ''}
         ${o.extra || ''}
       </span>
-      <span class="cf-stats"><span title="Leben">❤ <b>${m.max}</b></span><span title="Angriff">⚔ <b>${m.atk}</b></span><span title="Tempo">⚡ <b>${m.spd}</b></span></span>
+      <span class="cf-stats"><span><small>Leben</small><b>${m.max}</b></span><span><small>Angriff</small><b>${m.atk}</b></span><span><small>Tempo</small><b>${m.spd}</b></span></span>
     </span>`;
   }
 
@@ -902,12 +902,12 @@ window.GL = window.GL || {};
             <span class="slot-info">
               <b>${d.name} ${badge(u.type)}</b>
               <span class="slot-bar"><i style="width:${Math.max(0, 100 * u.hp / u.max)}%"></i></span>
-              <span class="slot-stats">${roleChip(d.role)}<span class="ss" title="Leben">❤ ${u.hp}/${u.max}</span><span class="ss" title="Angriff">ATK ${u.atk}</span><span class="ss" title="Tempo">TMP ${u.spd}</span></span>
+              <span class="slot-stats">${roleChip(d.role)}<span class="ss">Leben ${u.hp}/${u.max}</span><span class="ss">Angriff ${u.atk}</span><span class="ss">Tempo ${u.spd}</span></span>
               <span class="slot-tags">
                 ${u.hp <= 0 ? '<em class="mu bad">Besiegt</em>' : ''}
-                ${atk > 1 ? `<em class="mu good" title="Macht mehr Schaden gegen den vordersten Gegner">⚔▲ ${fmtMult(atk)}</em>` : atk < 1 ? `<em class="mu bad" title="Macht weniger Schaden gegen den vordersten Gegner">⚔▼ ${fmtMult(atk)}</em>` : ''}
-                ${isFront && def > 1 ? `<em class="mu bad" title="Steckt mehr Schaden ein">🛡▼ ${fmtMult(def)}</em>` : ''}
-                ${isFront && def < 1 ? `<em class="mu good" title="Steckt weniger Schaden ein">🛡▲ ${fmtMult(def)}</em>` : ''}
+                ${atk > 1 ? `<em class="mu good">Schaden ${fmtMult(atk)}</em>` : atk < 1 ? `<em class="mu bad">Schaden ${fmtMult(atk)}</em>` : ''}
+                ${isFront && def > 1 ? `<em class="mu bad">nimmt ${fmtMult(def)}</em>` : ''}
+                ${isFront && def < 1 ? `<em class="mu good">nimmt ${fmtMult(def)}</em>` : ''}
               </span>
             </span>
             <span class="grip" aria-hidden="true"></span>
@@ -1495,19 +1495,17 @@ window.GL = window.GL || {};
     // Schritt 2: Mail ist raus, Code eintippen (oder Link in der Mail antippen)
     if (st.mailSent) {
       return `<div class="ts-inner login-card">${back}
-        <div class="login-icon">✉</div><h2>Code eingeben</h2>
-        <p class="hint">Wir haben eine Mail an <b>${esc(st.mailSent)}</b> geschickt. Tippe den 6-stelligen Code hier ein, oder tippe in der Mail einfach auf den Link.</p>
-        <div class="login-field">
-          <label for="mail-code">Code aus der Mail</label>
-          <input id="mail-code" class="code-input" inputmode="numeric" autocomplete="one-time-code" maxlength="8" placeholder="123456">
-        </div>
-        <button class="btn login-main" data-act="mail-code">Bestätigen</button>
+        <div class="login-icon">✉</div><h2>Schau in dein Postfach</h2>
+        <p class="hint">Mail an <b>${esc(st.mailSent)}</b> ist unterwegs. <b>Tippe in der Mail auf den Link</b>, dann bist du angemeldet. Am besten auf dem Gerät, auf dem du spielen willst.</p>
         <p class="login-alt">Keine Mail da? Spam-Ordner prüfen oder <button class="link" data-act="mail-again">andere Adresse / neu senden</button></p>
+        ${GL.config.online && GL.config.online.mailCode ? `<details class="login-code"><summary>Ich habe einen Code in der Mail</summary>
+          <div class="login-field"><input id="mail-code" class="code-input" inputmode="numeric" autocomplete="one-time-code" maxlength="8" placeholder="123456"></div>
+          <button class="btn login-main" data-act="mail-code">Bestätigen</button></details>` : ''}
       </div>`;
     }
     return `<div class="ts-inner login-card">${back}
       <div class="login-icon">⚓</div><h2>Anmelden</h2>
-      <p class="hint">Kein Passwort nötig: Mail eingeben, Code bekommen, fertig. Auf jedem Gerät mit derselben Adresse spielst du mit demselben Piraten weiter.</p>
+      <p class="hint">Kein Passwort nötig: Mail eingeben, Link in der Mail antippen, fertig. Auf jedem Gerät mit derselben Adresse spielst du mit demselben Piraten weiter.</p>
       <div class="login-field">
         <label for="mail">E-Mail-Adresse</label>
         <input id="mail" type="email" inputmode="email" placeholder="deine@email.de" autocomplete="email">
@@ -2148,6 +2146,7 @@ window.GL = window.GL || {};
       if (html !== ui.lastStage) {
         $('#stage').innerHTML = html;
         ui.lastStage = html;
+        window.__glStageAt = performance.now();
         // Bei einem neuen Bildschirm zur Auswahl springen, falls sie nicht sichtbar ist
         if (ui.lastPhase !== run.phase) {
           ui.lastPhase = run.phase;

@@ -290,6 +290,8 @@
     if (!el || el.disabled) return;
     const type = el.dataset.act;
     const i = Number(el.dataset.i);
+    if (!keyPick && ['pick', 'node', 'fight', 'leave', 'continue', 'sail', 'again', 'train', 'squad-fight', 'squad-match'].includes(type)
+        && performance.now() - (window.__glStageAt || 0) < 350) return;
 
     if (type !== 'restart') ui.restartArmed = false;
     if (type !== 'acc-reset' && type !== 'acc-delete') ui.accArmed = null;
@@ -297,21 +299,7 @@
 
     switch (type) {
       case 'node': act({ type: 'node', index: i }); break;
-      case 'pick': {
-        // Karten und Kurswahl: erster Tipp markiert, zweiter nimmt (Tastatur 1-9 nimmt sofort)
-        const two = (el.classList.contains('card') || el.classList.contains('course-opt')) && !keyPick && !el.classList.contains('sold');
-        keyPick = false;
-        const key = run ? run.phase + ':' + run.step + ':' + i : '';
-        if (two && ui.armedPick !== key) {
-          ui.armedPick = key;
-          document.querySelectorAll('.opt.armed').forEach(x => x.classList.remove('armed'));
-          el.classList.add('armed');
-          break;
-        }
-        ui.armedPick = null;
-        act({ type: 'pick', index: i });
-        break;
-      }
+      case 'pick': act({ type: 'pick', index: i }); break;
       case 'up':   act({ type: 'swap', a: i, b: i - 1 }); break;
       case 'down': act({ type: 'swap', a: i, b: i + 1 }); break;
       case 'fight': act({ type: 'fight' }); break;
