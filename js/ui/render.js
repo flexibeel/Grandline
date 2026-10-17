@@ -2131,7 +2131,13 @@ window.GL = window.GL || {};
     { c: 'spd', ico: '⚡', name: 'Sprinttraining', fx: p => `+${p * GL.config.point.spd} Tempo` },
     { c: 'mix', ico: '⚖', name: 'Ausgewogen',     fx: p => `+${Math.ceil(p / 2) * GL.config.point.hp} Leben, +${Math.floor(p / 2) * GL.config.point.atk} Angriff` }
   ];
-  function trainPanel(run) {
+  // Haken: Training nach Level-up automatisch wählen
+  function autoCheck(profile, cls) {
+    const on = !!(profile && profile.settings && profile.settings.autoTrain);
+    return `<button class="auto-check${on ? ' on' : ''}${cls ? ' ' + cls : ''}" data-act="auto-train-toggle" role="checkbox" aria-checked="${on}" title="Level-ups automatisch mit dem empfohlenen Training verteilen">
+      <i class="ac-box" aria-hidden="true">${on ? '✓' : ''}</i><span>Auto-Training</span></button>`;
+  }
+  function trainPanel(run, profile) {
     const i = run.crew.findIndex(u => u.points > 0);
     if (i < 0) return '';
     const u = run.crew[i];
@@ -2141,7 +2147,8 @@ window.GL = window.GL || {};
     return `<div class="train">
       <div class="train-head"><span class="train-av">${GL.sprites.render(d)}</span>
         <span><b>${d.name} hat trainiert!</b><small>Lv ${u.lvl} · wähle ein Training${others > 0 ? ` · danach noch ${others} weitere` : ''}</small></span>
-        <button class="link" data-act="train-auto" title="Für alle das empfohlene Training wählen">Auto für alle</button></div>
+        <button class="link" data-act="train-auto" title="Für alle das empfohlene Training wählen">Jetzt für alle</button></div>
+      <div class="train-auto-row">${autoCheck(profile)}<small>Neue Level werden dann sofort sinnvoll verteilt.</small></div>
       <div class="train-opts">${TRAIN.map(t => `<button class="train-opt${rec && rec.stat === t.c ? ' rec' : ''}" data-act="train" data-i="${i}" data-c="${t.c}">
         ${rec && rec.stat === t.c ? '<span class="tip-badge">Tipp</span>' : ''}<i>${t.ico}</i><b>${t.name}</b><small>${t.fx(u.points)}</small></button>`).join('')}</div>
     </div>`;
@@ -2228,6 +2235,7 @@ window.GL = window.GL || {};
       const firstPts = run.crew.findIndex(u => u.points > 0);
       $('#crew-label').innerHTML = `<span class="nowrap">Deine Crew ${run.crew.length ? `<small>${run.crew.length}/${GL.run.crewLimit(run)}</small>` : ''}</span>
         <span class="nowrap charge-wrap">Spezial ${chargePips(run)}</span>
+        ${autoCheck(ui.profile, 'mini')}
 
         <button class="link" data-act="crew-toggle" aria-expanded="${!!ui.crewOpen}">${ui.crewOpen ? 'Kompakt' : 'Details'}</button>`;
       $('#crew').classList.toggle('compact', !ui.crewOpen);
@@ -2241,7 +2249,7 @@ window.GL = window.GL || {};
 
       // Hauptbereich nur neu aufbauen, wenn sich etwas geändert hat (sonst starten Animationen neu)
       const canTrain = ['map', 'prep', 'recruit', 'fruit', 'treasure', 'course', 'event'].includes(run.phase);
-      const html = (canTrain ? trainPanel(run) : '') + stage(run, anim, ui);
+      const html = (canTrain ? trainPanel(run, ui.profile) : '') + stage(run, anim, ui);
       if (html !== ui.lastStage) {
         $('#stage').innerHTML = html;
         ui.lastStage = html;

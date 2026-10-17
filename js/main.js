@@ -102,6 +102,19 @@
     GL.save.storeProfile(profile);
   }
 
+  // Alle offenen Statuspunkte nach Empfehlung verteilen
+  function autoTrainAll(silent) {
+    let g = 0;
+    run.crew.forEach((u, j) => {
+      while (run.crew[j].points > 0 && g++ < 200) {
+        const rec = GL.advice.stat(run, j);
+        if (!GL.run.act(run, { type: 'spend', index: j, stat: rec ? rec.stat : 'atk' })) return;
+      }
+    });
+    if (silent) return;
+    GL.save.storeRun(run); ui.lastStage = null; draw();
+  }
+
   function act(action) {
     if (!run) return;
     const wasFinished = GL.run.isFinished(run);
@@ -110,6 +123,7 @@
     const itemsBefore = (run.items || []).length;
     const luckyBefore = run.luckyN || 0;
     if (!GL.run.act(run, action)) return;
+    if (profile.settings && profile.settings.autoTrain && action.type !== 'spend' && run.crew.some(u => u.points > 0)) autoTrainAll(true);
     if ((run.luckyN || 0) > luckyBefore && run.lucky) toast(`<span><b>🍀 Glücksfund!</b>Eine Goldtruhe: +${run.lucky.gold} Gold${run.lucky.item ? ' und seltene Ausrüstung' : ''}.</span>`);
     // Neue Ausrüstung gefunden: kurze Meldung in der Farbe der Seltenheit
     if ((run.items || []).length > itemsBefore) {
@@ -644,14 +658,16 @@
       }
       case 'train-auto': {
         if (!run) break;
-        let g = 0;
-        run.crew.forEach((u, j) => {
-          while (run.crew[j].points > 0 && g++ < 200) {
-            const rec = GL.advice.stat(run, j);
-            act({ type: 'spend', index: j, stat: rec ? rec.stat : 'atk' });
-          }
-        });
+        autoTrainAll();
         toast('<span><b>Training erledigt</b>Alle haben das empfohlene Training bekommen.</span>');
+        break;
+      }
+      case 'auto-train-toggle': {
+        profile.settings = profile.settings || {};
+        profile.settings.autoTrain = !profile.settings.autoTrain;
+        saveProfile();
+        if (profile.settings.autoTrain && run) autoTrainAll();
+        ui.lastStage = null; draw();
         break;
       }
       case 'spend': {
