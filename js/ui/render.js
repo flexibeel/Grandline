@@ -2242,6 +2242,7 @@ window.GL = window.GL || {};
             <div class="sw-row"><span>Hut</span><div class="segs small">${opt('char-hat', d.char.look.hat || '', P.hat.map(h => [h, hats[h]]), 'hat')}</div></div>
             ${d.char.look.hat ? sw('hatColor', P.hatColor) : ''}
             ${P.beard ? swOpt('beard', 'Bart', P.beard) : ''}${P.nose ? swOpt('nose', 'Nase', P.nose) : ''}
+            ${P.acc ? `<div class="sw-row"><span>Extra</span><div class="segs small">${opt('char-acc', d.char.look.acc || '', P.acc.map(a => [a, { '': 'Ohne', augenklappe: 'Augenklappe', narbe: 'Narbe', brille: 'Brille', ohrring: 'Ohrring', pfeife: 'Pfeife', blume: 'Blume' }[a]]), 'acc')}</div></div>` : ''}
           </div>
         </div>
         <div class="cos-all">

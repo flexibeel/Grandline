@@ -4572,3 +4572,11 @@ body { overscroll-behavior: none; -webkit-tap-highlight-color: transparent; }
 .fr-btn svg { width: 17px !important; height: 13px !important; }
 .fr-on { position: absolute; top: -7px; right: -7px; min-width: 15px; height: 15px; padding: 0 3px; font: 700 10px/15px "Pixelify Sans", monospace; font-style: normal; color: #fff; background: #4f9a5a; border-radius: 8px; box-shadow: 0 0 0 2px #fff6e0; }
 @media (max-width: 560px) { body.in-run .head-actions .lang-btn, body.in-run .head-actions .fr-btn { display: none !important; } }
+/* Animierte Profilteile ab bestimmten Rängen */
+.an-glanz::after { content: ''; position: absolute; inset: 0; z-index: 2; pointer-events: none;
+  background: linear-gradient(120deg, transparent 35%, rgba(255,240,170,.85) 45%, transparent 55%); background-size: 250% 100%; animation: an-shine 2.4s steps(8) infinite; }
+@keyframes an-shine { from { background-position: 120% 0; } to { background-position: -120% 0; } }
+.an-wellen::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 30%; z-index: 2; pointer-events: none;
+  background: repeating-linear-gradient(90deg, rgba(255,255,255,.75) 0 6px, transparent 6px 14px); animation: ts-sea 1.6s steps(4) infinite; opacity: .8; }
+.an-kaiseraura { animation: an-kaiser 1.6s steps(3) infinite; }
+@keyframes an-kaiser { 0%, 100% { box-shadow: 0 0 0 0 rgba(224,72,59,0); } 50% { box-shadow: 0 0 0 3px rgba(242,201,76,.8), 0 0 16px rgba(224,72,59,.7); } }

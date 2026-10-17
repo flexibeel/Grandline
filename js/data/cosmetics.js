@@ -65,7 +65,10 @@ GL.data.cosmetics = {
     { id: 'schnee',     name: 'Schneegestöber',    req: { islands: 10, runs: 20 } },
     { id: 'herzen',     name: 'Herzchen',          req: { runs: 40 } },
     { id: 'haki',       name: 'Königs-Haki',       req: { rank: 15, raids: 5 } },
-    { id: 'freundesaura', name: 'Freundes-Aura',   req: { invites: 3 } }
+    { id: 'freundesaura', name: 'Freundes-Aura',   req: { invites: 3 } },
+    { id: 'glanz',      name: 'Goldglanz',         req: { rank: 8 } },
+    { id: 'wellen',     name: 'Meereswind',        req: { rank: 12 } },
+    { id: 'kaiseraura', name: 'Kaiser-Aura',       req: { rank: 18 } }
   ],
   titles: [
     { id: 'neuling',    name: 'Neuling auf See',   req: {} },
@@ -127,7 +130,8 @@ GL.data.charParts = {
   hat:    ['', 'straw', 'band', 'cap', 'hood', 'afro', 'tophat', 'tricorn', 'ears'],
   hatColor: ['#e8c25a', '#222222', '#c0392b', '#f0f0f0', '#2f6fb0', '#3d6b46', '#7a4fc4', '#e8862a'],
   beard:  ['', '#1a1a1a', '#6b4a2a', '#c8a040', '#f0f0f0', '#c0392b'],
-  nose:   ['', '#e0302a']
+  nose:   ['', '#e0302a'],
+  acc:    ['', 'augenklappe', 'narbe', 'brille', 'ohrring', 'pfeife', 'blume']
 };
 // Besondere Teile für den eigenen Piraten müssen erst verdient werden (Bedingungen wie bei der Kosmetik)
 GL.data.charLocks = {
@@ -136,5 +140,11 @@ GL.data.charLocks = {
   'hat:ears':    { name: 'Tierohren',      req: { runs: 12 } },
   'hat:afro':    { name: 'Locken',         req: { rank: 4 } },
   'beard':       { name: 'Bart',           req: { rank: 6 } },
-  'nose':        { name: 'Clownsnase',     req: { hunted: 20 } }
+  'nose':        { name: 'Clownsnase',     req: { hunted: 20 } },
+  'acc:augenklappe': { name: 'Augenklappe', req: { hunted: 6 } },
+  'acc:narbe':   { name: 'Narbe',          req: { raids: 2 } },
+  'acc:brille':  { name: 'Brille',         req: { runs: 6 } },
+  'acc:ohrring': { name: 'Ohrring',        req: { wins: 2 } },
+  'acc:pfeife':  { name: 'Pfeife',         req: { rank: 8 } },
+  'acc:blume':   { name: 'Blume im Haar',  req: { islands: 5 } }
 };

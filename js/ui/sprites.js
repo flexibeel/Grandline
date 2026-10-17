@@ -65,6 +65,22 @@ window.GL = window.GL || {};
     if (look.nose) { grid[4][5] = 'N'; grid[4][6] = 'N'; }
     const m = MASKS[look.mask];
     if (m) Object.keys(m).forEach(y => { grid[y] = m[y].split(''); });
+    // Accessoires (eigener Pirat): kleine Details, die man trotzdem erkennt
+    const A = { augenklappe: [[2, 3, 'K'], [2, 4, 'K'], [2, 5, 'K'], [2, 6, 'K'], [2, 7, 'K'], [2, 8, 'K'], [3, 7, 'K'], [3, 8, 'K'], [4, 7, 'K']], narbe: [[2, 4, 'R'], [3, 3, 'R'], [4, 4, 'R']],
+      brille: [[3, 3, 'G'], [3, 5, 'G'], [3, 6, 'G'], [3, 8, 'G'], [2, 4, 'G'], [2, 7, 'G']], ohrring: [[4, 2, 'Y'], [5, 2, 'Y']], pfeife: [[5, 8, 'W'], [5, 9, 'W'], [5, 10, 'W'], [4, 10, 'W'], [4, 11, 'W'], [3, 11, 'Q']],
+      blume: [[1, 9, 'F'], [0, 9, 'F'], [1, 10, 'F'], [1, 8, 'Y']] }[look.acc];
+    if (A) A.forEach(([y, x, ch]) => { if (grid[y]) grid[y][x] = ch; });
+  }
+  const ACC_COL = { K: '#1a1a1a', R: '#c0392b', G: '#3a2a20', Y: '#f2d24a', W: '#6a4424', F: '#e0483b', Q: '#d8d8d8' };
+  // Dunkler Pixel-Umriss um alles Gezeichnete: kräftiger, klarer Look (wie in Stardew oder Dwarves)
+  function outline(grid, w, h) {
+    const filled = (x, y) => y >= 0 && y < h && x >= 0 && x < w && grid[y][x] !== '.';
+    let r = '';
+    for (let y = -1; y <= h; y++) for (let x = -1; x <= w; x++) {
+      if (filled(x, y)) continue;
+      if (filled(x + 1, y) || filled(x - 1, y) || filled(x, y + 1) || filled(x, y - 1)) r += `<rect x="${x}" y="${y}" width="1" height="1" fill="#2a1a12" fill-opacity=".82"/>`;
+    }
+    return r;
   }
 
   const cache = {};
@@ -75,12 +91,12 @@ window.GL = window.GL || {};
     const colors = Object.assign({
       H: look.hair, S: look.skin, E: '#1a1a1a', C: look.shirt,
       P: look.pants, O: '#2a1f14', B: look.hatColor || look.hair, D: look.beard, N: look.nose
-    }, MASK_COL[look.mask] || {});
-    let rects = '';
+    }, ACC_COL, MASK_COL[look.mask] || {});
+    let rects = outline(grid, 12, 14);
     grid.forEach((row, y) => row.forEach((ch, x) => {
       if (ch !== '.') rects += `<rect x="${x}" y="${y}" width="1" height="1" fill="${colors[ch]}"/>`;
     }));
-    return `<svg viewBox="0 0 12 14" aria-hidden="true">${rects}</svg>`;
+    return `<svg viewBox="-1 -1 14 16" aria-hidden="true">${rects}</svg>`;
   }
   // Mit Licht und Schatten: Kanten oben/links heller, rechts/unten dunkler. Bleibt Pixel, wirkt plastisch.
   const mix = (hex, to, k) => {
@@ -92,20 +108,20 @@ window.GL = window.GL || {};
   function svgShaded(look) {
     const grid = BASE.map(r => r.split(''));
     applyLook(grid, look);
-    const colors = Object.assign({ H: look.hair, S: look.skin, E: '#1a1a1a', C: look.shirt, P: look.pants, O: '#2a1f14', B: look.hatColor || look.hair, D: look.beard, N: look.nose }, MASK_COL[look.mask] || {});
+    const colors = Object.assign({ H: look.hair, S: look.skin, E: '#1a1a1a', C: look.shirt, P: look.pants, O: '#2a1f14', B: look.hatColor || look.hair, D: look.beard, N: look.nose }, ACC_COL, MASK_COL[look.mask] || {});
     const at = (x, y) => (grid[y] && grid[y][x]) || '.';
-    let rects = '';
+    let rects = outline(grid, 12, 14);
     grid.forEach((row, y) => row.forEach((ch, x) => {
       if (ch === '.') return;
       let col = colors[ch];
-      if (ch !== 'E' && ch !== 'Y' && ch !== 'T') {
+      if (!'EYTKRGWFQ'.includes(ch)) {
         const edgeR = at(x + 1, y) !== ch, edgeB = at(x, y + 1) !== ch, edgeL = at(x - 1, y) !== ch, edgeT = at(x, y - 1) !== ch;
         if (edgeR || edgeB) col = mix(col, 'k', edgeR && edgeB ? 0.3 : 0.18);
         else if (edgeT || edgeL) col = mix(col, 'w', 0.16);
       }
       rects += `<rect x="${x}" y="${y}" width="1" height="1" fill="${col}"/>`;
     }));
-    return `<svg viewBox="0 0 12 14" aria-hidden="true">${rects}</svg>`;
+    return `<svg viewBox="-1 -1 14 16" aria-hidden="true">${rects}</svg>`;
   }
 
   // Eigene Pixelbilder (z. B. Tiere): rows + Farben, optional mit Licht und Schatten an den Kanten
@@ -117,7 +133,8 @@ window.GL = window.GL || {};
     const rows = art.rows.map(x => x.split('').reverse().join(''));
     const h = rows.length, w = Math.max(...rows.map(r => r.length));
     const at = (x, y) => (rows[y] && rows[y][x]) || '.';
-    let r = '';
+    const g2 = rows.map(row => row.padEnd(w, '.').split('').map(ch => art.c[ch] ? ch : '.'));
+    let r = outline(g2, w, h);
     rows.forEach((row, y) => row.split('').forEach((ch, x) => {
       const c0 = art.c[ch]; if (!c0) return;
       let col = c0;
@@ -129,7 +146,7 @@ window.GL = window.GL || {};
       r += `<rect x="${x}" y="${y}" width="1" height="1" fill="${col}"/>`;
     }));
     // Pixel-Umriss: macht Tiere im Kampfbild klar lesbar
-    const svgOut = `<svg viewBox="-0.5 0 ${w + 1} ${h}" aria-hidden="true">${r}</svg>`;
+    const svgOut = `<svg viewBox="-1 -1 ${w + 2} ${h + 2}" aria-hidden="true">${r}</svg>`;
     artCache.set(key, svgOut);
     return svgOut;
   }

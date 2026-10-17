@@ -1,6 +1,10 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-17zp', date: '17.10.', title: 'Kräftigere Figuren, Accessoires', items: [
+    'Alle Figuren, Gegner und Tiere haben jetzt einen dunklen Pixel-Umriss: klarer, kräftiger, besser zu erkennen',
+    'Neue Extras für deinen Piraten: Augenklappe, Narbe, Brille, Ohrring, Pfeife, Blume im Haar. Manche muss man sich erst verdienen',
+    'Animierte Profil-Teile ab Rang 8, 12 und 18: Goldglanz, Meereswind, Kaiser-Aura' ] },
   { v: '2026-10-17zo', date: '17.10.', title: 'Gemütlicher Hafen', items: [
     'Der Hafen folgt deiner Uhrzeit: Morgenrot, Tag, Abendrot mit Laterne, Nacht mit Mond und Sternen',
     'Persönliche Begrüßung mit deinem Namen, deine Crew steht auf dem Steg',

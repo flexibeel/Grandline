@@ -983,6 +983,7 @@
       case 'noop': break;
       case 'char-part': ui.draft.char.look[el.dataset.part] = el.dataset.v; draw(); break;
       case 'char-hat': ui.draft.char.look.hat = el.dataset.v; draw(); break;
+      case 'char-acc': ui.draft.char.look.acc = el.dataset.v || undefined; ui.lastStage = null; { const t = document.getElementById('title'); if (t) t.dataset.last = ''; } draw(); break;
       case 'char-type': ui.draft.char.type = el.dataset.v; draw(); break;
       case 'char-role': ui.draft.char.role = el.dataset.v; draw(); break;
       case 'cos-pick': ui.draft.cos[el.dataset.kind] = el.dataset.v; draw(); break;
