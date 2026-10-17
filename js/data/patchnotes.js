@@ -1,6 +1,10 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-17d', date: '17.10.', title: 'Wettfahrt teilen', items: [
+    'Wettfahrt: Code mit kurzer Erklärung, Teilen-Knopf und Link für den Kumpel',
+    'Wer den Link öffnet, kann die Herausforderung direkt annehmen',
+    'Rangliste zeigt die weiteste Fahrt mit Kapitel, z. B. Paradies · Alabasta' ] },
   { v: '2026-10-17c', date: '17.10.', title: 'Schöner, schneller, mit einer Hand', items: [
     'Kampf mit Tiefe: plastische Pixel-Figuren, die atmen, Ulti-Spotlight und Boss-Auftritt',
     'Ruhigere Figurenkarten mit weniger Text, auf dem Handy kompakter',

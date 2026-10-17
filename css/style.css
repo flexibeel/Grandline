@@ -3352,3 +3352,7 @@ em.type.t-technik { background: #7fa3c9 !important; color: #fff !important; }
   .lb-row { grid-template-columns: 26px 40px 1fr auto !important; column-gap: 8px; }
   .lb-cap .portrait.sm { width: 38px; height: 38px; }
 }
+.dp-code { display: grid; justify-items: center; gap: 0; margin: 4px auto 12px; padding: 8px 18px; border-radius: 14px; background: #f6eedd; width: max-content; }
+.dp-code small { font-size: .7rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: #9a7a4a; }
+.dp-code b { font-size: 1.6rem; letter-spacing: .12em; color: #3a2a18; font-family: var(--px); }
+button.duel-chip { all: unset; cursor: pointer; font-size: .8rem; font-weight: 700; padding: 2px 9px; border-radius: 999px; background: #efe6f8; color: #6a4a8a; }

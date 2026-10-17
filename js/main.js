@@ -42,7 +42,7 @@
   function featureCheck() {
     const old = document.getElementById('fpop');
     if (old && old.dataset.id === 'feedback') return;
-    if (old && (old.dataset.id === 'install' || old.dataset.id === 'notes')) return;
+    if (old && (old.dataset.id === 'install' || old.dataset.id === 'notes' || old.dataset.id === 'duel')) return;
     if (!run && !ui.screen && ui.intro == null && !old && feedbackDue()) { openFeedback(); return; }
     if (!run && !ui.screen && ui.intro == null && !old && installDue()) { openInstall(); return; }
     if (run || ui.screen || ui.intro != null || !profile.nickname || !GL.meta.featuresNew) { if (old && !ui.fpop) old.remove(); return; }
@@ -275,6 +275,20 @@
 
   // Duell: alle spielen denselben Seed ohne dauerhafte Boni (faire Bedingungen)
   const duelCode = seed => (seed >>> 0).toString(36).toUpperCase();
+  // Karte: Wettfahrt erstellen (eigener Code zum Teilen) oder Einladung annehmen
+  function openDuelPop(code, invited) {
+    const old = document.getElementById('fpop'); if (old) old.remove();
+    const el = document.createElement('div');
+    el.id = 'fpop'; el.className = 'fpop'; el.dataset.id = 'duel';
+    el.innerHTML = GL.ui.duelPop(code, invited);
+    el.addEventListener('click', e => { if (e.target === el) closePop(); });
+    document.body.appendChild(el);
+    requestAnimationFrame(() => el.classList.add('in'));
+  }
+  function closePop() {
+    const el = document.getElementById('fpop');
+    if (el) { el.classList.remove('in'); el.classList.add('out'); setTimeout(() => el.remove(), 260); }
+  }
   function startDuel(code) {
     let seed;
     if (code) {
@@ -697,11 +711,13 @@
       case 'dismiss': act({ type: 'dismiss', index: i }); ui.sheet = null; draw(); break;
       case 'lb-cat': ui.lbCat = el.dataset.id; draw(); break;
       case 'duel-view': ui.duelView = el.dataset.id; draw(); break;
-      case 'duel-new': startDuel(null); break;
+      case 'duel-new': openDuelPop(duelCode(GL.rng.newSeed()), false); break;
+      case 'duel-go': { const c = el.dataset.id; closePop(); startDuel(c); break; }
+      case 'duel-later': closePop(); break;
       case 'duel-join': { const inp = document.getElementById('duel-code'); startDuel(inp ? inp.value : ''); break; }
       case 'duel-copy': {
         const code = el.dataset.id;
-        const txt = `Wettfahrt in Grand Line! Gleiche Route, wer holt mehr Punkte? Code: ${code}\n${location.origin}${location.pathname}`;
+        const txt = `Wettfahrt in Grand Line! Gleiche Route, wer holt mehr Punkte? Code: ${code}\n${location.origin}${location.pathname}?wettfahrt=${code}`;
         // Handy: Teilen-Menü (WhatsApp & Co.), sonst kopieren
         if (navigator.share && matchMedia('(pointer: coarse)').matches) { navigator.share({ title: 'Grand Line Wettfahrt', text: txt }).catch(() => {}); break; }
         if (navigator.clipboard) navigator.clipboard.writeText(txt).then(() => toast('<span><b>Kopiert</b>Code ' + code + ' samt Link. Einfach an deinen Kumpel schicken.</span>'), () => toast('<span><b>Wettfahrt-Code</b>' + code + '</span>'));
@@ -1104,6 +1120,15 @@
   }, 120000);
   syncProfile();
   draw();
+  // Einladung per Link (?wettfahrt=CODE): nach dem Profil-Anlegen die Wettfahrt anbieten
+  try {
+    const inv = new URLSearchParams(location.search).get('wettfahrt');
+    if (inv && /^[0-9a-z]{1,8}$/i.test(inv)) {
+      history.replaceState(null, '', location.pathname);
+      const tryInvite = () => { if (profile.nickname && !ui.screen) openDuelPop(inv.toUpperCase(), true); else setTimeout(tryInvite, 1500); };
+      setTimeout(tryInvite, 800);
+    }
+  } catch (e) { /* egal */ }
   // Online-Rangliste: neu zeichnen, wenn sich Einträge ändern (nur im Hauptquartier sichtbar)
   if (GL.online) {
     GL.online.onChange(() => { checkDailyPay(); if (!run && document.activeElement && document.activeElement.id !== 'nick') draw(); });

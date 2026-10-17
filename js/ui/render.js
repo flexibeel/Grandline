@@ -290,7 +290,7 @@ window.GL = window.GL || {};
         <em class="gold-chip" data-tip="Gold für die Taverne.\nGibt es für Siege, verfällt am Run-Ende.">${GL.sprites.coin()} <b>${run.gold || 0}</b></em>
         <em class="bounty-chip" id="bounty-chip" data-tip="Kopfgeld deines Kapitäns.\nZählt für deinen Punktestand und die Rangliste 'Höchstes Kopfgeld'. Bringt sonst nichts im Run.">${GL.sprites.icon('node', 'elite')} <b>${fmtBounty(run.bountyM || 0)}</b></em>
         ${run.heat ? `<em class="heat-chip">Stufe ${run.heat}</em>` : ''}
-        ${run.daily ? '<em class="duel-chip">Tageskarte</em>' : run.duel ? `<em class="duel-chip">Wettfahrt ${run.duel}</em>` : ''}
+        ${run.daily ? '<em class="duel-chip">Tageskarte</em>' : run.duel ? `<button class="duel-chip" data-act="duel-copy" data-id="${run.duel}" title="Code teilen">Wettfahrt ${run.duel} · teilen</button>` : ''}
       </span>`;
   }
 
@@ -1961,6 +1961,20 @@ window.GL = window.GL || {};
     grid.forEach((row, y) => row.split('').forEach((ch, x) => { if (P[ch]) rects += `<rect x="${x}" y="${y}" width="1.02" height="1.02" fill="${P[ch]}"/>`; }));
     return `<svg viewBox="0 0 12 12" shape-rendering="crispEdges" aria-hidden="true">${rects}</svg>`;
   }
+  // Wettfahrt: Code zeigen, kurz erklären, teilen
+  function duelPop(code, invited) {
+    return `<div class="fpop-card duel-card" role="dialog" aria-labelledby="dp-t">
+      <span class="fpop-kicker">${invited ? 'Einladung' : 'Wettfahrt mit Freunden'}</span>
+      <h3 id="dp-t">${invited ? 'Du wurdest herausgefordert!' : 'Deine Wettfahrt'}</h3>
+      <div class="dp-code"><small>Code</small><b>${esc(code)}</b></div>
+      <ol class="fpop-steps">${invited
+        ? '<li>Du fährst exakt dieselbe Route wie dein Kumpel</li><li>Ohne Ausbauten: nur Können und Glück</li><li>Wer mehr Punkte holt, gewinnt</li>'
+        : '<li>Code teilen, z. B. per WhatsApp</li><li>Dein Kumpel tippt auf den Link und fährt dieselbe Route</li><li>Wer mehr Punkte holt, gewinnt (Rangliste → Wettfahrt)</li>'}</ol>
+      <div class="fpop-btns">${invited
+        ? `<button class="btn" data-act="duel-go" data-id="${esc(code)}">Annehmen</button><button class="btn ghost" data-act="duel-later">Später</button>`
+        : `<button class="btn ghost" data-act="duel-copy" data-id="${esc(code)}">Teilen</button><button class="btn" data-act="duel-go" data-id="${esc(code)}">Losfahren</button>`}</div>
+    </div>`;
+  }
   // Neuigkeiten
   function notesPop() {
     return `<div class="fpop-card notes-card" role="dialog" aria-labelledby="nt-t">
@@ -2376,6 +2390,7 @@ window.GL = window.GL || {};
     feedbackPop,
     installPop,
     notesPop,
+    duelPop,
     toggleMail() { mailShown = !mailShown; },
 
     render(run, anim, ui) {
