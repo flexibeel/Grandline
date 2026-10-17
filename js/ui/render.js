@@ -1060,6 +1060,9 @@ window.GL = window.GL || {};
         const newItems = (run.items || []).filter(x => !x.carried);
         const itemSum = newItems.length ? `<div class="trophy-sum items-sum"><span class="event-kicker">Neue Ausrüstung für die Schmiede</span>
           ${newItems.map(x => `<span class="trophy-chip ir-${GL.config.rarities[x.r].id}">${esc(itemName(x))}</span>`).join('')}</div>` : '';
+        const cgNew = ui.profile && ui.lastBerry != null && GL.cgear ? (ui.profile.lastGear || []).map(uid => GL.cgear.bag(ui.profile).find(x => x.uid === uid)).filter(Boolean) : [];
+        const cgHtml = cgNew.length ? `<div class="trophy-sum cg-sum"><span class="event-kicker">Beute für deine Stammcrew</span>
+          ${cgNew.map(it => `<span class="trophy-chip cr-${GL.cgear.RID[it.r]}">${cgArt(it)} ${esc(GL.cgear.name(it))}</span>`).join('')}</div>` : '';
         const tro = (run.trophies || []).map(id => (GL.data.artifacts || []).find(a => a.id === id)).filter(Boolean);
         const troHtml = tro.length ? `<div class="trophy-sum"><span class="event-kicker">Neu in der Schatzkammer</span>
           ${tro.map(a => `<span class="trophy-chip" title="${a.text.replace('{v}', '…')}">${artIcon(a)} ${a.name}</span>`).join('')}</div>` : '';
@@ -1071,7 +1074,7 @@ window.GL = window.GL || {};
         const endlessHtml = canEndless ? `<div class="endless-box"><span class="event-kicker">Endlos-Modus</span>
           <b>Die Grand Line ist bezwungen${run.loop ? ` – zum ${run.loop + 1}. Mal` : ''}!</b>
           <span>Weitersegeln? Deine Crew bleibt, die Gegner werden mit jeder Runde stärker. Alles bisher Erreichte ist schon gutgeschrieben.</span></div>` : '';
-        return `${head}${duelHtml}${endlessHtml}${record}${berry}${troHtml}${itemSum}${rankHtml}${heatUp}<div class="end-actions dock">${canEndless ? `<button class="btn" data-act="endless">Weitersegeln ⚓</button>` : ''}<button class="btn${canEndless ? ' ghost' : ''}" data-act="again">${run.daily ? 'Neuer Run' : run.duel ? 'Normaler Run' : 'Nochmal!'} ${keyHint('Leertaste')}</button>
+        return `${head}${duelHtml}${endlessHtml}${record}${berry}${cgHtml}${troHtml}${itemSum}${rankHtml}${heatUp}<div class="end-actions dock">${canEndless ? `<button class="btn" data-act="endless">Weitersegeln ⚓</button>` : ''}<button class="btn${canEndless ? ' ghost' : ''}" data-act="again">${run.daily ? 'Neuer Run' : run.duel ? 'Normaler Run' : 'Nochmal!'} ${keyHint('Leertaste')}</button>
           <button class="btn ghost" data-act="hq">Hauptquartier ${keyHint('H')}</button></div>`;
       }
     }
@@ -1184,13 +1187,88 @@ window.GL = window.GL || {};
         <span class="bar"><i style="width:${Math.max(0, 100 * hp / r.max)}%"></i></span></span>`;
     }).join('')}</div>`;
   }
+  // ---------- Crew-Ausrüstung (Stammcrew) ----------
+  const CG_COL = ['#9a8f80', '#4f86c6', '#9a5bd0', '#e0a030'];
+  const CG_ART = {
+    sword:   ['........AB', '.......AB.', '......AB..', '.....AB...', '....AB....', '.C.AB.....', '..CB......', '..CC......', '.C..C.....', 'C.........'],
+    gun:     ['..........', '..........', 'AAAAAAAAB.', 'BBBBBBAAB.', '.....CCAB.', '.....C.BB.', '......CBB.', '.......BB.', '..........', '..........'],
+    trident: ['A...A...A.', 'A...A...A.', 'AA..A..AA.', '.AAAAAAA..', '....B.....', '....B.....', '....B.....', '....B.....', '....B.....', '....B.....'],
+    coat:    ['..AA..AA..', '.AAACCAAA.', 'AAAACCAAAA', 'AAAACCAAAA', '.AAACCAAA.', '.AAACCAAA.', '.AAACCAAA.', '.AAACCAAA.', '.AAACCAAA.', '.BBB..BBB.'],
+    bandana: ['..........', '...AAAA...', '..AAAAAA..', '.AACAACAA.', '.AAAAAAAA.', 'BBBBBBBBBB', '........AA', '.......A.A', '..........', '..........'],
+    ring:    ['....CC....', '...CAAC...', '....AA....', '..AA..AA..', '.A......A.', '.A......A.', '.A......A.', '..AA..AA..', '....AA....', '..........'],
+    compass: ['...AAAA...', '..ABBBBA..', '.AB.C..BA.', '.AB.CC.BA.', '.AB.C..BA.', '.AB.....BA', '.AB....BA.', '..ABBBBA..', '...AAAA...', '..........']
+  };
+  function cgArt(it) {
+    const b = GL.cgear.base(it.b) || {};
+    const rows = CG_ART[b.art] || CG_ART.ring;
+    const col = { A: CG_COL[it.r] || CG_COL[0], B: '#5a4632', C: '#f2e3b8' };
+    let r = '';
+    rows.forEach((row, y) => row.split('').forEach((ch, x) => { if (ch !== '.') r += `<rect x="${x}" y="${y}" width="1" height="1" fill="${col[ch]}"/>`; }));
+    return `<svg viewBox="0 0 10 10" class="cg-art" aria-hidden="true">${r}</svg>`;
+  }
+  // Kleines Teil (Platz, Tasche, Visitenkarte)
+  function cgChip(it, act, extra) {
+    return `<button class="cg-chip cr-${GL.cgear.RID[it.r]}" data-act="${act}" ${extra || ''} title="${esc(GL.cgear.name(it))}">${cgArt(it)}</button>`;
+  }
+  // Ausführliche Karte (im Fenster)
+  function cgCard(it, foot) {
+    const f = GL.cgear.from(it);
+    return `<div class="cg-card cr-${GL.cgear.RID[it.r]}">
+      <div class="cg-card-top">${cgArt(it)}<span><b>${esc(GL.cgear.name(it))}</b><small>${GL.cgear.RNAME[it.r]} · ${esc((GL.data.crewGear.slots.find(s => s.id === GL.cgear.slotOf(it)) || {}).name || '')}</small></span><em class="cg-pow">⚔ ${GL.cgear.power(it)}</em></div>
+      <ul class="cg-lines">${GL.cgear.lines(it).map(l => `<li class="${l.main ? 'main' : ''}">${esc(l.text)}</li>`).join('')}</ul>
+      <p class="cg-from">Gefunden: ${esc(f.who)}${f.where ? ' · ' + esc(f.where) : ''}${f.loop ? ` · Endlos ${f.loop}` : ''}<br><small>${esc(f.when)}</small></p>
+      ${foot || ''}
+    </div>`;
+  }
+  function gearPanel(profile, refs) {
+    if (!GL.cgear) return '';
+    const bag = GL.cgear.bag(profile), W = GL.cgear.worn(profile);
+    const fresh = profile.gearNew || [];
+    const rows = refs.map(r => `<div class="cg-row"><i class="cg-who">${squadSprite(r)}</i><b>${esc(r.name)}</b>
+      <span class="cg-slots">${GL.data.crewGear.slots.map(sl => {
+        const it = bag.find(x => x.uid === (W[r.id] || {})[sl.id]);
+        return it ? cgChip(it, 'cg-slot', `data-id="${esc(r.id)}" data-slot="${sl.id}"`)
+          : `<button class="cg-chip empty" data-act="cg-slot" data-id="${esc(r.id)}" data-slot="${sl.id}" title="${sl.name} anlegen">+<small>${sl.name}</small></button>`;
+      }).join('')}</span></div>`).join('');
+    const list = bag.slice().sort((a, b) => b.r - a.r || GL.cgear.power(b) - GL.cgear.power(a));
+    return `<div class="cg-panel">
+      <div class="cg-head"><b>Ausrüstung</b><small>${bag.length}/${GL.data.crewGear.bagMax} in der Tasche</small></div>
+      ${rows}
+      ${list.length ? `<div class="cg-bag">${list.map(it => `<span class="cg-bagit${fresh.includes(it.uid) ? ' new' : ''}${GL.cgear.wornBy(profile, it.uid) ? ' worn' : ''}">${cgChip(it, 'cg-item', `data-uid="${it.uid}"`)}</span>`).join('')}</div>`
+        : '<p class="hint">Noch leer. Bosse und Raids lassen ab jetzt Waffen, Kleidung und Schmuck fallen, im Endlos-Modus öfter und besser.</p>'}
+    </div>`;
+  }
+  // Fenster: Teil für einen Platz wählen
+  function gearPick(profile, crewId, slot) {
+    const bag = GL.cgear.bag(profile), W = GL.cgear.worn(profile);
+    const cur = bag.find(x => x.uid === (W[crewId] || {})[slot]);
+    const opts = bag.filter(x => GL.cgear.slotOf(x) === slot && x !== cur).sort((a, b) => GL.cgear.power(b) - GL.cgear.power(a));
+    const sl = GL.data.crewGear.slots.find(s => s.id === slot) || {};
+    const who = crewId === 'self' ? (profile.nickname || 'Du') : (crewData(crewId) || {}).name;
+    return `<div class="fpop-card cg-pop" role="dialog" aria-labelledby="fpop-t">
+      <span class="fpop-kicker">${esc(sl.name || '')} für ${esc(who || '')}</span>
+      ${cur ? cgCard(cur, `<button class="btn mini ghost" data-act="cg-off" data-id="${esc(crewId)}" data-slot="${slot}">Ablegen</button>`) : '<h3 id="fpop-t">Noch nichts angelegt</h3>'}
+      ${opts.length ? `<div class="cg-list">${opts.map(it => { const by = GL.cgear.wornBy(profile, it.uid);
+        return cgCard(it, `<button class="btn mini" data-act="cg-on" data-id="${esc(crewId)}" data-uid="${it.uid}">${by ? 'Hierher wechseln' : 'Anlegen'}</button>`); }).join('')}</div>`
+        : `<p class="hint">Keine passenden Teile in der Tasche. Bosse lassen ${esc(sl.name || 'Ausrüstung')} fallen.</p>`}
+      <div class="fpop-btns"><button class="btn ghost" data-act="pop-close">Schließen</button></div>
+    </div>`;
+  }
+  // Fenster: ein Teil ansehen (eigenes: zerlegen; fremdes: nur ansehen)
+  function gearView(it, own, profile) {
+    const by = own && GL.cgear.wornBy(profile, it.uid);
+    const foot = own ? (by ? `<small class="muted">Angelegt bei ${esc(by === 'self' ? (profile.nickname || 'dir') : (crewData(by) || {}).name || '')}</small>`
+      : `<button class="btn mini ghost danger-btn" data-act="cg-scrap" data-uid="${it.uid}">Zerlegen (+${GL.data.crewGear.scrap[it.r]} Berry)</button>`) : '';
+    return `<div class="fpop-card cg-pop" role="dialog"><span class="fpop-kicker">Ausrüstung</span>${cgCard(it, foot)}
+      <div class="fpop-btns"><button class="btn ghost" data-act="pop-close">Schließen</button></div></div>`;
+  }
   function squadSection(profile) {
     if (!GL.meta.squadUnlocked(profile)) {
       return `<section class="hq-sec squad-sec squad-locked">
         <div class="sl-art">${squadMini(GL.meta.squadRefs(profile))}</div>
         <b>🔒 Stammcrew & Crew-Liga</b>
         <p class="hint">Dein Endgame: Stell eine feste Crew auf, die dich auch offline verteidigt. Fordere andere Crews heraus, steig von der Planken- bis zur Legenden-Liga auf und zeig in der Rangliste, wer die stärkste Crew hat.</p>
-        <small class="muted">Freigeschaltet nach deinem ersten gewonnenen Run oder ab Rang 10.</small>
+        <small class="muted">Freigeschaltet nach deinem ersten gewonnenen Run oder ab Rang 5.</small>
       </section>`;
     }
     const refs = GL.meta.squadRefs(profile);
@@ -1215,6 +1293,7 @@ window.GL = window.GL || {};
           return `<div class="sq-league">${leagueChip(r, true)}<small>${nx ? `noch ${nx.min - r} bis ${nx.name}` : 'höchste Liga'}</small></div>`; })()}
       </div>
       ${squadRow(refs)}
+      ${gearPanel(profile, refs)}
       <button class="btn squad-match" data-act="squad-match">⚔ Gegner suchen <small>ähnliche Stärke</small></button>
       <div class="sq-xp">${refs.map(r => { const nx = GL.meta.squadNext((profile.squadXp || {})[r.id]);
         return `<span><small>${esc(r.name)}</small><i class="xpbar"><i style="width:${nx ? Math.round(100 * nx.have / nx.need) : 100}%"></i></i></span>`; }).join('')}</div>
@@ -1267,8 +1346,8 @@ window.GL = window.GL || {};
     }
     const meOn = GL.meta.squadUnlocked(ui && ui.profile ? ui.profile : {});
     const sq = (x.squadOn || x.npc) && (x.squad || []).length
-      ? `<div class="pcard-sec"><b>Stammcrew ${leagueChip(x.squadRating, true)} ${x.squadPower ? `<small>⚔ ${x.squadPower} Stärke</small>` : ''}</b>${squadRow(x.squad)}
-          ${isMe ? '' : meOn ? `<button class="btn pcard-duel" data-act="squad-fight" data-id="${esc(x.id)}">⚔ ${res ? 'Nochmal herausfordern' : 'Herausfordern'}</button>` : '<small class="muted">Herausfordern geht nach deinem ersten gewonnenen Run oder ab Rang 10.</small>'}</div>`
+      ? `<div class="pcard-sec"><b>Stammcrew ${leagueChip(x.squadRating, true)} ${x.squadPower ? `<small>⚔ ${x.squadPower} Stärke</small>` : ''}</b>${squadRow(x.squad)}${(x.squad || []).some(r => (r.gear || []).length) ? `<div class="pc-gear">${x.squad.map((r, i) => (r.gear || []).length ? `<span class="pc-gear-row"><small>${esc(r.name)}</small>${r.gear.map((g, k) => cgChip(g, 'cg-peek', `data-row="${esc(x.id)}" data-i="${i}" data-k="${k}"`)).join('')}</span>` : '').join('')}</div>` : ''}
+          ${isMe ? '' : meOn ? `<button class="btn pcard-duel" data-act="squad-fight" data-id="${esc(x.id)}">⚔ ${res ? 'Nochmal herausfordern' : 'Herausfordern'}</button>` : '<small class="muted">Herausfordern geht nach deinem ersten gewonnenen Run oder ab Rang 5.</small>'}</div>`
       : '';
     if (res) return `<div class="pcard-bg" data-act="lb-view-close"><div class="pcard" data-act="noop">
         <button class="link pcard-close" data-act="lb-view-close">✕</button>
@@ -2053,6 +2132,16 @@ window.GL = window.GL || {};
       <small class="fb-note">Anonym. Hilft, das Spiel besser zu machen.</small>
     </div>`;
   }
+  function updatePop(j) {
+    return `<div class="fpop-card" role="dialog" aria-labelledby="fpop-t">
+      <span class="fpop-kicker">Update verfügbar</span>
+      <div class="fpop-art">${featureArt('flag')}</div>
+      <h3 id="fpop-t">${esc(j.title || 'Neue Version')}</h3>
+      ${(j.items || []).length ? `<ol class="fpop-steps">${j.items.slice(0, 3).map(x => `<li>${esc(x)}</li>`).join('')}</ol>` : ''}
+      <p class="wb-note">Dein Spielstand bleibt erhalten.</p>
+      <div class="fpop-btns"><button class="btn" data-act="reload">Jetzt neu laden</button><button class="btn ghost" data-act="pop-close">Weiterspielen</button></div>
+    </div>`;
+  }
   function welcomePop(profile, fromV) {
     const news = GL.patchNotes.filter(n => !fromV || n.v > fromV).slice(0, 3);
     return `<div class="fpop-card" role="dialog" aria-labelledby="fpop-t">
@@ -2574,6 +2663,10 @@ window.GL = window.GL || {};
     },
     battleText,
     speedLabel,
-    welcomePop
+    welcomePop,
+    updatePop,
+    gearPick,
+    gearView,
+    cgChip
   };
 })();

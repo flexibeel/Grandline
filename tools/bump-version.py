@@ -7,5 +7,8 @@ p = os.path.join(root, 'index.html'); s = open(p).read()
 s = re.sub(r'(src="js/[^"?]+\.js)(\?v=[^"]*)?"', lambda m: m.group(1) + '?v=' + v + '"', s)
 s = re.sub(r'(href="css/style\.css)(\?v=[^"]*)?"', lambda m: m.group(1) + '?v=' + v + '"', s)
 open(p, 'w').write(s)
-json.dump({'v': v}, open(os.path.join(root, 'version.json'), 'w'))
+t = re.search(r"title: '([^']*)'", open(os.path.join(root, 'js/data/patchnotes.js')).read())
+blk = open(os.path.join(root, 'js/data/patchnotes.js')).read().split('items: [', 1)[1].split(']', 1)[0]
+items = [x.replace("\\'", "'") for x in re.findall(r"'((?:[^'\\]|\\.)*)'", blk)]
+json.dump({'v': v, 'title': t.group(1) if t else '', 'items': items[:3]}, open(os.path.join(root, 'version.json'), 'w'), ensure_ascii=False)
 print('Version', v)

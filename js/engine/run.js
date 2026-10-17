@@ -581,6 +581,7 @@ window.GL = window.GL || {};
         return;
       }
       run.defeated.push(raid.id);
+      (run.gearSrc = run.gearSrc || []).push({ id: raid.id, sea: islandIndex(run), loop: run.loop || 0 });
       rollTrophy(run, raid.id, C.trophyChance.raid);
       // Raid-Beute (episch / legendär), nur gegen diesen Boss
       if (C.hunt && GL.data.huntFor) {
@@ -600,7 +601,10 @@ window.GL = window.GL || {};
       return;
     }
     if (!b.win) { run.phase = 'over'; return; }
-    if (b.kind === 'boss') { run.defeated.push(b.enemies[0].id); rollTrophy(run, b.enemies[0].id, C.trophyChance.boss); }
+    if (b.kind === 'boss') {
+      run.defeated.push(b.enemies[0].id); rollTrophy(run, b.enemies[0].id, C.trophyChance.boss);
+      (run.gearSrc = run.gearSrc || []).push({ id: b.enemies[0].id, sea: islandIndex(run), loop: run.loop || 0 });   // Crew-Ausrüstung (wird nach dem Run gewürfelt)
+    }
 
     // Glücksfund: selten eine Goldtruhe mit mindestens seltener Ausrüstung und Extra-Gold
     const LC = C.luck || {};

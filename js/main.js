@@ -46,7 +46,7 @@
   function featureCheck() {
     const old = document.getElementById('fpop');
     if (old && old.dataset.id === 'feedback') return;
-    if (old && (old.dataset.id === 'install' || old.dataset.id === 'notes' || old.dataset.id === 'duel')) return;
+    if (old && (old.dataset.id === 'install' || old.dataset.id === 'notes' || old.dataset.id === 'duel' || old.dataset.id === 'gear' || old.dataset.id === 'welcome')) return;
     if (!run && !ui.screen && ui.intro == null && !old && ui.welcomeDue) { ui.welcomeDue = false; openWelcome(); return; }
     if (!run && !ui.screen && ui.intro == null && !old && feedbackDue()) { openFeedback(); return; }
     if (!run && !ui.screen && ui.intro == null && !old && installDue()) { openInstall(); return; }
@@ -102,6 +102,15 @@
     if (fb.sent) return false;
     if (!fb.asked) return runs >= 2;
     return fb.asked === 1 && runs >= 6;
+  }
+  function openGearPop(html) {
+    const old = document.getElementById('fpop'); if (old) old.remove();
+    const el = document.createElement('div');
+    el.id = 'fpop'; el.className = 'fpop'; el.dataset.id = 'gear';
+    el.innerHTML = html;
+    el.addEventListener('click', e => { if (e.target === el) closePop(); });
+    document.body.appendChild(el);
+    requestAnimationFrame(() => el.classList.add('in'));
   }
   function openWelcome() {
     const el = document.createElement('div');
@@ -458,7 +467,7 @@
   }
 
   function startSquadDuel(row) {
-    if (!GL.meta.squadUnlocked(profile)) { toast('<span><b>Noch gesperrt</b>Die Stammcrew gibt es nach deinem ersten gewonnenen Run oder ab Rang 10.</span>'); return; }
+    if (!GL.meta.squadUnlocked(profile)) { toast('<span><b>Noch gesperrt</b>Die Stammcrew gibt es nach deinem ersten gewonnenen Run oder ab Rang 5.</span>'); return; }
     if (ui.squadFight && ui.squadFight.timer) clearTimeout(ui.squadFight.timer);
     const res = GL.squad.fight(GL.meta.squadRefs(profile), row.squad, (Date.now() ^ (Math.random() * 1e9)) >>> 0);
     if (res.win) profile.squadW = (profile.squadW || 0) + 1; else profile.squadL = (profile.squadL || 0) + 1;
@@ -720,6 +729,27 @@
       case 'fpop-go': closeFeature(el.dataset.id, true); break;
       case 'fpop-close': closeFeature(el.dataset.id, false); break;
       case 'wb-close': closePop(); break;
+      case 'pop-close': closePop(); break;
+      // ---------- Crew-Ausrüstung ----------
+      case 'cg-slot': openGearPop(GL.ui.gearPick(profile, el.dataset.id, el.dataset.slot)); break;
+      case 'cg-on': {
+        GL.cgear.equip(profile, el.dataset.id, el.dataset.uid); profile.gearNew = []; saveProfile(); closePop(); ui.lastStage = null; draw();
+        toast('<span><b>Angelegt</b>Deine Stammcrew ist jetzt stärker.</span>');
+        break;
+      }
+      case 'cg-off': GL.cgear.unequip(profile, el.dataset.id, el.dataset.slot); saveProfile(); closePop(); ui.lastStage = null; draw(); break;
+      case 'cg-item': { const it = GL.cgear.bag(profile).find(x => x.uid === el.dataset.uid); if (it) openGearPop(GL.ui.gearView(it, true, profile)); break; }
+      case 'cg-scrap': {
+        const b = GL.cgear.scrap(profile, el.dataset.uid);
+        if (b) { saveProfile(); closePop(); ui.lastStage = null; draw(); toast(`<i>${GL.sprites.coin()}</i><span><b>Zerlegt</b>+${b} Berry</span>`); }
+        break;
+      }
+      case 'cg-peek': {
+        const row = (GL.online.state().rows || []).find(r => r.id === el.dataset.row);
+        const g = row && row.squad && row.squad[+el.dataset.i] && (row.squad[+el.dataset.i].gear || [])[+el.dataset.k];
+        if (g) openGearPop(GL.ui.gearView(g, false, profile));
+        break;
+      }
       case 'fb-open': openFeedback(); break;
       case 'notes-open': {
         profile.notesSeen = GL.version; saveProfile();
@@ -1233,9 +1263,10 @@
       lastSync = Date.now();
       const idle = !run || GL.run.isFinished(run);
       fetch('version.json?t=' + Date.now(), { cache: 'no-store' }).then(r => r.json()).then(j => {
-        if (j && j.v && GL.version && j.v !== GL.version) {
-          if (idle) location.reload();
-          else toast('<span><b>Neue Version da</b>Nach diesem Run einmal neu laden.</span>');
+        if (j && j.v && GL.version && j.v !== GL.version && ui.updAsked !== j.v) {
+          // Nicht einfach neu laden: fragen. Im Run nur ein leiser Hinweis, die Frage kommt danach.
+          if (idle && !document.getElementById('fpop')) { ui.updAsked = j.v; openGearPop(GL.ui.updatePop(j)); }
+          else if (!idle && ui.updToast !== j.v) { ui.updToast = j.v; toast('<span><b>Update verfügbar</b>Nach diesem Run kannst du neu laden. Oder jederzeit oben über ↻.</span>'); }
         }
       }).catch(() => {});
       if (idle) { try { sessionStorage.removeItem('gl.pulled'); } catch (e2) { /* egal */ } GL.online.resync && GL.online.resync(); }
@@ -1243,5 +1274,6 @@
     document.addEventListener('visibilitychange', backToApp);
     window.addEventListener('focus', backToApp);
     setInterval(() => { if (!document.hidden) checkDefense(); }, 300000);
+    setInterval(() => { if (!document.hidden) { lastSync = 0; backToApp(); } }, 180000);   // alle 3 Minuten nach Updates schauen
   }
 })();

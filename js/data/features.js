@@ -28,13 +28,17 @@ GL.data.features = [
     steps: ['Ziel unter „Leinen los“ wählen', 'Ab dem zweiten Meer wartet der Raid', 'Beute landet in der Vitrine im Lager'] },
   { id: 'route',     lvl: 8, name: 'Neue Route: Thriller Bark', art: 'flag', text: 'Im dritten Meer kannst du jetzt zwischen zwei Routen wählen: Enies Lobby oder Thriller Bark mit neuen Bossen.',
     steps: ['Beim Kurs setzen im dritten Meer', 'Eine Insel aus jeder Route steht zur Wahl', 'Neue Gegner, neues Kopfgeld'] },
-  { id: 'stammcrew', lvl: 10, tab: 'stammcrew', name: 'Deine Stammcrew', art: 'flag', text: 'Deine feste Crew für Duelle gegen andere Spieler. Sie wächst mit jedem Duell.',
-    steps: ['Vier Figuren fest aufstellen', 'Gegner ähnlicher Stärke herausfordern', 'Siege bringen Liga-Punkte'],
+  { id: 'stammcrew', lvl: 5, tab: 'stammcrew', name: 'Deine Stammcrew', art: 'flag', text: 'Deine feste Crew für Duelle gegen andere Spieler. Bosse lassen ab jetzt Ausrüstung für sie fallen: Waffen, Kleidung und Schmuck mit zufälligen Werten.',
+    steps: ['Vier Figuren fest aufstellen', 'Ausrüstung von Bossen anlegen', 'Gegner ähnlicher Stärke herausfordern'],
     or: p => p.stats && p.stats.wins > 0 }
 ];
 
 // Erste Funde: einmal kurz erklären, was man da gerade bekommen hat (wann es zählt: has(profile))
 GL.data.firsts = [
+  { id: 'first-gear', kicker: 'Erster Fund', art: 'anvil', tab: 'stammcrew', name: 'Ausrüstung für deine Stammcrew!',
+    text: 'Bosse lassen Waffen, Kleidung und Schmuck fallen. Jedes Teil hat eigene, zufällige Werte. Je seltener, desto mehr: gewöhnlich, selten, episch, legendär. Leg sie deiner Stammcrew an, damit sie in Duellen stärker ist.',
+    steps: ['Stammcrew öffnen', 'Auf einen leeren Platz bei einer Figur tippen', 'Teil wählen, fertig. Freunde sehen es auf deiner Karte'],
+    has: p => (p.gearBag || []).length > 0 },
   { id: 'first-loot', kicker: 'Erster Fund', art: 'chest', tab: 'lager', name: 'Dein erstes Raid-Beutestück!',
     text: 'Raid-Beute ist selten und gehört dir für immer. Sie liegt in deiner Vitrine im Lager. Bis zu drei Stücke kannst du ausstellen, die sehen alle auf deiner Karte in der Rangliste.',
     steps: ['Lager öffnen, ganz unten ist die Vitrine', '„Ausstellen“ antippen', 'Freunde sehen es auf deiner Karte'],

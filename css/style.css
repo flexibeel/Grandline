@@ -3549,3 +3549,45 @@ body.reloading { opacity: .5; transition: opacity .12s; }
 @media (pointer: coarse) { .kbd-only { display: none !important; } }
 .wb-note { font-size: .78rem; color: #8a7a62; margin-top: 6px; }
 .wb-links { margin: 8px 0 0; font-size: .8rem; text-align: center; }
+/* ---------- Crew-Ausrüstung ---------- */
+.cg-panel { margin: 12px 0; padding: 12px; border-radius: 14px; background: color-mix(in srgb, var(--panel) 70%, #f3e6cc); box-shadow: inset 0 0 0 1px rgba(120,90,50,.15); }
+.cg-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
+.cg-head small { color: var(--mute); }
+.cg-row { display: grid; grid-template-columns: 34px 1fr auto; align-items: center; gap: 8px; padding: 4px 0; }
+.cg-row + .cg-row { border-top: 1px dashed rgba(120,90,50,.18); }
+.cg-who svg { width: 28px; height: 33px; shape-rendering: crispEdges; }
+.cg-row > b { font-size: .9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cg-slots { display: flex; gap: 6px; }
+.cg-chip { position: relative; width: 42px; height: 42px; display: grid; place-items: center; padding: 0; border-radius: 10px; border: 2px solid #b9a78a; background: #fffaf0; cursor: pointer; }
+.cg-chip .cg-art { width: 28px; height: 28px; shape-rendering: crispEdges; }
+.cg-chip.empty { border-style: dashed; color: #b9a78a; font-weight: 800; font-size: 1rem; line-height: 1; align-content: center; gap: 0; }
+.cg-chip.empty small { font-size: .5rem; font-weight: 700; }
+.cg-chip.cr-rare { border-color: #4f86c6; } .cg-chip.cr-epic { border-color: #9a5bd0; background: #faf3ff; }
+.cg-chip.cr-legendary { border-color: #e0a030; background: #fff6df; box-shadow: 0 0 10px rgba(224,160,48,.45); }
+.cg-bag { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(120,90,50,.15); }
+.cg-bagit { position: relative; }
+.cg-bagit.worn::after { content: '✓'; position: absolute; right: -3px; bottom: -3px; width: 16px; height: 16px; border-radius: 50%; background: #3f8a52; color: #fff; font-size: .62rem; font-weight: 800; display: grid; place-items: center; }
+.cg-bagit.new::before { content: 'Neu'; position: absolute; left: 50%; top: -7px; transform: translateX(-50%); z-index: 2; font-size: .55rem; font-weight: 800; color: #fff; background: #4f9a6a; padding: 0 4px; border-radius: 999px; }
+/* Karte eines Teils */
+.cg-pop { max-height: 82vh; overflow-y: auto; }
+.cg-card { text-align: left; padding: 10px 12px; border-radius: 12px; background: #fffaf0; border: 2px solid #c9b896; margin: 8px 0; }
+.cg-card.cr-rare { border-color: #4f86c6; } .cg-card.cr-epic { border-color: #9a5bd0; } .cg-card.cr-legendary { border-color: #e0a030; background: linear-gradient(180deg, #fff6df, #fffaf0); }
+.cg-card-top { display: grid; grid-template-columns: 36px 1fr auto; gap: 8px; align-items: center; }
+.cg-card-top .cg-art { width: 34px; height: 34px; shape-rendering: crispEdges; }
+.cg-card-top b { display: block; line-height: 1.15; }
+.cg-card.cr-rare .cg-card-top b { color: #2f68a8; } .cg-card.cr-epic .cg-card-top b { color: #7b3fb0; } .cg-card.cr-legendary .cg-card-top b { color: #b07810; }
+.cg-card-top small { color: var(--mute); font-size: .72rem; }
+.cg-pow { font-style: normal; font-weight: 800; font-size: .8rem; color: #6b5a44; }
+.cg-lines { margin: 6px 0 4px; padding: 0 0 0 16px; font-size: .84rem; }
+.cg-lines li.main { font-weight: 800; }
+.cg-from { margin: 4px 0 6px; font-size: .74rem; color: #8a7a62; }
+.cg-list { display: grid; gap: 2px; }
+/* Visitenkarte eines Freundes */
+.pc-gear { display: grid; gap: 4px; margin-top: 8px; }
+.pc-gear-row { display: flex; align-items: center; gap: 6px; }
+.pc-gear-row small { min-width: 64px; color: var(--mute); }
+.pc-gear .cg-chip { width: 34px; height: 34px; } .pc-gear .cg-chip .cg-art { width: 22px; height: 22px; }
+/* Ende eines Runs */
+.cg-sum .trophy-chip { display: inline-flex; align-items: center; gap: 4px; }
+.cg-sum .trophy-chip .cg-art { width: 18px; height: 18px; shape-rendering: crispEdges; }
+.trophy-chip.cr-epic { color: #7b3fb0; } .trophy-chip.cr-legendary { color: #b07810; font-weight: 800; }

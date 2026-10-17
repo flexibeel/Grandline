@@ -139,6 +139,8 @@ window.GL = window.GL || {};
       const s = GL.run.itemStats(it);
       Object.keys(s).forEach(k => { if (k !== 'hp' && k in u) u[k] += s[k]; });
     });
+    // Crew-Ausrüstung der Stammcrew (Duelle): Zusatzwerte wie Krit, Ausweichen, Rüstung
+    crew.concat(enemies).forEach(u => { const g = u.ref.gb; if (g) Object.keys(g).forEach(k => { if (k in u) u[k] += g[k]; }); });
     // Für Gegner gelten nur ihre eigenen Fähigkeiten
     enemies.forEach(u => abilityMods().forEach(m => {
       if (m.scope === 'char:' + u.id) applyMod(u, m, run);

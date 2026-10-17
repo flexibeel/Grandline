@@ -1,6 +1,12 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-17l', date: '17.10.', title: 'Ausrüstung für deine Stammcrew', items: [
+    'Bosse und Raids lassen Waffen, Kleidung und Schmuck fallen, mit zufälligen Werten und vier Seltenheiten',
+    'Jede Figur der Stammcrew hat drei Plätze. Legendäre Teile tragen den Namen des Bosses',
+    'Jedes Teil merkt sich, wo und wann du es gefunden hast. Auf der Karte deiner Freunde antippen und ansehen',
+    'Stammcrew schon ab Rang 5. Im Endlos-Modus fällt öfter und bessere Beute',
+    'Neue Version? Das Spiel fragt jetzt, ob du neu laden möchtest, statt es einfach zu tun' ] },
   { v: '2026-10-17k', date: '17.10.', title: 'Bosse mit drei Phasen, Kampfwetter, Tempo statt Überspringen', items: [
     'Bosskämpfe dauern länger, je weiter du kommst. Bosse weichen manchmal aus und kontern sofort',
     'Drei Phasen: ab 60 % wird der Boss wütend, ab 25 % kommt die Endphase mit voller Ulti und kurzem Durchatmen',

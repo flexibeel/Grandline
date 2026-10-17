@@ -272,7 +272,7 @@ window.GL = window.GL || {};
     // ---------- Stammcrew: feste Offline-Crew, gegen die andere Spieler antreten können ----------
     // Level wächst mit dem Piratenrang, Werft-Ausbauten zählen mit, Synergien gelten wie im Run.
     squadSize: 4,
-    // Endgame: Stammcrew und Crew-Liga erst nach einem gewonnenen Run oder ab Rang 10
+    // Endgame: Stammcrew und Crew-Liga erst nach einem gewonnenen Run oder ab Rang 5
     squadUnlocked(profile) { return GL.meta.featureOpen(profile, 'stammcrew'); },
 
     // ---------- Freischaltungen im Hauptquartier (siehe js/data/features.js) ----------
@@ -381,12 +381,23 @@ window.GL = window.GL || {};
         const max = d.hp + (lvl - 1) * 3 + mod.hp;
         const r = { id, name: d.name, type: d.type, role: d.role, faction: d.faction || null, lvl,
           hp: max, max, atk: d.atk + Math.floor((lvl - 1) * 0.45) + mod.atk, spd: d.spd + mod.spd };
+        // Angelegte Crew-Ausrüstung
+        if (GL.cgear) {
+          const t = GL.cgear.totals(profile, id);
+          r.max += t.hp || 0; r.hp = r.max; r.atk += t.atk || 0; r.spd += t.spd || 0;
+          const cap = GL.data.crewGear.caps || {};
+          const gb = {}; ['crit', 'dodge', 'armor', 'dmgPct'].forEach(k => { if (t[k]) gb[k] = cap[k] ? Math.min(cap[k], t[k]) : t[k]; });
+          if (Object.keys(gb).length) r.gb = gb;
+          const wl = GL.cgear.wornList(profile, id);
+          if (wl.length) r.gear = wl;
+        }
         if (id === 'self') { r.look = self.look; r.rally = self.rally; }
         return r;
       }).filter(Boolean);
     },
     squadPower(refs) {
-      return Math.round((refs || []).reduce((s, r) => s + r.max * 0.5 + r.atk * 4 + r.spd * 2, 0));
+      return Math.round((refs || []).reduce((s, r) => { const g = r.gb || {};
+        return s + r.max * 0.5 + r.atk * 4 + r.spd * 2 + (g.crit || 0) * 150 + (g.dodge || 0) * 150 + (g.armor || 0) * 4 + (g.dmgPct || 0) * 120; }, 0));
     },
 
     // ---------- Lebenszeit-Zähler für Aufträge ----------
@@ -594,6 +605,8 @@ window.GL = window.GL || {};
       profile.loot = profile.loot || {};
       (run.loot || []).forEach(id => { profile.loot[id] = (profile.loot[id] || 0) + 1; });
       profile.lastLoot = (run.loot || []).slice();
+      // Crew-Ausrüstung für die Stammcrew (ab Freischaltung)
+      profile.lastGear = GL.cgear && GL.meta.featureOpen(profile, 'stammcrew') ? GL.cgear.drops(profile, run).map(x => x.uid) : [];
       // Lebenslange Rekorde für Kosmetik und Rangliste
       const S = run.stats || {};
       const R = profile.records || (profile.records = { kos: 0, maxHit: 0, dmg: 0 });
