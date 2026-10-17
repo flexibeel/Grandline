@@ -1060,6 +1060,20 @@ window.GL = window.GL || {};
   const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[ch]);
   // Kategorien der Rangliste: Feld im Eintrag, Name, Einheit
   let dailyCodeShown = null;
+  // Reise eines Spielers: drei Meere als Punkte (geschafft / erreicht / offen) und wo er gerade segelt
+  function journey(x) {
+    const per = GL.config.stepsPerIsland, seas = GL.data.islands;
+    const reach = Math.max(x.bestStep || 0, x.best && x.best.won ? GL.run.totalSteps() : 0);
+    const dots = seas.map((s, i) => {
+      const cls = i < (x.seasDone || 0) ? 'done' : reach >= i * per + 1 ? 'seen' : '';
+      return `<i class="jd ${cls}" title="${esc(s.name)}"></i>`;
+    }).join('');
+    const live = isOnline(x) && x.pos;
+    const txt = live ? `⛵ ${esc(x.pos.isl || x.pos.sea)}${x.pos.daily ? ' (Tageskarte)' : ''}`
+      : reach >= GL.run.totalSteps() ? 'Ziel erreicht ✓'
+      : reach ? `bis ${esc((seas[Math.min(seas.length - 1, Math.floor(Math.max(0, reach - 1) / per))] || {}).name || '')}` : 'im Hafen';
+    return `<span class="lb-journey"><span class="jdots">${dots}</span><small${live ? ' class="live"' : ''}>${txt}</small></span>`;
+  }
   // Grüner Punkt: Spieler hat sich in den letzten 4 Minuten gemeldet (Lebenszeichen alle 2 Min.)
   const isOnline = x => { const t = Date.parse(x && x.updated); return isFinite(t) && Date.now() - t < 240000; };
   const onDot = x => isOnline(x) ? '<i class="on-dot" title="Gerade online" aria-label="online"></i>' : '';
@@ -1272,6 +1286,7 @@ window.GL = window.GL || {};
     else if (st.readOnly) info = 'Du kannst die Rangliste ansehen, aber noch nicht eintragen. Der Besitzer der Seite muss dich per E-Mail als Bearbeiter einladen.';
     else info = 'Nach jedem Run wird alles eingetragen. Wähle oben, worin ihr euch messt.';
     const isDaily = cat.id === 'daily';
+    const isCrew = cat.id === 'squadRating' || cat.id === 'squadW';
     dailyCodeShown = GL.daily.code(ui.dailyDay === 'y' ? yesterday() : GL.daily.today());
     let rows = (st.rows || []).slice().sort((a, b) => (Number(cat.get(b)) || 0) - (Number(cat.get(a)) || 0));
     if (isDaily) rows = rows.filter(x => x.duels && x.duels[dailyCodeShown]);
@@ -1287,8 +1302,7 @@ window.GL = window.GL || {};
         <span class="lb-pos">${k + 1}</span>
         <span class="lb-cap">${x.look ? portrait(x.look, x.cos, 'sm') : cap ? GL.sprites.render(cap) : ''}</span>
         <span class="lb-who"><b>${medal(GL.meta.rankIndex({ rankXp: x.rankXp || 0 }), 'tiny')} ${esc(x.name || 'Unbekannter Pirat')}${onDot(x)} ${badgeIcon(x.cos)}${x.id === st.uid ? ' <em>du</em>' : ''}${x.cos && x.cos.star ? ' <em class="admin-tag" title="Der Entwickler dieses Spiels. Unbesiegbar (fast).">★ Entwickler</em>' : ''}${(x.showcase || []).length ? `<span class="lb-show">${x.showcase.map(lootChip).join('')}</span>` : ''}</b>
-          <small>${x.cos && x.cos.title ? esc(titleName(x.cos.title)) + ' · ' : ''}${esc(x.rank || '')}${extra ? ' · ' + extra : ''}</small>
-          ${isDaily ? dailyLine(x.duels[dailyCodeShown]) : x.squadOn && (x.squad || []).length ? `<span class="lb-crew">${squadMini(x.squad)}${leagueChip(x.squadRating)}</span>` : ''}</span>
+          ${isDaily ? dailyLine(x.duels[dailyCodeShown]) : isCrew && x.squadOn && (x.squad || []).length ? `<span class="lb-crew">${squadMini(x.squad)}${leagueChip(x.squadRating)}</span>` : journey(x)}</span>
         <span class="lb-score"><b>${fmt(value)}</b><small>${unit}</small></span>
       </li>`;
     };
@@ -1324,7 +1338,9 @@ window.GL = window.GL || {};
       <p class="hint">${info}</p>
       ${nameBox}
       ${myCard(profile, mine, best, fmt)}
-      ${duelBox}
+      <div class="lbl">Rangliste</div>
+      ${chips}
+      ${table}
       ${(() => {
         const top = (st.rows || []).filter(x => x.squadOn && (x.squad || []).length).sort((a, b) => (b.squadRating || 1000) - (a.squadRating || 1000)).slice(0, 3);
         if (!top.length) return '';
@@ -1336,9 +1352,7 @@ window.GL = window.GL || {};
             <b>${esc(x.name || 'Pirat')}</b>${leagueChip(x.squadRating, true)}
             <span class="pod-step">${place}</span></button>`; }).join('')}</div></div>`;
       })()}
-      <div class="lbl">Rangliste</div>
-      ${chips}
-      ${table}
+      ${duelBox}
       <p class="muted lb-note">Punkte: 100 pro Etappe, 500 pro Inselboss, 2 pro Million Kopfgeld. Höhere Kopfgeld-Stufen zählen mehr.</p>
     </section>`;
   }
@@ -1606,7 +1620,7 @@ window.GL = window.GL || {};
       <div class="ts-menu">
         <button class="btn ts-play" data-act="title-play">${run ? 'Weiterspielen' : profile.nickname ? 'Spielen' : 'Neues Spiel'} ${keyHint('Leertaste')}</button>
         <div class="ts-row">
-          ${GL.meta.featureOpen(profile, 'rangliste') ? `<button class="btn ghost" data-act="title-go" data-tab="rangliste">Rangliste${players ? ` <small>${players}</small>` : ''}</button>` : `<button class="btn ghost locked" data-act="title-go" data-tab="rangliste" title="Ab Rang 5">Rangliste <small>ab Rang 5</small></button>`}
+          ${GL.meta.featureOpen(profile, 'rangliste') ? `<button class="btn ghost" data-act="title-go" data-tab="rangliste">Rangliste${players ? ` <small>${players}</small>` : ''}</button>` : `<button class="btn ghost locked" data-act="title-go" data-tab="rangliste" title="Ab Rang 2">Rangliste <small>ab Rang 2</small></button>`}
           <button class="btn ghost" data-act="title-go" data-tab="album">Sammelalbum</button>
           <button class="btn ghost" data-act="intro-open">Anleitung</button>
         </div>

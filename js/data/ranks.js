@@ -8,16 +8,16 @@ GL.data = GL.data || {};
 GL.data.ranks = [
   // Bronze: Ankermünze
   { name: 'Schiffsjunge',             xp: 0,     reward: {} },
-  { name: 'Deckschrubber',            xp: 60,    reward: { berry: 50 } },
-  { name: 'Matrose',                  xp: 150,   reward: { berry: 80 } },
-  { name: 'Bootsmann',                xp: 280,   reward: { berry: 100, gear: 'proviant' } },
-  { name: 'Kanonier',                 xp: 450,   reward: { berry: 120 } },
+  { name: 'Deckschrubber',            xp: 40,    reward: { berry: 50 } },
+  { name: 'Matrose',                  xp: 100,   reward: { berry: 80 } },
+  { name: 'Bootsmann',                xp: 180,   reward: { berry: 100, gear: 'proviant' } },
+  { name: 'Kanonier',                 xp: 290,   reward: { berry: 120 } },
   // Silber: Schild mit gekreuzten Klingen
-  { name: 'Navigator',                xp: 680,   reward: { berry: 150 } },
-  { name: 'Erster Maat',              xp: 960,   reward: { berry: 180, gear: 'muenze' } },
-  { name: 'Kapitän',                  xp: 1300,  reward: { berry: 220 } },
-  { name: 'Rookie',                   xp: 1720,  reward: { berry: 260 } },
-  { name: 'Kopfgeld-Neuling',         xp: 2200,  reward: { berry: 300 } },
+  { name: 'Navigator',                xp: 430,   reward: { berry: 150 } },
+  { name: 'Erster Maat',              xp: 600,   reward: { berry: 180, gear: 'muenze' } },
+  { name: 'Kapitän',                  xp: 820,  reward: { berry: 220 } },
+  { name: 'Rookie',                   xp: 1100,  reward: { berry: 260 } },
+  { name: 'Kopfgeld-Neuling',         xp: 1500,  reward: { berry: 300 } },
   // Gold: Stern
   { name: 'Supernova',                xp: 2750,  reward: { berry: 340, gear: 'fruchtkorb' } },
   { name: 'Schrecken des East Blue',  xp: 3350,  reward: { berry: 380 } },

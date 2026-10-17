@@ -602,6 +602,7 @@ window.GL = window.GL || {};
       profile.berry += berry;
       profile.stats.berryTotal += berry;
       const xp = GL.meta.rankXpFor(run);
+      profile.bestStep = Math.max(profile.bestStep || 0, run.phase === 'win' ? GL.run.totalSteps() : (run.step || 0));
       profile.lastRank = { xp, before: profile.rankXp, ups: GL.meta.addRankXp(profile, xp) };
       return berry;
     }

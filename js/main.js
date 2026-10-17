@@ -30,7 +30,12 @@
 
   const esc2 = t => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   let keyPick = false;   // Auswahl per Taste 1-9: ohne Bestätigung
-  function draw() { GL.ui.render(run, anim, ui); featureCheck(); }
+  function draw() { GL.ui.render(run, anim, ui); featureCheck(); livePos(); }
+  // Wo bin ich gerade? (für die Rangliste: „gerade auf See“)
+  function livePos() {
+    if (!run || GL.run.isFinished(run) || run.phase === 'starter') { GL.livePos = null; return; }
+    GL.livePos = { sea: GL.run.island(run).name, isl: (GL.run.chapterIsland(run) || {}).name || null, step: run.step, daily: !!run.daily };
+  }
   ['fullscreenchange', 'webkitfullscreenchange'].forEach(ev => document.addEventListener(ev, () => { const t = document.getElementById('title'); if (t) t.dataset.last = ''; ui.lastStage = null; draw(); }));
 
   // Neu freigeschaltete Bereiche im Hauptquartier: ein ruhiges Pop-up nach dem anderen
@@ -502,7 +507,7 @@
         if (!(profile.tips && profile.tips.intro)) ui.intro = 0;
         draw();
         break;
-      case 'title-go': if (!GL.meta.featureOpen(profile, el.dataset.tab)) { toast('<span><b>Noch ein bisschen segeln</b>Die Rangliste öffnet sich ab Rang 5. Jeder Run bringt Rang-EP.</span>'); break; }
+      case 'title-go': if (!GL.meta.featureOpen(profile, el.dataset.tab)) { toast('<span><b>Noch ein bisschen segeln</b>Die Rangliste öffnet sich nach deinem ersten Run.</span>'); break; }
         ui.screen = null; ui.hqTab = el.dataset.tab; if (el.dataset.tab === 'album') { ui.album = 'crew'; ui.hqTab = null; } draw(); break;
       case 'title-back': ui.screen = ui.profileFrom === 'hq' ? null : 'title'; draw(); break;
       case 'profile-edit': openProfile(); break;

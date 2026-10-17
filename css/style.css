@@ -3327,3 +3327,13 @@ em.type.t-technik { background: #7fa3c9 !important; color: #fff !important; }
 .tp-card { transform-origin: 50% 0; scale: .78; width: min(280px, 82vw) !important; padding: 14px 16px 12px !important; box-shadow: 0 18px 40px -16px rgba(30,15,60,.6) !important; }
 .tp-card small { display: none; }
 .dock .btn { justify-content: center; text-align: center; display: inline-flex; align-items: center; gap: 8px; }
+/* Rangliste: Reise statt Zahlenwust */
+.lb-journey { display: flex; align-items: center; gap: 8px; margin-top: 3px; min-width: 0; }
+.jdots { display: inline-flex; gap: 3px; flex: none; }
+.jd { width: 14px; height: 6px; border-radius: 3px; background: #e8dcc4; display: block; }
+.jd.seen { background: #c9a35c; opacity: .55; }
+.jd.done { background: #c4904f; }
+.lb-journey small { color: var(--mute); font-size: .74rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lb-journey small.live { color: #2f7a46; font-weight: 700; }
+.lb-who > b { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+.lb-who > small { display: none; }
