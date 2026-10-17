@@ -1865,7 +1865,13 @@ window.GL = window.GL || {};
     const chips = GL.meta.huntTargets(profile).map(({ raid, open }) => open
       ? `<button class="hunt-chip${cur === raid.id ? ' on' : ''}" data-act="hunt-pick" data-id="${raid.id}" aria-pressed="${cur === raid.id}">${GL.sprites.render(raid)}<span>${esc(raid.name.replace(/^Admiral |^Rothaar /, ''))}</span></button>`
       : `<span class="hunt-chip locked" title="Einmal zufällig im Raid besiegen, dann jagbar">${GL.sprites.render(raid)}<span>???</span></span>`).join('');
-    return `<div class="hunt-row"><span class="hunt-lbl">Raid-Jagd</span>${chips}</div>`;
+    const t = cur && GL.data.raids.find(r => r.id === cur);
+    const have = profile.loot || {};
+    const info = t
+      ? `<div class="hunt-info"><b>Ziel: ${esc(t.name)}</b><span>Ab dem 2. Meer wartet fast sicher sein Raid. Gewinnst du, kann er fallen lassen:</span>
+          <span class="hi-loot">${GL.data.huntFor(t.id).map(l => `<span class="hi-item lr-${l.r}${have[l.id] ? ' got' : ''}">${lootArt(l)}<small>${have[l.id] ? esc(l.name) : '???'}<br><em>${l.r >= 3 ? 'Legendär' : 'Episch'}</em></small></span>`).join('')}</span></div>`
+      : `<div class="hunt-info muted">Tippe einen Raid-Boss an, um ihn gezielt zu jagen. Jeder hat zwei seltene Beutestücke für deine Vitrine im Lager.</div>`;
+    return `<div class="hunt-row"><span class="hunt-lbl">Raid-Jagd</span>${chips}</div>${info}`;
   }
 
   // ---------- Freischaltungen: kleine Pixelbilder und ruhiges Pop-up ----------

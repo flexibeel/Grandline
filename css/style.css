@@ -3064,3 +3064,15 @@ h1, h2, h3, .rank-name, .my-name, .duel-head b, .poster h3, .card-name, .tp-name
 .sr-txt small { color: var(--mute); font-size: .74rem; }
 .sr-cur { font-style: normal; font-size: .74rem; font-weight: 800; color: #3f8a52; grid-column: span 2; justify-self: end; }
 .slot-row .btn.mini { margin: 0; }
+.hunt-info { margin: 6px 0 2px; padding: 8px 10px; border-radius: 12px; background: #fbf3e2; font-size: .8rem; line-height: 1.35; color: #5a4a36; display: grid; gap: 4px; }
+.hunt-info.muted { background: transparent; padding: 2px 2px 0; color: var(--mute); }
+.hq-sail div.hunt-info { display: grid !important; }
+.hunt-info b { font-size: .85rem; color: #3a2a18; }
+.hi-loot { display: flex; gap: 10px; flex-wrap: wrap; }
+.hi-item { display: inline-flex; align-items: center; gap: 6px; }
+.hi-item svg { width: 30px; height: 30px; padding: 3px; border-radius: 9px; background: #fffaf0; }
+.hi-item:not(.got) svg { filter: brightness(0) opacity(.25); }
+.hi-item.lr-3 svg { box-shadow: 0 0 0 2px #e2b44a; }
+.hi-item.lr-2 svg { box-shadow: 0 0 0 2px #b48ad8; }
+.hi-item small { font-size: .74rem; line-height: 1.2; font-weight: 700; }
+.hi-item em { font-style: normal; font-weight: 600; color: var(--mute); }
