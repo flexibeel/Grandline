@@ -441,7 +441,7 @@ window.GL = window.GL || {};
       parts.push(`Brecher sind immun (${brecher ? `<b class="ok">${brecher} dabei</b>` : '<b class="no">keiner dabei</b>'})`);
     } else if (key === 'stun') {
       parts.push(`Helfer reinigen (${helfer ? `<b class="ok">${helfer} dabei</b>` : '<b class="no">keiner dabei</b>'})`);
-      parts.push('einen robusten Brecher nach vorne stellen');
+      parts.push('einen robusten Brecher in der Crew haben (steht automatisch vorne)');
     } else {
       parts.push(`Helfer reinigen (${helfer ? `<b class="ok">${helfer} dabei</b>` : '<b class="no">keiner dabei</b>'})`);
       parts.push('Heilung über Runden hilft');
@@ -2940,7 +2940,7 @@ window.GL = window.GL || {};
         <li><b>Kapitän wählen.</b> Er oder sie startet allein.</li>
         <li><b>Kurs setzen:</b> Welche Insel steuerst du an? Jede hat eigene Orte und am Ende ihren Bösewicht.</li>
         <li><b>Route wählen:</b> Kampf, Taverne, Schatz, Teufelsfrucht oder Rast.</li>
-        <li><b>Kämpfe laufen automatisch.</b> Du bestimmst vorher, wer vorne steht.</li>
+        <li><b>Kämpfe laufen automatisch.</b> Brecher stellen sich automatisch nach vorne.</li>
         <li><b>Pro Meer zwei Inseln:</b> erst eine kleine mit Bösewicht, dann eine große mit dem Boss des Meeres.</li></ol>`
     },
     {
@@ -3036,10 +3036,10 @@ window.GL = window.GL || {};
     return `<div class="train">
       <div class="train-head"><span class="train-av">${GL.sprites.render(d)}</span>
         <span><b>${d.name} hat trainiert!</b><small>Lv ${u.lvl} · wähle ein Training${others > 0 ? ` · danach noch ${others} weitere` : ''}</small></span>
-        <button class="link" data-act="train-auto" title="Für alle das empfohlene Training wählen">Jetzt für alle</button></div>
-      <div class="train-auto-row">${autoCheck(profile)}<small>Neue Level werden dann sofort sinnvoll verteilt.</small></div>
+        <button class="link" data-act="train-auto" title="Für alle das empfohlene Training wählen">Für alle</button></div>
       <div class="train-opts">${TRAIN.map(t => `<button class="train-opt${rec && rec.stat === t.c ? ' rec' : ''}" data-act="train" data-i="${i}" data-c="${t.c}">
         ${rec && rec.stat === t.c ? '<span class="tip-badge">Tipp</span>' : ''}<i>${t.ico}</i><b>${t.name}</b><small>${t.fx(u.points)}</small></button>`).join('')}</div>
+      <div class="train-auto-row">${autoCheck(profile)}<small>Automatisch verteilen</small></div>
     </div>`;
   }
 

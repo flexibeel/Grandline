@@ -4583,3 +4583,18 @@ body { overscroll-behavior: none; -webkit-tap-highlight-color: transparent; }
 .mood-chip { display: inline-flex; align-items: center; gap: 4px; font-style: normal; padding: 3px 8px; background: #e8f2f8; color: #2a5a7a; font-weight: 800; font-size: 12px; box-shadow: 0 0 0 2px #9ac0d8; border-radius: 6px; }
 .mood-chip b { font-weight: 800; }
 @media (max-width: 420px) { .mood-chip b { display: none; } }
+/* Training kompakt: vier kleine Knöpfe in einer Reihe */
+.train { padding: 8px 10px !important; margin-bottom: 8px !important; }
+.train-head b { font-size: 15px; }
+.train-head small { font-size: 11.5px; }
+.train-av svg { width: 28px; height: 32px; }
+.train-opts { display: grid !important; grid-template-columns: repeat(4, 1fr) !important; gap: 5px !important; margin: 6px 0 4px; }
+.train-opt { padding: 6px 2px 5px !important; min-height: 0 !important; display: flex; flex-direction: column; align-items: center; gap: 1px; }
+.train-opt i { font-style: normal; font-size: 15px; }
+.train-opt b { font-size: 11px !important; line-height: 1.1; }
+.train-opt small { font-size: 10px !important; line-height: 1.15; }
+.train-opt .tip-badge { top: -9px !important; font-size: 9px !important; padding: 1px 4px !important; }
+.train-opt .tip-badge::after { display: none !important; }
+.train-auto-row { display: flex; align-items: center; gap: 6px; font-size: 11px; }
+.train-auto-row small { color: var(--mute, #8a7a68); }
+.train-opt { min-width: 0 !important; overflow: hidden; } .train-opt b { font-size: 10.5px !important; overflow-wrap: anywhere; }
