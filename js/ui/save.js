@@ -158,3 +158,10 @@ GL.slots = (function () {
 })();
 // Für die Online-Funktionen: Zweitpiraten werden nie online gespeichert
 GL.sandbox = { on: () => GL.slots.active() !== 0 };
+
+// Tageskarte: jeden Tag dieselbe Karte für alle (Seed aus dem Datum), ohne dauerhafte Boni, ein Versuch pro Tag.
+GL.daily = {
+  today() { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); },
+  code(day) { return 'T' + String(day || GL.daily.today()).replace(/-/g, ''); },
+  seed(day) { let h = 2166136261; const t = 'grandline-' + (day || GL.daily.today()); for (let i = 0; i < t.length; i++) { h ^= t.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
+};

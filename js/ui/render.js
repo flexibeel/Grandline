@@ -285,7 +285,7 @@ window.GL = window.GL || {};
         <em class="gold-chip" data-tip="Gold für die Taverne.\nGibt es für Siege, verfällt am Run-Ende.">${GL.sprites.coin()} <b>${run.gold || 0}</b></em>
         <em class="bounty-chip" id="bounty-chip" data-tip="Kopfgeld deines Kapitäns.\nZählt für deinen Punktestand und die Rangliste 'Höchstes Kopfgeld'. Bringt sonst nichts im Run.">${GL.sprites.icon('node', 'elite')} <b>${fmtBounty(run.bountyM || 0)}</b></em>
         ${run.heat ? `<em class="heat-chip">Stufe ${run.heat}</em>` : ''}
-        ${run.duel ? `<em class="duel-chip">⚔ Duell ${run.duel}</em>` : ''}
+        ${run.daily ? '<em class="duel-chip">Tageskarte</em>' : run.duel ? `<em class="duel-chip">⚔ Duell ${run.duel}</em>` : ''}
       </span>`;
   }
 
@@ -1028,7 +1028,7 @@ window.GL = window.GL || {};
         const tro = (run.trophies || []).map(id => (GL.data.artifacts || []).find(a => a.id === id)).filter(Boolean);
         const troHtml = tro.length ? `<div class="trophy-sum"><span class="event-kicker">Neu in der Schatzkammer</span>
           ${tro.map(a => `<span class="trophy-chip" title="${a.text.replace('{v}', '…')}">${artIcon(a)} ${a.name}</span>`).join('')}</div>` : '';
-        const duelHtml = run.duel ? `<div class="duel-sum"><span class="event-kicker">Duell ${run.duel}</span>
+        const duelHtml = run.daily ? `<div class="duel-sum"><span class="event-kicker">Tageskarte</span><span>Dein Ergebnis heute: <b>${GL.run.score(run).toLocaleString('de-DE')}</b> Punkte. Vergleiche dich in der Rangliste unter „Tageskarte“.</span></div>` : run.duel ? `<div class="duel-sum"><span class="event-kicker">Duell ${run.duel}</span>
           <span>Dein Ergebnis: <b>${GL.run.score(run).toLocaleString('de-DE')}</b> Punkte. Schick deinem Freund den Code <b>${run.duel}</b>, er spielt denselben Run.</span>
           <button class="btn mini ghost" data-act="duel-copy" data-id="${run.duel}">Code kopieren</button></div>` : '';
         return `${head}${duelHtml}${record}${berry}${troHtml}${itemSum}${rankHtml}${heatUp}<div class="end-actions"><button class="btn" data-act="again">Nochmal! ${keyHint('Leertaste')}</button>
@@ -1057,6 +1057,7 @@ window.GL = window.GL || {};
   // Kategorien der Rangliste: Feld im Eintrag, Name, Einheit
   const LB_CATS = [
     { id: 'score',     name: 'Punkte',            get: x => x.score,     unit: 'Punkte' },
+    { id: 'daily',     name: 'Tageskarte',        get: x => { const d = (x.duels || {})[GL.daily.code()]; return d ? d.score : 0; }, unit: 'Punkte heute' },
     { id: 'bestDmg',   name: 'Schaden (Run)',     get: x => x.bestDmg,   unit: 'Schaden in einem Run' },
     { id: 'maxHit',    name: 'Härtester Treffer', get: x => x.maxHit,    unit: 'Schaden mit einem Schlag' },
     { id: 'totalDmg',  name: 'Schaden gesamt',    get: x => x.totalDmg,  unit: 'Schaden insgesamt' },
@@ -1876,6 +1877,15 @@ window.GL = window.GL || {};
     }).join('')).join('');
     return `<div class="vitrine"><div class="vit-head"><b>Vitrine</b><small>Bis zu 3 Stücke sind auf deiner Visitenkarte zu sehen.</small></div><div class="vit-grid">${cards}</div></div>`;
   }
+  function dailyCard(profile) {
+    if (!GL.meta.featureOpen(profile, 'daily')) return '';
+    const day = GL.daily.today(), done = profile.daily && profile.daily.d === day;
+    return `<div class="daily-card${done ? ' done' : ''}">
+      <span class="dc-ico" aria-hidden="true">${featureArt('scroll')}</span>
+      <span class="dc-txt"><b>Tageskarte</b><small>${done ? (profile.daily.score != null ? `Heute: ${Number(profile.daily.score).toLocaleString('de-DE')} Punkte. Morgen gibt es eine neue.` : 'Heute schon gestartet. Morgen gibt es eine neue.') : 'Gleiche Route für alle, ohne Ausbauten. Ein Versuch.'}</small></span>
+      ${done ? '<em class="dc-done">✓</em>' : '<button class="btn mini" data-act="daily-start">Starten</button>'}
+    </div>`;
+  }
   function huntPicker(profile) {
     if (!GL.meta.featureOpen(profile, 'jagd')) return '';
     const cur = profile.hunt || null;
@@ -2019,6 +2029,7 @@ window.GL = window.GL || {};
           ${heatBox}
         </div>
         ${huntPicker(profile)}
+        ${dailyCard(profile)}
         ${board.length || GL.meta.featureOpen(profile, 'schmiede') ? `<div class="sail-board"><span class="sb-lbl">An Bord</span>${board.length ? board.join('') : '<small class="muted">noch nichts dabei</small>'}</div>` : ''}`}
       </div>
 

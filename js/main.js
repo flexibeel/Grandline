@@ -192,6 +192,14 @@
     if (!wasFinished && GL.run.isFinished(run)) {
       ui.newBest = GL.save.recordFinished(run);
       ui.lastBerry = GL.meta.finishRun(profile, run);
+      if (run.daily) {
+        const sc = GL.run.score(run);
+        profile.daily = { d: run.daily, score: sc };
+        const bonus = 60, xpB = 25;
+        profile.berry += bonus; GL.meta.addRankXp(profile, xpB);
+        ui.lastBerry = (ui.lastBerry || 0) + bonus;
+        setTimeout(() => toast(`<span><b>Tageskarte geschafft</b>${sc.toLocaleString('de-DE')} Punkte. Bonus: +${bonus} Berry, +${xpB} Rang-EP.</span>`), 1200);
+      }
       // Online-Rangliste (nur in der geteilten Version)
       if (GL.online) GL.online.submit(profile, run).then(res => {
         saveProfile();
@@ -222,6 +230,23 @@
     run.duel = duelCode(seed);
     ui.newBest = false;
     ui.lastBerry = null;
+    saveProfile();
+    GL.save.storeRun(run);
+    draw();
+    window.scrollTo(0, 0);
+  }
+
+  // Tageskarte: gleicher Seed für alle, keine dauerhaften Boni, ein Versuch pro Tag
+  function startDaily() {
+    const day = GL.daily.today();
+    if (profile.daily && profile.daily.d === day) { toast('<span><b>Heute schon gesegelt</b>Morgen gibt es eine neue Tageskarte.</span>'); return; }
+    stopAnim();
+    ui.sheet = null; ui.album = null;
+    run = GL.run.create(GL.daily.seed(day), { heat: 0, self: selfNow() });
+    run.duel = GL.daily.code(day);
+    run.daily = day;
+    profile.daily = { d: day, score: null };
+    ui.newBest = false; ui.lastBerry = null; ui.restartArmed = false;
     saveProfile();
     GL.save.storeRun(run);
     draw();
@@ -419,6 +444,7 @@
         } catch (e2) { /* nicht unterstützt */ }
         break;
       }
+      case 'daily-start': startDaily(); break;
       case 'mail-reveal': GL.ui.toggleMail(); ui.lastStage = null; { const t = document.getElementById('title'); if (t) t.dataset.last = ''; } draw(); break;
       case 'slot-switch': case 'slot-fresh': {
         let to = type === 'slot-fresh' ? -1 : Number(el.dataset.i);

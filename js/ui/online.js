@@ -313,6 +313,9 @@ window.GL = window.GL || {};
       const n = v => Number(v) || 0;
       const better = !old || entry.score > n(o.score);
       const duels = Object.assign({}, o.duels || {});
+      // alte Tageskarten nach einer Woche aufräumen
+      const cut = Number(GL.daily.code(new Date(Date.now() - 7 * 864e5).toISOString().slice(0, 10)).slice(1));
+      Object.keys(duels).forEach(k => { if (/^T\d{8}$/.test(k) && Number(k.slice(1)) < cut) delete duels[k]; });
       if (entry.duel && (!duels[entry.duel] || entry.score > n(duels[entry.duel].score))) {
         duels[entry.duel] = { score: entry.score, won: entry.won, island: entry.island, dmg: entry.dmg, date: entry.date };
       }

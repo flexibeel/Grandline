@@ -3115,3 +3115,11 @@ body.is-app { padding-top: env(safe-area-inset-top); padding-bottom: env(safe-ar
   .crew-label .charge-wrap { font-size: .85rem; }
 }
 .co-routechip { align-self: flex-start; font-size: .72rem; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; color: #6a4a8a; background: #efe6f8; padding: 2px 9px; border-radius: 999px; margin-bottom: 4px; }
+.daily-card { display: grid !important; grid-template-columns: 34px 1fr auto; align-items: center; gap: 10px; margin: 10px 0 2px; padding: 8px 10px; border-radius: 14px; border: 1px solid #e6d5b2; background: #fbf3e2; }
+.daily-card.done { opacity: .8; }
+.dc-ico svg { width: 30px; height: 30px; display: block; }
+.dc-txt { display: grid !important; line-height: 1.25; }
+.dc-txt b { font-size: .92rem; }
+.dc-txt small { color: var(--mute); font-size: .76rem; }
+.daily-card .btn.mini { margin: 0; }
+.dc-done { font-style: normal; font-weight: 800; color: #3f8a52; padding: 0 6px; }

@@ -19,6 +19,8 @@ GL.data.features = [
   { id: 'kammer',    lvl: 4, tab: 'kammer', name: 'Die Schatzkammer', art: 'chest', text: 'Artefakte von Bossen und Raids. Jedes wird stärker, je öfter du es findest.',
     steps: ['Bosse lassen manchmal Artefakte fallen', 'Bis zu drei kommen mit auf See'],
     or: p => (p.artifacts && Object.keys(p.artifacts).length > 0) || Object.keys(p.vault || {}).length > 0 },
+  { id: 'daily',     lvl: 4, name: 'Tageskarte', art: 'scroll', text: 'Jeden Tag eine Karte, für alle gleich. Ohne Ausbauten, nur Können und Glück. Ein Versuch pro Tag.',
+    steps: ['Unter „Leinen los“ starten', 'Alle spielen dieselbe Route', 'Punkte landen in der Tages-Rangliste'] },
   { id: 'rangliste', lvl: 5, tab: 'rangliste', name: 'Die Rangliste', art: 'podium', text: 'Ab jetzt stehst du sichtbar neben den anderen Piraten. Tipp auf einen Namen, um seine Karte zu sehen.',
     steps: ['Jeder Run zählt für deinen Rang', 'Tipp auf Spieler für ihre Visitenkarte'] },
   { id: 'jagd',      lvl: 6, tab: 'lager', name: 'Raid-Jagd', art: 'chest', text: 'Wähle vor dem Ablegen einen Raid-Boss als Ziel. Jeder hat zwei seltene Beutestücke für deine Vitrine.',
