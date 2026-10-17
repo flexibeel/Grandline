@@ -36,7 +36,13 @@
 
   const esc2 = t => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   let keyPick = false;   // Auswahl per Taste 1-9: ohne Bestätigung
-  function draw() { autoArrange(); GL.ui.render(run, anim, ui); featureCheck(); livePos(); musicMode(); }
+  function moodNote() {
+    if (!run || !run.mood || run.phase === 'starter' || ui.moodShown === run.seed || (run.step || 0) > 1) return;
+    ui.moodShown = run.seed;
+    const m = (GL.config.moods || []).find(x => x.id === run.mood);
+    if (m) setTimeout(() => toast(`<span><b>${m.icon} Laune der See: ${m.name}</b>${m.text}</span>`), 600);
+  }
+  function draw() { autoArrange(); moodNote(); GL.ui.render(run, anim, ui); featureCheck(); livePos(); musicMode(); }
   // Musik: Titelbild etwas hörbarer, Hauptquartier leise, auf Fahrt ganz leise
   function musicMode() {
     if (!GL.music) return;

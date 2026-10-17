@@ -98,6 +98,24 @@ GL.data.duos = [
   { a: 'fukuro', b: 'rob-lucci',  name: 'Plappermaul',       text: 'Fukuro und Lucci: Lucci +10 % Krit-Chance, Fukuro +2 Tempo.',
     mods: [{ scope: 'char:rob-lucci', crit: 0.1 }, { scope: 'char:fukuro', spd: 2 }] },
   { a: 'mohji',  b: 'cabaji',     name: 'Clown-Handlanger',  text: 'Mohji und Cabaji: beide +2 Angriff.',
-    mods: [{ scope: 'char:mohji', atk: 2 }, { scope: 'char:cabaji', atk: 2 }] }
+    mods: [{ scope: 'char:mohji', atk: 2 }, { scope: 'char:cabaji', atk: 2 }] },
+  { a: 'kid',    b: 'killer',     name: 'Kid-Piraten',       text: 'Kid und Killer: beide +12 % Schaden.',
+    mods: [{ scope: 'char:kid', dmgPct: 0.12 }, { scope: 'char:killer', dmgPct: 0.12 }] },
+  { a: 'kid',    b: 'law',        name: 'Neue Allianz',      text: 'Kid und Law: beide +1 Tempo und +8 % Krit-Chance.',
+    mods: [{ scope: 'char:kid', spd: 1, crit: 0.08 }, { scope: 'char:law', spd: 1, crit: 0.08 }] },
+  { a: 'kid',    b: 'ruffy',      name: 'Rivalen',           text: 'Ruffy und Kid wollen den anderen übertreffen: beide +3 Angriff.',
+    mods: [{ scope: 'char:kid', atk: 3 }, { scope: 'char:ruffy', atk: 3 }] },
+  { a: 'bonney', b: 'ruffy',      name: 'Fressduell',        text: 'Bonney und Ruffy: beide heilen 3 pro Runde.',
+    mods: [{ scope: 'char:bonney', regen: 3 }, { scope: 'char:ruffy', regen: 3 }] },
+  { a: 'drake',  b: 'koby',       name: 'Geheimauftrag',     text: 'Drake schützt Koby: Koby +15 % Ausweichen, Drake 2 weniger Schaden.',
+    mods: [{ scope: 'char:koby', dodge: 0.15 }, { scope: 'char:drake', armor: 2 }] },
+  { a: 'hawkins', b: 'apoo',      name: 'Alte Abmachung',    text: 'Hawkins und Apoo: beide +1 Tempo.',
+    mods: [{ scope: 'char:hawkins', spd: 1 }, { scope: 'char:apoo', spd: 1 }] },
+  { a: 'moria',  b: 'perona',     name: 'Thriller Bark',     text: 'Moria und Perona: beide heilen 2 pro Runde.',
+    mods: [{ scope: 'char:moria', regen: 2 }, { scope: 'char:perona', regen: 2 }] },
+  { a: 'absalom', b: 'hogback',   name: 'Zombie-Werkstatt',  text: 'Absalom +15 % Schaden, Hogback heilt besser (+2 pro Runde).',
+    mods: [{ scope: 'char:absalom', dmgPct: 0.15 }, { scope: 'char:hogback', regen: 2 }] },
+  { a: 'moria',  b: 'brook',      name: 'Gestohlener Schatten', text: 'Brook holt sich seinen Schatten zurück: +20 % Ausweichen.',
+    mods: [{ scope: 'char:brook', dodge: 0.2 }] }
 
 ];

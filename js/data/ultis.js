@@ -137,6 +137,18 @@ GL.data.ultis = {
   vista:   { name: 'Blütenmeer', text: 'Zwei Klingen auf alle (100 %).', fx: [{ do: 'strike', mult: 1.0, target: 'all' }] },
   fukuro:  { name: 'Jugon', text: 'Fingerpistole im Wirbel (190 %), heilt sich um 10 %.',
              fx: [{ do: 'strike', mult: 1.9, target: 'front' }, { do: 'heal', pct: 0.1, target: 'self' }] },
+  kid:     { name: 'Punk Gibson', text: 'Riesige Metallfaust (240 %).', fx: [{ do: 'strike', mult: 2.4, target: 'front' }] },
+  killer:  { name: 'Kamazo', text: 'Wirbelnde Sicheln auf alle (85 %), Blutung 2 Runden.',
+             fx: [{ do: 'strike', mult: 0.85, target: 'all' }, { do: 'status', key: 'bleed', rounds: 2, value: 3, target: 'all' }] },
+  bonney:  { name: 'Age Twister', text: 'Alle Gegner geschwächt (3 Runden), die Crew heilt 10 %.',
+             fx: [{ do: 'status', key: 'weak', rounds: 3, target: 'all' }, { do: 'heal', pct: 0.1, target: 'all' }] },
+  drake:   { name: 'Allosaurus-Biss', text: 'Biss (200 %), Ziel blutet 3 Runden.',
+             fx: [{ do: 'strike', mult: 2, target: 'front' }, { do: 'status', key: 'bleed', rounds: 3, value: 3, target: 'hit' }] },
+  hawkins: { name: 'Fluchpuppe', text: 'Der Schwächste wird verflucht (200 %), die Crew wird mutig.',
+             fx: [{ do: 'strike', mult: 2, target: 'weakest' }, { do: 'status', key: 'brave', rounds: 2, target: 'allies' }] },
+  apoo:    { name: 'Tonkatsu', text: 'Schallwelle auf alle (95 %).', fx: [{ do: 'strike', mult: 0.95, target: 'all' }] },
+  absalom: { name: 'Unsichtbarer Hieb', text: 'Hieb aus dem Nichts auf den Schwächsten (220 %).', fx: [{ do: 'strike', mult: 2.2, target: 'weakest' }] },
+  hogback: { name: 'Notoperation', text: 'Heilt die Crew um 18 %.', fx: [{ do: 'heal', pct: 0.18, target: 'all' }] },
   perona:  { name: 'Ghost Rap', text: 'Geister explodieren auf allen Gegnern (85 %), alle in Furcht (1 Runde).',
              fx: [{ do: 'strike', mult: 0.85, target: 'all' }, { do: 'status', key: 'fear', rounds: 1, target: 'all' }] }
 

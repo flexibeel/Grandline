@@ -37,6 +37,8 @@ window.GL = window.GL || {};
     buggy:     { c: { R: '#e0302a', r: '#a81e1a', W: '#ffd0c8', B: '#2f5aa8' }, rows: ['..B....B..', '.BBB..BBB.', '...RRRR...', '..RWWRRR..', '.RRWRRRRR.', '.RRRRRRRR.', '.rRRRRRRr.', '..rRRRRr..', '...rrrr...', '..........'] },
     fischmensch: { c: { F: '#6f8fb0', f: '#4a6a8a', W: '#4fa8d8', w: '#2f7ab0' }, rows: ['....F.....', '...FF.....', '...FFF....', '..FFfF....', '..FFffF...', '.FFFffFF..', 'WWWWWWWWWW', '.ww..ww..w', 'w..ww..ww.', '..........'] },
     revolution: { c: { K: '#5a3a20', G: '#3a7a4a', g: '#2a5a36', W: '#eef0e8' }, rows: ['K.........', 'KGGGGGG...', 'KGGGGGGGG.', 'KGGWWGGGG.', 'KGWWWWGGG.', 'KGGWWGGgg.', 'KGGGGgg...', 'K.........', 'K.........', 'KK........'] },
+    supernova: { c: { Y: '#f2d24a', O: '#e07a2c', R: '#c0302a' }, rows: ['....Y.....', '....Y.....', '.Y..O..Y..', '..YOROY...', 'YYORRROYY.', '..YOROY...', '.Y..O..Y..', '....Y.....', '....Y.....', '..........'] },
+    thriller:  { c: { P: '#5a3a7a', p: '#3a2a4a', W: '#e8e0f0', R: '#e0483b' }, rows: ['..........', 'P........P', 'PP......PP', 'PPP.PP.PPP', 'PPPPPPPPPP', '.PPWPPWPP.', '..PPPPPP..', '...PRRP...', '....pp....', '..........'] },
     rothaar:   { c: { R: '#c0302a', r: '#8a1e1a', S: '#f2c9a0', K: '#2a1a10', c: '#a8402a' }, rows: ['....R.....', '..R.RR.R..', '..RRRRRR..', '.RRRRRRRR.', 'RRrRRRRrRR', 'RRSSSSScRR', 'RSSKSSKcSR', '.SSSSSScS.', '..SSSSSS..', '...SSSS...'] },
     // Kampfstile
     kraft:     { c: { R: '#d98a72', r: '#a8573f' }, rows: ['..........', '..RR.RR...', '.RRRRRRR..', '.RRRRRRRR.', '.RRRRRRRR.', '.rRRRRRRR.', '..rRRRRR..', '...rrrr...', '..........', '..........'] },
@@ -287,7 +289,7 @@ window.GL = window.GL || {};
 
   // ---------- Karten im Sammelkarten-Stil ----------
   // Figurenkarte: Bild, Name, Fähigkeit, Angriff unten links, Leben unten rechts
-  const FAC_SHORT = { strohhut: 'Strohhut', marine: 'Marine', cp9: 'CP9', baroque: 'Baroque', weissbart: 'Weißbart', samurai: 'Samurai', buggy: 'Buggy', fischmensch: 'Arlong', revolution: 'Revolution', rothaar: 'Rothaar' };
+  const FAC_SHORT = { strohhut: 'Strohhut', marine: 'Marine', cp9: 'CP9', baroque: 'Baroque', weissbart: 'Weißbart', samurai: 'Samurai', buggy: 'Buggy', fischmensch: 'Arlong', revolution: 'Revolution', rothaar: 'Rothaar', supernova: 'Supernova', thriller: 'Thriller Bark' };
   // Figurenkarte: Rahmen in der Farbe der Bande, oben das Banden-Band, unten klare Werte-Leiste
   // Erster Satz, ohne Klammern, höchstens ~56 Zeichen
   function shortText(t) {
@@ -384,7 +386,7 @@ window.GL = window.GL || {};
     return `${bars}<span class="track-loc">${island} · <b class="stop-name">${run.phase === 'course' ? 'Kurs setzen' : run.phase === 'starter' ? 'Kapitän wählen' : GL.run.stopName(run)}</b>${run.phase === 'course' || run.phase === 'starter' ? '' : ` <small class="muted">(${pos}/${GL.config.chapterSteps})</small>`}</span>
       <span class="head-chips">
         <em class="gold-chip" data-tip="Gold für die Taverne.\nGibt es für Siege, verfällt am Run-Ende.">${GL.sprites.coin()} <b>${run.gold || 0}</b></em>
-        <em class="bounty-chip" id="bounty-chip" data-tip="Kopfgeld deines Kapitäns.\nZählt für deinen Punktestand und die Rangliste 'Höchstes Kopfgeld'. Bringt sonst nichts im Run.">${GL.sprites.icon('node', 'elite')} <b>${fmtBounty(run.bountyM || 0)}</b></em>${(run.streak || 0) >= 2 ? `<em class="streak-chip${run.streak >= 6 ? ' hot' : run.streak >= 3 ? ' warm' : ''}" data-tip="Kopfgeld-Serie: ${run.streak} Siege in Folge ohne K.O.\nAb 3 Siegen +1 Gold pro Sieg, ab 6 +2. Am Run-Ende Extra-Berry.\nFällt jemand, beginnt die Serie neu.">${PX_FLAME}<b>${run.streak}</b></em>` : ''}
+        <em class="bounty-chip" id="bounty-chip" data-tip="Kopfgeld deines Kapitäns.\nZählt für deinen Punktestand und die Rangliste 'Höchstes Kopfgeld'. Bringt sonst nichts im Run.">${GL.sprites.icon('node', 'elite')} <b>${fmtBounty(run.bountyM || 0)}</b></em>${run.mood && GL.config.moods ? (m => m ? `<em class="mood-chip" data-tip="${esc('Laune der See: ' + m.name + '\n' + m.text)}">${m.icon}<b>${esc(m.name)}</b></em>` : '')(GL.config.moods.find(x => x.id === run.mood)) : ''}${(run.streak || 0) >= 2 ? `<em class="streak-chip${run.streak >= 6 ? ' hot' : run.streak >= 3 ? ' warm' : ''}" data-tip="Kopfgeld-Serie: ${run.streak} Siege in Folge ohne K.O.\nAb 3 Siegen +1 Gold pro Sieg, ab 6 +2. Am Run-Ende Extra-Berry.\nFällt jemand, beginnt die Serie neu.">${PX_FLAME}<b>${run.streak}</b></em>` : ''}
         ${run.heat ? `<em class="heat-chip">Stufe ${run.heat}</em>` : ''}
         ${run.loop ? `<em class="duel-chip endless-chip">Endlos ${run.loop + 1}</em>` : ''}
         ${run.daily ? '<em class="duel-chip">Tageskarte</em>' : run.duel ? `<button class="duel-chip" data-act="duel-copy" data-id="${run.duel}" title="Code teilen">Wettfahrt ${run.duel} · teilen</button>` : ''}
@@ -1137,10 +1139,10 @@ window.GL = window.GL || {};
           const d = GL.data.foeDef(e) || enemyData(e.id);
           const fk = e.kind && GL.data.foeKind(e.kind);
           return `<div class="pv-u foe${e.boss ? ' boss' : ''}${fk ? ' special' : ''}${i === 0 ? ' is-front' : ''}" tabindex="0"
-              data-tip="${esc(`${d.name}\n${e.hp} Leben · ${e.atk} Angriff${fk ? '\n' + fk.text : ''}`)}">
+              data-tip="${esc(`${d.name}\n${e.hp} Leben · ${e.atk} Angriff${fk ? '\n' + fk.text : ''}${!fk && !e.boss && ability(e.id) ? '\n' + ability(e.id).name + ': ' + ability(e.id).text : ''}`)}">
             ${i === 0 ? '<i class="pv-front" aria-hidden="true"></i>' : ''}
             <span class="pv-s">${GL.sprites.render(d)}</span>
-            ${fk ? `<em class="pv-m fk fk-${fk.key}">${fk.tag}</em>` : ''}
+            ${fk ? `<em class="pv-m fk fk-${fk.key}">${fk.tag}</em>` : !e.boss && !e.mini && ability(e.id) && d.art ? `<em class="pv-m fk">${esc(ability(e.id).name)}</em>` : ''}
             <i class="pv-hp"><b style="width:100%"></b></i>
             <small>${e.hp} ♥</small>
           </div>`;

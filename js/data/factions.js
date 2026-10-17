@@ -75,6 +75,21 @@ GL.data.factions = {
       { n: 4, text: 'Königs-Haki: ganze Crew +22 % Schaden, erleidet 2 weniger Schaden', mods: [{ scope: 'all', dmgPct: 0.22, armor: 2 }] }
     ]
   }
+  ,
+  supernova: {
+    name: 'Schlimmste Generation',
+    tiers: [
+      { n: 2, text: 'Supernovas +2 Angriff und +10 % Krit-Chance', mods: [{ scope: 'faction:supernova', atk: 2, crit: 0.1 }] },
+      { n: 4, text: 'Supernovas +5 Angriff, +20 % Krit-Chance und härtere Krits', mods: [{ scope: 'faction:supernova', atk: 5, crit: 0.2, critMult: 0.3 }] }
+    ]
+  },
+  thriller: {
+    name: 'Thriller-Bark-Piraten',
+    tiers: [
+      { n: 2, text: 'Untote Zähigkeit: ganze Crew heilt 2 pro Runde und weicht 8 % aus', mods: [{ scope: 'all', regen: 2, dodge: 0.08 }] },
+      { n: 4, text: 'Schattenarmee: ganze Crew heilt 4 pro Runde und weicht 15 % aus', mods: [{ scope: 'all', regen: 4, dodge: 0.15 }] }
+    ]
+  }
 };
 
 // Bündnisse: Sind die Set-Boni zweier Banden GLEICHZEITIG aktiv, gibt es einen Extra-Bonus.
@@ -86,5 +101,7 @@ GL.data.alliances = [
   { a: 'buggy',    b: 'baroque',    name: 'Impel-Down-Ausbruch', text: 'Ganze Crew +2 Tempo und +8 % Ausweichen.',              mods: [{ scope: 'all', spd: 2, dodge: 0.08 }] },
   { a: 'fischmensch', b: 'samurai', name: 'Fischmenscheninsel', text: 'Ganze Crew heilt 2 pro Runde und erleidet 1 weniger Schaden.', mods: [{ scope: 'all', regen: 2, armor: 1 }] },
   { a: 'strohhut', b: 'samurai',    name: 'Piratenbündnis',     text: 'Ganze Crew +10 % Schaden.',                              mods: [{ scope: 'all', dmgPct: 0.1 }] },
-  { a: 'revolution', b: 'marine',   name: 'Familie Monkey',     text: 'Ganze Crew +3 Angriff.',                                 mods: [{ scope: 'all', atk: 3 }] }
+  { a: 'revolution', b: 'marine',   name: 'Familie Monkey',     text: 'Ganze Crew +3 Angriff.',                                 mods: [{ scope: 'all', atk: 3 }] },
+  { a: 'supernova', b: 'strohhut',  name: 'Chaos auf Sabaody',  text: 'Ganze Crew +2 Tempo und +8 % Schaden.',                   mods: [{ scope: 'all', spd: 2, dmgPct: 0.08 }] },
+  { a: 'thriller', b: 'baroque',    name: 'Schattenspiel',      text: 'Ganze Crew weicht 10 % aus und erleidet 1 weniger Schaden.', mods: [{ scope: 'all', dodge: 0.1, armor: 1 }] }
 ];

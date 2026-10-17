@@ -184,7 +184,7 @@ window.GL = window.GL || {};
   // Gold nach einem Sieg: fester Betrag je Kampfart plus Zinsen (je 10 Gold 1, höchstens 3)
   function earnGold(run, kind) {
     const S = GL.config.shop;
-    const base = S.win[kind] || 0;
+    const base = Math.round((S.win[kind] || 0) * (run.mood === 'goldrausch' ? 1.4 : 1));
     const interest = Math.min(S.interestMax, Math.floor((run.gold || 0) / 10));
     run.gold = (run.gold || 0) + base + interest;
     run.lastGold = { base, interest };
@@ -367,13 +367,15 @@ window.GL = window.GL || {};
     const enemies = [];
     for (let i = 0; i < count; i++) {
       const sea = islandIndex(run);
-      const gp = GL.data.grunts.filter(x => !x.seas || x.seas.includes(Math.min(sea, 2)));
+      let gp = GL.data.grunts.filter(x => !x.seas || x.seas.includes(Math.min(sea, 2)));
+      if (run.mood === 'tierzeit') gp = gp.concat(gp.filter(x => x.art), gp.filter(x => x.art));
       const type = gp[R.int(run, 0, gp.length - 1)];
-      const max = Math.round((g.hpBase + level * g.hpPerLevel) * mult * (1 + H.enemyHp));
+      const moodHp = run.mood === 'goldrausch' ? 1.08 : run.mood === 'tierzeit' && type.art ? 0.9 : run.mood === 'kopfgeld' && kind === 'elite' ? 1.1 : 1;
+      const max = Math.round((g.hpBase + level * g.hpPerLevel) * mult * (1 + H.enemyHp) * moodHp);
       enemies.push({
         id: type.id, type: type.type, hp: max, max,
         atk: Math.round((g.atkBase + level * g.atkPerLevel) * mult * (1 + H.enemyAtk)),
-        spd: R.int(run, g.spdMin, g.spdMax) + H.enemySpd
+        spd: Math.max(1, R.int(run, g.spdMin, g.spdMax) + H.enemySpd - (run.mood === 'flaute' ? 1 : 0))
       });
     }
     specialize(run, enemies, level);
@@ -662,8 +664,9 @@ window.GL = window.GL || {};
     if (!f.noWinHeal) heal(run, (C.winHeal + f.winHeal) * Math.max(0, 1 + (run.H ? run.H.winHeal : 0)));
     if (b.kind === 'elite' && run.pending && run.pending.who) {
       const h = byId(GL.data.hunted, run.pending.who);
-      run.bountyM = (run.bountyM || 0) + Math.round(h.bounty * (1 + 0.25 * (run.heat || 0)));
-      run.lastBounty = { id: h.id, gain: Math.round(h.bounty * (1 + 0.25 * (run.heat || 0))) };
+      const bm = run.mood === 'kopfgeld' ? 1.5 : 1;
+      run.bountyM = (run.bountyM || 0) + Math.round(h.bounty * (1 + 0.25 * (run.heat || 0)) * bm);
+      run.lastBounty = { id: h.id, gain: Math.round(h.bounty * (1 + 0.25 * (run.heat || 0)) * bm) };
       run.defeated.push(h.id);
       rollTrophy(run, h.id, C.trophyChance.mini);
     }
@@ -828,7 +831,7 @@ window.GL = window.GL || {};
           dropItem(run, C.items.dropTreasure);
           openTreasure(run);
         } else if (node === 'rest') {
-          heal(run, (C.restHeal + (run.bonus ? run.bonus.restHeal : 0)) * Math.max(0, 1 + (run.H ? run.H.restHeal : 0)));
+          heal(run, (C.restHeal + (run.mood === 'flaute' ? 0.2 : 0) + (run.bonus ? run.bonus.restHeal : 0)) * Math.max(0, 1 + (run.H ? run.H.restHeal : 0)));
           advance(run);
         }
         return true;
@@ -1034,6 +1037,12 @@ window.GL = window.GL || {};
         actions: []
       };
       run.H = heatMods(run.heat);
+      // Laune der See: ohne Zufallszug aus dem Seed, damit Replays gleich bleiben
+      const M = GL.config.moods || [];
+      const moodId = p.mood !== undefined ? p.mood : (M.length && ((p.stats && p.stats.runs) || 0) >= 2 && run.endlessSea == null ? M[s % M.length].id : null);
+      run.mood = moodId; run.start.mood = moodId;
+      if (moodId === 'schatzfieber') run.luck = (run.luck || 0) + 0.5;
+      if (moodId === 'rueckenwind') run.mod.spd += 1;
       // Mitgenommene Ausrüstung anwenden
       (Array.isArray(p.gear) ? p.gear : []).forEach(id => {
         const g = byId(GL.data.gear, id);

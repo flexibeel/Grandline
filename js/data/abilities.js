@@ -133,6 +133,27 @@ GL.data.abilities = {
   doflamingo:  { name: 'Fadenkäfig',      kind: 'chain', value: 0.6,   text: 'Fäden springen über (60 % Schaden). Zu Kampfbeginn: Furcht für die ganze Crew (3 Runden).',
                  status: { key: 'fear', rounds: 3, when: 'start', target: 'all' } },
 
+  // ---- Schlimmste Generation ----
+  kid:     { name: 'Magnet-Frucht',  kind: 'chain', value: 0.3, text: 'Zieht Metall heran: Treffer springen auf den nächsten Gegner über (30 % Schaden).' },
+  killer:  { name: 'Massacre Soldier', text: '+15 % Krit-Chance. Seine Sicheln lassen bluten (3 Schaden pro Runde, 2 Runden).',
+             mods: [{ scope: 'char:killer', crit: 0.15 }], status: { key: 'bleed', rounds: 2, when: 'hit', target: 'target', value: 3, chance: 0.4 } },
+  bonney:  { name: 'Alters-Frucht',  kind: 'curse', value: 0.18, text: 'Zu Kampfbeginn lässt sie den stärksten Gegner altern: er verliert 18 % seines Lebens.' },
+  drake:   { name: 'Dino-Form',      kind: 'thorns', value: 2, text: 'Schuppenpanzer: erleidet 1 weniger Schaden, wer ihn trifft, erleidet 2.',
+             mods: [{ scope: 'char:drake', armor: 1 }] },
+  hawkins: { name: 'Strohpuppe',     kind: 'revive', value: 0.3, text: 'Die Karten sagen: einmal pro Kampf steht er mit 30 % Leben wieder auf.' },
+  apoo:    { name: 'Ton-Ton-Frucht', kind: 'burn', value: 0.25, text: 'Seine Musik trifft alle anderen Gegner mit (25 % Schaden).' },
+
+  // ---- Tiere der Grand Line (Gegner) ----
+  boar:       { name: 'Ansturm',      kind: 'ramp', value: 1,  text: 'Wird mit jedem Treffer wütender: +1 Angriff pro Treffer.' },
+  crab:       { name: 'Harter Panzer', kind: 'thorns', value: 1, text: 'Wer die Krabbe trifft, piekst sich: 1 Schaden zurück.' },
+  gull:       { name: 'Sturzflug',    kind: 'sniper',           text: 'Stürzt sich immer auf dein Crewmitglied mit den wenigsten Leben.' },
+  bananacroc: { name: 'Krokobiss',    text: 'Bisse lassen bluten (2 Schaden pro Runde, 2 Runden).',
+                status: { key: 'bleed', rounds: 2, when: 'hit', target: 'target', value: 2, chance: 0.45 } },
+  wolf:       { name: 'Heulen',       text: 'Sein Heulen macht Angst: Treffer verursachen manchmal Furcht.',
+                status: { key: 'fear', rounds: 1, when: 'hit', target: 'target', chance: 0.3 } },
+  seaking:    { name: 'Schwanzschlag', kind: 'burn', value: 0.25, text: 'Sein Schwanz trifft auch alle anderen (25 % Schaden).' },
+  bat:        { name: 'Blutsauger',   kind: 'lifesteal', value: 0.35, text: 'Heilt sich um 35 % seines Schadens.' },
+
   // ---- Inhalts-Update: neue Crewmitglieder ----
   alvida:  { name: 'Sube-Sube-Frucht', text: 'Glatte Haut: erleidet 2 weniger Schaden und weicht 10 % aus.', mods: [{ scope: 'char:alvida', armor: 2, dodge: 0.1 }] },
   cabaji:  { name: 'Akrobaten-Klinge', text: '+20 % Krit-Chance und +1 Tempo.', mods: [{ scope: 'char:cabaji', crit: 0.2, spd: 1 }] },

@@ -143,6 +143,27 @@ GL.data.crew = [
     look: { hair: '#1a1a1a', skin: '#f2c9a0', shirt: '#e8e8e8', pants: '#3a3a5a', hat: 'tophat', hatColor: '#2a2a2a', beard: '#1a1a1a' } },
   { id: 'kuma',      name: 'Kuma',        type: 'kraft',   role: 'brecher',  faction: 'samurai',    hp: 46, atk: 7,  spd: 3, locked: true,
     look: { hair: '#2a2a2a', skin: '#c8a080', shirt: '#4a3a2a', pants: '#3a3a3a', mask: 'bear' } },
-  { id: 'perona',    name: 'Perona',      type: 'technik', role: 'helfer',                          hp: 22, atk: 6,  spd: 7, locked: true,
-    look: { hair: '#e870a0', skin: '#f2d0b8', shirt: '#2a1a2a', pants: '#e870a0', longHair: true, hat: 'cap', hatColor: '#c04a7a' } }
+  { id: 'perona',    name: 'Perona',      type: 'technik', role: 'helfer',   faction: 'thriller',   hp: 22, atk: 6,  spd: 7, locked: true,
+    look: { hair: '#e870a0', skin: '#f2d0b8', shirt: '#2a1a2a', pants: '#e870a0', longHair: true, hat: 'cap', hatColor: '#c04a7a' } },
+
+  // Schlimmste Generation (Supernovas von Sabaody)
+  { id: 'kid',       name: 'Eustass Kid', type: 'kraft',   role: 'kaempfer', faction: 'supernova', hp: 32, atk: 9, spd: 6, locked: true,
+    look: { hair: '#d0302a', skin: '#f2c9a0', shirt: '#2a2a2a', pants: '#5a3a2a', hat: 'afro', acc: 'narbe' } },
+  { id: 'killer',    name: 'Killer',      type: 'klinge',  role: 'kaempfer', faction: 'supernova', hp: 27, atk: 9, spd: 8, locked: true,
+    look: { hair: '#f2d24a', skin: '#f2c9a0', shirt: '#e8a0b0', pants: '#2a3a5a', longHair: true, acc: 'brille' } },
+  { id: 'bonney',    name: 'Bonney',      type: 'technik', role: 'helfer',   faction: 'supernova', hp: 28, atk: 6, spd: 7, locked: true,
+    look: { hair: '#e870a0', skin: '#f6d8c0', shirt: '#3a3a3a', pants: '#3a6a3a', hat: 'cap', hatColor: '#4a8a4a', longHair: true } },
+  { id: 'drake',     name: 'Drake',       type: 'kraft',   role: 'brecher',  faction: 'supernova', hp: 40, atk: 7, spd: 4, locked: true,
+    look: { hair: '#c08040', skin: '#e0b088', shirt: '#4a3a2a', pants: '#2a2a2a', hat: 'tricorn', hatColor: '#3a2a1a', acc: 'narbe' } },
+  { id: 'hawkins',   name: 'Hawkins',     type: 'technik', role: 'helfer',   faction: 'supernova', hp: 30, atk: 6, spd: 5, locked: true,
+    look: { hair: '#f4e8b0', skin: '#f6e0c8', shirt: '#6a3a8a', pants: '#3a2a4a', longHair: true } },
+  { id: 'apoo',      name: 'Scratchmen Apoo', type: 'technik', role: 'kaempfer', faction: 'supernova', hp: 26, atk: 8, spd: 7, locked: true,
+    look: { hair: '#1a1a1a', skin: '#c89a70', shirt: '#e8c040', pants: '#3a3a5a', hat: 'band', hatColor: '#d0302a', acc: 'ohrring' } },
+  // Thriller-Bark-Piraten
+  { id: 'moria',     name: 'Gecko Moria', type: 'technik', role: 'brecher',  faction: 'thriller', hp: 44, atk: 7, spd: 3, locked: true,
+    look: { hair: '#3a2a4a', skin: '#b8b0c8', shirt: '#2a2030', pants: '#4a2a3a', mask: 'bat' } },
+  { id: 'absalom',   name: 'Absalom',     type: 'klinge',  role: 'kaempfer', faction: 'thriller', hp: 28, atk: 8, spd: 7, locked: true,
+    look: { hair: '#e8c060', skin: '#f2c9a0', shirt: '#e8e0d0', pants: '#4a3a2a', mask: 'leopard' } },
+  { id: 'hogback',   name: 'Dr. Hogback', type: 'technik', role: 'helfer',   faction: 'thriller', hp: 30, atk: 5, spd: 5, locked: true,
+    look: { hair: '#2a2a2a', skin: '#f2c9a0', shirt: '#e8e8e8', pants: '#2a2a2a', acc: 'brille' } }
 ];

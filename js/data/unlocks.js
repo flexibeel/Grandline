@@ -58,5 +58,16 @@ GL.data.unlocks = [
   { unlock: 'fukuro',  when: { defeated: 'fukuro', times: 2 },         text: 'Besiege Fukuro 2-mal (Water 7).' },
   { unlock: 'vista',   when: { winFaction: 'weissbart', n: 2 },        text: 'Gewinne einen Run mit 2 Figuren der Weißbart-Bande.' },
   { unlock: 'kuma',    when: { defeated: 'kuma', times: 2 },           text: 'Besiege Kuma 2-mal (Sabaody).' },
-  { unlock: 'perona',  when: { defeated: 'perona', times: 2 },         text: 'Besiege Perona 2-mal (Gruselgarten).' }
+  { unlock: 'perona',  when: { defeated: 'perona', times: 2 },         text: 'Besiege Perona 2-mal (Gruselgarten).' },
+  // Schlimmste Generation
+  { unlock: 'kid',     when: { isle: 'sabaody', times: 2 },            text: 'Erreiche 2-mal den Sabaody Archipel.' },
+  { unlock: 'killer',  when: { winWith: 'kid' },                       text: 'Gewinne einen Run mit Eustass Kid.' },
+  { unlock: 'bonney',  when: { reached: 2, times: 6 },                 text: 'Erreiche 6-mal das dritte Meer.' },
+  { unlock: 'drake',   when: { kos: 900 },                             text: 'Besiege insgesamt 900 Gegner.' },
+  { unlock: 'hawkins', when: { daily: 7 },                             text: 'Spiele 7 Tageskarten.' },
+  { unlock: 'apoo',    when: { endless: 3 },                           text: 'Schaffe 3 Runden in einer Endlos-Fahrt.' },
+  // Thriller Bark
+  { unlock: 'moria',   when: { defeated: 'moria', times: 2 },          text: 'Besiege Gecko Moria 2-mal.' },
+  { unlock: 'absalom', when: { defeated: 'absalom', times: 2 },        text: 'Besiege Absalom 2-mal (Florian-Dreieck).' },
+  { unlock: 'hogback', when: { defeated: 'hogback', times: 2 },        text: 'Besiege Dr. Hogback 2-mal (Hogbacks Labor).' }
 ];

@@ -4580,3 +4580,6 @@ body { overscroll-behavior: none; -webkit-tap-highlight-color: transparent; }
   background: repeating-linear-gradient(90deg, rgba(255,255,255,.75) 0 6px, transparent 6px 14px); animation: ts-sea 1.6s steps(4) infinite; opacity: .8; }
 .an-kaiseraura { animation: an-kaiser 1.6s steps(3) infinite; }
 @keyframes an-kaiser { 0%, 100% { box-shadow: 0 0 0 0 rgba(224,72,59,0); } 50% { box-shadow: 0 0 0 3px rgba(242,201,76,.8), 0 0 16px rgba(224,72,59,.7); } }
+.mood-chip { display: inline-flex; align-items: center; gap: 4px; font-style: normal; padding: 3px 8px; background: #e8f2f8; color: #2a5a7a; font-weight: 800; font-size: 12px; box-shadow: 0 0 0 2px #9ac0d8; border-radius: 6px; }
+.mood-chip b { font-weight: 800; }
+@media (max-width: 420px) { .mood-chip b { display: none; } }

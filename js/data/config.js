@@ -117,5 +117,14 @@ GL.config = {
   heatBonus: { berry: 0.2, score: 0.25 },
 
   // Punkte (für Highscore und spätere Rangliste)
-  score: { perStep: 100, perBounty: 500, perMio: 2 }   // Punkte: Etappen, Inselbosse, Kopfgeld in Mio.
+  score: { perStep: 100, perBounty: 500, perMio: 2 },   // Punkte: Etappen, Inselbosse, Kopfgeld in Mio.
+  // Laune der See: jeder Run (ab dem 3.) bekommt eine kleine Besonderheit, aus dem Seed bestimmt
+  moods: [
+    { id: 'goldrausch', name: 'Goldrausch', icon: '💰', text: 'Siege bringen 40 % mehr Gold. Gegner haben 8 % mehr Leben.' },
+    { id: 'tierzeit', name: 'Wilde See', icon: '🐗', text: 'Viele Tiere unterwegs. Dafür haben sie 10 % weniger Leben.' },
+    { id: 'kopfgeld', name: 'Kopfgeldjagd', icon: '🎯', text: 'Kopfgeld-Ziele bringen 50 % mehr Kopfgeld, sind aber 10 % stärker.' },
+    { id: 'flaute', name: 'Flaute', icon: '🌫', text: 'Alle Gegner sind 1 Tempo langsamer. Rast heilt mehr.' },
+    { id: 'schatzfieber', name: 'Schatzfieber', icon: '✨', text: 'Mehr Glück: seltenere Schätze und öfter Goldtruhen.' },
+    { id: 'rueckenwind', name: 'Rückenwind', icon: '⛵', text: 'Deine ganze Crew ist 1 Tempo schneller.' }
+  ]
 };
