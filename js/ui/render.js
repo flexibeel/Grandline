@@ -899,13 +899,18 @@ window.GL = window.GL || {};
           return `<div class="sell-slot">${GL.sprites.render(d)}<b>${d.name}</b>
             ${cap ? '<small>Kapitän</small>' : `<button class="btn mini ghost" data-act="dismiss" data-i="${i}">Entlassen +${GL.run.sellValue(u)}</button>`}</div>`;
         }).join('');
-        return `<div class="shop-head"><h2>Taverne</h2>
+        const harbor = run.harbor ? `<div class="harbor-box"><span class="event-kicker">Zwischenhafen · Endlos-Runde ${run.loop + 1}</span>
+            <b>Kurz durchatmen, dann wird es härter.</b>
+            <ul><li>Gegner und Bosse sind ab jetzt stärker, jede Runde mehr.</li>
+              <li>Reihenfolge ändern: Figuren oben in der Crew-Leiste ziehen. Wer vorne steht, steckt am meisten ein.</li>
+              <li>Schwache Figuren entlassen, stärkere anheuern. Offene Statuspunkte verteilen.</li></ul></div>` : '';
+        return `${harbor}<div class="shop-head"><h2>${run.harbor ? 'Hafentaverne' : 'Taverne'}</h2>
             <span class="gold">${GL.sprites.coin()} <b>${gold}</b> Gold</span></div>
           <p class="hint">${run.shopFree ? '<b>Der erste Kauf ist gratis.</b> ' : ''}Kaufe so viele Crewmitglieder, wie dein Gold und dein Schiff (${run.crew.length}/${lim}) erlauben. Gold gibt es für Siege, dazu Zinsen auf Erspartes.</p>
           <div class="cards shop">${cards}</div>${tipLine(tip)}
           <div class="shop-actions">
             <button class="btn ghost" data-act="reroll"${gold < roll ? ' disabled' : ''}>Neu würfeln (${roll} Gold) ${keyHint('R')}</button>
-            <div class="dock"><button class="btn" data-act="leave">Weitersegeln ${keyHint('Leertaste')}</button></div>
+            <div class="dock"><button class="btn" data-act="leave">${run.harbor ? 'Ablegen: nächste Runde' : 'Weitersegeln'} ${keyHint('Leertaste')}</button></div>
           </div>
           <div class="lbl">Deine Crew${full ? ' <small>Schiff voll: entlasse jemanden für Platz</small>' : ''}</div>
           <div class="sell-row">${sell}</div>`;
@@ -1140,7 +1145,7 @@ window.GL = window.GL || {};
     { id: 'rankXp',    name: 'Piratenrang',       get: x => x.rankXp,    unit: 'Rang-EP' },
     { id: 'artifacts', name: 'Artefakte',         get: x => x.artifacts, unit: 'Artefakte gefunden' },
     { id: 'squadRating', name: 'Crew-Liga',       get: x => x.squadOn ? (x.squadRating || 1000) : 0, unit: 'Crew-Rating' },
-    { id: 'endless',   name: 'Endlos',            get: x => x.endlessBest || 0, unit: 'Etappen im Endlos-Modus' },
+    { id: 'endless',   name: 'Endlos',            get: x => (x.endlessLoops || 0) * 10000 + (x.endlessBest || 0), show: x => x.endlessLoops || 0, unit: 'Runden im Endlos-Modus' },
     { id: 'squadW',    name: 'Crew-Duelle',       get: x => x.squadW,    unit: 'Stammcrew-Siege' }
   ];
   // Dein Profil als Karte: Name, Rang, wichtigste Werte
@@ -1199,6 +1204,7 @@ window.GL = window.GL || {};
     compass: ['...AAAA...', '..ABBBBA..', '.AB.C..BA.', '.AB.CC.BA.', '.AB.C..BA.', '.AB.....BA', '.AB....BA.', '..ABBBBA..', '...AAAA...', '..........']
   };
   function cgArt(it) {
+    if (it.t) { const l = (GL.data.huntLoot || []).find(x => x.id === it.t); if (l) return lootArt(l).replace('<svg ', '<svg class="cg-art" '); }
     const b = GL.cgear.base(it.b) || {};
     const rows = CG_ART[b.art] || CG_ART.ring;
     const col = { A: CG_COL[it.r] || CG_COL[0], B: '#5a4632', C: '#f2e3b8' };
@@ -1214,7 +1220,7 @@ window.GL = window.GL || {};
   function cgCard(it, foot) {
     const f = GL.cgear.from(it);
     return `<div class="cg-card cr-${GL.cgear.RID[it.r]}">
-      <div class="cg-card-top">${cgArt(it)}<span><b>${esc(GL.cgear.name(it))}</b><small>${GL.cgear.RNAME[it.r]} · ${esc((GL.data.crewGear.slots.find(s => s.id === GL.cgear.slotOf(it)) || {}).name || '')}</small></span><em class="cg-pow">⚔ ${GL.cgear.power(it)}</em></div>
+      <div class="cg-card-top">${cgArt(it)}<span><b>${esc(GL.cgear.name(it))}</b><small>${GL.cgear.RNAME[it.r]} · ${esc((GL.data.crewGear.slots.find(s => s.id === GL.cgear.slotOf(it)) || {}).name || '')}${it.t ? ' · bleibt auch in der Vitrine' : ''}</small></span><em class="cg-pow">⚔ ${GL.cgear.power(it)}</em></div>
       <ul class="cg-lines">${GL.cgear.lines(it).map(l => `<li class="${l.main ? 'main' : ''}">${esc(l.text)}</li>`).join('')}</ul>
       <p class="cg-from">Gefunden: ${esc(f.who)}${f.where ? ' · ' + esc(f.where) : ''}${f.loop ? ` · Endlos ${f.loop}` : ''}<br><small>${esc(f.when)}</small></p>
       ${foot || ''}
@@ -1427,7 +1433,7 @@ window.GL = window.GL || {};
     const dayTabs = isDaily ? `<div class="lb-cats day-tabs"><button class="lb-cat${ui.dailyDay !== 'y' ? ' on' : ''}" data-act="daily-day" data-id="t">Heute</button><button class="lb-cat${ui.dailyDay === 'y' ? ' on' : ''}" data-act="daily-day" data-id="y">Gestern</button>
       <small class="muted">Alle spielen dieselbe Route. Belohnung für die Plätze gibt es am nächsten Tag.</small></div>` : '';
     const table = isDaily && !rows.length ? `${dayTabs}<p class="muted">${ui.dailyDay === 'y' ? 'Gestern hat niemand die Tageskarte gespielt.' : 'Heute noch keine Ergebnisse. Sei der Erste!'}</p>` : rows.length
-      ? `${dayTabs}<ol class="lb-list">${rows.map((x, k) => row(x, k, cat.get(x), cat.unit,
+      ? `${dayTabs}<ol class="lb-list">${rows.map((x, k) => row(x, k, cat.show ? cat.show(x) : cat.get(x), cat.unit,
           `${x.wins || 0} / ${x.runs || 0} Siege`)).join('')}</ol>`
       : `<p class="muted">${st.status === 'ready' ? 'Noch keine Einträge. Beende einen Run, um der Erste zu sein!' : ''}</p>`;
 
@@ -2132,14 +2138,14 @@ window.GL = window.GL || {};
       <small class="fb-note">Anonym. Hilft, das Spiel besser zu machen.</small>
     </div>`;
   }
-  function updatePop(j) {
+  function updatePop(j, inRun) {
     return `<div class="fpop-card" role="dialog" aria-labelledby="fpop-t">
       <span class="fpop-kicker">Update verfügbar</span>
       <div class="fpop-art">${featureArt('flag')}</div>
       <h3 id="fpop-t">${esc(j.title || 'Neue Version')}</h3>
       ${(j.items || []).length ? `<ol class="fpop-steps">${j.items.slice(0, 3).map(x => `<li>${esc(x)}</li>`).join('')}</ol>` : ''}
-      <p class="wb-note">Dein Spielstand bleibt erhalten.</p>
-      <div class="fpop-btns"><button class="btn" data-act="reload">Jetzt neu laden</button><button class="btn ghost" data-act="pop-close">Weiterspielen</button></div>
+      <p class="wb-note">${inRun ? 'Dein laufender Run ist gespeichert und geht nach dem Neuladen genau hier weiter.' : 'Dein Spielstand bleibt erhalten.'}</p>
+      <div class="fpop-btns"><button class="btn" data-act="reload">Neues Update testen</button><button class="btn ghost" data-act="pop-close">${inRun ? 'Run weiterspielen' : 'Später'}</button></div>
     </div>`;
   }
   function welcomePop(profile, fromV) {

@@ -1,6 +1,11 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-17m', date: '17.10.', title: 'Trophäen und Zwischenhafen', items: [
+    'Raid-Beute aus der Vitrine ist jetzt auch eine Trophäe für deine Stammcrew: eigene Spezialfähigkeit plus zufällige Werte',
+    'Endlos-Modus: Vor jeder neuen Runde legst du im Zwischenhafen an. Crew umstellen, entlassen, neu anheuern',
+    'Endlos-Rangliste zählt jetzt geschaffte Runden',
+    'Update-Hinweis kommt auch mitten im Run, mit den wichtigsten Neuerungen. Dein Run bleibt gespeichert' ] },
   { v: '2026-10-17l', date: '17.10.', title: 'Ausrüstung für deine Stammcrew', items: [
     'Bosse und Raids lassen Waffen, Kleidung und Schmuck fallen, mit zufälligen Werten und vier Seltenheiten',
     'Jede Figur der Stammcrew hat drei Plätze. Legendäre Teile tragen den Namen des Bosses',

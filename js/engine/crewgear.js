@@ -42,7 +42,25 @@ window.GL = window.GL || {};
     };
   }
 
+  // Trophäe aus Raid-Beute: eigene Instanz mit zufälligen Zusatzwerten
+  function trophy(lootId, src) {
+    const C = D(), l = (GL.data.huntLoot || []).find(x => x.id === lootId);
+    if (!l) return null;
+    const r = l.r >= 3 ? 3 : 2;
+    const q = (1 + C.perSea * (src && src.sea || 1)) * C.rarityMult[r];
+    const a = {}, pool = Object.keys(C.affixes);
+    for (let i = 0; i < r - 1; i++) {
+      const k = pool.splice(Math.floor(Math.random() * pool.length), 1)[0];
+      const F = C.affixes[k];
+      a[k] = round(k, between(F.min, F.max) * q);
+    }
+    const raid = (GL.data.raids || []).find(x => x.id === l.raid) || {};
+    return { uid: 't' + Date.now().toString(36) + Math.floor(Math.random() * 1e6).toString(36), t: lootId, r, a,
+      f: { boss: l.raid, name: raid.name || null, sea: src && src.seaName || null, at: src && src.at || new Date().toISOString(), loop: src && src.loop || 0, raid: true } };
+  }
+  function perk(it) { return it && it.t ? D().trophyPerks[it.t] || null : null; }
   function name(it) {
+    if (it.t) { const l = (GL.data.huntLoot || []).find(x => x.id === it.t); return l ? l.name : 'Trophäe'; }
     const b = base(it.b);
     if (!b) return 'Ausrüstung';
     if (it.r >= 3 && it.f && it.f.name) return `${b.name} von ${it.f.name}`;
@@ -51,12 +69,20 @@ window.GL = window.GL || {};
     const adj = D().affixes[extra[0]].adj;
     return `${adj}${{ m: 'er', f: 'e', n: 'es' }[b.g] || 'e'} ${b.name}`;
   }
-  function lines(it) { return Object.keys(it.a).map(k => ({ k, main: k === it.m, text: D().affixes[k].fmt(it.a[k]) })); }
-  function power(it) {
-    const a = it.a || {};
-    return Math.round((a.atk || 0) * 4 + (a.hp || 0) * 0.5 + (a.spd || 0) * 3 + (a.crit || 0) * 150 + (a.dodge || 0) * 150 + (a.armor || 0) * 4 + (a.dmgPct || 0) * 120);
+  function lines(it) {
+    const out = Object.keys(it.a).map(k => ({ k, main: k === it.m, text: D().affixes[k].fmt(it.a[k]) }));
+    const p = perk(it);
+    if (p) out.unshift({ k: 'perk', main: true, text: `${p.name}: ${p.text}` });
+    return out;
   }
-  function slotOf(it) { const b = base(it.b); return b ? b.slot : null; }
+  function power(it) {
+    const p = perk(it);
+    const a = Object.assign({}, it.a || {});
+    if (p) { Object.keys(p.a || {}).forEach(k => { a[k] = (a[k] || 0) + p.a[k]; }); Object.keys(p.gb || {}).forEach(k => { a[k] = (a[k] || 0) + p.gb[k]; }); }
+    const extra = (a.ultStart || 0) * 0.4 + (a.regen || 0) * 6 + (a.critMult || 0) * 60;
+    return Math.round((a.atk || 0) * 4 + (a.hp || 0) * 0.5 + (a.spd || 0) * 3 + (a.crit || 0) * 150 + (a.dodge || 0) * 150 + (a.armor || 0) * 4 + (a.dmgPct || 0) * 120 + extra);
+  }
+  function slotOf(it) { if (it.t) return 'trophae'; const b = base(it.b); return b ? b.slot : null; }
   function from(it) {
     const f = it.f || {};
     const d = f.at ? new Date(f.at) : null;
@@ -91,19 +117,35 @@ window.GL = window.GL || {};
   // Werte aller angelegten Teile einer Figur zusammenzählen
   function totals(profile, crewId) {
     const W = worn(profile)[crewId] || {}, B = bag(profile), t = {};
-    Object.values(W).forEach(uid => { const it = B.find(x => x.uid === uid); if (it) Object.keys(it.a).forEach(k => { t[k] = (t[k] || 0) + it.a[k]; }); });
+    const add = (k, v) => { t[k] = (t[k] || 0) + v; };
+    Object.values(W).forEach(uid => {
+      const it = B.find(x => x.uid === uid); if (!it) return;
+      Object.keys(it.a).forEach(k => add(k, it.a[k]));
+      const p = perk(it);
+      if (p) { Object.keys(p.a || {}).forEach(k => add(k, p.a[k])); Object.keys(p.gb || {}).forEach(k => add(k, p.gb[k])); }
+    });
     return t;
   }
   // Kompakte Kopie für die Rangliste (Freunde sehen Werte und Herkunft)
   function wornList(profile, crewId) {
     const W = worn(profile)[crewId] || {}, B = bag(profile);
-    return D().slots.map(s => B.find(x => x.uid === W[s.id])).filter(Boolean).map(it => ({ b: it.b, r: it.r, a: it.a, m: it.m, f: it.f }));
+    return D().slots.map(s => B.find(x => x.uid === W[s.id])).filter(Boolean).map(it => ({ b: it.b, t: it.t, r: it.r, a: it.a, m: it.m, f: it.f }));
   }
 
   // Nach einem Run: für jeden besiegten Boss/Raid eine Chance auf ein Teil
+  // Vorhandene Vitrine einmalig in Trophäen umwandeln (je Fund ein Stück, höchstens 3)
+  function migrate(profile) {
+    if (profile.trophyInit) return;
+    profile.trophyInit = 1;
+    const B = bag(profile);
+    Object.keys(profile.loot || {}).forEach(id => { for (let i = 0; i < Math.min(3, profile.loot[id]); i++) { const t = trophy(id, { sea: 2 }); if (t) B.push(t); } });
+  }
   function drops(profile, run) {
-    if (run.daily || run.duel || !(run.gearSrc || []).length) return [];
+    migrate(profile);
     const C = D(), got = [];
+    // Raid-Beute aus diesem Run: zusätzlich als Trophäe für die Stammcrew
+    (run.loot || []).forEach(id => { const t = trophy(id, { sea: 2, loop: run.loop || 0 }); if (t) got.push(t); });
+    if (run.daily || run.duel || !(run.gearSrc || []).length) { const B0 = bag(profile); got.forEach(it => B0.push(it)); profile.gearNew = got.map(x => x.uid); return got; }
     // Endlos-Modus: derselbe Run wird mehrmals abgeschlossen, schon Gewürfeltes zählt nicht doppelt
     const done = profile.gearRolled && profile.gearRolled.seed === run.seed ? profile.gearRolled.n : 0;
     profile.gearRolled = { seed: run.seed, n: run.gearSrc.length };
@@ -127,5 +169,5 @@ window.GL = window.GL || {};
     return got;
   }
 
-  GL.cgear = { roll, name, lines, power, slotOf, from, base, bag, worn, wornBy, equip, unequip, scrap, totals, wornList, drops, RNAME, RID };
+  GL.cgear = { trophy, perk, migrate, roll, name, lines, power, slotOf, from, base, bag, worn, wornBy, equip, unequip, scrap, totals, wornList, drops, RNAME, RID };
 })();

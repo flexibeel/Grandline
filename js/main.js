@@ -2,6 +2,8 @@
 (function () {
   const profile = GL.save.loadProfile();
   if (profile.nickname && !profile.playerCode) { GL.code.ensure(profile); GL.save.storeProfile(profile); }
+  // Vitrine-Beute einmalig als Trophäen für die Stammcrew bereitstellen
+  if (GL.cgear && profile.nickname && !profile.trophyInit && GL.meta.featureOpen(profile, 'stammcrew')) { GL.cgear.migrate(profile); GL.save.storeProfile(profile); }
 
   // run = null bedeutet: wir sind im Hauptquartier
   let run = GL.save.loadRun();
@@ -54,7 +56,7 @@
     const fresh = !profile.seenFeatures;
     // Erste Funde zuerst (ein Fenster, kurz und freundlich). Bestehende Spieler: alte Funde gelten als gesehen.
     if (!profile.firstSeen) { profile.firstSeen = {}; if ((profile.rankXp || 0) > 0 && !profile.testerPops) (GL.data.firsts || []).forEach(x => { if (x.has(profile)) profile.firstSeen[x.id] = 1; }); saveProfile(); }
-    const first = (GL.data.firsts || []).find(x => !profile.firstSeen[x.id] && x.has(profile));
+    const first = ui.firstDone ? null : (GL.data.firsts || []).find(x => !profile.firstSeen[x.id] && x.has(profile));
     const list = first ? [Object.assign({}, first, { tab: first.tab && GL.meta.featureOpen(profile, first.tab === 'lager' ? 'lager' : first.tab) ? first.tab : null })]
       : GL.meta.featuresNew(profile).slice().sort((a, b) => (!!b.tab - !!a.tab) || a.lvl - b.lvl), f = list[0];
     if (fresh) saveProfile();
@@ -139,7 +141,7 @@
   }
   function closeFeature(id, go) {
     const fst = (GL.data.firsts || []).find(x => x.id === id);
-    if (fst) { profile.firstSeen = profile.firstSeen || {}; profile.firstSeen[id] = 1; saveProfile(); }
+    if (fst) { profile.firstSeen = profile.firstSeen || {}; profile.firstSeen[id] = 1; ui.firstDone = true; saveProfile(); }   // höchstens ein Fund-Fenster pro Besuch
     else { GL.meta.featuresNew(profile).forEach(x => GL.meta.featureSeen(profile, x.id)); GL.meta.featureSeen(profile, id); saveProfile(); }
     const f = fst || (GL.data.features || []).find(x => x.id === id);
     const el = document.getElementById('fpop');
@@ -280,6 +282,7 @@
     if (!wasFinished && GL.run.isFinished(run)) {
       ui.newBest = GL.save.recordFinished(run);
       ui.lastBerry = GL.meta.finishRun(profile, run);
+      ui.firstDone = false;
       // Tester-Modus (nur Entwickler): nach jedem Run wieder ein Tipp-Fenster, jeder dritte Run fragt nach Bewertung
       if (profile.testerPops) {
         const open = (GL.data.features || []).filter(f => GL.meta.featureOpen(profile, f.id));
@@ -1265,8 +1268,8 @@
       fetch('version.json?t=' + Date.now(), { cache: 'no-store' }).then(r => r.json()).then(j => {
         if (j && j.v && GL.version && j.v !== GL.version && ui.updAsked !== j.v) {
           // Nicht einfach neu laden: fragen. Im Run nur ein leiser Hinweis, die Frage kommt danach.
-          if (idle && !document.getElementById('fpop')) { ui.updAsked = j.v; openGearPop(GL.ui.updatePop(j)); }
-          else if (!idle && ui.updToast !== j.v) { ui.updToast = j.v; toast('<span><b>Update verfügbar</b>Nach diesem Run kannst du neu laden. Oder jederzeit oben über ↻.</span>'); }
+          // Auch mitten im Run: einmal fragen (nicht während eine Kampfanimation läuft). Der Run bleibt gespeichert.
+          if (!document.getElementById('fpop') && !(anim && !anim.done)) { ui.updAsked = j.v; openGearPop(GL.ui.updatePop(j, !idle)); }
         }
       }).catch(() => {});
       if (idle) { try { sessionStorage.removeItem('gl.pulled'); } catch (e2) { /* egal */ } GL.online.resync && GL.online.resync(); }

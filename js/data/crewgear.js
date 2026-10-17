@@ -10,8 +10,21 @@ GL.data.crewGear = {
   slots: [
     { id: 'waffe', name: 'Waffe' },
     { id: 'kleid', name: 'Kleidung' },
-    { id: 'schmuck', name: 'Schmuck' }
+    { id: 'schmuck', name: 'Schmuck' },
+    { id: 'trophae', name: 'Trophäe' }
   ],
+  // Raid-Beute aus der Vitrine als Trophäe: feste Spezialfähigkeit + zufällige Zusatzwerte (episch 2, legendär 3)
+  //   gb-Werte: critMult (Krit-Schaden), regen (Heilung pro Runde), ultStart (Ulti-Energie zu Kampfbeginn), dodge, armor, crit, dmgPct, spd
+  trophyPerks: {
+    'licht-splitter':    { name: 'Lichtschnell',      text: '+1 Tempo, startet mit 30 Ulti-Energie',          a: { spd: 1 }, gb: { ultStart: 30 } },
+    'yasakani':          { name: 'Lichtgeschwindigkeit', text: '+2 Tempo, +6 % Ausweichen, startet mit 50 Ulti-Energie', a: { spd: 2 }, gb: { dodge: 0.06, ultStart: 50 } },
+    'faden-spule':       { name: 'Fadenschnitt',      text: '+8 % Schaden',                                    gb: { dmgPct: 0.08 } },
+    'federmantel':       { name: 'Himmelsfäden',      text: '+12 % Schaden, heilt sich 2 pro Runde',           gb: { dmgPct: 0.12, regen: 2 } },
+    'schatten-splitter': { name: 'Finsternis',        text: '+2 Rüstung',                                      gb: { armor: 2 } },
+    'blackbeard-flagge': { name: 'Drei Schädel',      text: '+3 Rüstung, +8 % Krit-Chance',                     gb: { armor: 3, crit: 0.08 } },
+    'strohhut-band':     { name: 'Versprechen',       text: 'heilt sich 3 pro Runde',                          gb: { regen: 3 } },
+    'gryphon':           { name: 'Haki des Kaisers',  text: '+30 % Krit-Schaden, +8 % Schaden',                 gb: { critMult: 0.3, dmgPct: 0.08 } }
+  },
   bases: [
     { id: 'saebel',   slot: 'waffe',   name: 'Säbel',          g: 'm', main: 'atk',   art: 'sword' },
     { id: 'entermesser', slot: 'waffe', name: 'Entermesser',   g: 'n', main: 'atk',   art: 'sword' },

@@ -3591,3 +3591,7 @@ body.reloading { opacity: .5; transition: opacity .12s; }
 .cg-sum .trophy-chip { display: inline-flex; align-items: center; gap: 4px; }
 .cg-sum .trophy-chip .cg-art { width: 18px; height: 18px; shape-rendering: crispEdges; }
 .trophy-chip.cr-epic { color: #7b3fb0; } .trophy-chip.cr-legendary { color: #b07810; font-weight: 800; }
+.harbor-box { margin: 0 0 12px; padding: 12px 14px; border-radius: 14px; background: linear-gradient(180deg, #eaf3f8, #f6efe0); box-shadow: inset 0 0 0 1px rgba(80,120,150,.25); }
+.harbor-box b { display: block; margin: 2px 0 4px; }
+.harbor-box ul { margin: 0; padding-left: 18px; font-size: .84rem; color: #5a4a36; }
+.harbor-box li + li { margin-top: 2px; }

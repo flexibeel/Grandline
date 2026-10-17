@@ -35,6 +35,10 @@ GL.data.features = [
 
 // Erste Funde: einmal kurz erklären, was man da gerade bekommen hat (wann es zählt: has(profile))
 GL.data.firsts = [
+  { id: 'first-trophy', kicker: 'Neu', art: 'chest', tab: 'stammcrew', name: 'Deine Raid-Beute kann jetzt kämpfen',
+    text: 'Jedes Stück aus deiner Vitrine ist jetzt auch eine Trophäe für deine Stammcrew: mit eigener Spezialfähigkeit und zufälligen Zusatzwerten. Keine zwei sind gleich. Die Vitrine bleibt, wie sie ist.',
+    steps: ['Stammcrew öffnen', 'Beim Platz „Trophäe“ einer Figur tippen', 'Fähigkeit wählen, die zu ihr passt'],
+    has: p => (p.gearBag || []).some(x => x.t) },
   { id: 'first-gear', kicker: 'Erster Fund', art: 'anvil', tab: 'stammcrew', name: 'Ausrüstung für deine Stammcrew!',
     text: 'Bosse lassen Waffen, Kleidung und Schmuck fallen. Jedes Teil hat eigene, zufällige Werte. Je seltener, desto mehr: gewöhnlich, selten, episch, legendär. Leg sie deiner Stammcrew an, damit sie in Duellen stärker ist.',
     steps: ['Stammcrew öffnen', 'Auf einen leeren Platz bei einer Figur tippen', 'Teil wählen, fertig. Freunde sehen es auf deiner Karte'],

@@ -690,7 +690,9 @@ window.GL = window.GL || {};
     run.crew.forEach(u => { u.hp = u.max; });
     run.gold = (run.gold || 0) + GL.config.shop.startGold;
     run.pending = null; run.pool = [];
-    openCourse(run);
+    // Zwischenhafen: Taverne vor der nächsten Runde (anheuern, entlassen, umstellen), dann Kurs setzen
+    run.harbor = true;
+    openShop(run);
     return true;
   }
 
@@ -847,6 +849,7 @@ window.GL = window.GL || {};
         }
         if (a.type === 'leave') {
           run.shopFree = false;
+          if (run.harbor) { run.harbor = false; run.pool = []; openCourse(run); return true; }
           if (run.fromEvent) { run.fromEvent = false; run.phase = 'map'; run.pool = []; return true; }
           advance(run);
           return true;

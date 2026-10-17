@@ -386,7 +386,7 @@ window.GL = window.GL || {};
           const t = GL.cgear.totals(profile, id);
           r.max += t.hp || 0; r.hp = r.max; r.atk += t.atk || 0; r.spd += t.spd || 0;
           const cap = GL.data.crewGear.caps || {};
-          const gb = {}; ['crit', 'dodge', 'armor', 'dmgPct'].forEach(k => { if (t[k]) gb[k] = cap[k] ? Math.min(cap[k], t[k]) : t[k]; });
+          const gb = {}; ['crit', 'dodge', 'armor', 'dmgPct', 'critMult', 'regen', 'ultStart'].forEach(k => { if (t[k]) gb[k] = cap[k] ? Math.min(cap[k], t[k]) : t[k]; });
           if (Object.keys(gb).length) r.gb = gb;
           const wl = GL.cgear.wornList(profile, id);
           if (wl.length) r.gear = wl;
@@ -397,7 +397,7 @@ window.GL = window.GL || {};
     },
     squadPower(refs) {
       return Math.round((refs || []).reduce((s, r) => { const g = r.gb || {};
-        return s + r.max * 0.5 + r.atk * 4 + r.spd * 2 + (g.crit || 0) * 150 + (g.dodge || 0) * 150 + (g.armor || 0) * 4 + (g.dmgPct || 0) * 120; }, 0));
+        return s + r.max * 0.5 + r.atk * 4 + r.spd * 2 + (g.crit || 0) * 150 + (g.dodge || 0) * 150 + (g.armor || 0) * 4 + (g.dmgPct || 0) * 120 + (g.critMult || 0) * 60 + (g.regen || 0) * 6 + (g.ultStart || 0) * 0.4; }, 0));
     },
 
     // ---------- Lebenszeit-Zähler für Aufträge ----------
@@ -619,7 +619,8 @@ window.GL = window.GL || {};
       const xp = GL.meta.rankXpFor(run);
       const reachNow = run.phase === 'win' ? GL.run.totalSteps() : (run.step || 0);
       // Endlos-Modus: weiteste Strecke über alle Runden
-      if (run.loop) profile.endlessBest = Math.max(profile.endlessBest || 0, (run.loopSteps || 0) + reachNow);
+      if (run.loop) { profile.endlessBest = Math.max(profile.endlessBest || 0, (run.loopSteps || 0) + reachNow); profile.endlessLoops = Math.max(profile.endlessLoops || 0, run.loop + (run.phase === 'win' ? 1 : 0)); }
+      else if (run.phase === 'win') profile.endlessLoops = Math.max(profile.endlessLoops || 0, 1);
       if (!run.loop && reachNow >= (profile.bestStep || 0)) {
         // Weiteste Fahrt mit Meer und Insel-Kapitel merken (für die Rangliste)
         const st = Math.max(0, Math.min(reachNow, GL.run.totalSteps() - 1));
