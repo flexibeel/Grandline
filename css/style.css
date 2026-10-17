@@ -3688,3 +3688,53 @@ body.cg-dragging { user-select: none; }
 .room-chip .tab-dot { top: -2px; right: -2px; }
 .room-foot { margin: 16px 0 6px; text-align: center; }
 .hq-more { margin: 12px 0 4px; display: grid; gap: 8px; } .hq-more .endless-row { margin-top: 0; }
+
+/* ===================== Gemütlicher Hafen-Look (Stardew-Richtung) ===================== */
+:root:not([data-theme="dark"]) body {
+  background-color: #78b2c8;
+  background-image:
+    repeating-linear-gradient(90deg, rgba(90,55,25,.32) 0 2px, transparent 2px 64px),        /* Plankenfugen */
+    linear-gradient(180deg, #b5844f 0 3px, #c79763 3px 100%),                                  /* Holzsteg */
+    repeating-linear-gradient(180deg, rgba(255,255,255,.16) 0 2px, transparent 2px 16px),   /* Wellenlinien */
+    radial-gradient(ellipse 60px 14px at 30% 40%, rgba(255,255,255,.8), transparent 70%),     /* Wolke */
+    radial-gradient(ellipse 80px 16px at 75% 60%, rgba(255,255,255,.7), transparent 70%),     /* Wolke */
+    linear-gradient(180deg, #cfeaf2 0%, #e9f5f1 70%, #f4efdc 100%),                           /* Himmel */
+    linear-gradient(180deg, #8fc4d6, #6aa6be);                                                 /* Meer */
+  background-size: 64px 28vh, 100% 28vh, 100% 31vh, 100% 41vh, 100% 41vh, 100% 41vh, 100% 100%;
+  background-position: 0 100%, 0 100%, 0 41vh, 0 0, 0 0, 0 0, 0 0;
+  background-repeat: repeat-x, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat;
+  background-attachment: fixed;
+}
+:root:not([data-theme="dark"]) body.in-run { background-image: linear-gradient(180deg, #f6efdc, #efe3c6); background-attachment: fixed; }
+/* Pergament mit Holzrahmen: die große Karte und wichtige Flächen */
+:root:not([data-theme="dark"]) body:not(.in-run) .stage {
+  background: linear-gradient(180deg, #fdf3dc 0%, #f8e9c8 100%) !important;
+  border: 3px solid #8b5a2b !important; border-radius: 14px !important;
+  box-shadow: inset 0 0 0 3px #e9b874, inset 0 0 0 5px #b8783a33, 0 10px 24px -10px rgba(40,25,10,.55) !important;
+}
+:root:not([data-theme="dark"]) body:not(.in-run) header h1 { color: #fffaf0; text-shadow: 0 2px 0 #3a5a6a, 0 0 12px rgba(30,60,80,.35); }
+:root:not([data-theme="dark"]) body:not(.in-run) .head-actions .link { color: #24485a; }
+:root:not([data-theme="dark"]) .hq-sail { background: linear-gradient(180deg, #fff6e2, #f6e4bf) !important; border: 2px solid #b8834a !important; box-shadow: inset 0 0 0 2px #f3d39a, 0 4px 0 #a8743c !important; }
+:root:not([data-theme="dark"]) .hq-bar .portrait-chip, :root:not([data-theme="dark"]) .hq-bar .berry { box-shadow: 0 3px 0 #c9a060 !important; }
+/* Aktions-Leiste unter „Leinen los“: alle Fahrten auf einen Blick */
+.action-dock { display: grid; grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); grid-auto-flow: column; gap: 8px; margin-top: 10px; }
+.ad-tile { position: relative; display: grid; justify-items: center; gap: 2px; padding: 8px 4px 7px; border-radius: 12px; cursor: pointer; color: #4a3520;
+  background: linear-gradient(180deg, #f7ead0, #edd8b0); border: 2px solid #c9a87a; box-shadow: 0 3px 0 #b08a5a; }
+.ad-tile:active { transform: translateY(2px); box-shadow: 0 1px 0 #b08a5a; }
+.ad-ico { height: 26px; display: grid; place-items: center; font: 700 1.3rem/1 var(--px); font-style: normal; color: #4f7fa8; }
+.ad-ico svg { width: 24px; height: 24px; shape-rendering: crispEdges; }
+.ad-tile b { font-size: .78rem; } .ad-tile small { font-size: .62rem; color: #8a6d48; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+.ad-tile.hot { border-color: #e0a030; box-shadow: 0 3px 0 #b07810, 0 0 12px rgba(224,160,48,.45); }
+.ad-tile.hot small { color: #b07810; font-weight: 800; }
+.ad-tile.done { opacity: .75; }
+.ad-tile.locked { filter: grayscale(.5); opacity: .7; }
+.sail-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 10px; }
+.sail-meta .sail-board { display: inline-flex; align-items: center; gap: 4px; margin: 0; }
+.endless-row.in-pop { margin: 6px 0; text-align: left; }
+.fpop-card .endless-seas { text-align: left; }
+.fpop-card .hunt-row { justify-content: center; }
+/* Fenster wie Pergament mit Holzrahmen */
+:root:not([data-theme="dark"]) .fpop-card { background: linear-gradient(180deg, #fdf3dc, #f8e9c8) !important; border: 3px solid #8b5a2b !important; box-shadow: inset 0 0 0 3px #e9b874, 0 16px 36px -12px rgba(40,25,10,.6) !important; }
+:root:not([data-theme="dark"]) .fpop-card .fpop-art { background: #fff6e0; box-shadow: inset 0 0 0 2px #e2c08a; }
+:root:not([data-theme="dark"]) body:not(.in-run) .hq-card, :root:not([data-theme="dark"]) body:not(.in-run) .hq-item, :root:not([data-theme="dark"]) body:not(.in-run) .quest,
+:root:not([data-theme="dark"]) body:not(.in-run) .hq-sec > .cg-panel { background: #fffaf0 !important; border-color: #e2c896 !important; }

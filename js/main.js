@@ -612,7 +612,10 @@
         draw();
         break;
       }
-      case 'endless-start': sail(Number(el.dataset.i)); break;
+      case 'endless-start': closePop(); sail(Number(el.dataset.i)); break;
+      case 'endless-open': openGearPop(GL.ui.endlessPop(profile)); break;
+      case 'hunt-open': openGearPop(GL.ui.huntPop(profile)); break;
+      case 'daily-info': openGearPop(GL.ui.dailyPop(profile)); break;
       case 'hq': toHq(); break;
       case 'peek': ui.peek = true; draw(); break;
       case 'peek-close': ui.peek = false; draw(); break;
@@ -672,7 +675,7 @@
         } catch (e2) { /* nicht unterstützt */ }
         break;
       }
-      case 'daily-start': startDaily(); break;
+      case 'daily-start': closePop(); startDaily(); break;
       case 'endless': {
         if (!run || run.phase !== 'win') break;
         stopAnim(); ui.newBest = false; ui.lastBerry = null;
@@ -811,7 +814,7 @@
         break;
       case 'hq-home': ui.hqRoom = null; draw(); window.scrollTo(0, 0); break;
       case 'hq-tab': if (GL.meta.featureOpen(profile, el.dataset.tab)) { ui.hqTab = el.dataset.tab; ui.hqRoom = el.dataset.tab; draw(); window.scrollTo(0, 0); if (/rangliste|stammcrew/.test(ui.hqTab) && GL.online && GL.online.refresh) GL.online.refresh(); } break;
-      case 'hunt-pick': profile.hunt = profile.hunt === el.dataset.id ? null : el.dataset.id; saveProfile(); ui.lastStage = null; draw(); break;
+      case 'hunt-pick': { profile.hunt = profile.hunt === el.dataset.id ? null : el.dataset.id; saveProfile(); ui.lastStage = null; draw(); const fp = document.getElementById('fpop'); if (fp && fp.querySelector('.hunt-row')) fp.innerHTML = GL.ui.huntPop(profile); break; }
       case 'showcase': if (GL.meta.toggleShowcase(profile, el.dataset.id)) { saveProfile(); ui.lastStage = null; draw(); if (GL.online && GL.online.register) GL.online.register(profile); } break;
       case 'fpop-go': closeFeature(el.dataset.id, true); break;
       case 'fpop-close': closeFeature(el.dataset.id, false); break;

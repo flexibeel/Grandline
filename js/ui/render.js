@@ -2094,9 +2094,48 @@ window.GL = window.GL || {};
   }
   // Endlos-Fahrt: eigener Modus, freigeschaltet mit dem ersten besiegten Meeres-Boss (und Rang 4)
   // Kleiner Punkt am Reiter, wenn dort etwas Sinnvolles wartet (leistbarer Ausbau, neue Ausrüstung …)
+  // Alle Arten abzulegen auf einen Blick: Endlos-Fahrt, Tageskarte, Raid-Ziel (jeweils ein kleines Schild, Details im Fenster)
+  function actionDock(profile) {
+    const tiles = [];
+    const seas = GL.meta.seasCleared(profile);
+    if (GL.meta.featureOpen(profile, 'endlos')) {
+      const rec = profile.endlessRec;
+      tiles.push(`<button class="ad-tile" data-act="endless-open"><i class="ad-ico">∞</i><b>Endlos</b><small>${rec ? `${rec.loops} Runden` : 'Wie weit?'}</small></button>`);
+    } else if (seas.length || GL.meta.level(profile) >= 3) {
+      tiles.push(`<button class="ad-tile locked" data-act="endless-open"><i class="ad-ico">∞</i><b>Endlos</b><small>🔒 ${!seas.length ? 'Boss East Blue' : 'Rang 4'}</small></button>`);
+    }
+    if (GL.meta.featureOpen(profile, 'daily')) {
+      const dd = GL.daily.done(profile);
+      tiles.push(`<button class="ad-tile${dd ? ' done' : ' hot'}" data-act="${dd ? 'daily-info' : 'daily-start'}"><i class="ad-ico">${featureArt('scroll')}</i><b>Tageskarte</b><small>${dd ? '✓ gespielt' : 'Heute offen'}</small></button>`);
+    }
+    if (GL.meta.featureOpen(profile, 'jagd')) {
+      const t = profile.hunt && GL.data.raids.find(r => r.id === profile.hunt);
+      tiles.push(`<button class="ad-tile" data-act="hunt-open"><i class="ad-ico">${t ? GL.sprites.render(t) : '🎯'}</i><b>Raid-Ziel</b><small>${t ? esc(t.name.replace(/^Admiral |^Rothaar /, '')) : 'keins'}</small></button>`);
+    }
+    return tiles.length ? `<div class="action-dock">${tiles.join('')}</div>` : '';
+  }
+  function endlessPop(profile) {
+    const open = GL.meta.featureOpen(profile, 'endlos'), seas = GL.meta.seasCleared(profile);
+    return `<div class="fpop-card" role="dialog" aria-labelledby="fpop-t"><span class="fpop-kicker">Besondere Fahrt</span>
+      <h3 id="fpop-t">∞ Endlos-Fahrt</h3>
+      <p>Wähle ein Meer, das du geschafft hast, und segle es Runde um Runde. Jede Runde wird härter, tiefere Meere zählen mehr und bringen 🔹 Meersplitter.</p>
+      ${open ? endlessSeas(profile, seas) : `<p class="wb-note">🔒 Noch gesperrt: ${!seas.length ? 'Besiege den Boss im East Blue' : ''}${!seas.length && GL.meta.level(profile) < 4 ? ' und erreiche ' : ''}${GL.meta.level(profile) < 4 ? 'Rang 4' : ''}.</p>`}
+      <p class="wb-note">Neue Kapitäne gibt es nur auf den normalen Routen.</p>
+      <div class="fpop-btns"><button class="btn ghost" data-act="pop-close">Schließen</button></div></div>`;
+  }
+  function huntPop(profile) {
+    return `<div class="fpop-card" role="dialog" aria-labelledby="fpop-t"><span class="fpop-kicker">Raid-Jagd</span>
+      <h3 id="fpop-t">Welchen Raid-Boss jagst du?</h3>${huntPicker(profile)}
+      <div class="fpop-btns"><button class="btn ghost" data-act="pop-close">Fertig</button></div></div>`;
+  }
+  function dailyPop(profile) {
+    return `<div class="fpop-card" role="dialog"><span class="fpop-kicker">Tageskarte</span>${dailyCard(profile)}
+      <div class="fpop-btns"><button class="btn ghost" data-act="pop-close">Schließen</button></div></div>`;
+  }
   function tabAlert(profile, id) {
     if (id === 'werft') return GL.data.upgrades.some(u => { const c = GL.meta.upgradeCost(profile, u.id); return c != null && profile.berry >= c; });
     if (id === 'stammcrew') return !!(GL.cgear && (profile.gearNew || []).length);
+    if (id === 'auftraege') return GL.meta.featureOpen(profile, 'quests') && GL.meta.questsEnsure(profile).some(q => GL.meta.questProgress(profile, q).done);
     return false;
   }
   function endlessRow(profile) {
@@ -2106,9 +2145,12 @@ window.GL = window.GL || {};
       const lvlOk = GL.meta.level(profile) >= 4;
       return `<div class="endless-row locked"><span class="er-ico" aria-hidden="true">∞</span><span><b>Endlos-Fahrt</b><small>${!seas.length ? 'Besiege den Boss im East Blue' : ''}${!seas.length && !lvlOk ? ' und erreiche ' : ''}${!lvlOk ? 'Rang 4' : ''}, dann geht es los.</small></span><em>🔒</em></div>`;
     }
-    const rec = profile.endlessSeaBest || {};
     return `<div class="endless-row"><span class="er-ico" aria-hidden="true">∞</span><span><b>Endlos-Fahrt</b><small>Ein geschafftes Meer immer wieder, jede Runde härter. Neue Kapitäne gibt es nur auf den normalen Routen.</small></span></div>
-      <div class="endless-seas">${GL.data.islands.map((isl, i) => seas.includes(i)
+      ${endlessSeas(profile, seas)}`;
+  }
+  function endlessSeas(profile, seas) {
+    const rec = profile.endlessSeaBest || {};
+    return `<div class="endless-seas">${GL.data.islands.map((isl, i) => seas.includes(i)
         ? `<button class="es-sea" data-act="endless-start" data-i="${i}"><b>${esc(isl.name)}</b><small>${rec[i] ? `Rekord: ${rec[i]} ${rec[i] === 1 ? 'Runde' : 'Runden'}` : 'Noch kein Rekord'}</small><em>${i === 0 ? 'Einstieg' : `Punkte ×${i + 1}`}</em></button>`
         : `<span class="es-sea off"><b>${esc(isl.name)}</b><small>Boss noch nicht besiegt</small></span>`).join('')}</div>`;
   }
@@ -2268,6 +2310,7 @@ window.GL = window.GL || {};
 
   // Hauptquartier als Hafen: oben Ablegen, darunter Holzschilder zu den Räumen. Ein Raum füllt die Seite, mit „Zurück zum Hafen“.
   const ROOMS = [
+    { id: 'auftraege', name: 'Aufträge', art: 'scroll', sub: p => { const qs = GL.meta.questsEnsure(p); const done = qs.filter(q => GL.meta.questProgress(p, q).done).length; return done ? `${done} abholen!` : `${qs.length} offen`; } },
     { id: 'stammcrew', name: 'Stammcrew', art: 'flag', sub: p => GL.meta.squadUnlocked(p) ? `⚔ ${GL.meta.squadPower(GL.meta.squadRefs(p))}` : '' },
     { id: 'rangliste', name: 'Rangliste', art: 'podium', sub: () => '' },
     { id: 'werft', name: 'Werft', art: 'ship', sub: () => 'Ausbauten' },
@@ -2362,16 +2405,13 @@ window.GL = window.GL || {};
         ${uiRef && uiRef.peek ? `<small class="sail-note">Oben links geht es zurück zum Run.</small>` : `
         <div class="sail-row">
           <button class="btn sail" data-act="sail">⚓ Leinen los! ${keyHint('Leertaste')}</button>
-          ${heatBox}
         </div>
-        ${huntPicker(profile)}
-        ${board.length || GL.meta.featureOpen(profile, 'schmiede') ? `<div class="sail-board"><span class="sb-lbl">An Bord</span>${board.length ? board.join('') : '<small class="muted">noch nichts dabei</small>'}</div>` : ''}`}
+        ${actionDock(profile)}
+        <div class="sail-meta">${heatBox}${board.length ? `<span class="sail-board"><span class="sb-lbl">An Bord</span>${board.join('')}</span>` : ''}</div>`}
       </div>`}
 
       ${room ? roomHead(profile, tab) : hubTiles(profile, tab)}
-      ${room || (uiRef && uiRef.peek) ? '' : (() => { const extra = dailyCard(profile) + endlessRow(profile); return extra ? `<section class="hq-more"><span class="hub-lbl">Besondere Fahrten</span>${extra}</section>` : ''; })()}
       ${room ? '' : featureNextLine(profile)}
-      ${room || (uiRef && uiRef.peek) ? '' : questBoard(profile)}
 
       ${!room ? '' : `
       ${tab === 'werft' ? `<section class="hq-sec">
@@ -2395,6 +2435,7 @@ window.GL = window.GL || {};
         ${chapterPanel(profile)}
         ${devicesBox()}
         ${dangerZone(uiRef)}</section>` : ''}
+      ${tab === 'auftraege' ? questBoard(profile) : ''}
       ${tab === 'stammcrew' ? squadSection(profile) : ''}
       ${tab === 'kammer' ? vaultSection(profile) : ''}
       ${tab === 'schmiede' ? forgeSection(profile) : ''}
@@ -2763,6 +2804,9 @@ window.GL = window.GL || {};
     battleText,
     speedLabel,
     welcomePop,
+    endlessPop,
+    huntPop,
+    dailyPop,
     matchPop,
     updatePop,
     gearPick,

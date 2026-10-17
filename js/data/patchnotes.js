@@ -1,6 +1,10 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-17w', date: '17.10.', title: 'Gemütlicher Hafen', items: [
+    'Neuer Hintergrund: Himmel, Meer und ein Holzsteg statt leerem Beige. Fenster und Hauptquartier wie Pergament mit Holzrahmen',
+    'Alles auf einen Blick: unter „Leinen los“ stehen Endlos-Fahrt, Tageskarte und Raid-Ziel als Schilder nebeneinander',
+    'Aufträge sind jetzt ein eigener Raum im Hafen, mit Hinweis, wenn etwas abzuholen ist' ] },
   { v: '2026-10-17v', date: '17.10.', title: 'Neues Hauptquartier: der Hafen', items: [
     'Alle Räume als Holzschilder direkt unter „Leinen los“: Stammcrew, Rangliste, Werft, Schmiede und mehr',
     'Ein Raum füllt die Seite, oben „‹ Hafen“ zum Zurückgehen und kleine Sprungknöpfe zu den anderen Räumen',
