@@ -339,6 +339,15 @@ window.GL = window.GL || {};
     } catch (e) { return fail(e); }
   }
 
+  // ---------- Feedback (Tabelle feedback, siehe tools/update-2026-10-17.sql) ----------
+  async function sendFeedback(stars, comment, runs, rank) {
+    if (!client || !state.uid || (GL.sandbox && GL.sandbox.on())) return false;
+    try {
+      const { error } = await client.from('feedback').insert({ stars, comment: comment ? String(comment).slice(0, 300) : null, runs, rank });
+      return !error;
+    } catch (e) { return false; }
+  }
+
   // ---------- Stammcrew-Verteidigung (Tabelle duel_events, siehe tools/update-2026-10-17.sql) ----------
   async function duelReport(defender, attackerWon, delta, name) {
     if (!client || !state.uid || (GL.sandbox && GL.sandbox.on())) return;
@@ -400,6 +409,6 @@ window.GL = window.GL || {};
     return register(profile);
   }
 
-  GL.online = { init, submit, rename, register, pushSave, duelReport, duelInbox, linkEmail, loginEmail, verifyCode, logout, wipe, liveFields, codeLoad, codeSave, codeClaim,
+  GL.online = { init, submit, rename, register, pushSave, duelReport, duelInbox, sendFeedback, linkEmail, loginEmail, verifyCode, logout, wipe, liveFields, codeLoad, codeSave, codeClaim,
     onRemoteProfile(fn) { onRemote = fn; }, state: () => state, onChange(fn) { listeners.push(fn); } };
 })();

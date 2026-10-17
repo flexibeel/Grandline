@@ -1933,6 +1933,18 @@ window.GL = window.GL || {};
     grid.forEach((row, y) => row.split('').forEach((ch, x) => { if (P[ch]) rects += `<rect x="${x}" y="${y}" width="1.02" height="1.02" fill="${P[ch]}"/>`; }));
     return `<svg viewBox="0 0 12 12" shape-rendering="crispEdges" aria-hidden="true">${rects}</svg>`;
   }
+  // Kurze Bewertung: 1 bis 5 Sterne, optional ein Satz
+  function feedbackPop(stars) {
+    const s = stars || 0;
+    return `<div class="fpop-card fb-card" role="dialog" aria-labelledby="fb-t">
+      <span class="fpop-kicker">Kurze Frage</span>
+      <h3 id="fb-t">Wie gefällt dir Grand Line bisher?</h3>
+      <div class="fb-stars" role="radiogroup" aria-label="Bewertung">${[1, 2, 3, 4, 5].map(n => `<button class="fb-star${n <= s ? ' on' : ''}" data-act="fb-star" data-i="${n}" role="radio" aria-checked="${n === s}" aria-label="${n} Stern${n > 1 ? 'e' : ''}">★</button>`).join('')}</div>
+      <textarea id="fb-text" maxlength="300" rows="2" placeholder="Was gefällt dir, was nervt? (freiwillig)"></textarea>
+      <div class="fpop-btns"><button class="btn" data-act="fb-send"${s ? '' : ' disabled'}>Senden</button><button class="btn ghost" data-act="fb-later">Später</button></div>
+      <small class="fb-note">Anonym. Hilft, das Spiel besser zu machen.</small>
+    </div>`;
+  }
   function featurePop(f, more) {
     return `<div class="fpop-card" role="dialog" aria-labelledby="fpop-t">
       <span class="fpop-kicker">Neu freigeschaltet</span>
@@ -2072,6 +2084,7 @@ window.GL = window.GL || {};
         ${codeBox(profile, uiRef)}
         ${accountLine()}
         ${slotsBox(uiRef)}
+        <p class="fb-link"><button class="link" data-act="fb-open">★ Feedback geben</button> · <a href="legal.html">Rechtliches &amp; Datenschutz</a></p>
         ${adminBox(profile)}
         ${chapterPanel(profile)}
         ${devicesBox()}
@@ -2306,6 +2319,7 @@ window.GL = window.GL || {};
     bountyPoster,
     trophyPop,
     featurePop,
+    feedbackPop,
     toggleMail() { mailShown = !mailShown; },
 
     render(run, anim, ui) {

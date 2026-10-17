@@ -36,6 +36,8 @@
   // Neu freigeschaltete Bereiche im Hauptquartier: ein ruhiges Pop-up nach dem anderen
   function featureCheck() {
     const old = document.getElementById('fpop');
+    if (old && old.dataset.id === 'feedback') return;
+    if (!run && !ui.screen && ui.intro == null && !old && feedbackDue()) { openFeedback(); return; }
     if (run || ui.screen || ui.intro != null || !profile.nickname || !GL.meta.featuresNew) { if (old && !ui.fpop) old.remove(); return; }
     const fresh = !profile.seenFeatures;
     const list = GL.meta.featuresNew(profile).slice().sort((a, b) => (!!b.tab - !!a.tab) || a.lvl - b.lvl), f = list[0];
@@ -49,6 +51,32 @@
     el.addEventListener('click', e => { if (e.target === el) closeFeature(f.id, false); });
     document.body.appendChild(el);
     requestAnimationFrame(() => el.classList.add('in'));
+  }
+  // Bewertung nach dem 2. Run (und bei „Später“ noch einmal nach dem 6.)
+  function feedbackDue() {
+    if (!profile.nickname || GL.sandbox.on() || ui.fbOpen === false) return false;
+    if (GL.meta.featuresNew && GL.meta.featuresNew(profile).length) return false;
+    const runs = (profile.stats && profile.stats.runs) || 0, fb = profile.fb || {};
+    if (fb.sent) return false;
+    if (!fb.asked) return runs >= 2;
+    return fb.asked === 1 && runs >= 6;
+  }
+  function openFeedback() {
+    const old = document.getElementById('fpop'); if (old) old.remove();
+    ui.fbStars = 0;
+    const el = document.createElement('div');
+    el.id = 'fpop'; el.className = 'fpop'; el.dataset.id = 'feedback';
+    el.innerHTML = GL.ui.feedbackPop(0);
+    el.addEventListener('click', e => { if (e.target === el) closeFeedback(false); });
+    document.body.appendChild(el);
+    requestAnimationFrame(() => el.classList.add('in'));
+  }
+  function closeFeedback(sent) {
+    profile.fb = Object.assign({}, profile.fb || {}, { asked: ((profile.fb && profile.fb.asked) || 0) + (sent ? 0 : 1), sent: !!sent || !!(profile.fb && profile.fb.sent) });
+    saveProfile();
+    ui.fbOpen = false;
+    const el = document.getElementById('fpop');
+    if (el) { el.classList.remove('in'); el.classList.add('out'); setTimeout(() => { el.remove(); ui.fbOpen = null; }, 260); }
   }
   function closeFeature(id, go) {
     GL.meta.featuresNew(profile).forEach(x => GL.meta.featureSeen(profile, x.id));
@@ -583,6 +611,22 @@
       case 'showcase': if (GL.meta.toggleShowcase(profile, el.dataset.id)) { saveProfile(); ui.lastStage = null; draw(); if (GL.online && GL.online.register) GL.online.register(profile); } break;
       case 'fpop-go': closeFeature(el.dataset.id, true); break;
       case 'fpop-close': closeFeature(el.dataset.id, false); break;
+      case 'fb-open': openFeedback(); break;
+      case 'fb-star': {
+        ui.fbStars = Number(el.dataset.i);
+        document.querySelectorAll('.fb-star').forEach(b => { const n = Number(b.dataset.i); b.classList.toggle('on', n <= ui.fbStars); b.setAttribute('aria-checked', String(n === ui.fbStars)); });
+        const sb = document.querySelector('[data-act=fb-send]'); if (sb) sb.disabled = false;
+        break;
+      }
+      case 'fb-send': {
+        if (!ui.fbStars) break;
+        const t = document.getElementById('fb-text');
+        GL.online.sendFeedback(ui.fbStars, t ? t.value.trim() : '', (profile.stats && profile.stats.runs) || 0, GL.meta.rankIndex(profile) + 1);
+        closeFeedback(true);
+        toast('<span><b>Danke!</b>Dein Feedback ist angekommen.</span>');
+        break;
+      }
+      case 'fb-later': closeFeedback(false); break;
       case 'buy-upgrade': if (GL.meta.buyUpgrade(profile, el.dataset.id)) { saveProfile(); draw(); } break;
       case 'buy-gear': if (GL.meta.buyGear(profile, el.dataset.id)) { saveProfile(); draw(); } break;
       case 'toggle-gear': if (GL.meta.toggleLoadout(profile, el.dataset.id)) { saveProfile(); draw(); } break;

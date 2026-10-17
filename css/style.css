@@ -3138,3 +3138,13 @@ body.is-app { padding-top: env(safe-area-inset-top); padding-bottom: env(safe-ar
 .duel-join input { min-width: 0; flex: 1 1 auto; width: 100%; }
 .duel-join .btn { flex: none; margin: 0; }
 .hq-sec, .leaderboard, .duel-box { min-width: 0; max-width: 100%; }
+/* Feedback-Sterne */
+.fb-card h3 { margin-bottom: 10px; }
+.fb-stars { display: flex; justify-content: center; gap: 6px; margin: 4px 0 12px; }
+.fb-star { all: unset; cursor: pointer; font-size: 2.1rem; line-height: 1; color: #e2d6bf; transition: transform .12s, color .12s; padding: 2px; }
+.fb-star.on { color: #e2b44a; }
+.fb-star:hover { transform: scale(1.12); }
+.fb-star:focus-visible { outline: 2px solid #c4904f; border-radius: 8px; }
+.fb-card textarea { width: 100%; box-sizing: border-box; resize: none; border-radius: 12px; border: 1px solid #e3d3b4; background: #fffdf8; padding: 8px 10px; font: inherit; font-size: .9rem; margin-bottom: 12px; }
+.fb-note { display: block; margin-top: 8px; color: var(--mute); font-size: .74rem; }
+.fb-link { text-align: center; font-size: .85rem; margin: 6px 0 12px; color: var(--mute); }

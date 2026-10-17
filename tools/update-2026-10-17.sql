@@ -75,3 +75,28 @@ create trigger gl_scores_name before insert or update on public.scores
 
 -- Bestehende Einträge einmal bereinigen
 update public.scores set name = public.gl_clean_name(name) where name is distinct from public.gl_clean_name(name);
+
+-- ============================================================
+-- 3) Feedback: "Wie gefällt dir Grand Line bisher?" (1–5 Sterne + optionaler Satz)
+--    Ansehen im Dashboard: Table Editor -> feedback, oder SQL: select * from feedback_tally;
+-- ============================================================
+create table if not exists public.feedback (
+  id         bigserial primary key,
+  uid        uuid        not null default auth.uid(),
+  stars      smallint    not null check (stars between 1 and 5),
+  comment    text        check (char_length(comment) <= 300),
+  runs       int,
+  rank       int,
+  created_at timestamptz not null default now()
+);
+alter table public.feedback enable row level security;
+drop policy if exists feedback_insert on public.feedback;
+create policy feedback_insert on public.feedback for insert to anon, authenticated with check (uid = auth.uid());
+grant insert on public.feedback to anon, authenticated;
+grant usage, select on sequence public.feedback_id_seq to anon, authenticated;
+
+-- Strichliste: wie oft wurde welche Sternzahl vergeben
+create or replace view public.feedback_tally as
+  select stars, count(*) as anzahl, repeat('|', count(*)::int) as strichliste
+  from public.feedback group by stars order by stars desc;
+revoke all on public.feedback_tally from anon, authenticated;
