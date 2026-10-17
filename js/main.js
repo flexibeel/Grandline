@@ -256,7 +256,7 @@
       const R = GL.config.rarities[it.r];
       const wearer = it.auto && run.crew.find(u => u.item === it.uid);
       const wName = wearer ? ((GL.data.crew.find(c => c.id === wearer.id) || {}).name || wearer.name || 'Crew') : '';
-      setTimeout(() => toast(`<span class="toast-item ir-${R.id}"><b>${R.name}: ${d.name}</b>${wearer ? `Automatisch angelegt: <b>${esc2(wName)}</b>. Tippe eine Figur an, um umzuhängen.` : 'Liegt in der Truhe. Tippe eine Figur an und wähle „Ausrüstung“, um sie anzulegen.'}</span>`), 900);
+      setTimeout(() => toast(`<span class="toast-item ir-${R.id}"><b>${R.name}: ${d.name}</b><span>${wearer ? `Automatisch angelegt bei ${esc2(wName)}. Antippen einer Figur hängt um.` : 'Liegt in der Truhe. Figur antippen, „Ausrüstung“ wählen.'}</span></span>`), 900);
     }
     // Artefakt gefunden: nach dem Kopfgeld-Steckbrief einblenden
     if ((run.trophies || []).length > trophiesBefore) {
@@ -445,10 +445,13 @@
       timer: null
     };
     document.body.classList.toggle('fast', anim.speed >= 3);
+    anim.rn = 0;
+    setTimeout(showSpeed, 50);
     anim.timer = setTimeout(stepAnim, SPEED.normal * SPEEDF[anim.speed]);
   }
   // Drei Tempostufen statt Überspringen: Man sieht den Kampf immer, aber er quält nicht
-  const SPEEDF = [1, 0.9, 0.55, 0.32];
+  const SPEEDF = [1, 0.9, 0.55, 0.32, 0.18];
+  const showSpeed = () => { const f = document.getElementById('field'); if (f && anim) f.dataset.speed = anim.speed; };
 
   function stepAnim() {
     if (!anim || anim.done) return;
@@ -457,14 +460,15 @@
     const setHp = (side, to, hp) => { (side === 'crew' ? anim.crewHp : anim.enemyHp)[to] = hp; };
     if (ev.k === 'hit') setHp(ev.side === 'crew' ? 'enemy' : 'crew', ev.to, ev.hp);
     else if (ev.list) ev.list.forEach(x => { if (x.hp !== undefined) setHp(ev.side, x.to, x.hp); });
-    if (ev.k === 'round') { anim.timer = setTimeout(stepAnim, anim.speed >= 3 ? 0 : 60); GL.arena.play(ev); return; }
+    if (ev.k === 'round') { anim.rn = ev.n; showSpeed(); anim.timer = setTimeout(stepAnim, anim.speed >= 3 ? 0 : 60); GL.arena.play(ev); return; }
     anim.log = GL.ui.battleText(run, ev) || anim.log;
     // Arena direkt verändern statt neu zu zeichnen, damit Animationen laufen
     GL.arena.play(ev);
     const log = document.getElementById('log');
     if (log) log.textContent = anim.log;
     // Fähigkeiten-Hinweise etwas länger stehen lassen, damit man sie lesen kann
-    const f = SPEEDF[anim.speed] || 0.55;
+    // Wie bei TFT: lange Kämpfe werden mit den Runden von selbst etwas flotter
+    const f = (SPEEDF[anim.speed] || 0.55) * (anim.rn >= 7 ? 0.65 : anim.rn >= 4 ? 0.82 : 1);
     const big = ev.k === 'rage' || ev.k === 'will' || ev.k === 'weather' || ev.final;   // Wendepunkte bekommen immer etwas Zeit
     const wait = ev.k === 'special' ? Math.max(900, 1800 * f) : ev.k === 'ult' ? Math.max(500, SPEED.ult * f)
       : big ? Math.max(900, 1500 * f) : ev.k === 'hit' ? SPEED.normal * f : SPEED.special * f;
@@ -597,7 +601,7 @@
       case 'continue': stopAnim(); act({ type: 'continue' }); break;
       case 'fast':
         if (anim) {
-          anim.speed = anim.speed >= 3 ? 1 : anim.speed + 1;
+          anim.speed = anim.speed >= 4 ? 1 : anim.speed + 1; showSpeed();
           profile.settings = Object.assign({}, profile.settings, { speed: anim.speed }); saveProfile();
           document.body.classList.toggle('fast', anim.speed >= 3);
           const b = document.querySelector('[data-act=fast]'); if (b) b.innerHTML = GL.ui.speedLabel(anim.speed);

@@ -641,7 +641,7 @@ window.GL = window.GL || {};
 
   // Auswertung nach dem Kampf: Schaden pro Figur, Erfahrung, Level-ups
   function speedLabel(n) {
-    return `<span class="spd-dots" aria-hidden="true">${[1, 2, 3].map(k => `<i class="${k <= n ? 'on' : ''}">▶</i>`).join('')}</span> Tempo ${['', 'gemütlich', 'zügig', 'schnell'][n]}`;
+    return `<span class="spd-seg" aria-hidden="true">${[1, 2, 3, 4].map(k => `<i class="${k <= n ? 'on s' + n : ''}"></i>`).join('')}</span><b class="spd-x">×${n}</b> ${['', 'Gemütlich', 'Zügig', 'Schnell', 'Turbo'][n]}`;
   }
   function battleSummary(run) {
     const b = run.battle;
@@ -1480,7 +1480,7 @@ window.GL = window.GL || {};
     dailyCodeShown = GL.daily.code(ui.dailyDay === 'y' ? yesterday() : GL.daily.today());
     let rows = (st.rows || []).slice().sort((a, b) => (Number(cat.get(b)) || 0) - (Number(cat.get(a)) || 0));
     if (isDaily) rows = rows.filter(x => x.duels && x.duels[dailyCodeShown]);
-    const MAIN = ['score', 'daily', 'rankXp', 'topBounty', 'squadRating'];
+    const MAIN = ['score', 'daily', 'endless', 'squadRating', 'rankXp', 'topBounty'];
     const chip = c => `<button class="lb-cat${c.id === cat.id ? ' on' : ''}" data-act="lb-cat" data-id="${c.id}">${c.name}</button>`;
     const more = LB_CATS.filter(c => !MAIN.includes(c.id));
     const chips = `<div class="lb-cats" role="tablist">${LB_CATS.filter(c => MAIN.includes(c.id)).map(chip).join('')}
