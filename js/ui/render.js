@@ -1546,7 +1546,7 @@ window.GL = window.GL || {};
         <button class="link ts-login" data-act="login-open">${st.anon === false && st.email ? (streamOn() ? 'Angemeldet ✓' : `Angemeldet als ${esc(st.email)}`) : 'Anmelden'}</button>
         ${streamToggle()}
       </div>
-      <p class="ts-foot">${esc(document.querySelector('footer.fan') ? document.querySelector('footer.fan').textContent : '')}</p>
+      <p class="ts-foot">Inoffizielles Fanprojekt, kostenlos und ohne kommerzielle Absicht. One Piece gehört seinen Rechteinhabern. <a href="legal.html">Rechtliches &amp; Datenschutz</a></p>
     </div>`;
   }
   // Spielstand per Code übertragen (ohne Mail)
