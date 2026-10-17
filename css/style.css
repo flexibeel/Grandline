@@ -1,18 +1,18 @@
 :root {
-  /* Helles Design (Standard): Weiß und Grau, Akzente in Dunkelblau und Dunkelbraun */
-  --bg: #eceef1;          /* helles Grau */
-  --deep: #dde3ea;        /* Grau mit einem Hauch Blau */
-  --panel: #ffffff;       /* Weiß */
-  --panel-2: #f7f8fa;     /* fast Weiß */
-  --ink: #1b2533;         /* Dunkelblau, fast Schwarz */
-  --mute: #525a66;        /* Grau, kräftig genug zum Lesen */
-  --line: #d3d8de;        /* helle Linien */
-  --wood: #6b4f3a;        /* Dunkelbraun */
-  --sea: #2f5f8f; --red: #c0453a; --gold: #9a7426; --hp: #2f8a4a;
-  --btn: #1e2b3a; --btnink: #ffffff; --btnedge: #0d151f;
-  --epic: #7a4fc4; --rare: #2f6fb8; --legend: #b07d12; --xp: #5a4fcf;
-  --sky: #18293a; --sea-a: #10202f; --sea-b: #08121c; --ghost: #8a7240;
-  --shadow: 0 1px 2px rgba(20, 30, 45, .06), 0 4px 14px rgba(20, 30, 45, .06);
+  /* Cozy helles Design: warmes Creme/Sand statt kaltem Grau, Akzente in Teal, Holzbraun und Gold */
+  --bg: #f6f1e3;          /* warmes Creme */
+  --deep: #ecdfc3;        /* Sand */
+  --panel: #fffdf6;       /* warmes Weiß */
+  --panel-2: #faf3e4;     /* helles Creme */
+  --ink: #332a21;         /* warmes Dunkelbraun, fast Schwarz */
+  --mute: #7a6c57;        /* warmes Braungrau, kräftig genug zum Lesen */
+  --line: #e4d6b4;        /* warme, sandige Linien */
+  --wood: #8a5a34;        /* warmes Holzbraun */
+  --sea: #2f8f82; --red: #d1604a; --gold: #c08a2e; --hp: #4a9a4e;
+  --btn: #6b4226; --btnink: #fffdf6; --btnedge: #4a2d18;
+  --epic: #9b6fd1; --rare: #3a8fb8; --legend: #d19a2e; --xp: #8f6fd1;
+  --sky: #2a4a58; --sea-a: #163a3c; --sea-b: #0c2426; --ghost: #a3813e;
+  --shadow: 0 1px 2px rgba(80, 55, 25, .07), 0 4px 16px rgba(80, 55, 25, .08);
   color-scheme: light;
 }
 :root[data-theme="dark"] {
@@ -51,8 +51,9 @@ header { display: flex; justify-content: space-between; align-items: flex-end; g
 .crew, .foes { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(140px, 100%), 1fr)); gap: 8px; }
 .u > * { min-width: 0; }
 .u {
-  background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 8px;
+  background: var(--panel); border: 1px solid var(--line); border-radius: 13px; padding: 8px;
   display: grid; grid-template-columns: 44px 1fr; gap: 2px 8px; align-items: center;
+  box-shadow: var(--shadow);
 }
 .u.dead { opacity: .4; }
 .u span { font-weight: 700; overflow-wrap: anywhere; hyphens: auto; }
@@ -62,13 +63,14 @@ header { display: flex; justify-content: space-between; align-items: flex-end; g
 .bar { height: 7px; border-radius: 4px; background: var(--line); overflow: hidden; grid-column: 1 / -1; margin-top: 4px; }
 .bar i { display: block; height: 100%; background: var(--hp); transition: width .25s; }
 
-.stage { background: var(--panel-2); border: 1px solid var(--line); border-radius: 14px; padding: 16px; margin-top: 14px; box-shadow: var(--shadow); }
+.stage { background: var(--panel-2); border: 1px solid var(--line); border-radius: 18px; padding: 16px; margin-top: 14px; box-shadow: var(--shadow); }
 .opts { display: grid; gap: 10px; }
 .opt {
   all: unset; box-sizing: border-box; cursor: pointer; border: 2px solid var(--line);
-  border-radius: 10px; padding: 12px 14px; display: grid; gap: 2px;
+  border-radius: 14px; padding: 12px 14px; display: grid; gap: 2px;
+  background: var(--panel); transition: border-color .15s ease, transform .1s ease;
 }
-.opt:hover { border-color: var(--gold); }
+.opt:hover { border-color: var(--gold); transform: translateY(-1px); }
 .opt-body { display: grid; gap: 2px; }
 .opt-body > b { font-size: 1.1rem; }
 .opt-body > span { color: var(--mute); }
@@ -83,9 +85,11 @@ header { display: flex; justify-content: space-between; align-items: flex-end; g
 
 .btn {
   all: unset; box-sizing: border-box; cursor: pointer; display: inline-block; margin-top: 12px;
-  background: var(--btn); color: var(--btnink); padding: 10px 18px; border-radius: 8px; font-weight: 700;
+  background: var(--btn); color: var(--btnink); padding: 10px 18px; border-radius: 10px; font-weight: 700;
+  box-shadow: 0 2px 0 var(--btnedge); transition: transform .1s ease;
 }
-.btn.ghost { background: transparent; color: var(--ink); border: 1px solid var(--line); }
+.btn:active { transform: translateY(1px); box-shadow: 0 1px 0 var(--btnedge); }
+.btn.ghost { background: transparent; color: var(--ink); border: 1px solid var(--line); box-shadow: none; }
 .link { all: unset; cursor: pointer; color: var(--mute); text-decoration: underline; font-size: .9rem; }
 button:focus-visible, .opt:focus-visible { outline: 3px solid var(--sea); outline-offset: 2px; }
 
@@ -1828,7 +1832,7 @@ h2 { letter-spacing: .015em; }
 .scene-stops { margin-top: 10px !important; font-size: .95rem; color: #c9ccd1 !important; }
 .stop-banner { position: fixed; top: 18%; left: 50%; z-index: 80; transform: translateX(-50%); pointer-events: none;
   display: grid; justify-items: center; padding: 10px 28px; border-radius: 14px; color: #fff;
-  background: linear-gradient(135deg, rgba(27,37,51,.92), rgba(47,95,143,.92)); box-shadow: 0 12px 30px rgba(0,0,0,.3);
+  background: linear-gradient(135deg, rgba(53,41,28,.94), rgba(107,66,38,.92)); box-shadow: 0 12px 30px rgba(40,25,10,.3);
   animation: stop-in .5s cubic-bezier(.2,.9,.3,1.2); }
 .stop-banner small { font-size: .74rem; letter-spacing: .14em; text-transform: uppercase; color: #f3d27a; }
 .stop-banner b { font-family: "Pirata One", Georgia, serif; font-weight: 400; font-size: 2rem; line-height: 1.1; }
@@ -1841,11 +1845,11 @@ h2 { letter-spacing: .015em; }
    älteren, effektreicheren Look darüber.
    ===================================================================== */
 :root:not([data-theme="dark"]) {
-  --bg: #f3f2ee; --deep: #f3f2ee; --panel: #ffffff; --panel-2: #ffffff;
-  --ink: #1f2430; --mute: #646a75; --line: #e2e0d8;
-  --red: #e0483b; --sea: #2f6fb0; --gold: #b8860b; --hp: #2fa84f;
-  --btn: #2b3a55; --btnink: #ffffff; --btnedge: #1a2438;
-  --shadow: 0 2px 0 #e2e0d8;
+  --bg: #f6f0e1; --deep: #f6f0e1; --panel: #fffcf5; --panel-2: #fffcf5;
+  --ink: #35291c; --mute: #7c6b52; --line: #e6d9bb;
+  --red: #d1604a; --sea: #2f8f82; --gold: #c08a2e; --hp: #4a9a4e;
+  --btn: #6b4226; --btnink: #fffdf6; --btnedge: #4a2d18;
+  --shadow: 0 2px 0 #e6d9bb;
 }
 :root[data-theme="dark"] { --shadow: 0 2px 0 rgba(0,0,0,.35); }
 :root { --px: "Pixelify Sans", "Nunito", system-ui, sans-serif; }
@@ -2219,11 +2223,11 @@ body.on-title { overflow: hidden; }
 .card-face {
   --fc: #8a93a3; --fc-d: #5f6776;
   background:
-    linear-gradient(180deg, rgba(255,255,255,.55), rgba(255,255,255,0) 40%),
-    #fbf7ee;
-  border: 4px solid var(--fc) !important; border-radius: 14px;
-  box-shadow: inset 0 0 0 3px #fffdf8, inset 0 0 0 4px rgba(0,0,0,.07), 0 5px 0 var(--fc-d) !important;
-  padding: 8px 9px 32px; min-height: 272px; color: #232a36;
+    linear-gradient(180deg, rgba(255,255,255,.6), rgba(255,255,255,0) 40%),
+    #fbf3de;
+  border: 5px solid var(--fc) !important; border-radius: 16px;
+  box-shadow: inset 0 0 0 3px #fffdf4, inset 0 0 0 5px rgba(0,0,0,.08), 0 5px 0 var(--fc-d) !important;
+  padding: 8px 9px 32px; min-height: 272px; color: #2c2317;
 }
 .frame-s1, .frame-common { --fc: #8a93a3; --fc-d: #5f6776; }
 .frame-s2 { --fc: #4f86c6; --fc-d: #2f5f96; }
@@ -2243,13 +2247,13 @@ body.on-title { overflow: hidden; }
 .opt.card:active { transform: translateY(-1px); }
 
 /* Bildfenster */
-.card-art { margin: 20px 2px 0; height: 104px; border-radius: 9px;
-  border: 2px solid color-mix(in srgb, var(--fc) 45%, #d8d2c3) !important;
-  box-shadow: inset 0 -10px 18px rgba(0,0,0,.06); }
-.art-kraft { background: linear-gradient(180deg, #ffe9e4, #f8cfc6) !important; }
-.art-klinge { background: linear-gradient(180deg, #e6f6ea, #c7e8cf) !important; }
-.art-technik { background: linear-gradient(180deg, #e5eefc, #c6daf6) !important; }
-.art-loot { background: linear-gradient(180deg, #fbf1dc, #efdcb6) !important; }
+.card-art { margin: 20px 2px 0; height: 104px; border-radius: 10px;
+  border: 2px solid color-mix(in srgb, var(--fc) 50%, #ddd2b4) !important;
+  box-shadow: inset 0 -10px 18px rgba(0,0,0,.07); }
+.art-kraft { background: linear-gradient(180deg, #ffe6da, #f6c7af) !important; }
+.art-klinge { background: linear-gradient(180deg, #e9f3dd, #c9e3b0) !important; }
+.art-technik { background: linear-gradient(180deg, #e7f0ee, #c3ddd8) !important; }
+.art-loot { background: linear-gradient(180deg, #fbefd6, #edd79e) !important; }
 .card-art svg { width: 66px; height: 77px; filter: drop-shadow(0 3px 0 rgba(0,0,0,.12)); }
 .card-art .icon { width: 56px; height: 56px; }
 
