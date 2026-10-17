@@ -195,10 +195,10 @@
       if (run.daily) {
         const sc = GL.run.score(run);
         profile.daily = { d: run.daily, score: sc };
-        const bonus = 60, xpB = 25;
+        const bonus = 60 + 10 * Math.min(7, profile.dailyStreak || 1), xpB = 25;
         profile.berry += bonus; GL.meta.addRankXp(profile, xpB);
         ui.lastBerry = (ui.lastBerry || 0) + bonus;
-        setTimeout(() => toast(`<span><b>Tageskarte geschafft</b>${sc.toLocaleString('de-DE')} Punkte. Bonus: +${bonus} Berry, +${xpB} Rang-EP.</span>`), 1200);
+        setTimeout(() => toast(`<span><b>Tageskarte geschafft</b>${sc.toLocaleString('de-DE')} Punkte. Bonus: +${bonus} Berry, +${xpB} Rang-EP${(profile.dailyStreak || 1) > 1 ? ` · ${profile.dailyStreak} Tage in Folge` : ''}.</span>`), 1200);
       }
       // Online-Rangliste (nur in der geteilten Version)
       if (GL.online) GL.online.submit(profile, run).then(res => {
@@ -236,6 +236,29 @@
     window.scrollTo(0, 0);
   }
 
+  // Platzierung der letzten Tageskarten auszahlen (sobald die Rangliste geladen ist, ab dem Folgetag)
+  const DAILY_PRIZE = [300, 220, 180];
+  function checkDailyPay() {
+    const st = GL.online && GL.online.state ? GL.online.state() : null;
+    if (!st || st.status !== 'ready' || !st.uid || !(profile.dailyPay || []).length) return;
+    const today = GL.daily.today();
+    const due = profile.dailyPay.filter(d => d < today);
+    if (!due.length) return;
+    due.forEach(d => {
+      const code = GL.daily.code(d);
+      const list = (st.rows || []).filter(x => x.duels && x.duels[code]).sort((a, b) => b.duels[code].score - a.duels[code].score);
+      const pos = list.findIndex(x => x.id === st.uid);
+      if (pos < 0) return;   // eigenes Ergebnis nicht (mehr) in der Liste: nichts auszahlen
+      const prize = DAILY_PRIZE[pos] || (pos < 10 ? 120 : 60);
+      profile.berry += prize;
+      if (pos === 0 && list.length > 1) profile.dailyFirst = (profile.dailyFirst || 0) + 1;
+      toast(`<span><b>Tageskarte vom ${d.slice(8, 10)}.${d.slice(5, 7)}.: Platz ${pos + 1} von ${list.length}</b>+${prize} Berry${pos === 0 && list.length > 1 ? ' · Tagessieg!' : ''}</span>`);
+    });
+    profile.dailyPay = profile.dailyPay.filter(d => d >= today);
+    saveProfile();
+    if (!run) { ui.lastStage = null; draw(); }
+  }
+
   // Tageskarte: gleicher Seed für alle, keine dauerhaften Boni, ein Versuch pro Tag
   function startDaily() {
     const day = GL.daily.today();
@@ -245,7 +268,11 @@
     run = GL.run.create(GL.daily.seed(day), { heat: 0, self: selfNow() });
     run.duel = GL.daily.code(day);
     run.daily = day;
+    // Serie: gestern auch gespielt?
+    const y = new Date(Date.now() - 864e5); const yd = y.getFullYear() + '-' + String(y.getMonth() + 1).padStart(2, '0') + '-' + String(y.getDate()).padStart(2, '0');
+    profile.dailyStreak = profile.daily && profile.daily.d === yd ? (profile.dailyStreak || 1) + 1 : 1;
     profile.daily = { d: day, score: null };
+    profile.dailyPay = (profile.dailyPay || []).concat([day]).slice(-7);
     ui.newBest = false; ui.lastBerry = null; ui.restartArmed = false;
     saveProfile();
     GL.save.storeRun(run);
@@ -446,6 +473,7 @@
         break;
       }
       case 'daily-start': startDaily(); break;
+      case 'daily-day': ui.dailyDay = el.dataset.id; ui.lastStage = null; draw(); break;
       case 'mail-reveal': GL.ui.toggleMail(); ui.lastStage = null; { const t = document.getElementById('title'); if (t) t.dataset.last = ''; } draw(); break;
       case 'slot-switch': case 'slot-fresh': {
         let to = type === 'slot-fresh' ? -1 : Number(el.dataset.i);
@@ -979,7 +1007,7 @@
   draw();
   // Online-Rangliste: neu zeichnen, wenn sich Einträge ändern (nur im Hauptquartier sichtbar)
   if (GL.online) {
-    GL.online.onChange(() => { if (!run && document.activeElement && document.activeElement.id !== 'nick') draw(); });
+    GL.online.onChange(() => { checkDailyPay(); if (!run && document.activeElement && document.activeElement.id !== 'nick') draw(); });
     // Online liegt ein neuerer Spielstand (anderes Gerät): übernehmen und neu laden
     GL.online.onRemoteProfile(remote => {
       if (sessionStorage.getItem('gl.pulled')) return;

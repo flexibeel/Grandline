@@ -261,6 +261,8 @@ window.GL = window.GL || {};
       heat: run.heat || 0, bountyM: run.bountyM || 0, island: GL.run.island(run).name,
       captain: run.captain || (run.crew[0] && run.crew[0].id) || '',
       date: new Date().toISOString().slice(0, 10),
+      step: run.step || 0,
+      team: (run.crew || []).slice(0, 6).map(u => u.id === 'self' ? { id: 'self', lvl: u.lvl || 1, look: profile.char ? profile.char.look : null } : { id: u.id, lvl: u.lvl || 1 }),
       replay: { seed: run.seed, start: run.start, actions: run.actions }
     };
     if (!profile.onlineBest || entry.score > profile.onlineBest.score) profile.onlineBest = entry;
@@ -317,7 +319,7 @@ window.GL = window.GL || {};
       const cut = Number(GL.daily.code(new Date(Date.now() - 7 * 864e5).toISOString().slice(0, 10)).slice(1));
       Object.keys(duels).forEach(k => { if (/^T\d{8}$/.test(k) && Number(k.slice(1)) < cut) delete duels[k]; });
       if (entry.duel && (!duels[entry.duel] || entry.score > n(duels[entry.duel].score))) {
-        duels[entry.duel] = { score: entry.score, won: entry.won, island: entry.island, dmg: entry.dmg, date: entry.date };
+        duels[entry.duel] = { score: entry.score, won: entry.won, island: entry.island, dmg: entry.dmg, date: entry.date, step: entry.step, team: entry.team };
       }
       await store.set(state.uid, Object.assign({}, liveFields(profile), {
         score: better ? entry.score : n(o.score),

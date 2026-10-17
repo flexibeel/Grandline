@@ -3123,3 +3123,18 @@ body.is-app { padding-top: env(safe-area-inset-top); padding-bottom: env(safe-ar
 .dc-txt small { color: var(--mute); font-size: .76rem; }
 .daily-card .btn.mini { margin: 0; }
 .dc-done { font-style: normal; font-weight: 800; color: #3f8a52; padding: 0 6px; }
+.dc-streak { font-style: normal; font-size: .7rem; font-weight: 800; color: #b0743f; background: #f6e3c4; padding: 1px 7px; border-radius: 999px; margin-left: 4px; }
+.dl-line { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; margin-top: 3px; }
+.dl-team { display: inline-flex; gap: 2px; }
+.dl-team i { position: relative; width: 24px; height: 24px; display: grid; place-items: center; border-radius: 6px; background: rgba(0,0,0,.04); }
+.dl-team i svg, .dl-team i img { width: 20px; height: 20px; }
+.dl-team i b { position: absolute; right: -2px; bottom: -3px; font-size: .55rem; font-weight: 800; color: #fff; background: #8a7a66; border-radius: 4px; padding: 0 2px; line-height: 1.2; }
+.dl-line small { color: var(--mute); font-size: .74rem; }
+.day-tabs { align-items: center; }
+.day-tabs small { flex-basis: 100%; font-size: .75rem; margin-top: 2px; }
+/* Duell-Code-Feld darf die Seite nicht verbreitern */
+.duel-actions { flex-wrap: wrap; min-width: 0; }
+.duel-join { display: flex; gap: 6px; min-width: 0; flex: 1 1 220px; }
+.duel-join input { min-width: 0; flex: 1 1 auto; width: 100%; }
+.duel-join .btn { flex: none; margin: 0; }
+.hq-sec, .leaderboard, .duel-box { min-width: 0; max-width: 100%; }

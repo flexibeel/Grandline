@@ -1055,9 +1055,19 @@ window.GL = window.GL || {};
   // ---------- Online-Rangliste ----------
   const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[ch]);
   // Kategorien der Rangliste: Feld im Eintrag, Name, Einheit
+  let dailyCodeShown = null;
+  const yesterday = () => { const d = new Date(Date.now() - 864e5); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
+  // Team und Fortschritt einer Tageskarte in einer Zeile
+  function dailyLine(e) {
+    if (!e) return '';
+    const total = GL.run.totalSteps();
+    const where = e.won ? 'Grand Line geschafft ✓' : `bis ${esc(e.island || '?')}${e.step ? ` · Etappe ${Math.min(e.step + 1, total)}/${total}` : ''}`;
+    const team = (e.team || []).map(r => `<i title="${esc((r.id === 'self' ? 'Eigener Pirat' : (crewData(r.id) || {}).name || r.id) + ' · Lv ' + (r.lvl || 1))}">${squadSprite(r)}<b>${r.lvl || 1}</b></i>`).join('');
+    return `<span class="dl-line"><span class="dl-team">${team}</span><small>${where}</small></span>`;
+  }
   const LB_CATS = [
     { id: 'score',     name: 'Punkte',            get: x => x.score,     unit: 'Punkte' },
-    { id: 'daily',     name: 'Tageskarte',        get: x => { const d = (x.duels || {})[GL.daily.code()]; return d ? d.score : 0; }, unit: 'Punkte heute' },
+    { id: 'daily',     name: 'Tageskarte',        get: x => { const d = (x.duels || {})[dailyCodeShown]; return d ? d.score : 0; }, unit: 'Punkte' },
     { id: 'bestDmg',   name: 'Schaden (Run)',     get: x => x.bestDmg,   unit: 'Schaden in einem Run' },
     { id: 'maxHit',    name: 'Härtester Treffer', get: x => x.maxHit,    unit: 'Schaden mit einem Schlag' },
     { id: 'totalDmg',  name: 'Schaden gesamt',    get: x => x.totalDmg,  unit: 'Schaden insgesamt' },
@@ -1254,7 +1264,10 @@ window.GL = window.GL || {};
     else if (st.status === 'unavailable' || st.status === 'error') info = 'Die Rangliste ist gerade nicht erreichbar. Melde dich bei Claude an und öffne den Link erneut.';
     else if (st.readOnly) info = 'Du kannst die Rangliste ansehen, aber noch nicht eintragen. Der Besitzer der Seite muss dich per E-Mail als Bearbeiter einladen.';
     else info = 'Nach jedem Run wird alles eingetragen. Wähle oben, worin ihr euch messt.';
-    const rows = (st.rows || []).slice().sort((a, b) => (Number(cat.get(b)) || 0) - (Number(cat.get(a)) || 0));
+    const isDaily = cat.id === 'daily';
+    dailyCodeShown = GL.daily.code(ui.dailyDay === 'y' ? yesterday() : GL.daily.today());
+    let rows = (st.rows || []).slice().sort((a, b) => (Number(cat.get(b)) || 0) - (Number(cat.get(a)) || 0));
+    if (isDaily) rows = rows.filter(x => x.duels && x.duels[dailyCodeShown]);
     const chips = `<div class="lb-cats" role="tablist">${LB_CATS.map(c =>
       `<button class="lb-cat${c.id === cat.id ? ' on' : ''}" data-act="lb-cat" data-id="${c.id}">${c.name}</button>`).join('')}</div>`;
     const row = (x, k, value, unit, extra) => {
@@ -1265,19 +1278,21 @@ window.GL = window.GL || {};
         <span class="lb-cap">${x.look ? portrait(x.look, x.cos, 'sm') : cap ? GL.sprites.render(cap) : ''}</span>
         <span class="lb-who"><b>${medal(GL.meta.rankIndex({ rankXp: x.rankXp || 0 }), 'tiny')} ${esc(x.name || 'Unbekannter Pirat')} ${badgeIcon(x.cos)}${x.id === st.uid ? ' <em>du</em>' : ''}${x.cos && x.cos.star ? ' <em class="admin-tag" title="Der Entwickler dieses Spiels. Unbesiegbar (fast).">★ Entwickler</em>' : ''}${(x.showcase || []).length ? `<span class="lb-show">${x.showcase.map(lootChip).join('')}</span>` : ''}</b>
           <small>${x.cos && x.cos.title ? esc(titleName(x.cos.title)) + ' · ' : ''}${esc(x.rank || '')}${extra ? ' · ' + extra : ''}</small>
-          ${x.squadOn && (x.squad || []).length ? `<span class="lb-crew">${squadMini(x.squad)}${leagueChip(x.squadRating)}</span>` : ''}</span>
+          ${isDaily ? dailyLine(x.duels[dailyCodeShown]) : x.squadOn && (x.squad || []).length ? `<span class="lb-crew">${squadMini(x.squad)}${leagueChip(x.squadRating)}</span>` : ''}</span>
         <span class="lb-score"><b>${fmt(value)}</b><small>${unit}</small></span>
       </li>`;
     };
-    const table = rows.length
-      ? `<ol class="lb-list">${rows.map((x, k) => row(x, k, cat.get(x), cat.unit,
+    const dayTabs = isDaily ? `<div class="lb-cats day-tabs"><button class="lb-cat${ui.dailyDay !== 'y' ? ' on' : ''}" data-act="daily-day" data-id="t">Heute</button><button class="lb-cat${ui.dailyDay === 'y' ? ' on' : ''}" data-act="daily-day" data-id="y">Gestern</button>
+      <small class="muted">Alle spielen dieselbe Route. Belohnung für die Plätze gibt es am nächsten Tag.</small></div>` : '';
+    const table = isDaily && !rows.length ? `${dayTabs}<p class="muted">${ui.dailyDay === 'y' ? 'Gestern hat niemand die Tageskarte gespielt.' : 'Heute noch keine Ergebnisse. Sei der Erste!'}</p>` : rows.length
+      ? `${dayTabs}<ol class="lb-list">${rows.map((x, k) => row(x, k, cat.get(x), cat.unit,
           `${x.wins || 0} / ${x.runs || 0} Siege`)).join('')}</ol>`
       : `<p class="muted">${st.status === 'ready' ? 'Noch keine Einträge. Beende einen Run, um der Erste zu sein!' : ''}</p>`;
 
     // Duelle: alle Codes, bei denen du oder andere mitgespielt haben
     const codes = {};
-    (st.rows || []).forEach(x => Object.keys(x.duels || {}).forEach(c => { codes[c] = (codes[c] || 0) + 1; }));
-    const myCodes = mine ? Object.keys(mine.duels || {}) : [];
+    (st.rows || []).forEach(x => Object.keys(x.duels || {}).filter(c => !/^T\d{8}$/.test(c)).forEach(c => { codes[c] = (codes[c] || 0) + 1; }));
+    const myCodes = mine ? Object.keys(mine.duels || {}).filter(c => !/^T\d{8}$/.test(c)) : [];
     const shown = ui.duelView && codes[ui.duelView] ? ui.duelView : (myCodes[myCodes.length - 1] || Object.keys(codes)[0]);
     const duelRows = shown ? (st.rows || []).filter(x => x.duels && x.duels[shown])
       .sort((a, b) => b.duels[shown].score - a.duels[shown].score) : [];
@@ -1882,7 +1897,7 @@ window.GL = window.GL || {};
     const day = GL.daily.today(), done = profile.daily && profile.daily.d === day;
     return `<div class="daily-card${done ? ' done' : ''}">
       <span class="dc-ico" aria-hidden="true">${featureArt('scroll')}</span>
-      <span class="dc-txt"><b>Tageskarte</b><small>${done ? (profile.daily.score != null ? `Heute: ${Number(profile.daily.score).toLocaleString('de-DE')} Punkte. Morgen gibt es eine neue.` : 'Heute schon gestartet. Morgen gibt es eine neue.') : 'Gleiche Route für alle, ohne Ausbauten. Ein Versuch.'}</small></span>
+      <span class="dc-txt"><b>Tageskarte${(profile.dailyStreak || 0) > 1 && profile.daily && (profile.daily.d === day || profile.daily.d === yesterday()) ? ` <em class="dc-streak">${profile.dailyStreak} Tage in Folge</em>` : ''}</b><small>${done ? (profile.daily.score != null ? `Heute: ${Number(profile.daily.score).toLocaleString('de-DE')} Punkte. Morgen gibt es eine neue.` : 'Heute schon gestartet. Morgen gibt es eine neue.') : 'Gleiche Route für alle, ohne Ausbauten. Ein Versuch.'}</small></span>
       ${done ? '<em class="dc-done">✓</em>' : '<button class="btn mini" data-act="daily-start">Starten</button>'}
     </div>`;
   }
