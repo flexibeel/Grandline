@@ -37,7 +37,8 @@ GL.config = {
   rareRaidChance: 0.15,   // Anteil der Raids, die gegen den seltenen Raid-Boss (Shanks) gehen        // Chance pro Insel ab der 2. Insel, dass ein Raid auf der Seekarte liegt
   raidEscapeHp: 0.25,
   // Endlos-Modus: Zuschlag pro Runde auf Leben/Angriff aller Gegner
-  endless: { hp: 0.45, atk: 0.3 },
+  // Endlos-Fahrt: eigener Modus pro geschafftem Meer. Jede Runde stärkere Gegner (hp/atk je Runde)
+  endless: { hp: 0.45, atk: 0.3, lvlPerSea: 4, startGold: 30, goldPerSea: 70, loopGold: 30, seaEase: [1, 0.72, 0.6, 0.52] },
   // Raid-Jagd (ab Rang, siehe features.js): Raid erscheint fast sicher, Beute-Chancen pro Sieg (+ pro Kopfgeld-Stufe)
   hunt: { raidChance: 0.85, epic: 0.35, legendary: 0.12, legendaryPerHeat: 0.03 },     // verlorener Raid: Crew entkommt mit diesem Anteil Leben
   epicChance: 0.3,        // Chance, dass eine freigeschaltete epische Frucht im Angebot ist

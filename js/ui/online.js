@@ -310,6 +310,7 @@ window.GL = window.GL || {};
       bestPlace: profile.bestPlace || null,
       endlessBest: profile.endlessBest || 0,
       endlessLoops: profile.endlessLoops || 0,
+      endlessRec: profile.endlessRec || null,
       seasDone: GL.data.islands.filter((x, i) => GL.meta.chapterProgress(profile, i).complete).length,
       pos: GL.livePos ? Object.assign({}, GL.livePos) : null,
       squad: GL.meta.squadRefs(profile),

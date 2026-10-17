@@ -28,6 +28,9 @@ GL.data.features = [
     steps: ['Ziel unter „Leinen los“ wählen', 'Ab dem zweiten Meer wartet der Raid', 'Beute landet in der Vitrine im Lager'] },
   { id: 'route',     lvl: 8, name: 'Neue Route: Thriller Bark', art: 'flag', text: 'Im dritten Meer kannst du jetzt zwischen zwei Routen wählen: Enies Lobby oder Thriller Bark mit neuen Bossen.',
     steps: ['Beim Kurs setzen im dritten Meer', 'Eine Insel aus jeder Route steht zur Wahl', 'Neue Gegner, neues Kopfgeld'] },
+  { id: 'endlos',    lvl: 4, name: 'Endlos-Fahrt', art: 'flag', text: 'Segle ein Meer, das du geschafft hast, immer wieder. Jede Runde härter. Tiefere Meere bringen mehr Punkte und bessere Beute.',
+    steps: ['Unter „Leinen los“: Endlos-Fahrt', 'Meer wählen, im Hafen die Crew anheuern', 'Wie viele Runden schaffst du?'],
+    req: p => GL.meta.seasCleared(p).length > 0 },
   { id: 'stammcrew', lvl: 5, tab: 'stammcrew', name: 'Deine Stammcrew', art: 'flag', text: 'Deine feste Crew für Duelle gegen andere Spieler. Bosse lassen ab jetzt Ausrüstung für sie fallen: Waffen, Kleidung und Schmuck mit zufälligen Werten.',
     steps: ['Vier Figuren fest aufstellen', 'Ausrüstung von Bossen anlegen', 'Gegner ähnlicher Stärke herausfordern'],
     or: p => p.stats && p.stats.wins > 0 }

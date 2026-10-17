@@ -3615,3 +3615,12 @@ body.reloading { opacity: .5; transition: opacity .12s; }
 @media (max-width: 400px) { .cg-chip { width: 38px; height: 38px; } .cg-chip .cg-art { width: 24px; height: 24px; } }
 .rival-box { margin: 0 0 10px; padding: 10px 14px; border-radius: 14px; background: linear-gradient(180deg, #fbeee6, #f6efe0); box-shadow: inset 0 0 0 1px rgba(170,90,60,.3); }
 .rival-box b { display: block; margin: 2px 0; } .rival-box small { color: #8a7a62; }
+/* Endlos-Fahrt im Hauptquartier */
+.endless-row { display: grid; grid-template-columns: 34px 1fr auto; gap: 10px; align-items: center; margin-top: 10px; padding: 10px 12px; border-radius: 14px; background: linear-gradient(180deg, #e9f0f6, #f5efe2); box-shadow: inset 0 0 0 1px rgba(80,120,150,.22); }
+.endless-row.locked { opacity: .6; filter: grayscale(.4); }
+.er-ico { font: 700 1.5rem/1 var(--px); color: #4f7fa8; text-align: center; }
+.endless-row b { display: block; } .endless-row small { color: #7a6a52; font-size: .76rem; }
+.endless-seas { display: grid; grid-template-columns: repeat(auto-fit, minmax(96px, 1fr)); gap: 6px; margin-top: 6px; }
+.es-sea { display: grid; gap: 1px; text-align: left; padding: 8px 10px; border-radius: 12px; border: 1px solid #c9d8e6; background: #fbfdff; cursor: pointer; }
+.es-sea b { font-size: .86rem; } .es-sea small { font-size: .68rem; color: #7a6a52; } .es-sea em { font-style: normal; font-size: .66rem; font-weight: 800; color: #4f7fa8; }
+.es-sea.off { opacity: .45; cursor: default; background: #f3f0ea; border-style: dashed; }

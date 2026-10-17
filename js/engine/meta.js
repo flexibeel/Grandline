@@ -277,14 +277,20 @@ window.GL = window.GL || {};
 
     // ---------- Freischaltungen im Hauptquartier (siehe js/data/features.js) ----------
     level(profile) { return GL.meta.rankIndex(profile) + 1 + GL.meta.prestige(profile) * 100; },
+    // Meere, deren Boss man schon einmal besiegt hat (für die Endlos-Fahrt)
+    seasCleared(profile) {
+      const beaten = (profile.seen && profile.seen.bosses) || [];
+      return GL.data.islands.map((isl, i) => ((isl.bosses || []).concat(isl.alt ? isl.alt.bosses || [] : []).some(b => beaten.includes(b)) ? i : -1)).filter(i => i >= 0);
+    },
     featureOpen(profile, id) {
       const f = (GL.data.features || []).find(x => x.id === id);
       if (!f) return true;
+      if (f.req && !f.req(profile)) return false;
       return GL.meta.level(profile) >= f.lvl || !!(f.or && f.or(profile));
     },
     // Nächste noch gesperrte Freischaltung (für den Hinweis „Ab Level X: …“)
     featureNext(profile) {
-      return (GL.data.features || []).filter(f => !GL.meta.featureOpen(profile, f.id)).sort((a, b) => a.lvl - b.lvl)[0] || null;
+      return (GL.data.features || []).filter(f => !GL.meta.featureOpen(profile, f.id) && !(f.req && GL.meta.level(profile) >= f.lvl)).sort((a, b) => a.lvl - b.lvl)[0] || null;
     },
     // Neu freigeschaltet und noch nicht vorgestellt. Bestehende Spieler bekommen beim ersten Mal keine Pop-up-Flut.
     featuresNew(profile) {
@@ -613,15 +619,24 @@ window.GL = window.GL || {};
       R.kos += S.kos || 0;
       R.dmg += S.dmg || 0;
       R.maxHit = Math.max(R.maxHit, S.maxHit || 0);
-      const berry = GL.meta.berryFor(profile, run);
+      // Endlos-Fahrt: Belohnung nach tatsächlich gesegelten Etappen (nicht nach dem Startmeer)
+      const E = run.endlessSea != null;
+      const eff = E ? Object.assign({}, run, { step: run.step - run.endlessSea * GL.config.stepsPerIsland + (run.loopSteps || 0), bounties: (run.loop || 0) + run.bounties }) : run;
+      if (E) {
+        const rec = profile.endlessRec || { sea: -1, loops: 0 };
+        if (run.endlessSea > rec.sea || (run.endlessSea === rec.sea && (run.loop || 0) > rec.loops)) profile.endlessRec = { sea: run.endlessSea, loops: run.loop || 0 };
+        profile.endlessSeaBest = profile.endlessSeaBest || {};
+        profile.endlessSeaBest[run.endlessSea] = Math.max(profile.endlessSeaBest[run.endlessSea] || 0, run.loop || 0);
+      }
+      const berry = GL.meta.berryFor(profile, eff);
       profile.berry += berry;
       profile.stats.berryTotal += berry;
-      const xp = GL.meta.rankXpFor(run);
-      const reachNow = run.phase === 'win' ? GL.run.totalSteps() : (run.step || 0);
+      const xp = GL.meta.rankXpFor(eff);
+      const reachNow = E ? 0 : run.phase === 'win' ? GL.run.totalSteps() : (run.step || 0);
       // Endlos-Modus: weiteste Strecke über alle Runden
       if (run.loop) { profile.endlessBest = Math.max(profile.endlessBest || 0, (run.loopSteps || 0) + reachNow); profile.endlessLoops = Math.max(profile.endlessLoops || 0, run.loop + (run.phase === 'win' ? 1 : 0)); }
       else if (run.phase === 'win') profile.endlessLoops = Math.max(profile.endlessLoops || 0, 1);
-      if (!run.loop && reachNow >= (profile.bestStep || 0)) {
+      if (!E && !run.loop && reachNow >= (profile.bestStep || 0)) {
         // Weiteste Fahrt mit Meer und Insel-Kapitel merken (für die Rangliste)
         const st = Math.max(0, Math.min(reachNow, GL.run.totalSteps() - 1));
         const si = Math.min(Math.floor(st / GL.config.stepsPerIsland), GL.data.islands.length - 1);

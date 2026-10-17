@@ -397,7 +397,7 @@
   }
 
   // Leinen los: neuer Run mit Werft-Ausbauten und Ausrüstung aus dem Lager
-  function sail() {
+  function sail(endlessSea) {
     stopAnim();
     ui.sheet = null;
     ui.album = null;
@@ -406,7 +406,8 @@
       unlocked: profile.unlocked, epics: profile.epics, upgrades: profile.upgrades, gear, heat: profile.heat,
       arts: GL.meta.takeArtifacts(profile), self: selfNow(), items: GL.meta.takeItems(profile),
       hunt: GL.meta.featureOpen(profile, 'jagd') ? (profile.hunt || null) : null,
-      altOpen: GL.meta.featureOpen(profile, 'route')
+      altOpen: GL.meta.featureOpen(profile, 'route'),
+      endlessSea: Number.isInteger(endlessSea) && GL.meta.seasCleared(profile).includes(endlessSea) ? endlessSea : undefined
     });
     ui.newBest = false;
     ui.lastBerry = null;
@@ -558,6 +559,7 @@
         break;
       case 'skip': if (anim) { clearTimeout(anim.timer); anim.done = true; draw(); } break;
       case 'sail': sail(); break;
+      case 'endless-start': sail(Number(el.dataset.i)); break;
       case 'hq': toHq(); break;
       case 'peek': ui.peek = true; draw(); break;
       case 'peek-close': ui.peek = false; draw(); break;

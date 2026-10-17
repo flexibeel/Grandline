@@ -899,9 +899,9 @@ window.GL = window.GL || {};
           return `<div class="sell-slot">${GL.sprites.render(d)}<b>${d.name}</b>
             ${cap ? '<small>Kapitän</small>' : `<button class="btn mini ghost" data-act="dismiss" data-i="${i}">Entlassen +${GL.run.sellValue(u)}</button>`}</div>`;
         }).join('');
-        const harbor = run.harbor ? `<div class="harbor-box"><span class="event-kicker">Zwischenhafen · Endlos-Runde ${run.loop + 1}</span>
-            <b>Kurz durchatmen, dann wird es härter.</b>
-            <ul><li>Gegner und Bosse sind ab jetzt stärker, jede Runde mehr.</li>
+        const harbor = run.harbor ? `<div class="harbor-box"><span class="event-kicker">${run.loop ? `Zwischenhafen · Runde ${run.loop + 1}` : 'Endlos-Fahrt · Hafen'}</span>
+            <b>${run.loop ? 'Kurz durchatmen, dann wird es härter.' : 'Stell deine Crew zusammen, dann legst du ab.'}</b>
+            <ul>${run.loop ? '<li>Gegner und Bosse sind ab jetzt stärker, jede Runde mehr.</li>' : '<li>Jede geschaffte Runde durch dieses Meer zählt für die Endlos-Rangliste.</li>'}
               <li>Reihenfolge ändern: Figuren oben in der Crew-Leiste ziehen. Wer vorne steht, steckt am meisten ein.</li>
               <li>Schwache Figuren entlassen, stärkere anheuern. Offene Statuspunkte verteilen.</li></ul></div>` : '';
         return `${harbor}<div class="shop-head"><h2>${run.harbor ? 'Hafentaverne' : 'Taverne'}</h2>
@@ -1078,7 +1078,7 @@ window.GL = window.GL || {};
           <span>Dein Ergebnis: <b>${GL.run.score(run).toLocaleString('de-DE')}</b> Punkte. Schick deinem Freund den Code <b>${run.duel}</b>, er spielt denselben Run.</span>
           <button class="btn mini ghost" data-act="duel-copy" data-id="${run.duel}">Code teilen</button></div>` : '';
         // Endlos-Modus: nach einem Sieg (nicht bei Tageskarte/Wettfahrt) weitersegeln
-        const canEndless = run.phase === 'win' && !run.daily && !run.duel;
+        const canEndless = false;   // Endlos ist jetzt ein eigener Modus im Hauptquartier
         const endlessHtml = canEndless ? `<div class="endless-box"><span class="event-kicker">Endlos-Modus</span>
           <b>Die Grand Line ist bezwungen${run.loop ? ` – zum ${run.loop + 1}. Mal` : ''}!</b>
           <span>Weitersegeln? Deine Crew bleibt, die Gegner werden mit jeder Runde stärker. Alles bisher Erreichte ist schon gutgeschrieben.</span></div>` : '';
@@ -1148,7 +1148,7 @@ window.GL = window.GL || {};
     { id: 'rankXp',    name: 'Piratenrang',       get: x => x.rankXp,    unit: 'Rang-EP' },
     { id: 'artifacts', name: 'Artefakte',         get: x => x.artifacts, unit: 'Artefakte gefunden' },
     { id: 'squadRating', name: 'Crew-Liga',       get: x => x.squadOn ? (x.squadRating || 1000) : 0, unit: 'Crew-Rating' },
-    { id: 'endless',   name: 'Endlos',            get: x => (x.endlessLoops || 0) * 10000 + (x.endlessBest || 0), show: x => x.endlessLoops || 0, unit: 'Runden im Endlos-Modus' },
+    { id: 'endless',   name: 'Endlos',            get: x => x.endlessRec ? (x.endlessRec.sea + 1) * 1000 + x.endlessRec.loops : (x.endlessLoops || 0), show: x => x.endlessRec ? x.endlessRec.loops : (x.endlessLoops || 0), unit: 'Runden Endlos-Fahrt', sub: x => x.endlessRec ? (GL.data.islands[x.endlessRec.sea] || {}).name : '' },
     { id: 'squadW',    name: 'Crew-Duelle',       get: x => x.squadW,    unit: 'Stammcrew-Siege' }
   ];
   // Dein Profil als Karte: Name, Rang, wichtigste Werte
@@ -1437,7 +1437,7 @@ window.GL = window.GL || {};
     const dayTabs = isDaily ? `<div class="lb-cats day-tabs"><button class="lb-cat${ui.dailyDay !== 'y' ? ' on' : ''}" data-act="daily-day" data-id="t">Heute</button><button class="lb-cat${ui.dailyDay === 'y' ? ' on' : ''}" data-act="daily-day" data-id="y">Gestern</button>
       <small class="muted">Alle spielen dieselbe Route. Belohnung für die Plätze gibt es am nächsten Tag.</small></div>` : '';
     const table = isDaily && !rows.length ? `${dayTabs}<p class="muted">${ui.dailyDay === 'y' ? 'Gestern hat niemand die Tageskarte gespielt.' : 'Heute noch keine Ergebnisse. Sei der Erste!'}</p>` : rows.length
-      ? `${dayTabs}<ol class="lb-list">${rows.map((x, k) => row(x, k, cat.show ? cat.show(x) : cat.get(x), cat.unit,
+      ? `${dayTabs}<ol class="lb-list">${rows.map((x, k) => row(x, k, cat.show ? cat.show(x) : cat.get(x), cat.sub && cat.sub(x) ? cat.unit + " · " + cat.sub(x) : cat.unit,
           `${x.wins || 0} / ${x.runs || 0} Siege`)).join('')}</ol>`
       : `<p class="muted">${st.status === 'ready' ? 'Noch keine Einträge. Beende einen Run, um der Erste zu sein!' : ''}</p>`;
 
@@ -2048,6 +2048,20 @@ window.GL = window.GL || {};
     }).join('')).join('');
     return `<div class="vitrine"><div class="vit-head"><b>Vitrine</b><small>Bis zu 3 Stücke sind auf deiner Visitenkarte zu sehen.</small></div><div class="vit-grid">${cards}</div></div>`;
   }
+  // Endlos-Fahrt: eigener Modus, freigeschaltet mit dem ersten besiegten Meeres-Boss (und Rang 4)
+  function endlessRow(profile) {
+    const seas = GL.meta.seasCleared(profile);
+    if (!GL.meta.featureOpen(profile, 'endlos')) {
+      if (!seas.length && GL.meta.level(profile) < 3) return '';   // ganz am Anfang noch nicht zeigen
+      const lvlOk = GL.meta.level(profile) >= 4;
+      return `<div class="endless-row locked"><span class="er-ico" aria-hidden="true">∞</span><span><b>Endlos-Fahrt</b><small>${!seas.length ? 'Besiege den Boss im East Blue' : ''}${!seas.length && !lvlOk ? ' und erreiche ' : ''}${!lvlOk ? 'Rang 4' : ''}, dann geht es los.</small></span><em>🔒</em></div>`;
+    }
+    const rec = profile.endlessSeaBest || {};
+    return `<div class="endless-row"><span class="er-ico" aria-hidden="true">∞</span><span><b>Endlos-Fahrt</b><small>Ein geschafftes Meer immer wieder, jede Runde härter.</small></span></div>
+      <div class="endless-seas">${GL.data.islands.map((isl, i) => seas.includes(i)
+        ? `<button class="es-sea" data-act="endless-start" data-i="${i}"><b>${esc(isl.name)}</b><small>${rec[i] ? `Rekord: ${rec[i]} ${rec[i] === 1 ? 'Runde' : 'Runden'}` : 'Noch kein Rekord'}</small><em>${i === 0 ? 'Einstieg' : `Punkte ×${i + 1}`}</em></button>`
+        : `<span class="es-sea off"><b>${esc(isl.name)}</b><small>Boss noch nicht besiegt</small></span>`).join('')}</div>`;
+  }
   function dailyCard(profile) {
     if (!GL.meta.featureOpen(profile, 'daily')) return '';
     const day = GL.daily.today(), dd = GL.daily.done(profile), done = !!dd;
@@ -2274,6 +2288,7 @@ window.GL = window.GL || {};
           <button class="btn sail" data-act="sail">⚓ Leinen los! ${keyHint('Leertaste')}</button>
           ${heatBox}
         </div>
+        ${endlessRow(profile)}
         ${huntPicker(profile)}
         ${dailyCard(profile)}
         ${board.length || GL.meta.featureOpen(profile, 'schmiede') ? `<div class="sail-board"><span class="sb-lbl">An Bord</span>${board.length ? board.join('') : '<small class="muted">noch nichts dabei</small>'}</div>` : ''}`}

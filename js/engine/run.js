@@ -86,7 +86,9 @@ window.GL = window.GL || {};
     let x = R.float(run) * total;
     const star = C.stars.find(st => (x -= st.w) < 0) || C.stars[0];
     const trait = GL.data.traits[R.int(run, 0, GL.data.traits.length - 1)].id;
-    const lvl = Math.max(1, Math.floor(avgLevel(run)) - R.int(run, 0, 1));
+    let lvl = Math.max(1, Math.floor(avgLevel(run)) - R.int(run, 0, 1));
+    // Endlos-Fahrt in einem späteren Meer: Kapitän kommt schon mit passender Erfahrung
+    if (run.endlessSea && !run.crew.length) lvl = 1 + GL.config.endless.lvlPerSea * run.endlessSea;
     // Statuspunkte früherer Level automatisch passend zur Rolle verteilen
     const weights = d.role === 'brecher' ? [3, 1, 1] : d.role === 'kaempfer' ? [1, 3, 1] : [2, 1, 2];
     const alloc = { hp: 0, atk: 0, spd: 0 };
@@ -379,6 +381,11 @@ window.GL = window.GL || {};
       });
     }
     // Endlos-Modus: jede Runde deutlich stärker (auch Bosse, die sonst feste Werte haben)
+    // Endlos-Fahrt in späteren Meern: die Crew startet ohne Schätze aus den Vor-Meeren, daher etwas leichter
+    if (run.endlessSea) {
+      const ease = (C.endless.seaEase || [])[run.endlessSea] || 1;
+      enemies.forEach(e => { e.max = e.hp = Math.round(e.max * ease); e.atk = Math.round(e.atk * ease); });
+    }
     if (run.loop) {
       const E = C.endless || { hp: 0.45, atk: 0.3 };
       enemies.forEach(e => {
@@ -436,6 +443,8 @@ window.GL = window.GL || {};
   }
 
   function advance(run) {
+    // Endlos-Fahrt: am Ende des Meeres geht es von vorn los, nur härter
+    if (run.endlessSea != null && run.step + 1 >= (run.endlessSea + 1) * GL.config.stepsPerIsland) { endlessLoop(run); return; }
     run.step++;
     run.phase = 'map';
     run.pool = [];
@@ -648,7 +657,7 @@ window.GL = window.GL || {};
       run.bountyM = (run.bountyM || 0) + bossGain;
       run.lastBounty = { id: b.enemies[0].id, gain: bossGain };
       run.bounties++;
-      if (run.bounties >= GL.data.islands.length) { run.phase = 'win'; return; }
+      if (run.endlessSea == null && run.bounties >= GL.data.islands.length) { run.phase = 'win'; return; }
       run.crew.forEach(u => { u.hp = u.hp > 0 ? u.max : Math.ceil(u.max * C.reviveAfterBoss); });
       run.phase = 'awaken';
       return;
@@ -694,6 +703,19 @@ window.GL = window.GL || {};
 
   // Endlos-Modus: nach dem Sieg weitersegeln. Alles bisher Erreichte ist schon gutgeschrieben,
   // die neue Runde beginnt wieder im ersten Meer, aber die Gegner bleiben so stark wie zuletzt und wachsen weiter.
+  function endlessLoop(run) {
+    const S = GL.config.score, SPI = GL.config.stepsPerIsland, base = run.endlessSea * SPI;
+    run.loop = (run.loop || 0) + 1;
+    run.loopScore = (run.loopScore || 0) + Math.round(((run.step + 1 - base) * S.perStep * (1 + run.endlessSea) + run.bounties * S.perBounty) * (1 + (run.heat || 0) * GL.config.heatBonus.score));
+    run.loopSteps = (run.loopSteps || 0) + SPI;
+    run.step = base; run.bounties = 0; run.course = []; run.alt = {};
+    run.bosses = GL.data.islands.map(isl => isl.bosses[R.int(run, 0, isl.bosses.length - 1)]);
+    run.crew.forEach(u => { u.hp = u.max; });
+    run.gold = (run.gold || 0) + GL.config.endless.loopGold;
+    run.pending = null; run.pool = [];
+    run.harbor = true;
+    openShop(run);
+  }
   function endless(run) {
     if (run.phase !== 'win') return false;
     const S = GL.config.score;
@@ -729,6 +751,14 @@ window.GL = window.GL || {};
         run.crew[0].points += run.startPoints || 0;
         run.captain = offer.id;
         run.pool = [];
+        if (run.endlessSea != null) {
+          // Endlos-Fahrt: direkt ins gewählte Meer, vorher im Hafen eine Crew anheuern
+          run.step = run.endlessSea * C.stepsPerIsland;
+          run.gold = (run.gold || 0) + C.endless.startGold + C.endless.goldPerSea * run.endlessSea;
+          run.harbor = true;
+          openShop(run);
+          return true;
+        }
         openCourse(run);
         return true;
       }
@@ -950,6 +980,7 @@ window.GL = window.GL || {};
         epics: (p.epics || []).slice(),
         hunt: p.hunt || null,
         altOpen: !!p.altOpen,
+        endlessSea: Number.isInteger(p.endlessSea) && p.endlessSea >= 0 && p.endlessSea < GL.data.islands.length ? p.endlessSea : null,
         alt: {},
         loot: [],
         // Stand der Freischaltungen beim Start, für ein exaktes Replay:
@@ -957,6 +988,7 @@ window.GL = window.GL || {};
         start: {
           unlocked: (p.unlocked || []).slice(), epics: (p.epics || []).slice(),
           upgrades: Object.assign({}, up), gear: Array.isArray(p.gear) ? p.gear.slice() : [], heat: p.heat || 0, hunt: p.hunt || null, altOpen: !!p.altOpen,
+          endlessSea: Number.isInteger(p.endlessSea) ? p.endlessSea : null,
           arts: (p.arts || []).map(a => ({ id: a.id, lvl: a.lvl })),
           items: (p.items || []).map(x => ({ uid: x.uid, id: x.id, r: x.r, lvl: x.lvl || 0 }))
         },
@@ -1031,7 +1063,8 @@ window.GL = window.GL || {};
 
     score(run) {
       const S = GL.config.score;
-      return (run.loopScore || 0) + Math.round((run.step * S.perStep + run.bounties * S.perBounty + (run.bountyM || 0) * (S.perMio || 0)) * (1 + (run.heat || 0) * GL.config.heatBonus.score));
+      const st = run.endlessSea != null ? run.step - run.endlessSea * GL.config.stepsPerIsland : run.step;
+      return (run.loopScore || 0) + Math.round((st * S.perStep + run.bounties * S.perBounty + (run.bountyM || 0) * (S.perMio || 0)) * (1 + (run.heat || 0) * GL.config.heatBonus.score));
     },
 
     heatMods,
