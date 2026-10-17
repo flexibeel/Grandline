@@ -1474,8 +1474,9 @@ window.GL = window.GL || {};
   // Schalter für den Streamer-Modus
   // Vollbild: auf Handys ohne Vollbild-Funktion (iPhone) Tipp für den Home-Bildschirm
   const fsApp = () => { try { return matchMedia('(display-mode: fullscreen), (display-mode: standalone)').matches || navigator.standalone; } catch (e) { return false; } };
+  const touchDev = () => { try { return matchMedia('(pointer: coarse)').matches; } catch (e) { return false; } };
   function fsLink() {
-    if (fsApp()) return '';
+    if (fsApp() || !touchDev()) return '';   // am PC kein Vollbild: das Spiel bleibt hochkant
     if (document.fullscreenEnabled || document.webkitFullscreenEnabled) {
       const on = !!(document.fullscreenElement || document.webkitFullscreenElement);
       return `<button class="link ts-fs" data-act="fullscreen">${on ? 'Vollbild beenden' : '⛶ Vollbild'}</button>`;
@@ -2355,7 +2356,7 @@ window.GL = window.GL || {};
       document.body.classList.toggle('is-app', !!fsApp());
       document.body.classList.toggle('in-run', !!run && !ui.screen);
       const fsb = document.querySelector('.fs-btn');
-      if (fsb) fsb.hidden = fsApp() || !(document.fullscreenEnabled || document.webkitFullscreenEnabled);
+      if (fsb) fsb.hidden = fsApp() || !touchDev() || !(document.fullscreenEnabled || document.webkitFullscreenEnabled);
       let sb = document.getElementById('sandbox-bar');
       if (GL.sandbox.on() && !sb) {
         sb = document.createElement('div'); sb.id = 'sandbox-bar';
