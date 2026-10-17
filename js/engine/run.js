@@ -674,12 +674,16 @@ window.GL = window.GL || {};
           const S = run.stats || (run.stats = { dmg: 0, maxHit: 0, kos: 0, crits: 0, taken: 0, fights: 0 });
           S.fights++;
           res.events.forEach(ev => {
-            if (ev.k === 'hit' && ev.side === 'crew') { S.dmg += ev.dmg; if (ev.dmg > S.maxHit) S.maxHit = ev.dmg; if (ev.crit) S.crits++; if (ev.hp <= 0 && ev.dmg > 0) S.kos++; }
+            if (ev.k === 'hit' && ev.side === 'crew') {
+              S.dmg += ev.dmg; if (ev.dmg > S.maxHit) S.maxHit = ev.dmg; if (ev.crit) S.crits++;
+              if (ev.hp <= 0 && ev.dmg > 0) { S.kos++; const t = enemies[ev.to] && enemies[ev.to].type; if (t) { S.koT = S.koT || {}; S.koT[t] = (S.koT[t] || 0) + 1; } }
+            }
+            if (ev.k === 'ult' && ev.side === 'crew') S.ults = (S.ults || 0) + 1;
             if (ev.k === 'hit' && ev.side === 'enemy') S.taken += ev.dmg;
             if (ev.k === 'dmg' && ev.side === 'enemy') ev.list.forEach(x => { S.dmg += x.dmg; if (x.hp <= 0 && x.dmg > 0) S.kos++; });
           });
           // Siege laden den Spezialangriff auf (Kopfgeldjäger doppelt)
-          if (res.win) earnGold(run, run.pending.kind);
+          if (res.win) { earnGold(run, run.pending.kind); S.won = (S.won || 0) + 1; }
           if (res.win && !special) {
             const gain = run.pending.kind === 'elite' ? 2 : run.pending.kind === 'battle' ? 1 : 0;
             run.charge = Math.min(C.specialMax, (run.charge || 0) + gain);

@@ -2739,3 +2739,23 @@ body.on-title { overflow: hidden; }
 .train-opt small { font-size: .7rem; color: var(--mute); }
 .train-opt .tip-badge { position: absolute; top: -9px; left: 50%; transform: translateX(-50%); }
 @media (max-width: 520px) { .train-opts { grid-template-columns: repeat(2, 1fr); } }
+
+/* ---------- Aufträge ---------- */
+.quests { display: grid; gap: 8px; margin-top: 12px; }
+.q-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.q-head b { font-family: var(--px); font-size: 1.1rem; }
+.q-head small { color: var(--mute); font-size: .78rem; }
+.quest { display: grid; grid-template-columns: 34px 1fr auto; gap: 10px; align-items: center; padding: 10px 12px; border-radius: 12px;
+  background: var(--panel); border: 1px solid var(--line); box-shadow: 0 2px 0 var(--line); }
+.quest.done { border-color: var(--hp); background: color-mix(in srgb, var(--hp) 8%, var(--panel)); }
+.q-ico { font-size: 1.4rem; text-align: center; }
+.q-body { display: grid; gap: 4px; min-width: 0; }
+.q-body > b { font-size: .86rem; }
+.q-bar { position: relative; height: 14px; border-radius: 7px; background: var(--line); overflow: hidden; }
+.q-bar i { display: block; height: 100%; background: linear-gradient(90deg, #f2b632, #ffd76a); border-radius: 7px; transition: width .3s; }
+.quest.done .q-bar i { background: linear-gradient(90deg, #4a9a4e, #7cc47a); }
+.q-bar em { position: absolute; inset: 0; display: grid; place-items: center; font-style: normal; font-size: .66rem; font-weight: 800; color: var(--ink); }
+.q-rew { color: var(--mute); font-size: .72rem; display: flex; align-items: center; gap: 4px; }
+.q-rew svg { width: 12px; height: 12px; }
+.q-claim { margin: 0 !important; animation: ts-pulse 1.2s steps(2) infinite; }
+.q-re { font-size: 1.2rem; text-decoration: none; padding: 4px; }

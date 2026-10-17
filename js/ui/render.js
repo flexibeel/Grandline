@@ -1695,6 +1695,23 @@ window.GL = window.GL || {};
     return `<span class="atsea" data-tip="Wer in den letzten 10 Minuten gespielt hat (du zählst mit). Aktualisiert sich von selbst."><i class="atsea-dot" aria-hidden="true"></i>${txt}</span>`;
   }
 
+  function questBoard(profile) {
+    const qs = GL.meta.questsEnsure(profile);
+    const cards = qs.map(q => {
+      const d = GL.meta.questDef(q);
+      const p = GL.meta.questProgress(profile, q);
+      return `<div class="quest${p.done ? ' done' : ''}">
+        <span class="q-ico">${d.icon}</span>
+        <span class="q-body"><b>${esc(d.text.replace('{n}', q.n.toLocaleString('de-DE')))}</b>
+          <span class="q-bar"><i style="width:${Math.round(100 * p.have / p.need)}%"></i><em>${p.have.toLocaleString('de-DE')} / ${p.need.toLocaleString('de-DE')}</em></span>
+          <small class="q-rew">${GL.sprites.coin()} ${q.berry} · ✦ ${q.xp} EP</small></span>
+        ${p.done ? `<button class="btn mini q-claim" data-act="quest-claim" data-id="${q.id}">Abholen</button>`
+          : profile.questReroll > 0 ? `<button class="link q-re" data-act="quest-reroll" data-id="${q.id}" title="Einmal am Tag gratis neu würfeln">↻</button>` : ''}
+      </div>`;
+    }).join('');
+    return `<section class="quests"><div class="q-head"><b>Aufträge</b><small>Abgeholt? Sofort kommt ein neuer. Jeden Tag frische.</small></div>${cards}</section>`;
+  }
+
   function hq(profile, tab, uiRef) {
     const best = GL.save.best();
     const slots = GL.meta.slots(profile);
@@ -1768,6 +1785,8 @@ window.GL = window.GL || {};
         </div>
         <div class="sail-board"><span class="sb-lbl">An Bord</span>${board.length ? board.join('') : '<small class="muted">nichts – Lager, Schmiede, Schatzkammer</small>'}</div>`}
       </div>
+
+      ${uiRef && uiRef.peek ? '' : questBoard(profile)}
 
       <div class="atabs hq-tabs" role="tablist">
         ${[['profil', 'Profil'], ['stammcrew', '⚔ Stammcrew'], ['werft', 'Werft'], ['rangliste', 'Rangliste'], ['schmiede', `Schmiede <small>${(profile.itemLoadout || []).length}/${GL.meta.itemSlots(profile)}</small>`], ['kammer', `Schatzkammer <small>${profile.artLoadout.length}/${GL.meta.artSlots(profile)}</small>`], ['lager', `Lager <small>${profile.loadout.length}/${slots}</small>`], ['haendler', 'Händler']].map(([id, name]) =>

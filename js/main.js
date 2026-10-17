@@ -89,6 +89,12 @@
     });
     checkChapters();
     checkCosmetics();
+    (profile.quests || []).forEach(q => {
+      if (!q.told && GL.meta.questProgress(profile, q).done) {
+        q.told = true;
+        toast(`<span><b>Auftrag erfüllt: ${GL.meta.questDef(q).icon} ${GL.meta.questDef(q).text.replace('{n}', q.n)}</b>Belohnung im Hauptquartier abholen.</span>`);
+      }
+    });
     GL.save.storeProfile(profile);
   }
 
@@ -510,6 +516,18 @@
       case 'toggle-art': if (GL.meta.toggleArtifact(profile, el.dataset.id)) { saveProfile(); draw(); } break;
       case 'sheet': ui.sheet = i; draw(); break;
       case 'sheet-close': ui.sheet = null; draw(); break;
+      case 'quest-claim': {
+        const r = GL.meta.questClaim(profile, el.dataset.id);
+        if (r) {
+          toast(`<span><b>Auftrag erledigt!</b>+${r.q.berry} Berry, +${r.q.xp} Rang-EP${r.ups.length ? ` · Neuer Rang: ${GL.data.ranks[r.ups[r.ups.length - 1]].name}` : ''}</span>`);
+          saveProfile(); ui.lastStage = null; draw();
+        }
+        break;
+      }
+      case 'quest-reroll': {
+        if (GL.meta.questReroll(profile, el.dataset.id)) { saveProfile(); ui.lastStage = null; draw(); }
+        break;
+      }
       case 'train': {
         const u = run && run.crew[i];
         if (!u) break;

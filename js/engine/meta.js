@@ -318,6 +318,77 @@ window.GL = window.GL || {};
       return Math.round((refs || []).reduce((s, r) => s + r.max * 0.5 + r.atk * 4 + r.spd * 2, 0));
     },
 
+    // ---------- Lebenszeit-Zähler für Aufträge ----------
+    // Zählt Zuwächse aus dem laufenden Run dazu (update() läuft öfter pro Run, daher nur die Differenz)
+    trackLife(profile, run) {
+      const L = profile.life = profile.life || {};
+      const cur = profile.current;
+      const seen = cur.life = cur.life || {};
+      const S = run.stats || {};
+      const kt = S.koT || {};
+      const hunted = (run.defeated || []).filter(id => (GL.data.hunted || []).some(h => h.id === id)).length;
+      const bosses = (run.defeated || []).filter(id => GL.data.bosses.some(b => b.id === id)).length;
+      const now = { dmg: S.dmg || 0, kos: S.kos || 0, crits: S.crits || 0, ults: S.ults || 0, won: S.won || 0, hunted, bosses,
+        steps: run.step || 0, ko_kraft: kt.kraft || 0, ko_klinge: kt.klinge || 0, ko_technik: kt.technik || 0 };
+      Object.keys(now).forEach(k => {
+        const d = now[k] - (seen[k] || 0);
+        if (d > 0) { L[k] = (L[k] || 0) + d; seen[k] = now[k]; }
+      });
+      L.maxHit = Math.max(L.maxHit || 0, S.maxHit || 0);
+    },
+    lifeValue(profile, kind) {
+      if (kind === 'duels') return profile.squadW || 0;
+      return (profile.life || {})[kind] || 0;
+    },
+
+    // ---------- Aufträge ----------
+    questTier(profile) { return Math.min(2, Math.floor(GL.meta.rankIndex(profile) / 6)); },
+    newQuest(profile, avoid) {
+      const Q = GL.data.quests.filter(q => !(avoid || []).includes(q.kind));
+      const t = Q[Math.floor(Math.random() * Q.length)];
+      const tier = GL.meta.questTier(profile);
+      const R = GL.data.questReward[tier];
+      return { id: 'q' + Date.now().toString(36) + Math.floor(Math.random() * 1e5).toString(36), kind: t.kind, n: t.n[tier], tier,
+        base: t.max ? 0 : GL.meta.lifeValue(profile, t.kind), berry: R.berry, xp: R.xp };
+    },
+    questsEnsure(profile) {
+      const day = new Date().toISOString().slice(0, 10);
+      profile.quests = profile.quests || [];
+      if (profile.questDay !== day) {
+        // Neuer Tag: unfertige Aufträge werden ersetzt, fertige bleiben zum Abholen
+        profile.quests = profile.quests.filter(q => GL.meta.questProgress(profile, q).done);
+        profile.questDay = day;
+        profile.questReroll = 1;
+      }
+      while (profile.quests.length < 3) profile.quests.push(GL.meta.newQuest(profile, profile.quests.map(q => q.kind)));
+      return profile.quests;
+    },
+    questDef(q) { return GL.data.quests.find(t => t.kind === q.kind) || { icon: '?', text: '?' }; },
+    questProgress(profile, q) {
+      const def = GL.meta.questDef(q);
+      const have = def.max ? GL.meta.lifeValue(profile, q.kind) : GL.meta.lifeValue(profile, q.kind) - (q.base || 0);
+      return { have: Math.min(q.n, Math.max(0, have)), need: q.n, done: have >= q.n };
+    },
+    questClaim(profile, id) {
+      const i = (profile.quests || []).findIndex(q => q.id === id);
+      if (i < 0) return null;
+      const q = profile.quests[i];
+      if (!GL.meta.questProgress(profile, q).done) return null;
+      profile.berry += q.berry;
+      const ups = GL.meta.addRankXp(profile, q.xp);
+      profile.questsDone = (profile.questsDone || 0) + 1;
+      profile.quests[i] = GL.meta.newQuest(profile, profile.quests.map(x => x.kind));
+      return { q, ups };
+    },
+    questReroll(profile, id) {
+      if (!(profile.questReroll > 0)) return false;
+      const i = (profile.quests || []).findIndex(q => q.id === id);
+      if (i < 0) return false;
+      profile.questReroll--;
+      profile.quests[i] = GL.meta.newQuest(profile, profile.quests.map(x => x.kind));
+      return true;
+    },
+
     // Kapitel-Fortschritt eines Meeres: die 4 Bösewichte der kleinen Inseln plus beide Insel-Bosse.
     // Da pro Run nur 2 von 4 kleinen Inseln und einer von 2 Bossen drankommen, braucht es mehrere Runs,
     // bis alle sechs einmal besiegt wurden - daher ein eigener Fortschrittsbalken über Runs hinweg.
@@ -392,6 +463,7 @@ window.GL = window.GL || {};
         if (isNew && profile.artLoadout.length < GL.meta.artSlots(profile)) profile.artLoadout.push(id);
       });
       (run.defeated || []).forEach(id => count('defeated:' + id));
+      GL.meta.trackLife(profile, run);
       for (let i = 0; i <= GL.run.islandIndex(run); i++) count('reached:' + i);
       (run.course || []).forEach(id => { if (id) count('isle:' + id); });
       const won = run.phase === 'win';
