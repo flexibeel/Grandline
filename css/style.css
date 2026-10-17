@@ -2342,7 +2342,7 @@ body.on-title { overflow: hidden; }
 .gem-lv { width: 32px; height: 32px; font-size: .9rem; }
 .gem-spd { width: 28px; height: 28px; font-size: .8rem; }
 .card-stars { top: 4px; }
-.card-stars .stars { font-size: .9rem; text-shadow: 0 1px 0 rgba(0,0,0,.25); }
+.card-stars .stars { font-size: .9rem; color: #fff; text-shadow: -1px 0 0 rgba(0,0,0,.6), 1px 0 0 rgba(0,0,0,.6), 0 -1px 0 rgba(0,0,0,.6), 0 1px 0 rgba(0,0,0,.6); }
 .opt.card .key { bottom: 9px; }
 
 @media (max-width: 520px) {
