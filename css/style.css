@@ -879,8 +879,6 @@ button:focus-visible, .opt:focus-visible { outline: 3px solid var(--sea); outlin
 :root:not([data-theme="dark"]) .arena .fighter { --panel: #1f1914; --line: #34393f; --ink: #f1eee8; --mute: #b3b7bc; color: #f1eee8; }
 :root:not([data-theme="dark"]) .key { background: #fff; }
 .key.inline, :root:not([data-theme="dark"]) .key.inline { background: transparent; }
-:root:not([data-theme="dark"]) .scene-card p { color: #c9ccd1; }
-:root:not([data-theme="dark"]) .scene-card h2 { color: #f1eee8; }
 .theme-toggle { font-size: .85rem; }
 
 /* ---------- 3D-Effekte ---------- */
@@ -2007,7 +2005,7 @@ h2 { letter-spacing: .015em; }
 .sc-stop.done { color: rgba(243,210,122,.7); }
 @media (max-width: 520px) { .sc-stop { font-size: .68rem; max-width: 26%; left: 4px; padding: 2px 6px; } }
 .stop-name { color: var(--ink); }
-.scene-stops { margin-top: 10px !important; font-size: .95rem; color: #c9ccd1 !important; }
+.scene-stops { margin-top: 10px !important; font-size: .9rem; color: #6b5a44 !important; }
 .stop-banner { position: fixed; top: 18%; left: 50%; z-index: 80; transform: translateX(-50%); pointer-events: none;
   display: grid; justify-items: center; padding: 10px 28px; border-radius: 14px; color: #fff;
   background: linear-gradient(135deg, rgba(53,41,28,.94), rgba(107,66,38,.92)); box-shadow: 0 12px 30px rgba(40,25,10,.3);
@@ -2928,3 +2926,29 @@ button, .opt, .map-node, .lb-row { touch-action: manipulation; }
 body.streamer .acc-line b { filter: none; }
 .ts-menu .stream-tg { display: flex; }
 .cb-actions { align-items: center; } .cb-actions .stream-tg { margin: 0 0 0 auto; }
+/* Insel-Einblendung: helle, gut lesbare Karte statt dunkler Schleier */
+.scene { background: rgba(40, 30, 18, .28); backdrop-filter: blur(3px); }
+.scene-card { background: #fffaf0; color: #3a2a18; border-radius: 22px; padding: 18px 26px 22px; margin: 16px;
+  box-shadow: 0 2px 0 #e8d9bd, 0 18px 40px rgba(60, 40, 15, .28); border: 1px solid #eadcc2; animation: sheet-in .35s ease-out; }
+.scene-card .event-kicker { color: #9a7a4a; }
+.scene-card h2 { color: #2f5d7a; font-size: clamp(2.2rem, 8vw, 3.4rem); }
+.scene-card p { color: #6b5a44; }
+.scene-card .scene-stops { margin-top: 10px; font-size: .85rem; padding: 6px 12px; border-radius: 999px; background: #f3ead8; display: inline-block; }
+.scene-card .scene-stops b { color: #a3402f; }
+.scene.isl-paradies h2 { color: #b9862a; }
+.scene.isl-enies-lobby h2 { color: #b23f33; }
+.scene-wave { width: 72px; margin: -6px auto 2px; animation: ship-bob-s 2.4s ease-in-out infinite; }
+.scene-wave svg { width: 100%; height: auto; }
+@keyframes ship-bob-s { 50% { transform: translateY(-3px) rotate(-2deg); } }
+/* Schrift: rund und ruhig statt Pixel-Fett */
+:root { --px: "Fredoka", "Nunito", ui-rounded, system-ui, sans-serif; }
+h1, h2, h3, .rank-name, .my-name, .duel-head b, .poster h3, .card-name, .tp-name,
+.sp-text b, .stop-banner b, .scene-card h2, .lb-pos, .medal-num, .acard b, .rank-up b, .hq-sec h3 {
+  font-family: var(--px) !important; font-weight: 600 !important; letter-spacing: -.005em !important;
+}
+.scene-card h2, .stop-banner b, .sp-text b { font-weight: 500 !important; }
+.btn { font-family: "Nunito", system-ui, sans-serif; font-weight: 800; letter-spacing: .005em; }
+.log, .fnum, .f-round, .mn-label b, .battle3d .hud .f-name, .battle3d .hud .f-hp, .battle3d .hud .callout,
+.gem, .card-rarity, .squad-power, .duel-verdict, .ult-call b { font-family: var(--px); font-weight: 500; }
+.fnum { font-weight: 600; animation: px-num .8s ease-out forwards; }
+.heat-num { font-family: var(--px); font-weight: 600; }

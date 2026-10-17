@@ -2108,13 +2108,13 @@ window.GL = window.GL || {};
     el.id = 'scene';
     el.className = 'scene isl-' + isl.id;
     el.setAttribute('role', 'status');
-    el.innerHTML = `<div class="scene-card"><span class="event-kicker">Meer ${idx + 1} von ${GL.data.islands.length}</span>
+    el.innerHTML = `<div class="scene-card"><div class="scene-wave" aria-hidden="true">${GL.sprites.ship()}</div><span class="event-kicker">Meer ${idx + 1} von ${GL.data.islands.length}</span>
       <h2>${isl.name}</h2><p>${isl.tagline || ''}</p>
       <p class="scene-stops">Kleine Insel → Bösewicht → Große Insel → <b>Boss des Meeres</b></p></div>`;
     dismissOnTap(el);
     document.body.appendChild(el);
-    setTimeout(() => el.classList.add('out'), 1500);
-    setTimeout(() => el.remove(), 2050);
+    setTimeout(() => el.classList.add('out'), 2300);
+    setTimeout(() => el.remove(), 2850);
   }
 
   // Training nach Level-up: kurze Wahl aus Trainingskarten statt Punkte einzeln verteilen
