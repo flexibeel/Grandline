@@ -42,6 +42,50 @@ window.GL = window.GL || {};
     return `<em class="rar rar-${R.id}">${R.name}</em>`;
   }
 
+  // ---------- Ausrüstung ----------
+  const STAT_NAMES = { atk: 'Angriff', hp: 'Leben', spd: 'Tempo', crit: 'Krit', armor: 'Rüstung', dmgPct: 'Schaden', regen: 'Heilung/Runde' };
+  function itemStatText(it) {
+    const s = GL.run.itemStats(it);
+    return Object.keys(s).filter(k => s[k]).map(k => `+${['crit', 'dmgPct'].includes(k) ? Math.round(s[k] * 100) + ' %' : s[k]} ${STAT_NAMES[k]}`).join(', ');
+  }
+  function itemName(it) {
+    const d = GL.data.items.find(x => x.id === it.id);
+    return (d ? d.name : it.id) + (it.lvl ? ` +${it.lvl}` : '');
+  }
+  // Kleine Pixel-Symbole je Gegenstandsart, eingefärbt nach Seltenheit
+  const ITEM_PIX = {
+    saebel:     ['.......X', '......X.', '.....X..', '....X...', '.H.X....', '..H.....', '.H.H....', 'H.......'],
+    schlagring: ['........', '.XXXXXX.', 'X.X.X.XX', 'XXXXXXXX', '.XXXXXX.', '..HHHH..', '..HHHH..', '........'],
+    muskete:    ['........', '........', 'XXXXXXX.', '.HHHXXXX', '..HH....', '..H.....', '.HH.....', '........'],
+    weste:      ['.XX..XX.', 'XXXXXXXX', 'XXX..XXX', 'XXXHHXXX', 'XXXHHXXX', 'XXXXXXXX', 'XXXXXXXX', '.XXXXXX.'],
+    panzer:     ['.XXXXXX.', 'XXHHHHXX', 'XHXXXXHX', 'XHXXXXHX', 'XHXXXXHX', '.XHXXHX.', '..XHHX..', '...XX...'],
+    mantel:     ['..XXXX..', '.XXHHXX.', 'XXXHHXXX', 'XXXXXXXX', 'XXXXXXXX', 'XX.XX.XX', 'XX.XX.XX', 'X..XX..X'],
+    stiefel:    ['..XXX...', '..XXX...', '..XXX...', '..XXX...', '..XXXX..', '..XXXXXX', '.HHHHHHH', '........'],
+    anhaenger:  ['...HH...', '..H..H..', '..H..H..', '...XX...', '..XXXX..', '.XXXXXX.', '..XXXX..', '...XX...'],
+    amulett:    ['..HHHH..', '.H....H.', '...XX...', '..XXXX..', '.XX..XX.', '.XX..XX.', '..XXXX..', '...XX...'],
+    fernrohr:   ['........', 'X.......', 'XXX.....', '.XXXX...', '..XXHHH.', '....HHHH', '.....HH.', '........']
+  };
+  const RAR_COL = ['#8a94a3', '#4a8be0', '#9a63e0', '#e2a92a'];
+  function itemIcon(it) {
+    const rows = ITEM_PIX[it.id];
+    if (!rows) return GL.sprites.icon('relic', 'kanone');
+    let rects = '';
+    rows.forEach((row, y) => row.split('').forEach((ch, x) => {
+      if (ch === 'X') rects += `<rect x="${x}" y="${y}" width="1" height="1" fill="${RAR_COL[Math.max(0, Math.min(3, it.r))]}"/>`;
+      if (ch === 'H') rects += `<rect x="${x}" y="${y}" width="1" height="1" fill="#6b4f3a"/>`;
+    }));
+    return `<svg viewBox="0 0 8 8" shape-rendering="crispEdges" aria-hidden="true">${rects}</svg>`;
+  }
+  function itemCard(it, extra, cls) {
+    const d = GL.data.items.find(x => x.id === it.id) || {};
+    const rid = GL.config.rarities[Math.max(0, it.r)].id;
+    return `<div class="item-card ir-${rid}${cls ? ' ' + cls : ''}">
+      <span class="item-ico">${itemIcon(it)}</span>
+      <span class="item-body"><b>${esc(itemName(it))}</b>${rarityPill(it.r)}<small>${itemStatText(it)}</small></span>
+      ${extra || ''}
+    </div>`;
+  }
+
   function typeChart() {
     const T = GL.data.types;
     return Object.keys(T).map(k => `${T[k].name} schlägt ${T[T[k].strong].name}`).join(', ') + '.';
@@ -534,7 +578,9 @@ window.GL = window.GL || {};
           <button class="btn mini" data-act="sheet" data-i="${i}">Punkte verteilen</button></span>
       </div>`;
     }).join('');
-    return `<div class="summary">${rows}</div>`;
+    const g = run.lastGold && b.win ? `<div class="sum-gold">${GL.sprites.coin()} +${run.lastGold.base} Gold${run.lastGold.interest ? ` <small>+${run.lastGold.interest} Zinsen</small>` : ''}</div>` : '';
+    const it = run.lastItem && b.win ? (run.items || []).find(x => x.uid === run.lastItem && x.isNew) : null;
+    return `<div class="summary">${rows}</div>${g}`;
   }
 
   function bossInfo(boss) {
@@ -613,12 +659,32 @@ window.GL = window.GL || {};
       </div>
       ${sets.length ? `<div class="lbl">Aktive Boni für ${d.name}</div><ul class="sheet-sets">${sets.map(s =>
         `<li>${s.kind === 'faction' ? '<em class="set-tag">Set</em>' : ''}<b>${s.name} ${s.count}:</b> ${s.active.text}</li>`).join('')}</ul>` : ''}
+      ${equipSection(run, i)}
       <div class="sheet-foot">
         <button class="btn ghost" data-act="sheet-close">Schließen</button>
         ${u.id !== run.captain && run.crew.length > 1 && ['map', 'prep', 'recruit', 'fruit', 'treasure', 'awaken', 'event'].includes(run.phase)
           ? `<button class="btn ghost danger-btn" data-act="dismiss" data-i="${i}">Entlassen (+${GL.run.sellValue(u)} Gold)</button>` : ''}
       </div>
     </div>`;
+  }
+
+  // Ausrüstung im Steckbrief: angelegter Gegenstand und Auswahl aus dem Run-Inventar
+  function equipSection(run, i) {
+    const u = run.crew[i];
+    const items = run.items || [];
+    const can = ['map', 'prep', 'recruit', 'fruit', 'treasure', 'awaken', 'event'].includes(run.phase);
+    const cur = u.item ? items.find(x => x.uid === u.item) : null;
+    const others = items.filter(x => x.uid !== u.item);
+    const holder = uid => run.crew.find(o => o.item === uid);
+    return `<div class="lbl">Ausrüstung</div>
+      <div class="equip">
+        ${cur ? itemCard(cur, can ? `<button class="btn mini ghost" data-act="equip" data-i="${i}" data-uid="">Ablegen</button>` : '') : '<p class="muted">Nichts angelegt.</p>'}
+        ${others.length && can ? `<div class="equip-list">${others.map(it => {
+          const h = holder(it.uid);
+          return itemCard(it, `<button class="btn mini" data-act="equip" data-i="${i}" data-uid="${it.uid}">${h ? 'Tauschen' : 'Anlegen'}</button>`, h ? 'worn' : '') +
+            (h ? `<small class="worn-by">trägt ${esc(crewData(h.id).name)}</small>` : '');
+        }).join('')}</div>` : items.length ? '' : '<small class="muted">Ausrüstung findest du bei Kopfgeld-Zielen, Bossen und in Schatztruhen.</small>'}
+      </div>`;
   }
 
   // Hinweis, solange Statuspunkte offen sind
@@ -857,13 +923,16 @@ window.GL = window.GL || {};
           rankHtml = `<div class="rank-gain">${medal(now.i, 'small')}<span>Piratenrang: <b>${now.rank.name}</b></span><small>+${lr.xp} Rang-EP</small>
             <div class="xpbar big rank-bar fill-anim" style="--from:${fromPct}%;--to:${toPct}%"><i style="width:${toPct}%"></i></div></div>${ups}`;
         }
+        const newItems = (run.items || []).filter(x => !x.carried);
+        const itemSum = newItems.length ? `<div class="trophy-sum items-sum"><span class="event-kicker">Neue Ausrüstung für die Schmiede</span>
+          ${newItems.map(x => `<span class="trophy-chip ir-${GL.config.rarities[x.r].id}">${esc(itemName(x))}</span>`).join('')}</div>` : '';
         const tro = (run.trophies || []).map(id => (GL.data.artifacts || []).find(a => a.id === id)).filter(Boolean);
         const troHtml = tro.length ? `<div class="trophy-sum"><span class="event-kicker">Neu in der Schatzkammer</span>
           ${tro.map(a => `<span class="trophy-chip" title="${a.text.replace('{v}', '…')}">${artIcon(a)} ${a.name}</span>`).join('')}</div>` : '';
         const duelHtml = run.duel ? `<div class="duel-sum"><span class="event-kicker">Duell ${run.duel}</span>
           <span>Dein Ergebnis: <b>${GL.run.score(run).toLocaleString('de-DE')}</b> Punkte. Schick deinem Freund den Code <b>${run.duel}</b>, er spielt denselben Run.</span>
           <button class="btn mini ghost" data-act="duel-copy" data-id="${run.duel}">Code kopieren</button></div>` : '';
-        return `${head}${duelHtml}${record}${berry}${troHtml}${rankHtml}${heatUp}<button class="btn" data-act="hq">Zurück ins Hauptquartier ${keyHint('Leertaste')}</button>`;
+        return `${head}${duelHtml}${record}${berry}${troHtml}${itemSum}${rankHtml}${heatUp}<button class="btn" data-act="hq">Zurück ins Hauptquartier ${keyHint('Leertaste')}</button>`;
       }
     }
     return '';
@@ -987,6 +1056,27 @@ window.GL = window.GL || {};
       ${chips}
       ${table}
       <p class="muted lb-note">Punkte: 100 pro Etappe, 500 pro Inselboss, 2 pro Million Kopfgeld. Höhere Kopfgeld-Stufen zählen mehr.</p>
+    </section>`;
+  }
+
+  // ---------- Schmiede: Ausrüstung behalten, verbessern, mitnehmen ----------
+  function forgeSection(profile) {
+    const chest = (profile.chest || []).slice().sort((a, b) => b.r - a.r || (b.lvl || 0) - (a.lvl || 0));
+    const slots = GL.meta.itemSlots(profile);
+    const used = (profile.itemLoadout || []).length;
+    const fmt = n => n.toLocaleString('de-DE');
+    const cards = chest.map(it => {
+      const on = (profile.itemLoadout || []).includes(it.uid);
+      const cost = GL.meta.forgeCost(it);
+      const btns = `<span class="forge-btns">
+        <button class="btn mini${on ? '' : ' ghost'}" data-act="toggle-item" data-id="${it.uid}"${!on && used >= slots ? ' disabled' : ''}>${on ? 'Kommt mit' : 'Mitnehmen'}</button>
+        ${cost != null ? `<button class="btn mini buy" data-act="forge" data-id="${it.uid}"${profile.berry < cost ? ' disabled' : ''}>⚒ ${GL.sprites.coin()} ${fmt(cost)}</button>` : '<small class="muted">Max.</small>'}
+        <button class="link" data-act="scrap" data-id="${it.uid}" title="Einschmelzen für Berry">einschmelzen</button></span>`;
+      return itemCard(it, btns, on ? 'on' : '');
+    }).join('');
+    return `<section class="hq-sec">
+      <p class="hint">Ausrüstung aus deinen Runs landet hier. Verbessere sie mit Berry (bis +${GL.config.items.maxLevel}) und nimm bis zu <b>${slots}</b> Stück in den nächsten Run mit (mehr Plätze ab Rang 5, 9, 13). Im Run legst du sie im Steckbrief einer Figur an.</p>
+      ${chest.length ? `<div class="item-grid">${cards}</div>` : '<p class="muted">Noch leer. Besiege Kopfgeld-Ziele und Bosse, dann füllt sich die Truhe.</p>'}
     </section>`;
   }
 
@@ -1290,7 +1380,8 @@ window.GL = window.GL || {};
     const rp = GL.meta.rankProgress(profile);
     const rankHtml = rankPanel(profile, rp, fmt);
 
-    const onBoard = loadout.concat(profile.artLoadout.map(id => GL.data.artifacts.find(x => x.id === id).name));
+    const onBoard = loadout.concat(profile.artLoadout.map(id => GL.data.artifacts.find(x => x.id === id).name),
+      GL.meta.takeItems(profile).map(x => itemName(x)));
     return `<div class="hq">
       <div class="hq-bar">
         ${profileChip(profile)}
@@ -1308,7 +1399,7 @@ window.GL = window.GL || {};
       </div>
 
       <div class="atabs hq-tabs" role="tablist">
-        ${[['profil', 'Profil'], ['werft', 'Werft'], ['rangliste', 'Rangliste'], ['kammer', `Schatzkammer <small>${profile.artLoadout.length}/${GL.meta.artSlots(profile)}</small>`], ['lager', `Lager <small>${profile.loadout.length}/${slots}</small>`], ['haendler', 'Händler']].map(([id, name]) =>
+        ${[['profil', 'Profil'], ['werft', 'Werft'], ['rangliste', 'Rangliste'], ['schmiede', `Schmiede <small>${(profile.itemLoadout || []).length}/${GL.meta.itemSlots(profile)}</small>`], ['kammer', `Schatzkammer <small>${profile.artLoadout.length}/${GL.meta.artSlots(profile)}</small>`], ['lager', `Lager <small>${profile.loadout.length}/${slots}</small>`], ['haendler', 'Händler']].map(([id, name]) =>
           `<button class="atab${tab === id ? ' on' : ''}" role="tab" aria-selected="${tab === id}" data-act="hq-tab" data-tab="${id}">${name}</button>`).join('')}
       </div>
 
@@ -1330,6 +1421,7 @@ window.GL = window.GL || {};
           <button class="link danger-link" data-act="reset-all">${uiRef && uiRef.resetArmed ? 'Wirklich alles löschen? Zum Bestätigen nochmal klicken.' : 'Spielstand komplett löschen und von vorne beginnen'}</button>
         </div></section>` : ''}
       ${tab === 'kammer' ? vaultSection(profile) : ''}
+      ${tab === 'schmiede' ? forgeSection(profile) : ''}
       ${tab === 'rangliste' ? leaderboard(profile, uiRef) : ''}
       ${tab === 'lager' ? `<section class="hq-sec">
         <p class="hint">${profile.loadout.length} von ${slots} Plätzen belegt. Ausgewählte Ausrüstung kommt mit in den nächsten Run und wird dabei verbraucht.</p>

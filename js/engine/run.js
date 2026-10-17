@@ -11,6 +11,7 @@
 //   (fast immer) Statuspunkt       -> { type: 'spend', index, stat: 'hp' | 'atk' | 'spd' }
 //   recruit  Taverne (Shop)        -> { type: 'pick', index } kaufen, { type: 'reroll' }, { type: 'leave' }
 //   (außer im Kampf) Entlassen     -> { type: 'dismiss', index }
+//   (außer im Kampf) Ausrüsten     -> { type: 'equip', index, uid }   (uid leer = ablegen)
 //   fruit    Teufelsfrucht wählen  -> { type: 'pick', index }
 //   treasure Schatz wählen         -> { type: 'pick', index }
 //   prep     Kampfreihenfolge      -> { type: 'fight' }  oder { type: 'special' } (Spezialangriff an/aus)
@@ -417,6 +418,51 @@ window.GL = window.GL || {};
     }
   }
 
+  // ---------- Ausrüstung ----------
+  // Fertige Werte eines Gegenstands (Seltenheit r, Schmiede-Stufe lvl)
+  function itemStats(it) {
+    const def = byId(GL.data.items, it.id);
+    if (!def) return {};
+    const out = {};
+    Object.keys(def.stats).forEach(k => { out[k] = def.stats[k][Math.max(0, Math.min(3, it.r))]; });
+    Object.keys(def.up || {}).forEach(k => { out[k] = (out[k] || 0) + def.up[k] * (it.lvl || 0); });
+    Object.keys(out).forEach(k => { out[k] = Math.round(out[k] * 100) / 100; });
+    return out;
+  }
+  function dropItem(run, chance, minR) {
+    if (R.float(run) >= chance) return null;
+    const def = GL.data.items[R.int(run, 0, GL.data.items.length - 1)];
+    let r = GL.loot.rollRarity(run, true);
+    if (minR != null) r = Math.max(r, minR);
+    run.itemSeq = (run.itemSeq || 0) + 1;
+    const it = { uid: 'i' + run.seed.toString(36) + '-' + run.itemSeq, id: def.id, r, lvl: 0, isNew: true };
+    run.items.push(it);
+    run.lastItem = it.uid;
+    return it;
+  }
+  // Leben aus Ausrüstung gilt dauerhaft, solange sie angelegt ist
+  function setItemHp(u, it, sign) {
+    const hp = it ? (itemStats(it).hp || 0) : 0;
+    if (!hp) return;
+    u.max += sign * hp;
+    u.hp = Math.max(sign > 0 ? u.hp + hp : Math.min(u.hp, u.max), u.hp > 0 ? 1 : 0);
+    if (u.hp > u.max) u.hp = u.max;
+  }
+  // Anlegen: { type: 'equip', index, uid } (uid leer = ablegen)
+  function equip(run, a) {
+    const u = run.crew[a.index];
+    if (!u || !SWAP_PHASES.includes(run.phase)) return false;
+    const it = a.uid ? run.items.find(x => x.uid === a.uid) : null;
+    if (a.uid && !it) return false;
+    // vom bisherigen Träger abnehmen
+    if (it) run.crew.forEach(o => { if (o.item === it.uid) { setItemHp(o, it, -1); o.item = null; } });
+    const old = u.item ? run.items.find(x => x.uid === u.item) : null;
+    if (old) setItemHp(u, old, -1);
+    u.item = it ? it.uid : null;
+    if (it) { setItemHp(u, it, 1); it.isNew = false; }
+    return true;
+  }
+
   // ---------- Artefakte (Schatzkammer) ----------
   // Besiegte Bosse, Raids und Kopfgeld-Ziele lassen manchmal ein Artefakt fallen.
   function rollTrophy(run, srcId, chance) {
@@ -465,6 +511,8 @@ window.GL = window.GL || {};
       run.defeated.push(h.id);
       rollTrophy(run, h.id, C.trophyChance.mini);
     }
+    if (b.kind === 'elite') dropItem(run, C.items.dropElite);
+    if (b.kind === 'boss') dropItem(run, C.items.dropBoss, 1);
     if (b.kind === 'boss') {
       const bossGain = Math.round(GL.config.bossBounty[Math.min(run.bounties, GL.config.bossBounty.length - 1)] * (1 + 0.25 * (run.heat || 0)));
       run.bountyM = (run.bountyM || 0) + bossGain;
@@ -500,6 +548,7 @@ window.GL = window.GL || {};
     const u = run.crew[a.index];
     if (!u || run.crew.length <= 1 || u.id === run.captain || !SWAP_PHASES.includes(run.phase)) return false;
     run.gold = (run.gold || 0) + sellValue(u);
+    u.item = null;
     run.crew.splice(a.index, 1);
     return true;
   }
@@ -518,6 +567,7 @@ window.GL = window.GL || {};
     if (a.type === 'spend') return spend(run, a);
     if (a.type === 'swap') return swap(run, a);
     if (a.type === 'dismiss') return dismiss(run, a);
+    if (a.type === 'equip') return equip(run, a);
     switch (run.phase) {
       case 'starter': {
         if (a.type !== 'pick') return false;
@@ -551,6 +601,7 @@ window.GL = window.GL || {};
           run.pool = fruitPool(run);
           run.phase = 'fruit';
         } else if (node === 'treasure') {
+          dropItem(run, C.items.dropTreasure);
           openTreasure(run);
         } else if (node === 'rest') {
           heal(run, (C.restHeal + (run.bonus ? run.bonus.restHeal : 0)) * Math.max(0, 1 + (run.H ? run.H.restHeal : 0)));
@@ -705,6 +756,8 @@ window.GL = window.GL || {};
         defeated: [],
         raidIslands: [],
         charge: 0,
+        items: (p.items || []).map(x => ({ uid: x.uid, id: x.id, r: x.r, lvl: x.lvl || 0, carried: true })),   // Ausrüstung im Run
+        itemSeq: 0,
         gold: GL.config.shop.startGold,   // Gold für die Taverne (nur in diesem Run)
         shopRolls: 0,
         bountyM: 0,
@@ -718,7 +771,8 @@ window.GL = window.GL || {};
         start: {
           unlocked: (p.unlocked || []).slice(), epics: (p.epics || []).slice(),
           upgrades: Object.assign({}, up), gear: Array.isArray(p.gear) ? p.gear.slice() : [], heat: p.heat || 0,
-          arts: (p.arts || []).map(a => ({ id: a.id, lvl: a.lvl }))
+          arts: (p.arts || []).map(a => ({ id: a.id, lvl: a.lvl })),
+          items: (p.items || []).map(x => ({ uid: x.uid, id: x.id, r: x.r, lvl: x.lvl || 0 }))
         },
         bonus: {
           restHeal: upgradeTotal(up, 'restHeal'), choices: upgradeTotal(up, 'choices'),
@@ -793,6 +847,7 @@ window.GL = window.GL || {};
     },
 
     boss: currentBoss,
+    itemStats,
     registerSelf,
     offerPrice, sellValue, rerollCost,
     artValue,

@@ -139,6 +139,15 @@ Mit 20 % Chance nach einer Etappe passiert etwas, immer mit einer Wahl (`js/data
 - In js/data/config.js unter `online` die Supabase-Adresse (url) und den öffentlichen Schlüssel (key) eintragen. Dann kann sich jeder mit dem Link eintragen (anonyme Anmeldung).
 - Ohne Eintrag läuft die Rangliste über die geteilte Claude-Seite.
 
+## Eigener Pirat, Kosmetik, Online-Spielstand
+- Beim ersten Start erstellt man seinen Piraten (Name, Kampfstil, Rolle, Aussehen). Er ist als Kapitän spielbar (Figur 'self') und wird mit dem Piratenrang stärker (meta.selfDef).
+- Kosmetik (js/data/cosmetics.js): Hintergründe, Rahmen, Animationen, Titel mit Freischalt-Bedingungen, sichtbar in Profil und Rangliste.
+- Online-Spielstand (Supabase-Tabelle saves): E-Mail verknüpfen, auf anderem Gerät per Anmeldelink weiterspielen.
+
+## Ausrüstung
+- js/data/items.js: 10 Gegenstände mit Werten pro Seltenheit. Funde bei Kopfgeld-Zielen (60 %), Bossen (immer, mind. selten) und Schatztruhen (30 %).
+- Im Run im Steckbrief anlegen (ein Platz pro Figur). Nach dem Run in der Truhe; in der Schmiede (Hauptquartier) mit Berry bis +5 verbessern, einschmelzen oder mitnehmen (2 Plätze, mehr ab Rang 5, 9, 13).
+
 ## Tastenkürzel
 
 1 bis 9 wählt eine Option, Enter oder Leertaste startet den Kampf oder geht weiter,

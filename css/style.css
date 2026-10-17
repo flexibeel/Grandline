@@ -2138,3 +2138,30 @@ body.on-title { overflow: hidden; }
 .dev-box small { color: var(--mute); }
 .dev-row { display: flex; flex-wrap: wrap; gap: 8px; }
 .dev-row input { flex: 1; min-width: 200px; font: inherit; padding: 8px 12px; border-radius: 8px; border: 2px solid var(--line); background: var(--bg); color: var(--ink); }
+
+/* ---------- Ausrüstung ---------- */
+.item-card { display: grid; grid-template-columns: 40px 1fr auto; gap: 10px; align-items: center; padding: 8px 10px; border-radius: 10px;
+  background: var(--panel); border: 2px solid #cfd3da; box-shadow: 0 2px 0 #cfd3da; }
+.item-card.ir-rare { border-color: #4a8be0; box-shadow: 0 2px 0 #4a8be0; }
+.item-card.ir-epic { border-color: #9a63e0; box-shadow: 0 2px 0 #9a63e0; }
+.item-card.ir-legendary { border-color: #e2a92a; box-shadow: 0 2px 0 #e2a92a; background: #fffaf0; }
+.item-card.on { outline: 3px solid #f2b632; outline-offset: 1px; }
+.item-card.worn { opacity: .75; }
+.item-ico { width: 40px; height: 40px; display: grid; place-items: center; border-radius: 8px; background: var(--bg); }
+.item-ico svg { width: 30px; height: 30px; }
+.item-body { display: grid; gap: 2px; min-width: 0; }
+.item-body b { font-family: var(--px); font-weight: 600; }
+.item-body .rar { justify-self: start; }
+.item-body small { color: var(--mute); font-size: .8rem; }
+.item-grid, .equip-list { display: grid; gap: 8px; }
+.equip { display: grid; gap: 8px; margin-bottom: 10px; }
+.worn-by { color: var(--mute); font-size: .75rem; margin: -4px 0 0 52px; }
+.forge-btns { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; justify-content: flex-end; }
+.sum-gold { display: inline-flex; gap: 6px; align-items: center; margin: 8px 0 0; font-family: var(--px); font-size: 1.1rem; padding: 4px 12px; border-radius: 8px; background: #fff6dc; border: 2px solid #f2d27a; animation: px-pop-in .4s steps(3); }
+.sum-gold svg { width: 16px; height: 16px; }
+.sum-gold small { color: var(--mute); }
+@keyframes px-pop-in { from { transform: scale(.6); opacity: 0; } }
+.toast-item { display: grid; }
+.trophy-chip.ir-rare { background: #2f5f9e; } .trophy-chip.ir-epic { background: #6a3aa8; } .trophy-chip.ir-legendary { background: #a8740e; } .trophy-chip.ir-common { background: #5a6270; }
+.items-sum { border-color: var(--line); }
+@media (max-width: 520px) { .item-card { grid-template-columns: 36px 1fr; } .item-card > .btn, .forge-btns { grid-column: 1 / -1; justify-content: flex-start; } }

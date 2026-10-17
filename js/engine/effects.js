@@ -120,6 +120,13 @@ window.GL = window.GL || {};
       const t = GL.data.traits.find(x => x.id === u.ref.trait);
       if (t && t.mods) applyMod(u, t.mods, run);
     });
+    // Ausrüstung (Leben wird schon beim Anlegen verrechnet)
+    crew.forEach(u => {
+      const it = u.ref.item && (run.items || []).find(x => x.uid === u.ref.item);
+      if (!it) return;
+      const s = GL.run.itemStats(it);
+      Object.keys(s).forEach(k => { if (k !== 'hp' && k in u) u[k] += s[k]; });
+    });
     // Für Gegner gelten nur ihre eigenen Fähigkeiten
     enemies.forEach(u => abilityMods().forEach(m => {
       if (m.scope === 'char:' + u.id) applyMod(u, m, run);

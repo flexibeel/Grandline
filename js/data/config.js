@@ -18,6 +18,8 @@ GL.config = {
   // Raids und epische Früchte
   // Spezialangriff: Ladung pro Sieg (Kopfgeldjäger zählen doppelt), voll bei specialMax
   specialMax: 2,
+  // Ausrüstung: Fundchancen, Truhe, Mitnahme-Plätze, Schmiede-Preise (Berry)
+  items: { dropElite: 0.6, dropBoss: 1, dropTreasure: 0.3, chestMax: 40, takeBase: 2, maxLevel: 5, forgeBase: 25 },
   // Taverne: Preise in Gold, Gold für Siege (+ Zinsen), Neu würfeln wird pro Besuch teurer
   shop: { startGold: 30, base: 14, perStar: 10, perLevel: 3, locked: 12, sellShare: 0.5,
           reroll: 6, rerollStep: 3, extraOffers: 1, interestMax: 3,

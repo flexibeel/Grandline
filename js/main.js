@@ -60,7 +60,15 @@
     const wasFinished = GL.run.isFinished(run);
     const bountyBefore = run.bountyM || 0;
     const trophiesBefore = (run.trophies || []).length;
+    const itemsBefore = (run.items || []).length;
     if (!GL.run.act(run, action)) return;
+    // Neue Ausrüstung gefunden: kurze Meldung in der Farbe der Seltenheit
+    if ((run.items || []).length > itemsBefore) {
+      const it = run.items[run.items.length - 1];
+      const d = GL.data.items.find(x => x.id === it.id);
+      const R = GL.config.rarities[it.r];
+      setTimeout(() => toast(`<span class="toast-item ir-${R.id}"><b>${R.name}: ${d.name}</b>Im Steckbrief einer Figur anlegen.</span>`), 900);
+    }
     // Artefakt gefunden: nach dem Kopfgeld-Steckbrief einblenden
     if ((run.trophies || []).length > trophiesBefore) {
       const id = run.trophies[run.trophies.length - 1];
@@ -129,7 +137,7 @@
     const gear = GL.meta.takeLoadout(profile);
     run = GL.run.create(undefined, {
       unlocked: profile.unlocked, epics: profile.epics, upgrades: profile.upgrades, gear, heat: profile.heat,
-      arts: GL.meta.takeArtifacts(profile), self: selfNow()
+      arts: GL.meta.takeArtifacts(profile), self: selfNow(), items: GL.meta.takeItems(profile)
     });
     ui.newBest = false;
     ui.lastBerry = null;
@@ -276,6 +284,15 @@
       case 'buy-gear': if (GL.meta.buyGear(profile, el.dataset.id)) { saveProfile(); draw(); } break;
       case 'toggle-gear': if (GL.meta.toggleLoadout(profile, el.dataset.id)) { saveProfile(); draw(); } break;
       case 'reroll': act({ type: 'reroll' }); break;
+      case 'equip': act({ type: 'equip', index: i, uid: el.dataset.uid || null }); break;
+      case 'toggle-item': if (GL.meta.toggleItem(profile, el.dataset.id)) { saveProfile(); draw(); } break;
+      case 'forge': if (GL.meta.forge(profile, el.dataset.id)) { saveProfile(); toast('<span><b>Geschmiedet!</b>Der Gegenstand ist eine Stufe stärker.</span>'); draw(); } break;
+      case 'scrap': {
+        if (ui.scrapArmed !== el.dataset.id) { ui.scrapArmed = el.dataset.id; toast('<span><b>Einschmelzen?</b>Zum Bestätigen nochmal klicken.</span>'); break; }
+        const val = GL.meta.scrap(profile, el.dataset.id);
+        ui.scrapArmed = null; saveProfile(); toast(`<span><b>Eingeschmolzen</b>+${val} Berry</span>`); draw();
+        break;
+      }
       case 'leave': act({ type: 'leave' }); break;
       case 'dismiss': act({ type: 'dismiss', index: i }); ui.sheet = null; draw(); break;
       case 'lb-cat': ui.lbCat = el.dataset.id; draw(); break;

@@ -19,7 +19,9 @@ window.GL = window.GL || {};
         upgrades: {},      // Werft-Stufen { rumpf: 2 }
         gear: {},          // Lager: Anzahl je Ausrüstung { proviant: 2 }
         loadout: [],       // was beim nächsten Run mitkommt
-        vault: {},         // Schatzkammer: Anzahl Funde je Artefakt { jitte: 2 } (Stufe = Anzahl, höchstens 5)
+        vault: {},
+        chest: [],         // Ausrüstung in der Truhe [{ uid, id, r, lvl }]
+        itemLoadout: [],   // uids, die in den nächsten Run mitkommen         // Schatzkammer: Anzahl Funde je Artefakt { jitte: 2 } (Stufe = Anzahl, höchstens 5)
         artLoadout: [],    // ausgerüstete Artefakte
         rankXp: 0,         // Piratenrang (Account-Fortschritt)
         heatMax: 0,        // höchste freigeschaltete Kopfgeld-Stufe
@@ -116,6 +118,55 @@ window.GL = window.GL || {};
         hp: base.hp + k * 2, atk: base.atk + Math.floor(k / 2), spd: base.spd + Math.floor(k / 5),
         rally: 1 + Math.floor(k / 3)
       };
+    },
+
+    // ---------- Ausrüstung: Truhe und Schmiede ----------
+    storeItems(profile, run) {
+      profile.chest = profile.chest || [];
+      (run.items || []).forEach(it => {
+        const have = profile.chest.find(x => x.uid === it.uid);
+        if (have) { have.lvl = it.lvl || have.lvl; return; }
+        profile.chest.push({ uid: it.uid, id: it.id, r: it.r, lvl: it.lvl || 0 });
+      });
+      // Volle Truhe: die schwächsten fliegen raus
+      const max = GL.config.items.chestMax;
+      if (profile.chest.length > max) {
+        profile.chest.sort((a, b) => (b.r * 10 + (b.lvl || 0)) - (a.r * 10 + (a.lvl || 0)));
+        profile.chest.length = max;
+      }
+      profile.itemLoadout = (profile.itemLoadout || []).filter(uid => profile.chest.some(x => x.uid === uid));
+    },
+    itemSlots(profile) { return GL.config.items.takeBase + Math.floor(GL.meta.rankIndex(profile) / 4); },
+    toggleItem(profile, uid) {
+      profile.itemLoadout = profile.itemLoadout || [];
+      const i = profile.itemLoadout.indexOf(uid);
+      if (i >= 0) { profile.itemLoadout.splice(i, 1); return true; }
+      if (profile.itemLoadout.length >= GL.meta.itemSlots(profile) || !profile.chest.some(x => x.uid === uid)) return false;
+      profile.itemLoadout.push(uid);
+      return true;
+    },
+    forgeCost(it) { return it.lvl >= GL.config.items.maxLevel ? null : GL.config.items.forgeBase * (it.lvl + 1) * (it.r + 1); },
+    forge(profile, uid) {
+      const it = (profile.chest || []).find(x => x.uid === uid);
+      const cost = it ? GL.meta.forgeCost(it) : null;
+      if (cost == null || profile.berry < cost) return false;
+      profile.berry -= cost;
+      it.lvl++;
+      return true;
+    },
+    scrap(profile, uid) {
+      const i = (profile.chest || []).findIndex(x => x.uid === uid);
+      if (i < 0) return 0;
+      const it = profile.chest[i];
+      const val = 8 * (it.r + 1) + 10 * (it.lvl || 0);
+      profile.chest.splice(i, 1);
+      profile.itemLoadout = (profile.itemLoadout || []).filter(x => x !== uid);
+      profile.berry += val;
+      return val;
+    },
+    takeItems(profile) {
+      return (profile.itemLoadout || []).map(uid => (profile.chest || []).find(x => x.uid === uid)).filter(Boolean)
+        .slice(0, GL.meta.itemSlots(profile)).map(x => ({ uid: x.uid, id: x.id, r: x.r, lvl: x.lvl || 0 }));
     },
 
     // ---------- Kosmetik ----------
@@ -283,6 +334,8 @@ window.GL = window.GL || {};
         profile.heat = profile.heatMax;
         profile.lastHeatUnlock = profile.heatMax;
       }
+      // Ausrüstung aus dem Run kommt in die Truhe (mitgenommene kehren zurück)
+      GL.meta.storeItems(profile, run);
       // Lebenslange Rekorde für Kosmetik und Rangliste
       const S = run.stats || {};
       const R = profile.records || (profile.records = { kos: 0, maxHit: 0, dmg: 0 });
