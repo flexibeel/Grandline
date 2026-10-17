@@ -1,6 +1,11 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-17s', date: '17.10.', title: 'Duelle zügiger', items: [
+    '„Gegner suchen“ zeigt zuerst eine Karte: Crew, Ausrüstung, Stärke beider Seiten und deine Siegchance',
+    'Angreifen oder anderen Gegner suchen. Nach dem Kampf geht es direkt zum nächsten',
+    'Duelle lassen sich schneller abspielen statt überspringen',
+    'Endlos-Fahrt zählt nicht für Freischaltungen: neue Kapitäne gibt es nur auf den normalen Routen' ] },
   { v: '2026-10-17r', date: '17.10.', title: 'Dein eigenes Schiff', items: [
     'Im Profil kannst du jetzt dein Schiff anpassen: Segel, Rumpf, Flagge und Galionsfigur',
     'Neue Teile schaltest du mit Rängen, Siegen, Raids und Funden frei',

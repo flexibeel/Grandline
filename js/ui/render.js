@@ -1273,6 +1273,22 @@ window.GL = window.GL || {};
     return `<div class="fpop-card cg-pop" role="dialog"><span class="fpop-kicker">Ausrüstung</span>${cgCard(it, foot)}
       <div class="fpop-btns"><button class="btn ghost" data-act="pop-close">Schließen</button></div></div>`;
   }
+  // Gegner-Vorschau vor einem Duell: wer, welche Crew, Stärke und Chance
+  function matchPop(row, profile, chance) {
+    const mine = GL.meta.squadPower(GL.meta.squadRefs(profile)), theirs = row.squadPower || GL.meta.squadPower(row.squad);
+    const ch = chance >= 65 ? 'gut' : chance >= 40 ? 'offen' : 'schwer';
+    return `<div class="fpop-card match-pop" role="dialog" aria-labelledby="fpop-t">
+      <span class="fpop-kicker">Gegner gefunden</span>
+      <h3 id="fpop-t">${esc(row.name || 'Pirat')}</h3>
+      <small class="muted">${esc(row.rank || '')} ${row.squadRating ? leagueChip(row.squadRating, true) : ''}</small>
+      <div class="mp-crew">${squadRow(row.squad)}</div>
+      ${(row.squad || []).some(r => (r.gear || []).length) ? `<div class="mp-gear">${row.squad.map(r => (r.gear || []).map(g => `<span class="mp-g cr-${GL.cgear.RID[g.r]}" title="${esc(GL.cgear.name(g))}">${cgArt(g)}</span>`).join('')).join('')}</div>` : ''}
+      <div class="mp-vs"><span><small>Deine Crew</small><b>⚔ ${mine}</b></span><em>VS</em><span><small>Gegner</small><b>⚔ ${theirs}</b></span></div>
+      <div class="mp-chance ch-${ch}"><span>Siegchance</span><b>${chance} %</b><i style="width:${chance}%"></i></div>
+      <div class="fpop-btns"><button class="btn" data-act="squad-attack">⚔ Angreifen</button><button class="btn ghost" data-act="squad-match">Anderer Gegner</button></div>
+      <p class="wb-links"><button class="link" data-act="pop-close">Abbrechen</button></p>
+    </div>`;
+  }
   function squadSection(profile) {
     if (!GL.meta.squadUnlocked(profile)) {
       return `<section class="hq-sec squad-sec squad-locked">
@@ -1351,7 +1367,7 @@ window.GL = window.GL || {};
       if (!sf.html) sf.html = `<div class="pcard-bg duel-bg"><div class="pcard duel-play" data-act="noop">
           <div class="duel-vs"><b>Du</b><span>VS</span><b>${esc(x.name || 'Gegner')}</b></div>
           ${GL.arena.html(sf.dRun, { crewHp: sf.dRun.crew.map(u => u.max), enemyHp: sf.dRun.battle.enemies.map(u => u.max), done: false })}
-          <div class="duel-bar"><span id="duel-log">Der Kampf beginnt!</span><button class="btn mini ghost" data-act="duel-skip">Überspringen</button></div>
+          <div class="duel-bar"><span id="duel-log">Der Kampf beginnt!</span><button class="btn mini ghost" data-act="duel-skip">Schneller</button></div>
         </div></div>`;
       return sf.html;
     }
@@ -1365,7 +1381,7 @@ window.GL = window.GL || {};
         ${duelReport(res, x.name || 'Gegner')}
         ${sf && sf.ratingDelta != null ? `<p class="duel-rating">Crew-Rating ${sf.ratingDelta >= 0 ? '+' : ''}${sf.ratingDelta} → ${leagueChip(ui.profile.squadRating, true)}</p>` : ''}
         ${sf && sf.xp ? `<p class="duel-xp">Stammcrew-EP: +${sf.xp.gain} für jede Figur${sf.xp.ups.length ? ` · <b>Level-up: ${sf.xp.ups.map(esc).join(', ')}</b>` : ''}</p>` : ''}
-        <div class="duel-actions"><button class="btn" data-act="squad-fight" data-id="${esc(x.id)}">⚔ Nochmal</button>
+        <div class="duel-actions"><button class="btn" data-act="squad-match">⚔ Nächster Gegner</button><button class="btn ghost" data-act="squad-fight" data-id="${esc(x.id)}">Nochmal</button>
           <button class="btn ghost" data-act="squad-back">Zur Visitenkarte</button></div>
       </div></div>`;
     return playerCardBody(x, isMe, sq);
@@ -2078,7 +2094,7 @@ window.GL = window.GL || {};
       return `<div class="endless-row locked"><span class="er-ico" aria-hidden="true">∞</span><span><b>Endlos-Fahrt</b><small>${!seas.length ? 'Besiege den Boss im East Blue' : ''}${!seas.length && !lvlOk ? ' und erreiche ' : ''}${!lvlOk ? 'Rang 4' : ''}, dann geht es los.</small></span><em>🔒</em></div>`;
     }
     const rec = profile.endlessSeaBest || {};
-    return `<div class="endless-row"><span class="er-ico" aria-hidden="true">∞</span><span><b>Endlos-Fahrt</b><small>Ein geschafftes Meer immer wieder, jede Runde härter.</small></span></div>
+    return `<div class="endless-row"><span class="er-ico" aria-hidden="true">∞</span><span><b>Endlos-Fahrt</b><small>Ein geschafftes Meer immer wieder, jede Runde härter. Neue Kapitäne gibt es nur auf den normalen Routen.</small></span></div>
       <div class="endless-seas">${GL.data.islands.map((isl, i) => seas.includes(i)
         ? `<button class="es-sea" data-act="endless-start" data-i="${i}"><b>${esc(isl.name)}</b><small>${rec[i] ? `Rekord: ${rec[i]} ${rec[i] === 1 ? 'Runde' : 'Runden'}` : 'Noch kein Rekord'}</small><em>${i === 0 ? 'Einstieg' : `Punkte ×${i + 1}`}</em></button>`
         : `<span class="es-sea off"><b>${esc(isl.name)}</b><small>Boss noch nicht besiegt</small></span>`).join('')}</div>`;
@@ -2712,6 +2728,7 @@ window.GL = window.GL || {};
     battleText,
     speedLabel,
     welcomePop,
+    matchPop,
     updatePop,
     gearPick,
     gearView,

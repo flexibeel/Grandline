@@ -533,7 +533,9 @@ window.GL = window.GL || {};
       (run.course || []).forEach(id => id && add(seen.islands, id));
       (run.eaten || []).forEach(id => add(seen.fruits, id));
       (run.relics || []).forEach(x => add(seen.relics, x.id || x));
-      (run.epics || []).forEach(id => { if (add(profile.epics, id)) news.push({ kind: 'epic', id }); });
+      // Endlos-Fahrt: zählt nicht für Freischaltungen (Kapitäne, erwachte Früchte gibt es nur auf den normalen Routen)
+      const E = run.endlessSea != null;
+      if (!E) (run.epics || []).forEach(id => { if (add(profile.epics, id)) news.push({ kind: 'epic', id }); });
 
       // Jedes Ereignis zählt nur einmal pro Run
       if (profile.current.seed !== run.seed) profile.current = { seed: run.seed, counted: [] };
@@ -553,11 +555,11 @@ window.GL = window.GL || {};
         // Erstes Artefakt: automatisch ausrüsten, wenn ein Platz frei ist
         if (isNew && profile.artLoadout.length < GL.meta.artSlots(profile)) profile.artLoadout.push(id);
       });
-      (run.defeated || []).forEach(id => count('defeated:' + id));
+      if (!E) (run.defeated || []).forEach(id => count('defeated:' + id));
       GL.meta.trackLife(profile, run);
-      for (let i = 0; i <= GL.run.islandIndex(run); i++) count('reached:' + i);
+      if (!E) for (let i = 0; i <= GL.run.islandIndex(run); i++) count('reached:' + i);
       (run.course || []).forEach(id => { if (id) count('isle:' + id); });
-      const won = run.phase === 'win';
+      const won = run.phase === 'win' && !E;
       if (won) count('win');
 
       GL.data.unlocks.forEach(u => {

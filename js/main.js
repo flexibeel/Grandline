@@ -499,7 +499,7 @@
     GL.arena.play(ev);
     const rb = document.getElementById('duel-log');
     if (rb && ev.k === 'ult') rb.textContent = `⚡ ${ev.name}!`;
-    const wait = ev.k === 'round' ? 80 : ev.k === 'ult' ? 850 : ev.k === 'hit' ? 380 : 620;
+    const wait = (ev.k === 'round' ? 80 : ev.k === 'ult' ? 850 : ev.k === 'hit' ? 380 : 620) * (f.fast ? 0.4 : 1);
     f.timer = setTimeout(playDuel, wait);
   }
 
@@ -747,12 +747,23 @@
             return { id, name: d.name, type: d.type, role: d.role, faction: d.faction, lvl, hp: max, max, atk: d.atk + Math.floor((lvl - 1) * 0.45), spd: d.spd }; });
           row = ui.npcRow = { id: 'npc-marine', name: 'Übungscrew der Marine', rank: 'Marine-Ausbilder', squad, squadPower: GL.meta.squadPower(squad), npc: true };
         }
+        // Erst zeigen, wer es ist und wie die Chancen stehen, dann angreifen oder weitersuchen
+        ui.matchRow = row;
+        const mineRefs = GL.meta.squadRefs(profile);
+        let w = 0; for (let k = 0; k < 24; k++) if (GL.squad.fight(mineRefs, row.squad, (k * 7919 + 13) >>> 0).win) w++;
+        openGearPop(GL.ui.matchPop(row, profile, Math.round(100 * w / 24)));
+        break;
+      }
+      case 'squad-attack': {
+        const row = ui.matchRow; if (!row) break;
+        closePop();
         ui.viewPlayer = row.id;
         startSquadDuel(row);
         break;
       }
       case 'duel-skip': {
-        if (ui.squadFight) { clearTimeout(ui.squadFight.timer); ui.squadFight.playing = false; draw(); }
+        // Kein Überspringen mehr: schneller abspielen
+        if (ui.squadFight) { ui.squadFight.fast = !ui.squadFight.fast; el.textContent = ui.squadFight.fast ? 'Normal' : 'Schneller'; }
         break;
       }
       case 'squad-back': if (ui.squadFight) clearTimeout(ui.squadFight.timer); ui.squadFight = null; draw(); break;
