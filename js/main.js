@@ -889,12 +889,15 @@
         ui.lastStage = null; draw();
         break;
       }
+      case 'coach-ok': {
+        profile.coachSeen = (profile.coachSeen || []).concat(el.dataset.v); saveProfile(); ui.lastStage = null; draw(); break;
+      }
       case 'dbox': {
         const r = GL.meta.dboxClaim(profile);
         if (!r) { toast(`<span><b>Heute schon geöffnet</b>Morgen wartet die nächste Kiste. Serie: ${profile.dbox.streak} ${profile.dbox.streak === 1 ? 'Tag' : 'Tage'}.</span>`); break; }
         saveProfile();
         el.classList.add('opening');
-        toast(`<span><b>Tageskiste: +${r.berry} Berry${r.shards ? `, +${r.shards} 🔹` : ''}${r.gear ? ', episches Teil!' : ''}</b>Tag ${r.day}/7 deiner Serie${r.day < 7 ? `. An Tag 7 wartet ein episches Ausrüstungsteil.` : '. Morgen geht es bei Tag 1 weiter.'}</span>`);
+        toast(`<span><b>Tageskiste: +${r.berry} Berry${r.shards ? `, +${r.shards} 🔹` : ''}${r.gear ? ', episches Teil!' : ''}</b>Besuchstag ${r.day}/7${r.day < 7 ? `. An Tag 7 wartet ein episches Ausrüstungsteil. Pausen sind kein Problem.` : '. Danach beginnt es wieder bei Tag 1.'}</span>`);
         setTimeout(() => { ui.lastStage = null; draw(); }, 700);
         break;
       }

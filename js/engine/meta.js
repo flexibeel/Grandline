@@ -652,8 +652,9 @@ window.GL = window.GL || {};
     dboxReady(profile) { return !profile.dbox || profile.dbox.d !== GL.meta.dayKey(); },
     dboxClaim(profile) {
       if (!GL.meta.dboxReady(profile)) return null;
-      const today = GL.meta.dayKey(), yest = GL.meta.dayKey(new Date(Date.now() - 864e5));
-      const streak = profile.dbox && profile.dbox.d === yest ? (profile.dbox.streak || 1) + 1 : 1;
+      const today = GL.meta.dayKey();
+      // Gemütlich: eine Pause bricht nichts ab, jeder Besuchstag zählt weiter
+      const streak = profile.dbox ? (profile.dbox.streak || 1) + 1 : 1;
       profile.dbox = { d: today, streak };
       const day = ((streak - 1) % 7) + 1;   // Tag 1 bis 7, dann von vorn
       const r = { streak, day, berry: 30 + 10 * day, shards: day >= 3 ? (day === 7 ? 4 : 1) : 0, gear: null };

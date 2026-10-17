@@ -2056,6 +2056,24 @@ window.GL = window.GL || {};
     const k = Math.floor(Date.now() / 36e5) % lines.length;
     return lines[k];
   }
+  // Erste Runs: kleine Hinweis-Sprechblase pro neuem Bildschirm, einmal, ohne Fenster
+  const COACH = {
+    starter: 'Dein Kapitän bleibt den ganzen Run. Jeder hat eine eigene Fähigkeit, tippe die Karte an und schau sie dir an.',
+    course: 'Wähle die nächste Insel. Am Ende jeder Insel wartet ein Bösewicht.',
+    map: 'Deine Route: ⚔ Kampf bringt Gold, die Taverne neue Crew, die Truhe einen Schatz. Rast heilt.',
+    recruit: 'Gleiche Banden, Kampfstile und Rollen geben Boni (Leiste oben). „+ Bonus“ zeigt, wer einen freischaltet.',
+    prep: 'Die Aufstellung macht sich selbst: Brecher vorne, Helfer hinten. Achte auf den Kampfstil: Kraft schlägt Technik, Klinge schlägt Kraft, Technik schlägt Klinge.',
+    battle: 'Kämpfe laufen von allein. Mit dem Tempo-Knopf unten spulst du vor.',
+    treasure: 'Schätze wirken bis zum Ende des Runs. Tippe einen an, dann grün bestätigen.',
+    fruit: 'Eine Teufelsfrucht stärkt deine Crew dauerhaft für diesen Run.',
+    event: 'Ereignis auf See: Jede Wahl hat ihren Preis, der Hinweis sagt dir, was passiert.'
+  };
+  function coach(run, profile) {
+    if (!profile || (profile.stats.runs || 0) >= 2 || !COACH[run.phase]) return '';
+    const seen = profile.coachSeen || [];
+    if (seen.includes(run.phase)) return '';
+    return `<div class="coach"><i class="coach-ico">${PX_STAR}</i><span>${esc(COACH[run.phase])}</span><button class="coach-x" data-act="coach-ok" data-v="${run.phase}" aria-label="Verstanden">✓</button></div>`;
+  }
   // Pixel-Notenschlüssel als Musik-Schalter (an/aus)
   function musicBtn(cls) {
     const on = GL.music && GL.music.isOn();
@@ -3183,7 +3201,7 @@ window.GL = window.GL || {};
       // Szenenwechsel: beim Erreichen einer neuen Insel kurz ihren Namen einblenden
       const isl = GL.run.island(run);
       if (run.phase === 'course' && run.step % GL.config.stepsPerIsland === 0 && ui.shownIsland !== isl.id + run.seed) {
-        ui.shownIsland = isl.id + run.seed;
+        ui.shownIsland = isl.id + run.seed; ui.sceneAt = Date.now();
         const bs = GL.data.islands[GL.run.islandIndex(run)];
         showScene(bs.alt && run.altOpen ? { id: isl.id, name: bs.name + ' oder ' + bs.alt.name, tagline: 'Zwei Routen. Du entscheidest, wohin die Reise geht.' } : isl, GL.run.islandIndex(run));
       }
@@ -3194,7 +3212,7 @@ window.GL = window.GL || {};
         const last = r === GL.config.chapterSteps - 1;
         const here = GL.run.chapterIsland(run);
         // Nur die wichtigen Momente einblenden: Ankunft auf einer Insel und der Endkampf
-        if (r === 0 && here) showStop(here.name, 'Ankunft auf');
+        if (r === 0 && here && !(ui.sceneAt && Date.now() - ui.sceneAt < 5000)) showStop(here.name, 'Ankunft auf');
         else if (last) showStop(GL.run.stopName(run), GL.run.chapterIdx(run) === 0 ? 'Endstation: Bösewicht' : 'Endstation: Boss des Meeres');
       }
       const inBattle = run.phase === 'battle' && anim && !anim.done;
@@ -3223,7 +3241,7 @@ window.GL = window.GL || {};
 
       // Hauptbereich nur neu aufbauen, wenn sich etwas geändert hat (sonst starten Animationen neu)
       const canTrain = ['map', 'prep', 'recruit', 'fruit', 'treasure', 'course', 'event'].includes(run.phase);
-      const html = (canTrain ? trainPanel(run, ui.profile) : '') + stage(run, anim, ui);
+      const html = coach(run, ui.profile) + (canTrain ? trainPanel(run, ui.profile) : '') + stage(run, anim, ui);
       if (html !== ui.lastStage) {
         $('#stage').innerHTML = html;
         ui.lastStage = html;
