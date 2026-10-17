@@ -1104,7 +1104,9 @@ window.GL = window.GL || {};
           <small>Level ${GL.meta.squadLevel(profile)} (wächst mit deinem Rang) · ${w} Siege, ${l} Niederlagen</small></div>
       </div>
       ${squadRow(refs)}
-      <p class="hint">Deine Stammcrew verteidigt dich, auch wenn du offline bist: Andere Spieler können sie über ihre Visitenkarte in der Rangliste herausfordern, und du ihre. Wähle bis zu ${N} Figuren. <b>Zuerst gewählt steht vorne</b> und wird zuerst angegriffen.</p>
+      <div class="sq-xp">${refs.map(r => { const nx = GL.meta.squadNext((profile.squadXp || {})[r.id]);
+        return `<span><small>${esc(r.name)}</small><i class="xpbar"><i style="width:${nx ? Math.round(100 * nx.have / nx.need) : 100}%"></i></i></span>`; }).join('')}</div>
+      <p class="hint">Freunde fordern deine Stammcrew in der Rangliste heraus, auch wenn du offline bist. Jedes Duell gibt EP (Sieg 12, Niederlage 4) und damit Extra-Level. Bis zu ${N} Figuren, <b>zuerst gewählt steht vorne</b>.</p>
       <div class="sq-pool">${pick}</div>
     </section>`;
   }
@@ -1140,7 +1142,17 @@ window.GL = window.GL || {};
     return `<span class="vc-chip ir-${rid}">${itemIcon(it)}<b>${esc(d.name || it.id)}${it.lvl ? ' +' + it.lvl : ''}</b>${rarityPill(it.r)}</span>`;
   }
   function playerCard(x, isMe, ui) {
-    const res = ui && ui.squadFight && ui.squadFight.id === x.id ? ui.squadFight.res : null;
+    const sf = ui && ui.squadFight && ui.squadFight.id === x.id ? ui.squadFight : null;
+    const res = sf ? sf.res : null;
+    // Während der Kampf läuft: Kampffeld (einmal erzeugt, damit die Animation nicht neu startet)
+    if (sf && sf.playing) {
+      if (!sf.html) sf.html = `<div class="pcard-bg duel-bg"><div class="pcard duel-play" data-act="noop">
+          <div class="duel-vs"><b>Du</b><span>VS</span><b>${esc(x.name || 'Gegner')}</b></div>
+          ${GL.arena.html(sf.dRun, { crewHp: sf.dRun.crew.map(u => u.max), enemyHp: sf.dRun.battle.enemies.map(u => u.max), done: false })}
+          <div class="duel-bar"><span id="duel-log">Der Kampf beginnt!</span><button class="btn mini ghost" data-act="duel-skip">Überspringen</button></div>
+        </div></div>`;
+      return sf.html;
+    }
     const sq = (x.squad || []).length
       ? `<div class="pcard-sec"><b>Stammcrew ${x.squadPower ? `<small>⚔ ${x.squadPower}</small>` : ''}</b>${squadRow(x.squad)}
           ${isMe ? '' : `<button class="btn pcard-duel" data-act="squad-fight" data-id="${esc(x.id)}">⚔ ${res ? 'Nochmal herausfordern' : 'Herausfordern'}</button>`}</div>`
@@ -1148,6 +1160,7 @@ window.GL = window.GL || {};
     if (res) return `<div class="pcard-bg" data-act="lb-view-close"><div class="pcard" data-act="noop">
         <button class="link pcard-close" data-act="lb-view-close">✕</button>
         ${duelReport(res, x.name || 'Gegner')}
+        ${sf && sf.xp ? `<p class="duel-xp">Stammcrew-EP: +${sf.xp.gain} für jede Figur${sf.xp.ups.length ? ` · <b>Level-up: ${sf.xp.ups.map(esc).join(', ')}</b>` : ''}</p>` : ''}
         <div class="duel-actions"><button class="btn" data-act="squad-fight" data-id="${esc(x.id)}">⚔ Nochmal</button>
           <button class="btn ghost" data-act="squad-back">Zur Visitenkarte</button></div>
       </div></div>`;

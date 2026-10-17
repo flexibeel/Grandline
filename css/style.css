@@ -2652,3 +2652,19 @@ body.on-title { overflow: hidden; }
 .admin-box > span:nth-child(2) { display: grid; }
 .admin-box small { color: var(--mute); }
 @media (prefers-reduced-motion: reduce) { .portrait.star-power, .portrait.star-power svg, .star-tag, .admin-tag { animation: none !important; } }
+
+/* ---------- Duell im Kampffeld ---------- */
+.pcard.duel-play { width: min(560px, 100%); padding: 12px; }
+.duel-vs { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 10px; margin-bottom: 8px; font-family: var(--px); }
+.duel-vs b:first-child { text-align: right; color: #2f7a45; }
+.duel-vs b:last-child { color: #a33a30; }
+.duel-vs span { font-size: 1.4rem; color: var(--gold); }
+.duel-play .battle3d .field { height: 230px; }
+.duel-bar { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 8px; font-size: .88rem; }
+.duel-bar .btn { margin: 0; }
+.duel-xp { margin: 0; font-size: .85rem; color: var(--mute); }
+.duel-xp b { color: var(--hp); }
+.sq-xp { display: grid; grid-template-columns: repeat(auto-fill, minmax(78px, 1fr)); gap: 8px; margin-top: 6px; }
+.sq-xp span { display: grid; gap: 2px; }
+.sq-xp small { font-size: .62rem; color: var(--mute); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sq-xp .xpbar { height: 5px; }

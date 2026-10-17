@@ -231,6 +231,19 @@
     anim.timer = setTimeout(stepAnim, wait);
   }
 
+  // Stammcrew-Duell im Kampffeld abspielen (eigene kleine Schleife, unabhängig vom Run)
+  function playDuel() {
+    const f = ui.squadFight;
+    if (!f || !f.playing) return;
+    const ev = f.res.events[f.i++];
+    if (!ev) { f.timer = setTimeout(() => { f.playing = false; draw(); }, 900); return; }
+    GL.arena.play(ev);
+    const rb = document.getElementById('duel-log');
+    if (rb && ev.k === 'ult') rb.textContent = `⚡ ${ev.name}!`;
+    const wait = ev.k === 'round' ? 80 : ev.k === 'ult' ? 850 : ev.k === 'hit' ? 380 : 620;
+    f.timer = setTimeout(playDuel, wait);
+  }
+
   function stopAnim() {
     if (anim) clearTimeout(anim.timer);
     anim = null;
@@ -333,16 +346,29 @@
         const st = GL.online.state();
         const row = (st.rows || []).find(x => x.id === el.dataset.id);
         if (!row || !(row.squad || []).length) break;
+        if (ui.squadFight && ui.squadFight.timer) clearTimeout(ui.squadFight.timer);
         const res = GL.squad.fight(GL.meta.squadRefs(profile), row.squad, (Date.now() ^ (Math.random() * 1e9)) >>> 0);
         if (res.win) profile.squadW = (profile.squadW || 0) + 1; else profile.squadL = (profile.squadL || 0) + 1;
-        ui.squadFight = { id: row.id, res };
+        const xp = GL.meta.squadGainXp ? GL.meta.squadGainXp(profile, res.me.map(r => r.id), res.win) : null;
+        // Darstellung im Kampffeld: Figuren in Startzustand, fremder Pirat mit eigenem Aussehen
+        const dRun = { step: 0, seed: 1, captain: res.me[0] && res.me[0].id,
+          crew: res.me.map(r => Object.assign({}, r, { hp: r.max, def: r.id === 'self' ? { id: 'self', name: r.name, look: r.look, type: r.type } : null })),
+          battle: { kind: 'duel', events: res.events, shown: false,
+            enemies: res.foe.map(r => Object.assign({}, r, { hp: r.max, def: r.id === 'rival' ? { id: 'self', name: r.name, look: r.look, type: r.type } : null })) } };
+        ui.squadFight = { id: row.id, res, xp, playing: true, i: 0, dRun, theirName: row.name };
         saveProfile(); draw();
+        GL.arena.mounted(dRun);
+        ui.squadFight.timer = setTimeout(playDuel, 900);
         if (GL.online && GL.online.register) GL.online.register(profile);
         break;
       }
-      case 'squad-back': ui.squadFight = null; draw(); break;
+      case 'duel-skip': {
+        if (ui.squadFight) { clearTimeout(ui.squadFight.timer); ui.squadFight.playing = false; draw(); }
+        break;
+      }
+      case 'squad-back': if (ui.squadFight) clearTimeout(ui.squadFight.timer); ui.squadFight = null; draw(); break;
       case 'lb-view': ui.viewPlayer = el.dataset.id; draw(); break;
-      case 'lb-view-close': ui.viewPlayer = null; ui.squadFight = null; draw(); break;
+      case 'lb-view-close': if (ui.squadFight) clearTimeout(ui.squadFight.timer); ui.viewPlayer = null; ui.squadFight = null; draw(); break;
       case 'noop': break;
       case 'char-part': ui.draft.char.look[el.dataset.part] = el.dataset.v; draw(); break;
       case 'char-hat': ui.draft.char.look.hat = el.dataset.v; draw(); break;

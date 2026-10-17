@@ -272,14 +272,41 @@ window.GL = window.GL || {};
     squadLevel(profile) {
       return Math.min(15, 1 + Math.floor(GL.meta.rankIndex(profile) * 0.65));
     },
+    // Extra-Level einer Figur aus Stammcrew-EP (Duelle): Stufe L braucht insgesamt 30 * L * (L + 1) / 2 EP, bis +10
+    squadBonus(xp) {
+      let L = 0;
+      while (L < 10 && (xp || 0) >= 15 * (L + 1) * (L + 2)) L++;
+      return L;
+    },
+    squadNext(xp) {
+      const L = GL.meta.squadBonus(xp);
+      if (L >= 10) return null;
+      const from = 15 * L * (L + 1), to = 15 * (L + 1) * (L + 2);
+      return { have: (xp || 0) - from, need: to - from };
+    },
+    squadGainXp(profile, ids, win) {
+      profile.squadXp = profile.squadXp || {};
+      const gain = win ? 12 : 4;
+      const ups = [];
+      ids.forEach(id => {
+        const before = GL.meta.squadBonus(profile.squadXp[id]);
+        profile.squadXp[id] = (profile.squadXp[id] || 0) + gain;
+        if (GL.meta.squadBonus(profile.squadXp[id]) > before) {
+          const d = id === 'self' ? { name: profile.nickname } : GL.data.crew.find(c => c.id === id);
+          ups.push(d ? d.name : id);
+        }
+      });
+      return { gain, ups };
+    },
     squadRefs(profile) {
-      const lvl = GL.meta.squadLevel(profile);
+      const base = GL.meta.squadLevel(profile);
       const up = profile.upgrades || {};
       const mod = { atk: GL.run.upgradeTotal(up, 'atk'), hp: GL.run.upgradeTotal(up, 'hp'), spd: GL.run.upgradeTotal(up, 'spd') };
       const self = GL.meta.selfDef(profile);
       return GL.meta.squadIds(profile).map(id => {
         const d = id === 'self' ? self : GL.data.crew.find(c => c.id === id);
         if (!d) return null;
+        const lvl = base + GL.meta.squadBonus((profile.squadXp || {})[id]);
         const max = d.hp + (lvl - 1) * 3 + mod.hp;
         const r = { id, name: d.name, type: d.type, role: d.role, faction: d.faction || null, lvl,
           hp: max, max, atk: d.atk + Math.floor((lvl - 1) * 0.45) + mod.atk, spd: d.spd + mod.spd };
