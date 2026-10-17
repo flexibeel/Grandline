@@ -238,6 +238,23 @@
     anim.timer = setTimeout(stepAnim, wait);
   }
 
+  function startSquadDuel(row) {
+    if (ui.squadFight && ui.squadFight.timer) clearTimeout(ui.squadFight.timer);
+    const res = GL.squad.fight(GL.meta.squadRefs(profile), row.squad, (Date.now() ^ (Math.random() * 1e9)) >>> 0);
+    if (res.win) profile.squadW = (profile.squadW || 0) + 1; else profile.squadL = (profile.squadL || 0) + 1;
+    const xp = GL.meta.squadGainXp ? GL.meta.squadGainXp(profile, res.me.map(r => r.id), res.win) : null;
+    // Darstellung im Kampffeld: Figuren in Startzustand, fremder Pirat mit eigenem Aussehen
+    const dRun = { step: 0, seed: 1, captain: res.me[0] && res.me[0].id,
+      crew: res.me.map(r => Object.assign({}, r, { hp: r.max, def: r.id === 'self' ? { id: 'self', name: r.name, look: r.look, type: r.type } : null })),
+      battle: { kind: 'duel', events: res.events, shown: false,
+        enemies: res.foe.map(r => Object.assign({}, r, { hp: r.max, def: r.id === 'rival' ? { id: 'self', name: r.name, look: r.look, type: r.type } : null })) } };
+    ui.squadFight = { id: row.id, res, xp, playing: true, i: 0, dRun, theirName: row.name };
+    saveProfile(); draw();
+    GL.arena.mounted(dRun);
+    ui.squadFight.timer = setTimeout(playDuel, 900);
+    if (GL.online && GL.online.register) GL.online.register(profile);
+  }
+
   // Stammcrew-Duell im Kampffeld abspielen (eigene kleine Schleife, unabhängig vom Run)
   function playDuel() {
     const f = ui.squadFight;
@@ -365,22 +382,27 @@
       }
       case 'squad-fight': {
         const st = GL.online.state();
-        const row = (st.rows || []).find(x => x.id === el.dataset.id);
-        if (!row || !(row.squad || []).length) break;
-        if (ui.squadFight && ui.squadFight.timer) clearTimeout(ui.squadFight.timer);
-        const res = GL.squad.fight(GL.meta.squadRefs(profile), row.squad, (Date.now() ^ (Math.random() * 1e9)) >>> 0);
-        if (res.win) profile.squadW = (profile.squadW || 0) + 1; else profile.squadL = (profile.squadL || 0) + 1;
-        const xp = GL.meta.squadGainXp ? GL.meta.squadGainXp(profile, res.me.map(r => r.id), res.win) : null;
-        // Darstellung im Kampffeld: Figuren in Startzustand, fremder Pirat mit eigenem Aussehen
-        const dRun = { step: 0, seed: 1, captain: res.me[0] && res.me[0].id,
-          crew: res.me.map(r => Object.assign({}, r, { hp: r.max, def: r.id === 'self' ? { id: 'self', name: r.name, look: r.look, type: r.type } : null })),
-          battle: { kind: 'duel', events: res.events, shown: false,
-            enemies: res.foe.map(r => Object.assign({}, r, { hp: r.max, def: r.id === 'rival' ? { id: 'self', name: r.name, look: r.look, type: r.type } : null })) } };
-        ui.squadFight = { id: row.id, res, xp, playing: true, i: 0, dRun, theirName: row.name };
-        saveProfile(); draw();
-        GL.arena.mounted(dRun);
-        ui.squadFight.timer = setTimeout(playDuel, 900);
-        if (GL.online && GL.online.register) GL.online.register(profile);
+        const row = (st.rows || []).find(x => x.id === el.dataset.id) || (ui.npcRow && ui.npcRow.id === el.dataset.id ? ui.npcRow : null);
+        if (row) startSquadDuel(row);
+        break;
+      }
+      case 'squad-match': {
+        const st = GL.online.state();
+        const mine = GL.meta.squadPower(GL.meta.squadRefs(profile));
+        const me = String(profile.nickname || '').trim().toLowerCase();
+        const pool = (st.rows || []).filter(x => x.id !== st.uid && (x.squad || []).length && String(x.name || '').trim().toLowerCase() !== me)
+          .map(x => ({ x, d: Math.abs((x.squadPower || GL.meta.squadPower(x.squad)) - mine) })).sort((p, q) => p.d - q.d).slice(0, 3);
+        let row = pool.length ? pool[Math.floor(Math.random() * pool.length)].x : null;
+        if (!row) {
+          // Niemand passendes online: Übungscrew der Marine auf deinem Niveau
+          const lvl = GL.meta.squadLevel(profile);
+          const ids = ['koby', 'tashigi', 'hina', 'garp', 'smoker'].sort(() => Math.random() - 0.5).slice(0, GL.meta.squadIds(profile).length);
+          const squad = ids.map(id => { const d = GL.data.crew.find(c => c.id === id); const max = d.hp + (lvl - 1) * 3;
+            return { id, name: d.name, type: d.type, role: d.role, faction: d.faction, lvl, hp: max, max, atk: d.atk + Math.floor((lvl - 1) * 0.45), spd: d.spd }; });
+          row = ui.npcRow = { id: 'npc-marine', name: 'Übungscrew der Marine', rank: 'Marine-Ausbilder', squad, squadPower: GL.meta.squadPower(squad), npc: true };
+        }
+        ui.viewPlayer = row.id;
+        startSquadDuel(row);
         break;
       }
       case 'duel-skip': {

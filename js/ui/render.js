@@ -1104,6 +1104,7 @@ window.GL = window.GL || {};
           <small>Level ${GL.meta.squadLevel(profile)} (wächst mit deinem Rang) · ${w} Siege, ${l} Niederlagen</small></div>
       </div>
       ${squadRow(refs)}
+      <button class="btn squad-match" data-act="squad-match">⚔ Gegner suchen <small>ähnliche Stärke</small></button>
       <div class="sq-xp">${refs.map(r => { const nx = GL.meta.squadNext((profile.squadXp || {})[r.id]);
         return `<span><small>${esc(r.name)}</small><i class="xpbar"><i style="width:${nx ? Math.round(100 * nx.have / nx.need) : 100}%"></i></i></span>`; }).join('')}</div>
       <p class="hint">Freunde fordern deine Stammcrew in der Rangliste heraus, auch wenn du offline bist. Jedes Duell gibt EP (Sieg 12, Niederlage 4) und damit Extra-Level. Bis zu ${N} Figuren, <b>zuerst gewählt steht vorne</b>.</p>
@@ -2049,7 +2050,7 @@ window.GL = window.GL || {};
       introEl.hidden = ui.intro == null;
       if (ui.intro != null) introEl.innerHTML = intro(ui.intro);
       const st0 = GL.online ? GL.online.state() : { rows: [] };
-      const viewRow = ui.viewPlayer ? (st0.rows || []).find(x => x.id === ui.viewPlayer) : null;
+      const viewRow = ui.viewPlayer ? ((st0.rows || []).find(x => x.id === ui.viewPlayer) || (ui.npcRow && ui.npcRow.id === ui.viewPlayer ? ui.npcRow : null)) : null;
       $('#pcard').hidden = !viewRow;
       if (viewRow) {
         const h = playerCard(viewRow, ui.viewPlayer === st0.uid, ui);

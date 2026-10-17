@@ -2759,3 +2759,5 @@ body.on-title { overflow: hidden; }
 .q-rew svg { width: 12px; height: 12px; }
 .q-claim { margin: 0 !important; animation: ts-pulse 1.2s steps(2) infinite; }
 .q-re { font-size: 1.2rem; text-decoration: none; padding: 4px; }
+.btn.squad-match { width: 100%; text-align: center; margin: 12px 0 4px; font-size: 1.1rem; padding: 12px; }
+.btn.squad-match small { font-size: .72rem; opacity: .8; margin-left: 6px; }
