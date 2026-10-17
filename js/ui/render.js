@@ -1271,8 +1271,11 @@ window.GL = window.GL || {};
     dailyCodeShown = GL.daily.code(ui.dailyDay === 'y' ? yesterday() : GL.daily.today());
     let rows = (st.rows || []).slice().sort((a, b) => (Number(cat.get(b)) || 0) - (Number(cat.get(a)) || 0));
     if (isDaily) rows = rows.filter(x => x.duels && x.duels[dailyCodeShown]);
-    const chips = `<div class="lb-cats" role="tablist">${LB_CATS.map(c =>
-      `<button class="lb-cat${c.id === cat.id ? ' on' : ''}" data-act="lb-cat" data-id="${c.id}">${c.name}</button>`).join('')}</div>`;
+    const MAIN = ['score', 'daily', 'rankXp', 'topBounty', 'squadRating'];
+    const chip = c => `<button class="lb-cat${c.id === cat.id ? ' on' : ''}" data-act="lb-cat" data-id="${c.id}">${c.name}</button>`;
+    const more = LB_CATS.filter(c => !MAIN.includes(c.id));
+    const chips = `<div class="lb-cats" role="tablist">${LB_CATS.filter(c => MAIN.includes(c.id)).map(chip).join('')}
+      <details class="lb-more"${more.some(c => c.id === cat.id) ? ' open' : ''}><summary>Mehr</summary><div class="lb-cats">${more.map(chip).join('')}</div></details></div>`;
     const row = (x, k, value, unit, extra) => {
       const b = x.best || {};
       const cap = crewData(x.avatar) || (b.captain ? crewData(b.captain) : null);

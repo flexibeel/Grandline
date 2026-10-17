@@ -3149,3 +3149,8 @@ body.is-app { padding-top: env(safe-area-inset-top); padding-bottom: env(safe-ar
 .fb-note { display: block; margin-top: 8px; color: var(--mute); font-size: .74rem; }
 .fb-link { text-align: center; font-size: .85rem; margin: 6px 0 12px; color: var(--mute); }
 .on-dot { display: inline-block; width: 8px; height: 8px; margin-left: 5px; border-radius: 50%; background: #3fb45a; box-shadow: 0 0 0 2px rgba(63,180,90,.2); vertical-align: middle; }
+.lb-more { display: inline-block; } .lb-more[open] { display: block; width: 100%; }
+.lb-more > summary { list-style: none; cursor: pointer; display: inline-flex; align-items: center; padding: 6px 12px; border-radius: 999px; border: 1px dashed var(--line); font-size: .85rem; font-weight: 700; color: var(--mute); }
+.lb-more > summary::after { content: ' ▾'; }
+.lb-more[open] > summary::after { content: ' ▴'; }
+.lb-more > .lb-cats { flex-basis: 100%; margin-top: 2px; }
