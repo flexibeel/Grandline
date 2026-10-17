@@ -104,7 +104,10 @@ window.GL = window.GL || {};
   function drops(profile, run) {
     if (run.daily || run.duel || !(run.gearSrc || []).length) return [];
     const C = D(), got = [];
-    run.gearSrc.forEach(s => {
+    // Endlos-Modus: derselbe Run wird mehrmals abgeschlossen, schon Gewürfeltes zählt nicht doppelt
+    const done = profile.gearRolled && profile.gearRolled.seed === run.seed ? profile.gearRolled.n : 0;
+    profile.gearRolled = { seed: run.seed, n: run.gearSrc.length };
+    run.gearSrc.slice(done).forEach(s => {
       const raid = (GL.data.raids || []).some(x => x.id === s.id);
       const chance = (raid ? C.dropChance.raid : C.dropChance.boss) + C.dropChance.perLoop * (s.loop || 0);
       if (Math.random() >= chance) return;
@@ -112,7 +115,6 @@ window.GL = window.GL || {};
       const sea = GL.data.islands[s.sea] || {};
       got.push(roll({ boss: s.id, name: d.name, sea: s.sea, seaName: sea.name, raid, loop: s.loop, heat: run.heat || 0 }));
     });
-    run.gearSrc = [];   // schon gewürfelt (Endlos-Modus: nicht doppelt)
     const B = bag(profile);
     got.forEach(it => B.push(it));
     // Tasche voll: die schwächsten nicht angelegten Teile werden zu Berry
