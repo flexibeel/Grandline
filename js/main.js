@@ -308,6 +308,14 @@
         }
         break;
       }
+      case 'admin-star': {
+        const st = GL.online.state();
+        if (!(st.email && /^westerholt\.felix/i.test(st.email))) break;
+        profile.cos = Object.assign({}, profile.cos || {}, { star: !(profile.cos && profile.cos.star) });
+        saveProfile(); ui.lastStage = null; draw();
+        if (GL.online.register) GL.online.register(profile);
+        break;
+      }
       case 'squad-toggle': {
         const ids = GL.meta.squadIds(profile).slice();
         const id = el.dataset.id;

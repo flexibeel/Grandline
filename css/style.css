@@ -2630,3 +2630,25 @@ body.on-title { overflow: hidden; }
 .hq-bar { flex-wrap: nowrap !important; }
 .hq-bar .berry { flex: none; }
 .hq-bar .pf-chip { min-width: 0; }
+
+/* ---------- Easter Egg: Regenbogen-Stern des Entwicklers ---------- */
+.portrait.star-power { animation: star-rainbow .6s linear infinite; box-shadow: 0 0 0 2px #fff, 0 0 12px 3px rgba(255,255,255,.6); position: relative; }
+.portrait.star-power svg { animation: star-hue .6s linear infinite, star-bounce .45s ease-in-out infinite alternate; }
+@keyframes star-rainbow {
+  0% { background: #ff4d4d; } 16% { background: #ffa64d; } 33% { background: #ffe14d; }
+  50% { background: #5ee06b; } 66% { background: #4dc3ff; } 83% { background: #a46bff; } 100% { background: #ff4d4d; } }
+@keyframes star-hue { from { filter: hue-rotate(0deg) saturate(1.6) brightness(1.15); } to { filter: hue-rotate(360deg) saturate(1.6) brightness(1.15); } }
+@keyframes star-bounce { to { transform: translateY(-2px); } }
+.star-tag { position: absolute; right: -6px; top: -8px; font-style: normal; font-size: .9rem; color: #ffd400; text-shadow: 0 0 4px #fff, 0 1px 0 #a07000;
+  animation: star-spin 1.2s linear infinite; z-index: 2; }
+@keyframes star-spin { to { transform: rotate(360deg); } }
+.admin-tag { font-style: normal; font-size: .66rem !important; font-weight: 900; color: #fff !important; padding: 1px 7px; border-radius: 999px; vertical-align: 2px;
+  background: linear-gradient(90deg, #ff4d4d, #ffa64d, #ffe14d, #5ee06b, #4dc3ff, #a46bff) !important; background-size: 300% 100% !important;
+  animation: tag-run 2s linear infinite; text-shadow: 0 1px 0 rgba(0,0,0,.35); }
+.admin-tag.big { display: inline-block; font-size: .74rem !important; margin-top: 4px; }
+@keyframes tag-run { to { background-position: -300% 0; } }
+.admin-box { display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: center; margin-top: 12px; padding: 12px 14px; border-radius: 14px;
+  border: 2px dashed #a46bff; background: color-mix(in srgb, #a46bff 8%, var(--panel)); }
+.admin-box > span:nth-child(2) { display: grid; }
+.admin-box small { color: var(--mute); }
+@media (prefers-reduced-motion: reduce) { .portrait.star-power, .portrait.star-power svg, .star-tag, .admin-tag { animation: none !important; } }

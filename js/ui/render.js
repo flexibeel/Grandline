@@ -1162,6 +1162,7 @@ window.GL = window.GL || {};
         <div class="pcard-top">
           <span class="pcard-cap">${x.look ? portrait(x.look, x.cos, 'lg') : cap ? GL.sprites.render(cap) : ''}</span>
           <b class="pcard-name">${medal(GL.meta.rankIndex({ rankXp: x.rankXp || 0 }), 'small')} ${esc(x.name || 'Unbekannter Pirat')}${isMe ? ' <em>du</em>' : ''}</b>
+          ${x.cos && x.cos.star ? '<span class="admin-tag big">★ Entwickler · hat dieses Spiel gebaut</span>' : ''}
           <small>${x.cos && x.cos.title ? esc(titleName(x.cos.title)) + ' · ' : ''}${esc(x.rank || '')}</small>
         </div>
         <div class="pcard-stats">
@@ -1204,7 +1205,7 @@ window.GL = window.GL || {};
       return `<li class="lb-row${x.id === st.uid ? ' me' : ''}${k < 3 ? ' top' + (k + 1) : ''}${x.cos && x.cos.bg ? ' rowbg-' + x.cos.bg : ''}" data-act="lb-view" data-id="${esc(x.id)}" tabindex="0" role="button">
         <span class="lb-pos">${k + 1}</span>
         <span class="lb-cap">${x.look ? portrait(x.look, x.cos, 'sm') : cap ? GL.sprites.render(cap) : ''}</span>
-        <span class="lb-who"><b>${medal(GL.meta.rankIndex({ rankXp: x.rankXp || 0 }), 'tiny')} ${esc(x.name || 'Unbekannter Pirat')}${x.id === st.uid ? ' <em>du</em>' : ''}</b>
+        <span class="lb-who"><b>${medal(GL.meta.rankIndex({ rankXp: x.rankXp || 0 }), 'tiny')} ${esc(x.name || 'Unbekannter Pirat')}${x.id === st.uid ? ' <em>du</em>' : ''}${x.cos && x.cos.star ? ' <em class="admin-tag" title="Der Entwickler dieses Spiels. Unbesiegbar (fast).">★ Entwickler</em>' : ''}</b>
           <small>${x.cos && x.cos.title ? esc(titleName(x.cos.title)) + ' · ' : ''}${esc(x.rank || '')}${extra ? ' · ' + extra : ''}</small></span>
         <span class="lb-score"><b>${fmt(value)}</b><small>${unit}</small></span>
       </li>`;
@@ -1409,7 +1410,20 @@ window.GL = window.GL || {};
   function portrait(look, cos, size) {
     const c = Object.assign({ bg: 'meer', frame: 'holz', anim: 'ruhig', flag: 'keine' }, cos || {});
     const flag = c.flag && c.flag !== 'keine' ? `<i class="pflag fl-${c.flag}" aria-hidden="true"></i>` : '';
-    return `<span class="portrait bg-${c.bg} fr-${c.frame} an-${c.anim}${size ? ' ' + size : ''}">${GL.sprites.render({ id: 'self', look: look || DEFAULT_LOOK })}${flag}</span>`;
+    const star = c.star ? ' star-power' : '';
+    return `<span class="portrait bg-${c.bg} fr-${c.frame} an-${c.anim}${star}${size ? ' ' + size : ''}">${GL.sprites.render({ id: 'self', look: look || DEFAULT_LOOK })}${flag}${c.star ? '<i class="star-tag" aria-hidden="true">★</i>' : ''}</span>`;
+  }
+  // Easter Egg: nur der Entwickler (Account westerholt.felix…) darf den Regenbogen-Stern einschalten
+  function isAdmin() {
+    const st = GL.online ? GL.online.state() : {};
+    return !!(st.email && /^westerholt\.felix/i.test(st.email));
+  }
+  function adminBox(profile) {
+    if (!isAdmin()) return '';
+    const on = !!(profile.cos && profile.cos.star);
+    return `<div class="admin-box"><span class="portrait sm star-power demo">${GL.sprites.render({ id: 'self', look: lookOf(profile) })}</span>
+      <span><b>Entwickler-Modus</b><small>Regenbogen-Stern wie in Mario Kart. Alle sehen ihn in der Rangliste. Nur du kannst ihn einschalten.</small></span>
+      <button class="btn mini${on ? '' : ' ghost'}" data-act="admin-star">${on ? '★ An' : 'Aus'}</button></div>`;
   }
   function profileChip(profile) {
     const rp = GL.meta.rankProgress(profile);
@@ -1761,6 +1775,7 @@ window.GL = window.GL || {};
         </div>
         <button class="btn ghost" data-act="profile-edit">Pirat und Aussehen bearbeiten</button>
         ${accountLine()}
+        ${adminBox(profile)}
         ${chapterPanel(profile)}
         ${devicesBox()}
         ${dangerZone(uiRef)}</section>` : ''}
