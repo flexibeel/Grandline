@@ -272,7 +272,29 @@ window.GL = window.GL || {};
     // Level wächst mit dem Piratenrang, Werft-Ausbauten zählen mit, Synergien gelten wie im Run.
     squadSize: 4,
     // Endgame: Stammcrew und Crew-Liga erst nach einem gewonnenen Run oder ab Rang 10
-    squadUnlocked(profile) { return (profile.stats && profile.stats.wins > 0) || GL.meta.rankIndex(profile) >= 9; },
+    squadUnlocked(profile) { return GL.meta.featureOpen(profile, 'stammcrew'); },
+
+    // ---------- Freischaltungen im Hauptquartier (siehe js/data/features.js) ----------
+    level(profile) { return GL.meta.rankIndex(profile) + 1 + GL.meta.prestige(profile) * 100; },
+    featureOpen(profile, id) {
+      const f = (GL.data.features || []).find(x => x.id === id);
+      if (!f) return true;
+      return GL.meta.level(profile) >= f.lvl || !!(f.or && f.or(profile));
+    },
+    // Nächste noch gesperrte Freischaltung (für den Hinweis „Ab Level X: …“)
+    featureNext(profile) {
+      return (GL.data.features || []).filter(f => !GL.meta.featureOpen(profile, f.id)).sort((a, b) => a.lvl - b.lvl)[0] || null;
+    },
+    // Neu freigeschaltet und noch nicht vorgestellt. Bestehende Spieler bekommen beim ersten Mal keine Pop-up-Flut.
+    featuresNew(profile) {
+      const open = (GL.data.features || []).filter(f => GL.meta.featureOpen(profile, f.id));
+      if (!profile.seenFeatures) { profile.seenFeatures = (profile.rankXp || 0) > 0 ? open.map(f => f.id) : []; }
+      return open.filter(f => !profile.seenFeatures.includes(f.id));
+    },
+    featureSeen(profile, id) {
+      profile.seenFeatures = profile.seenFeatures || [];
+      if (!profile.seenFeatures.includes(id)) profile.seenFeatures.push(id);
+    },
     // Crew-Liga nach Rating (Elo, Start 1000)
     leagues: [
       { id: 'planke', name: 'Planken-Liga', min: 0, col: '#8a7a66' },

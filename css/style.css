@@ -2973,3 +2973,39 @@ h1, h2, h3, .rank-name, .my-name, .duel-head b, .poster h3, .card-name, .tp-name
 .train-auto-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 8px 0 4px; }
 .train-auto-row small { color: var(--mute); font-size: .78rem; }
 .ult-call.spark small { color: #ffd34d; } .ult-call.spark b { text-shadow: 0 0 12px rgba(255,211,77,.8), 0 3px 0 rgba(0,0,0,.4); }
+/* Freischaltungs-Pop-up: ruhig, hell, ein Bild, wenig Text */
+.fpop { position: fixed; inset: 0; z-index: 80; display: grid; place-items: end center; padding: 16px; background: rgba(60, 45, 25, 0); transition: background .25s ease; }
+.fpop.in { background: rgba(60, 45, 25, .22); }
+.fpop.out { background: rgba(60, 45, 25, 0); }
+@media (min-width: 640px) { .fpop { place-items: center; } }
+.fpop-card { width: min(380px, 100%); text-align: center; background: #fffaf0; color: #3a2a18; border: 1px solid #eadcc2; border-radius: 22px;
+  padding: 18px 20px 16px; box-shadow: 0 2px 0 #e8d9bd, 0 18px 44px rgba(60, 40, 15, .22);
+  transform: translateY(16px); opacity: 0; transition: transform .3s cubic-bezier(.2,.8,.2,1), opacity .25s ease; }
+.fpop.in .fpop-card { transform: none; opacity: 1; }
+.fpop.out .fpop-card { transform: translateY(10px); opacity: 0; }
+.fpop-kicker { font-size: .72rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: #b08a4a; }
+.fpop-art { width: 84px; height: 84px; margin: 8px auto 6px; padding: 12px; border-radius: 20px; background: radial-gradient(circle at 50% 40%, #fdf3dc, #f3e6c8); box-shadow: inset 0 -3px 0 rgba(160, 120, 60, .12); }
+.fpop-art svg { width: 100%; height: 100%; display: block; animation: fpop-bob 3s ease-in-out infinite; }
+@keyframes fpop-bob { 50% { transform: translateY(-2px); } }
+.fpop-card h3 { margin: 2px 0 6px; font-size: 1.35rem; color: #2f5d7a; }
+.fpop-card > p { margin: 0 auto 10px; max-width: 30ch; font-size: .95rem; line-height: 1.4; color: #6b5a44; }
+.fpop-steps { list-style: none; counter-reset: fs; margin: 0 0 14px; padding: 0; display: grid; gap: 6px; text-align: left; }
+.fpop-steps li { counter-increment: fs; display: flex; align-items: center; gap: 10px; font-size: .88rem; color: #4a3a28; padding: 7px 10px; border-radius: 12px; background: #f6eedd; }
+.fpop-steps li::before { content: counter(fs); flex: none; width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; font-size: .75rem; font-weight: 800; color: #fff; background: #c4904f; }
+.fpop-btns { display: flex; gap: 8px; justify-content: center; }
+.fpop-btns .btn { flex: 1; margin: 0; }
+@media (prefers-reduced-motion: reduce) { .fpop-card, .fpop-art svg { transition: none; animation: none; } }
+/* Nächste Freischaltung: dezente Zeile unter den Reitern */
+.fnext { display: flex; align-items: center; gap: 10px; margin: 8px 2px 4px; padding: 6px 10px; border-radius: 12px; border: 1px dashed #dccaa6; color: var(--mute); }
+.fnext-art { width: 26px; height: 26px; flex: none; opacity: .55; filter: grayscale(.6); }
+.fnext-art svg { width: 100%; height: 100%; display: block; }
+.fnext > span:nth-child(2) { display: grid; line-height: 1.15; }
+.fnext small { font-size: .72rem; }
+.fnext b { font-size: .88rem; color: var(--ink, #3a2a18); font-weight: 700; }
+.fnext-bar { flex: 1; height: 6px; border-radius: 999px; background: #eee3cd; overflow: hidden; display: block; min-width: 50px; }
+.fnext-bar > i { display: block; height: 100%; border-radius: inherit; background: #c4904f; }
+.btn.locked { opacity: .6; }
+.btn.locked small { font-weight: 600; }
+.fpop-more { margin: -4px 0 12px; font-size: .82rem; color: #8a7a62; display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; align-items: center; }
+.fpop-more span { display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px 3px 4px; border-radius: 999px; background: #f6eedd; color: #4a3a28; font-weight: 700; }
+.fpop-more svg { width: 16px; height: 16px; }

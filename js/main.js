@@ -30,7 +30,34 @@
 
   const esc2 = t => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   let keyPick = false;   // Auswahl per Taste 1-9: ohne Bestätigung
-  function draw() { GL.ui.render(run, anim, ui); }
+  function draw() { GL.ui.render(run, anim, ui); featureCheck(); }
+
+  // Neu freigeschaltete Bereiche im Hauptquartier: ein ruhiges Pop-up nach dem anderen
+  function featureCheck() {
+    const old = document.getElementById('fpop');
+    if (run || ui.screen || ui.intro != null || !profile.nickname || !GL.meta.featuresNew) { if (old && !ui.fpop) old.remove(); return; }
+    const fresh = !profile.seenFeatures;
+    const list = GL.meta.featuresNew(profile).slice().sort((a, b) => (!!b.tab - !!a.tab) || a.lvl - b.lvl), f = list[0];
+    if (fresh) saveProfile();
+    if (!f) { if (old) old.remove(); return; }
+    if (old && old.dataset.id === f.id) return;
+    if (old) old.remove();
+    const el = document.createElement('div');
+    el.id = 'fpop'; el.className = 'fpop'; el.dataset.id = f.id;
+    el.innerHTML = GL.ui.featurePop(f, list.slice(1));
+    el.addEventListener('click', e => { if (e.target === el) closeFeature(f.id, false); });
+    document.body.appendChild(el);
+    requestAnimationFrame(() => el.classList.add('in'));
+  }
+  function closeFeature(id, go) {
+    GL.meta.featuresNew(profile).forEach(x => GL.meta.featureSeen(profile, x.id));
+    GL.meta.featureSeen(profile, id); saveProfile();
+    const f = (GL.data.features || []).find(x => x.id === id);
+    const el = document.getElementById('fpop');
+    if (el) { el.classList.remove('in'); el.classList.add('out'); setTimeout(() => { el.remove(); draw(); }, 260); }
+    if (go && f && f.tab) { ui.hqTab = f.tab; ui.lastStage = null; }
+    if (!el) draw();
+  }
 
   // Neue Freischaltungen kurz einblenden
   function toast(html) {
@@ -356,7 +383,8 @@
         if (!(profile.tips && profile.tips.intro)) ui.intro = 0;
         draw();
         break;
-      case 'title-go': ui.screen = null; ui.hqTab = el.dataset.tab; if (el.dataset.tab === 'album') { ui.album = 'crew'; ui.hqTab = null; } draw(); break;
+      case 'title-go': if (!GL.meta.featureOpen(profile, el.dataset.tab)) { toast('<span><b>Noch ein bisschen segeln</b>Die Rangliste öffnet sich ab Rang 5. Jeder Run bringt Rang-EP.</span>'); break; }
+        ui.screen = null; ui.hqTab = el.dataset.tab; if (el.dataset.tab === 'album') { ui.album = 'crew'; ui.hqTab = null; } draw(); break;
       case 'title-back': ui.screen = ui.profileFrom === 'hq' ? null : 'title'; draw(); break;
       case 'profile-edit': openProfile(); break;
       case 'login-open': ui.loginFrom = ui.screen || 'hq'; ui.screen = 'login'; draw(); break;
@@ -460,7 +488,9 @@
         profile.tips = Object.assign(profile.tips || {}, { intro: true });
         saveProfile(); draw();
         break;
-      case 'hq-tab': ui.hqTab = el.dataset.tab; draw(); break;
+      case 'hq-tab': if (GL.meta.featureOpen(profile, el.dataset.tab)) { ui.hqTab = el.dataset.tab; draw(); } break;
+      case 'fpop-go': closeFeature(el.dataset.id, true); break;
+      case 'fpop-close': closeFeature(el.dataset.id, false); break;
       case 'buy-upgrade': if (GL.meta.buyUpgrade(profile, el.dataset.id)) { saveProfile(); draw(); } break;
       case 'buy-gear': if (GL.meta.buyGear(profile, el.dataset.id)) { saveProfile(); draw(); } break;
       case 'toggle-gear': if (GL.meta.toggleLoadout(profile, el.dataset.id)) { saveProfile(); draw(); } break;

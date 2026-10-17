@@ -1539,7 +1539,7 @@ window.GL = window.GL || {};
       <div class="ts-menu">
         <button class="btn ts-play" data-act="title-play">${run ? 'Weiterspielen' : profile.nickname ? 'Spielen' : 'Neues Spiel'} ${keyHint('Leertaste')}</button>
         <div class="ts-row">
-          <button class="btn ghost" data-act="title-go" data-tab="rangliste">Rangliste${players ? ` <small>${players}</small>` : ''}</button>
+          ${GL.meta.featureOpen(profile, 'rangliste') ? `<button class="btn ghost" data-act="title-go" data-tab="rangliste">Rangliste${players ? ` <small>${players}</small>` : ''}</button>` : `<button class="btn ghost locked" data-act="title-go" data-tab="rangliste" title="Ab Rang 5">Rangliste <small>ab Rang 5</small></button>`}
           <button class="btn ghost" data-act="title-go" data-tab="album">Sammelalbum</button>
           <button class="btn ghost" data-act="intro-open">Anleitung</button>
         </div>
@@ -1813,7 +1813,45 @@ window.GL = window.GL || {};
     return `<span class="atsea" data-tip="Wer in den letzten 10 Minuten gespielt hat (du zählst mit). Aktualisiert sich von selbst."><i class="atsea-dot" aria-hidden="true"></i>${txt}</span>`;
   }
 
+  // ---------- Freischaltungen: kleine Pixelbilder und ruhiges Pop-up ----------
+  const FEAT_ART = {
+    pal: { k: '#4a3a2c', d: '#7a6a5a', m: '#a89a88', l: '#d8d0c4', w: '#9a6a3a', W: '#c4904f', g: '#e2b44a', G: '#f6dc8a', r: '#c0533f', R: '#e07a5f', p: '#f4ecdc', b: '#4f7fa8', B: '#8ab6d6', s: '#3f8a52' },
+    anvil:  ['............', '............', '.kkkkkkkk...', 'kmmmmmmmmkkk', '.kllllllmmmk', '..kkmmmmkkk.', '....kmmk....', '....kmmk....', '...kmmmmk...', '..kddddddk..', '..kkkkkkkk..', '............'],
+    crate:  ['............', '..kkkkkkkk..', '.kWWWWWWWWk.', '.kwkkkkkkwk.', '.kWkWWWWkWk.', '.kWWkWWkWWk.', '.kWWWkkWWWk.', '.kWWkWWkWWk.', '.kWkWWWWkWk.', '.kwkkkkkkwk.', '.kkkkkkkkkk.', '............'],
+    stall:  ['............', '.rrppRRpprr.', 'rRRppRRppRRr', 'kkkkkkkkkkkk', '.k........k.', '.k.gg..B..k.', '.k.gg.BBB.k.', '.kWWWWWWWWk.', '.kwwwwwwwwk.', '.k........k.', '.k........k.', '............'],
+    chest:  ['............', '............', '..kkkkkkkk..', '.kWWWWWWWWk.', 'kWWWWWWWWWWk', 'kggggggggggk', 'kwwwwGGwwwwk', 'kWWWWgkWWWWk', 'kWWWWWWWWWWk', 'kwwwwwwwwwwk', '.kkkkkkkkkk.', '............'],
+    podium: ['............', '.....GG.....', '....GggG....', '.....gg.....', '....kkkk....', '....kGGk....', '.kkkkggkkkk.', '.kllkggkddk.', '.kllkggkddk.', '.kllkggkddk.', 'kkkkkkkkkkkk', '............'],
+    scroll: ['............', '.kkkkkkkkk..', 'kpppppppppk.', '.kpllllllpk.', '.kpppppppkk.', '.kpllllpppk.', '.kpppppppkk.', '.kplllllppk.', '.kppppppppk.', 'kpppppppppk.', '.kkkkkkkkk..', '............'],
+    flag:   ['............', '.k..........', '.kkkkkkkkk..', '.kkpkkkpkkk.', '.kkkpppkkk..', '.kkkkpkkkk..', '.kkpkkkpkk..', '.kkkkkkkk...', '.k..........', '.k..........', '.k..........', 'kkk.........']
+  };
+  function featureArt(kind) {
+    const grid = FEAT_ART[kind] || FEAT_ART.chest, P = FEAT_ART.pal;
+    let rects = '';
+    grid.forEach((row, y) => row.split('').forEach((ch, x) => { if (P[ch]) rects += `<rect x="${x}" y="${y}" width="1.02" height="1.02" fill="${P[ch]}"/>`; }));
+    return `<svg viewBox="0 0 12 12" shape-rendering="crispEdges" aria-hidden="true">${rects}</svg>`;
+  }
+  function featurePop(f, more) {
+    return `<div class="fpop-card" role="dialog" aria-labelledby="fpop-t">
+      <span class="fpop-kicker">Neu freigeschaltet</span>
+      <div class="fpop-art">${featureArt(f.art)}</div>
+      <h3 id="fpop-t">${esc(f.name)}</h3>
+      <p>${esc(f.text)}</p>
+      ${f.steps && f.steps.length ? `<ol class="fpop-steps">${f.steps.map(s => `<li>${esc(s)}</li>`).join('')}</ol>` : ''}
+      ${more && more.length ? `<p class="fpop-more">Auch neu: ${more.map(m => `<span>${featureArt(m.art)}${esc(m.name.replace(/^(Der|Die|Das|Deine) /, ''))}</span>`).join('')}</p>` : ''}
+      <div class="fpop-btns">${f.tab ? `<button class="btn" data-act="fpop-go" data-id="${f.id}">Ansehen</button>` : ''}<button class="btn ghost" data-act="fpop-close" data-id="${f.id}">${f.tab ? 'Später' : 'Alles klar'}</button></div>
+    </div>`;
+  }
+  // Ruhiger Hinweis auf die nächste Freischaltung
+  function featureNextLine(profile) {
+    const f = GL.meta.featureNext(profile);
+    if (!f) return '';
+    const R = GL.data.ranks, need = R[Math.min(R.length - 1, f.lvl - 1)].xp, prev = R[Math.max(0, GL.meta.rankIndex(profile))].xp;
+    const pct = need > prev ? Math.max(4, Math.min(100, Math.round(100 * ((profile.rankXp || 0) - prev) / (need - prev)))) : 100;
+    return `<div class="fnext"><span class="fnext-art">${featureArt(f.art)}</span><span><small>Ab Rang ${f.lvl}</small><b>${esc(f.name)}</b></span><i class="fnext-bar"><i style="width:${pct}%"></i></i></div>`;
+  }
+
   function questBoard(profile) {
+    if (!GL.meta.featureOpen(profile, 'quests')) return '';
     const qs = GL.meta.questsEnsure(profile);
     const cards = qs.map(q => {
       const d = GL.meta.questDef(q);
@@ -1831,6 +1869,7 @@ window.GL = window.GL || {};
   }
 
   function hq(profile, tab, uiRef) {
+    if (!GL.meta.featureOpen(profile, tab)) tab = 'profil';
     const best = GL.save.best();
     const slots = GL.meta.slots(profile);
     const fmt = n => n.toLocaleString('de-DE');
@@ -1874,7 +1913,7 @@ window.GL = window.GL || {};
         <button class="btn mini ghost" data-act="heat" data-d="-1" aria-label="Stufe senken"${profile.heat <= 0 ? ' disabled' : ''}>−</button>
         <b class="heat-num">${profile.heat}</b>
         <button class="btn mini ghost" data-act="heat" data-d="1" aria-label="Stufe erhöhen"${profile.heat >= profile.heatMax ? ' disabled' : ''}>+</button>
-      </div>` : `<div class="heat-pill locked" data-tip="Gewinne einen Run, dann kannst du die Schwierigkeit erhöhen: mehr Berry, mehr Punkte.">🔒 Kopfgeld-Stufen</div>`;
+      </div>` : GL.meta.level(profile) >= 3 ? `<div class="heat-pill locked" data-tip="Gewinne einen Run, dann kannst du die Schwierigkeit erhöhen: mehr Berry, mehr Punkte.">🔒 Kopfgeld-Stufen</div>` : '';
 
     const rp = GL.meta.rankProgress(profile);
     const rankHtml = rankPanel(profile, rp, fmt);
@@ -1901,15 +1940,16 @@ window.GL = window.GL || {};
           <button class="btn sail" data-act="sail">⚓ Leinen los! ${keyHint('Leertaste')}</button>
           ${heatBox}
         </div>
-        <div class="sail-board"><span class="sb-lbl">An Bord</span>${board.length ? board.join('') : '<small class="muted">nichts – Lager, Schmiede, Schatzkammer</small>'}</div>`}
+        ${board.length || GL.meta.featureOpen(profile, 'schmiede') ? `<div class="sail-board"><span class="sb-lbl">An Bord</span>${board.length ? board.join('') : '<small class="muted">noch nichts dabei</small>'}</div>` : ''}`}
       </div>
 
       ${uiRef && uiRef.peek ? '' : questBoard(profile)}
 
       <div class="atabs hq-tabs" role="tablist">
-        ${[['profil', 'Profil'], ['stammcrew', '⚔ Stammcrew'], ['werft', 'Werft'], ['rangliste', 'Rangliste'], ['schmiede', `Schmiede <small>${(profile.itemLoadout || []).length}/${GL.meta.itemSlots(profile)}</small>`], ['kammer', `Schatzkammer <small>${profile.artLoadout.length}/${GL.meta.artSlots(profile)}</small>`], ['lager', `Lager <small>${profile.loadout.length}/${slots}</small>`], ['haendler', 'Händler']].map(([id, name]) =>
+        ${[['profil', 'Profil'], ['stammcrew', '⚔ Stammcrew'], ['werft', 'Werft'], ['rangliste', 'Rangliste'], ['schmiede', `Schmiede <small>${(profile.itemLoadout || []).length}/${GL.meta.itemSlots(profile)}</small>`], ['kammer', `Schatzkammer <small>${profile.artLoadout.length}/${GL.meta.artSlots(profile)}</small>`], ['lager', `Lager <small>${profile.loadout.length}/${slots}</small>`], ['haendler', 'Händler']].filter(([id]) => GL.meta.featureOpen(profile, id)).map(([id, name]) =>
           `<button class="atab${tab === id ? ' on' : ''}" role="tab" aria-selected="${tab === id}" data-act="hq-tab" data-tab="${id}">${name}</button>`).join('')}
       </div>
+      ${featureNextLine(profile)}
 
       ${tab === 'werft' ? `<section class="hq-sec">
         <p class="hint">Dauerhafte Ausbauten für dein Schiff. Sie gelten für jeden zukünftigen Run.</p>
@@ -2158,6 +2198,7 @@ window.GL = window.GL || {};
     introSteps: INTRO.length,
     bountyPoster,
     trophyPop,
+    featurePop,
 
     render(run, anim, ui) {
       const titleEl = $('#title');
