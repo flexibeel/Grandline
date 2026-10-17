@@ -92,7 +92,10 @@ window.GL = window.GL || {};
     crack:  { rows: ['K...K', '.K.K.', '..K..', '.K.K.', 'K...K'], c: { K: '#5a4a6a' } },
     spark:  { rows: ['..G..', '..G..', 'GGWGG', '..G..', '..G..'], c: { G: '#6fd08a', W: '#ffffff' } },
     star:   { rows: ['..Y..', '.YYY.', 'YYYYY', '.Y.Y.'], c: { Y: '#ffe04a' } },
-    shield: { rows: ['SSSSSS', 'SWWWWS', 'SWSSWS', '.SWWS.', '..SS..'], c: { S: '#e0b040', W: '#fff2b8' } }
+    shield: { rows: ['SSSSSS', 'SWWWWS', 'SWSSWS', '.SWWS.', '..SS..'], c: { S: '#e0b040', W: '#fff2b8' } },
+    ball:   { rows: ['..KKKK..', '.KKKKKK.', 'KKWKKKKK', 'KKKKKKKK', 'KKKKKKKK', 'KKKKKKKK', '.KKKKKK.', '..KKKK..'], c: { K: '#2a2a32', W: '#9aa0b0' } },
+    sword:  { rows: ['.........W', '........WS', '.......WS.', '......WS..', '.....WS...', '..G.WS....', '..GGS.....', '...GG.....', '..B..G....', '.B........'], c: { W: '#ffffff', S: '#c8d0da', G: '#e0b040', B: '#6b4a2a' } },
+    anchor: { rows: ['...KK...', '..K..K..', '...KK...', 'KKKKKKKK', '...KK...', 'K..KK..K', 'KK.KK.KK', '.KKKKKK.'], c: { K: '#5a6a7a' } }
   };
   const pxSvgCache = {};
   function pxSvg(k) {
@@ -107,6 +110,32 @@ window.GL = window.GL || {};
     setTimeout(() => { const n = fx('pxfx ' + kind + ' ' + (cls || ''), pos, life || 800); if (n) n.innerHTML = pxSvg(kind); }, delay || 0);
   }
   const TYPE_FX = { kraft: 'fist', klinge: 'slash', technik: 'bolt' };
+  const PROJ = { kraft: 'anchor', klinge: 'sword', technik: 'ball' };
+  // Ein Geschoss fliegt vom Angreifer zum Ziel (mit Drehung), schlägt ein, das Feld bebt kurz
+  function launch(fromEl, toEl, type, delay, big) {
+    const box = $('#field .f-fx'), A = center(fromEl), T = center(toEl);
+    if (!box || !A || !T) return;
+    setTimeout(() => {
+      const n = document.createElement('span');
+      n.className = 'proj p-' + type + (big ? ' big' : '');
+      n.innerHTML = pxSvg(PROJ[type] || 'ball');
+      n.style.left = A.x + 'px'; n.style.top = (A.y - 10) + 'px';
+      box.appendChild(n);
+      const dx = T.x - A.x, dy = T.y - A.y - 10, arc = -Math.min(70, Math.abs(dx) * 0.35);
+      const spin = type === 'klinge' ? 900 : type === 'kraft' ? 360 : 0;
+      const dur = document.body.classList.contains('fast') ? 220 : 420;
+      const anim = n.animate([
+        { transform: 'translate(-50%,-50%) rotate(0deg) scale(.8)' },
+        { transform: `translate(calc(-50% + ${dx * 0.5}px), calc(-50% + ${dy * 0.5 + arc}px)) rotate(${spin / 2}deg) scale(1.15)` },
+        { transform: `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px)) rotate(${spin}deg) scale(1)` }
+      ], { duration: dur, easing: 'cubic-bezier(.3,.6,.4,1)' });
+      anim.onfinish = () => {
+        n.remove();
+        pxFx(TYPE_FX[type], T, big ? 'huge' : 'big', 650);
+        pulse(toEl, 'hurt-crit'); pulse($('#field'), 'boss-slam');
+      };
+    }, delay || 0);
+  }
   // Ulti: Signatur-Effekt je Kampfstil auf die Ziele, bei „alle“ eine Welle über die ganze Gegnerseite
   function ultSignature(ev) {
     const run = window.__glRun || {};
@@ -118,13 +147,15 @@ window.GL = window.GL || {};
     const strike = ult && (ult.fx || []).find(f => f.do === 'strike');
     const heal = ult && (ult.fx || []).find(f => f.do === 'heal');
     const targets = [...document.querySelectorAll(`#field .fu-${foe}:not(.ko)`)];
+    const me = fu(ev.side, ev.from);
+    if (me) pulse(me, 'atk');
     if (strike && strike.target === 'all') {
       const field = $('#field');
       if (field) { const w = document.createElement('div'); w.className = 'ult-wave ' + foe + ' t-' + type; field.appendChild(w); setTimeout(() => w.remove(), 900); }
-      targets.forEach((t, k) => pxFx(TYPE_FX[type], center(t), 'big', 700, 250 + k * 90));
+      targets.forEach((t, k) => launch(me, t, type, 120 + k * 110, false));
     } else if (strike) {
       const t = strike.target === 'weakest' ? targets.slice().sort((a, b) => (parseFloat(a.querySelector('.fu-bar i').style.width) || 0) - (parseFloat(b.querySelector('.fu-bar i').style.width) || 0))[0] : targets[0];
-      if (t) { pxFx(TYPE_FX[type], center(t), 'huge', 800, 250); pxFx(TYPE_FX[type], center(t), 'echo', 800, 420); }
+      if (t) { launch(me, t, type, 120, true); pxFx(TYPE_FX[type], center(t), 'echo', 800, 560); }
     }
     if (heal) [...document.querySelectorAll(`#field .fu-${ev.side}:not(.ko)`)].forEach((t, k) => pxFx('spark', center(t), 'rise', 1000, 200 + k * 80));
   }
@@ -140,15 +171,15 @@ window.GL = window.GL || {};
       const run = window.__glRun || {};
       const list = ev.side === 'crew' ? run.crew : (run.battle || {}).enemies;
       const d = list && list[ev.from] ? (list[ev.from].def || crewData(list[ev.from].id) || enemyData(list[ev.from].id) || { name: list[ev.from].name }) : null;
-      field.querySelectorAll('.ult-call:not(.rage):not(.will)').forEach(x => x.remove());
+      field.querySelectorAll('.ult-tag').forEach(x => x.remove());
+      const me = fu(ev.side, ev.from), p = center(me);
       const c = document.createElement('div');
-      c.className = 'ult-call ' + (ev.side === 'crew' ? 'us' : 'them');
-      c.className += ev.spark ? ' spark' : '';
-      c.className += ev.tier ? ' ' + ev.tier : '';
-      const extra = ev.tier === 'perfect' ? '<em>★ Perfekt!</em>' : ev.bonus ? `<em>+ ${ev.bonus}</em>` : ev.combo > 1 ? `<em>${ev.combo}. Ulti · stärker</em>` : '';
-      c.innerHTML = `<small>${d ? d.name : ''} · ${ev.spark ? '✨ Glücksfunke!' : 'Ulti'}</small><b>${ev.name}!</b>${extra}`;
+      c.className = 'ult-tag ' + (ev.side === 'crew' ? 'us' : 'them') + (ev.tier ? ' ' + ev.tier : '') + (ev.spark ? ' spark' : '');
+      const extra = ev.tier === 'perfect' ? '<em>★ Perfekt</em>' : ev.bonus ? `<em>+ ${ev.bonus}</em>` : ev.combo > 1 ? `<em>${ev.combo}. Ulti</em>` : ev.spark ? '<em>Glücksfunke</em>' : '';
+      c.innerHTML = `<b>${ev.name}</b>${extra}`;
+      if (p) { c.style.left = Math.max(70, Math.min(field.clientWidth - 70, p.x)) + 'px'; c.style.top = Math.max(26, p.y - 70) + 'px'; }
       field.appendChild(c);
-      setTimeout(() => c.remove(), 1500);
+      setTimeout(() => c.remove(), 1400);
       if (ev.tier === 'perfect') {
         pulse(field, 'perfect-hit');
         const fl = document.createElement('div'); fl.className = 'perfect-flash'; field.appendChild(fl); setTimeout(() => fl.remove(), 700);

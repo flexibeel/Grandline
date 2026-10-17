@@ -3921,3 +3921,44 @@ body.choice-open .stage .dock { position: sticky; bottom: -2px; }
 @supports (height: 100dvh) { body.choice-open .stage { max-height: calc(100dvh - 24px); } }
 /* Symbole antippen = kurze Erklärung */
 .px-ico[data-tip] { cursor: help; }
+/* ---------- Attacken: kleines Pixel-Band beim Angreifer statt gelbem Fenster ---------- */
+.ult-tag { position: absolute; z-index: 460; transform: translate(-50%, -50%); pointer-events: none; display: grid; justify-items: center; gap: 1px;
+  padding: 1px 8px 2px; white-space: nowrap; border-style: solid; border-width: 6px; border-image: var(--pxf) 5 fill / 6px / 0 stretch;
+  animation: tag-in 1.4s cubic-bezier(.2,1.4,.4,1) forwards; }
+.ult-tag b { font: 600 .82rem/1.1 "Pixelify Sans", var(--px); color: #3a2410; }
+.ult-tag em { font-style: normal; font-size: .62rem; font-weight: 800; color: #8a5a1a; }
+.ult-tag.them { border-image-source: var(--pxf-red); } .ult-tag.them b { color: #5a1a10; }
+.ult-tag.perfect { border-image-source: var(--pxf-gold); } .ult-tag.perfect em { color: #b07810; }
+@keyframes tag-in { 0% { opacity: 0; transform: translate(-50%, -20%) scale(.6); } 12% { opacity: 1; transform: translate(-50%, -50%) scale(1.08); } 20% { transform: translate(-50%, -50%) scale(1); } 80% { opacity: 1; } 100% { opacity: 0; transform: translate(-50%, -90%); } }
+/* Geschosse */
+.f-fx .proj { position: absolute; width: 22px; height: 22px; z-index: 45; pointer-events: none; filter: drop-shadow(0 3px 0 rgba(0,0,0,.3)); }
+.f-fx .proj.big { width: 30px; height: 30px; }
+.f-fx .proj svg { width: 100%; height: 100%; display: block; }
+.f-fx .proj.p-technik::after { content: ''; position: absolute; inset: 30%; border-radius: 50%; box-shadow: 0 0 10px 6px rgba(255,220,120,.55); z-index: -1; }
+/* Wendepunkte (Wut, Letzter Wille, Wetter) ebenfalls als Pixel-Band oben statt bunter Kästen */
+.ult-call { border-radius: 0 !important; border-style: solid !important; border-width: 8px !important; border-image: var(--pxf) 5 fill / 8px / 0 stretch !important;
+  background: transparent !important; box-shadow: none !important; color: #3a2410 !important; padding: 2px 12px 4px !important; }
+.ult-call b { font-family: "Pixelify Sans", var(--px) !important; font-size: 1rem !important; text-shadow: none !important; color: #3a2410 !important; }
+.ult-call small, .ult-call em { color: #8a5a1a !important; text-shadow: none !important; }
+.ult-call.rage { border-image-source: var(--pxf-red) !important; } .ult-call.rage b { color: #5a1a10 !important; }
+.ult-call.will { border-image-source: var(--pxf-gold) !important; }
+@media (prefers-reduced-motion: reduce) { .ult-tag { animation-duration: .01s; } }
+/* ---------- Attacken: kleines Pixel-Band beim Angreifer statt gelbem Fenster ---------- */
+.ult-tag { position: absolute; z-index: 460; transform: translate(-50%, -50%); pointer-events: none; display: grid; justify-items: center; gap: 1px;
+  padding: 1px 8px 2px; white-space: nowrap; border-style: solid; border-width: 6px; border-image: var(--pxf) 5 fill / 6px / 0 stretch;
+  animation: tag-in 1.4s cubic-bezier(.2,1.4,.4,1) forwards; }
+.ult-tag b { font: 600 .82rem/1.1 "Pixelify Sans", var(--px); color: #3a2410; }
+.ult-tag em { font-style: normal; font-size: .62rem; font-weight: 800; color: #8a5a1a; }
+.ult-tag.them { border-image-source: var(--pxf-red); } .ult-tag.them b { color: #5a1a10; }
+.ult-tag.perfect { border-image-source: var(--pxf-gold); } .ult-tag.perfect em { color: #b07810; }
+@keyframes tag-in { 0% { opacity: 0; transform: translate(-50%, -20%) scale(.6); } 12% { opacity: 1; transform: translate(-50%, -50%) scale(1.08); } 20% { transform: translate(-50%, -50%) scale(1); } 80% { opacity: 1; } 100% { opacity: 0; transform: translate(-50%, -90%); } }
+.f-fx .proj { position: absolute; width: 22px; height: 22px; z-index: 45; pointer-events: none; filter: drop-shadow(0 3px 0 rgba(0,0,0,.3)); }
+.f-fx .proj.big { width: 30px; height: 30px; }
+.f-fx .proj svg { width: 100%; height: 100%; display: block; }
+.ult-call { border-radius: 0 !important; border-style: solid !important; border-width: 8px !important; border-image: var(--pxf) 5 fill / 8px / 0 stretch !important;
+  background: transparent !important; box-shadow: none !important; color: #3a2410 !important; padding: 2px 12px 4px !important; }
+.ult-call b { font-family: "Pixelify Sans", var(--px) !important; font-size: 1rem !important; text-shadow: none !important; color: #3a2410 !important; }
+.ult-call small, .ult-call em { color: #8a5a1a !important; text-shadow: none !important; }
+.ult-call.rage { border-image-source: var(--pxf-red) !important; } .ult-call.rage b { color: #5a1a10 !important; }
+.ult-call.will { border-image-source: var(--pxf-gold) !important; }
+@media (prefers-reduced-motion: reduce) { .ult-tag { animation-duration: .01s; } }

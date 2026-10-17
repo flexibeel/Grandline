@@ -1,6 +1,10 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-17ze', date: '17.10.', title: 'Echte Attacken', items: [
+    'Die gelben Ulti-Fenster sind weg. Der Name der Attacke erscheint als kleines Pixel-Band über dem Angreifer',
+    'Ultis feuern Geschosse: Kanonenkugel bei Technik, wirbelnde Klinge bei Klinge, Anker bei Kraft. Einschlag mit Beben',
+    'Wut, Letzter Wille und Kampfwetter als Pixel-Bänder im Holzrahmen' ] },
   { v: '2026-10-17zd', date: '17.10.', title: 'Mehr Leben im Kampf, Auswahl als Fenster', items: [
     'Ultis zeigen eigene Pixel-Effekte: Faust bei Kraft, Klingenhieb bei Klinge, Blitz bei Technik, bei Flächen-Ultis eine Welle über alle Gegner',
     'Zustände sieht man auf dem Feld: Flammen, Blutstropfen, Sterne, Totenkopf, Schild, Heil-Funken',
