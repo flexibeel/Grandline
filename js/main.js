@@ -284,6 +284,7 @@
       case 'buy-gear': if (GL.meta.buyGear(profile, el.dataset.id)) { saveProfile(); draw(); } break;
       case 'toggle-gear': if (GL.meta.toggleLoadout(profile, el.dataset.id)) { saveProfile(); draw(); } break;
       case 'reroll': act({ type: 'reroll' }); break;
+      case 'again': toHq(); sail(); break;   // direkt den nächsten Run starten
       case 'equip': act({ type: 'equip', index: i, uid: el.dataset.uid || null }); break;
       case 'toggle-item': if (GL.meta.toggleItem(profile, el.dataset.id)) { saveProfile(); draw(); } break;
       case 'forge': if (GL.meta.forge(profile, el.dataset.id)) { saveProfile(); toast('<span><b>Geschmiedet!</b>Der Gegenstand ist eine Stufe stärker.</span>'); draw(); } break;
@@ -390,11 +391,12 @@
         stage.querySelector(anim.fast ? '[data-act=skip]' : '[data-act=fast]')?.click();
         return;
       }
-      const main = stage.querySelector('[data-act=continue], [data-act=fight], [data-act=sail], [data-act=hq], [data-act=leave]');
+      const main = stage.querySelector('[data-act=continue], [data-act=fight], [data-act=sail], [data-act=again], [data-act=hq], [data-act=leave]');
       if (main) main.click();
       return;
     }
     if ((e.key === 'f' || e.key === 'F') && anim) { stage.querySelector('[data-act=fast]')?.click(); return; }
+    if ((e.key === 'h' || e.key === 'H') && !anim) { stage.querySelector('[data-act=hq]')?.click(); return; }
     if ((e.key === 'r' || e.key === 'R') && !anim) { stage.querySelector('[data-act=reroll]:not([disabled])')?.click(); return; }
     if ((e.key === 'q' || e.key === 'Q') && !anim) { stage.querySelector('[data-act=special]')?.click(); return; }
     if ((e.key === 's' || e.key === 'S') && anim) { stage.querySelector('[data-act=skip]')?.click(); return; }

@@ -932,7 +932,8 @@ window.GL = window.GL || {};
         const duelHtml = run.duel ? `<div class="duel-sum"><span class="event-kicker">Duell ${run.duel}</span>
           <span>Dein Ergebnis: <b>${GL.run.score(run).toLocaleString('de-DE')}</b> Punkte. Schick deinem Freund den Code <b>${run.duel}</b>, er spielt denselben Run.</span>
           <button class="btn mini ghost" data-act="duel-copy" data-id="${run.duel}">Code kopieren</button></div>` : '';
-        return `${head}${duelHtml}${record}${berry}${troHtml}${itemSum}${rankHtml}${heatUp}<button class="btn" data-act="hq">Zurück ins Hauptquartier ${keyHint('Leertaste')}</button>`;
+        return `${head}${duelHtml}${record}${berry}${troHtml}${itemSum}${rankHtml}${heatUp}<div class="end-actions"><button class="btn" data-act="again">Nochmal! ${keyHint('Leertaste')}</button>
+          <button class="btn ghost" data-act="hq">Hauptquartier ${keyHint('H')}</button></div>`;
       }
     }
     return '';
