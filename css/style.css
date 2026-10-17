@@ -2952,3 +2952,13 @@ h1, h2, h3, .rank-name, .my-name, .duel-head b, .poster h3, .card-name, .tp-name
 .gem, .card-rarity, .squad-power, .duel-verdict, .ult-call b { font-family: var(--px); font-weight: 500; }
 .fnum { font-weight: 600; animation: px-num .8s ease-out forwards; }
 .heat-num { font-family: var(--px); font-weight: 600; }
+/* Buff-Leiste: Bonus-Text direkt in der Zeile statt abgeschnittenem Tooltip */
+.traits { width: 250px; left: max(12px, calc(50% - 380px - 274px)); padding: 4px 6px 12px 2px; }
+.traits [data-tip]::after, .traits [data-tip]::before { display: none !important; }
+.tr { grid-template-columns: 34px 1fr auto; row-gap: 4px; }
+.tr-text { grid-column: 1 / -1; font-size: 12.5px; line-height: 1.35; color: var(--ink, #3a2a18); padding: 6px 8px; border-radius: 8px; background: color-mix(in srgb, var(--panel-2, #f3ead8) 70%, transparent); }
+.tr-text:empty { display: none; }
+.tr-text em { display: block; font-style: normal; color: var(--mute, #8a7d68); margin-top: 2px; }
+.tr-off .tr-text { background: transparent; padding: 0 2px; }
+.tr-off .tr-text em { margin-top: 0; }
+.tr:hover { transform: none; }

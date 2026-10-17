@@ -516,12 +516,14 @@ window.GL = window.GL || {};
         <span class="tr-icon">${icon}</span>
         <span class="tr-body"><b>${s.kind === 'type' ? `<i class="tr-dot t-${s.key}"></i>` : ''}${s.name}</b><span class="tr-steps">${steps}</span></span>
         <span class="tr-count">${s.count}${s.next ? `<small>/${s.next.n}</small>` : ''}</span>
+        <span class="tr-text">${s.active ? esc(s.active.text) : ''}${s.next ? `<em>${s.active ? 'Nächste Stufe' : 'Ab ' + s.next.n}: ${esc(s.next.text)}</em>` : ''}</span>
       </div>`;
     };
     const active = list.filter(s => s.active), rest = list.filter(s => !s.active);
     const duoRows = GL.effects.duos(run.crew).map(d => `<div class="tr tr-duo" tabindex="0" data-tip="${esc('Duo: ' + d.name + '\n' + d.text)}">
         <span class="tr-icon"><span class="tr-hex">♥</span></span>
         <span class="tr-body"><b>${esc(d.name)}</b><span class="tr-steps">Duo</span></span>
+        <span class="tr-text">${esc(d.text)}</span>
       </div>`).join('');
     return `<div class="tr-head">Aktive Boni</div>${active.map(row).join('') + duoRows || '<p class="tr-empty">Noch keine</p>'}
       ${rest.length ? `<div class="tr-head sub">Fast geschafft</div>${rest.map(row).join('')}` : ''}`;
