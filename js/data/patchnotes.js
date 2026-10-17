@@ -1,9 +1,10 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
-  { v: '2026-10-17f', date: '17.10.', title: 'Neue Figurenkarten', items: [
+  { v: '2026-10-17g', date: '17.10.', title: 'Neue Figurenkarten', items: [
     'Figuren sehen jetzt aus wie echte Sammelkarten: Bild mit Podest, Bandenfarbe, Werte als kleine Abzeichen',
-    'Drei-Sterne-Karten glänzen ganz leicht' ] },
+    'Drei-Sterne-Karten glänzen ganz leicht',
+    'Nach dem Kopfgeld: klar erklärt, was die Belohnung bringt, mit Werten vorher und nachher' ] },
   { v: '2026-10-17e', date: '17.10.', title: 'Endlos-Modus', items: [
     'Nach dem Sieg weitersegeln: jede Endlos-Runde stärkere Gegner, auch die Bosse',
     'Neue Rangliste „Endlos“: wer kommt am weitesten?' ] },

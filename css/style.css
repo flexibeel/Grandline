@@ -3415,3 +3415,5 @@ button.duel-chip { all: unset; cursor: pointer; font-size: .8rem; font-weight: 7
   .c3-stats > span { padding: 2px 7px; font-size: .78rem; }
 }
 @media (prefers-reduced-motion: reduce) { .cf3.shiny::after { animation: none; } }
+.awk-why { margin: 4px 0 2px; color: #5a4a36; }
+.awk-up b { color: #3f8a52; }

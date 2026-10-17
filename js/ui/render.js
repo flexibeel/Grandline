@@ -1006,11 +1006,15 @@ window.GL = window.GL || {};
           <div class="dock">${controls}</div>`;
       }
 
-      case 'awaken':
+      case 'awaken': {
+        const A = GL.config.awaken;
         return `<h2>Kopfgeld kassiert</h2>
-          <div class="lbl">Die Crew ist wieder fit. Wer erwacht? (+${GL.config.awaken.atk} Angriff, +${GL.config.awaken.hp} Leben)</div>
+          <p class="awk-why">Deine Crew ist wieder voll geheilt. Als Belohnung wird <b>eine Figur deiner Wahl</b> stärker, bis zum Ende dieses Runs.</p>
+          <p class="hint">Tipp: Am meisten bringt es deinem stärksten Angreifer oder der Figur, die vorne viel einsteckt.</p>
           <div class="opts">${run.crew.map((u, i) =>
-            button('pick', i, `${crewData(u.id).name} <em class="lv">Lv ${u.lvl}</em>`, `Angriff ${u.atk}, Leben ${u.max}`, '', GL.sprites.render(crewData(u.id)))).join('')}</div>`;
+            button('pick', i, `${crewData(u.id).name} <em class="lv">Lv ${u.lvl}</em>`,
+              `<span class="awk-up">⚔ ${u.atk} → <b>${u.atk + A.atk}</b> · ♥ ${u.max} → <b>${u.max + A.hp}</b></span>`, '', GL.sprites.render(crewData(u.id)))).join('')}</div>`;
+      }
 
       case 'over':
       case 'win': {
