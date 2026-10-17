@@ -99,8 +99,16 @@ window.GL = window.GL || {};
       setTimeout(() => c.remove(), 1500);
     }
     const u = fu(ev.side, ev.from);
-    if (u) { pulse(u, 'ult-glow'); fx('fx-flash', { x: 0, y: 0 }, 300); fx('fx-ring', center(u), 700); }
-    pulse($('#field'), 'zoom');
+    const fld = $('#field');
+    if (u && fld) {
+      const p = center(u);
+      const spot = fld.querySelector('.f-spot');
+      if (spot && p) { spot.style.setProperty('--x', p.x + 'px'); spot.style.setProperty('--y', p.y + 'px'); }
+      fld.classList.remove('ulting'); void fld.offsetWidth; fld.classList.add('ulting');
+      u.classList.add('ult-star');
+      setTimeout(() => { fld.classList.remove('ulting'); u.classList.remove('ult-star'); }, document.body.classList.contains('fast') ? 300 : 950);
+      pulse(u, 'ult-glow'); fx('fx-ring', p, 700);
+    }
   }
 
   // K.o.-Stempel
@@ -202,8 +210,8 @@ window.GL = window.GL || {};
   // ---------- 3D-Kampffeld (Pokémon-Stil) ----------
   // Crew vorne links auf ihrer Plattform, Gegner hinten rechts. Die Liste darunter
   // bleibt als Anzeige für Leben und Zustände, das Feld zeigt die Bewegung.
-  const CREW_SLOTS = [[40, 9], [26, 5], [13, 11], [34, 23], [20, 26], [47, 24], [7, 27]];
-  const FOE_SLOTS  = [[67, 45], [81, 43], [92, 47], [74, 55], [88, 56], [61, 56]];
+  const CREW_SLOTS = [[38, 6], [20, 9], [50, 14], [10, 20], [30, 24], [44, 29], [17, 33]];
+  const FOE_SLOTS  = [[70, 44], [84, 41], [92, 50], [62, 53], [78, 57], [90, 60]];
   function fieldUnit(side, i, entry, unit, hp) {
     const slots = side === 'crew' ? CREW_SLOTS : FOE_SLOTS;
     const [x, y] = slots[Math.min(i, slots.length - 1)];
@@ -214,7 +222,7 @@ window.GL = window.GL || {};
         style="left:${x}%;bottom:${y}%;z-index:${200 - y};--s:${scale.toFixed(2)}">
       <div class="fu-shadow"></div>
       <div class="fu-aura"></div>
-      <div class="fu-body">${GL.sprites.render(entry)}</div>
+      <div class="fu-body" style="--d:${(i * 0.37 + (side === 'crew' ? 0 : 0.5)).toFixed(2)}s">${GL.sprites.renderShaded ? GL.sprites.renderShaded(entry) : GL.sprites.render(entry)}</div>
       <div class="fu-bar"><i style="width:${pct}%"></i></div>
     </div>`;
   }
@@ -223,7 +231,8 @@ window.GL = window.GL || {};
     const crew = run.crew.map((u, i) => fieldUnit('crew', i, u.def || crewData(u.id), u, crewHp[i])).join('');
     const foes = b.enemies.map((e, i) => fieldUnit('enemy', i, e.def || GL.data.foeDef(e) || crewData(e.id), e, enemyHp[i])).join('');
     const isl = GL.run.island(run).id;
-    return `<div class="field isl-${isl}${b.kind === 'raid' ? ' raid' : b.kind === 'boss' ? ' bossfight' : ''}" id="field" aria-hidden="true">
+    const n = Math.max(run.crew.length, b.enemies.length);
+    return `<div class="field isl-${isl}${b.kind === 'raid' ? ' raid' : b.kind === 'boss' ? ' bossfight' : ''}${n >= 6 ? ' crowd' : n >= 5 ? ' busy' : ''}" id="field" aria-hidden="true">
       <div class="f-stage">
         <div class="f-sky"></div>
         <div class="f-sun"></div>
@@ -234,6 +243,8 @@ window.GL = window.GL || {};
         <div class="plat plat-enemy"><i></i></div>
         ${crew}${foes}
         <div class="f-fx"></div>
+        <div class="f-dust"></div>
+        <div class="f-spot"></div>
       </div>
       <div class="f-vignette"></div>
       <span class="f-round" id="f-round"></span>
@@ -360,8 +371,10 @@ window.GL = window.GL || {};
       const fieldEl = $('#field');
       if (run.battle && fieldEl && !run.battle.shown) {
         run.battle.shown = true;
+        const b0 = run.battle.enemies[0];
+        if (b0 && (b0.boss || b0.raid)) { const d = enemyData(b0.id) || crewData(b0.id); fieldEl.dataset.boss = (run.battle.kind === 'raid' ? 'Raid: ' : 'Boss: ') + (d ? d.name : ''); }
         fieldEl.classList.add('enter');
-        setTimeout(() => fieldEl.classList.remove('enter'), 1000);
+        setTimeout(() => fieldEl.classList.remove('enter'), 2500);
       }
       Object.keys(live).forEach(k => delete live[k]);
       const root = $('#arena');

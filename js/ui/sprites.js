@@ -53,6 +53,33 @@ window.GL = window.GL || {};
     }));
     return `<svg viewBox="0 0 12 14" aria-hidden="true">${rects}</svg>`;
   }
+  // Mit Licht und Schatten: Kanten oben/links heller, rechts/unten dunkler. Bleibt Pixel, wirkt plastisch.
+  const mix = (hex, to, k) => {
+    const h = String(hex || '#888').replace('#', ''); if (h.length < 6) return hex;
+    const c = [0, 2, 4].map(i => parseInt(h.slice(i, i + 2), 16));
+    const t = to === 'w' ? [255, 255, 255] : [20, 12, 8];
+    return '#' + c.map((v, i) => Math.round(v + (t[i] - v) * k).toString(16).padStart(2, '0')).join('');
+  };
+  function svgShaded(look) {
+    const grid = BASE.map(r => r.split(''));
+    const hat = HATS[look.hat];
+    if (hat) Object.keys(hat).forEach(y => { hat[y].split('').forEach((ch, x) => { if (ch !== '.') grid[y][x] = ch; }); });
+    if (look.longHair) [2, 3, 4, 5].forEach(y => { grid[y][1] = 'H'; grid[y][10] = 'H'; });
+    const colors = { H: look.hair, S: look.skin, E: '#1a1a1a', C: look.shirt, P: look.pants, O: '#2a1f14', B: look.hatColor || look.hair };
+    const at = (x, y) => (grid[y] && grid[y][x]) || '.';
+    let rects = '';
+    grid.forEach((row, y) => row.forEach((ch, x) => {
+      if (ch === '.') return;
+      let col = colors[ch];
+      if (ch !== 'E') {
+        const edgeR = at(x + 1, y) !== ch, edgeB = at(x, y + 1) !== ch, edgeL = at(x - 1, y) !== ch, edgeT = at(x, y - 1) !== ch;
+        if (edgeR || edgeB) col = mix(col, 'k', edgeR && edgeB ? 0.3 : 0.18);
+        else if (edgeT || edgeL) col = mix(col, 'w', 0.16);
+      }
+      rects += `<rect x="${x}" y="${y}" width="1" height="1" fill="${col}"/>`;
+    }));
+    return `<svg viewBox="0 0 12 14" aria-hidden="true">${rects}</svg>`;
+  }
 
   // Kleine Pixel-Symbole für Früchte und Schätze. Farbe kommt aus der id.
   const ICONS = {
@@ -159,6 +186,14 @@ window.GL = window.GL || {};
     },
 
     // entry: Eintrag aus GL.data (crew, grunts oder bosses)
+    // Plastische Variante fürs Kampffeld
+    renderShaded(entry) {
+      if (!entry) return '';
+      if (entry.image) return `<img src="${entry.image}" alt="" class="sprite-img">`;
+      const key = 'sh:' + (entry.id === 'self' ? 'self:' + JSON.stringify(entry.look) : entry.id);
+      if (!cache[key]) cache[key] = svgShaded(entry.look);
+      return cache[key];
+    },
     render(entry) {
       if (!entry) return '';
       if (entry.image) return `<img src="${entry.image}" alt="" class="sprite-img">`;
