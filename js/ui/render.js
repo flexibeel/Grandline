@@ -173,7 +173,8 @@ window.GL = window.GL || {};
 
   function synergyChips(run) {
     return GL.effects.status(run.crew).filter(s => s.active).map(s =>
-      `<span class="chip${s.kind === 'faction' ? ' set' : ''}" title="${s.active.text}">${s.name} ${s.count}</span>`).join('');
+      `<span class="chip${s.kind === 'faction' ? ' set' : ''}" title="${s.active.text}">${s.name} ${s.count}</span>`).join('')
+      + GL.effects.duos(run.crew).map(d => `<span class="chip duo" title="${esc(d.text)}">Duo: ${d.name}</span>`).join('');
   }
 
   function enemyCard(entry, u, hp) {
@@ -200,6 +201,7 @@ window.GL = window.GL || {};
     const after = GL.effects.status(run.crew.concat([{ id: d.id, type: d.type, role: d.role, faction: d.faction }]));
     const gains = after.filter((s, i) => s.active && s.active !== before[i].active)
       .map(s => `${s.kind === 'faction' ? 'Set-Bonus ' : ''}${s.name} ${s.count}: ${s.active.text}`);
+    GL.effects.duosWith(run.crew, d.id).forEach(x => gains.push(`Duo ${x.name}: ${x.text}`));
     return gains.length ? `<span class="gain">Schaltet frei: ${gains.join('; ')}</span>` : '';
   }
 
@@ -313,7 +315,8 @@ window.GL = window.GL || {};
     const details = relics.length ? `<details class="info"><summary>Schätze anzeigen</summary>
       <ul>${relics.map(r => `<li>${rarityPill(r.rarity)} <b>${r.name}:</b> ${r.text}</li>`).join('')}</ul></details>` : '';
 
-    return `<div class="syn">${rows}</div>${pendingHtml}${relicHtml}${details}`;
+    const duoHtml = GL.effects.duos(run.crew).map(d => `<div class="syn-row on duo"><b class="syn-name">${esc(d.name)}<small>Duo</small></b><span class="syn-count">♥</span><span class="pips"></span><span class="syn-text">${esc(d.text)}</span></div>`).join('');
+    return `<div class="syn">${rows}${duoHtml}</div>${pendingHtml}${relicHtml}${details}`;
   }
 
   // ---------- Konter und Spezialangriff ----------
@@ -491,7 +494,7 @@ window.GL = window.GL || {};
   // Zeigt alle Synergien, die die Crew gerade hat: aktive oben, angefangene darunter.
   function traitRail(run) {
     const list = GL.effects.status(run.crew).filter(s => s.count > 0);
-    if (!list.length) return '';
+    if (!list.length && !GL.effects.duos(run.crew).length) return '';
     const tierIdx = s => s.active ? s.tiers.indexOf(s.active) : -1;
     list.sort((a, b) => (!!b.active - !!a.active) || (tierIdx(b) - tierIdx(a)) ||
       ((b.kind === 'faction') - (a.kind === 'faction')) || (b.count - a.count));
@@ -513,7 +516,11 @@ window.GL = window.GL || {};
       </div>`;
     };
     const active = list.filter(s => s.active), rest = list.filter(s => !s.active);
-    return `<div class="tr-head">Aktive Boni</div>${active.map(row).join('') || '<p class="tr-empty">Noch keine</p>'}
+    const duoRows = GL.effects.duos(run.crew).map(d => `<div class="tr tr-duo" tabindex="0" data-tip="${esc('Duo: ' + d.name + '\n' + d.text)}">
+        <span class="tr-icon"><span class="tr-hex">♥</span></span>
+        <span class="tr-body"><b>${esc(d.name)}</b><span class="tr-steps">Duo</span></span>
+      </div>`).join('');
+    return `<div class="tr-head">Aktive Boni</div>${active.map(row).join('') + duoRows || '<p class="tr-empty">Noch keine</p>'}
       ${rest.length ? `<div class="tr-head sub">Fast geschafft</div>${rest.map(row).join('')}` : ''}`;
   }
 

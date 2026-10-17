@@ -43,9 +43,21 @@ window.GL = window.GL || {};
     return out;
   }
 
-  // Aktive Synergie-mods (nur die höchste erreichte Stufe pro Synergie)
+  // Duo-Boni: beide Figuren sind in der Crew
+  function duos(crew) {
+    const ids = new Set(crew.map(u => u.id));
+    return (GL.data.duos || []).filter(d => ids.has(d.a) && ids.has(d.b));
+  }
+  // Welche Duos würde diese Figur neu bilden?
+  function duosWith(crew, id) {
+    const ids = new Set(crew.map(u => u.id));
+    if (ids.has(id)) return [];
+    return (GL.data.duos || []).filter(d => (d.a === id && ids.has(d.b)) || (d.b === id && ids.has(d.a)));
+  }
+
+  // Aktive Synergie-mods (nur die höchste erreichte Stufe pro Synergie) plus Duos
   function synergyMods(crew) {
-    return status(crew).filter(s => s.active).flatMap(s => s.active.mods);
+    return status(crew).filter(s => s.active).flatMap(s => s.active.mods).concat(duos(crew).flatMap(d => d.mods));
   }
 
   // Gefundene Schätze mit ausgewürfelten Werten
@@ -141,5 +153,5 @@ window.GL = window.GL || {};
     return { crew, enemies, flags: flags(run) };
   }
 
-  GL.effects = { counts, status, flags, setup, relicList };
+  GL.effects = { counts, status, flags, setup, relicList, duos, duosWith };
 })();

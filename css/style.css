@@ -2913,3 +2913,6 @@ button, .opt, .map-node, .lb-row { touch-action: manipulation; }
 .foe-tag.fk-schuetze { background: #e1eedf; color: #2d5a2d; }
 .foe-tag.fk-gift { background: #ece1f5; color: #5a3a7a; }
 .foe-tag.fk-kanonier { background: #e6e6e6; color: #222; }
+.chip.duo { background: #fbe3ea; color: #8a2a4a; border-color: #f0c0d0; }
+.tr-duo .tr-hex { background: #f7d3de; color: #a0305a; }
+.tr-duo .tr-steps { color: #a0305a; font-weight: 700; }
