@@ -3107,7 +3107,7 @@ body.is-app { padding-top: env(safe-area-inset-top); padding-bottom: env(safe-ar
 }
 .ac-short { display: none; }
 @media (max-width: 520px) {
-  body.in-run .head-actions [data-act="intro-open"], body.in-run .head-actions [data-act="album"] { display: none; }
+  body.in-run .head-actions [data-act="intro-open"], body.in-run .head-actions [data-act="album"], body.in-run .head-actions #notes-btn { display: none; }
   body.in-run .track-loc { width: auto; flex: 1 1 auto; }
   .crew-label { flex-wrap: nowrap !important; gap: 8px !important; }
   .crew-label .auto-check.mini .ac-long { display: none; }

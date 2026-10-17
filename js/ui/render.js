@@ -2450,6 +2450,8 @@ window.GL = window.GL || {};
       titleEl.hidden = !ui.screen;
       document.body.classList.toggle('on-title', !!ui.screen);
       seenRef = ui.profile && ui.profile.seen;
+      const nb = document.getElementById('notes-btn');
+      if (nb && ui.profile) nb.innerHTML = 'Neuigkeiten' + (ui.profile.notesSeen !== GL.version ? ' <i class="new-dot"></i>' : '');
       document.body.classList.toggle('streamer', streamOn());
       document.body.classList.toggle('is-app', !!fsApp());
       document.body.classList.toggle('in-run', !!run && !ui.screen);
