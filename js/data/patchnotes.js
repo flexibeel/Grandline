@@ -1,6 +1,12 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-17zc', date: '17.10.', title: 'Banden-Wappen und neue Symbole', items: [
+    'Jede Bande hat ein eigenes Pixel-Wappen (Strohhut, Marine, CP9, Weißbart, Samurai, Baroque Works), dazu Symbole für Kampfstil und Rolle',
+    'Taverne: Wappen und Symbole auf jedem Angebot, „+ Bonus“ zeigt, wenn eine Figur einen Bonus freischaltet',
+    'Vergleichspfeile erst, wenn das Schiff voll ist. Vorher ist jede Figur ein Gewinn',
+    'Boni-Leiste links mit den neuen Symbolen, Links oben als kleine Holzknöpfe',
+    'In der Rangliste erscheinst du erst nach deinem ersten abgeschlossenen Run' ] },
   { v: '2026-10-17zb', date: '17.10.', title: 'Stammcrew vergleichen', items: [
     'Alle Figuren in der Stammcrew-Auswahl zeigen Leben, Angriff und Tempo, mit Pixel-Pfeilen im Vergleich zu deiner schwächsten aufgestellten Figur',
     'Duell-Vorschau: Platz gegen Platz, deine Figur neben der gegnerischen, jeweils mit Pfeilen, wer stärker ist',

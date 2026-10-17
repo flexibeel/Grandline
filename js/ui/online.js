@@ -54,7 +54,8 @@ window.GL = window.GL || {};
     const mine = state.rows.some(r => r.id === state.uid);
     const mineRow = state.rows.find(r => r.id === state.uid);
     // Neu eintragen, oder einmal aktualisieren, wenn dem Eintrag noch neue Felder fehlen (z. B. Stammcrew)
-    if (profile.nickname && !registered && (!mine || (mineRow && !mineRow.squad))) { registered = true; register(profile); }
+    // In die Rangliste erst nach dem ersten abgeschlossenen Run (nicht schon beim Anlegen)
+    if (profile.nickname && (profile.stats && profile.stats.runs > 0) && !registered && (!mine || (mineRow && !mineRow.squad))) { registered = true; register(profile); }
     if (pending == null && !mine && profile.onlineBest) { pending = profile.onlineBest; flush(profile); }
   }
 

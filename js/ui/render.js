@@ -25,9 +25,44 @@ window.GL = window.GL || {};
     return t ? `<em class="type t-${type}">${t.name}</em>` : '';
   }
 
+  // ---------- Pixel-Symbole: Banden, Kampfstile, Rollen ----------
+  const ICON_ART = {
+    // Banden
+    strohhut:  { c: { Y: '#f2d24a', y: '#c9a22a', R: '#d0574a' }, rows: ['..........', '...YYYY...', '..YYYYYY..', '..RRRRRR..', 'YYYYYYYYYY', '.yyyyyyyy.', '..........', '..........', '..........', '..........'] },
+    marine:    { c: { B: '#4f7fa8', b: '#2f5a84', W: '#e8eef4' }, rows: ['....BB....', '...B..B...', '....BB....', '..BBBBBB..', '....BB....', '....BB....', 'B...BB...B', 'BB..BB..BB', '.BBBBBBBB.', '...BBBB...'] },
+    cp9:       { c: { W: '#eeeae2', K: '#2a2420', G: '#9a93ab' }, rows: ['..GGGGGG..', '.GWWWWWWG.', 'GWWWWWWWWG', 'GWKKWWKKWG', 'GWKKWWKKWG', 'GWWWWWWWWG', '.GWWKKWWG.', '.GWWWWWWG.', '..GGWWGG..', '....GG....'] },
+    weissbart: { c: { W: '#f4f0e8', P: '#7b5ab0', K: '#4a3a2a' }, rows: ['..........', '..........', '..........', 'W........W', 'WW......WW', '.WWW..WWW.', '..WWWWWW..', '...WWWW...', '..........', '..........'] },
+    samurai:   { c: { S: '#d0d6de', K: '#3a2a20', T: '#5a9a96' }, rows: ['S........S', '.S......S.', '..S....S..', '...S..S...', '....SS....', '....SS....', '...K..K...', '..K....K..', '.T......T.', 'T........T'] },
+    baroque:   { c: { G: '#e0b040', g: '#a07a20' }, rows: ['....GG....', '....GG....', '...GGGG...', 'GGGGGGGGGG', '.GGGGGGGG.', '..GGGGGG..', '..GGggGG..', '.GGG..GGG.', '.GG....GG.', '..........'] },
+    // Kampfstile
+    kraft:     { c: { R: '#d98a72', r: '#a8573f' }, rows: ['..........', '..RR.RR...', '.RRRRRRR..', '.RRRRRRRR.', '.RRRRRRRR.', '.rRRRRRRR.', '..rRRRRR..', '...rrrr...', '..........', '..........'] },
+    klinge:    { c: { S: '#7fa98a', K: '#3f6b4a', W: '#e8f2ea' }, rows: ['........WS', '.......WS.', '......WS..', '.....WS...', '....WS....', '.K.WS.....', '..KS......', '..KK......', '.K..K.....', 'K.........'] },
+    technik:   { c: { B: '#7fa3c9', b: '#4f739a' }, rows: ['....BB....', '.B.BBBB.B.', '..BBBBBB..', '.BBb..bBB.', 'BBB....BBB', 'BBB....BBB', '.BBb..bBB.', '..BBBBBB..', '.B.BBBB.B.', '....BB....'] },
+    // Rollen
+    brecher:   { c: { S: '#9aa7b4', s: '#5a6a7a', W: '#e8eef4' }, rows: ['.SSSSSSSS.', 'SWWWWWWWWS', 'SWSSSSSSWS', 'SWSSSSSSWS', 'SWSSSSSSWS', '.SWSSSSWS.', '.SWSSSSWS.', '..SWSSWS..', '...SWWS...', '....SS....'] },
+    kaempfer:  { c: { S: '#c9a95a', K: '#6b4a2a' }, rows: ['S........S', '.S......S.', '..S....S..', '...S..S...', '....SS....', '....SS....', '...S..S...', '..K....K..', '.K......K.', 'K........K'] },
+    helfer:    { c: { G: '#5aaa6a', W: '#e8f4ea' }, rows: ['...GGGG...', '...GWWG...', '...GWWG...', 'GGGGWWGGGG', 'GWWWWWWWWG', 'GWWWWWWWWG', 'GGGGWWGGGG', '...GWWG...', '...GWWG...', '...GGGG...'] }
+  };
+  const iconCache = {};
+  function pxIcon(id, cls) {
+    const a = ICON_ART[id];
+    if (!a) return '';
+    if (!iconCache[id]) {
+      let r = '';
+      a.rows.forEach((row, y) => row.split('').forEach((ch, x) => { if (a.c[ch]) r += `<rect x="${x}" y="${y}" width="1" height="1" fill="${a.c[ch]}"/>`; }));
+      iconCache[id] = `<svg viewBox="0 0 10 10" shape-rendering="crispEdges" aria-hidden="true">${r}</svg>`;
+    }
+    return `<i class="px-ico ${cls || ''}" title="${esc((GL.data.factions[id] || GL.data.types[id] || (GL.data.roles || {})[id] || {}).name || '')}">${iconCache[id]}</i>`;
+  }
   // Kleine Pixel-Pfeile für Vergleiche (besser/schlechter)
   const PX_UP = '<svg viewBox="0 0 5 3" aria-hidden="true"><rect x="2" y="0" width="1" height="1"/><rect x="1" y="1" width="3" height="1"/><rect x="0" y="2" width="5" height="1"/></svg>';
   const PX_DOWN = '<svg viewBox="0 0 5 3" aria-hidden="true"><rect x="0" y="0" width="5" height="1"/><rect x="1" y="1" width="3" height="1"/><rect x="2" y="2" width="1" height="1"/></svg>';
+  // Passt die Figur zur Crew? (schaltet einen Bonus frei)
+  function fitTag(run, d) {
+    const before = GL.effects.status(run.crew), after = GL.effects.status(run.crew.concat([{ id: d.id, type: d.type, role: d.role, faction: d.faction }]));
+    const gain = after.find((x, i) => x.active && x.active !== before[i].active);
+    return gain ? `<i class="fit-tag" title="Schaltet frei: ${esc(gain.name)}">+ Bonus</i>` : '';
+  }
   function cmpArrow(a, b) {
     const r = (a - b) / Math.max(1, b);
     const k = r >= 0.2 ? 'uu' : r >= 0.05 ? 'u' : r <= -0.2 ? 'dd' : r <= -0.05 ? 'd' : 'e';
@@ -239,7 +274,7 @@ window.GL = window.GL || {};
     const rare = (o.stars || 0) >= 3;
     return `<span class="card-face cf3 fac-${d.faction || 'none'} ty-${d.type}${o.gold ? ' frame-gold' : ''}${rare ? ' shiny' : ''}">
       <span class="c3-top">
-        <span class="c3-head"><span class="c3-fac">${fac ? esc(FAC_SHORT[d.faction] || fac.name) : 'Ohne Bande'}</span>${o.stars ? stars(o.stars) : ''}</span>
+        <span class="c3-head"><span class="c3-fac">${fac ? pxIcon(d.faction, 'sm') + esc(FAC_SHORT[d.faction] || fac.name) : 'Ohne Bande'}</span>${o.stars ? stars(o.stars) : ''}</span>
         <span class="c3-ped" aria-hidden="true"></span>
         <span class="c3-sprite">${GL.sprites.renderShaded ? GL.sprites.renderShaded(d) : GL.sprites.render(d)}</span>
         ${o.lvl ? `<em class="c3-lv">Lv ${o.lvl}</em>` : ''}
@@ -544,7 +579,7 @@ window.GL = window.GL || {};
       const lv = level(s);
       const steps = s.tiers.map(t => `<i class="${s.count >= t.n ? 'on' : ''}">${t.n}</i>`).join('<b>›</b>');
       const tip = s.tiers.map(t => `${s.count >= t.n ? '✓' : '·'} ${t.n}: ${t.text}`).join('\n');
-      const icon = `<span class="tr-hex">${s.name.slice(0, 2)}</span>`;
+      const icon = ICON_ART[s.key] ? `<span class="tr-hex px">${pxIcon(s.key)}</span>` : `<span class="tr-hex">${s.name.slice(0, 2)}</span>`;
       return `<div class="tr tr-${lv}${s.kind === 'faction' ? ' tr-set' : ''}" tabindex="0" data-tip="${esc(s.name + (s.kind === 'faction' ? ' (Set-Bonus)' : '') + '\n' + tip)}">
         <span class="tr-icon">${icon}</span>
         <span class="tr-body"><b>${s.kind === 'type' ? `<i class="tr-dot t-${s.key}"></i>` : ''}${s.name}</b><span class="tr-steps">${steps}</span></span>
@@ -910,14 +945,15 @@ window.GL = window.GL || {};
           const d = crewData(o.id), m = GL.run.previewMember(run, o);
           const price = GL.run.offerPrice(run, o);
           const can = !o.sold && !full && gold >= price;
-          const overall = weak ? cmp(pw(m), pw(weak)) : 'e';
+          const overall = weak && full ? cmp(pw(m), pw(weak)) : null;
           return `<button class="tv-off pxf${o.sold ? ' sold' : can ? '' : ' cant'}${sel === i ? ' sel' : ''}${(o.stars || 1) >= 3 ? ' s3' : ''}${tip && tip.index === i && !o.sold ? ' rec' : ''}" data-act="tv-sel" data-i="${i}">
             ${tip && tip.index === i && !o.sold ? '<span class="tv-rec">Tipp</span>' : ''}
             <span class="tv-stars">${stars(o.stars || 1)}</span>
             <i class="tv-spr">${GL.sprites.renderShaded ? GL.sprites.renderShaded(d) : GL.sprites.render(d)}</i>
             <b class="tv-name">${esc(d.name)}</b>
-            <small class="tv-sub"><i class="c3-dot t-${d.type}"></i>${roleBadge(d.role)} Lv ${m.lvl}</small>
-            <span class="tv-cmp">${weak ? arrow(overall) : ''}</span>
+            <span class="tv-tags">${d.faction ? pxIcon(d.faction) : ''}${pxIcon(d.type)}${pxIcon(d.role)}</span>
+            <small class="tv-sub">${d.faction ? esc(FAC_SHORT[d.faction] || '') + ' · ' : ''}Lv ${m.lvl}</small>
+            <span class="tv-cmp">${overall ? arrow(overall) : fitTag(run, d)}</span>
             <span class="tv-price${can || o.sold ? '' : ' no'}">${o.sold ? 'Gekauft' : `${GL.sprites.coin()} ${price}`}</span>
           </button>`;
         }).join('');
@@ -926,9 +962,10 @@ window.GL = window.GL || {};
           const o = run.pool[sel], d = crewData(o.id), m = GL.run.previewMember(run, o);
           const price = GL.run.offerPrice(run, o), can = !o.sold && !full && gold >= price;
           const a = ability(d.id), t = o.trait ? trait(o.trait) : null, u = ultiOf(d.id, d.role);
-          const row = (lbl, ico, v, w) => `<span class="tv-st"><i>${ico}</i>${lbl} <b>${v}</b>${w != null ? arrow(cmp(v, w)) : ''}</span>`;
+          const row = (lbl, ico, v, w) => `<span class="tv-st"><i>${ico}</i>${lbl} <b>${v}</b>${w != null && full ? arrow(cmp(v, w)) : ''}</span>`;
           detail = `<div class="tv-detail pxf">
-            <div class="tv-d-head"><b>${esc(d.name)}</b> ${badge(d.type)} ${roleBadge(d.role)}<small>${weak ? `Vergleich mit ${esc(crewData(weak.id).name)}` : ''}</small></div>
+            <div class="tv-d-head"><b>${esc(d.name)}</b>${d.faction ? `<span class="tv-fac">${pxIcon(d.faction)}${esc(GL.data.factions[d.faction].name)}</span>` : ''}<span class="tv-fac">${pxIcon(d.type)}${esc(GL.data.types[d.type].name)}</span><span class="tv-fac">${pxIcon(d.role)}${esc((GL.data.roles[d.role] || {}).name || '')}</span>
+              <small>${weak && full ? `Pfeile: Vergleich mit deiner schwächsten Figur (${esc(crewData(weak.id).name)})` : `Noch ${lim - run.crew.length} ${lim - run.crew.length === 1 ? 'Platz' : 'Plätze'} frei: jede Figur macht deine Crew stärker`}</small></div>
             <div class="tv-stats">${row('Leben', '♥', m.max, weak && weak.max)}${row('Angriff', '⚔', m.atk, weak && weak.atk)}${row('Tempo', '➤', m.spd, weak && weak.spd)}</div>
             ${a ? `<p class="tv-ab"><b>${esc(a.name)}</b> ${esc(a.text)}</p>` : ''}
             ${t ? `<p class="tv-ab"><b>${esc(t.name)}</b> ${esc(t.text)}</p>` : ''}
@@ -940,7 +977,7 @@ window.GL = window.GL || {};
         const roll = GL.run.rerollCost(run);
         const crewRow = run.crew.map((u, i) => {
           const d = crewData(u.id), cap = u.id === run.captain;
-          return `<span class="tv-mem pxf${weak && u === weak ? ' weak' : ''}"><i>${GL.sprites.render(d)}</i><small>${esc(d.name)}</small><em>Lv ${u.lvl}</em>
+          return `<span class="tv-mem pxf${weak && full && u === weak ? ' weak' : ''}"><i>${GL.sprites.render(d)}</i><small>${esc(d.name)}</small><em>Lv ${u.lvl}</em>
             ${cap ? '<span class="tv-cap">Kapitän</span>' : `<button class="tv-x" data-act="dismiss" data-i="${i}" title="Entlassen (+${GL.run.sellValue(u)} Gold)">✕ ${GL.run.sellValue(u)}</button>`}</span>`;
         }).join('');
         const harbor = run.harbor ? `<div class="harbor-box pxf"><span class="event-kicker">${run.loop ? `Zwischenhafen · Runde ${run.loop + 1}` : 'Endlos-Fahrt · Hafen'}</span>
@@ -951,7 +988,7 @@ window.GL = window.GL || {};
             ${run.shopFree ? '<p class="tv-free">Der erste Kauf ist gratis.</p>' : ''}
             <div class="tv-grid">${tiles}</div>
             ${detail}
-            <div class="tv-crew-head"><span>Deine Crew ${run.crew.length}/${lim}</span>${weak && run.crew.length > 1 ? '<small><span class="weak-key"></span> = schwächste Figur, Pfeile vergleichen mit ihr</small>' : ''}</div>
+            <div class="tv-crew-head"><span>Deine Crew ${run.crew.length}/${lim}</span>${weak && full ? '<small><span class="weak-key"></span> = schwächste Figur, Pfeile vergleichen mit ihr</small>' : ''}</div>
             <div class="tv-crew">${crewRow}</div>
             <div class="tv-actions">
               <button class="btn ghost" data-act="reroll"${gold < roll ? ' disabled' : ''}>Neu würfeln · ${roll} ${keyHint('R')}</button>
