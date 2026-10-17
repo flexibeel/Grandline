@@ -972,7 +972,7 @@ window.GL = window.GL || {};
           controls = `<button class="btn" data-act="continue">Weiter ${keyHint('Leertaste')}</button>`;
         } else {
           log = anim.log;
-          controls = `<button class="btn" data-act="fast">Schneller ${keyHint('F')}</button> <button class="btn ghost" data-act="skip">Überspringen ${keyHint('S')}</button>`;
+          controls = `<div class="fight-ctrl"><button class="btn ghost" data-act="fast">Schneller ${keyHint('F')}</button><button class="btn ghost" data-act="skip">Überspringen ${keyHint('S')}</button></div>`;
         }
         const title = b.kind === 'raid' ? 'Raid' : b.kind === 'boss' ? 'Bosskampf' : 'Kampf';
         return `<div class="battle-head"><h2>${title}</h2>${done ? `<span class="result ${b.win ? 'win' : 'lose'}">${b.win ? 'Sieg' : 'Niederlage'}</span>` : ''}</div>

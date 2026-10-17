@@ -121,10 +121,10 @@ window.GL = window.GL || {};
       const list = sd === 'crew' ? (window.__glRun || {}).crew : ((window.__glRun || {}).battle || {}).enemies;
       const i = list ? list.findIndex(u => u.id === id) : -1;
       if (i >= 0) {
-        const f = el(sd, i);
+        const f = fu(sd, i) || el(sd, i);
         if (!f) return;
         const c = document.createElement('span');
-        c.className = 'callout';
+        c.className = 'callout' + (f.classList.contains('fu') ? ' on-field' : '');
         c.textContent = a.name + '!';
         f.appendChild(c);
         setTimeout(() => c.remove(), 1500);

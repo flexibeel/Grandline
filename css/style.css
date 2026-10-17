@@ -3044,3 +3044,6 @@ h1, h2, h3, .rank-name, .my-name, .duel-head b, .poster h3, .card-name, .tp-name
 .sc-item small { font-size: .68rem; line-height: 1.2; }
 .hunt-row { flex-direction: row !important; } .hunt-row .hunt-chip { width: auto !important; flex: none !important; margin: 0 !important; } .hunt-row .hunt-lbl { width: 100%; }
 .hq-sail div.hunt-row { display: flex !important; flex-wrap: wrap; }
+.fight-ctrl { display: flex; gap: 8px; margin-top: 10px; }
+.fight-ctrl .btn { flex: 1; margin: 0; padding: 9px 10px; font-size: .92rem; }
+.callout.on-field { top: -18px; z-index: 30; font-size: .72rem; }
