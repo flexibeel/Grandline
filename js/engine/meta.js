@@ -129,6 +129,27 @@ window.GL = window.GL || {};
       };
     },
 
+    // Verbrauchte/zerlegte Teile merken, damit sie beim Zusammenführen zweier Spielstände nicht zurückkommen
+    gone(profile, uid) { const g = profile.gone = profile.gone || []; if (!g.includes(uid)) g.push(uid); if (g.length > 400) g.splice(0, g.length - 400); },
+    // Zwei Spielstände zusammenführen (z. B. Handy + PC oder Cloud-Stand ist neuer, hat aber Beute nicht).
+    // Basis ist der neuere Stand; dazu kommt alles, was nur im anderen liegt und nicht verbraucht wurde.
+    mergeProfiles(base, other) {
+      if (!base || !other) return base || other;
+      const p = JSON.parse(JSON.stringify(base));
+      const gone = new Set([].concat(p.gone || [], other.gone || []));
+      p.gone = Array.from(gone).slice(-400);
+      const byUid = (a, b) => { const have = new Set((a || []).map(x => x.uid)); return (a || []).concat((b || []).filter(x => x && x.uid && !have.has(x.uid) && !gone.has(x.uid))).filter(x => !gone.has(x.uid)); };
+      p.gearBag = byUid(p.gearBag, other.gearBag);
+      p.chest = byUid(p.chest, other.chest);
+      const union = (a, b) => Array.from(new Set([].concat(a || [], b || [])));
+      ['unlocked', 'epics', 'invites', 'friends', 'artLoadout'].forEach(k => { if (other[k]) p[k] = k === 'artLoadout' ? (p[k] || other[k]) : union(p[k], other[k]); });
+      const maxMap = k => { p[k] = Object.assign({}, other[k] || {}, p[k] || {}); Object.keys(other[k] || {}).forEach(x => { p[k][x] = Math.max(p[k][x] || 0, other[k][x] || 0); }); };
+      ['vault', 'loot', 'counts'].forEach(maxMap);
+      if (other.seen) { p.seen = p.seen || {}; Object.keys(other.seen).forEach(k => { p.seen[k] = union(p.seen[k], other.seen[k]); }); }
+      ['rankXp', 'heatMax', 'bestStep', 'endlessBest', 'endlessLoops', 'squadW', 'shards'].forEach(k => { if (other[k] != null) p[k] = Math.max(p[k] || 0, other[k] || 0); });
+      if (other.stats) { p.stats = p.stats || {}; ['runs', 'wins', 'berryTotal'].forEach(k => { p.stats[k] = Math.max(p.stats[k] || 0, other.stats[k] || 0); }); }
+      return p;
+    },
     // ---------- Ausrüstung: Truhe und Schmiede ----------
     storeItems(profile, run) {
       profile.chest = profile.chest || [];
@@ -169,6 +190,7 @@ window.GL = window.GL || {};
       const it = profile.chest[i];
       const val = 8 * (it.r + 1) + 10 * (it.lvl || 0);
       profile.chest.splice(i, 1);
+      GL.meta.gone(profile, uid);
       profile.itemLoadout = (profile.itemLoadout || []).filter(x => x !== uid);
       profile.berry += val;
       return val;
@@ -186,6 +208,7 @@ window.GL = window.GL || {};
       if (r >= max || pool.length < 3 || profile.berry < cost) return null;
       const used = pool.slice(0, 3).map(x => x.uid);
       profile.chest = profile.chest.filter(x => !used.includes(x.uid));
+      used.forEach(u => GL.meta.gone(profile, u));
       profile.berry -= cost;
       const defs = GL.data.items;
       const def = defs[Math.floor(Math.random() * defs.length)];

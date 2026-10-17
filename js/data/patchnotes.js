@@ -1,6 +1,9 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-17zn', date: '17.10.', title: 'Beute geht nicht mehr verloren', items: [
+    'Spielstand-Abgleich (z. B. Handy und PC): Statt den älteren Stand zu überschreiben, werden Ausrüstung, Truhe, Freischaltungen, Funde und Rekorde jetzt zusammengeführt. Zerlegtes kommt nicht zurück',
+    'Esc schließt Fenster, Spielerkarten, Album und Räume im Hafen. Jeder Raum hat oben rechts ein ✕' ] },
   { v: '2026-10-17zm', date: '17.10.', title: 'English!', items: [
     'Neu: Umschalten zwischen Deutsch und Englisch (EN/DE-Knopf oben). Menüs, Knöpfe und Werte sind übersetzt, Fähigkeiten folgen',
     'New: switch between German and English with the EN/DE button. Menus, buttons and stats are translated, ability texts will follow' ] },

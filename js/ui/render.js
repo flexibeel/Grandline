@@ -2657,7 +2657,7 @@ window.GL = window.GL || {};
   function roomHead(profile, tab) {
     const r = ROOMS.find(x => x.id === tab) || ROOMS[ROOMS.length - 1];
     const others = ROOMS.filter(x => x.id !== tab && GL.meta.featureOpen(profile, x.id));
-    return `<div class="room-head"><button class="room-back" data-act="hq-home">‹ Hafen</button><span class="room-title"><i class="hub-art sm">${roomArt(r.art)}</i>${r.name}</span></div>
+    return `<div class="room-head"><button class="room-back" data-act="hq-home">‹ Hafen</button><span class="room-title"><i class="hub-art sm">${roomArt(r.art)}</i>${r.name}</span><button class="room-x" data-act="hq-home" aria-label="Schließen" title="Schließen (Esc)">✕</button></div>
       <div class="room-hop">${others.map(x => `<button class="room-chip" data-act="hq-tab" data-tab="${x.id}">${x.name}${tabAlert(profile, x.id) ? '<i class="tab-dot"></i>' : ''}</button>`).join('')}</div>`;
   }
   function roomFoot() { return `<div class="room-foot"><button class="btn ghost" data-act="hq-home">‹ Zurück zum Hafen</button></div>`; }

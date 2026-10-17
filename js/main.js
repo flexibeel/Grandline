@@ -1358,6 +1358,13 @@
       }
       return;
     }
+    // Esc: oberstes Fenster schließen (Pop-up, Spieler-Karte, Album, Steckbrief, Raum im Hafen)
+    if (e.key === 'Escape') {
+      const pop = document.getElementById('fpop');
+      if (pop) { closePop(); return; }
+      if (ui.viewPlayer) { ui.viewPlayer = null; ui.squadFight = null; draw(); return; }
+      if (ui.peek) { ui.peek = false; draw(); return; }
+    }
     if (e.key === 'Escape' && (ui.album || ui.sheet != null)) { ui.album = null; ui.sheet = null; draw(); return; }
     if (e.key === 'Escape' && !run && ui.hqRoom) { ui.hqRoom = null; draw(); return; }
     if (ui.album || ui.sheet != null) return;
@@ -1553,7 +1560,10 @@
     GL.online.onRemoteProfile(remote => {
       if (sessionStorage.getItem('gl.pulled')) return;
       try { sessionStorage.setItem('gl.pulled', '1'); } catch (e2) { /* egal */ }
-      GL.save.replaceProfile(remote);
+      // Nicht blind überschreiben: Beute und Freischaltungen aus dem lokalen Stand bleiben erhalten
+      let merged = remote;
+      try { if (profile && profile.nickname && (!remote.nickname || remote.nickname === profile.nickname)) merged = GL.meta.mergeProfiles(remote, profile); } catch (e3) { merged = remote; }
+      GL.save.replaceProfile(merged);
       location.reload();
     });
     GL.online.init(profile);

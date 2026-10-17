@@ -111,6 +111,7 @@ window.GL = window.GL || {};
     if (i < 0 || wornBy(profile, uid)) return 0;
     const berry = D().scrap[B[i].r] || 0;
     profile.shards = (profile.shards || 0) + (D().shardScrap[B[i].r] || 0);
+    if (GL.meta && GL.meta.gone) GL.meta.gone(profile, B[i].uid);
     B.splice(i, 1);
     profile.berry = (profile.berry || 0) + berry;
     return berry;
