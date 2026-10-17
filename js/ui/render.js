@@ -2710,6 +2710,21 @@ window.GL = window.GL || {};
       titleEl.hidden = !ui.screen;
       document.body.classList.toggle('on-title', !!ui.screen);
       seenRef = ui.profile && ui.profile.seen;
+      // Feste Leiste unten (nur im Hauptquartier): Hafen, Aufträge, Stammcrew, Rangliste, Kapitänsbuch
+      const tb = document.getElementById('tabbar');
+      if (tb) {
+        const showTb = !run && !ui.screen && ui.profile && ui.profile.nickname;
+        tb.hidden = !showTb;
+        document.body.classList.toggle('has-tabbar', !!showTb);
+        if (showTb) {
+          const P = ui.profile, cur = ui.hqRoom || 'hafen';
+          const items = [['hafen', 'Hafen', 'flag'], ['auftraege', 'Aufträge', 'scroll'], ['stammcrew', 'Crew', 'flag2'], ['rangliste', 'Rangliste', 'podium'], ['profil', 'Kapitän', 'self']]
+            .filter(([id]) => id === 'hafen' || id === 'profil' || GL.meta.featureOpen(P, id));
+          const ico = a => a === 'self' ? GL.sprites.render({ id: 'self', look: lookOf(P) }) : a === 'flag' ? GL.sprites.ship() : featureArt(a === 'flag2' ? 'flag' : a);
+          const html = items.map(([id, name, art]) => `<button class="tb-btn${cur === id ? ' on' : ''}" data-act="${id === 'hafen' ? 'hq-home' : 'hq-tab'}" data-tab="${id}"><i class="tb-ico">${ico(art)}</i><span>${name}</span>${id !== 'hafen' && tabAlert(P, id) ? '<i class="tab-dot"></i>' : ''}</button>`).join('');
+          if (tb.dataset.last !== html) { tb.innerHTML = html; tb.dataset.last = html; }
+        }
+      }
       GL.sprites.myShip = (ui.profile && ui.profile.ship) || null;
       const nb = document.getElementById('notes-btn');
       if (nb && ui.profile) nb.innerHTML = 'Neuigkeiten' + (ui.profile.notesSeen !== GL.version ? ' <i class="new-dot"></i>' : '');

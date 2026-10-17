@@ -1,12 +1,13 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
-  { v: '2026-10-17z', date: '17.10.', title: 'Runder, räumlicher, schneller', items: [
+  { v: '2026-10-17za', date: '17.10.', title: 'Runder, räumlicher, schneller', items: [
     'Pixel-Rahmen mit rund gezeichneten Ecken, Knöpfe mit Tiefe, die sich beim Antippen eindrücken',
     'Fenster gleiten sanft herein',
     'Vier Tempostufen bis „Turbo“, gut sichtbar am Knopf und oben rechts im Kampfbild',
     'Lange Kämpfe werden ab Runde 4 und 7 von selbst flotter',
-    'Endlos-Rangliste jetzt direkt in der Hauptauswahl der Rangliste' ] },
+    'Endlos-Rangliste jetzt direkt in der Hauptauswahl der Rangliste',
+    'Neue feste Leiste unten im Hauptquartier: Hafen, Aufträge, Crew, Rangliste, Kapitän mit einem Tipp erreichbar' ] },
   { v: '2026-10-17y', date: '17.10.', title: 'Pixel-Look und neue Taverne', items: [
     'Holzrahmen im Pixel-Stil statt runder Ecken: Hauptquartier, Schilder, Fenster, Spielfläche',
     'Taverne kompakt: Angebote als Kästchen nebeneinander, Antippen zeigt Details und „Anheuern“, deine Crew direkt darunter',
