@@ -1426,6 +1426,19 @@ window.GL = window.GL || {};
     setTimeout(() => el.remove(), 3150);
   }
 
+  // Persönlicher Spielercode im Profil: verdeckt, antippen zum Anzeigen
+  function codeBox(profile, ui) {
+    if (!profile.playerCode) return '';
+    const st = GL.online ? GL.online.state() : {};
+    const shown = ui && ui.codeShow;
+    return `<div class="code-box">
+      <div class="cb-head"><b>🔑 Dein Spielercode</b>${st.codeReady === false ? '<em class="cb-warn">Abgleich noch nicht eingerichtet</em>' : ''}</div>
+      <button class="cb-code${shown ? ' on' : ''}" data-act="code-show" aria-label="Spielercode anzeigen">${shown ? esc(profile.playerCode) : '••••-••••-••••-••••'}<small>${shown ? 'antippen zum Verbergen' : 'antippen zum Anzeigen'}</small></button>
+      <p class="cb-warn-txt">⚠ Zeig diesen Code niemandem. Er ist wie ein Passwort: Wer ihn hat, spielt mit deinem Account. Damit meldest du dich auf jedem Gerät an, dein Fortschritt gleicht sich dann automatisch ab.</p>
+      <div class="cb-actions"><button class="btn mini ghost" data-act="code-copy">Kopieren</button><button class="btn mini ghost" data-act="code-mail">An mich mailen</button></div>
+    </div>`;
+  }
+
   // Eine Zeile: mit welcher Mail ist dieser Account verbunden?
   function accountLine() {
     const st = GL.online ? GL.online.state() : {};
@@ -1547,8 +1560,17 @@ window.GL = window.GL || {};
           <button class="btn login-main" data-act="mail-code">Bestätigen</button></details>` : ''}
       </div>`;
     }
+    const codeLogin = `<div class="login-field">
+        <label for="code-in">Mit Spielercode</label>
+        <input id="code-in" class="code-input small" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="XXXX-XXXX-XXXX-XXXX" maxlength="24">
+      </div>
+      ${ui && ui.codeError ? `<p class="login-err">${esc(ui.codeError)}</p>` : ''}
+      <button class="btn login-main" data-act="code-login">Mit Code anmelden</button>
+      <p class="login-alt">Deinen Code findest du auf dem anderen Gerät im Hauptquartier unter Profil.</p>
+      <div class="login-or"><span>oder per Mail</span></div>`;
     return `<div class="ts-inner login-card">${back}
       <div class="login-icon">⚓</div><h2>Anmelden</h2>
+      ${codeLogin}
       <p class="hint">Kein Passwort nötig: Mail eingeben, Link in der Mail antippen, fertig. Auf jedem Gerät mit derselben Adresse spielst du mit demselben Piraten weiter.</p>
       <div class="login-field">
         <label for="mail">E-Mail-Adresse</label>
@@ -1873,6 +1895,7 @@ window.GL = window.GL || {};
           <div><b>${profile.unlocked.length + GL.config.starters.length}</b><span>Kapitäne</span></div>
         </div>
         <button class="btn ghost" data-act="profile-edit">Pirat und Aussehen bearbeiten</button>
+        ${codeBox(profile, uiRef)}
         ${accountLine()}
         ${adminBox(profile)}
         ${chapterPanel(profile)}
@@ -2109,7 +2132,7 @@ window.GL = window.GL || {};
         if (titleEl.dataset.last !== html) {
           titleEl.innerHTML = html; titleEl.dataset.last = html;
           if (ui.screen === 'profile') setTimeout(() => { const i = $('#pf-name'); if (i) i.focus(); }, 30);
-          if (ui.screen === 'login') setTimeout(() => { const i = $('#mail-code') || $('#mail'); if (i) i.focus(); }, 30);
+          if (ui.screen === 'login') setTimeout(() => { const i = $('#mail-code') || $('#code-in'); if (i) i.focus(); }, 30);
         }
       } else { titleEl.dataset.last = ''; }
       const introEl = $('#intro');

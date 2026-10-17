@@ -83,3 +83,27 @@ GL.transfer = {
   }
 };
 
+
+// Persönlicher Spielercode: Schlüssel zum Spielstand auf allen Geräten.
+// Format XXXX-XXXX-XXXX-XXXX (ohne verwechselbare Zeichen), 80 Bit Zufall.
+// Der Server sieht nur den SHA-256-Fingerabdruck, nie den Code selbst.
+GL.code = {
+  ALPHA: '23456789ABCDEFGHJKMNPQRSTUVWXYZ',
+  generate() {
+    const a = GL.code.ALPHA, bytes = new Uint8Array(16);
+    (window.crypto || window.msCrypto).getRandomValues(bytes);
+    const raw = Array.from(bytes, b => a[b % a.length]).join('');
+    return raw.match(/.{4}/g).join('-');
+  },
+  normalize(c) { return String(c || '').toUpperCase().replace(/[^0-9A-Z]/g, '').replace(/O/g, '0').replace(/[IL]/g, '1'); },
+  valid(c) { const n = GL.code.normalize(c); return n.length === 16 && /^[23456789ABCDEFGHJKMNPQRSTUVWXYZ]+$/.test(n); },
+  format(c) { return GL.code.normalize(c).match(/.{1,4}/g).join('-'); },
+  async key(c) {
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode('grandline:' + GL.code.normalize(c)));
+    return Array.from(new Uint8Array(buf), b => b.toString(16).padStart(2, '0')).join('');
+  },
+  ensure(profile) {
+    if (!profile.playerCode || !GL.code.valid(profile.playerCode)) profile.playerCode = GL.code.generate();
+    return profile.playerCode;
+  }
+};

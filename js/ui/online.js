@@ -72,6 +72,7 @@ window.GL = window.GL || {};
     state.anon = !!session.user.is_anonymous;
     state.email = session.user.email || null;
     await pullSave();
+    await codeSync();
     const toRow = r => Object.assign({}, r.data || {}, { id: r.id, name: r.name, score: r.score });
     store = {
       async get(uid) {
@@ -117,11 +118,42 @@ window.GL = window.GL || {};
     } catch (e) { /* ohne Tabelle läuft alles lokal weiter */ }
   }
   function pushSave(profile) {
-    if (!client || !state.uid || !state.cloud) return;
+    if (!client || !state.uid) return;
     clearTimeout(pushTimer);
     pushTimer = setTimeout(async () => {
-      try { await client.from('saves').upsert({ id: state.uid, data: profile, updated_at: new Date().toISOString() }); } catch (e) { /* später erneut */ }
+      if (state.cloud) { try { await client.from('saves').upsert({ id: state.uid, data: profile, updated_at: new Date().toISOString() }); } catch (e) { /* später erneut */ } }
+      codeSave(profile);
     }, 3000);
+  }
+
+  // ---------- Spielercode: ein Spielstand, gespeichert unter dem Fingerabdruck des Codes ----------
+  // Braucht in Supabase die Funktionen code_load / code_save (siehe tools/spielercode.sql).
+  async function codeSave(profile) {
+    if (!client || !profile || !profile.playerCode || state.codeReady === false) return;
+    try {
+      const key = await GL.code.key(profile.playerCode);
+      const { error } = await client.rpc('code_save', { p_key: key, p_data: profile });
+      if (error) { state.codeReady = false; state.codeError = error.message; emit(); return; }
+      state.codeReady = true;
+    } catch (e) { /* später erneut */ }
+  }
+  async function codeLoad(code) {
+    if (!client) return { ok: false, msg: 'Geht nur auf der Website.' };
+    const key = await GL.code.key(code);
+    const { data, error } = await client.rpc('code_load', { p_key: key });
+    if (error) { state.codeReady = false; state.codeError = error.message; return { ok: false, msg: /function|does not exist|schema cache/i.test(error.message) ? 'Der Spielercode-Speicher ist noch nicht eingerichtet (Admin: SQL ausführen).' : error.message }; }
+    state.codeReady = true;
+    return { ok: true, data: data || null };
+  }
+  // Beim Start: liegt unter dem eigenen Code ein neuerer Stand (anderes Gerät)? Dann übernehmen.
+  async function codeSync() {
+    const local = profileRef;
+    if (!local || !local.playerCode) return;
+    try {
+      const res = await codeLoad(local.playerCode);
+      if (res.ok && res.data && (res.data.savedAt || 0) > (local.savedAt || 0) + 1000 && onRemote) onRemote(res.data);
+      else if (res.ok && local.nickname) codeSave(local);
+    } catch (e) { /* egal */ }
   }
   // Anonymes Profil mit E-Mail verknüpfen (Bestätigungslink kommt per Mail)
   async function linkEmail(email) {
@@ -320,6 +352,6 @@ window.GL = window.GL || {};
     return register(profile);
   }
 
-  GL.online = { init, submit, rename, register, pushSave, linkEmail, loginEmail, verifyCode, logout, wipe, liveFields,
+  GL.online = { init, submit, rename, register, pushSave, linkEmail, loginEmail, verifyCode, logout, wipe, liveFields, codeLoad, codeSave,
     onRemoteProfile(fn) { onRemote = fn; }, state: () => state, onChange(fn) { listeners.push(fn); } };
 })();

@@ -1,6 +1,7 @@
 // Startpunkt: verbindet Spiellogik, Speicherstand und Oberfläche.
 (function () {
   const profile = GL.save.loadProfile();
+  if (profile.nickname && !profile.playerCode) { GL.code.ensure(profile); GL.save.storeProfile(profile); }
 
   // run = null bedeutet: wir sind im Hauptquartier
   let run = GL.save.loadRun();
@@ -42,7 +43,7 @@
     setTimeout(() => t.remove(), 4800);
   }
 
-  function saveProfile() { GL.save.storeProfile(profile); }
+  function saveProfile() { if (profile.nickname) GL.code.ensure(profile); GL.save.storeProfile(profile); }
 
   // Neu freigespielte Kosmetik kurz zeigen (Hintergrund, Rahmen, Animation, Titel, Flagge)
   const COS_KIND = { backgrounds: 'Hintergrund', frames: 'Rahmen', animations: 'Animation', titles: 'Titel', flags: 'Flagge', badges: 'Abzeichen' };
@@ -500,6 +501,40 @@
           const t = document.getElementById('title'); if (t) t.dataset.last = '';
           ui.lastStage = null; draw();
         });
+        break;
+      }
+      case 'code-show': ui.codeShow = !ui.codeShow; ui.lastStage = null; draw(); break;
+      case 'code-copy': {
+        const c = profile.playerCode;
+        const ok = () => toast('<span><b>Spielercode kopiert</b>Gut aufheben und niemandem zeigen.</span>');
+        if (navigator.clipboard) navigator.clipboard.writeText(c).then(ok, () => { ui.codeShow = true; ui.lastStage = null; draw(); });
+        else { ui.codeShow = true; ui.lastStage = null; draw(); }
+        break;
+      }
+      case 'code-mail': {
+        const body = `Mein Grand-Line-Spielercode (geheim halten!):\n\n${profile.playerCode}\n\nAnmelden: ${location.origin}${location.pathname} → Anmelden → Mit Spielercode`;
+        location.href = `mailto:?subject=${encodeURIComponent('Mein Grand-Line-Spielercode')}&body=${encodeURIComponent(body)}`;
+        break;
+      }
+      case 'code-login': {
+        const inp = document.getElementById('code-in');
+        const v = inp ? inp.value : '';
+        const t0 = document.getElementById('title');
+        if (!GL.code.valid(v)) { ui.codeError = 'Der Code hat 16 Zeichen, z. B. K7QF-9XKD-M2PA-4TRB.'; if (t0) t0.dataset.last = ''; draw(); break; }
+        el.disabled = true; el.textContent = 'Suche Spielstand …';
+        GL.online.codeLoad(v).then(res => {
+          if (!res.ok || !res.data) {
+            ui.codeError = res.ok ? 'Zu diesem Code gibt es keinen Spielstand. Tippfehler? Auf dem anderen Gerät einmal das Spiel öffnen, damit er gespeichert wird.' : res.msg;
+            if (t0) t0.dataset.last = ''; draw(); return;
+          }
+          const p = res.data;
+          p.playerCode = GL.code.format(v);
+          p.savedAt = Date.now();
+          GL.save.replaceProfile(p);
+          try { localStorage.removeItem('grandline.run'); sessionStorage.setItem('gl.pulled', '1'); } catch (e2) { /* egal */ }
+          toast(`<span><b>Willkommen zurück, ${esc2(p.nickname || 'Pirat')}!</b>Spielstand geladen.</span>`);
+          setTimeout(() => location.reload(), 700);
+        }).catch(err => { ui.codeError = err.message; if (t0) t0.dataset.last = ''; draw(); });
         break;
       }
       case 'xfer-copy': {
