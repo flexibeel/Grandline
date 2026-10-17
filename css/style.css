@@ -3083,3 +3083,34 @@ h1, h2, h3, .rank-name, .my-name, .duel-head b, .poster h3, .card-name, .tp-name
 .ts-fs-tip { color: var(--mute); font-size: .75rem; }
 .fs-btn { font-size: 1.05rem; line-height: 1; }
 body.is-app { padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); }
+/* ---------- Handy: mehr Platz für das Spiel ---------- */
+.opt.card.is-tip > .tip-badge { left: auto; right: 8px; transform: translateZ(30px); top: -10px; }
+.tip-badge { font-family: "Nunito", system-ui, sans-serif !important; font-weight: 800; letter-spacing: .03em; }
+@media (max-width: 520px) {
+  main { padding-left: 12px; padding-right: 12px; }
+  body.in-run header { margin-bottom: 8px; gap: 6px; }
+  body.in-run header h1 { display: none; }
+  body.in-run .head-right { width: 100%; }
+  body.in-run .track { gap: 3px; row-gap: 6px; }
+  body.in-run .track i { width: 9px; height: 5px; border-radius: 3px; }
+  body.in-run .track i.boss { height: 7px; }
+  body.in-run .track i.sea { height: 9px; }
+  body.in-run .track-loc { width: 100%; font-size: .95rem; margin-top: 2px; }
+  body.in-run .head-chips em { font-size: .9rem; padding: 2px 9px; }
+  body.in-run .head-actions { justify-content: flex-start; gap: 4px 14px; font-size: .84rem; margin-top: 2px; }
+  .mn-label { max-width: 66px; }
+  .mn-label b { font-size: 11px; hyphens: auto; -webkit-hyphens: auto; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .card-name { font-size: .98rem !important; white-space: normal !important; overflow: visible !important; text-overflow: clip !important; line-height: 1.15; }
+  .opt.card { min-height: 0; }
+  .stage { padding: 14px; }
+  .ts-row .btn, .ts-menu > .btn.ghost { padding-top: 10px; padding-bottom: 10px; }
+}
+.ac-short { display: none; }
+@media (max-width: 520px) {
+  body.in-run .head-actions [data-act="intro-open"], body.in-run .head-actions [data-act="album"] { display: none; }
+  body.in-run .track-loc { width: auto; flex: 1 1 auto; }
+  .crew-label { flex-wrap: nowrap !important; gap: 8px !important; }
+  .crew-label .auto-check.mini .ac-long { display: none; }
+  .crew-label .auto-check.mini .ac-short { display: inline; }
+  .crew-label .charge-wrap { font-size: .85rem; }
+}

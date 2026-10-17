@@ -2249,7 +2249,7 @@ window.GL = window.GL || {};
   function autoCheck(profile, cls) {
     const on = !!(profile && profile.settings && profile.settings.autoTrain);
     return `<button class="auto-check${on ? ' on' : ''}${cls ? ' ' + cls : ''}" data-act="auto-train-toggle" role="checkbox" aria-checked="${on}" title="Level-ups automatisch mit dem empfohlenen Training verteilen">
-      <i class="ac-box" aria-hidden="true">${on ? '✓' : ''}</i><span>Auto-Training</span></button>`;
+      <i class="ac-box" aria-hidden="true">${on ? '✓' : ''}</i><span class="ac-long">Auto-Training</span><span class="ac-short">Auto</span></button>`;
   }
   function trainPanel(run, profile) {
     const i = run.crew.findIndex(u => u.points > 0);
@@ -2281,6 +2281,7 @@ window.GL = window.GL || {};
       document.body.classList.toggle('on-title', !!ui.screen);
       document.body.classList.toggle('streamer', streamOn());
       document.body.classList.toggle('is-app', !!fsApp());
+      document.body.classList.toggle('in-run', !!run && !ui.screen);
       const fsb = document.querySelector('.fs-btn');
       if (fsb) fsb.hidden = fsApp() || !(document.fullscreenEnabled || document.webkitFullscreenEnabled);
       let sb = document.getElementById('sandbox-bar');
