@@ -414,6 +414,38 @@ button:focus-visible, .opt:focus-visible { outline: 3px solid var(--sea); outlin
 .d-high { color: var(--red); }
 .track i.boss { height: 12px; }
 
+/* ---------- Spieler-Visitenkarte (aus der Rangliste) ---------- */
+.pcard-wrap { position: fixed; inset: 0; z-index: 60; }
+.pcard-bg {
+  position: fixed; inset: 0; overflow: auto; padding: 16px;
+  background: rgba(40, 28, 14, .55); backdrop-filter: blur(3px);
+  display: grid; place-items: start center; cursor: pointer;
+}
+.pcard {
+  width: min(420px, 100%); margin: 24px 0; background: var(--panel); color: var(--ink); cursor: default;
+  border: 1px solid var(--line); border-radius: 18px; padding: 18px; box-shadow: 0 20px 50px rgba(40,25,10,.35);
+  animation: sheet-in .25s ease-out; position: relative;
+}
+.pcard-close { position: absolute; top: 12px; right: 14px; font-size: 1.1rem; }
+.pcard-top { display: grid; justify-items: center; gap: 4px; text-align: center; }
+.pcard-cap svg, .pcard-cap { width: 64px; height: 74px; display: grid; place-items: center; }
+.pcard-name { font-size: 1.2rem; }
+.pcard-top small { color: var(--mute); }
+.pcard-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 14px; }
+.pcard-stats div { text-align: center; background: var(--panel-2); border-radius: 10px; padding: 8px 4px; }
+.pcard-stats b { display: block; font-size: 1.05rem; }
+.pcard-stats span { font-size: .72rem; color: var(--mute); }
+.pcard-sec { margin-top: 14px; }
+.pcard-sec > b { display: block; font-size: .82rem; color: var(--mute); margin-bottom: 6px; }
+.vc-row { display: flex; flex-wrap: wrap; gap: 6px; }
+.vc-chip { display: inline-flex; align-items: center; gap: 5px; padding: 4px 8px; border-radius: 999px;
+  background: var(--panel-2); border: 1px solid var(--line); font-size: .78rem; }
+.vc-chip svg { width: 18px; height: 21px; shape-rendering: crispEdges; }
+.vc-chip b { font-weight: 700; }
+.vc-chip small { color: var(--mute); }
+.lb-row { cursor: pointer; }
+.lb-row:hover, .lb-row:focus-visible { background: color-mix(in srgb, var(--gold) 10%, transparent); }
+
 /* ---------- Steckbrief ---------- */
 .sheet {
   position: fixed; inset: 0; z-index: 55; overflow: auto; padding: 16px;
@@ -2031,7 +2063,24 @@ body.on-title { overflow: hidden; }
 .ts-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
 .ts-row .btn { padding: 10px 6px; font-size: .95rem; }
 .ts-foot { font-size: .75rem; color: var(--mute); margin: 0; max-width: 460px; }
+.ts-login { margin-top: 2px; }
 @media (max-width: 420px) { .ts-row { grid-template-columns: 1fr; } }
+
+/* ---------- Login-Screen: clean, wie eine App-Anmeldeseite ---------- */
+.login-card { position: relative; max-width: 380px; padding: 8px 4px 0; }
+.login-back { position: absolute; left: 0; top: -2px; }
+.login-icon { font-size: 2.4rem; margin-top: 18px; }
+.login-card h2 { margin-top: 2px; }
+.login-card .hint { color: var(--mute); text-align: center; margin: 0; }
+.login-field { width: 100%; display: grid; gap: 6px; text-align: left; margin-top: 6px; }
+.login-field label { font-size: .82rem; font-weight: 700; color: var(--mute); }
+.login-field input { width: 100%; font: inherit; font-size: 1.05rem; padding: 12px 14px; border-radius: 12px;
+  border: 2px solid var(--line); background: var(--panel); color: var(--ink); }
+.login-field input:focus { outline: none; border-color: var(--gold); }
+.login-main { width: 100%; margin-top: 4px; text-align: center; }
+.login-sent { width: 100%; margin: 0; padding: 10px 12px; border-radius: 10px; background: color-mix(in srgb, var(--hp) 14%, var(--panel)); color: var(--ink); font-size: .9rem; }
+.login-alt { font-size: .85rem; color: var(--mute); margin: 2px 0 0; }
+.login-alt .link { font-size: inherit; }
 
 /* Profil-Chip und Profil anlegen */
 .pf-chip { display: inline-flex; align-items: center; gap: 10px; padding: 6px 12px 6px 6px; border-radius: 10px; cursor: pointer; font: inherit; color: var(--ink);

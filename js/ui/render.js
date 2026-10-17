@@ -1028,6 +1028,41 @@ window.GL = window.GL || {};
       </div>
     </div>`;
   }
+  // Visitenkarte eines Spielers: aus der Rangliste anklickbar, zeigt Werte, Artefakte und seltene Items
+  function vaultChip(v) {
+    const art = (GL.data.artifacts || []).find(a => a.id === v.id);
+    if (!art) return '';
+    return `<span class="vc-chip">${artIcon(art)}<b>${esc(art.name)}</b><small>Stufe ${v.lvl}</small></span>`;
+  }
+  function chestChip(it) {
+    const d = (GL.data.items || []).find(x => x.id === it.id) || {};
+    const rid = GL.config.rarities[Math.max(0, it.r)].id;
+    return `<span class="vc-chip ir-${rid}">${itemIcon(it)}<b>${esc(d.name || it.id)}${it.lvl ? ' +' + it.lvl : ''}</b>${rarityPill(it.r)}</span>`;
+  }
+  function playerCard(x, isMe) {
+    const fmt = n => Number(n || 0).toLocaleString('de-DE');
+    const cap = crewData(x.captain || (x.best && x.best.captain));
+    return `<div class="pcard-bg" data-act="lb-view-close">
+      <div class="pcard" data-act="noop">
+        <button class="link pcard-close" data-act="lb-view-close">✕</button>
+        <div class="pcard-top">
+          <span class="pcard-cap">${x.look ? portrait(x.look, x.cos, 'lg') : cap ? GL.sprites.render(cap) : ''}</span>
+          <b class="pcard-name">${esc(x.name || 'Unbekannter Pirat')}${isMe ? ' <em>du</em>' : ''}</b>
+          <small>${x.cos && x.cos.title ? esc(titleName(x.cos.title)) + ' · ' : ''}${esc(x.rank || '')}</small>
+        </div>
+        <div class="pcard-stats">
+          <div><b>${fmt(x.score)}</b><span>Bestwert</span></div>
+          <div><b>${fmt(x.wins)}</b><span>Siege</span></div>
+          <div><b>${fmt(x.runs)}</b><span>Runs</span></div>
+          <div><b>${fmt(x.maxHit)}</b><span>Härtester Treffer</span></div>
+          <div><b>${fmt(x.kos)}</b><span>K.o.s</span></div>
+          <div><b>${fmt(x.topBounty)}</b><span>Mio. ฿ Kopfgeld</span></div>
+        </div>
+        ${(x.vaultTop || []).length ? `<div class="pcard-sec"><b>Artefakte</b><div class="vc-row">${x.vaultTop.map(vaultChip).join('')}</div></div>` : ''}
+        ${(x.chestTop || []).length ? `<div class="pcard-sec"><b>Seltene Funde</b><div class="vc-row">${x.chestTop.map(chestChip).join('')}</div></div>` : ''}
+      </div>
+    </div>`;
+  }
   function leaderboard(profile, ui) {
     const st = GL.online ? GL.online.state() : { status: 'local', rows: [] };
     const fmt = n => Number(n || 0).toLocaleString('de-DE');
@@ -1051,7 +1086,7 @@ window.GL = window.GL || {};
     const row = (x, k, value, unit, extra) => {
       const b = x.best || {};
       const cap = crewData(x.avatar) || (b.captain ? crewData(b.captain) : null);
-      return `<li class="lb-row${x.id === st.uid ? ' me' : ''}${k < 3 ? ' top' + (k + 1) : ''}${x.cos && x.cos.bg ? ' rowbg-' + x.cos.bg : ''}">
+      return `<li class="lb-row${x.id === st.uid ? ' me' : ''}${k < 3 ? ' top' + (k + 1) : ''}${x.cos && x.cos.bg ? ' rowbg-' + x.cos.bg : ''}" data-act="lb-view" data-id="${esc(x.id)}" tabindex="0" role="button">
         <span class="lb-pos">${k + 1}</span>
         <span class="lb-cap">${x.look ? portrait(x.look, x.cos, 'sm') : cap ? GL.sprites.render(cap) : ''}</span>
         <span class="lb-who"><b>${esc(x.name || 'Unbekannter Pirat')}${x.id === st.uid ? ' <em>du</em>' : ''}</b>
@@ -1213,16 +1248,14 @@ window.GL = window.GL || {};
     setTimeout(() => el.remove(), 3900);
   }
 
-  // Auf allen Geräten spielen: E-Mail verknüpfen oder auf neuem Gerät anmelden
+  // Auf allen Geräten spielen: Kurzstatus im Profil, das eigentliche Anmelden läuft über den Login-Screen
   function devicesBox() {
     const st = GL.online ? GL.online.state() : {};
     if (st.backend !== 'supabase') return `<div class="dev-box"><b>Auf allen Geräten spielen</b><small>Geht auf der Website (flexibeel.github.io/Grandline).</small></div>`;
-    if (!st.anon && st.email) return `<div class="dev-box ok"><b>Online gesichert ✓</b><small>Verknüpft mit ${esc(st.email)}. Auf einem anderen Gerät: Website öffnen, Profil → „Ich habe schon ein Profil“, diese E-Mail eingeben.</small></div>`;
+    if (!st.anon && st.email) return `<div class="dev-box ok"><b>Account ✓</b><small>Angemeldet als ${esc(st.email)}. Dein Fortschritt ist auf allen Geräten da.</small></div>`;
     return `<div class="dev-box"><b>Auf allen Geräten spielen</b>
-      <small>Dein Fortschritt liegt bisher nur in diesem Browser. Verknüpfe eine E-Mail, dann spielst du auf Handy und PC mit demselben Piraten weiter.${st.mailSent ? ` <b>Link an ${esc(st.mailSent)} geschickt.</b>` : ''}</small>
-      <div class="dev-row"><input id="mail" type="email" placeholder="deine@email.de">
-        <button class="btn" data-act="mail-link">Verknüpfen</button>
-        <button class="btn ghost" data-act="mail-login">Ich habe schon ein Profil</button></div></div>`;
+      <small>Mit einer E-Mail spielst du auf Handy und PC mit demselben Piraten weiter. Kein Passwort nötig.</small>
+      <button class="btn ghost" data-act="login-open">Account einrichten</button></div>`;
   }
 
   // ---------- Startbildschirm und Profil ----------
@@ -1271,8 +1304,35 @@ window.GL = window.GL || {};
           <button class="btn ghost" data-act="title-go" data-tab="album">Sammelalbum</button>
           <button class="btn ghost" data-act="intro-open">Anleitung</button>
         </div>
+        <button class="link ts-login" data-act="login-open">${st.anon === false && st.email ? `Angemeldet als ${esc(st.email)}` : 'Anmelden'}</button>
       </div>
       <p class="ts-foot">${esc(document.querySelector('footer.fan') ? document.querySelector('footer.fan').textContent : '')}</p>
+    </div>`;
+  }
+  function loginScreen(profile) {
+    const st = GL.online ? GL.online.state() : {};
+    const back = `<button class="link login-back" data-act="login-back">‹ Zurück</button>`;
+    if (st.backend !== 'supabase') {
+      return `<div class="ts-inner login-card">${back}
+        <div class="login-icon">⚓</div><h2>Anmelden</h2>
+        <p class="hint">Geht nur auf der Website: flexibeel.github.io/Grandline</p></div>`;
+    }
+    if (!st.anon && st.email) {
+      return `<div class="ts-inner login-card">${back}
+        <div class="login-icon">✓</div><h2>Angemeldet</h2>
+        <p class="hint">Dieser Account ist mit <b>${esc(st.email)}</b> verknüpft. Auf jedem Gerät reicht „Anmelden“ mit dieser Adresse, dein Fortschritt ist immer dabei.</p>
+        <button class="btn" data-act="login-back">Fertig</button></div>`;
+    }
+    return `<div class="ts-inner login-card">${back}
+      <div class="login-icon">⚓</div><h2>Anmelden</h2>
+      <p class="hint">Kein Passwort nötig: Mail eingeben, Link antippen, fertig. Auf jedem Gerät mit derselben Adresse spielst du mit demselben Piraten weiter.</p>
+      <div class="login-field">
+        <label for="mail">E-Mail-Adresse</label>
+        <input id="mail" type="email" inputmode="email" placeholder="deine@email.de" autocomplete="email">
+      </div>
+      ${st.mailSent ? `<p class="login-sent">Link an <b>${esc(st.mailSent)}</b> geschickt. Postfach (auch Spam-Ordner) prüfen.</p>` : ''}
+      <button class="btn login-main" data-act="mail-login">Anmelden</button>
+      ${profile.nickname ? `<p class="login-alt">Spielst du hier zum ersten Mal mit dieser Mail? <button class="link" data-act="mail-link">Diesen Piraten jetzt sichern</button></p>` : ''}
     </div>`;
   }
   function profileScreen(profile, ui) {
@@ -1672,15 +1732,20 @@ window.GL = window.GL || {};
       titleEl.hidden = !ui.screen;
       document.body.classList.toggle('on-title', !!ui.screen);
       if (ui.screen) {
-        const html = ui.screen === 'profile' ? profileScreen(ui.profile, ui) : titleScreen(run, ui.profile);
+        const html = ui.screen === 'profile' ? profileScreen(ui.profile, ui) : ui.screen === 'login' ? loginScreen(ui.profile) : titleScreen(run, ui.profile);
         if (titleEl.dataset.last !== html) {
           titleEl.innerHTML = html; titleEl.dataset.last = html;
           if (ui.screen === 'profile') setTimeout(() => { const i = $('#pf-name'); if (i) i.focus(); }, 30);
+          if (ui.screen === 'login') setTimeout(() => { const i = $('#mail'); if (i) i.focus(); }, 30);
         }
       } else { titleEl.dataset.last = ''; }
       const introEl = $('#intro');
       introEl.hidden = ui.intro == null;
       if (ui.intro != null) introEl.innerHTML = intro(ui.intro);
+      const st0 = GL.online ? GL.online.state() : { rows: [] };
+      const viewRow = ui.viewPlayer ? (st0.rows || []).find(x => x.id === ui.viewPlayer) : null;
+      $('#pcard').hidden = !viewRow;
+      if (viewRow) $('#pcard').innerHTML = playerCard(viewRow, ui.viewPlayer === st0.uid);
       if (!run) {
         $('#track').innerHTML = '';
         ['#crew', '#syn', '#crew-label', '#restart', '#sheet', '#traits', '#peek', '#peek-btn'].forEach(sel => { $(sel).hidden = true; });

@@ -280,6 +280,11 @@
       case 'title-go': ui.screen = null; ui.hqTab = el.dataset.tab; if (el.dataset.tab === 'album') { ui.album = 'crew'; ui.hqTab = null; } draw(); break;
       case 'title-back': ui.screen = ui.profileFrom === 'hq' ? null : 'title'; draw(); break;
       case 'profile-edit': openProfile(); break;
+      case 'login-open': ui.loginFrom = ui.screen || 'hq'; ui.screen = 'login'; draw(); break;
+      case 'login-back': ui.screen = ui.loginFrom === 'hq' ? null : 'title'; draw(); break;
+      case 'lb-view': ui.viewPlayer = el.dataset.id; draw(); break;
+      case 'lb-view-close': ui.viewPlayer = null; draw(); break;
+      case 'noop': break;
       case 'char-part': ui.draft.char.look[el.dataset.part] = el.dataset.v; draw(); break;
       case 'char-hat': ui.draft.char.look.hat = el.dataset.v; draw(); break;
       case 'char-type': ui.draft.char.type = el.dataset.v; draw(); break;

@@ -159,6 +159,12 @@ window.GL = window.GL || {};
   }
 
   function liveFields(profile) {
+    const vaultTop = Object.keys(profile.vault || {})
+      .map(id => ({ id, lvl: GL.meta.artLevel(profile, id) }))
+      .sort((a, b) => b.lvl - a.lvl).slice(0, 6);
+    const chestTop = (profile.chest || []).slice()
+      .sort((a, b) => b.r - a.r || (b.lvl || 0) - (a.lvl || 0)).slice(0, 4)
+      .map(it => ({ id: it.id, r: it.r, lvl: it.lvl || 0 }));
     return {
       name: (profile.nickname || '').slice(0, 24) || 'Unbekannter Pirat',
       look: profile.char ? profile.char.look : null,
@@ -167,6 +173,8 @@ window.GL = window.GL || {};
       rankXp: profile.rankXp || 0,
       heatMax: profile.heatMax || 0,
       artifacts: Object.keys(profile.vault || {}).length,
+      vaultTop,
+      chestTop,
       captains: (profile.unlocked || []).length + GL.config.starters.length,
       updated: new Date().toISOString()
     };
