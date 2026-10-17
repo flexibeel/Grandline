@@ -105,3 +105,15 @@ GL.code = {
     return profile.playerCode;
   }
 };
+
+// Streamer-Modus: verdeckt Mail und Spielercode. Gilt pro Gerät; per Link ?stream=1 direkt an.
+GL.streamer = (function () {
+  const KEY = 'grandline.streamer';
+  let mem = false;
+  try { mem = localStorage.getItem(KEY) === '1'; } catch (e) {}
+  try { if (/[?&]stream(er)?(=1|=on)?(&|$)/.test(location.search)) { mem = true; localStorage.setItem(KEY, '1'); } } catch (e) {}
+  return {
+    on: () => mem,
+    set(v) { mem = !!v; try { localStorage.setItem(KEY, mem ? '1' : '0'); } catch (e) {} return mem; }
+  };
+})();

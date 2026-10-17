@@ -2916,3 +2916,15 @@ button, .opt, .map-node, .lb-row { touch-action: manipulation; }
 .chip.duo { background: #fbe3ea; color: #8a2a4a; border-color: #f0c0d0; }
 .tr-duo .tr-hex { background: #f7d3de; color: #a0305a; }
 .tr-duo .tr-steps { color: #a0305a; font-weight: 700; }
+/* Streamer-Modus */
+.stream-tg { display: inline-flex; align-items: center; gap: 8px; margin: 6px auto 0; padding: 6px 10px 6px 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--panel); color: var(--mute); font: inherit; font-size: .8rem; font-weight: 700; cursor: pointer; }
+.stream-tg .st-sw { position: relative; width: 30px; height: 18px; border-radius: 999px; background: #d8cfbf; transition: background .2s; }
+.stream-tg .st-sw::after { content: ''; position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; border-radius: 50%; background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.2); transition: transform .2s; }
+.stream-tg.on { color: #6a3fb0; border-color: #cbb6ec; background: #f3edfb; }
+.stream-tg.on .st-sw { background: #8a5ad0; }
+.stream-tg.on .st-sw::after { transform: translateX(12px); }
+.redact { display: inline-block; padding: 0 6px; border-radius: 6px; background: #e8e1d4; color: #8a7d68; font-style: italic; font-weight: 600; }
+.cb-code.locked { cursor: default; opacity: .85; }
+body.streamer .acc-line b { filter: none; }
+.ts-menu .stream-tg { display: flex; }
+.cb-actions { align-items: center; } .cb-actions .stream-tg { margin: 0 0 0 auto; }

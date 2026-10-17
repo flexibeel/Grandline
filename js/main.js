@@ -503,12 +503,20 @@
         });
         break;
       }
-      case 'code-show': ui.codeShow = !ui.codeShow; ui.lastStage = null; draw(); break;
+      case 'stream-toggle': {
+        const on = GL.streamer.set(!GL.streamer.on());
+        ui.codeShow = false; ui.xferCode = null;
+        const t = document.getElementById('title'); if (t) t.dataset.last = '';
+        ui.lastStage = null; draw();
+        toast(on ? '<span><b>🎥 Streamer-Modus an</b>Mail und Spielercode sind jetzt überall verdeckt.</span>' : '<span><b>Streamer-Modus aus</b></span>');
+        break;
+      }
+      case 'code-show': if (GL.streamer.on()) break; ui.codeShow = !ui.codeShow; ui.lastStage = null; draw(); break;
       case 'code-copy': {
         const c = profile.playerCode;
         const ok = () => toast('<span><b>Spielercode kopiert</b>Gut aufheben und niemandem zeigen.</span>');
-        if (navigator.clipboard) navigator.clipboard.writeText(c).then(ok, () => { ui.codeShow = true; ui.lastStage = null; draw(); });
-        else { ui.codeShow = true; ui.lastStage = null; draw(); }
+        if (navigator.clipboard) navigator.clipboard.writeText(c).then(ok, () => { if (GL.streamer.on()) return; ui.codeShow = true; ui.lastStage = null; draw(); });
+        else if (!GL.streamer.on()) { ui.codeShow = true; ui.lastStage = null; draw(); }
         break;
       }
       case 'code-mail': {

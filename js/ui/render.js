@@ -5,6 +5,9 @@ window.GL = window.GL || {};
 (function () {
   const byId = (list, id) => list.find(x => x.id === id);
   const crewData = id => byId(GL.data.crew, id);
+  // Streamer-Modus: Mail, Spielercode und Kopier-Codes werden nirgends im Klartext gezeigt
+  const streamOn = () => !!(GL.streamer && GL.streamer.on());
+  const mailOut = m => streamOn() ? '<span class="redact">versteckt</span>' : esc(m);
   const enemyData = id => byId(GL.data.grunts, id) || byId(GL.data.bosses, id) || byId(GL.data.raids, id) || byId(GL.data.hunted || [], id);
   const anyData = id => crewData(id) || enemyData(id);
   const ability = id => GL.data.abilities[id];
@@ -1435,16 +1438,28 @@ window.GL = window.GL || {};
     setTimeout(() => el.remove(), 3150);
   }
 
+  // Schalter für den Streamer-Modus
+  function streamToggle() {
+    const on = streamOn();
+    return `<button class="stream-tg${on ? ' on' : ''}" data-act="stream-toggle" aria-pressed="${on}">
+      <span class="st-ico" aria-hidden="true">🎥</span><span>Streamer-Modus</span><i class="st-sw" aria-hidden="true"></i></button>`;
+  }
+
   // Persönlicher Spielercode im Profil: verdeckt, antippen zum Anzeigen
   function codeBox(profile, ui) {
     if (!profile.playerCode) return '';
     const st = GL.online ? GL.online.state() : {};
+    if (streamOn()) return `<div class="code-box">
+      <div class="cb-head"><b>🔑 Dein Spielercode</b></div>
+      <div class="cb-code locked">•••-•••<small>🎥 Im Streamer-Modus verborgen</small></div>
+      <div class="cb-actions"><button class="btn mini ghost" data-act="code-copy">Kopieren</button>${streamToggle()}</div>
+    </div>`;
     const shown = ui && ui.codeShow;
     return `<div class="code-box">
       <div class="cb-head"><b>🔑 Dein Spielercode</b>${st.codeReady === false ? `<em class="cb-warn">${esc(st.codeError || 'Abgleich noch nicht eingerichtet')}</em>` : !profile.codeClaimed ? '<em class="cb-wait">wird eingerichtet …</em>' : ''}</div>
       <button class="cb-code${shown ? ' on' : ''}" data-act="${shown ? 'code-copy' : 'code-show'}" aria-label="${shown ? 'Spielercode kopieren' : 'Spielercode anzeigen'}">${shown ? esc(profile.playerCode) : '•••-•••'}<small>${shown ? '📋 antippen zum Kopieren' : '👁 antippen zum Anzeigen'}</small></button>
       <p class="cb-warn-txt">⚠ Zeig diesen Code niemandem. Er ist wie ein Passwort: Wer ihn hat, spielt mit deinem Account. Damit meldest du dich auf jedem Gerät an, dein Fortschritt gleicht sich dann automatisch ab.</p>
-      <div class="cb-actions">${shown ? '<button class="btn mini ghost" data-act="code-show">Verbergen</button>' : '<button class="btn mini ghost" data-act="code-copy">Kopieren</button>'}<button class="btn mini ghost" data-act="code-mail">An mich mailen</button></div>
+      <div class="cb-actions">${shown ? '<button class="btn mini ghost" data-act="code-show">Verbergen</button>' : '<button class="btn mini ghost" data-act="code-copy">Kopieren</button>'}<button class="btn mini ghost" data-act="code-mail">An mich mailen</button>${streamToggle()}</div>
     </div>`;
   }
 
@@ -1453,7 +1468,7 @@ window.GL = window.GL || {};
     const st = GL.online ? GL.online.state() : {};
     if (st.backend !== 'supabase') return '';
     return !st.anon && st.email
-      ? `<p class="acc-line">✓ Angemeldet: <b>${esc(st.email)}</b> <button class="link" data-act="login-open">Konto</button></p>`
+      ? `<p class="acc-line">✓ Angemeldet: <b>${mailOut(st.email)}</b> <button class="link" data-act="login-open">Konto</button></p>`
       : `<p class="acc-line">Noch nicht mit einer Mail verbunden. <button class="link" data-act="login-open">Jetzt sichern</button></p>`;
   }
 
@@ -1461,7 +1476,7 @@ window.GL = window.GL || {};
   function devicesBox() {
     const st = GL.online ? GL.online.state() : {};
     if (st.backend !== 'supabase') return `<div class="dev-box"><b>Auf allen Geräten spielen</b><small>Geht auf der Website (flexibeel.github.io/Grandline).</small></div>`;
-    if (!st.anon && st.email) return `<div class="dev-box ok"><b>Account ✓</b><small>Angemeldet als ${esc(st.email)}. Dein Fortschritt ist auf allen Geräten da.</small></div>`;
+    if (!st.anon && st.email) return `<div class="dev-box ok"><b>Account ✓</b><small>Angemeldet als ${mailOut(st.email)}. Dein Fortschritt ist auf allen Geräten da.</small></div>`;
     return `<div class="dev-box"><b>Auf allen Geräten spielen</b>
       <small>Mit einer E-Mail spielst du auf Handy und PC mit demselben Piraten weiter. Kein Passwort nötig.</small>
       <button class="btn ghost" data-act="login-open">Account einrichten</button></div>`;
@@ -1526,7 +1541,8 @@ window.GL = window.GL || {};
           <button class="btn ghost" data-act="title-go" data-tab="album">Sammelalbum</button>
           <button class="btn ghost" data-act="intro-open">Anleitung</button>
         </div>
-        <button class="link ts-login" data-act="login-open">${st.anon === false && st.email ? `Angemeldet als ${esc(st.email)}` : 'Anmelden'}</button>
+        <button class="link ts-login" data-act="login-open">${st.anon === false && st.email ? (streamOn() ? 'Angemeldet ✓' : `Angemeldet als ${esc(st.email)}`) : 'Anmelden'}</button>
+        ${streamToggle()}
       </div>
       <p class="ts-foot">${esc(document.querySelector('footer.fan') ? document.querySelector('footer.fan').textContent : '')}</p>
     </div>`;
@@ -1535,7 +1551,7 @@ window.GL = window.GL || {};
   function transferBox(profile, ui) {
     return `<details class="login-transfer"${ui && ui.transferOpen ? ' open' : ''}><summary>Ohne Mail: Spielstand per Code übertragen</summary>
       <p class="hint">Auf dem alten Gerät „Code kopieren“, den Code an dich selbst schicken (z. B. WhatsApp), hier einfügen.</p>
-      ${profile.nickname ? `<button class="btn ghost mini" data-act="xfer-copy">📋 Code kopieren</button>${ui && ui.xferCode ? `<textarea class="xfer-out" readonly>${esc(ui.xferCode)}</textarea>` : ''}` : ''}
+      ${profile.nickname ? `<button class="btn ghost mini" data-act="xfer-copy">📋 Code kopieren</button>${ui && ui.xferCode && !streamOn() ? `<textarea class="xfer-out" readonly>${esc(ui.xferCode)}</textarea>` : ''}` : ''}
       <textarea id="xfer-in" class="xfer-in" placeholder="Code hier einfügen (beginnt mit GL1.)"></textarea>
       <button class="btn mini" data-act="xfer-import">Spielstand übernehmen</button>
     </details>`;
@@ -1552,7 +1568,7 @@ window.GL = window.GL || {};
     if (!st.anon && st.email) {
       return `<div class="ts-inner login-card">${back}
         <div class="login-icon">✓</div><h2>Angemeldet</h2>
-        <p class="hint">Angemeldet als <b>${esc(st.email)}</b>. Du bleibst angemeldet, bis du dich abmeldest. Auf jedem anderen Gerät reicht „Anmelden“ mit dieser Adresse.</p>
+        <p class="hint">Angemeldet als <b>${mailOut(st.email)}</b>. Du bleibst angemeldet, bis du dich abmeldest. Auf jedem anderen Gerät reicht „Anmelden“ mit dieser Adresse.</p>
         <button class="btn" data-act="login-back">Fertig</button>
         ${transferBox(profile, ui)}
         <button class="link" data-act="logout">${ui && ui.logoutArmed ? 'Wirklich abmelden? Nochmal tippen' : 'Abmelden'}</button></div>`;
@@ -1561,7 +1577,7 @@ window.GL = window.GL || {};
     if (st.mailSent) {
       return `<div class="ts-inner login-card">${back}
         <div class="login-icon">✉</div><h2>Schau in dein Postfach</h2>
-        <p class="hint">Mail an <b>${esc(st.mailSent)}</b> ist unterwegs. <b>Tippe in der Mail auf den Link</b>, dann bist du angemeldet. Am besten auf dem Gerät, auf dem du spielen willst.</p>
+        <p class="hint">Mail an <b>${mailOut(st.mailSent)}</b> ist unterwegs. <b>Tippe in der Mail auf den Link</b>, dann bist du angemeldet. Am besten auf dem Gerät, auf dem du spielen willst.</p>
         <p class="login-alt">Keine Mail da? Spam-Ordner prüfen oder <button class="link" data-act="mail-again">andere Adresse / neu senden</button></p>
         ${transferBox(profile, ui)}
         ${GL.config.online && GL.config.online.mailCode ? `<details class="login-code"><summary>Ich habe einen Code in der Mail</summary>
@@ -1570,7 +1586,7 @@ window.GL = window.GL || {};
       </div>`;
     }
     const codeLogin = `<div class="login-field">
-        <input id="code-in" class="code-input" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="ABC-123" maxlength="9" enterkeyhint="go" aria-label="Spielercode">
+        <input id="code-in" class="code-input" type="${streamOn() ? 'password' : 'text'}" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="ABC-123" maxlength="9" enterkeyhint="go" aria-label="Spielercode">
       </div>
       ${ui && ui.codeError ? `<p class="login-err">${esc(ui.codeError)}</p>` : ''}
       <button class="btn login-main" data-act="code-login">Weiterspielen</button>
@@ -1580,7 +1596,7 @@ window.GL = window.GL || {};
       ${codeLogin}
       <details class="login-more"${err ? ' open' : ''}><summary>Andere Wege</summary>
         <span class="lm-lbl">Per Mail (Link in der Mail antippen)</span>
-        <div class="login-field"><input id="mail" type="email" inputmode="email" placeholder="deine@email.de" autocomplete="email" aria-label="E-Mail-Adresse"></div>
+        <div class="login-field"><input id="mail" type="${streamOn() ? 'password' : 'email'}" inputmode="email" placeholder="deine@email.de" autocomplete="email" aria-label="E-Mail-Adresse"></div>
         ${err}
         <button class="btn ghost login-main" data-act="mail-login">Link schicken</button>
         ${profile.nickname ? `<p class="login-alt"><button class="link" data-act="mail-link">Diesen Piraten mit der Mail sichern</button></p>` : ''}
@@ -2133,6 +2149,7 @@ window.GL = window.GL || {};
       const titleEl = $('#title');
       titleEl.hidden = !ui.screen;
       document.body.classList.toggle('on-title', !!ui.screen);
+      document.body.classList.toggle('streamer', streamOn());
       if (ui.screen) {
         const html = ui.screen === 'profile' ? profileScreen(ui.profile, ui) : ui.screen === 'login' ? loginScreen(ui.profile, ui) : titleScreen(run, ui.profile);
         if (titleEl.dataset.last !== html) {
