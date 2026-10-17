@@ -25,6 +25,9 @@ window.GL = window.GL || {};
     return t ? `<em class="type t-${type}">${t.name}</em>` : '';
   }
 
+  // Kleine Pixel-Pfeile für Vergleiche (besser/schlechter)
+  const PX_UP = '<svg viewBox="0 0 5 3" aria-hidden="true"><rect x="2" y="0" width="1" height="1"/><rect x="1" y="1" width="3" height="1"/><rect x="0" y="2" width="5" height="1"/></svg>';
+  const PX_DOWN = '<svg viewBox="0 0 5 3" aria-hidden="true"><rect x="0" y="0" width="5" height="1"/><rect x="1" y="1" width="3" height="1"/><rect x="2" y="2" width="1" height="1"/></svg>';
   const ROLE_ICON = { brecher: '🛡', kaempfer: '⚔', helfer: '✚' };
   const ROLE_HINT = { brecher: 'Tank', kaempfer: 'Schaden', helfer: 'Heiler' };
   function roleBadge(role) {
@@ -887,40 +890,69 @@ window.GL = window.GL || {};
       }
 
       case 'recruit': {
-        // Taverne: kaufen mit Gold, neu würfeln, Crew entlassen, weitersegeln
+        // Taverne kompakt: Angebote als Kästchen nebeneinander, Antippen zeigt Vergleich und „Anheuern“, darunter direkt die Crew
         const lim = GL.run.crewLimit(run);
         const full = run.crew.length >= lim;
         const gold = run.gold || 0;
         const tip = GL.advice.recruit(run);
-        const cards = run.pool.map((o, i) => {
+        const sel = ui.tvSel != null && run.pool[ui.tvSel] ? ui.tvSel : (tip ? tip.index : null);
+        const pw = u => u.max * 0.5 + u.atk * 4 + u.spd * 2;
+        const others = run.crew.filter(u => u.id !== run.captain);
+        const weak = (others.length ? others : run.crew).slice().sort((a, b) => pw(a) - pw(b))[0];
+        const cmp = (a, b) => { if (!b) return ''; const r = (a - b) / Math.max(1, b); return r >= 0.2 ? 'uu' : r >= 0.05 ? 'u' : r <= -0.2 ? 'dd' : r <= -0.05 ? 'd' : 'e'; };
+        const arrow = k => k === 'e' || !k ? '<i class="pa pa-eq">=</i>' : `<i class="pa ${k[0] === 'u' ? 'pa-up' : 'pa-dn'}">${k.split('').map(() => k[0] === 'u' ? PX_UP : PX_DOWN).join('')}</i>`;
+        const tiles = run.pool.map((o, i) => {
+          const d = crewData(o.id), m = GL.run.previewMember(run, o);
           const price = GL.run.offerPrice(run, o);
           const can = !o.sold && !full && gold >= price;
-          const btn = offerButton(run, o, i, o.sold ? 'sold' : can ? '' : 'cant', true, o.sold ? null : tip);
-          return `<div class="shop-slot">${btn.replace('<button ', can ? '<button ' : '<button disabled ')}
-            <span class="price${can ? '' : ' no'}">${o.sold ? 'Gekauft' : `${GL.sprites.coin()} ${price}`}</span></div>`;
+          const overall = weak ? cmp(pw(m), pw(weak)) : 'e';
+          return `<button class="tv-off pxf${o.sold ? ' sold' : can ? '' : ' cant'}${sel === i ? ' sel' : ''}${(o.stars || 1) >= 3 ? ' s3' : ''}${tip && tip.index === i && !o.sold ? ' rec' : ''}" data-act="tv-sel" data-i="${i}">
+            ${tip && tip.index === i && !o.sold ? '<span class="tv-rec">Tipp</span>' : ''}
+            <span class="tv-stars">${stars(o.stars || 1)}</span>
+            <i class="tv-spr">${GL.sprites.renderShaded ? GL.sprites.renderShaded(d) : GL.sprites.render(d)}</i>
+            <b class="tv-name">${esc(d.name)}</b>
+            <small class="tv-sub"><i class="c3-dot t-${d.type}"></i>${roleBadge(d.role)} Lv ${m.lvl}</small>
+            <span class="tv-cmp">${weak ? arrow(overall) : ''}</span>
+            <span class="tv-price${can || o.sold ? '' : ' no'}">${o.sold ? 'Gekauft' : `${GL.sprites.coin()} ${price}`}</span>
+          </button>`;
         }).join('');
+        let detail = '';
+        if (sel != null && run.pool[sel]) {
+          const o = run.pool[sel], d = crewData(o.id), m = GL.run.previewMember(run, o);
+          const price = GL.run.offerPrice(run, o), can = !o.sold && !full && gold >= price;
+          const a = ability(d.id), t = o.trait ? trait(o.trait) : null, u = ultiOf(d.id, d.role);
+          const row = (lbl, ico, v, w) => `<span class="tv-st"><i>${ico}</i>${lbl} <b>${v}</b>${w != null ? arrow(cmp(v, w)) : ''}</span>`;
+          detail = `<div class="tv-detail pxf">
+            <div class="tv-d-head"><b>${esc(d.name)}</b> ${badge(d.type)} ${roleBadge(d.role)}<small>${weak ? `Vergleich mit ${esc(crewData(weak.id).name)}` : ''}</small></div>
+            <div class="tv-stats">${row('Leben', '♥', m.max, weak && weak.max)}${row('Angriff', '⚔', m.atk, weak && weak.atk)}${row('Tempo', '➤', m.spd, weak && weak.spd)}</div>
+            ${a ? `<p class="tv-ab"><b>${esc(a.name)}</b> ${esc(a.text)}</p>` : ''}
+            ${t ? `<p class="tv-ab"><b>${esc(t.name)}</b> ${esc(t.text)}</p>` : ''}
+            ${u ? `<p class="tv-ab ult">✦ <b>${esc(u.name)}</b> ${esc(u.text)}</p>` : ''}
+            ${unlockPreview(run, d)}
+            <button class="btn tv-buy" data-act="pick" data-i="${sel}"${can ? '' : ' disabled'}>${o.sold ? 'Schon angeheuert' : full ? 'Schiff voll: erst jemanden entlassen' : gold < price ? `Zu wenig Gold (${price})` : `Anheuern für ${price} Gold`}</button>
+          </div>`;
+        }
         const roll = GL.run.rerollCost(run);
-        const sell = run.crew.map((u, i) => {
-          const d = crewData(u.id);
-          const cap = u.id === run.captain;
-          return `<div class="sell-slot">${GL.sprites.render(d)}<b>${d.name}</b>
-            ${cap ? '<small>Kapitän</small>' : `<button class="btn mini ghost" data-act="dismiss" data-i="${i}">Entlassen +${GL.run.sellValue(u)}</button>`}</div>`;
+        const crewRow = run.crew.map((u, i) => {
+          const d = crewData(u.id), cap = u.id === run.captain;
+          return `<span class="tv-mem pxf${weak && u === weak ? ' weak' : ''}"><i>${GL.sprites.render(d)}</i><small>${esc(d.name)}</small><em>Lv ${u.lvl}</em>
+            ${cap ? '<span class="tv-cap">Kapitän</span>' : `<button class="tv-x" data-act="dismiss" data-i="${i}" title="Entlassen (+${GL.run.sellValue(u)} Gold)">✕ ${GL.run.sellValue(u)}</button>`}</span>`;
         }).join('');
-        const harbor = run.harbor ? `<div class="harbor-box"><span class="event-kicker">${run.loop ? `Zwischenhafen · Runde ${run.loop + 1}` : 'Endlos-Fahrt · Hafen'}</span>
+        const harbor = run.harbor ? `<div class="harbor-box pxf"><span class="event-kicker">${run.loop ? `Zwischenhafen · Runde ${run.loop + 1}` : 'Endlos-Fahrt · Hafen'}</span>
             <b>${run.loop ? 'Kurz durchatmen, dann wird es härter.' : 'Stell deine Crew zusammen, dann legst du ab.'}</b>
-            <ul>${run.loop ? '<li>Gegner und Bosse sind ab jetzt stärker, jede Runde mehr.</li>' : '<li>Jede geschaffte Runde durch dieses Meer zählt für die Endlos-Rangliste.</li>'}
-              <li>Reihenfolge ändern: Figuren oben in der Crew-Leiste ziehen. Wer vorne steht, steckt am meisten ein.</li>
-              <li>Schwache Figuren entlassen, stärkere anheuern. Offene Statuspunkte verteilen.</li></ul></div>` : '';
-        return `${harbor}<div class="shop-head"><h2>${run.harbor ? 'Hafentaverne' : 'Taverne'}</h2>
-            <span class="gold">${GL.sprites.coin()} <b>${gold}</b> Gold</span></div>
-          <p class="hint">${run.shopFree ? '<b>Der erste Kauf ist gratis.</b> ' : ''}Kaufe so viele Crewmitglieder, wie dein Gold und dein Schiff (${run.crew.length}/${lim}) erlauben. Gold gibt es für Siege, dazu Zinsen auf Erspartes.</p>
-          <div class="cards shop">${cards}</div>${tipLine(tip)}
-          <div class="shop-actions">
-            <button class="btn ghost" data-act="reroll"${gold < roll ? ' disabled' : ''}>Neu würfeln (${roll} Gold) ${keyHint('R')}</button>
-            <div class="dock"><button class="btn" data-act="leave">${run.harbor ? 'Ablegen: nächste Runde' : 'Weitersegeln'} ${keyHint('Leertaste')}</button></div>
-          </div>
-          <div class="lbl">Deine Crew${full ? ' <small>Schiff voll: entlasse jemanden für Platz</small>' : ''}</div>
-          <div class="sell-row">${sell}</div>`;
+            <small>Reihenfolge: Figuren oben in der Crew-Leiste ziehen. Vorne steckt am meisten ein.</small></div>` : '';
+        return `${harbor}<div class="tavern">
+            <div class="tv-head"><h2>${run.harbor ? 'Hafentaverne' : 'Taverne'}</h2><span class="gold">${GL.sprites.coin()} <b>${gold}</b></span></div>
+            ${run.shopFree ? '<p class="tv-free">Der erste Kauf ist gratis.</p>' : ''}
+            <div class="tv-grid">${tiles}</div>
+            ${detail}
+            <div class="tv-crew-head"><span>Deine Crew ${run.crew.length}/${lim}</span>${weak && run.crew.length > 1 ? '<small><span class="weak-key"></span> = schwächste Figur, Pfeile vergleichen mit ihr</small>' : ''}</div>
+            <div class="tv-crew">${crewRow}</div>
+            <div class="tv-actions">
+              <button class="btn ghost" data-act="reroll"${gold < roll ? ' disabled' : ''}>Neu würfeln · ${roll} ${keyHint('R')}</button>
+              <div class="dock"><button class="btn" data-act="leave">${run.harbor ? 'Ablegen: nächste Runde' : 'Weitersegeln'} ${keyHint('Leertaste')}</button></div>
+            </div>
+          </div>`;
       }
 
       case 'fruit': {

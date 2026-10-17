@@ -588,7 +588,8 @@
         act(rival ? { type: 'node', index: i, rival } : { type: 'node', index: i });
         break;
       }
-      case 'pick': act({ type: 'pick', index: i }); break;
+      case 'pick': ui.tvSel = null; act({ type: 'pick', index: i }); break;
+      case 'tv-sel': ui.tvSel = i; ui.lastStage = null; draw(); break;
       case 'up':   act({ type: 'swap', a: i, b: i - 1 }); break;
       case 'down': act({ type: 'swap', a: i, b: i + 1 }); break;
       case 'fight': act({ type: 'fight' }); break;
@@ -886,7 +887,7 @@
       case 'buy-upgrade': if (GL.meta.buyUpgrade(profile, el.dataset.id)) { saveProfile(); draw(); } break;
       case 'buy-gear': if (GL.meta.buyGear(profile, el.dataset.id)) { saveProfile(); draw(); } break;
       case 'toggle-gear': if (GL.meta.toggleLoadout(profile, el.dataset.id)) { saveProfile(); draw(); } break;
-      case 'reroll': act({ type: 'reroll' }); break;
+      case 'reroll': ui.tvSel = null; act({ type: 'reroll' }); break;
       case 'again': toHq(); sail(); break;   // direkt den nächsten Run starten
       case 'equip': act({ type: 'equip', index: i, uid: el.dataset.uid || null }); break;
       case 'toggle-item': if (GL.meta.toggleItem(profile, el.dataset.id)) { saveProfile(); draw(); } break;
