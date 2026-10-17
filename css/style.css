@@ -2972,3 +2972,4 @@ h1, h2, h3, .rank-name, .my-name, .duel-head b, .poster h3, .card-name, .tp-name
 .auto-check:focus-visible { outline: 2px solid var(--xp, #d9a63c); outline-offset: 2px; }
 .train-auto-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 8px 0 4px; }
 .train-auto-row small { color: var(--mute); font-size: .78rem; }
+.ult-call.spark small { color: #ffd34d; } .ult-call.spark b { text-shadow: 0 0 12px rgba(255,211,77,.8), 0 3px 0 rgba(0,0,0,.4); }

@@ -120,10 +120,10 @@ window.GL = window.GL || {};
       d = pierce ? Math.round(d) : Math.round(d * (1 - (t.guard || 0))) - (t.armor || 0);
       return Math.max(1, d);
     }
-    function doUlt(u) {
+    function doUlt(u, spark) {
       const ult = u.ult;
-      u.energy = 0;
-      events.push({ k: 'ult', side: u.side, from: idx(u), by: u.id, name: ult.name });
+      u.energy = 0; u.ultWait = 0;
+      events.push({ k: 'ult', side: u.side, from: idx(u), by: u.id, name: ult.name, spark: !!spark });
       let hitList = [];
       ult.fx.forEach(f => {
         const foes = foesOf(u), al = allies(u);
@@ -260,7 +260,12 @@ window.GL = window.GL || {};
           events.push({ k: 'skip', side: u.side, to: idx(u) });
           continue;
         }
-        if (u.ult && u.energy >= U.max) { doUlt(u); continue; }
+        // Ulti: Bei voller Leiste zündet sie mit etwas Glück sofort, spätestens im übernächsten Zug.
+        // Selten springt schon bei halb voller Leiste ein Funke über (Glücks-Ulti).
+        if (u.ult && u.energy >= U.max) {
+          if ((u.ultWait || 0) >= (U.maxWait || 2) || R.float(run) < (U.fireChance || 0.6)) { doUlt(u); continue; }
+          u.ultWait = (u.ultWait || 0) + 1;
+        } else if (u.ult && u.energy >= U.max * 0.5 && R.float(run) < (U.spark || 0)) { doUlt(u, true); continue; }
         const foes = foesOf(u);
         const attacks = u.ability === 'double' ? 2 : 1;
 

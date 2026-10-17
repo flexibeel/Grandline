@@ -93,7 +93,8 @@ window.GL = window.GL || {};
       if (old) old.remove();
       const c = document.createElement('div');
       c.className = 'ult-call ' + (ev.side === 'crew' ? 'us' : 'them');
-      c.innerHTML = `<small>${d ? d.name : ''} · Ulti</small><b>${ev.name}!</b>`;
+      c.className += ev.spark ? ' spark' : '';
+      c.innerHTML = `<small>${d ? d.name : ''} · ${ev.spark ? '✨ Glücksfunke!' : 'Ulti'}</small><b>${ev.name}!</b>`;
       field.appendChild(c);
       setTimeout(() => c.remove(), 1500);
     }
