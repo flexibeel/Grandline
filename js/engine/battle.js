@@ -256,6 +256,31 @@ window.GL = window.GL || {};
     }
 
     const pvp = enemies.some(u => u.ref && u.ref.pvp);
+    // ---------- Wendepunkte: machen jeden Kampf zur kleinen Geschichte ----------
+    //   Boss-Wut: Bosse und Raid-Bosse werden bei halbem Leben wütend (stärker, schneller, Ulti lädt)
+    //   Letzter Wille: Fällt die Crew unter ein Drittel ihres Lebens, rafft sie sich einmal auf
+    const DR = Object.assign({ rageAt: 0.5, rageAtk: 0.2, rageEnergy: 50, willAt: 0.3, willEnergy: 50 }, C.drama || {});
+    let willUsed = false;
+    function drama() {
+      if (pvp) return;
+      enemies.forEach(e => {
+        if (e.hp > 0 && (e.boss || e.raid) && !e.raged && e.hp <= e.max * DR.rageAt) {
+          e.raged = true;
+          e.atk = Math.round(e.atk * (1 + DR.rageAtk)); e.spd += 1;
+          if (e.ult) e.energy = Math.min(U.max, e.energy + DR.rageEnergy);
+          events.push({ k: 'rage', side: 'enemy', to: idx(e), by: e.id, ea: e.ult ? e.energy : null });
+        }
+      });
+      if (!willUsed && alive(enemies).length) {
+        const a = alive(crew);
+        const frac = a.reduce((x, u) => x + u.hp, 0) / crew.reduce((x, u) => x + u.max, 0);
+        if (a.length && frac <= DR.willAt) {
+          willUsed = true;
+          a.forEach(u => { if (u.ult) u.energy = Math.min(U.max, u.energy + DR.willEnergy); addStatus(u, 'brave', 2); });
+          events.push({ k: 'will', side: 'crew', list: a.map(u => ({ to: idx(u), en: u.ult ? u.energy : null })) });
+        }
+      }
+    }
     let firstBlock = flags.firstBlock;  // Anzahl abgewehrter Treffer pro Kampf
     let rounds = 0;
 
@@ -276,6 +301,8 @@ window.GL = window.GL || {};
       } else queue.sort((a, b) => b.spd - a.spd);
 
       for (const u of queue) {
+        if (!alive(enemies).length || !alive(crew).length) break;   // Kampf schon entschieden
+        drama();
         if (u.hp <= 0) continue;
         if (u.status.stun) {
           delete u.status.stun;
@@ -420,7 +447,13 @@ window.GL = window.GL || {};
     crew.forEach(u => { u.ref.hp = u.hp; });
     enemies.forEach(u => { u.ref.hp = u.hp; });
 
-    return { events, win: !alive(enemies).length && alive(crew).length > 0 };
+    const win = !alive(enemies).length && alive(crew).length > 0;
+    // Finaler Schlag: der Treffer, der den letzten Gegner fällt, bekommt seinen eigenen Moment
+    if (win) for (let i = events.length - 1; i >= 0; i--) {
+      const e = events[i];
+      if ((e.k === 'hit' && e.side === 'crew' && e.hp === 0) || (e.k === 'dmg' && e.side === 'enemy' && e.list.some(x => x.hp === 0))) { e.final = true; break; }
+    }
+    return { events, win };
   }
 
   GL.battle = { typeMult, simulate };

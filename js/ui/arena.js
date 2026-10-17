@@ -89,8 +89,7 @@ window.GL = window.GL || {};
       const run = window.__glRun || {};
       const list = ev.side === 'crew' ? run.crew : (run.battle || {}).enemies;
       const d = list && list[ev.from] ? (list[ev.from].def || crewData(list[ev.from].id) || enemyData(list[ev.from].id) || { name: list[ev.from].name }) : null;
-      const old = field.querySelector('.ult-call');
-      if (old) old.remove();
+      field.querySelectorAll('.ult-call:not(.rage):not(.will)').forEach(x => x.remove());
       const c = document.createElement('div');
       c.className = 'ult-call ' + (ev.side === 'crew' ? 'us' : 'them');
       c.className += ev.spark ? ' spark' : '';
@@ -222,7 +221,7 @@ window.GL = window.GL || {};
     const slots = side === 'crew' ? CREW_SLOTS : FOE_SLOTS;
     const [x, y] = slots[Math.min(i, slots.length - 1)];
     const depth = side === 'crew' ? 1.05 - y / 200 : 0.82 - (y - 46) / 160;
-    const scale = (unit.boss ? 1.35 : unit.mini ? 1.15 : 1) * depth;
+    const scale = (unit.boss ? 1.6 : unit.mini ? 1.15 : 1) * depth;
     const pct = Math.max(0, 100 * hp / unit.max);
     return `<div class="fu fu-${side}${hp <= 0 ? ' ko' : ''}${unit.boss ? ' boss' : ''}${unit.mini ? ' mini' : ''}" data-side="${side}" data-i="${i}"
         style="left:${x}%;bottom:${y}%;z-index:${200 - y};--s:${scale.toFixed(2)}">
@@ -232,6 +231,41 @@ window.GL = window.GL || {};
       <div class="fu-bar"><i style="width:${pct}%"></i></div>
     </div>`;
   }
+  // Boss-Leiste oben im Feld: Name, Leben, Markierung bei halbem Leben (dort wird er wütend)
+  function bossIdx(run) { return run.battle ? run.battle.enemies.findIndex(e => e.boss || e.raid) : -1; }
+  function bossBar(run, enemyHp) {
+    const bi = bossIdx(run);
+    if (bi < 0 || (run.battle.enemies[bi].ref && run.battle.enemies[bi].ref.pvp)) return '';
+    const e = run.battle.enemies[bi], d = enemyData(e.id) || crewData(e.id) || {};
+    const pct = Math.max(0, 100 * (enemyHp[bi] != null ? enemyHp[bi] : e.hp) / e.max);
+    return `<div class="boss-bar${run.battle.kind === 'raid' ? ' raid' : ''}" id="boss-bar" data-i="${bi}">
+      <span class="bb-name">${run.battle.kind === 'raid' ? 'Raid' : 'Boss'} · ${d.name || ''}</span>
+      <span class="bb-track"><s style="width:${pct}%"></s><i style="width:${pct}%"></i><em class="bb-mark" title="Ab hier wird er wütend"></em></span>
+    </div>`;
+  }
+  function bossIntro(run) {
+    const field = $('#field'), bi = bossIdx(run);
+    if (!field || bi < 0) return;
+    const e = run.battle.enemies[bi], d = enemyData(e.id) || crewData(e.id) || {};
+    const raid = run.battle.kind === 'raid';
+    const n = document.createElement('div');
+    n.className = 'boss-intro' + (raid ? ' raid' : '');
+    n.innerHTML = `<i class="bi-bar top"></i><i class="bi-bar bot"></i>
+      <span class="bi-card"><small>${raid ? 'Raid-Boss' : 'Boss des Meeres'}</small><b>${d.name || ''}</b>${d.bounty ? `<em>Kopfgeld ${d.bounty} Mio. ฿</em>` : ''}</span>`;
+    field.appendChild(n);
+    setTimeout(() => n.remove(), 2300);
+  }
+  // Spannung: Wird es knapp, pocht der Rand rot. Ist der Boss fast besiegt, leuchtet seine Leiste.
+  let lowShown = false;
+  function tension() {
+    const field = $('#field');
+    if (!field) return;
+    let hp = 0, max = 0;
+    document.querySelectorAll('#arena .fighter[data-side="crew"]').forEach(f => { max += Number(f.dataset.max) || 0; hp += Number(f.querySelector('.f-hp span').textContent) || 0; });
+    const foesUp = document.querySelectorAll('#arena .fighter[data-side="enemy"]:not(.ko)').length;
+    field.classList.toggle('tense', !!max && foesUp > 0 && hp / max < 0.35 && hp > 0);
+  }
+
   function fieldHtml(run, crewHp, enemyHp) {
     const b = run.battle;
     const crew = run.crew.map((u, i) => fieldUnit('crew', i, u.def || crewData(u.id), u, crewHp[i])).join('');
@@ -253,6 +287,7 @@ window.GL = window.GL || {};
         <div class="f-spot"></div>
       </div>
       <div class="f-vignette"></div>
+      ${bossBar(run, enemyHp)}
       <span class="f-round" id="f-round"></span>
     </div>`;
   }
@@ -305,6 +340,28 @@ window.GL = window.GL || {};
     return u ? u.type : 'kraft';
   }
   // Angriff: Angreifer springt zum Ziel, Effekt je Kampfstil
+  // Großes Spruchband auf dem Feld (Boss-Wut, Letzter Wille)
+  function banner(cls, html, ms) {
+    const field = $('#field');
+    if (!field) return;
+    field.querySelectorAll('.ult-call.rage, .ult-call.will').forEach(x => x.remove());
+    const c = document.createElement('div');
+    c.className = 'ult-call ' + cls; c.innerHTML = html;
+    field.appendChild(c); setTimeout(() => c.remove(), ms || 1600);
+  }
+  // Der letzte Treffer: kurzes Einfrieren, Zoom, großes K.O.
+  function finale(side, i) {
+    const field = $('#field');
+    if (!field) return;
+    pulse(field, 'finale');
+    const k = fx('ko-big', { x: field.clientWidth / 2, y: field.clientHeight * 0.4 }, 1400); if (k) k.textContent = 'K.O.!';
+    fx('fx-flash', { x: 0, y: 0 }, 400);
+  }
+  function bigNum(side, i, dmg) {
+    const f = el(side, i), max = f ? Number(f.dataset.max) : 0;
+    return max && dmg >= max * 0.3 ? ' huge' : max && dmg >= max * 0.15 ? ' big' : '';
+  }
+
   function fieldHit(ev) {
     const tside = ev.side === 'crew' ? 'enemy' : 'crew';
     const att = fu(ev.side, ev.from), tgt = fu(tside, ev.to);
@@ -324,8 +381,12 @@ window.GL = window.GL || {};
       else fx('fx-impact', T, 600);
       if (ev.eff === 'strong') fx('fx-ring', T, 700);
       pulse(tgt, ev.crit ? 'hurt-crit' : 'hurt');
-      fieldFloat(tside, ev.to, (ev.crit ? 'KRIT ' : '') + '-' + ev.dmg, ev.crit ? 'crit' : ev.eff === 'strong' ? 'strong' : ev.eff === 'weak' ? 'weak' : '');
+      fieldFloat(tside, ev.to, (ev.crit ? 'KRIT ' : '') + '-' + ev.dmg, (ev.crit ? 'crit' : ev.eff === 'strong' ? 'strong' : ev.eff === 'weak' ? 'weak' : '') + bigNum(tside, ev.to, ev.dmg));
       if (ev.crit) { pulse($('#field'), 'zoom'); fx('fx-flash', { x: 0, y: 0 }, 300); }
+      if (ev.final) finale(tside, ev.to);
+      if (ev.side === 'enemy' && curRun && curRun.battle && curRun.battle.enemies[ev.from] && (curRun.battle.enemies[ev.from].boss || curRun.battle.enemies[ev.from].raid)) {
+        pulse($('#field'), 'boss-slam'); fx('fx-ring', T, 600);
+      }
     };
     if (type === 'technik') {
       // Geschoss fliegt vom Angreifer zum Ziel
@@ -342,6 +403,14 @@ window.GL = window.GL || {};
     const f = el(side, i);
     const max = f ? Number(f.dataset.max) : 0;
     if (max) u.querySelector('.fu-bar i').style.width = Math.max(0, 100 * hp / max) + '%';
+    const bb = $('#boss-bar');
+    if (bb && side === 'enemy' && Number(bb.dataset.i) === i && max) {
+      const pct = Math.max(0, 100 * hp / max);
+      bb.querySelector('.bb-track i').style.width = pct + '%'; bb.querySelector('.bb-track s').style.width = pct + '%';
+      pulse(bb, 'hit');
+      if (pct > 0 && pct <= 22 && !lowShown) { lowShown = true; bb.classList.add('low'); fieldFloat('enemy', i, 'Fast geschafft!', 'buff'); }
+    }
+    tension();
     const was = !u.classList.contains('ko');
     u.classList.toggle('ko', hp <= 0);
     if (was && hp <= 0) { const p = center(u); fx('fx-ko', p, 900); }
@@ -379,6 +448,8 @@ window.GL = window.GL || {};
         run.battle.shown = true;
         const b0 = run.battle.enemies[0];
         if (b0 && (b0.boss || b0.raid)) { const d = enemyData(b0.id) || crewData(b0.id); fieldEl.dataset.boss = (run.battle.kind === 'raid' ? 'Raid: ' : 'Boss: ') + (d ? d.name : ''); }
+        lowShown = false;
+        if (bossIdx(run) >= 0 && !run.battle.enemies.some(e => e.ref && e.ref.pvp)) bossIntro(run);
         fieldEl.classList.add('enter');
         setTimeout(() => fieldEl.classList.remove('enter'), 2500);
       }
@@ -420,7 +491,8 @@ window.GL = window.GL || {};
           const p = center(fu(ev.side, x.to));
           fx(ev.by === 'special' ? 'fx-beam' : ev.by === 'bleed' ? 'fx-dot' : 'fx-ring burn', p, 700);
           pulse(fu(ev.side, x.to), 'hurt');
-          fieldFloat(ev.side, x.to, '-' + x.dmg, 'burn');
+          fieldFloat(ev.side, x.to, '-' + x.dmg, 'burn' + bigNum(ev.side, x.to, x.dmg));
+          if (ev.final && x.hp === 0) finale(ev.side, x.to);
         });
       } else if (ev.k === 'heal') {
         if (GL.data.abilities[ev.by] && !ev.ult) callout(ev.by, ev.side);
@@ -444,6 +516,16 @@ window.GL = window.GL || {};
           fieldFloat(ev.side, x.to, d.name + '!', d.good ? 'buff' : 'debuff');
           float(ev.side, x.to, d.name + '!', 'tag ' + (d.good ? 'buff' : 'debuff'));
         });
+      } else if (ev.k === 'rage') {
+        const d = enemyData(ev.by) || crewData(ev.by);
+        banner('them rage', `<small>Halbes Leben</small><b>${d ? d.name : 'Der Boss'} wird wütend!</b><em>stärker und schneller</em>`, 1700);
+        const u = fu('enemy', ev.to); if (u) u.classList.add('raged');
+        pulse(el('enemy', ev.to), 'debuffed'); pulse($('#field'), 'perfect-hit');
+        fieldFloat('enemy', ev.to, 'Wut!', 'debuff');
+        setEn('enemy', ev.to, ev.ea);
+      } else if (ev.k === 'will') {
+        banner('us will', `<small>Letzter Wille</small><b>Die Crew gibt nicht auf!</b><em>Ulti-Leisten laden, Mut</em>`, 1700);
+        ev.list.forEach(x => { pulse(fu('crew', x.to), 'rise'); fx('fx-heal', center(fu('crew', x.to)), 900); setEn('crew', x.to, x.en); });
       } else if (ev.k === 'immune') {
         float(ev.side, ev.to, 'Immun', 'tag buff');
       } else if (ev.k === 'cleanse') {

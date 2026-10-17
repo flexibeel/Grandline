@@ -56,7 +56,7 @@ GL.data.bosses = [
   { id: 'arlong',    name: 'Arlong',    type: 'kraft',   hp: 52,  atk: 7,  spd: 5, escort: 1,
     look: { hair: '#1a1a1a', skin: '#6aa0c8', shirt: '#e8d070', pants: '#3a5a3a' } },
   { id: 'crocodile', name: 'Crocodile', type: 'technik', hp: 115, atk: 14, spd: 6, escort: 2,
-    look: { hair: '#111111', skin: '#f2c9a0', shirt: '#8a6d2f', pants: '#222222' } },
+    look: { hair: '#111111', skin: '#f2c9a0', shirt: '#8a6d2f', pants: '#222222', mask: 'croc' } },
   { id: 'enel',      name: 'Enel',      type: 'kraft',   hp: 110, atk: 14, spd: 7, escort: 2,
     look: { hair: '#f0f0f0', skin: '#f2c9a0', shirt: '#e8b030', pants: '#e8b030', hat: 'band', hatColor: '#e8e8e8' } },
   { id: 'rob-lucci', name: 'Rob Lucci', type: 'kraft',   hp: 165, atk: 18, spd: 6, escort: 2,

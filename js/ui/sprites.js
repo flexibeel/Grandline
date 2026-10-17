@@ -31,22 +31,28 @@ window.GL = window.GL || {};
     hood:  { 0: '..BBBBBBBB..', 1: '.BBBBBBBBBB.', 2: '.B........B.', 3: '.B........B.' }
   };
 
+  // Masken/Kostüme für Bosse: ersetzen die oberen Zeilen (G/g = Kostüm hell/dunkel, Y = Augen, T = Zähne)
+  const MASKS = {
+    croc: { 0: '.gYg....gYg.', 1: 'GGGGGGGGGGGG', 2: 'GTGTGTGTGTGG', 3: 'GTSSESSESSTG', 4: 'GGSSSSSSSSGG', 5: 'gGTSSSSSSTGg' }
+  };
+  const MASK_COL = { croc: { G: '#5c9a42', g: '#2f5a24', Y: '#f2d24a', T: '#f4f0e0' } };
+  function applyLook(grid, look) {
+    const hat = HATS[look.hat];
+    if (hat) Object.keys(hat).forEach(y => { hat[y].split('').forEach((ch, x) => { if (ch !== '.') grid[y][x] = ch; }); });
+    if (look.longHair) [2, 3, 4, 5].forEach(y => { grid[y][1] = 'H'; grid[y][10] = 'H'; });
+    const m = MASKS[look.mask];
+    if (m) Object.keys(m).forEach(y => { grid[y] = m[y].split(''); });
+  }
+
   const cache = {};
 
   function svg(look) {
     const grid = BASE.map(r => r.split(''));
-    const hat = HATS[look.hat];
-    if (hat) {
-      Object.keys(hat).forEach(y => {
-        hat[y].split('').forEach((ch, x) => { if (ch !== '.') grid[y][x] = ch; });
-      });
-    }
-    if (look.longHair) [2, 3, 4, 5].forEach(y => { grid[y][1] = 'H'; grid[y][10] = 'H'; });
-
-    const colors = {
+    applyLook(grid, look);
+    const colors = Object.assign({
       H: look.hair, S: look.skin, E: '#1a1a1a', C: look.shirt,
       P: look.pants, O: '#2a1f14', B: look.hatColor || look.hair
-    };
+    }, MASK_COL[look.mask] || {});
     let rects = '';
     grid.forEach((row, y) => row.forEach((ch, x) => {
       if (ch !== '.') rects += `<rect x="${x}" y="${y}" width="1" height="1" fill="${colors[ch]}"/>`;
@@ -62,16 +68,14 @@ window.GL = window.GL || {};
   };
   function svgShaded(look) {
     const grid = BASE.map(r => r.split(''));
-    const hat = HATS[look.hat];
-    if (hat) Object.keys(hat).forEach(y => { hat[y].split('').forEach((ch, x) => { if (ch !== '.') grid[y][x] = ch; }); });
-    if (look.longHair) [2, 3, 4, 5].forEach(y => { grid[y][1] = 'H'; grid[y][10] = 'H'; });
-    const colors = { H: look.hair, S: look.skin, E: '#1a1a1a', C: look.shirt, P: look.pants, O: '#2a1f14', B: look.hatColor || look.hair };
+    applyLook(grid, look);
+    const colors = Object.assign({ H: look.hair, S: look.skin, E: '#1a1a1a', C: look.shirt, P: look.pants, O: '#2a1f14', B: look.hatColor || look.hair }, MASK_COL[look.mask] || {});
     const at = (x, y) => (grid[y] && grid[y][x]) || '.';
     let rects = '';
     grid.forEach((row, y) => row.forEach((ch, x) => {
       if (ch === '.') return;
       let col = colors[ch];
-      if (ch !== 'E') {
+      if (ch !== 'E' && ch !== 'Y' && ch !== 'T') {
         const edgeR = at(x + 1, y) !== ch, edgeB = at(x, y + 1) !== ch, edgeL = at(x - 1, y) !== ch, edgeT = at(x, y - 1) !== ch;
         if (edgeR || edgeB) col = mix(col, 'k', edgeR && edgeB ? 0.3 : 0.18);
         else if (edgeT || edgeL) col = mix(col, 'w', 0.16);

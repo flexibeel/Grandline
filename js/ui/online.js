@@ -95,7 +95,7 @@ window.GL = window.GL || {};
       }
     };
     await store.refresh();
-    setInterval(() => { if (!document.hidden) store.refresh().catch(() => {}); }, 30000);
+    setInterval(() => { if (!document.hidden) store.refresh().catch(() => {}); }, 20000);
   }
 
   // ---------- Online-Spielstand (alle Geräte) ----------
@@ -127,6 +127,24 @@ window.GL = window.GL || {};
       if (state.cloud) { try { await client.from('saves').upsert({ id: state.uid, data: profile, updated_at: new Date().toISOString() }); } catch (e) { /* später erneut */ } }
       codeSave(profile);
     }, 3000);
+    pushLive(profile);
+  }
+  // Ranglisten-Eintrag frisch halten: Rang, Stammcrew, Liga-Wertung, Vitrine … nicht erst am Ende eines Runs
+  let liveTimer = null, liveSig = '';
+  function pushLive(profile) {
+    if (!store || !state.uid || state.readOnly || !profile || !profile.nickname) return;
+    clearTimeout(liveTimer);
+    liveTimer = setTimeout(async () => {
+      try {
+        const lf = liveFields(profile);
+        const sig = JSON.stringify(Object.assign({}, lf, { updated: 0, pos: 0 }));
+        if (sig === liveSig) return;                       // nichts Wichtiges geändert
+        const old = await store.get(state.uid);
+        if (!old) return;                                   // Erst-Eintrag macht register()
+        await store.set(state.uid, Object.assign({}, old, lf, { score: old.score }));
+        liveSig = sig;
+      } catch (e) { /* nächster Versuch beim nächsten Speichern */ }
+    }, 4000);
   }
 
   // ---------- Spielercode-Konten (Tabelle accounts, siehe tools/spielercode.sql) ----------
@@ -419,6 +437,7 @@ window.GL = window.GL || {};
     if (!client || !state.uid || (GL.sandbox && GL.sandbox.on())) return;
     try { await pullSave(); await codeSync(); if (store && store.refresh) await store.refresh(); } catch (e) { /* egal */ }
   }
-  GL.online = { init, submit, rename, register, pushSave, resync, duelReport, duelInbox, sendFeedback, linkEmail, loginEmail, verifyCode, logout, wipe, liveFields, codeLoad, codeSave, codeClaim,
+  const refresh = () => (store && store.refresh ? store.refresh().catch(() => {}) : Promise.resolve());
+  GL.online = { refresh, init, submit, rename, register, pushSave, resync, duelReport, duelInbox, sendFeedback, linkEmail, loginEmail, verifyCode, logout, wipe, liveFields, codeLoad, codeSave, codeClaim,
     onRemoteProfile(fn) { onRemote = fn; }, state: () => state, onChange(fn) { listeners.push(fn); } };
 })();

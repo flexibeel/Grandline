@@ -575,6 +575,8 @@ window.GL = window.GL || {};
     if (ev.k === 'round') return '';
     if (ev.k === 'special') return `Spezialangriff: ${ev.name}!`;
     if (ev.k === 'ult') return `${anyData(ev.by) ? anyData(ev.by).name : ''} entfesselt die Ulti: ${ev.name}!${ev.tier === 'perfect' ? ' Perfekt, alles stärker!' : ev.bonus ? ` Bonus: ${ev.bonus}.` : ''}`;
+    if (ev.k === 'rage') return `${anyData(ev.by) ? anyData(ev.by).name : 'Der Boss'} wird wütend: stärker und schneller!`;
+    if (ev.k === 'will') return 'Letzter Wille: Die Crew gibt nicht auf! Ulti-Leisten laden, alle bekommen Mut.';
     if (ev.k === 'skip') return `${targetName(run, ev.side, ev.to)} ist betäubt und setzt aus.`;
     if (ev.k === 'immune') return `${targetName(run, ev.side, ev.to)} lässt sich nicht beeindrucken (${GL.data.statuses[ev.key].name} abgewehrt).`;
     if (ev.k === 'cleanse') return `${anyData(ev.by) ? anyData(ev.by).name : 'Ein Helfer'} befreit ${targetName(run, ev.side, ev.to)} von ${GL.data.statuses[ev.key].name}.`;

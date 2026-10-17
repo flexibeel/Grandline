@@ -668,7 +668,7 @@
         profile.tips = Object.assign(profile.tips || {}, { intro: true });
         saveProfile(); draw();
         break;
-      case 'hq-tab': if (GL.meta.featureOpen(profile, el.dataset.tab)) { ui.hqTab = el.dataset.tab; draw(); } break;
+      case 'hq-tab': if (GL.meta.featureOpen(profile, el.dataset.tab)) { ui.hqTab = el.dataset.tab; draw(); if (/rangliste|stammcrew/.test(ui.hqTab) && GL.online && GL.online.refresh) GL.online.refresh(); } break;
       case 'hunt-pick': profile.hunt = profile.hunt === el.dataset.id ? null : el.dataset.id; saveProfile(); ui.lastStage = null; draw(); break;
       case 'showcase': if (GL.meta.toggleShowcase(profile, el.dataset.id)) { saveProfile(); ui.lastStage = null; draw(); if (GL.online && GL.online.register) GL.online.register(profile); } break;
       case 'fpop-go': closeFeature(el.dataset.id, true); break;

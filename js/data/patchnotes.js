@@ -1,6 +1,13 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-17i', date: '17.10.', title: 'Bosskämpfe als Ereignis', items: [
+    'Bosse treten mit eigenem Auftritt an: Kinobalken, Name, Kopfgeld',
+    'Boss-Leiste oben im Kampf. Bei halbem Leben wird der Boss wütend: stärker, schneller, rot leuchtend',
+    'Letzter Wille: Wird es knapp, rafft sich deine Crew einmal auf (Ulti-Leisten laden, Mut für alle)',
+    'Der letzte Treffer bekommt ein großes K.O., große Treffer zeigen größere Zahlen',
+    'Neue Treffer-Effekte im Pixel-Stil, Bosse sind größer, Crocodile kommt im Krokodil-Kostüm',
+    'Rangliste und Liga aktualisieren sich jetzt laufend, nicht erst nach einem Run' ] },
   { v: '2026-10-17h', date: '17.10.', title: 'Ultis mit Überraschung', items: [
     'Ultis sind nicht mehr immer gleich: Schaden schwankt, kann kritisch treffen und wird mit jeder weiteren Ulti im Kampf stärker',
     'Manchmal gelingt eine Ulti „Perfekt“ (alles stärker, Zustände halten länger) oder bringt einen Bonus passend zum Kampfstil',
