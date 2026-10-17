@@ -665,6 +665,10 @@ button:focus-visible, .opt:focus-visible { outline: 3px solid var(--sea); outlin
 .crewmini .bar { width: 100%; height: 4px; margin-top: 2px; }
 .crewmini.dead { opacity: .4; }
 .crewmini .points-badge { min-width: 20px; height: 20px; font-size: .76rem; top: -7px; right: -7px; }
+.crewmini.role-bg-brecher { border-bottom: 3px solid #4f86c6; }
+.crewmini.role-bg-kaempfer { border-bottom: 3px solid #d0564a; }
+.crewmini.role-bg-helfer { border-bottom: 3px solid #5bb36c; }
+.crewmini .role-ico { position: absolute; bottom: 9px; right: 3px; font-size: .66rem; z-index: 1; margin: 0; }
 .chips { display: flex; flex-wrap: wrap; gap: 5px; margin-left: 4px; }
 .chip {
   font-size: .78rem; font-weight: 700; padding: 3px 8px; border-radius: 999px;
@@ -981,6 +985,22 @@ button:focus-visible, .opt:focus-visible { outline: 3px solid var(--sea); outlin
 .slot.foe .slot-sprite { order: 0; }
 .slot.foe.boss { border-color: #d0564a; }
 .slot-pos { font-weight: 800; color: #9a9ea3; text-align: center; font-size: .9rem; }
+.slot.role-bg-brecher { border-left: 4px solid #4f86c6; }
+.slot.role-bg-kaempfer { border-left: 4px solid #d0564a; }
+.slot.role-bg-helfer { border-left: 4px solid #5bb36c; }
+.role-ico { font-style: normal; font-size: .85rem; margin-right: 3px; }
+.slot-stats { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 3px; align-items: center; }
+.slot-stats .ss { font-size: .72rem; font-weight: 700; color: #f1eee8; padding: 1px 6px; border-radius: 6px;
+  background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.12); }
+.role-chip { font-style: normal; font-size: .72rem; font-weight: 800; padding: 1px 7px; border-radius: 6px; color: #fff; white-space: nowrap; }
+.role-chip small { font-weight: 700; color: #fff; opacity: 1; font-size: .66rem; padding-left: 4px; border-left: 1px solid rgba(255,255,255,.4); margin-left: 2px; }
+.rc-brecher { background: #3f72ad; }
+.rc-kaempfer { background: #b9473c; }
+.rc-helfer { background: #3f8f50; }
+/* Slots: Rollenfarbe als sanfter Verlauf statt einfarbiger Fläche */
+.slot.role-bg-brecher { background: linear-gradient(90deg, rgba(79,134,198,.22), rgba(31,25,20,.92) 45%); }
+.slot.role-bg-kaempfer { background: linear-gradient(90deg, rgba(208,86,74,.22), rgba(31,25,20,.92) 45%); }
+.slot.role-bg-helfer { background: linear-gradient(90deg, rgba(91,179,108,.22), rgba(31,25,20,.92) 45%); }
 .shield {
   display: inline-block; width: 18px; height: 20px; background: #e2b44a;
   clip-path: polygon(50% 0, 100% 18%, 92% 62%, 50% 100%, 8% 62%, 0 18%);

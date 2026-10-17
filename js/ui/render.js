@@ -19,6 +19,20 @@ window.GL = window.GL || {};
     return t ? `<em class="type t-${type}">${t.name}</em>` : '';
   }
 
+  const ROLE_ICON = { brecher: '🛡', kaempfer: '⚔', helfer: '✚' };
+  const ROLE_HINT = { brecher: 'Tank', kaempfer: 'Schaden', helfer: 'Heiler' };
+  function roleBadge(role) {
+    const r = GL.data.roles[role];
+    if (!r) return '';
+    return `<em class="role-ico role-${role}" title="${esc(r.name)} (${ROLE_HINT[role] || ''})">${ROLE_ICON[role] || ''}</em>`;
+  }
+  // Beschrifteter Rollen-Chip: auf einen Blick, wer Tank, Schaden oder Heiler ist
+  function roleChip(role) {
+    const r = GL.data.roles[role];
+    if (!r) return '';
+    return `<em class="role-chip rc-${role}">${ROLE_ICON[role] || ''} ${esc(r.name)} <small>${ROLE_HINT[role] || ''}</small></em>`;
+  }
+
   function tags(d) {
     const parts = [];
     if (d.role && GL.data.roles[d.role]) parts.push(GL.data.roles[d.role].name);
@@ -137,8 +151,9 @@ window.GL = window.GL || {};
   // Kompakte Porträts für die Crew-Leiste
   function miniCard(u, i) {
     const d = crewData(u.id);
-    return `<div class="crewmini${u.hp <= 0 ? ' dead' : ''}${u.points > 0 ? ' has-points' : ''}" role="button" tabindex="0" data-act="sheet" data-i="${i}"
-        title="${d.name}: Level ${u.lvl}, ${u.hp}/${u.max} Leben${u.points > 0 ? `, ${u.points} Statuspunkte offen` : ''}">
+    return `<div class="crewmini role-bg-${d.role || ''}${u.hp <= 0 ? ' dead' : ''}${u.points > 0 ? ' has-points' : ''}" role="button" tabindex="0" data-act="sheet" data-i="${i}"
+        title="${d.name}: ${d.role ? GL.data.roles[d.role].name + ', ' : ''}Level ${u.lvl}, ${u.hp}/${u.max} Leben${u.points > 0 ? `, ${u.points} Statuspunkte offen` : ''}">
+      ${roleBadge(d.role)}
       <i>${GL.sprites.render(d)}</i>
       <em class="lvtag">Lv ${u.lvl}</em>
 
@@ -856,13 +871,14 @@ window.GL = window.GL || {};
           const atk = mult(u.type, front.type);
           const def = mult(front.type, u.type);
           const isFront = i === firstAlive;
-          return `<div class="slot${u.hp <= 0 ? ' down' : ''}${isFront ? ' is-front' : ''}${formTip && formTip.index === i ? ' is-tip' : ''}" data-slot="${i}" tabindex="0"
-              role="listitem" aria-label="Platz ${i + 1}: ${d.name}${isFront ? ', vorne' : ''}">
+          return `<div class="slot role-bg-${d.role || ''}${u.hp <= 0 ? ' down' : ''}${isFront ? ' is-front' : ''}${formTip && formTip.index === i ? ' is-tip' : ''}" data-slot="${i}" tabindex="0"
+              role="listitem" aria-label="Platz ${i + 1}: ${d.name}${isFront ? ', vorne' : ''}, ${d.role ? GL.data.roles[d.role].name : ''}">
             <span class="slot-pos">${isFront ? '<i class="shield" aria-hidden="true"></i>' : i + 1}</span>
             <span class="slot-sprite">${GL.sprites.render(d)}</span>
             <span class="slot-info">
               <b>${d.name} ${badge(u.type)}</b>
               <span class="slot-bar"><i style="width:${Math.max(0, 100 * u.hp / u.max)}%"></i></span>
+              <span class="slot-stats">${roleChip(d.role)}<span class="ss" title="Leben">❤ ${u.hp}/${u.max}</span><span class="ss" title="Angriff">ATK ${u.atk}</span><span class="ss" title="Tempo">TMP ${u.spd}</span></span>
               <span class="slot-tags">
                 ${u.hp <= 0 ? '<em class="mu bad">Besiegt</em>' : ''}
                 ${atk > 1 ? `<em class="mu good">Angriff ${fmtMult(atk)}</em>` : atk < 1 ? `<em class="mu bad">Angriff ${fmtMult(atk)}</em>` : ''}
