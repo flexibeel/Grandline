@@ -126,35 +126,49 @@ window.GL = window.GL || {};
     }, 3000);
   }
 
-  // ---------- Spielercode: ein Spielstand, gespeichert unter dem Fingerabdruck des Codes ----------
-  // Braucht in Supabase die Funktionen code_load / code_save (siehe tools/spielercode.sql).
+  // ---------- Spielercode-Konten (Tabelle accounts, siehe tools/spielercode.sql) ----------
+  const codeMsg = e => /function|does not exist|schema cache/i.test(e.message || '') ? 'Der Spielercode-Speicher ist noch nicht eingerichtet (Admin: tools/spielercode.sql ausführen).' : (e.message || String(e));
+  // Neuen Code beim Server reservieren; ist er vergeben, neuen würfeln
+  async function codeClaim(profile) {
+    if (!client || !profile || !profile.nickname || profile.codeClaimed) return;
+    for (let k = 0; k < 6; k++) {
+      GL.code.ensure(profile);
+      const { data, error } = await client.rpc('code_claim', { p_code: GL.code.key(profile.playerCode), p_name: profile.nickname, p_data: profile });
+      if (error) { state.codeReady = false; state.codeError = codeMsg(error); emit(); return; }
+      if (data === true) { profile.codeClaimed = true; state.codeReady = true; GL.save.storeProfile(profile); emit(); return; }
+      profile.playerCode = GL.code.generate();
+    }
+  }
   async function codeSave(profile) {
-    if (!client || !profile || !profile.playerCode || state.codeReady === false) return;
+    if (!client || !profile || !profile.playerCode || !profile.codeClaimed || state.codeReady === false) return;
     try {
-      const key = await GL.code.key(profile.playerCode);
-      const { error } = await client.rpc('code_save', { p_key: key, p_data: profile });
-      if (error) { state.codeReady = false; state.codeError = error.message; emit(); return; }
+      const { error } = await client.rpc('code_save', { p_code: GL.code.key(profile.playerCode), p_name: profile.nickname || null, p_data: profile });
+      if (error) { state.codeReady = false; state.codeError = codeMsg(error); emit(); return; }
       state.codeReady = true;
     } catch (e) { /* später erneut */ }
   }
   async function codeLoad(code) {
     if (!client) return { ok: false, msg: 'Geht nur auf der Website.' };
-    const key = await GL.code.key(code);
-    const { data, error } = await client.rpc('code_load', { p_key: key });
-    if (error) { state.codeReady = false; state.codeError = error.message; return { ok: false, msg: /function|does not exist|schema cache/i.test(error.message) ? 'Der Spielercode-Speicher ist noch nicht eingerichtet (Admin: SQL ausführen).' : error.message }; }
+    const { data, error } = await client.rpc('code_load', { p_code: GL.code.key(code) });
+    if (error) return { ok: false, msg: codeMsg(error) };
     state.codeReady = true;
     return { ok: true, data: data || null };
   }
-  // Beim Start: liegt unter dem eigenen Code ein neuerer Stand (anderes Gerät)? Dann übernehmen.
+  // Beim Start: Code reservieren bzw. neueren Stand von einem anderen Gerät übernehmen
   async function codeSync() {
     const local = profileRef;
-    if (!local || !local.playerCode) return;
+    if (!local || !local.nickname) return;
     try {
+      GL.code.ensure(local);
+      if (!local.codeClaimed) return codeClaim(local);
       const res = await codeLoad(local.playerCode);
       if (res.ok && res.data && (res.data.savedAt || 0) > (local.savedAt || 0) + 1000 && onRemote) onRemote(res.data);
-      else if (res.ok && local.nickname) codeSave(local);
+      else if (res.ok && !res.data) { local.codeClaimed = false; codeClaim(local); }
+      else if (res.ok) codeSave(local);
+      else { state.codeReady = false; state.codeError = res.msg; emit(); }
     } catch (e) { /* egal */ }
   }
+
   // Anonymes Profil mit E-Mail verknüpfen (Bestätigungslink kommt per Mail)
   async function linkEmail(email) {
     if (!client) return { ok: false, msg: 'Online-Speichern geht nur auf der Website.' };
@@ -352,6 +366,6 @@ window.GL = window.GL || {};
     return register(profile);
   }
 
-  GL.online = { init, submit, rename, register, pushSave, linkEmail, loginEmail, verifyCode, logout, wipe, liveFields, codeLoad, codeSave,
+  GL.online = { init, submit, rename, register, pushSave, linkEmail, loginEmail, verifyCode, logout, wipe, liveFields, codeLoad, codeSave, codeClaim,
     onRemoteProfile(fn) { onRemote = fn; }, state: () => state, onChange(fn) { listeners.push(fn); } };
 })();

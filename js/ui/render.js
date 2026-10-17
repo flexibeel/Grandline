@@ -1432,8 +1432,8 @@ window.GL = window.GL || {};
     const st = GL.online ? GL.online.state() : {};
     const shown = ui && ui.codeShow;
     return `<div class="code-box">
-      <div class="cb-head"><b>🔑 Dein Spielercode</b>${st.codeReady === false ? '<em class="cb-warn">Abgleich noch nicht eingerichtet</em>' : ''}</div>
-      <button class="cb-code${shown ? ' on' : ''}" data-act="${shown ? 'code-copy' : 'code-show'}" aria-label="${shown ? 'Spielercode kopieren' : 'Spielercode anzeigen'}">${shown ? esc(profile.playerCode) : '••••-••••-••••-••••'}<small>${shown ? '📋 antippen zum Kopieren' : '👁 antippen zum Anzeigen'}</small></button>
+      <div class="cb-head"><b>🔑 Dein Spielercode</b>${st.codeReady === false ? `<em class="cb-warn">${esc(st.codeError || 'Abgleich noch nicht eingerichtet')}</em>` : !profile.codeClaimed ? '<em class="cb-wait">wird eingerichtet …</em>' : ''}</div>
+      <button class="cb-code${shown ? ' on' : ''}" data-act="${shown ? 'code-copy' : 'code-show'}" aria-label="${shown ? 'Spielercode kopieren' : 'Spielercode anzeigen'}">${shown ? esc(profile.playerCode) : '•••-•••'}<small>${shown ? '📋 antippen zum Kopieren' : '👁 antippen zum Anzeigen'}</small></button>
       <p class="cb-warn-txt">⚠ Zeig diesen Code niemandem. Er ist wie ein Passwort: Wer ihn hat, spielt mit deinem Account. Damit meldest du dich auf jedem Gerät an, dein Fortschritt gleicht sich dann automatisch ab.</p>
       <div class="cb-actions">${shown ? '<button class="btn mini ghost" data-act="code-show">Verbergen</button>' : '<button class="btn mini ghost" data-act="code-copy">Kopieren</button>'}<button class="btn mini ghost" data-act="code-mail">An mich mailen</button></div>
     </div>`;
@@ -1562,7 +1562,7 @@ window.GL = window.GL || {};
     }
     const codeLogin = `<div class="login-field">
         <label for="code-in">Mit Spielercode</label>
-        <input id="code-in" class="code-input small" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="XXXX-XXXX-XXXX-XXXX" maxlength="24">
+        <input id="code-in" class="code-input" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="ABC-123" maxlength="9">
       </div>
       ${ui && ui.codeError ? `<p class="login-err">${esc(ui.codeError)}</p>` : ''}
       <button class="btn login-main" data-act="code-login">Mit Code anmelden</button>

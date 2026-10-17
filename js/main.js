@@ -520,7 +520,7 @@
         const inp = document.getElementById('code-in');
         const v = inp ? inp.value : '';
         const t0 = document.getElementById('title');
-        if (!GL.code.valid(v)) { ui.codeError = 'Der Code hat 16 Zeichen, z. B. K7QF-9XKD-M2PA-4TRB.'; if (t0) t0.dataset.last = ''; draw(); break; }
+        if (!GL.code.valid(v)) { ui.codeError = 'Der Code hat 6 Zeichen, z. B. K7Q-F9X.'; if (t0) t0.dataset.last = ''; draw(); break; }
         el.disabled = true; el.textContent = 'Suche Spielstand …';
         GL.online.codeLoad(v).then(res => {
           if (!res.ok || !res.data) {
@@ -529,6 +529,7 @@
           }
           const p = res.data;
           p.playerCode = GL.code.format(v);
+          p.codeClaimed = true;
           p.savedAt = Date.now();
           GL.save.replaceProfile(p);
           try { localStorage.removeItem('grandline.run'); sessionStorage.setItem('gl.pulled', '1'); } catch (e2) { /* egal */ }
