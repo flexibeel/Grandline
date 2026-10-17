@@ -258,6 +258,6 @@ window.GL = window.GL || {};
     return register(profile);
   }
 
-  GL.online = { init, submit, rename, register, pushSave, linkEmail, loginEmail, wipe,
+  GL.online = { init, submit, rename, register, pushSave, linkEmail, loginEmail, wipe, liveFields,
     onRemoteProfile(fn) { onRemote = fn; }, state: () => state, onChange(fn) { listeners.push(fn); } };
 })();

@@ -205,7 +205,7 @@ window.GL = window.GL || {};
   // Wege führen nur zu benachbarten Orten der nächsten Reihe. Oben wartet der Inselboss.
   //   run.chart = { rows: [[{ t, next: [spalten] }]], at: spalte | null, path: [spalten] }
   function nodeTypes(run, row) {
-    const types = ['battle', 'battle', 'recruit', 'recruit', 'fruit', 'rest'];
+    const types = ['battle', 'battle', 'battle', 'recruit', 'recruit', 'fruit', 'rest'];
     if (freeRelics(run).length) types.push('treasure');
     if (row >= 1 || chapterIdx(run) === 1) types.push('elite');
     return types;
