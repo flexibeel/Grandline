@@ -756,16 +756,25 @@ window.GL = window.GL || {};
       case 'starter': {
         const offered = run.pool.map(o => o.id);
         const locked = GL.data.unlocks.filter(u => !offered.includes(u.unlock));
-        const lockedHtml = locked.length ? `<div class="lbl">Noch gesperrt</div><div class="locked-grid">${locked.map(u => {
+        const lockedHtml = locked.length ? `<details class="locked-wrap"><summary>Noch gesperrt <small>${locked.length}</small></summary><div class="locked-grid">${locked.map(u => {
           const d = crewData(u.unlock);
           const pr = ui.profile ? GL.meta.progress(ui.profile, u) : { have: 0, need: 1 };
           return `<div class="locked-cap"><i class="opt-sprite silhouette">${GL.sprites.render(d)}</i>
             <span><b>${d.name}</b><small>${u.text}${pr.need > 1 ? ` (${pr.have}/${pr.need})` : ''}</small></span></div>`;
-        }).join('')}</div>` : '';
+        }).join('')}</div></details>` : '';
+        // Viele Kapitäne: nach Kampfstil/Rolle filtern statt alle auf einmal zu zeigen
+        const f = ui.capFilter || 'all';
+        const T = GL.data.types, Rl = GL.data.roles;
+        const all = run.pool.map((o, i) => ({ o, i, d: crewData(o.id) }));
+        const shown = all.filter(x => f === 'all' || x.d.type === f || x.d.role === f);
+        const cnt = k => all.filter(x => x.d.type === k || x.d.role === k).length;
+        const chip = (k, name) => `<button class="lb-cat${f === k ? ' on' : ''}" data-act="cap-filter" data-v="${k}">${name}${k !== 'all' ? ` <small>${cnt(k)}</small>` : ''}</button>`;
+        const filters = all.length > 4 ? `<div class="lb-cats cap-filter">${chip('all', 'Alle')}${Object.keys(T).map(k => chip(k, T[k].name)).join('')}${Object.keys(Rl).map(k => chip(k, (ROLE_ICON[k] || '') + ' ' + Rl[k].name)).join('')}</div>` : '';
         return `<h2>Wähle deinen Kapitän</h2>
-          <p class="hint">Mit ihm oder ihr beginnt deine Reise über die Grand Line. Werte und Eigenschaft sind bei jedem Run neu ausgewürfelt.</p>
-          <div class="cards">${run.pool.map((o, i) =>
-            offerButton(run, o, i, 'cap' + (crewData(o.id).locked ? ' unlocked-cap' : ''), false)).join('')}</div>${lockedHtml}`;
+          <p class="hint">Mit ihm oder ihr beginnt deine Reise. Werte und Eigenschaft sind bei jedem Run neu ausgewürfelt.</p>
+          ${filters}
+          <div class="cards">${shown.map(x =>
+            offerButton(run, x.o, x.i, 'cap' + (x.d.locked ? ' unlocked-cap' : ''), false)).join('')}</div>${lockedHtml}`;
       }
 
       case 'course': {

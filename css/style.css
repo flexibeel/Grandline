@@ -1442,6 +1442,14 @@ h2 { letter-spacing: .015em; }
 .rank-v2 .rank-bar i { border-radius: 9px; box-shadow: inset 0 -3px 0 rgba(0,0,0,.12); }
 .rank-bar-txt { position: absolute; inset: 0; display: grid; place-items: center; font-size: .78rem; font-weight: 800; color: var(--ink); mix-blend-mode: normal; }
 
+/* ---------- Kapitänswahl: Filter + eingeklappte gesperrte ---------- */
+.cap-filter { margin: 4px 0 26px; }
+.locked-wrap { margin-top: 16px; }
+.locked-wrap > summary { cursor: pointer; font-weight: 800; color: var(--mute); padding: 8px 2px; list-style: none; }
+.locked-wrap > summary::before { content: '▸ '; }
+.locked-wrap[open] > summary::before { content: '▾ '; }
+.locked-wrap > summary small { font-weight: 700; padding: 1px 7px; border-radius: 999px; background: var(--panel-2); border: 1px solid var(--line); }
+
 /* ---------- Gimmick: wer ist gerade (ungefähr) auf See ---------- */
 .atsea { display: flex; align-items: center; gap: 7px; font-size: .82rem; color: var(--mute); margin: 6px 2px 2px; }
 .atsea-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--hp); flex: none; animation: atsea-pulse 1.6s ease-in-out infinite; }

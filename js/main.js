@@ -296,6 +296,7 @@
       case 'profile-edit': openProfile(); break;
       case 'login-open': ui.loginFrom = ui.screen || 'hq'; ui.screen = 'login'; draw(); break;
       case 'login-back': ui.screen = ui.loginFrom === 'hq' ? null : 'title'; draw(); break;
+      case 'cap-filter': ui.capFilter = el.dataset.v; ui.lastStage = null; draw(); break;
       case 'lb-view': ui.viewPlayer = el.dataset.id; draw(); break;
       case 'lb-view-close': ui.viewPlayer = null; draw(); break;
       case 'noop': break;
