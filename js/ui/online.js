@@ -7,7 +7,10 @@
 window.GL = window.GL || {};
 
 (function () {
-  const state = { status: 'local', rows: [], uid: null, readOnly: false, error: '', backend: 'local' };
+  const state = { status: 'local', rows: [], uid: null, readOnly: false, error: '', backend: 'local', email: null, anon: true, cloud: false, mailSent: '' };
+  let client = null;
+  let pushTimer = null;
+  let onRemote = null;   // wird aufgerufen, wenn online ein neuerer Spielstand liegt
   const listeners = [];
   let store = null;     // { get(uid), set(uid, body), refresh() }
   let pending = null;
@@ -28,7 +31,7 @@ window.GL = window.GL || {};
 
   // ---------- Speicherort 1: Supabase ----------
   async function initSupabase(cfg) {
-    const client = window.supabase.createClient(cfg.url, cfg.key, { auth: { persistSession: true, autoRefreshToken: true } });
+    client = window.supabase.createClient(cfg.url, cfg.key, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } });
     const { data } = await client.auth.getSession();
     let session = data && data.session;
     if (!session) {
@@ -38,6 +41,9 @@ window.GL = window.GL || {};
     }
     state.uid = session.user.id;
     state.backend = 'supabase';
+    state.anon = !!session.user.is_anonymous;
+    state.email = session.user.email || null;
+    await pullSave();
     const toRow = r => Object.assign({}, r.data || {}, { id: r.id, name: r.name, score: r.score });
     store = {
       async get(uid) {
@@ -60,6 +66,42 @@ window.GL = window.GL || {};
     };
     await store.refresh();
     setInterval(() => { if (!document.hidden) store.refresh().catch(() => {}); }, 30000);
+  }
+
+  // ---------- Online-Spielstand (alle Geräte) ----------
+  // Tabelle saves: eine Zeile pro Spieler mit dem ganzen Profil
+  async function pullSave() {
+    try {
+      const { data: d, error } = await client.from('saves').select('data,updated_at').eq('id', state.uid).maybeSingle();
+      if (error) return;
+      state.cloud = true;
+      const local = profileRef;
+      if (d && d.data && (!local || (d.data.savedAt || 0) > (local.savedAt || 0) + 1000) && onRemote) onRemote(d.data);
+      else if (local && local.nickname) pushSave(local);   // erster Upload von diesem Gerät
+    } catch (e) { /* ohne Tabelle läuft alles lokal weiter */ }
+  }
+  function pushSave(profile) {
+    if (!client || !state.uid || !state.cloud) return;
+    clearTimeout(pushTimer);
+    pushTimer = setTimeout(async () => {
+      try { await client.from('saves').upsert({ id: state.uid, data: profile, updated_at: new Date().toISOString() }); } catch (e) { /* später erneut */ }
+    }, 3000);
+  }
+  // Anonymes Profil mit E-Mail verknüpfen (Bestätigungslink kommt per Mail)
+  async function linkEmail(email) {
+    if (!client) return { ok: false, msg: 'Online-Speichern geht nur auf der Website.' };
+    const { error } = await client.auth.updateUser({ email }, { emailRedirectTo: location.origin + location.pathname });
+    if (error) return { ok: false, msg: error.message };
+    state.mailSent = email; emit();
+    return { ok: true };
+  }
+  // Auf einem neuen Gerät: Anmeldelink per Mail
+  async function loginEmail(email) {
+    if (!client) return { ok: false, msg: 'Online-Speichern geht nur auf der Website.' };
+    const { error } = await client.auth.signInWithOtp({ email, options: { shouldCreateUser: false, emailRedirectTo: location.origin + location.pathname } });
+    if (error) return { ok: false, msg: error.message };
+    state.mailSent = email; emit();
+    return { ok: true };
   }
 
   // ---------- Speicherort 2: geteilte Claude-Seite ----------
@@ -119,7 +161,8 @@ window.GL = window.GL || {};
   function liveFields(profile) {
     return {
       name: (profile.nickname || '').slice(0, 24) || 'Unbekannter Pirat',
-      avatar: profile.avatar || '',
+      look: profile.char ? profile.char.look : null,
+      cos: profile.cos || null,
       rank: GL.meta.rankProgress(profile).rank.name,
       rankXp: profile.rankXp || 0,
       heatMax: profile.heatMax || 0,
@@ -187,5 +230,6 @@ window.GL = window.GL || {};
     return register(profile);
   }
 
-  GL.online = { init, submit, rename, register, state: () => state, onChange(fn) { listeners.push(fn); } };
+  GL.online = { init, submit, rename, register, pushSave, linkEmail, loginEmail,
+    onRemoteProfile(fn) { onRemote = fn; }, state: () => state, onChange(fn) { listeners.push(fn); } };
 })();

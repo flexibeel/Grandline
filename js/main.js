@@ -8,6 +8,22 @@
   const ui = { restartArmed: false, newBest: false, album: null, sheet: null, profile, lastStage: null, lastBerry: null,
     intro: null, screen: 'title' };   // screen: 'title' (Startbildschirm) | 'profile' (Profil anlegen) | null
 
+  // Eigener Pirat: beim Laden eintragen, damit Avatar und Name überall stimmen
+  const selfNow = () => GL.meta.selfDef(profile);
+  if (selfNow()) GL.run.registerSelf(selfNow());
+  // Entwurf für den Profil-Bildschirm (wird erst beim Speichern übernommen)
+  function openProfile() {
+    const look = { hair: '#6b4a2a', skin: '#f2c9a0', shirt: '#2f6fb0', pants: '#3b5a8c', hat: 'band', hatColor: '#c0392b' };
+    const ch = profile.char || { type: 'kraft', role: 'kaempfer', look };
+    ui.draft = {
+      name: profile.nickname || '',
+      char: { type: ch.type, role: ch.role, look: Object.assign({}, ch.look) },
+      cos: Object.assign({ bg: 'meer', frame: 'holz', anim: 'ruhig', title: 'neuling' }, profile.cos || {})
+    };
+    ui.screen = 'profile';
+    draw();
+  }
+
   const SPEED = { normal: 520, special: 950, fast: 90 };
 
   function draw() { GL.ui.render(run, anim, ui); }
@@ -113,7 +129,7 @@
     const gear = GL.meta.takeLoadout(profile);
     run = GL.run.create(undefined, {
       unlocked: profile.unlocked, epics: profile.epics, upgrades: profile.upgrades, gear, heat: profile.heat,
-      arts: GL.meta.takeArtifacts(profile)
+      arts: GL.meta.takeArtifacts(profile), self: selfNow()
     });
     ui.newBest = false;
     ui.lastBerry = null;
@@ -217,20 +233,27 @@
       case 'intro-prev': ui.intro = Math.max(ui.intro - 1, 0); draw(); break;
       case 'title-play':
         // Erster Start: erst Profil anlegen, dann kurze Anleitung
-        if (!profile.nickname) { ui.screen = 'profile'; draw(); break; }
+        if (!profile.nickname) { openProfile(); break; }
         ui.screen = null;
         if (!(profile.tips && profile.tips.intro)) ui.intro = 0;
         draw();
         break;
       case 'title-go': ui.screen = null; ui.hqTab = el.dataset.tab; if (el.dataset.tab === 'album') { ui.album = 'crew'; ui.hqTab = null; } draw(); break;
       case 'title-back': ui.screen = 'title'; draw(); break;
-      case 'profile-edit': ui.screen = 'profile'; draw(); break;
-      case 'avatar': ui.avatarPick = el.dataset.id; document.querySelectorAll('.av-opt').forEach(b => b.classList.toggle('on', b.dataset.id === el.dataset.id)); break;
+      case 'profile-edit': openProfile(); break;
+      case 'char-part': ui.draft.char.look[el.dataset.part] = el.dataset.v; draw(); break;
+      case 'char-hat': ui.draft.char.look.hat = el.dataset.v; draw(); break;
+      case 'char-type': ui.draft.char.type = el.dataset.v; draw(); break;
+      case 'char-role': ui.draft.char.role = el.dataset.v; draw(); break;
+      case 'cos-pick': ui.draft.cos[el.dataset.kind] = el.dataset.v; draw(); break;
       case 'profile-save': {
         const inp = document.getElementById('pf-name');
         const name = inp ? inp.value.trim() : '';
         if (!name) { inp && inp.focus(); inp && inp.classList.add('shake'); break; }
-        profile.avatar = ui.avatarPick || profile.avatar || GL.config.starters[0];
+        profile.char = ui.draft.char;
+        profile.cos = ui.draft.cos;
+        profile.nickname = name.slice(0, 24);
+        GL.run.registerSelf(selfNow());
         GL.online.rename(profile, name).then(ok => {
           saveProfile();
           if (ok) toast('<span><b>Willkommen an Bord!</b>Dein Profil steht in der Rangliste.</span>');
@@ -269,6 +292,17 @@
         if (!ui.resetArmed) { ui.resetArmed = true; ui.lastStage = null; draw(); break; }
         try { ['grandline.run', 'grandline.profile', 'grandline.best'].forEach(k => localStorage.removeItem(k)); } catch (e2) { /* egal */ }
         location.reload();
+        break;
+      }
+      case 'mail-link':
+      case 'mail-login': {
+        const inp = document.getElementById('mail');
+        const v = inp ? inp.value.trim() : '';
+        if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)) { toast('<span><b>E-Mail prüfen</b>Bitte eine gültige Adresse eingeben.</span>'); break; }
+        (type === 'mail-link' ? GL.online.linkEmail(v) : GL.online.loginEmail(v)).then(res => {
+          toast(res.ok ? '<span><b>E-Mail unterwegs</b>Klicke auf den Link in der Mail, dann ist dein Profil auf allen Geräten.</span>' : `<span><b>Hat nicht geklappt</b>${res.msg}</span>`);
+          ui.lastStage = null; draw();
+        });
         break;
       }
       case 'set-nick': {
@@ -392,6 +426,10 @@
     else draw();
   }
 
+  document.addEventListener('input', e => {
+    if (e.target.id === 'pf-name' && ui.draft) ui.draft.name = e.target.value;
+  });
+
   document.addEventListener('pointerdown', e => {
     const el = e.target.closest && e.target.closest(DRAG_SEL);
     if (!el || !run || ['battle', 'over', 'win', 'starter'].includes(run.phase)) return;
@@ -487,6 +525,13 @@
   // Online-Rangliste: neu zeichnen, wenn sich Einträge ändern (nur im Hauptquartier sichtbar)
   if (GL.online) {
     GL.online.onChange(() => { if (!run && document.activeElement && document.activeElement.id !== 'nick') draw(); });
+    // Online liegt ein neuerer Spielstand (anderes Gerät): übernehmen und neu laden
+    GL.online.onRemoteProfile(remote => {
+      if (sessionStorage.getItem('gl.pulled')) return;
+      try { sessionStorage.setItem('gl.pulled', '1'); } catch (e2) { /* egal */ }
+      GL.save.replaceProfile(remote);
+      location.reload();
+    });
     GL.online.init(profile);
   }
 })();

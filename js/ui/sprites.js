@@ -162,7 +162,10 @@ window.GL = window.GL || {};
     render(entry) {
       if (!entry) return '';
       if (entry.image) return `<img src="${entry.image}" alt="" class="sprite-img">`;
-      if (!cache[entry.id]) cache[entry.id] = svg(entry.look);
+      // Der eigene Pirat kann sein Aussehen ändern: Aussehen gehört mit zum Schlüssel
+      const key = entry.id === 'self' ? 'self:' + JSON.stringify(entry.look) : entry.id;
+      if (!cache[key]) cache[key] = svg(entry.look);
+      if (entry.id === 'self') return cache[key];
       return cache[entry.id];
     }
   };

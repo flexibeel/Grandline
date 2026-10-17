@@ -104,6 +104,50 @@ window.GL = window.GL || {};
       return true;
     },
 
+    // ---------- Eigener Pirat ----------
+    // Werte wachsen mit dem Piratenrang: so lohnt es sich, immer wieder mit ihm zu spielen
+    selfDef(profile) {
+      const ch = profile.char;
+      if (!ch || !profile.nickname) return null;
+      const k = GL.meta.rankIndex(profile);
+      const base = { kraft: { hp: 33, atk: 8, spd: 5 }, klinge: { hp: 29, atk: 9, spd: 6 }, technik: { hp: 27, atk: 8, spd: 7 } }[ch.type] || { hp: 30, atk: 8, spd: 6 };
+      return {
+        name: profile.nickname, type: ch.type || 'kraft', role: ch.role || 'kaempfer', look: ch.look,
+        hp: base.hp + k * 2, atk: base.atk + Math.floor(k / 2), spd: base.spd + Math.floor(k / 5),
+        rally: 1 + Math.floor(k / 3)
+      };
+    },
+
+    // ---------- Kosmetik ----------
+    // Werte, die die Freischaltungen prüfen
+    progressValues(profile) {
+      const c = profile.counts || {};
+      const sum = list => list.reduce((s, id) => s + (c['defeated:' + id] || 0), 0);
+      const R = profile.records || {};
+      return {
+        rank: GL.meta.rankIndex(profile) + 1,
+        runs: profile.stats.runs || 0,
+        wins: profile.stats.wins || 0,
+        kos: R.kos || 0,
+        maxHit: R.maxHit || 0,
+        bosses: sum(GL.data.bosses.map(b => b.id)),
+        hunted: sum((GL.data.hunted || []).map(h => h.id)),
+        raids: sum(GL.data.raids.map(r => r.id)),
+        artifacts: Object.keys(profile.vault || {}).length,
+        reached: [0, 1, 2].filter(i => c['reached:' + i]).length - 1
+      };
+    },
+    cosmeticUnlocked(profile, item, vals) {
+      const v = vals || GL.meta.progressValues(profile);
+      return Object.keys(item.req || {}).every(k => (v[k] || 0) >= item.req[k]);
+    },
+    // Text der Bedingung, z. B. "Rang 5" oder "50 K.o.s"
+    reqText(item) {
+      const L = { rank: 'Rang', runs: 'Runs', wins: 'Siege', kos: 'K.o.s', maxHit: 'Schaden mit einem Schlag', bosses: 'Inselbosse besiegt',
+        hunted: 'Kopfgeld-Ziele besiegt', raids: 'Raid gewonnen', artifacts: 'Artefakte gefunden', reached: 'Meer erreicht' };
+      return Object.keys(item.req || {}).map(k => k === 'rank' ? `Rang ${item.req.rank}` : k === 'reached' ? `${GL.data.islands[item.req.reached].name} erreichen` : `${item.req[k]} ${L[k]}`).join(', ') || 'frei';
+    },
+
     // Artefakt-Plätze: einer zu Beginn, dazu einer ab Rang 5, 9 und 13
     artSlots(profile) {
       return 1 + Math.floor(GL.meta.rankIndex(profile) / 4);
@@ -239,6 +283,12 @@ window.GL = window.GL || {};
         profile.heat = profile.heatMax;
         profile.lastHeatUnlock = profile.heatMax;
       }
+      // Lebenslange Rekorde für Kosmetik und Rangliste
+      const S = run.stats || {};
+      const R = profile.records || (profile.records = { kos: 0, maxHit: 0, dmg: 0 });
+      R.kos += S.kos || 0;
+      R.dmg += S.dmg || 0;
+      R.maxHit = Math.max(R.maxHit, S.maxHit || 0);
       const berry = GL.meta.berryFor(profile, run);
       profile.berry += berry;
       profile.stats.berryTotal += berry;

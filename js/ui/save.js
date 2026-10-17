@@ -29,7 +29,9 @@ window.GL = window.GL || {};
       const p = read(PROFILE_KEY);
       return p && p.version === 1 ? GL.meta.migrate(p) : GL.meta.newProfile();
     },
-    storeProfile(p) { write(PROFILE_KEY, p); },
+    storeProfile(p) { p.savedAt = Date.now(); write(PROFILE_KEY, p); if (GL.online) GL.online.pushSave(p); },
+    // Spielstand von einem anderen Gerät übernehmen
+    replaceProfile(p) { write(PROFILE_KEY, p); },
 
     best() { return read(BEST_KEY); },
 

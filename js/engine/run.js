@@ -148,6 +148,17 @@ window.GL = window.GL || {};
   }
 
   // Figuren, die in diesem Run auftauchen können (Grundliste + Freischaltungen)
+  // Eigener Pirat des Spielers: wird als Figur 'self' eingetragen (auch beim Replay aus run.start)
+  function registerSelf(def) {
+    if (!def) return;
+    const entry = { id: 'self', name: def.name, type: def.type, role: def.role, faction: null,
+      hp: def.hp, atk: def.atk, spd: def.spd, look: def.look, locked: true, self: true };
+    const i = GL.data.crew.findIndex(c => c.id === 'self');
+    if (i >= 0) GL.data.crew[i] = entry; else GL.data.crew.push(entry);
+    GL.data.abilities.self = { name: 'Wille des Kapitäns', kind: 'rally', value: def.rally,
+      text: `Zu Kampfbeginn bekommt die ganze Crew +${def.rally} Angriff. Wird mit deinem Piratenrang stärker.` };
+  }
+
   function availableCrew(run) {
     return GL.data.crew.filter(c => !c.locked || run.unlocked.includes(c.id)).map(c => c.id);
   }
@@ -747,7 +758,9 @@ window.GL = window.GL || {};
       });
       // Pro Insel einen der möglichen Bosse auslosen
       run.bosses = GL.data.islands.map(isl => isl.bosses[R.int(run, 0, isl.bosses.length - 1)]);
-      run.pool = GL.config.starters.concat(run.unlocked.filter(id => byId(GL.data.crew, id)))
+      // Eigener Pirat steht als erster Kapitän zur Wahl
+      if (p.self) { registerSelf(p.self); run.start.self = p.self; }
+      run.pool = (p.self ? ['self'] : []).concat(GL.config.starters, run.unlocked.filter(id => byId(GL.data.crew, id)))
         .map(id => rollOffer(run, id));
       return run;
     },
@@ -780,6 +793,7 @@ window.GL = window.GL || {};
     },
 
     boss: currentBoss,
+    registerSelf,
     offerPrice, sellValue, rerollCost,
     artValue,
     islandIndex,

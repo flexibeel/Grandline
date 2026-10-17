@@ -909,7 +909,7 @@ window.GL = window.GL || {};
         <div><span class="event-kicker">Dein Piratenprofil</span>
           <b class="my-name">${esc(profile.nickname || 'Noch ohne Namen')}</b>
           <small>${esc(rp.rank.name)} · ${profile.stats.runs} Runs · ${profile.stats.wins} Siege${mine ? ' · <span class="ok">in der Rangliste</span>' : ''}</small></div>
-        <span class="my-cap">${GL.sprites.render(cap)}</span>
+        <span class="my-cap">${portrait(lookOf(profile), cosOf(profile), 'lg')}</span>
       </div>
       <div class="my-stats">
         ${stat(m.score || (best ? best.score : 0), 'Bestwert')}
@@ -944,11 +944,11 @@ window.GL = window.GL || {};
     const row = (x, k, value, unit, extra) => {
       const b = x.best || {};
       const cap = crewData(x.avatar) || (b.captain ? crewData(b.captain) : null);
-      return `<li class="lb-row${x.id === st.uid ? ' me' : ''}${k < 3 ? ' top' + (k + 1) : ''}">
+      return `<li class="lb-row${x.id === st.uid ? ' me' : ''}${k < 3 ? ' top' + (k + 1) : ''}${x.cos && x.cos.bg ? ' rowbg-' + x.cos.bg : ''}">
         <span class="lb-pos">${k + 1}</span>
-        <span class="lb-cap">${cap ? GL.sprites.render(cap) : ''}</span>
+        <span class="lb-cap">${x.look ? portrait(x.look, x.cos, 'sm') : cap ? GL.sprites.render(cap) : ''}</span>
         <span class="lb-who"><b>${esc(x.name || 'Unbekannter Pirat')}${x.id === st.uid ? ' <em>du</em>' : ''}</b>
-          <small>${esc(x.rank || '')}${extra ? ' · ' + extra : ''}</small></span>
+          <small>${x.cos && x.cos.title ? esc(titleName(x.cos.title)) + ' · ' : ''}${esc(x.rank || '')}${extra ? ' · ' + extra : ''}</small></span>
         <span class="lb-score"><b>${fmt(value)}</b><small>${unit}</small></span>
       </li>`;
     };
@@ -1085,23 +1085,45 @@ window.GL = window.GL || {};
     setTimeout(() => el.remove(), 3900);
   }
 
+  // Auf allen Geräten spielen: E-Mail verknüpfen oder auf neuem Gerät anmelden
+  function devicesBox() {
+    const st = GL.online ? GL.online.state() : {};
+    if (st.backend !== 'supabase') return `<div class="dev-box"><b>Auf allen Geräten spielen</b><small>Geht auf der Website (flexibeel.github.io/Grandline).</small></div>`;
+    if (!st.anon && st.email) return `<div class="dev-box ok"><b>Online gesichert ✓</b><small>Verknüpft mit ${esc(st.email)}. Auf einem anderen Gerät: Website öffnen, Profil → „Ich habe schon ein Profil“, diese E-Mail eingeben.</small></div>`;
+    return `<div class="dev-box"><b>Auf allen Geräten spielen</b>
+      <small>Dein Fortschritt liegt bisher nur in diesem Browser. Verknüpfe eine E-Mail, dann spielst du auf Handy und PC mit demselben Piraten weiter.${st.mailSent ? ` <b>Link an ${esc(st.mailSent)} geschickt.</b>` : ''}</small>
+      <div class="dev-row"><input id="mail" type="email" placeholder="deine@email.de">
+        <button class="btn" data-act="mail-link">Verknüpfen</button>
+        <button class="btn ghost" data-act="mail-login">Ich habe schon ein Profil</button></div></div>`;
+  }
+
   // ---------- Startbildschirm und Profil ----------
-  function avatarOf(profile) {
-    return crewData(profile.avatar) || crewData(GL.config.starters[0]);
+  // Eigener Pirat als Avatar (sonst der erste Kapitän)
+  const DEFAULT_LOOK = { hair: '#6b4a2a', skin: '#f2c9a0', shirt: '#2f6fb0', pants: '#3b5a8c', hat: 'band', hatColor: '#c0392b' };
+  function lookOf(profile) { return (profile.char && profile.char.look) || DEFAULT_LOOK; }
+  function avatarOf(profile) { return { id: 'self', name: profile.nickname || 'Pirat', look: lookOf(profile) }; }
+  function cosOf(profile) { return Object.assign({ bg: 'meer', frame: 'holz', anim: 'ruhig', title: 'neuling' }, profile.cos || {}); }
+  function titleName(id) { const t = GL.data.cosmetics.titles.find(x => x.id === id); return t ? t.name : ''; }
+  // Kleines Porträt mit Hintergrund, Rahmen und Animation (Profil, Rangliste, Startbildschirm)
+  function portrait(look, cos, size) {
+    const c = Object.assign({ bg: 'meer', frame: 'holz', anim: 'ruhig' }, cos || {});
+    return `<span class="portrait bg-${c.bg} fr-${c.frame} an-${c.anim}${size ? ' ' + size : ''}">${GL.sprites.render({ id: 'self', look: look || DEFAULT_LOOK })}</span>`;
   }
   function profileChip(profile) {
     const rp = GL.meta.rankProgress(profile);
     const pct = rp.next ? Math.min(100, 100 * rp.have / rp.need) : 100;
     return `<button class="pf-chip" data-act="profile-edit" title="Profil bearbeiten">
-      <span class="pf-av">${GL.sprites.render(avatarOf(profile))}</span>
+      ${portrait(lookOf(profile), cosOf(profile), 'sm')}
       <span class="pf-txt"><b>${esc(profile.nickname || 'Neuer Pirat')}</b>
-        <small>${esc(rp.rank.name)} · Rang ${rp.i + 1}</small>
+        <small>${esc(titleName(cosOf(profile).title))} · Rang ${rp.i + 1}</small>
         <i class="pf-xp"><i style="width:${pct}%"></i></i></span>
     </button>`;
   }
   function titleScreen(run, profile) {
     const W = GL.world && GL.world.title ? GL.world.title : 'Grand Line';
-    const crew = GL.config.starters.map(id => `<span class="ts-hop">${GL.sprites.render(crewData(id))}</span>`).join('');
+    const ids = GL.config.starters.slice();
+    const crew = (profile.char ? [avatarOf(profile)] : []).concat(ids.map(id => crewData(id))).slice(0, 4)
+      .map(dd => `<span class="ts-hop">${GL.sprites.render(dd)}</span>`).join('');
     const st = GL.online ? GL.online.state() : { status: 'local', rows: [] };
     const players = (st.rows || []).length;
     return `<div class="ts-inner">
@@ -1126,18 +1148,51 @@ window.GL = window.GL || {};
     </div>`;
   }
   function profileScreen(profile, ui) {
-    const pick = ui.avatarPick || profile.avatar || GL.config.starters[0];
-    const ids = GL.config.starters.concat(profile.unlocked || []).filter((id, k, a) => crewData(id) && a.indexOf(id) === k);
-    return `<div class="ts-inner pf-screen">
+    const d = ui.draft;
+    const P = GL.data.charParts;
+    const vals = GL.meta.progressValues(profile);
+    const sw = (part, list) => `<div class="sw-row"><span>${{ hair: 'Haare', skin: 'Haut', shirt: 'Oberteil', pants: 'Hose', hatColor: 'Hutfarbe' }[part]}</span>
+      <div class="sw">${list.map(c => `<button class="sw-c${d.char.look[part] === c ? ' on' : ''}" style="background:${c}" data-act="char-part" data-part="${part}" data-v="${c}" aria-label="${c}"></button>`).join('')}</div></div>`;
+    const hats = { '': 'Ohne', straw: 'Strohhut', band: 'Kopftuch', cap: 'Mütze', hood: 'Kapuze', afro: 'Locken' };
+    const opt = (act, cur, list) => list.map(([id, name]) => `<button class="seg${cur === id ? ' on' : ''}" data-act="${act}" data-v="${id}">${name}</button>`).join('');
+    const cosGrid = (kind, label, cls) => `<div class="cos-block"><span class="lbl">${label}</span><div class="cos-grid">${GL.data.cosmetics[kind].map(it => {
+      const ok = GL.meta.cosmeticUnlocked(profile, it, vals);
+      const on = d.cos[cls] === it.id;
+      const prev = kind === 'titles' ? `<b class="cos-title">${esc(it.name)}</b>`
+        : portrait(d.char.look, Object.assign({}, d.cos, { [cls]: it.id }), 'xs');
+      return `<button class="cos${on ? ' on' : ''}${ok ? '' : ' locked'}" data-act="cos-pick" data-kind="${cls}" data-v="${it.id}"${ok ? '' : ' disabled'} title="${esc(it.name)}${ok ? '' : ': ' + GL.meta.reqText(it)}">
+        ${prev}<small>${ok ? esc(it.name) : '🔒 ' + GL.meta.reqText(it)}</small></button>`;
+    }).join('')}</div></div>`;
+    const def = GL.meta.selfDef(Object.assign({}, profile, { nickname: d.name || 'Pirat', char: d.char }));
+    return `<div class="ts-inner pf-screen wide">
       <div class="pf-card">
-        <span class="event-kicker">${profile.nickname ? 'Profil bearbeiten' : 'Dein Piratenprofil'}</span>
-        <h2>${profile.nickname ? 'Wer bist du, Pirat?' : 'Willkommen an Bord!'}</h2>
-        <p class="hint">Dein Name erscheint in der Rangliste. Kein Konto und keine E-Mail nötig, dein Fortschritt bleibt in diesem Browser gespeichert.</p>
-        <label for="pf-name">Piratenname</label>
-        <input id="pf-name" maxlength="24" autocomplete="off" placeholder="z. B. Felix der Furchtlose" value="${esc(profile.nickname || '')}">
-        <label>Dein Avatar</label>
-        <div class="av-grid">${ids.map(id => `<button class="av-opt${id === pick ? ' on' : ''}" data-act="avatar" data-id="${id}" title="${esc(crewData(id).name)}">${GL.sprites.render(crewData(id))}</button>`).join('')}</div>
-        <small class="muted">Freigeschaltete Kapitäne kommen als Avatare dazu.</small>
+        <span class="event-kicker">${profile.nickname ? 'Dein Pirat' : 'Erstelle deinen Piraten'}</span>
+        <div class="pf-grid">
+          <div class="pf-preview">
+            ${portrait(d.char.look, d.cos, 'xl')}
+            <b class="pf-prev-name">${esc(d.name || 'Dein Name')}</b>
+            <small>${esc(titleName(d.cos.title))}</small>
+            <div class="pf-stats"><span>❤ ${def.hp}</span><span>⚔ ${def.atk}</span><span>➤ ${def.spd}</span></div>
+            <small class="muted">Spielbar als Kapitän. Wird mit jedem Piratenrang stärker.</small>
+          </div>
+          <div class="pf-form">
+            <label for="pf-name">Piratenname</label>
+            <input id="pf-name" maxlength="24" autocomplete="off" placeholder="z. B. Felix der Furchtlose" value="${esc(d.name || '')}">
+            <span class="lbl">Kampfstil</span><div class="segs">${opt('char-type', d.char.type, [['kraft', 'Kraft'], ['klinge', 'Klinge'], ['technik', 'Technik']])}</div>
+            <span class="lbl">Rolle</span><div class="segs">${opt('char-role', d.char.role, [['kaempfer', 'Kämpfer'], ['brecher', 'Brecher'], ['helfer', 'Helfer']])}</div>
+            <span class="lbl">Aussehen</span>
+            ${sw('hair', P.hair)}${sw('skin', P.skin)}${sw('shirt', P.shirt)}${sw('pants', P.pants)}
+            <div class="sw-row"><span>Hut</span><div class="segs small">${opt('char-hat', d.char.look.hat || '', P.hat.map(h => [h, hats[h]]))}</div></div>
+            ${d.char.look.hat ? sw('hatColor', P.hatColor) : ''}
+          </div>
+        </div>
+        <div class="cos-all">
+          <p class="hint">Freischaltbar: Hintergründe, Rahmen, Animationen und Titel. Alle sehen sie in der Rangliste.</p>
+          ${cosGrid('backgrounds', 'Hintergrund', 'bg')}
+          ${cosGrid('frames', 'Rahmen', 'frame')}
+          ${cosGrid('animations', 'Animation', 'anim')}
+          ${cosGrid('titles', 'Titel', 'title')}
+        </div>
         <div class="pf-actions">
           ${profile.nickname ? '<button class="btn ghost" data-act="title-back">Zurück</button>' : ''}
           <button class="btn" data-act="profile-save">${profile.nickname ? 'Speichern' : 'Profil erstellen'} ${keyHint('Enter')}</button>
@@ -1269,7 +1324,8 @@ window.GL = window.GL || {};
           <div><b>${best ? fmt(best.score) : '0'}</b><span>Bestwert</span></div>
           <div><b>${profile.unlocked.length + GL.config.starters.length}</b><span>Kapitäne</span></div>
         </div>
-        <button class="btn ghost" data-act="profile-edit">Name und Avatar ändern</button>
+        <button class="btn ghost" data-act="profile-edit">Pirat und Aussehen bearbeiten</button>
+        ${devicesBox()}
         <div class="hq-reset">
           <button class="link danger-link" data-act="reset-all">${uiRef && uiRef.resetArmed ? 'Wirklich alles löschen? Zum Bestätigen nochmal klicken.' : 'Spielstand komplett löschen und von vorne beginnen'}</button>
         </div></section>` : ''}
@@ -1304,7 +1360,7 @@ window.GL = window.GL || {};
   function album(profile, tab) {
     const seen = profile.seen;
     const lists = {
-      crew: GL.data.crew.map((d, idx) => {
+      crew: GL.data.crew.filter(d => !d.self).map((d, idx) => {
         const u = GL.data.unlocks.find(x => x.unlock === d.id);
         const known = seen.crew.includes(d.id) || profile.unlocked.includes(d.id);
         let sub = known ? `${GL.data.types[d.type].name}, ${tags(d)}` : 'Noch nicht getroffen';
