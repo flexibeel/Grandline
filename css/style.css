@@ -1983,3 +1983,77 @@ h2 { font-size: 1.45rem; }
 
 .sheet-foot { display: flex; flex-wrap: wrap; gap: 10px; justify-content: space-between; }
 .danger-btn { color: var(--red) !important; }
+
+/* ---------- Startbildschirm ---------- */
+.title-screen { position: fixed; inset: 0; z-index: 90; overflow-y: auto; background: var(--bg); display: grid; place-items: center; padding: 16px; }
+body.on-title { overflow: hidden; }
+.ts-inner { width: min(560px, 100%); display: grid; gap: 18px; justify-items: center; text-align: center; }
+.ts-top { width: 100%; display: flex; justify-content: space-between; align-items: center; }
+.ts-logo { display: grid; gap: 2px; margin-top: 4px; }
+.ts-logo b { font-family: var(--px); font-weight: 700; font-size: clamp(2.6rem, 11vw, 4.2rem); line-height: 1; color: var(--ink);
+  text-shadow: 0 4px 0 var(--line); animation: ts-in .7s steps(6) both; }
+.ts-logo small { font-family: var(--px); color: var(--mute); font-size: 1rem; letter-spacing: .08em; }
+@keyframes ts-in { from { transform: translateY(-30px); opacity: 0; } }
+.ts-scene { position: relative; width: 100%; height: 190px; border-radius: 12px; overflow: hidden; border: 2px solid var(--line);
+  background: linear-gradient(#bfe3f5 0 62%, #4f9ccc 62% 100%); }
+:root[data-theme="dark"] .ts-scene { background: linear-gradient(#1a2440 0 62%, #20456a 62% 100%); }
+.ts-sun { position: absolute; top: 18px; right: 40px; width: 42px; height: 42px; background: #fff3b0; box-shadow: 0 0 0 6px rgba(255,243,176,.35); }
+.ts-sea { position: absolute; left: 0; right: 0; top: 62%; height: 6px; background: repeating-linear-gradient(90deg, #fff 0 12px, transparent 12px 36px); opacity: .6; animation: ts-sea 2s steps(6) infinite; }
+@keyframes ts-sea { to { background-position: 36px 0; } }
+.ts-ship { position: absolute; left: 50%; top: 30%; width: 120px; height: 90px; transform: translateX(-50%); animation: ts-bob 1.6s steps(4) infinite; }
+.ts-ship svg { width: 100%; height: 100%; shape-rendering: crispEdges; }
+@keyframes ts-bob { 50% { transform: translate(-50%, -6px); } }
+.ts-crew { position: absolute; left: 0; right: 0; bottom: 10px; display: flex; justify-content: center; gap: 30px; }
+.ts-hop svg { width: 40px; height: 47px; shape-rendering: crispEdges; }
+.ts-hop { animation: ts-hop 1.2s steps(3) infinite; }
+.ts-hop:nth-child(2) { animation-delay: .2s; } .ts-hop:nth-child(3) { animation-delay: .4s; }
+@keyframes ts-hop { 30% { transform: translateY(-10px); } 60% { transform: translateY(0); } }
+.ts-menu { width: 100%; display: grid; gap: 10px; }
+.ts-play { font-size: 1.4rem; padding: 16px; animation: ts-pulse 1.6s steps(2) infinite; }
+@keyframes ts-pulse { 50% { box-shadow: 0 3px 0 var(--btnedge), 0 0 0 4px rgba(242,182,50,.45); } }
+.ts-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.ts-row .btn { padding: 10px 6px; font-size: .95rem; }
+.ts-foot { font-size: .75rem; color: var(--mute); margin: 0; max-width: 460px; }
+@media (max-width: 420px) { .ts-row { grid-template-columns: 1fr; } }
+
+/* Profil-Chip und Profil anlegen */
+.pf-chip { display: inline-flex; align-items: center; gap: 10px; padding: 6px 12px 6px 6px; border-radius: 10px; cursor: pointer; font: inherit; color: var(--ink);
+  background: var(--panel); border: 2px solid var(--line); box-shadow: 0 2px 0 var(--line); text-align: left; }
+.pf-chip:hover { border-color: var(--btn); }
+.pf-av { width: 40px; height: 40px; display: grid; place-items: center; border-radius: 8px; background: #dde9fa; }
+.pf-av svg { width: 30px; height: 35px; shape-rendering: crispEdges; }
+.pf-txt { display: grid; gap: 1px; min-width: 110px; }
+.pf-txt b { font-family: var(--px); font-weight: 600; font-size: 1rem; line-height: 1.1; }
+.pf-txt small { color: var(--mute); font-size: .75rem; }
+.pf-xp { display: block; height: 5px; border-radius: 3px; background: var(--line); overflow: hidden; }
+.pf-xp i { display: block; height: 100%; background: #f2b632; }
+.pf-card { width: 100%; display: grid; gap: 10px; text-align: left; padding: 20px; border-radius: 12px; background: var(--panel); border: 2px solid var(--line); box-shadow: 0 3px 0 var(--line); }
+.pf-card label { font-family: var(--px); font-weight: 600; margin-top: 6px; }
+.pf-card input { font: inherit; font-size: 1.1rem; padding: 10px 12px; border-radius: 8px; border: 2px solid var(--line); background: var(--bg); color: var(--ink); }
+.pf-card input:focus { outline: none; border-color: var(--btn); }
+.pf-card input.shake { animation: shake .3s; border-color: var(--red); }
+.av-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(64px, 1fr)); gap: 8px; }
+.av-opt { height: 70px; display: grid; place-items: center; border-radius: 10px; cursor: pointer; background: var(--bg); border: 2px solid var(--line); }
+.av-opt svg { width: 40px; height: 47px; shape-rendering: crispEdges; }
+.av-opt.on { border-color: #f2b632; background: #fff6dc; box-shadow: 0 3px 0 #f2b632; }
+.pf-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 6px; }
+
+/* Hauptquartier aufgeräumt */
+.hq-bar { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+.hq-bar .berry { font-family: var(--px); font-size: 1.3rem; display: inline-flex; gap: 6px; align-items: center; padding: 6px 14px; border-radius: 10px; background: #fff6dc; border: 2px solid #f2d27a; }
+.hq-bar .berry small { font-size: .8rem; color: var(--mute); }
+.hq-sail { display: grid; grid-template-columns: 120px 1fr; gap: 14px; align-items: center; padding: 14px; border-radius: 12px; border: 2px solid var(--line); background: var(--panel); box-shadow: 0 3px 0 var(--line); }
+.sail-scene { height: 96px; border-radius: 10px; display: grid; place-items: center; background: linear-gradient(#bfe3f5 0 60%, #4f9ccc 60%); }
+.sail-scene .hq-ship svg { width: 90px; height: 68px; shape-rendering: crispEdges; animation: ts-bob 1.6s steps(4) infinite; }
+.sail-body { display: grid; gap: 6px; justify-items: start; }
+.sail-body small { color: var(--mute); }
+.hq-sail .heat { grid-column: 1 / -1; }
+.btn.sail { font-size: 1.25rem; padding: 12px 26px; }
+@media (max-width: 520px) { .hq-sail { grid-template-columns: 1fr; } .sail-scene { height: 80px; } }
+
+.sail-heat { grid-column: 1 / -1; }
+.sail-heat > small { color: var(--mute); font-size: .85rem; }
+.sail-scene .hq-ship { position: static !important; inset: auto !important; transform: none !important; animation: none !important; width: auto; height: auto; }
+.sail-scene .hq-ship svg { display: block; }
+.sail-scene .hq-ship svg { width: 74px !important; height: 56px !important; }
+.hq-sec .hq-stats { margin-top: 10px; }

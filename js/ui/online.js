@@ -119,6 +119,7 @@ window.GL = window.GL || {};
   function liveFields(profile) {
     return {
       name: (profile.nickname || '').slice(0, 24) || 'Unbekannter Pirat',
+      avatar: profile.avatar || '',
       rank: GL.meta.rankProgress(profile).rank.name,
       rankXp: profile.rankXp || 0,
       heatMax: profile.heatMax || 0,

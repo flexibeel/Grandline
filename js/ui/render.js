@@ -902,7 +902,7 @@ window.GL = window.GL || {};
   function myCard(profile, mine, best, fmt) {
     const rp = GL.meta.rankProgress(profile);
     const m = mine || {};
-    const cap = m.best && m.best.captain ? crewData(m.best.captain) : crewData(GL.config.starters[0]);
+    const cap = avatarOf(profile);
     const stat = (v, l) => `<div><b>${fmt(v)}</b><small>${l}</small></div>`;
     return `<div class="my-card">
       <div class="my-top">${medal(rp.i, 'big')}
@@ -943,7 +943,7 @@ window.GL = window.GL || {};
       `<button class="lb-cat${c.id === cat.id ? ' on' : ''}" data-act="lb-cat" data-id="${c.id}">${c.name}</button>`).join('')}</div>`;
     const row = (x, k, value, unit, extra) => {
       const b = x.best || {};
-      const cap = b.captain ? crewData(b.captain) : null;
+      const cap = crewData(x.avatar) || (b.captain ? crewData(b.captain) : null);
       return `<li class="lb-row${x.id === st.uid ? ' me' : ''}${k < 3 ? ' top' + (k + 1) : ''}">
         <span class="lb-pos">${k + 1}</span>
         <span class="lb-cap">${cap ? GL.sprites.render(cap) : ''}</span>
@@ -1085,6 +1085,67 @@ window.GL = window.GL || {};
     setTimeout(() => el.remove(), 3900);
   }
 
+  // ---------- Startbildschirm und Profil ----------
+  function avatarOf(profile) {
+    return crewData(profile.avatar) || crewData(GL.config.starters[0]);
+  }
+  function profileChip(profile) {
+    const rp = GL.meta.rankProgress(profile);
+    const pct = rp.next ? Math.min(100, 100 * rp.have / rp.need) : 100;
+    return `<button class="pf-chip" data-act="profile-edit" title="Profil bearbeiten">
+      <span class="pf-av">${GL.sprites.render(avatarOf(profile))}</span>
+      <span class="pf-txt"><b>${esc(profile.nickname || 'Neuer Pirat')}</b>
+        <small>${esc(rp.rank.name)} · Rang ${rp.i + 1}</small>
+        <i class="pf-xp"><i style="width:${pct}%"></i></i></span>
+    </button>`;
+  }
+  function titleScreen(run, profile) {
+    const W = GL.world && GL.world.title ? GL.world.title : 'Grand Line';
+    const crew = GL.config.starters.map(id => `<span class="ts-hop">${GL.sprites.render(crewData(id))}</span>`).join('');
+    const st = GL.online ? GL.online.state() : { status: 'local', rows: [] };
+    const players = (st.rows || []).length;
+    return `<div class="ts-inner">
+      <div class="ts-top">${profile.nickname ? profileChip(profile) : '<span></span>'}
+        <button class="link" data-act="theme">${document.documentElement.dataset.theme === 'dark' ? 'Hell' : 'Dunkel'}</button></div>
+      <div class="ts-logo"><b>${esc(W)}</b><small>Ein Piraten-Roguelike</small></div>
+      <div class="ts-scene" aria-hidden="true">
+        <div class="ts-sun"></div>
+        <div class="ts-ship">${GL.sprites.ship()}</div>
+        <div class="ts-sea"></div>
+        <div class="ts-crew">${crew}</div>
+      </div>
+      <div class="ts-menu">
+        <button class="btn ts-play" data-act="title-play">${run ? 'Weiterspielen' : profile.nickname ? 'Spielen' : 'Neues Spiel'} ${keyHint('Leertaste')}</button>
+        <div class="ts-row">
+          <button class="btn ghost" data-act="title-go" data-tab="rangliste">Rangliste${players ? ` <small>${players}</small>` : ''}</button>
+          <button class="btn ghost" data-act="title-go" data-tab="album">Sammelalbum</button>
+          <button class="btn ghost" data-act="intro-open">Anleitung</button>
+        </div>
+      </div>
+      <p class="ts-foot">${esc(document.querySelector('footer.fan') ? document.querySelector('footer.fan').textContent : '')}</p>
+    </div>`;
+  }
+  function profileScreen(profile, ui) {
+    const pick = ui.avatarPick || profile.avatar || GL.config.starters[0];
+    const ids = GL.config.starters.concat(profile.unlocked || []).filter((id, k, a) => crewData(id) && a.indexOf(id) === k);
+    return `<div class="ts-inner pf-screen">
+      <div class="pf-card">
+        <span class="event-kicker">${profile.nickname ? 'Profil bearbeiten' : 'Dein Piratenprofil'}</span>
+        <h2>${profile.nickname ? 'Wer bist du, Pirat?' : 'Willkommen an Bord!'}</h2>
+        <p class="hint">Dein Name erscheint in der Rangliste. Kein Konto und keine E-Mail nötig, dein Fortschritt bleibt in diesem Browser gespeichert.</p>
+        <label for="pf-name">Piratenname</label>
+        <input id="pf-name" maxlength="24" autocomplete="off" placeholder="z. B. Felix der Furchtlose" value="${esc(profile.nickname || '')}">
+        <label>Dein Avatar</label>
+        <div class="av-grid">${ids.map(id => `<button class="av-opt${id === pick ? ' on' : ''}" data-act="avatar" data-id="${id}" title="${esc(crewData(id).name)}">${GL.sprites.render(crewData(id))}</button>`).join('')}</div>
+        <small class="muted">Freigeschaltete Kapitäne kommen als Avatare dazu.</small>
+        <div class="pf-actions">
+          ${profile.nickname ? '<button class="btn ghost" data-act="title-back">Zurück</button>' : ''}
+          <button class="btn" data-act="profile-save">${profile.nickname ? 'Speichern' : 'Profil erstellen'} ${keyHint('Enter')}</button>
+        </div>
+      </div>
+    </div>`;
+  }
+
   // ---------- Piratenrang im Hauptquartier ----------
   // Medaille in Bronze, Silber, Gold oder Legende, darunter die Belohnungsstraße aller Ränge
   function rankTier(i) {
@@ -1174,33 +1235,25 @@ window.GL = window.GL || {};
     const rp = GL.meta.rankProgress(profile);
     const rankHtml = rankPanel(profile, rp, fmt);
 
+    const onBoard = loadout.concat(profile.artLoadout.map(id => GL.data.artifacts.find(x => x.id === id).name));
     return `<div class="hq">
-      <div class="hq-hero">
-        <div class="hq-scene" aria-hidden="true"><div class="hq-ship">${GL.sprites.ship()}</div><div class="hq-waves"></div></div>
-        <div class="hq-title">
-          <span class="event-kicker">Deine Basis</span>
-          <h2>Hauptquartier</h2>
-          <div class="berry">${GL.sprites.coin()} <b>${fmt(profile.berry)}</b> Berry</div>
-        </div>
-      </div>
-      ${rankHtml}
-      <div class="hq-stats">
-        <div><b>${profile.stats.runs}</b><span>Runs</span></div>
-        <div><b>${profile.stats.wins}</b><span>Siege</span></div>
-        <div><b>${best ? fmt(best.score) : '0'}</b><span>Bestwert</span></div>
-        <div><b>${profile.unlocked.length + GL.config.starters.length}</b><span>Kapitäne</span></div>
+      <div class="hq-bar">
+        ${profileChip(profile)}
+        <div class="berry">${GL.sprites.coin()} <b>${fmt(profile.berry)}</b> <small>Berry</small></div>
       </div>
 
       <div class="hq-sail">
-        <div><b>Bereit zum Ablegen?</b>
-          <small>${loadout.length ? 'An Bord: ' + loadout.join(', ') : 'Keine Ausrüstung an Bord. Schau ins Lager.'}</small>
-          <small>${profile.artLoadout.length ? 'Artefakte: ' + profile.artLoadout.map(id => { const a = GL.data.artifacts.find(x => x.id === id); return `${a.name} (St. ${GL.meta.artLevel(profile, id)})`; }).join(', ') : 'Noch keine Artefakte ausgerüstet.'}</small></div>
-        <button class="btn sail" data-act="sail">Leinen los! ${keyHint('Leertaste')}</button>
-        ${heatBox}
+        <div class="sail-scene" aria-hidden="true"><div class="hq-ship">${GL.sprites.ship()}</div></div>
+        <div class="sail-body">
+          <b>Bereit zum Ablegen?</b>
+          <small>${onBoard.length ? 'An Bord: ' + onBoard.join(', ') : 'Noch nichts an Bord. Ausrüstung und Artefakte findest du unten.'}</small>
+          <button class="btn sail" data-act="sail">Leinen los! ${keyHint('Leertaste')}</button>
+        </div>
+        <div class="sail-heat">${heatBox}</div>
       </div>
 
       <div class="atabs hq-tabs" role="tablist">
-        ${[['werft', 'Werft'], ['rangliste', 'Rangliste'], ['kammer', `Schatzkammer <small>${profile.artLoadout.length}/${GL.meta.artSlots(profile)}</small>`], ['lager', `Lager <small>${profile.loadout.length}/${slots}</small>`], ['haendler', 'Händler']].map(([id, name]) =>
+        ${[['profil', 'Profil'], ['werft', 'Werft'], ['rangliste', 'Rangliste'], ['kammer', `Schatzkammer <small>${profile.artLoadout.length}/${GL.meta.artSlots(profile)}</small>`], ['lager', `Lager <small>${profile.loadout.length}/${slots}</small>`], ['haendler', 'Händler']].map(([id, name]) =>
           `<button class="atab${tab === id ? ' on' : ''}" role="tab" aria-selected="${tab === id}" data-act="hq-tab" data-tab="${id}">${name}</button>`).join('')}
       </div>
 
@@ -1208,12 +1261,20 @@ window.GL = window.GL || {};
         <p class="hint">Dauerhafte Ausbauten für dein Schiff. Sie gelten für jeden zukünftigen Run.</p>
         <div class="hq-grid">${upgrades}</div></section>` : ''}
 
+      ${tab === 'profil' ? `<section class="hq-sec">
+        ${rankHtml}
+        <div class="hq-stats">
+          <div><b>${profile.stats.runs}</b><span>Runs</span></div>
+          <div><b>${profile.stats.wins}</b><span>Siege</span></div>
+          <div><b>${best ? fmt(best.score) : '0'}</b><span>Bestwert</span></div>
+          <div><b>${profile.unlocked.length + GL.config.starters.length}</b><span>Kapitäne</span></div>
+        </div>
+        <button class="btn ghost" data-act="profile-edit">Name und Avatar ändern</button>
+        <div class="hq-reset">
+          <button class="link danger-link" data-act="reset-all">${uiRef && uiRef.resetArmed ? 'Wirklich alles löschen? Zum Bestätigen nochmal klicken.' : 'Spielstand komplett löschen und von vorne beginnen'}</button>
+        </div></section>` : ''}
       ${tab === 'kammer' ? vaultSection(profile) : ''}
       ${tab === 'rangliste' ? leaderboard(profile, uiRef) : ''}
-      <div class="hq-reset">
-        <button class="link danger-link" data-act="reset-all">${uiRef && uiRef.resetArmed ? 'Wirklich alles löschen? Zum Bestätigen nochmal klicken.' : 'Spielstand komplett löschen und von vorne beginnen'}</button>
-      </div>
-
       ${tab === 'lager' ? `<section class="hq-sec">
         <p class="hint">${profile.loadout.length} von ${slots} Plätzen belegt. Ausgewählte Ausrüstung kommt mit in den nächsten Run und wird dabei verbraucht.</p>
         <div class="hq-list">${storage}</div></section>` : ''}
@@ -1403,13 +1464,23 @@ window.GL = window.GL || {};
     trophyPop,
 
     render(run, anim, ui) {
+      const titleEl = $('#title');
+      titleEl.hidden = !ui.screen;
+      document.body.classList.toggle('on-title', !!ui.screen);
+      if (ui.screen) {
+        const html = ui.screen === 'profile' ? profileScreen(ui.profile, ui) : titleScreen(run, ui.profile);
+        if (titleEl.dataset.last !== html) {
+          titleEl.innerHTML = html; titleEl.dataset.last = html;
+          if (ui.screen === 'profile') setTimeout(() => { const i = $('#pf-name'); if (i) i.focus(); }, 30);
+        }
+      } else { titleEl.dataset.last = ''; }
       const introEl = $('#intro');
       introEl.hidden = ui.intro == null;
       if (ui.intro != null) introEl.innerHTML = intro(ui.intro);
       if (!run) {
         $('#track').innerHTML = '';
         ['#crew', '#syn', '#crew-label', '#restart', '#sheet', '#traits'].forEach(sel => { $(sel).hidden = true; });
-        const html = hq(ui.profile, ui.hqTab || 'werft', ui);
+        const html = hq(ui.profile, ui.hqTab || 'profil', ui);
         if (html !== ui.lastStage) {
           $('#stage').innerHTML = html; ui.lastStage = html;
           // Belohnungsstraße: aktuellen Rang in die Mitte schieben

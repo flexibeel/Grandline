@@ -6,7 +6,7 @@
   let run = GL.save.loadRun();
   let anim = null;                       // läuft gerade eine Kampfanimation?
   const ui = { restartArmed: false, newBest: false, album: null, sheet: null, profile, lastStage: null, lastBerry: null,
-    intro: profile.tips && profile.tips.intro ? null : 0 };
+    intro: null, screen: 'title' };   // screen: 'title' (Startbildschirm) | 'profile' (Profil anlegen) | null
 
   const SPEED = { normal: 520, special: 950, fast: 90 };
 
@@ -215,6 +215,34 @@
       case 'intro-open': ui.intro = 0; draw(); break;
       case 'intro-next': ui.intro = Math.min(ui.intro + 1, GL.ui.introSteps - 1); draw(); break;
       case 'intro-prev': ui.intro = Math.max(ui.intro - 1, 0); draw(); break;
+      case 'title-play':
+        // Erster Start: erst Profil anlegen, dann kurze Anleitung
+        if (!profile.nickname) { ui.screen = 'profile'; draw(); break; }
+        ui.screen = null;
+        if (!(profile.tips && profile.tips.intro)) ui.intro = 0;
+        draw();
+        break;
+      case 'title-go': ui.screen = null; ui.hqTab = el.dataset.tab; if (el.dataset.tab === 'album') { ui.album = 'crew'; ui.hqTab = null; } draw(); break;
+      case 'title-back': ui.screen = 'title'; draw(); break;
+      case 'profile-edit': ui.screen = 'profile'; draw(); break;
+      case 'avatar': ui.avatarPick = el.dataset.id; document.querySelectorAll('.av-opt').forEach(b => b.classList.toggle('on', b.dataset.id === el.dataset.id)); break;
+      case 'profile-save': {
+        const inp = document.getElementById('pf-name');
+        const name = inp ? inp.value.trim() : '';
+        if (!name) { inp && inp.focus(); inp && inp.classList.add('shake'); break; }
+        profile.avatar = ui.avatarPick || profile.avatar || GL.config.starters[0];
+        GL.online.rename(profile, name).then(ok => {
+          saveProfile();
+          if (ok) toast('<span><b>Willkommen an Bord!</b>Dein Profil steht in der Rangliste.</span>');
+        });
+        profile.nickname = name.slice(0, 24);
+        saveProfile();
+        ui.screen = null;
+        if (!(profile.tips && profile.tips.intro)) ui.intro = 0;
+        ui.lastStage = null;
+        draw();
+        break;
+      }
       case 'intro-close':
         ui.intro = null;
         profile.tips = Object.assign(profile.tips || {}, { intro: true });
@@ -275,8 +303,15 @@
   // Tastenkürzel: 1-9 Optionen, Enter/Leertaste weiter, F schneller, S überspringen
   document.addEventListener('keydown', e => {
     if (e.ctrlKey || e.metaKey || e.altKey) return;
+    if (e.key === 'Enter' && e.target.id === 'pf-name') { e.preventDefault(); document.querySelector('[data-act=profile-save]')?.click(); return; }
+    if (e.key === 'Enter' && e.target.id === 'nick') { e.preventDefault(); document.querySelector('[data-act=set-nick]')?.click(); return; }
     const tag = (e.target.tagName || '').toLowerCase();
     if (tag === 'input' || tag === 'textarea') return;
+    // Startbildschirm: Leertaste/Enter = Spielen
+    if (ui.screen) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); document.querySelector('#title [data-act=title-play], #title [data-act=profile-save]')?.click(); }
+      return;
+    }
     // Willkommens-Fenster: Leertaste/Enter weiter, Pfeile vor/zurück, Esc schließen
     if (ui.intro != null) {
       const intro = document.getElementById('intro');
