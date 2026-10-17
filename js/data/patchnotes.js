@@ -1,6 +1,12 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-17zh', date: '17.10.', title: 'Taverne mit Boni-Vorschau, sicheres Entlassen', items: [
+    'Taverne: oben die Boni-Leiste. Wählst du ein Angebot, leuchtet, was es dazugibt (+1, neue Stufe, Duo)',
+    'Angebote zeigen, ob sie einen Bonus freischalten, ein Duo bilden oder deine Bande näher an die nächste Stufe bringen',
+    'Entlassen braucht jetzt zwei Tipps: erst wird der Knopf rot („Wirklich?“), dann wird entlassen',
+    'Crew-Details als kleines Raster: Wappen, Level, Lebensbalken und Pfeile, ob Angriff, Leben und Tempo über oder unter dem Crew-Schnitt liegen. Genaue Zahlen per Finger halten',
+    'Musik auf dem Handy hörbar (auch mit Stummschalter am iPhone) und etwas lauter' ] },
   { v: '2026-10-17zg', date: '17.10.', title: 'Vier neue Banden, 19 neue Gesichter', items: [
     'Neu: Buggy-Piraten, Arlong-Bande, Revolutionsarmee und Rothaar-Piraten, jede mit eigenem Wappen und Set-Bonus',
     '19 neue Figuren zum Freischalten: Buggy, Alvida, Cabaji, Mohji, Hatchan, Kuroobi, Chu, Sabo, Ivankov, Koala, Dragon, Ben Beckman, Lucky Roo, Yasopp, Aokiji, Fukuro, Vista, Kuma und Perona',

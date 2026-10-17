@@ -75,7 +75,12 @@ window.GL = window.GL || {};
   function fitTag(run, d) {
     const before = GL.effects.status(run.crew), after = GL.effects.status(run.crew.concat([{ id: d.id, type: d.type, role: d.role, faction: d.faction }]));
     const gain = after.find((x, i) => x.active && x.active !== before[i].active);
-    return gain ? `<i class="fit-tag" title="Schaltet frei: ${esc(gain.name)}">+ Bonus</i>` : '';
+    if (gain) return `<i class="fit-tag" title="Schaltet frei: ${esc(gain.name)}">+ Bonus</i>`;
+    if (GL.effects.duosWith(run.crew, d.id).length) return `<i class="fit-tag duo" title="Bildet ein Duo">♥ Duo</i>`;
+    // Bande wächst: wie viele fehlen dann noch bis zur nächsten Stufe?
+    const near = after.find((x, i) => x.kind === 'faction' && before[i].count > 0 && x.count > before[i].count && x.next);
+    if (near) return `<i class="fit-tag near" title="${esc(near.name)}: ${near.count}/${near.next.n}">${pxIcon(near.key)}${near.count}/${near.next.n}</i>`;
+    return '';
   }
   function cmpArrow(a, b) {
     const r = (a - b) / Math.max(1, b);
@@ -204,18 +209,23 @@ window.GL = window.GL || {};
   }
 
   // Karte eines Crewmitglieds. Klick öffnet den Steckbrief.
-  function crewCard(u, i, hp) {
+  // Crew-Kachel im Puzzle-Stil: Bild, Wappen, Leben als Balken, Werte nur als Tendenz (Pfeile im Vergleich
+  // zum Crew-Schnitt). Genaue Zahlen per Hover/Finger-Halten, alles Weitere per Antippen im Steckbrief.
+  function crewCard(u, i, hp, avg) {
     const d = crewData(u.id);
     const dead = hp <= 0;
-    return `<div class="u member${dead ? ' dead' : ''}" role="button" tabindex="0" data-act="sheet" data-i="${i}" aria-label="Steckbrief von ${d.name}">
-      <b class="av">${GL.sprites.render(d)}</b>
-      <span class="u-name">${d.name} <em class="lv">Lv ${u.lvl}</em></span>
-      <small>${stars(u.stars)} ${traitChip(u.trait)}</small>
-      <small>${badge(u.type)} ATK ${u.atk} TMP ${u.spd}</small>
-      <small class="tags">${tags(d)}</small>
+    const A = avg || { atk: u.atk, max: u.max, spd: u.spd };
+    const t = u.trait ? trait(u.trait) : null;
+    const tip = `${d.name} · Lv ${u.lvl}\nLeben ${hp}/${u.max} · Angriff ${u.atk} · Tempo ${u.spd}${t ? '\n' + t.name + ': ' + t.text : ''}\nPfeile: im Vergleich zum Schnitt deiner Crew. Antippen für den Steckbrief.`;
+    const st = (ico, lbl, v, a) => `<span class="pz-st" aria-label="${lbl} ${v}"><i>${ico}</i>${cmpArrow(v, a)}</span>`;
+    return `<div class="u member pz${dead ? ' dead' : ''} role-bg-${d.role || ''}" role="button" tabindex="0" data-act="sheet" data-i="${i}" data-tip="${esc(tip)}" aria-label="Steckbrief von ${d.name}">
+      <span class="pz-top">${d.faction ? pxIcon(d.faction) : ''}${pxIcon(d.type)}${pxIcon(d.role)}<em class="pz-lv">${u.lvl}</em></span>
+      <b class="av">${GL.sprites.renderShaded ? GL.sprites.renderShaded(d) : GL.sprites.render(d)}</b>
+      ${dead ? `<span class="down-mark">${PX_GRAVE}<b>K.O.</b></span>` : ''}
+      <span class="u-name">${esc(d.name)}</span>
+      <span class="pz-stars">${stars(u.stars)}</span>
       <div class="bar"><i style="width:${Math.max(0, 100 * hp / u.max)}%"></i></div>
-      <small>Leben ${hp} von ${u.max}</small>
-      ${xpBar(u)}
+      <span class="pz-stats">${st('⚔', 'Angriff', u.atk, A.atk)}${st('♥', 'Leben', u.max, A.max)}${st('➤', 'Tempo', u.spd, A.spd)}</span>
       ${u.points > 0 ? `<span class="points-badge" title="Statuspunkte offen">+${u.points}</span>` : ''}
     </div>`;
   }
@@ -624,19 +634,26 @@ window.GL = window.GL || {};
       ${near ? `<div class="tr-head sub">Bündnisse in Reichweite</div>${near}` : ''}`;
   }
   // Handy: kompakte Leiste wie bei TFT. Ein Abzeichen pro Bonus mit Stufe, Tippen öffnet alle Details.
-  function synBar(run) {
-    const list = GL.effects.status(run.crew).filter(s => s.count > 0);
-    const duos = GL.effects.duos(run.crew), allies = GL.effects.alliances(run.crew);
+  function synBar(run, add) {
+    const crew = run.crew;
+    const before = GL.effects.status(crew);
+    const st = add ? GL.effects.status(crew.concat([{ id: add.id, type: add.type, role: add.role, faction: add.faction }])) : before;
+    const list = st.map((s, k) => Object.assign({}, s, { was: before[k] })).filter(s => s.count > 0);
+    const duos = GL.effects.duos(crew), allies = GL.effects.alliances(crew);
     if (!list.length) return '';
     const tierIdx = s => s.active ? s.tiers.indexOf(s.active) : -1;
-    list.sort((a, b) => (!!b.active - !!a.active) || (tierIdx(b) - tierIdx(a)) || (b.count - a.count));
+    list.sort((a, b) => ((b.count > b.was.count) - (a.count > a.was.count)) || (!!b.active - !!a.active) || (tierIdx(b) - tierIdx(a)) || (b.count - a.count));
     const lv = s => !s.active ? 'off' : tierIdx(s) === s.tiers.length - 1 ? 'gold' : tierIdx(s) >= 1 ? 'silver' : 'bronze';
-    const chip = s => `<span class="sb-c sb-${lv(s)}${s.kind === 'faction' ? ' sb-set' : ''}">
-        <i class="sb-ic">${ICON_ART[s.key] ? pxIcon(s.key) : esc(s.name.slice(0, 2))}</i><b>${s.count}</b>${s.next ? `<small>/${s.next.n}</small>` : ''}</span>`;
-    const on = list.filter(s => s.active), off = list.filter(s => !s.active);
-    return `<button class="sb" data-act="syn-open" aria-label="Alle Boni anzeigen">
-      <span class="sb-row">${on.map(chip).join('')}${allies.length ? `<span class="sb-c sb-ally"><i class="sb-ic">⚑</i><b>${allies.length}</b></span>` : ''}${duos.length ? `<span class="sb-c sb-duo"><i class="sb-ic">♥</i><b>${duos.length}</b></span>` : ''}${off.length ? `<span class="sb-sep"></span>${off.slice(0, 4).map(chip).join('')}` : ''}</span>
-      <span class="sb-more">Boni ▸</span></button>`;
+    const chip = s => {
+      const up = s.count > s.was.count, fresh = up && s.active && s.active !== s.was.active;
+      return `<span class="sb-c sb-${lv(s)}${s.kind === 'faction' ? ' sb-set' : ''}${up ? ' sb-up' : ''}${fresh ? ' sb-new' : ''}">
+        <i class="sb-ic">${ICON_ART[s.key] ? pxIcon(s.key) : esc(s.name.slice(0, 2))}</i><b>${s.count}</b>${s.next ? `<small>/${s.next.n}</small>` : ''}${up ? '<em class="sb-plus">+1</em>' : ''}</span>`;
+    };
+    const on = list.filter(s => s.active || s.count > s.was.count), off = list.filter(s => !s.active && !(s.count > s.was.count));
+    const newDuos = add ? GL.effects.duosWith(crew, add.id) : [];
+    return `<button class="sb${add ? ' sb-preview' : ''}" data-act="syn-open" aria-label="Alle Boni anzeigen">
+      <span class="sb-row">${on.map(chip).join('')}${allies.length ? `<span class="sb-c sb-ally"><i class="sb-ic">⚑</i><b>${allies.length}</b></span>` : ''}${duos.length || newDuos.length ? `<span class="sb-c sb-duo${newDuos.length ? ' sb-up sb-new' : ''}"><i class="sb-ic">♥</i><b>${duos.length + newDuos.length}</b>${newDuos.length ? '<em class="sb-plus">Duo!</em>' : ''}</span>` : ''}${off.length ? `<span class="sb-sep"></span>${off.slice(0, 4).map(chip).join('')}` : ''}</span>
+      <span class="sb-more">${add ? 'Mit ' + esc(add.name.split(' ')[0]) : 'Boni'} ▸</span></button>`;
   }
   function synPop(run) {
     return `<div class="fpop-card syn-pop">
@@ -847,7 +864,7 @@ window.GL = window.GL || {};
       <div class="sheet-foot">
         <button class="btn ghost" data-act="sheet-close">Schließen</button>
         ${u.id !== run.captain && run.crew.length > 1 && ['map', 'prep', 'recruit', 'fruit', 'treasure', 'awaken', 'event'].includes(run.phase)
-          ? `<button class="btn ghost danger-btn" data-act="dismiss" data-i="${i}">Entlassen (+${GL.run.sellValue(u)} Gold)</button>` : ''}
+          ? `<button class="btn ghost danger-btn${askDismiss(i) ? ' ask' : ''}" data-act="dismiss" data-i="${i}">${askDismiss(i) ? `Wirklich entlassen? Nochmal tippen (+${GL.run.sellValue(u)} Gold)` : `Entlassen (+${GL.run.sellValue(u)} Gold)`}</button>` : ''}
       </div>
     </div>`;
   }
@@ -1006,7 +1023,7 @@ window.GL = window.GL || {};
             <b class="tv-name">${esc(d.name)}</b>
             <span class="tv-tags">${d.faction ? pxIcon(d.faction) : ''}${pxIcon(d.type)}${pxIcon(d.role)}</span>
             <small class="tv-sub">${d.faction ? esc(FAC_SHORT[d.faction] || '') + ' · ' : ''}Lv ${m.lvl}</small>
-            <span class="tv-cmp">${overall ? arrow(overall) : fitTag(run, d)}</span>
+            <span class="tv-cmp">${overall ? arrow(overall) : ''}${fitTag(run, d)}</span>
             <span class="tv-price${can || o.sold ? '' : ' no'}">${o.sold ? 'Gekauft' : `${GL.sprites.coin()} ${price}`}</span>
           </button>`;
         }).join('');
@@ -1036,7 +1053,7 @@ window.GL = window.GL || {};
           const d = crewData(u.id), cap = u.id === run.captain;
           const down = u.hp <= 0;
           return `<span class="tv-mem pxf${weak && full && u === weak ? ' weak' : ''}${down ? ' down' : ''}"><i>${GL.sprites.render(d)}</i>${down ? `<span class="down-mark">${PX_GRAVE}<b>K.O.</b></span>` : ''}<small>${esc(d.name)}</small><em>${down ? 'Besiegt' : 'Lv ' + u.lvl}</em>
-            ${cap ? '<span class="tv-cap">Kapitän</span>' : `<button class="tv-x${down ? ' hot' : ''}" data-act="dismiss" data-i="${i}" title="Entlassen (+${GL.run.sellValue(u)} Gold)">✕ ${GL.run.sellValue(u)}</button>`}</span>`;
+            ${cap ? '<span class="tv-cap">Kapitän</span>' : askDismiss(i) ? `<button class="tv-x ask" data-act="dismiss" data-i="${i}">Wirklich? +${GL.run.sellValue(u)}</button>` : `<button class="tv-x${down ? ' hot' : ''}" data-act="dismiss" data-i="${i}" title="Entlassen (+${GL.run.sellValue(u)} Gold)">✕ ${GL.run.sellValue(u)}</button>`}</span>`;
         }).join('');
         const harbor = run.harbor ? `<div class="harbor-box pxf"><span class="event-kicker">${run.loop ? `Zwischenhafen · Runde ${run.loop + 1}` : 'Endlos-Fahrt · Hafen'}</span>
             <b>${run.loop ? 'Kurz durchatmen, dann wird es härter.' : 'Stell deine Crew zusammen, dann legst du ab.'}</b>
@@ -1044,6 +1061,7 @@ window.GL = window.GL || {};
         return `${harbor}<div class="tavern">
             <div class="tv-head"><h2>${run.harbor ? 'Hafentaverne' : 'Taverne'}</h2><span class="gold">${GL.sprites.coin()} <b>${gold}</b></span></div>
             ${run.shopFree ? '<p class="tv-free">Der erste Kauf ist gratis.</p>' : ''}
+            <div class="tv-syn">${synBar(run, sel != null && run.pool[sel] && !run.pool[sel].sold ? crewData(run.pool[sel].id) : null)}</div>
             <div class="tv-grid">${tiles}</div>
             ${detail}
             <div class="tv-crew-head"><span>Deine Crew ${run.crew.length}/${lim}</span>${downN ? `<span class="down-chip">${PX_GRAVE} ${downN} besiegt: austauschen oder bei einer Rast heilen</span>` : weak && full ? '<small><span class="weak-key"></span> = schwächste Figur, Pfeile vergleichen mit ihr</small>' : ''}</div>
@@ -1860,6 +1878,7 @@ window.GL = window.GL || {};
         <em class="goal-left">${pr.need > 1 ? `${pr.have}/${pr.need}` : left > 0 ? 'offen' : '✓'}</em></div>`;
     }).join('')}</div>`;
   }
+  const askDismiss = i => !!(GL.uiConfirm && GL.uiConfirm.i === i && Date.now() < GL.uiConfirm.until);
   // Pixel-Notenschlüssel als Musik-Schalter (an/aus)
   function musicBtn(cls) {
     const on = GL.music && GL.music.isOn();
@@ -2958,7 +2977,8 @@ window.GL = window.GL || {};
       $('#crew').classList.toggle('compact', !ui.crewOpen);
       $('#crew').title = 'Deine Crew. Vor jedem Kampf stellt sie sich automatisch auf: Brecher vorne, Helfer hinten.';
       $('#crew').innerHTML = ui.crewOpen
-        ? run.crew.map((u, i) => crewCard(u, i, inBattle ? anim.crewHp[i] : u.hp)).join('')
+        ? (() => { const n = Math.max(1, run.crew.length), avg = { atk: run.crew.reduce((a, u) => a + u.atk, 0) / n, max: run.crew.reduce((a, u) => a + u.max, 0) / n, spd: run.crew.reduce((a, u) => a + u.spd, 0) / n };
+            return run.crew.map((u, i) => crewCard(u, i, inBattle ? anim.crewHp[i] : u.hp, avg)).join(''); })()
         : run.crew.map((u, i) => miniCard(u, i).replace('class="crewmini', `class="crewmini${i === run.crew.findIndex(x => x.hp > 0) ? ' is-front' : ''}`)).join('') + `<div class="chips">${synergyChips(run)}${GL.effects.relicList(run).length ? `<span class="chip relic-chip">${GL.effects.relicList(run).length} ${GL.effects.relicList(run).length === 1 ? 'Schatz' : 'Schätze'}</span>` : ''}</div>`;
       const open = $('#syn details') && $('#syn details').open;
       if (ui.crewOpen) $('#syn').innerHTML = synergyPanel(run);

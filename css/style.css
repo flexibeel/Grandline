@@ -4224,3 +4224,49 @@ body { overscroll-behavior: none; -webkit-tap-highlight-color: transparent; }
 .tp-dots i:nth-child(2) { animation-delay: .2s; } .tp-dots i:nth-child(3) { animation-delay: .4s; }
 @keyframes tp-blink { 50% { opacity: .2; } }
 .fight-ctrl { display: flex; justify-content: center; }
+
+/* ---------- Crew als Puzzle-Raster (Details) ---------- */
+#crew:not(.compact) { display: grid !important; grid-template-columns: repeat(auto-fill, minmax(98px, 1fr)); gap: 6px; }
+#crew .u.member.pz { position: relative; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 5px 4px 6px !important; min-width: 0; text-align: center; cursor: pointer; }
+.pz-top { display: flex; align-items: center; gap: 2px; width: 100%; justify-content: flex-start; }
+.pz-top .px-ico { width: 14px; height: 14px; display: block; }
+.pz-top .px-ico svg { width: 100%; height: 100%; display: block; }
+.pz-lv { margin-left: auto; font: 700 11px/1 "Pixelify Sans", var(--px, monospace); font-style: normal; color: #fff; background: #6a4a30; padding: 2px 4px; }
+.pz-lv::before { content: 'Lv '; font-weight: 400; opacity: .8; }
+#crew .u.member.pz .av { display: block; width: 40px; height: 47px; margin: 0; }
+#crew .u.member.pz .av svg { width: 100%; height: 100%; }
+#crew .u.member.pz .u-name { font: 600 12.5px/1.1 "Pixelify Sans", var(--px, monospace); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+.pz-stars { font-size: 9px; line-height: 1; }
+#crew .u.member.pz .bar { width: 100%; height: 5px; margin: 1px 0; }
+.pz-stats { display: flex; gap: 3px; justify-content: center; width: 100%; }
+.pz-st { display: inline-flex; align-items: center; gap: 1px; padding: 1px 3px; background: rgba(120,90,50,.08); font-size: 10px; }
+.pz-st > i { font-style: normal; opacity: .7; font-size: 10px; }
+.pz-st .pa { transform: scale(.85); }
+#crew .u.member.pz.dead .av { filter: grayscale(1) brightness(.75); opacity: .5; }
+#crew .u.member.pz.dead .down-mark { top: 42%; }
+#crew .u.member.pz.role-bg-brecher { box-shadow: inset 0 -3px 0 #4f86c6; }
+#crew .u.member.pz.role-bg-kaempfer { box-shadow: inset 0 -3px 0 #d0564a; }
+#crew .u.member.pz.role-bg-helfer { box-shadow: inset 0 -3px 0 #5bb36c; }
+.tv-x.ask, .danger-btn.ask { background: #c0392b !important; color: #fff !important; animation: ask-pulse .6s steps(2) infinite; }
+@keyframes ask-pulse { 50% { filter: brightness(1.15); } }
+/* Boni-Vorschau in der Taverne */
+.tv-syn { margin: 2px 0 8px; }
+.tv-syn .sb { padding: 3px 5px; }
+.sb-c { position: relative; }
+.sb-up { outline: 2px solid #4f9a5a; outline-offset: 1px; }
+.sb-new { animation: sb-glow .9s steps(2) infinite; }
+@keyframes sb-glow { 50% { box-shadow: inset 0 2px 0 rgba(255,255,255,.45), inset 0 -2px 0 rgba(0,0,0,.2), 0 0 0 1px #2a1a10, 0 0 10px rgba(110,200,110,.9); } }
+.sb-plus { position: absolute; top: -9px; right: -5px; font: 700 9px/1 "Pixelify Sans", var(--px, monospace); font-style: normal; color: #fff; background: #4f9a5a; padding: 1px 3px; box-shadow: 0 0 0 1px #2a1a10; }
+.sb-preview .sb-more { color: #3a7a4a; }
+.sb-preview .sb-row { padding-top: 6px; }
+.fit-tag.duo { background: #c0507a !important; }
+.fit-tag.near { background: #d4a02e !important; color: #2a1c05 !important; display: inline-flex; align-items: center; gap: 2px; }
+.fit-tag.near .px-ico { width: 11px; height: 11px; display: inline-block; }
+.fit-tag.near .px-ico svg { width: 100%; height: 100%; display: block; }
+.tv-cmp { display: inline-flex; gap: 3px; align-items: center; justify-content: center; flex-wrap: wrap; }
+@media (min-width: 1280px) { .tv-syn .sb { display: flex; } .tv-syn { display: block !important; } }
+.tv-crew-head { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; }
+.tv-crew-head .down-chip { white-space: normal; margin-left: 0; font-size: 11px; }
+.tv-mem .down-mark { top: 30%; }
+.tv-mem .down-mark .px-grave { width: 18px; height: 20px; }
+.tv-mem .down-mark b { font-size: 9px; }

@@ -1028,7 +1028,18 @@
         break;
       }
       case 'leave': act({ type: 'leave' }); break;
-      case 'dismiss': act({ type: 'dismiss', index: i }); ui.sheet = null; draw(); break;
+      case 'dismiss': {
+        // Sicherheitsfrage ohne Fenster: erster Tipp färbt den Knopf rot („Wirklich?“), zweiter Tipp entlässt
+        const c = GL.uiConfirm;
+        if (!c || c.i !== i || Date.now() > c.until) {
+          GL.uiConfirm = { i, until: Date.now() + 3500 };
+          ui.lastStage = null; draw();
+          clearTimeout(ui.confirmT); ui.confirmT = setTimeout(() => { GL.uiConfirm = null; ui.lastStage = null; draw(); }, 3600);
+          break;
+        }
+        GL.uiConfirm = null; clearTimeout(ui.confirmT);
+        act({ type: 'dismiss', index: i }); ui.sheet = null; draw(); break;
+      }
       case 'tv-swap': {
         // Ein Tipp: Besiegte bzw. schwächste Figur entlassen und das Angebot direkt anheuern
         const j = Number(el.dataset.j);
