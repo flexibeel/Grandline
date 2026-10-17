@@ -3805,3 +3805,11 @@ body.cg-dragging { user-select: none; }
 /* Knöpfe: eckiger, wie Holzbretter */
 :root:not([data-theme="dark"]) .btn { border-radius: 4px !important; }
 :root:not([data-theme="dark"]) .hq-bar .pf-chip { border-style: solid !important; border-width: 6px !important; border-radius: 0 !important; border-image: var(--pxf-light) 4 fill / 6px / 0 stretch !important; background: transparent !important; box-shadow: none !important; }
+/* Run-Ansicht entschlacken: Wenn links die Boni-Leiste steht, nicht nochmal unter der Crew zeigen */
+@media (min-width: 1280px) { #syn .syn-row, #syn .syn-pending { display: none !important; } }
+/* Crew-Detailkarten im Pixel-Rahmen, kompakter */
+:root:not([data-theme="dark"]) #crew:not(.compact) .member, :root:not([data-theme="dark"]) .crewmini { border-radius: 0 !important; }
+:root:not([data-theme="dark"]) .traits .tr-row, :root:not([data-theme="dark"]) .traits > div:not(.tr-head) { border-radius: 0 !important; }
+:root:not([data-theme="dark"]) #crew .u.member, :root:not([data-theme="dark"]) .traits .tr { border-style: solid !important; border-width: 6px !important; border-radius: 0 !important;
+  border-image: var(--pxf-light) 4 fill / 6px / 0 stretch !important; background: transparent !important; box-shadow: none !important; }
+:root:not([data-theme="dark"]) .traits .tr.tr-set { border-image-source: var(--pxf-gold) !important; }

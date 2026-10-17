@@ -1,11 +1,12 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
-  { v: '2026-10-17x', date: '17.10.', title: 'Pixel-Look und neue Taverne', items: [
+  { v: '2026-10-17y', date: '17.10.', title: 'Pixel-Look und neue Taverne', items: [
     'Holzrahmen im Pixel-Stil statt runder Ecken: Hauptquartier, Schilder, Fenster, Spielfläche',
     'Taverne kompakt: Angebote als Kästchen nebeneinander, Antippen zeigt Details und „Anheuern“, deine Crew direkt darunter',
     'Pixel-Pfeile vergleichen jedes Angebot mit deiner schwächsten Figur (grün besser, rot schlechter, zwei Pfeile = deutlich)',
-    'Entlassen direkt an der Figur, die schwächste ist rot umrahmt' ] },
+    'Entlassen direkt an der Figur, die schwächste ist rot umrahmt',
+    'Am PC stehen die Boni nur noch links in der Leiste, nicht doppelt unter der Crew' ] },
   { v: '2026-10-17w', date: '17.10.', title: 'Gemütlicher Hafen', items: [
     'Neuer Hintergrund: Himmel, Meer und ein Holzsteg statt leerem Beige. Fenster und Hauptquartier wie Pergament mit Holzrahmen',
     'Alles auf einen Blick: unter „Leinen los“ stehen Endlos-Fahrt, Tageskarte und Raid-Ziel als Schilder nebeneinander',
