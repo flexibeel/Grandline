@@ -271,6 +271,31 @@ window.GL = window.GL || {};
     // ---------- Stammcrew: feste Offline-Crew, gegen die andere Spieler antreten können ----------
     // Level wächst mit dem Piratenrang, Werft-Ausbauten zählen mit, Synergien gelten wie im Run.
     squadSize: 4,
+    // Endgame: Stammcrew und Crew-Liga erst nach einem gewonnenen Run oder ab Rang 10
+    squadUnlocked(profile) { return (profile.stats && profile.stats.wins > 0) || GL.meta.rankIndex(profile) >= 9; },
+    // Crew-Liga nach Rating (Elo, Start 1000)
+    leagues: [
+      { id: 'planke', name: 'Planken-Liga', min: 0, col: '#8a7a66' },
+      { id: 'bronze', name: 'Bronze-Liga', min: 900, col: '#cf8446' },
+      { id: 'silber', name: 'Silber-Liga', min: 1050, col: '#9aa5b2' },
+      { id: 'gold', name: 'Gold-Liga', min: 1200, col: '#e0a92a' },
+      { id: 'diamant', name: 'Diamant-Liga', min: 1400, col: '#4fb6d8' },
+      { id: 'legende', name: 'Legenden-Liga', min: 1600, col: '#8a4fd0' }
+    ],
+    league(rating) {
+      const r = rating == null ? 1000 : rating;
+      return GL.meta.leagues.filter(l => r >= l.min).pop();
+    },
+    // Rating nach einem Duell (nur das eigene ändert sich; K = 32)
+    squadRate(profile, oppRating, win) {
+      const me = profile.squadRating == null ? 1000 : profile.squadRating;
+      const opp = oppRating == null ? 1000 : oppRating;
+      const exp = 1 / (1 + Math.pow(10, (opp - me) / 400));
+      const delta = Math.round(32 * ((win ? 1 : 0) - exp));
+      profile.squadRating = Math.max(0, me + delta);
+      profile.squadBest = Math.max(profile.squadBest || 0, profile.squadRating);
+      return delta;
+    },
     squadPool(profile) {
       const ids = (profile.char && profile.nickname ? ['self'] : []).concat(GL.config.starters, profile.unlocked || []);
       return ids.filter((v, i, a) => a.indexOf(v) === i && (v === 'self' || GL.data.crew.some(c => c.id === v && !c.self)));

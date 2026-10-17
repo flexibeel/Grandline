@@ -243,16 +243,18 @@
   }
 
   function startSquadDuel(row) {
+    if (!GL.meta.squadUnlocked(profile)) { toast('<span><b>Noch gesperrt</b>Die Stammcrew gibt es nach deinem ersten gewonnenen Run oder ab Rang 10.</span>'); return; }
     if (ui.squadFight && ui.squadFight.timer) clearTimeout(ui.squadFight.timer);
     const res = GL.squad.fight(GL.meta.squadRefs(profile), row.squad, (Date.now() ^ (Math.random() * 1e9)) >>> 0);
     if (res.win) profile.squadW = (profile.squadW || 0) + 1; else profile.squadL = (profile.squadL || 0) + 1;
+    const ratingDelta = GL.meta.squadRate(profile, row.npc ? (profile.squadRating == null ? 1000 : profile.squadRating) - 80 : row.squadRating, res.win);
     const xp = GL.meta.squadGainXp ? GL.meta.squadGainXp(profile, res.me.map(r => r.id), res.win) : null;
     // Darstellung im Kampffeld: Figuren in Startzustand, fremder Pirat mit eigenem Aussehen
     const dRun = { step: 0, seed: 1, captain: res.me[0] && res.me[0].id,
       crew: res.me.map(r => Object.assign({}, r, { hp: r.max, def: r.id === 'self' ? { id: 'self', name: r.name, look: r.look, type: r.type } : null })),
       battle: { kind: 'duel', events: res.events, shown: false,
         enemies: res.foe.map(r => Object.assign({}, r, { hp: r.max, def: r.id === 'rival' ? { id: 'self', name: r.name, look: r.look, type: r.type } : null })) } };
-    ui.squadFight = { id: row.id, res, xp, playing: true, i: 0, dRun, theirName: row.name };
+    ui.squadFight = { id: row.id, res, xp, ratingDelta, playing: true, i: 0, dRun, theirName: row.name };
     saveProfile(); draw();
     GL.arena.mounted(dRun);
     ui.squadFight.timer = setTimeout(playDuel, 900);
@@ -383,8 +385,9 @@
         const st = GL.online.state();
         const mine = GL.meta.squadPower(GL.meta.squadRefs(profile));
         const me = String(profile.nickname || '').trim().toLowerCase();
-        const pool = (st.rows || []).filter(x => x.id !== st.uid && (x.squad || []).length && String(x.name || '').trim().toLowerCase() !== me)
-          .map(x => ({ x, d: Math.abs((x.squadPower || GL.meta.squadPower(x.squad)) - mine) })).sort((p, q) => p.d - q.d).slice(0, 3);
+        const myR = profile.squadRating == null ? 1000 : profile.squadRating;
+        const pool = (st.rows || []).filter(x => x.id !== st.uid && x.squadOn && (x.squad || []).length && String(x.name || '').trim().toLowerCase() !== me)
+          .map(x => ({ x, d: Math.abs((x.squadPower || GL.meta.squadPower(x.squad)) - mine) + Math.abs((x.squadRating || 1000) - myR) / 4 })).sort((p, q) => p.d - q.d).slice(0, 3);
         let row = pool.length ? pool[Math.floor(Math.random() * pool.length)].x : null;
         if (!row) {
           // Niemand passendes online: Übungscrew der Marine auf deinem Niveau

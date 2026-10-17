@@ -2839,3 +2839,36 @@ button, .opt, .map-node, .lb-row { touch-action: manipulation; }
 .opt.card.armed::after, .opt.course-opt.armed::after { display: none; }
 .login-code { width: 100%; margin-top: 4px; }
 .login-code summary { cursor: pointer; font-size: .82rem; color: var(--mute); }
+
+/* ---------- Crew-Liga ---------- */
+.league-chip { display: inline-flex; align-items: center; gap: 4px; font-style: normal; font-size: .66rem; font-weight: 800; padding: 2px 7px; border-radius: 999px;
+  color: #fff; background: var(--lc, #8a7a66); box-shadow: 0 2px 0 rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.35); white-space: nowrap; vertical-align: middle; }
+.league-chip b { font-family: var(--px); font-size: .8rem; }
+.lg-planke { --lc: #8a7a66; } .lg-bronze { --lc: #cf8446; } .lg-silber { --lc: #8f9aa8; } .lg-gold { --lc: #d99a1e; }
+.lg-diamant { --lc: linear-gradient(90deg, #4fb6d8, #8ae0f0); background: linear-gradient(90deg, #3aa2c8, #6fd0e8); }
+.lg-legende { background: linear-gradient(90deg, #8a4fd0, #d0508a, #e0a92a); background-size: 200% 100%; animation: tag-run 3s linear infinite; }
+.sq-league { display: grid; justify-items: end; gap: 3px; }
+.sq-league small { color: var(--mute); font-size: .7rem; }
+.sq-mini { display: inline-flex; gap: 1px; vertical-align: middle; }
+.sq-mini i svg { width: 18px; height: 21px; shape-rendering: crispEdges; display: block; }
+.lb-crew { display: flex; align-items: center; gap: 6px; margin-top: 2px; }
+.squad-locked { display: grid; justify-items: center; text-align: center; gap: 8px; padding: 18px; }
+.squad-locked .sl-art { filter: grayscale(1) opacity(.5); }
+.squad-locked .sl-art .sq-mini i svg { width: 34px; height: 40px; }
+.duel-rating { margin: 0; font-size: .9rem; font-weight: 700; }
+/* Podest: stärkste Stammcrews */
+.podium { margin: 10px 0 6px; }
+.pod-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; align-items: end; }
+.pod { all: unset; box-sizing: border-box; cursor: pointer; position: relative; display: grid; justify-items: center; gap: 4px; padding: 10px 6px 34px; border-radius: 14px 14px 8px 8px;
+  background: var(--panel); border: 1px solid var(--edge, var(--line)); text-align: center; box-shadow: 0 1px 0 #fff inset, 0 4px 0 var(--edge, var(--line)); }
+.pod b { font-size: .8rem; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pod .sq-mini i svg { width: 22px; height: 26px; }
+.pod.p1 { padding-bottom: 54px; background: linear-gradient(180deg, #fff8e0, var(--panel)); border-color: #f2c94c; }
+.pod.p1 .sq-mini i svg { width: 28px; height: 33px; }
+.pod.p2 { padding-bottom: 40px; }
+.pod-step { position: absolute; bottom: 6px; left: 50%; transform: translateX(-50%); font-family: var(--px); font-weight: 700; font-size: 1.3rem; color: var(--mute); }
+.pod.p1 .pod-step { color: #c08a2e; font-size: 1.7rem; }
+.pod:hover { transform: translateY(-2px); }
+.lb-who em.league-chip { background: var(--lc) !important; font-size: .62rem; padding: 2px 7px; vertical-align: 0; }
+.lb-who em.league-chip.lg-diamant { background: linear-gradient(90deg, #3aa2c8, #6fd0e8) !important; }
+.lb-who em.league-chip.lg-legende { background: linear-gradient(90deg, #8a4fd0, #d0508a, #e0a92a) !important; background-size: 200% 100% !important; }

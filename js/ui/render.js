@@ -1044,6 +1044,7 @@ window.GL = window.GL || {};
     { id: 'wins',      name: 'Siege',             get: x => x.wins,      unit: 'gewonnene Runs' },
     { id: 'rankXp',    name: 'Piratenrang',       get: x => x.rankXp,    unit: 'Rang-EP' },
     { id: 'artifacts', name: 'Artefakte',         get: x => x.artifacts, unit: 'Artefakte gefunden' },
+    { id: 'squadRating', name: 'Crew-Liga',       get: x => x.squadOn ? (x.squadRating || 1000) : 0, unit: 'Crew-Rating' },
     { id: 'squadW',    name: 'Duell-Siege',       get: x => x.squadW,    unit: 'Stammcrew-Siege' }
   ];
   // Dein Profil als Karte: Name, Rang, wichtigste Werte
@@ -1070,6 +1071,13 @@ window.GL = window.GL || {};
     </div>`;
   }
   // ---------- Stammcrew ----------
+  function leagueChip(rating, withNum) {
+    const L = GL.meta.league(rating);
+    return `<em class="league-chip lg-${L.id}" title="${L.name}: ${rating == null ? 1000 : rating} Crew-Rating">⚔ ${L.name.replace('-Liga', '')}${withNum ? ` <b>${rating == null ? 1000 : rating}</b>` : ''}</em>`;
+  }
+  function squadMini(refs) {
+    return `<span class="sq-mini">${(refs || []).slice(0, 4).map(r => `<i>${squadSprite(r)}</i>`).join('')}</span>`;
+  }
   function squadSprite(r) {
     const d = (r.id === 'self' || r.id === 'rival') ? { id: 'self', name: r.name, look: r.look } : crewData(r.id);
     return d ? GL.sprites.render(d) : '';
@@ -1084,6 +1092,14 @@ window.GL = window.GL || {};
     }).join('')}</div>`;
   }
   function squadSection(profile) {
+    if (!GL.meta.squadUnlocked(profile)) {
+      return `<section class="hq-sec squad-sec squad-locked">
+        <div class="sl-art">${squadMini(GL.meta.squadRefs(profile))}</div>
+        <b>🔒 Stammcrew & Crew-Liga</b>
+        <p class="hint">Dein Endgame: Stell eine feste Crew auf, die dich auch offline verteidigt. Fordere andere Crews heraus, steig von der Planken- bis zur Legenden-Liga auf und zeig in der Rangliste, wer die stärkste Crew hat.</p>
+        <small class="muted">Freigeschaltet nach deinem ersten gewonnenen Run oder ab Rang 10.</small>
+      </section>`;
+    }
     const refs = GL.meta.squadRefs(profile);
     const pool = GL.meta.squadPool(profile);
     const ids = GL.meta.squadIds(profile);
@@ -1101,7 +1117,9 @@ window.GL = window.GL || {};
       <div class="squad-head">
         <div><span class="event-kicker">Deine Stammcrew</span>
           <b class="squad-power">⚔ ${GL.meta.squadPower(refs)} Stärke</b>
-          <small>Level ${GL.meta.squadLevel(profile)} (wächst mit deinem Rang) · ${w} Siege, ${l} Niederlagen</small></div>
+          <small>Level ${GL.meta.squadLevel(profile)} · ${w} Siege, ${l} Niederlagen</small></div>
+        ${(() => { const r = profile.squadRating == null ? 1000 : profile.squadRating; const L = GL.meta.league(r); const nx = GL.meta.leagues.find(x => x.min > r);
+          return `<div class="sq-league">${leagueChip(r, true)}<small>${nx ? `noch ${nx.min - r} bis ${nx.name}` : 'höchste Liga'}</small></div>`; })()}
       </div>
       ${squadRow(refs)}
       <button class="btn squad-match" data-act="squad-match">⚔ Gegner suchen <small>ähnliche Stärke</small></button>
@@ -1154,13 +1172,15 @@ window.GL = window.GL || {};
         </div></div>`;
       return sf.html;
     }
-    const sq = (x.squad || []).length
-      ? `<div class="pcard-sec"><b>Stammcrew ${x.squadPower ? `<small>⚔ ${x.squadPower}</small>` : ''}</b>${squadRow(x.squad)}
-          ${isMe ? '' : `<button class="btn pcard-duel" data-act="squad-fight" data-id="${esc(x.id)}">⚔ ${res ? 'Nochmal herausfordern' : 'Herausfordern'}</button>`}</div>`
-      : `<div class="pcard-sec"><b>Stammcrew</b><small class="muted">Noch keine Stammcrew aufgestellt.</small></div>`;
+    const meOn = GL.meta.squadUnlocked(ui && ui.profile ? ui.profile : {});
+    const sq = (x.squadOn || x.npc) && (x.squad || []).length
+      ? `<div class="pcard-sec"><b>Stammcrew ${leagueChip(x.squadRating, true)} ${x.squadPower ? `<small>⚔ ${x.squadPower} Stärke</small>` : ''}</b>${squadRow(x.squad)}
+          ${isMe ? '' : meOn ? `<button class="btn pcard-duel" data-act="squad-fight" data-id="${esc(x.id)}">⚔ ${res ? 'Nochmal herausfordern' : 'Herausfordern'}</button>` : '<small class="muted">Herausfordern geht nach deinem ersten gewonnenen Run oder ab Rang 10.</small>'}</div>`
+      : '';
     if (res) return `<div class="pcard-bg" data-act="lb-view-close"><div class="pcard" data-act="noop">
         <button class="link pcard-close" data-act="lb-view-close">✕</button>
         ${duelReport(res, x.name || 'Gegner')}
+        ${sf && sf.ratingDelta != null ? `<p class="duel-rating">Crew-Rating ${sf.ratingDelta >= 0 ? '+' : ''}${sf.ratingDelta} → ${leagueChip(ui.profile.squadRating, true)}</p>` : ''}
         ${sf && sf.xp ? `<p class="duel-xp">Stammcrew-EP: +${sf.xp.gain} für jede Figur${sf.xp.ups.length ? ` · <b>Level-up: ${sf.xp.ups.map(esc).join(', ')}</b>` : ''}</p>` : ''}
         <div class="duel-actions"><button class="btn" data-act="squad-fight" data-id="${esc(x.id)}">⚔ Nochmal</button>
           <button class="btn ghost" data-act="squad-back">Zur Visitenkarte</button></div>
@@ -1220,7 +1240,8 @@ window.GL = window.GL || {};
         <span class="lb-pos">${k + 1}</span>
         <span class="lb-cap">${x.look ? portrait(x.look, x.cos, 'sm') : cap ? GL.sprites.render(cap) : ''}</span>
         <span class="lb-who"><b>${medal(GL.meta.rankIndex({ rankXp: x.rankXp || 0 }), 'tiny')} ${esc(x.name || 'Unbekannter Pirat')} ${badgeIcon(x.cos)}${x.id === st.uid ? ' <em>du</em>' : ''}${x.cos && x.cos.star ? ' <em class="admin-tag" title="Der Entwickler dieses Spiels. Unbesiegbar (fast).">★ Entwickler</em>' : ''}</b>
-          <small>${x.cos && x.cos.title ? esc(titleName(x.cos.title)) + ' · ' : ''}${esc(x.rank || '')}${extra ? ' · ' + extra : ''}</small></span>
+          <small>${x.cos && x.cos.title ? esc(titleName(x.cos.title)) + ' · ' : ''}${esc(x.rank || '')}${extra ? ' · ' + extra : ''}</small>
+          ${x.squadOn && (x.squad || []).length ? `<span class="lb-crew">${squadMini(x.squad)}${leagueChip(x.squadRating)}</span>` : ''}</span>
         <span class="lb-score"><b>${fmt(value)}</b><small>${unit}</small></span>
       </li>`;
     };
@@ -1255,6 +1276,17 @@ window.GL = window.GL || {};
       ${nameBox}
       ${myCard(profile, mine, best, fmt)}
       ${duelBox}
+      ${(() => {
+        const top = (st.rows || []).filter(x => x.squadOn && (x.squad || []).length).sort((a, b) => (b.squadRating || 1000) - (a.squadRating || 1000)).slice(0, 3);
+        if (!top.length) return '';
+        const order = top.length === 3 ? [top[1], top[0], top[2]] : top;
+        return `<div class="podium"><div class="lbl">Stärkste Stammcrews</div><div class="pod-row">${order.map(x => {
+          const place = top.indexOf(x) + 1;
+          return `<button class="pod p${place}" data-act="lb-view" data-id="${esc(x.id)}">
+            <span class="pod-crew">${squadMini(x.squad)}</span>
+            <b>${esc(x.name || 'Pirat')}</b>${leagueChip(x.squadRating, true)}
+            <span class="pod-step">${place}</span></button>`; }).join('')}</div></div>`;
+      })()}
       <div class="lbl">Rangliste</div>
       ${chips}
       ${table}

@@ -19,7 +19,7 @@ window.GL = window.GL || {};
 
   // Gleicher Name = gleicher Spieler (z. B. neues Gerät, neue Sitzung): nur einmal zeigen.
   // Eigener Eintrag hat Vorrang, Bestwerte aus den alten Einträgen werden übernommen.
-  const MAXF = ['score', 'wins', 'runs', 'topBounty', 'bestDmg', 'maxHit', 'totalDmg', 'kos', 'crits', 'bossKills', 'rankXp', 'artifacts', 'heatMax', 'captains', 'squadW'];
+  const MAXF = ['score', 'wins', 'runs', 'topBounty', 'bestDmg', 'maxHit', 'totalDmg', 'kos', 'crits', 'bossKills', 'rankXp', 'artifacts', 'heatMax', 'captains', 'squadW', 'squadRating'];
   function dedupe(rows) {
     const groups = {};
     const out = [];
@@ -235,6 +235,8 @@ window.GL = window.GL || {};
       squad: GL.meta.squadRefs(profile),
       squadPower: GL.meta.squadPower(GL.meta.squadRefs(profile)),
       squadW: profile.squadW || 0,
+      squadOn: GL.meta.squadUnlocked(profile),
+      squadRating: profile.squadRating == null ? 1000 : profile.squadRating,
       captains: (profile.unlocked || []).length + GL.config.starters.length,
       updated: new Date().toISOString()
     };
