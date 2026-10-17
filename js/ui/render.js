@@ -1399,7 +1399,7 @@ window.GL = window.GL || {};
     const st = GL.online ? GL.online.state() : {};
     if (st.backend !== 'supabase') return '';
     return !st.anon && st.email
-      ? `<p class="acc-line">✓ Account: <b>${esc(st.email)}</b></p>`
+      ? `<p class="acc-line">✓ Angemeldet: <b>${esc(st.email)}</b> <button class="link" data-act="login-open">Konto</button></p>`
       : `<p class="acc-line">Noch nicht mit einer Mail verbunden. <button class="link" data-act="login-open">Jetzt sichern</button></p>`;
   }
 
@@ -1477,7 +1477,7 @@ window.GL = window.GL || {};
       <p class="ts-foot">${esc(document.querySelector('footer.fan') ? document.querySelector('footer.fan').textContent : '')}</p>
     </div>`;
   }
-  function loginScreen(profile) {
+  function loginScreen(profile, ui) {
     const st = GL.online ? GL.online.state() : {};
     const back = `<button class="link login-back" data-act="login-back">‹ Zurück</button>`;
     if (st.backend !== 'supabase') {
@@ -1488,8 +1488,9 @@ window.GL = window.GL || {};
     if (!st.anon && st.email) {
       return `<div class="ts-inner login-card">${back}
         <div class="login-icon">✓</div><h2>Angemeldet</h2>
-        <p class="hint">Dieser Account ist mit <b>${esc(st.email)}</b> verknüpft. Auf jedem Gerät reicht „Anmelden“ mit dieser Adresse, dein Fortschritt ist immer dabei.</p>
-        <button class="btn" data-act="login-back">Fertig</button></div>`;
+        <p class="hint">Angemeldet als <b>${esc(st.email)}</b>. Du bleibst angemeldet, bis du dich abmeldest. Auf jedem anderen Gerät reicht „Anmelden“ mit dieser Adresse.</p>
+        <button class="btn" data-act="login-back">Fertig</button>
+        <button class="link" data-act="logout">${ui && ui.logoutArmed ? 'Wirklich abmelden? Nochmal tippen' : 'Abmelden'}</button></div>`;
     }
     // Schritt 2: Mail ist raus, Code eintippen (oder Link in der Mail antippen)
     if (st.mailSent) {
@@ -2060,7 +2061,7 @@ window.GL = window.GL || {};
       titleEl.hidden = !ui.screen;
       document.body.classList.toggle('on-title', !!ui.screen);
       if (ui.screen) {
-        const html = ui.screen === 'profile' ? profileScreen(ui.profile, ui) : ui.screen === 'login' ? loginScreen(ui.profile) : titleScreen(run, ui.profile);
+        const html = ui.screen === 'profile' ? profileScreen(ui.profile, ui) : ui.screen === 'login' ? loginScreen(ui.profile, ui) : titleScreen(run, ui.profile);
         if (titleEl.dataset.last !== html) {
           titleEl.innerHTML = html; titleEl.dataset.last = html;
           if (ui.screen === 'profile') setTimeout(() => { const i = $('#pf-name'); if (i) i.focus(); }, 30);

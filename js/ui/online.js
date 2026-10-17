@@ -104,7 +104,15 @@ window.GL = window.GL || {};
       if (error) return;
       state.cloud = true;
       const local = profileRef;
-      if (d && d.data && !d.data.wiped && (!local || (d.data.savedAt || 0) > (local.savedAt || 0) + 1000) && onRemote) onRemote(d.data);
+      // Neues Konto auf diesem Gerät (z. B. gerade angemeldet): der Online-Spielstand hat immer Vorrang,
+      // sonst könnte ein frisch angelegter Pirat den echten Fortschritt überschreiben.
+      let lastUid = null;
+      try { lastUid = localStorage.getItem('grandline.uid'); localStorage.setItem('grandline.uid', state.uid); } catch (e) { /* egal */ }
+      const switched = !!lastUid && lastUid !== state.uid;
+      const remote = d && d.data && !d.data.wiped ? d.data : null;
+      const remoteBetter = remote && (!local || switched || (remote.savedAt || 0) > (local.savedAt || 0) + 1000
+        || (!state.anon && (remote.rankXp || 0) > (local.rankXp || 0)));
+      if (remoteBetter && onRemote) onRemote(remote);
       else if (local && local.nickname) pushSave(local);   // erster Upload von diesem Gerät
     } catch (e) { /* ohne Tabelle läuft alles lokal weiter */ }
   }
@@ -130,6 +138,11 @@ window.GL = window.GL || {};
     if (error) return { ok: false, msg: niceError(error) };
     state.mailSent = email; state.mailKind = 'login'; emit();
     return { ok: true };
+  }
+  // Abmelden: Sitzung beenden, dieses Gerät startet danach frisch (Fortschritt bleibt online im Konto)
+  async function logout() {
+    clearTimeout(pushTimer);
+    try { if (client) await client.auth.signOut(); } catch (e) { /* egal */ }
   }
   // 6-stelliger Code aus der Mail: Anmelden im selben Fenster, ohne Link
   async function verifyCode(code) {
@@ -305,6 +318,6 @@ window.GL = window.GL || {};
     return register(profile);
   }
 
-  GL.online = { init, submit, rename, register, pushSave, linkEmail, loginEmail, verifyCode, wipe, liveFields,
+  GL.online = { init, submit, rename, register, pushSave, linkEmail, loginEmail, verifyCode, logout, wipe, liveFields,
     onRemoteProfile(fn) { onRemote = fn; }, state: () => state, onChange(fn) { listeners.push(fn); } };
 })();

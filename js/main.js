@@ -293,6 +293,7 @@
 
     if (type !== 'restart') ui.restartArmed = false;
     if (type !== 'acc-reset' && type !== 'acc-delete') ui.accArmed = null;
+    if (type !== 'logout') ui.logoutArmed = false;
 
     switch (type) {
       case 'node': act({ type: 'node', index: i }); break;
@@ -505,6 +506,17 @@
           if (!res.ok) toast(`<span><b>Hat nicht geklappt</b>${res.msg}</span>`);
           ui.lastStage = null; draw();
         });
+        break;
+      }
+      case 'logout': {
+        if (!ui.logoutArmed) { ui.logoutArmed = true; const t = document.getElementById('title'); if (t) t.dataset.last = ''; draw(); break; }
+        el.disabled = true; el.textContent = 'Melde ab …';
+        const done = () => {
+          // Lokale Kopie weg, damit kein zweiter Eintrag mit deinem Namen entsteht. Online bleibt alles im Konto.
+          try { ['grandline.run', 'grandline.profile', 'grandline.best', 'grandline.uid'].forEach(k => localStorage.removeItem(k)); sessionStorage.removeItem('gl.pulled'); } catch (e2) { /* egal */ }
+          location.reload();
+        };
+        Promise.race([GL.online.logout(), new Promise(r => setTimeout(r, 3000))]).then(done, done);
         break;
       }
       case 'mail-code': {
