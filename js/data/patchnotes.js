@@ -1,6 +1,10 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-17zb', date: '17.10.', title: 'Stammcrew vergleichen', items: [
+    'Alle Figuren in der Stammcrew-Auswahl zeigen Leben, Angriff und Tempo, mit Pixel-Pfeilen im Vergleich zu deiner schwächsten aufgestellten Figur',
+    'Duell-Vorschau: Platz gegen Platz, deine Figur neben der gegnerischen, jeweils mit Pfeilen, wer stärker ist',
+    'Fenster liegen jetzt immer über der unteren Leiste' ] },
   { v: '2026-10-17za', date: '17.10.', title: 'Runder, räumlicher, schneller', items: [
     'Pixel-Rahmen mit rund gezeichneten Ecken, Knöpfe mit Tiefe, die sich beim Antippen eindrücken',
     'Fenster gleiten sanft herein',

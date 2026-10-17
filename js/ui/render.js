@@ -28,6 +28,11 @@ window.GL = window.GL || {};
   // Kleine Pixel-Pfeile für Vergleiche (besser/schlechter)
   const PX_UP = '<svg viewBox="0 0 5 3" aria-hidden="true"><rect x="2" y="0" width="1" height="1"/><rect x="1" y="1" width="3" height="1"/><rect x="0" y="2" width="5" height="1"/></svg>';
   const PX_DOWN = '<svg viewBox="0 0 5 3" aria-hidden="true"><rect x="0" y="0" width="5" height="1"/><rect x="1" y="1" width="3" height="1"/><rect x="2" y="2" width="1" height="1"/></svg>';
+  function cmpArrow(a, b) {
+    const r = (a - b) / Math.max(1, b);
+    const k = r >= 0.2 ? 'uu' : r >= 0.05 ? 'u' : r <= -0.2 ? 'dd' : r <= -0.05 ? 'd' : 'e';
+    return k === 'e' ? '<i class="pa pa-eq">=</i>' : `<i class="pa ${k[0] === 'u' ? 'pa-up' : 'pa-dn'}">${k.split('').map(() => k[0] === 'u' ? PX_UP : PX_DOWN).join('')}</i>`;
+  }
   const ROLE_ICON = { brecher: '🛡', kaempfer: '⚔', helfer: '✚' };
   const ROLE_HINT = { brecher: 'Tank', kaempfer: 'Schaden', helfer: 'Heiler' };
   function roleBadge(role) {
@@ -1326,7 +1331,10 @@ window.GL = window.GL || {};
       <span class="fpop-kicker">Gegner gefunden</span>
       <h3 id="fpop-t">${esc(row.name || 'Pirat')}</h3>
       <small class="muted">${esc(row.rank || '')} ${row.squadRating ? leagueChip(row.squadRating, true) : ''}</small>
-      <div class="mp-crew">${squadRow(row.squad)}</div>
+      ${(() => { const mineR = GL.meta.squadRefs(profile), n = Math.max(mineR.length, (row.squad || []).length);
+        const cell = (r, o) => r ? `<span class="h2h-u"><i>${squadSprite(r)}</i><b>${esc(r.name)}</b><small>♥${r.max}${o ? cmpArrow(r.max, o.max) : ''} ⚔${r.atk}${o ? cmpArrow(r.atk, o.atk) : ''} ➤${r.spd}${o ? cmpArrow(r.spd, o.spd) : ''}</small></span>` : '<span class="h2h-u empty">–</span>';
+        return `<div class="h2h"><div class="h2h-head"><span>Deine Crew</span><span>Platz</span><span>Gegner</span></div>${Array.from({ length: n }, (_, i) =>
+          `<div class="h2h-row">${cell(mineR[i], (row.squad || [])[i])}<em>${i + 1}</em>${cell((row.squad || [])[i], null)}</div>`).join('')}</div>`; })()}
       ${(row.squad || []).some(r => (r.gear || []).length) ? `<div class="mp-gear">${row.squad.map(r => (r.gear || []).map(g => `<span class="mp-g cr-${GL.cgear.RID[g.r]}" title="${esc(GL.cgear.name(g))}">${cgArt(g)}</span>`).join('')).join('')}</div>` : ''}
       <div class="mp-vs"><span><small>Deine Crew</small><b>⚔ ${mine}</b></span><em>VS</em><span><small>Gegner</small><b>⚔ ${theirs}</b></span></div>
       <div class="mp-chance ch-${ch}"><span>Siegchance</span><b>${chance} %</b><i style="width:${chance}%"></i></div>
@@ -1347,13 +1355,20 @@ window.GL = window.GL || {};
     const pool = GL.meta.squadPool(profile);
     const ids = GL.meta.squadIds(profile);
     const N = GL.meta.squadSize;
+    // Jede Figur mit Werten; wer nicht dabei ist, wird mit der schwächsten aufgestellten Figur verglichen (Pixel-Pfeile)
+    const pw = r => r.max * 0.5 + r.atk * 4 + r.spd * 2;
+    const weakest = refs.slice().sort((a, b) => pw(a) - pw(b))[0];
+    const refOf = id => GL.meta.squadRefs(Object.assign({}, profile, { squad: [id] }))[0];
     const pick = pool.map(id => {
       const d = id === 'self' ? avatarOf(profile) : crewData(id);
       const dd = id === 'self' ? { type: profile.char.type, role: profile.char.role } : d;
       const k = ids.indexOf(id);
-      return `<button class="sq-pick${k >= 0 ? ' on' : ''}" data-act="squad-toggle" data-id="${id}" title="${esc(d.name)}">
+      const r = refOf(id);
+      const cmp = r && weakest && k < 0 ? cmpArrow(pw(r), pw(weakest)) : '';
+      return `<button class="sq-pick${k >= 0 ? ' on' : ''}${weakest && weakest.id === id && refs.length > 1 ? ' weak' : ''}" data-act="squad-toggle" data-id="${id}" title="${esc(d.name)}${r ? ` · ♥ ${r.max} ⚔ ${r.atk} ➤ ${r.spd}` : ''}">
         ${k >= 0 ? `<em class="sq-num">${k + 1}</em>` : ''}<i>${GL.sprites.render(d)}</i>
-        <small>${esc(d.name)}</small>${badge(dd.type)}</button>`;
+        <small>${esc(d.name)}</small>${badge(dd.type)}
+        ${r ? `<span class="sq-st">♥${r.max} ⚔${r.atk} ➤${r.spd}</span>` : ''}${cmp ? `<span class="sq-cmp">${cmp}</span>` : ''}</button>`;
     }).join('');
     const w = profile.squadW || 0, l = profile.squadL || 0;
     return `<section class="hq-sec squad-sec">
@@ -1370,6 +1385,7 @@ window.GL = window.GL || {};
       <div class="sq-xp">${refs.map(r => { const nx = GL.meta.squadNext((profile.squadXp || {})[r.id]);
         return `<span><small>${esc(r.name)}</small><i class="xpbar"><i style="width:${nx ? Math.round(100 * nx.have / nx.need) : 100}%"></i></i></span>`; }).join('')}</div>
       <p class="hint">Freunde fordern deine Stammcrew in der Rangliste heraus, auch wenn du offline bist. Jedes Duell gibt EP (Sieg 12, Niederlage 4) und damit Extra-Level. Bis zu ${N} Figuren, <b>zuerst gewählt steht vorne</b>.</p>
+      <p class="sq-legend"><span class="weak-key"></span> schwächste Figur deiner Stammcrew · Pfeile: so viel stärker oder schwächer wäre eine andere Figur</p>
       <div class="sq-pool">${pick}</div>
     </section>`;
   }
