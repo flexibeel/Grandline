@@ -366,7 +366,9 @@ window.GL = window.GL || {};
 
     const enemies = [];
     for (let i = 0; i < count; i++) {
-      const type = GL.data.grunts[R.int(run, 0, GL.data.grunts.length - 1)];
+      const sea = islandIndex(run);
+      const gp = GL.data.grunts.filter(x => !x.seas || x.seas.includes(Math.min(sea, 2)));
+      const type = gp[R.int(run, 0, gp.length - 1)];
       const max = Math.round((g.hpBase + level * g.hpPerLevel) * mult * (1 + H.enemyHp));
       enemies.push({
         id: type.id, type: type.type, hp: max, max,

@@ -1,6 +1,12 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-17zl', date: '17.10.', title: 'Tiere der Grand Line', items: [
+    'Neue Gegner: Wildschwein, Riesenkrabbe und Möwe im East Blue, Bananen-Krokodil und Steppenwolf im Paradies, Seekönig und Riesenfledermaus im dritten Meer',
+    'Kampf-Karten unter dem Kampfbild im Pixel-Holz-Look statt weißer Kästen',
+    'Boni-Abzeichen runder, wie kleine Spielsteine',
+    'Auswahl-Häkchen als sauberes Pixel-Abzeichen',
+    'Boss-Auftritt: Antippen überspringt sauber, doppeltes Tippen startet den Kampf nicht mehr doppelt' ] },
   { v: '2026-10-17zk', date: '17.10.', title: 'Freunde, Sticker, Statistik', items: [
     'Neu: Freunde. Dein Freundescode mit QR-Code und Teilen-Link, Freunde per Code hinzufügen und ihre Karte ansehen',
     'Danke fürs Einladen: Für jeden Freund, der über deinen Link kommt und einen Run spielt, gibt es ein legendäres Ausrüstungsteil. Dazu exklusive Profil-Teile (Rahmen, Flagge, Titel, Hintergrund, Aura), die es nur so gibt. Dein Freund bekommt 150 Berry',

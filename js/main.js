@@ -52,7 +52,8 @@
     if (!run || run.phase !== 'prep') return;
     const p = run.pending || {};
     const big = p.enemies && p.enemies.find(e => e.boss || e.mini || e.raid);
-    if (!big || p.rival || document.querySelector('.boss-show')) { act({ type: 'fight' }); return; }
+    if (document.querySelector('.boss-show')) return;   // Auftritt läuft schon: doppeltes Tippen nicht durchreichen
+    if (!big || p.rival) { act({ type: 'fight' }); return; }
     const d = (GL.data.bosses.concat(GL.data.raids || [], GL.data.hunted || [])).find(x => x.id === big.id) || GL.data.crew.find(x => x.id === big.id) || {};
     const kind = p.kind === 'raid' ? 'Raid-Boss' : p.kind === 'boss' ? 'Boss des Meeres' : p.gate ? 'Bösewicht der Insel' : 'Kopfgeld-Ziel';
     const ab = GL.data.abilities[big.id];
@@ -65,11 +66,18 @@
         ${d.bounty ? `<em>Kopfgeld ${d.bounty} Mio. ฿</em>` : ''}${ab ? `<i>${esc(ab.name)}</i>` : ''}</div>
       <span class="bs-tap">Tippen zum Starten</span>`;
     let done = false;
-    const go = () => { if (done) return; done = true; el.classList.add('out'); setTimeout(() => el.remove(), 260); act({ type: 'fight' }); };
+    const go = e => {
+      if (e) { e.preventDefault(); e.stopPropagation(); }
+      if (done) return; done = true; clearTimeout(auto);
+      el.classList.add('out'); setTimeout(() => el.remove(), 180);
+      suppressClick = false; act({ type: 'fight' });
+    };
     el.addEventListener('click', go);
+    el.addEventListener('touchend', e => { if (Date.now() - shownAt > 250) go(e); }, { passive: false });
+    const shownAt = Date.now();
     document.body.appendChild(el);
     requestAnimationFrame(() => el.classList.add('in'));
-    setTimeout(go, document.body.classList.contains('fast') ? 1200 : 2000);
+    const auto = setTimeout(() => go(), document.body.classList.contains('fast') ? 1200 : 2000);
   }
   function autoArrange() {
     if (!run || run.phase !== 'prep' || !run.crew || run.crew.length < 2) return;

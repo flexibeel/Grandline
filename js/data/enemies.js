@@ -11,7 +11,29 @@ GL.data.grunts = [
   { id: 'mercenary', name: 'Söldner',      type: 'technik',
     look: { hair: '#555555', skin: '#f2c9a0', shirt: '#4a5a3a', pants: '#3a3a2a' } },
   { id: 'thug',      name: 'Schläger',     type: 'kraft',
-    look: { hair: '#8a5a2a', skin: '#d9a87a', shirt: '#555555', pants: '#2a2a2a', hat: 'cap', hatColor: '#333333' } }
+    look: { hair: '#8a5a2a', skin: '#d9a87a', shirt: '#555555', pants: '#2a2a2a', hat: 'cap', hatColor: '#333333' } },
+  // Tiere der Grand Line: eigene Pixelbilder (art), tauchen nur in bestimmten Meeren auf (seas)
+  { id: 'boar', name: 'Wildschwein', type: 'kraft', seas: [0, 1],
+    art: { c: { B: '#8a5a3a', b: '#5a3a24', S: '#e8a090', n: '#6a2a20', E: '#1a1a1a', T: '#f4f0e0', k: '#2a1a10' },
+      rows: ['................', '.....b......b...', '....bBb....bBb..', '...bBBBBBBBBBBb.', '..bBBBBBBBBBBBBb', '.bEBBBBBBBBBBBBb', 'SSBBBBBBBBBBBBBb', 'nSBBBBBBBBBBBBBb', 'SSTBBBBBBBBBBBb.', '.bBBBBBBBBBBBBb.', '..bBBbbbbbbBBb..', '..bBb.....bBb...', '..kk......kk....', '................'] } },
+  { id: 'crab', name: 'Riesenkrabbe', type: 'technik', seas: [0, 1],
+    art: { c: { C: '#d0473a', w: '#f08a6a', R: '#c03a2e', r: '#8a2420', K: '#1a1a1a' },
+      rows: ['................', '..CC........CC..', '.CwwC......CwwC.', '.CCCC......CCCC.', '..CC..C..C..CC..', '...C..K..K..C...', '...CRRRRRRRRC...', '..RRRRRRRRRRRR..', '.RRrRRRRRRRRrRR.', '.RRRRRRRRRRRRRR.', '..rRRRRRRRRRRr..', '.r.r.r....r.r.r.', 'r.r.r......r.r.r', '................'] } },
+  { id: 'gull', name: 'Möwe', type: 'technik', seas: [0],
+    art: { c: { W: '#f4f4f0', G: '#9aa7b4', K: '#1a1a1a', O: '#f29a2e' },
+      rows: ['................', '.......WWW......', '......WWWWW.....', '.....KWWWWW.....', '...OOWWWWWW.....', '.....WWWWWWG....', '....WWWWWWWGGG..', '....WWWWWWGGGGG.', '.....WWWWWWGGGGG', '......WWWWWWGG..', '.......WWWW.....', '........O.O.....', '........O.O.....', '.......OO.OO....'] } },
+  { id: 'bananacroc', name: 'Bananen-Krokodil', type: 'kraft', seas: [1, 2],
+    art: { c: { G: '#5c9a42', g: '#2f5a24', E: '#f2d24a', T: '#f4f0e0', Y: '#f2d24a', y: '#c9a22a' },
+      rows: ['................', '..........YY....', '.........YYYy...', '........YYyy....', '..GGGGG..GGG....', '.GGEGGGGGGGGG...', 'GGGGGGGGGGGGGGG.', 'TGTGTGGGGGGGGGGG', 'GGGGGGGGGGGGGGGg', '.gGGGGGGGGGGGGgg', '..GG..GGGG..GGg.', '..gg..gg....gg..', '................', '................'] } },
+  { id: 'wolf', name: 'Steppenwolf', type: 'technik', seas: [1, 2],
+    art: { c: { G: '#8a939e', g: '#5a636e', E: '#f2d24a', N: '#1a1a1a', W: '#d8dde2', k: '#2a2a2a' },
+      rows: ['................', '...g............', '..gG............', '.GGGG...........', 'GEGGGG..........', 'NGGGGGGGGGGGG.g.', '.GGGGGGGGGGGGGg.', '..GGGGGGGGGGGGg.', '..GGWWWWWGGGGG..', '..GG.....GG.GG..', '..GG.....GG.GG..', '..kk.....kk.kk..', '................', '................'] } },
+  { id: 'seaking', name: 'Seekönig', type: 'klinge', seas: [2],
+    art: { c: { P: '#6a8ac0', p: '#3a5a8a', E: '#f2d24a', T: '#f4f0e0', b: '#e8d0a0', W: '#4f9ccf', w: '#2f6f9f' },
+      rows: ['................', '.....PPPP.......', '...PPPPPPPP.....', '..PPEPPPPPPP....', '.PPPPPPPPPPPp...', 'TPTPTPPPPPPPp...', '.......PPPPPp...', 'TPTPTPPPPPPPp...', '.PPPPPPPPPPpp...', '....bPPPPPpp....', '....bPPPPpp.....', '....bPPPpp......', 'WWWWWbPPPpWWWWWW', 'wWWWWWWWWWWWWWWw'] } },
+  { id: 'bat', name: 'Riesenfledermaus', type: 'technik', seas: [2],
+    art: { c: { K: '#3a2a4a', k: '#5a4a6a', R: '#e0483b' },
+      rows: ['................', '................', 'K..............K', 'KK....K..K....KK', 'KKK...KKKK...KKK', 'KKKKkKRKKRKkKKKK', '.KKKKKKKKKKKKKK.', '..KKKKKKKKKKKK..', '...KK.KKKK.KK...', '.......KK.......', '................', '................', '................', '................'] } }
 ];
 
 // Besondere Gegner: tauchen je Meer häufiger auf (Chance in config.foeKinds).
@@ -47,6 +69,7 @@ GL.data.foeDef = e => {
   const k = e.kind && GL.data.foeKind(e.kind);
   if (!base) return (GL.data.crew || []).find(x => x.id === e.id);   // z. B. Crew eines anderen Spielers (Begegnung auf See)
   if (!k) return base;
+  if (base.art) return Object.assign({}, base, { kind: k.key });   // Tiere behalten Bild und Namen, die Fähigkeit steht am Schild
   return Object.assign({}, base, { name: k.name, kind: k.key, look: Object.assign({}, base.look, k.look) });
 };
 

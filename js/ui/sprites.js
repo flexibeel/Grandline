@@ -108,6 +108,31 @@ window.GL = window.GL || {};
     return `<svg viewBox="0 0 12 14" aria-hidden="true">${rects}</svg>`;
   }
 
+  // Eigene Pixelbilder (z. B. Tiere): rows + Farben, optional mit Licht und Schatten an den Kanten
+  const artCache = new Map();
+  function artSvg(art, shaded) {
+    const key = art.rows.join('|') + (shaded ? 's' : '');
+    if (artCache.has(key)) return artCache.get(key);
+    // Gezeichnet mit Blick nach links; gespiegelt gespeichert, damit Gegner (im Kampf gespiegelt) zur Crew schauen
+    const rows = art.rows.map(x => x.split('').reverse().join(''));
+    const h = rows.length, w = Math.max(...rows.map(r => r.length));
+    const at = (x, y) => (rows[y] && rows[y][x]) || '.';
+    let r = '';
+    rows.forEach((row, y) => row.split('').forEach((ch, x) => {
+      const c0 = art.c[ch]; if (!c0) return;
+      let col = c0;
+      if (shaded) {
+        const edgeR = at(x + 1, y) !== ch, edgeB = at(x, y + 1) !== ch, edgeL = at(x - 1, y) !== ch, edgeT = at(x, y - 1) !== ch;
+        if (edgeR || edgeB) col = mix(c0, 'k', edgeR && edgeB ? 0.28 : 0.16);
+        else if (edgeT || edgeL) col = mix(c0, 'w', 0.18);
+      }
+      r += `<rect x="${x}" y="${y}" width="1" height="1" fill="${col}"/>`;
+    }));
+    // Pixel-Umriss: macht Tiere im Kampfbild klar lesbar
+    const svgOut = `<svg viewBox="-0.5 0 ${w + 1} ${h}" aria-hidden="true">${r}</svg>`;
+    artCache.set(key, svgOut);
+    return svgOut;
+  }
   // Kleine Pixel-Symbole für Früchte und Schätze. Farbe kommt aus der id.
   const ICONS = {
     // Teufelsfrucht mit Wirbel-Muster: F = Frucht, W = Wirbel, G = Stiel
@@ -230,6 +255,7 @@ window.GL = window.GL || {};
     // Plastische Variante fürs Kampffeld
     renderShaded(entry) {
       if (!entry) return '';
+      if (entry.art) return artSvg(entry.art, true);
       if (entry.image) return `<img src="${entry.image}" alt="" class="sprite-img">`;
       const key = 'sh:' + entry.id + ':' + JSON.stringify(entry.look || {});
       if (!cache[key]) cache[key] = svgShaded(entry.look || {});
@@ -237,6 +263,7 @@ window.GL = window.GL || {};
     },
     render(entry) {
       if (!entry) return '';
+      if (entry.art) return artSvg(entry.art, false);
       if (entry.image) return `<img src="${entry.image}" alt="" class="sprite-img">`;
       // Der eigene Pirat kann sein Aussehen ändern: Aussehen gehört mit zum Schlüssel
       // Schlüssel mit Aussehen: Figuren mit gleicher id (z. B. Buggy als Gegner und als Crew) bleiben getrennt

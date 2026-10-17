@@ -4501,3 +4501,38 @@ body { overscroll-behavior: none; -webkit-tap-highlight-color: transparent; }
 }
 .guest-tag { font-style: normal; font: 700 10px/1 "Pixelify Sans", monospace; color: #fff; background: #d4a02e; padding: 2px 4px; vertical-align: middle; margin-left: 4px; }
 .guest-warn { font-size: 12px; line-height: 1.35; background: #fff3d6; padding: 6px 8px; margin: 0 0 6px; box-shadow: 0 0 0 2px #e8b040; }
+
+/* ---------- Kampf-Karten unter dem Feld: Pixel-Holz statt weißer Kästen ---------- */
+.battle3d .hud .fighter, .battle3d .hud .side-enemy .fighter {
+  background: none !important; border-radius: 0 !important; box-shadow: none !important;
+  border-style: solid !important; border-width: 5px !important; border-image: var(--pxf-light) 5 fill / 5px / 0 stretch !important;
+  padding: 3px 6px 4px !important; }
+.battle3d .hud .side-enemy .fighter { border-image-source: var(--pxf-red) !important; }
+.battle3d .hud .fighter.big, .battle3d .hud .fighter.mini-boss { border-image-source: var(--pxf-gold) !important; }
+.battle3d .hud .fighter.front { outline: 2px solid #e8b040; outline-offset: 1px; }
+.battle3d .hud .fighter .f-name { font-size: 12.5px; display: flex; align-items: center; gap: 5px; flex-wrap: nowrap; overflow: hidden; }
+.battle3d .hud .fighter .f-name b { font-family: "Pixelify Sans", var(--px, monospace); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.battle3d .hud .fighter .f-name .type { font-size: 10px; padding: 1px 5px; border-radius: 3px; flex: none; }
+.battle3d .hud .side-enemy .fighter .f-name { justify-content: flex-end; }
+.battle3d .hud .fighter .f-bar { height: 7px; border-radius: 0; background: #3a2a20; box-shadow: inset 0 0 0 1px #2a1a10; }
+.battle3d .hud .fighter .f-bar i, .battle3d .hud .fighter .f-bar s { border-radius: 0; }
+.battle3d .hud .fighter .f-en { height: 3px; border-radius: 0; }
+.battle3d .hud .fighter .f-hp { font: 600 11px "Pixelify Sans", var(--px, monospace); }
+.battle3d .hud .fighter.ko { filter: grayscale(.8); }
+
+/* ---------- Boni-Abzeichen: runder, wie kleine Spielsteine ---------- */
+.sb-c { border-radius: 7px; height: 26px; padding: 0 7px 0 3px; box-shadow: inset 0 2px 0 rgba(255,255,255,.3), inset 0 -3px 0 rgba(0,0,0,.22), 0 0 0 2px #3a2516; }
+.sb-ic { width: 20px; height: 20px; border-radius: 50%; background: rgba(0,0,0,.18); }
+.sb-off .sb-ic { background: rgba(0,0,0,.06); }
+.sb-c b { font-size: 13px; }
+.sb-up { outline: none; box-shadow: inset 0 2px 0 rgba(255,255,255,.35), inset 0 -3px 0 rgba(0,0,0,.2), 0 0 0 2px #2f6a3a, 0 0 0 4px #9ad08a; }
+.sb-plus { border-radius: 4px; top: -10px; right: -6px; box-shadow: 0 0 0 2px #2a1a10; }
+.sb { border-image-source: var(--pxf-light); }
+
+/* ---------- Auswahl-Häkchen: sauberes Pixel-Abzeichen ---------- */
+.pick-ok { font-size: 0 !important; width: 24px; height: 24px; padding: 0 !important; border-radius: 50%; background: #4f9a5a url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 7 6' shape-rendering='crispEdges'%3E%3Cpath fill='%23fff' d='M6%200h1v1h-1zM5%201h1v1h-1zM6%201h1v1h-1zM0%202h1v1h-1zM4%202h1v1h-1zM5%202h1v1h-1zM0%203h1v1h-1zM1%203h1v1h-1zM3%203h1v1h-1zM4%203h1v1h-1zM1%204h1v1h-1zM2%204h1v1h-1zM3%204h1v1h-1zM2%205h1v1h-1z'/%3E%3C/svg%3E") center / 13px no-repeat !important;
+  box-shadow: inset 0 2px 0 rgba(255,255,255,.3), inset 0 -2px 0 rgba(0,0,0,.2), 0 0 0 2px #fff, 0 0 0 4px #2f6a3a !important; }
+.opt.card.picked { outline: 3px solid #4f9a5a; outline-offset: 3px; border-radius: 10px; }
+.pick-dock .btn { background: #4f9a5a !important; box-shadow: inset 0 3px 0 rgba(255,255,255,.22), inset 0 -4px 0 rgba(0,0,0,.25), 0 4px 0 #2f6a3a !important; }
+.px-chk { width: 16px; height: 14px; display: inline-block; vertical-align: -1px; margin-right: 4px; }
+.boss-show.out { transition: opacity .15s !important; pointer-events: none; }

@@ -353,7 +353,8 @@ window.GL = window.GL || {};
     const key = run.seed + ':' + run.step + ':' + run.phase;
     if (!(GL.pickSel && GL.pickSel.key === key && items[GL.pickSel.i])) return `<p class="hint pick-hint">Antippen zum Auswählen, dann bestätigen.</p>`;
     const it = items[GL.pickSel.i];
-    return `<div class="dock pick-dock"><button class="btn" data-act="pick" data-i="${GL.pickSel.i}">✓ ${esc(it.name || 'Nehmen')} nehmen</button></div>`;
+    const chk = '<svg class="px-chk" viewBox="0 0 7 6" shape-rendering="crispEdges" aria-hidden="true"><path fill="currentColor" d="M6 0h1v1h-1zM5 1h1v1h-1zM6 1h1v1h-1zM0 2h1v1h-1zM4 2h1v1h-1zM5 2h1v1h-1zM0 3h1v1h-1zM1 3h1v1h-1zM3 3h1v1h-1zM4 3h1v1h-1zM1 4h1v1h-1zM2 4h1v1h-1zM3 4h1v1h-1zM2 5h1v1h-1z"/></svg>';
+    return `<div class="dock pick-dock"><button class="btn" data-act="pick" data-i="${GL.pickSel.i}">${chk} ${esc(it.name || 'Auswahl')} nehmen</button></div>`;
   }
   // Kurze Begründung unter einer Auswahl, falls es einen Tipp gibt
   function tipLine(tip) {
