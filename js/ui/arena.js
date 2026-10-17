@@ -220,7 +220,7 @@ window.GL = window.GL || {};
   function fieldHtml(run, crewHp, enemyHp) {
     const b = run.battle;
     const crew = run.crew.map((u, i) => fieldUnit('crew', i, u.def || crewData(u.id), u, crewHp[i])).join('');
-    const foes = b.enemies.map((e, i) => fieldUnit('enemy', i, e.def || enemyData(e.id) || crewData(e.id), e, enemyHp[i])).join('');
+    const foes = b.enemies.map((e, i) => fieldUnit('enemy', i, e.def || GL.data.foeDef(e) || crewData(e.id), e, enemyHp[i])).join('');
     const isl = GL.run.island(run).id;
     return `<div class="field isl-${isl}${b.kind === 'raid' ? ' raid' : b.kind === 'boss' ? ' bossfight' : ''}" id="field" aria-hidden="true">
       <div class="f-stage">
@@ -344,7 +344,7 @@ window.GL = window.GL || {};
       const crewHp = done ? run.crew.map(u => u.hp) : anim.crewHp;
       const enemyHp = done ? b.enemyEnd : anim.enemyHp;
       const crew = run.crew.map((u, i) => fighter('crew', i, u.def || crewData(u.id), u, crewHp[i])).join('');
-      const foes = b.enemies.map((e, i) => fighter('enemy', i, e.def || enemyData(e.id) || crewData(e.id), e, enemyHp[i])).join('');
+      const foes = b.enemies.map((e, i) => fighter('enemy', i, e.def || GL.data.foeDef(e) || crewData(e.id), e, enemyHp[i])).join('');
       return `<div class="battle3d">${fieldHtml(run, crewHp, enemyHp)}<div class="arena hud isl-${GL.run.island(run).id}${b.kind === 'raid' ? ' raid' : b.kind === 'boss' ? ' bossfight' : ''}${done ? '' : ' entering'}" id="arena">
         <div class="arena-sky" aria-hidden="true"></div>
         <div class="side side-crew">${crew}</div>

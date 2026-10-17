@@ -96,7 +96,7 @@ window.GL = window.GL || {};
       const got = list.map(t => addStatus(t, st.key, st.rounds, st.value)).filter(Boolean);
       if (got.length) events.push({ k: 'status', side, list: got, by: u.id });
     }
-    const statusOf = u => (GL.data.abilities[u.id] && GL.data.abilities[u.id].status) || null;
+    const statusOf = u => (u.ref && u.ref.status) || (GL.data.abilities[u.id] && GL.data.abilities[u.id].status) || null;
 
     // ---------- Ultis: Energie laden, bei voller Leiste ersetzt die Ulti den nächsten Angriff ----------
     const U = C.ult || { max: 100, gainHit: 25, gainHurt: 10, bossStart: 30 };

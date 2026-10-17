@@ -76,6 +76,8 @@ GL.config = {
   // Mehr Leben, etwas weniger Angriff: Kämpfe dauern etwas länger, ohne insgesamt härter zu werden
   grunt: { hpBase: 16, hpPerLevel: 4.6, atkBase: 3.7, atkPerLevel: 1.1, spdMin: 3, spdMax: 7 },
   maxGrunts: 4,
+  // Besondere Gegner (Sanitäter, Schildträger …): Chance pro normalem Gegner, wächst pro Meer; höchstens max pro Kampf
+  foeKinds: { base: 0.14, perSea: 0.09, cap: 0.45, max: 2, fromStep: 2 },
 
   // Kampf
   dmgSpread: 2,           // (alt, nicht mehr genutzt)

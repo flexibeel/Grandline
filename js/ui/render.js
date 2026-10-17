@@ -914,12 +914,14 @@ window.GL = window.GL || {};
           </div>`;
         }).join('');
         const foeRows = foes.map((e, i) => {
-          const d = enemyData(e.id);
-          return `<div class="slot foe${e.boss ? ' boss' : ''}${i === 0 ? ' is-front' : ''}">
+          const d = GL.data.foeDef(e) || enemyData(e.id);
+          const fk = e.kind && GL.data.foeKind(e.kind);
+          return `<div class="slot foe${e.boss ? ' boss' : ''}${fk ? ' special' : ''}${i === 0 ? ' is-front' : ''}">
             <span class="slot-sprite">${GL.sprites.render(d)}</span>
             <span class="slot-info"><b>${d.name} ${badge(e.type)}</b>
               <span class="slot-bar"><i style="width:100%"></i></span>
-              <small>${e.hp} Leben, ${e.atk} Angriff</small></span>
+              <small>${e.hp} Leben, ${e.atk} Angriff</small>
+              ${fk ? `<em class="foe-tag fk-${fk.key}" title="${esc(fk.text)}" data-tip="${esc(fk.text)}">${fk.tag}</em>` : ''}</span>
             <span class="slot-pos">${i === 0 ? '<i class="shield" aria-hidden="true"></i>' : i + 1}</span>
           </div>`;
         }).join('');

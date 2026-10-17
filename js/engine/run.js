@@ -331,6 +331,7 @@ window.GL = window.GL || {};
         spd: R.int(run, g.spdMin, g.spdMax) + H.enemySpd
       });
     }
+    specialize(run, enemies, level);
     // Kopfgeld-Ziel ersetzt den zusätzlichen Gegner des Kopfgeldjäger-Kampfs
     const target = kind === 'elite' && who ? byId(GL.data.hunted, who) : null;
     if (target) {
@@ -350,6 +351,31 @@ window.GL = window.GL || {};
       });
     }
     return enemies;
+  }
+
+  // Macht aus einigen normalen Gegnern besondere Gegner (Heiler, Tank, Schütze …)
+  function specialize(run, enemies, level) {
+    const F = GL.config.foeKinds, kinds = GL.data.foeKinds || [];
+    if (!F || !kinds.length || run.step < (F.fromStep || 0)) return;
+    const sea = islandIndex(run);
+    const pool = kinds.filter(k => sea >= (k.from || 0));
+    const chance = Math.min(F.cap, F.base + F.perSea * sea);
+    let n = 0;
+    enemies.forEach(e => {
+      if (n >= F.max || !pool.length || R.float(run) >= chance) return;
+      const total = pool.reduce((s, k) => s + k.w, 0);
+      let r = R.float(run) * total, k = pool[0];
+      for (const x of pool) { r -= x.w; if (r < 0) { k = x; break; } }
+      n++;
+      e.kind = k.key; e.name = k.name;
+      e.max = e.hp = Math.max(1, Math.round(e.max * k.hpX));
+      e.atk = Math.max(1, Math.round(e.atk * k.atkX));
+      if (k.ability) { e.ability = k.ability; e.power = k.power ? k.power(level) : 0; }
+      if (k.mods) e.mods = Object.assign({}, k.mods);
+      if (k.status) e.status = Object.assign({}, k.status, k.statusValue ? { value: k.statusValue(level) } : {});
+    });
+    // Tanks stellen sich nach vorn
+    enemies.sort((a, b) => (b.kind === 'schild') - (a.kind === 'schild'));
   }
 
   function heal(run, share) {

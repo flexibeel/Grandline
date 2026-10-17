@@ -14,6 +14,40 @@ GL.data.grunts = [
     look: { hair: '#8a5a2a', skin: '#d9a87a', shirt: '#555555', pants: '#2a2a2a', hat: 'cap', hatColor: '#333333' } }
 ];
 
+// Besondere Gegner: tauchen je Meer häufiger auf (Chance in config.foeKinds).
+//   hpX/atkX = Faktor auf die normalen Werte, from = ab welchem Meer (0 = erstes)
+//   ability/power wie in abilities.js; power/value als Funktion vom Gegner-Level
+GL.data.foeKinds = [
+  { key: 'sani',     name: 'Sanitäter',     tag: 'Heilt',          from: 0, w: 3, hpX: 0.85, atkX: 0.7,
+    ability: 'medic', power: l => 2 + Math.round(l * 0.6),
+    text: 'Heilt am Rundenende den am meisten verletzten Gegner. Zuerst ausschalten!',
+    look: { shirt: '#f4f4f4', hat: 'band', hatColor: '#d94b4b' } },
+  { key: 'schuetze', name: 'Scharfschütze', tag: 'Zielt auf Schwache', from: 0, w: 3, hpX: 0.8, atkX: 1.15,
+    ability: 'sniper', text: 'Greift immer dein Crewmitglied mit den wenigsten Leben an.',
+    look: { shirt: '#3c5a3c', pants: '#2d402d', hat: 'hood', hatColor: '#2d402d' } },
+  { key: 'schild',   name: 'Schildträger',  tag: 'Tank',           from: 0, w: 3, hpX: 1.45, atkX: 0.6,
+    mods: { guard: 0.3 }, text: 'Viel Leben und nimmt 30 % weniger Schaden. Stellt sich gern nach vorn.',
+    look: { shirt: '#6b7c8f', pants: '#454f5a', hat: 'cap', hatColor: '#9aa7b4' } },
+  { key: 'trommler', name: 'Trommler',      tag: 'Stärkt alle',    from: 1, w: 2, hpX: 0.85, atkX: 0.75,
+    ability: 'rally', power: l => 1 + Math.floor(l / 4), text: 'Zu Kampfbeginn bekommen alle Gegner mehr Angriff.',
+    look: { shirt: '#c08a2a', hat: 'band', hatColor: '#8a5a1a' } },
+  { key: 'kanonier', name: 'Kanonier',      tag: 'Trifft alle',    from: 1, w: 2, hpX: 0.9, atkX: 0.9,
+    ability: 'burn', power: () => 0.3, text: 'Seine Kugeln treffen auch alle anderen Crewmitglieder (30 % Schaden).',
+    look: { shirt: '#2a2a2a', pants: '#2a2a2a', hat: 'cap', hatColor: '#111111' } },
+  { key: 'gift',     name: 'Giftmischer',   tag: 'Vergiftet',      from: 2, w: 2, hpX: 0.85, atkX: 0.85,
+    status: { key: 'poison', rounds: 3, when: 'hit', target: 'target' }, statusValue: l => 1 + Math.floor(l / 3),
+    text: 'Treffer vergiften (Schaden am Rundenende, 3 Runden).',
+    look: { shirt: '#5a3a7a', skin: '#c8d8a0', hat: 'hood', hatColor: '#3a2a5a' } }
+];
+GL.data.foeKind = key => GL.data.foeKinds.find(k => k.key === key) || null;
+// Darstellung eines Gegners (Name, Aussehen) inkl. besonderer Gegner
+GL.data.foeDef = e => {
+  const base = GL.data.grunts.find(x => x.id === e.id) || GL.data.bosses.find(x => x.id === e.id) || (GL.data.raids || []).find(x => x.id === e.id) || (GL.data.hunted || []).find(x => x.id === e.id);
+  const k = e.kind && GL.data.foeKind(e.kind);
+  if (!base || !k) return base;
+  return Object.assign({}, base, { name: k.name, kind: k.key, look: Object.assign({}, base.look, k.look) });
+};
+
 // escort = Anzahl normaler Gegner, die den Boss begleiten
 // Welche Insel welche Bosse hat, steht in islands.js. Fähigkeiten in abilities.js.
 GL.data.bosses = [

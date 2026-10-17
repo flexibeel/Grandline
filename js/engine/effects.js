@@ -131,6 +131,8 @@ window.GL = window.GL || {};
     enemies.forEach(u => abilityMods().forEach(m => {
       if (m.scope === 'char:' + u.id) applyMod(u, m, run);
     }));
+    // Besondere Gegner: eigene Werte (z. B. Schildträger)
+    enemies.forEach(u => { if (u.ref.mods && !u.ref.pvp) applyMod(u, u.ref.mods, run); });
     // Stammcrew eines anderen Spielers: Synergien wie bei einer Crew
     if (enemyRefs.some(r => r.pvp)) {
       const sm = synergyMods(enemyRefs);

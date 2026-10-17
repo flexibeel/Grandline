@@ -2905,3 +2905,11 @@ button, .opt, .map-node, .lb-row { touch-action: manipulation; }
 .lm-lbl { font-size: .78rem; font-weight: 800; color: var(--mute); }
 .login-more .login-transfer { margin-top: 2px; background: var(--panel); }
 #code-in { text-align: center; }
+/* Besondere Gegner */
+.slot.foe.special { box-shadow: inset 3px 0 0 #c08a2a; }
+.foe-tag { display: inline-block; align-self: flex-end; justify-self: end; width: max-content; margin-top: 3px; font-style: normal; font-size: .7rem; font-weight: 800; padding: 1px 7px; border-radius: 999px; background: #f3e3c3; color: #6b4a1a; }
+.foe-tag.fk-sani { background: #fbe1e1; color: #9a2a2a; }
+.foe-tag.fk-schild { background: #e2e8ef; color: #3a4a5a; }
+.foe-tag.fk-schuetze { background: #e1eedf; color: #2d5a2d; }
+.foe-tag.fk-gift { background: #ece1f5; color: #5a3a7a; }
+.foe-tag.fk-kanonier { background: #e6e6e6; color: #222; }
