@@ -2770,3 +2770,4 @@ body.on-title { overflow: hidden; }
 .badge-prev .badge-svg { width: 40px; height: 40px; }
 .cos.locked .badge-prev { filter: grayscale(1) opacity(.45); }
 .lb-who b .badge-ico { margin-left: 2px; }
+.float.lucky { color: #3a9a3a !important; font-size: 1.25rem !important; text-shadow: 0 0 6px #fff, 0 2px 0 rgba(0,0,0,.2) !important; }

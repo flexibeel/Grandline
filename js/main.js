@@ -106,7 +106,9 @@
     const bountyBefore = run.bountyM || 0;
     const trophiesBefore = (run.trophies || []).length;
     const itemsBefore = (run.items || []).length;
+    const luckyBefore = run.luckyN || 0;
     if (!GL.run.act(run, action)) return;
+    if ((run.luckyN || 0) > luckyBefore && run.lucky) toast(`<span><b>🍀 Glücksfund!</b>Eine Goldtruhe: +${run.lucky.gold} Gold${run.lucky.item ? ' und seltene Ausrüstung' : ''}.</span>`);
     // Neue Ausrüstung gefunden: kurze Meldung in der Farbe der Seltenheit
     if ((run.items || []).length > itemsBefore) {
       const it = run.items[run.items.length - 1];

@@ -293,11 +293,14 @@ window.GL = window.GL || {};
           if (u.side === 'enemy' && firstBlock > 0) { blocked = true; firstBlock--; dmg = 0; }
           else if (target.dodge > 0 && R.float(run) < target.dodge) { miss = true; dmg = 0; }
 
+          // Volltreffer: seltener Glücksschlag der eigenen Crew
+          let lucky = false;
+          if (dmg > 0 && u.side === 'crew' && R.float(run) < (C.luckyHit || 0)) { lucky = true; dmg = Math.round(dmg * 2.5); }
           damage(target, dmg);
           charge(u, U.gainHit);
           if (dmg > 0) charge(target, U.gainHurt);
           const eff = mult > 1 ? 'strong' : mult < 1 ? 'weak' : '';
-          events.push({ k: 'hit', side: u.side, from: idx(u), to, dmg, crit: crit && dmg > 0, eff, blocked, miss, hp: target.hp,
+          events.push({ k: 'hit', side: u.side, from: idx(u), to, dmg, crit: crit && dmg > 0, lucky, eff, blocked, miss, hp: target.hp,
             ea: u.ult ? u.energy : null, et: target.ult ? target.energy : null });
 
           // Fähigkeiten nach einem Treffer

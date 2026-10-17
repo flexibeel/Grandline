@@ -382,7 +382,8 @@ window.GL = window.GL || {};
         else {
           const t = el(tside, ev.to);
           pulse(t, ev.crit ? 'hit-crit' : 'hit');
-          float(tside, ev.to, (ev.crit ? 'KRIT ' : '') + '-' + ev.dmg, ev.crit ? 'crit' : ev.eff === 'strong' ? 'strong' : ev.eff === 'weak' ? 'weak' : '');
+          float(tside, ev.to, (ev.lucky ? 'VOLLTREFFER ' : ev.crit ? 'KRIT ' : '') + '-' + ev.dmg, ev.lucky ? 'crit lucky' : ev.crit ? 'crit' : ev.eff === 'strong' ? 'strong' : ev.eff === 'weak' ? 'weak' : '');
+          if (ev.lucky) { pulse(root, 'shake'); const p = center(fu(tside, ev.to)); fx('fx-ring', p, 800); fieldFloat(tside, ev.to, '🍀 Volltreffer!', 'buff'); }
           if (ev.eff === 'strong') float(tside, ev.to, 'Sehr effektiv', 'tag strong');
           if (ev.crit) pulse(root, 'shake');
         }

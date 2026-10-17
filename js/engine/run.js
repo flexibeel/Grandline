@@ -531,6 +531,14 @@ window.GL = window.GL || {};
     if (!b.win) { run.phase = 'over'; return; }
     if (b.kind === 'boss') { run.defeated.push(b.enemies[0].id); rollTrophy(run, b.enemies[0].id, C.trophyChance.boss); }
 
+    // Glücksfund: selten eine Goldtruhe mit mindestens seltener Ausrüstung und Extra-Gold
+    const LC = C.luck || {};
+    run.lucky = null;
+    if (R.float(run) < (LC[b.kind] || 0) * (1 + (run.luck || 0) * 0.5)) {
+      const it = dropItem(run, 1, R.float(run) < 0.25 ? 2 : 1);
+      run.gold = (run.gold || 0) + (LC.gold || 15);
+      run.lucky = { item: it ? it.uid : null, gold: LC.gold || 15, n: (run.luckyN = (run.luckyN || 0) + 1) };
+    }
     const f = GL.effects.flags(run);
     if (!f.noWinHeal) heal(run, (C.winHeal + f.winHeal) * Math.max(0, 1 + (run.H ? run.H.winHeal : 0)));
     if (b.kind === 'elite' && run.pending && run.pending.who) {

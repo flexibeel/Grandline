@@ -80,6 +80,9 @@ GL.config = {
   dmgSpread: 2,           // (alt, nicht mehr genutzt)
   dmgSpreadPct: 0.18,     // Schaden schwankt um +/- 18 %
   baseCrit: 0.05,         // Grund-Krit-Chance für alle
+  luckyHit: 0.04,         // Volltreffer (nur eigene Crew): 2,5-facher Schaden
+  // Glücksfund nach gewonnenen Kämpfen: Goldtruhe mit mindestens seltener Ausrüstung + Gold (Glücksmünze erhöht die Chance)
+  luck: { battle: 0.06, elite: 0.12, boss: 0.2, raid: 0.25, gold: 15 },
   // Ultis: Energie pro eigenem Treffer / eingestecktem Treffer, bei max feuert die Ulti. Bosse starten mit etwas Energie.
   ult: { max: 100, gainHit: 40, gainHurt: 20, start: 20, bossStart: 40 },
   critMult: 2,
