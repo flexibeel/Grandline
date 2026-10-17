@@ -77,6 +77,18 @@ GL.data.abilities = {
                  mods: [{ scope: 'char:kaku', crit: 0.3 }], status: { key: 'weak', rounds: 3, when: 'hit', target: 'target' } },
 
 
+  // Thriller Bark
+  moria:   { name: 'Schattenraub',      kind: 'curse', value: 0.18, text: 'Zu Kampfbeginn stiehlt er dem stärksten Gegner 18 % des Lebens. Seine Schatten machen Angst (Furcht, 2 Runden).',
+             status: { key: 'fear', rounds: 2, when: 'start', target: 'all' } },
+  kuma:    { name: 'Nikyu-Nikyu',       text: 'Erleidet 25 % weniger Schaden. Alle 3 Runden stößt er den Vordersten weg (Betäubt).',
+             mods: [{ scope: 'char:kuma', guard: 0.25 }], status: { key: 'stun', rounds: 1, when: 'every', n: 3, target: 'front' } },
+  teach:   { name: 'Finsternis',        kind: 'lifesteal', value: 0.4, text: 'Verschlingt Schaden: heilt sich um 40 % davon. Zu Kampfbeginn schwächt er alle (3 Runden).',
+             status: { key: 'weak', rounds: 3, when: 'start', target: 'all' } },
+  absalom: { name: 'Durchsichtig',      text: 'Weicht 30 % aller Angriffe aus.', mods: [{ scope: 'char:absalom', dodge: 0.3 }] },
+  perona:  { name: 'Negative Hollows', text: 'Zu Kampfbeginn: Furcht für die ganze Crew (2 Runden).', status: { key: 'fear', rounds: 2, when: 'start', target: 'all' } },
+  hogback: { name: 'Zombie-Chirurg',   kind: 'medic', value: 6, text: 'Flickt am Rundenende den am schwersten verletzten Verbündeten (6 Leben).' },
+  duval:   { name: 'Eisenmaske',       text: 'Erleidet 3 weniger Schaden pro Treffer.', mods: [{ scope: 'char:duval', armor: 3 }] },
+
   // Kopfgeld-Ziele (Mini-Bosse, siehe hunted.js)
   morgan:  { name: 'Axt-Hand',         text: 'Seine Axt trifft hart: Ziel ist 2 Runden geschwächt (+25 % Schaden).',
              status: { key: 'weak', rounds: 2, when: 'hit', target: 'target', chance: 0.5 } },

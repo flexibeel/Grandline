@@ -66,8 +66,30 @@ GL.data.islands = [
         text: 'Der stärkste Agent der Weltregierung erwartet euch.', places: ['Gerichtshof', 'Treppenhaus'] },
       { id: 'tor', name: 'Tor der Gerechtigkeit', boss: 'kaku', lair: 'Dach des Turms', villains: ['blueno', 'jabra'],
         text: 'Der Weg zum Tor führt über die Dächer, bewacht von der Giraffe.', places: ['Brücke', 'Dachgarten'] }
-    ] }
+    ],
+    // Zweite Route für das dritte Meer (ab Rang 8, siehe features.js): Beim Kurs setzen steht dann
+    // eine Insel aus jeder Route zur Wahl. Die Wahl entscheidet, welches Meer man befährt.
+    alt: { id: 'thriller-bark', name: 'Thriller Bark', bosses: ['moria', 'kuma'],
+      tagline: 'Nebel, Zombies und ein Schatten-Dieb. Danach wartet der Archipel vor der Neuen Welt.',
+      small: [
+        { id: 'florian', name: 'Florian-Dreieck', villain: 'absalom', lair: 'Nebelwand',
+          text: 'Ein ewiger Nebel. Wer hier verschwindet, taucht nie wieder auf.', places: ['Nebelbank', 'Geisterschiff'] },
+        { id: 'grusel-garten', name: 'Gruselgarten', villain: 'perona', lair: 'Spukturm',
+          text: 'Kleine Geister schweben durch die Bäume. Sie machen jeden mutlos.', places: ['Friedhof', 'Zombiewald'] },
+        { id: 'hogback-labor', name: 'Hogbacks Labor', villain: 'hogback', lair: 'Operationssaal',
+          text: 'Ein berühmter Arzt flickt hier Zombies zusammen. Sie stehen immer wieder auf.', places: ['Kellergang', 'Kühlhaus'] },
+        { id: 'mangroven', name: 'Mangroven', villain: 'duval', lair: 'Blasenpark',
+          text: 'Seifenblasen steigen aus den Wurzeln. Eine Bande mit Eisenmaske lauert.', places: ['Wurzelpfad', 'Blasenufer'] }
+      ],
+      big: [
+        { id: 'thriller-schloss', name: 'Thriller Bark', boss: 'moria', lair: 'Thronsaal', villains: ['absalom', 'hogback'],
+          text: 'Ein riesiges Geisterschiff. Sein Herr stiehlt Schatten.', places: ['Schlosshof', 'Tanzsaal'] },
+        { id: 'sabaody', name: 'Sabaody Archipel', boss: 'kuma', lair: 'Mangrove 13', villains: ['duval', 'perona'],
+          text: 'Das Tor zur Neuen Welt. Ein stiller Riese räumt den Weg frei.', places: ['Auktionshaus', 'Vergnügungspark'] }
+      ] } }
 ];
+// Daten eines Meeres im Run (berücksichtigt die gewählte Route)
+GL.data.seaOf = (run, idx) => { const S = GL.data.islands[idx]; return S && S.alt && run && run.alt && run.alt[idx] ? S.alt : S; };
 
 // Texte für die Routen-Knoten auf der Karte
 GL.data.nodes = {

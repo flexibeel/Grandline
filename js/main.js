@@ -98,9 +98,10 @@
   // Kapitel-Fortschritt: alle Bösewichte + Bosse eines Meeres einmal besiegt -> Berry-Belohnung
   function checkChapters() {
     if (!profile.chapterSeen) profile.chapterSeen = [];
-    GL.data.islands.forEach((isl, i) => {
+    GL.data.islands.concat(GL.data.islands.filter(x => x.alt).map(x => x.alt)).forEach((isl, k) => {
+      const i = k < GL.data.islands.length ? k : GL.data.islands.findIndex(x => x.alt === isl);
       if (profile.chapterSeen.includes(isl.id)) return;
-      if (!GL.meta.chapterProgress(profile, i).complete) return;
+      if (!GL.meta.chapterProgress(profile, k < GL.data.islands.length ? i : isl).complete) return;
       profile.chapterSeen.push(isl.id);
       const reward = 150 * (i + 1);
       profile.berry = (profile.berry || 0) + reward;
@@ -236,7 +237,8 @@
     run = GL.run.create(undefined, {
       unlocked: profile.unlocked, epics: profile.epics, upgrades: profile.upgrades, gear, heat: profile.heat,
       arts: GL.meta.takeArtifacts(profile), self: selfNow(), items: GL.meta.takeItems(profile),
-      hunt: GL.meta.featureOpen(profile, 'jagd') ? (profile.hunt || null) : null
+      hunt: GL.meta.featureOpen(profile, 'jagd') ? (profile.hunt || null) : null,
+      altOpen: GL.meta.featureOpen(profile, 'route')
     });
     ui.newBest = false;
     ui.lastBerry = null;

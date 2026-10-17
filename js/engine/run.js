@@ -45,14 +45,19 @@ window.GL = window.GL || {};
     const sea = Math.min(Math.floor(st / per), GL.data.islands.length - 1);
     const ch = Math.floor((st % per) / GL.config.chapterSteps);
     const id = (run.course || [])[sea * 2 + ch];
-    const S = GL.data.islands[sea];
+    const S = GL.data.seaOf(run, sea);
     return id ? (ch === 0 ? S.small : S.big).find(x => x.id === id) || null : null;
   }
   // Kurswahl vor jedem Insel-Kapitel
   function openCourse(run) {
-    const S = GL.data.islands[islandIndex(run)];
+    const si = islandIndex(run);
+    const base = GL.data.islands[si];
+    const S = GL.data.seaOf(run, si);
     const list = chapterIdx(run) === 0 ? S.small : S.big;
-    run.courseOpts = list.length > 2 ? R.sample(run, list.map(x => x.id), 2) : list.map(x => x.id);
+    // Zwei Routen offen: am Anfang des Meeres je eine Insel aus beiden Routen
+    if (chapterIdx(run) === 0 && base.alt && run.altOpen) {
+      run.courseOpts = [R.sample(run, base.small.map(x => x.id), 1)[0], R.sample(run, base.alt.small.map(x => x.id), 1)[0]];
+    } else run.courseOpts = list.length > 2 ? R.sample(run, list.map(x => x.id), 2) : list.map(x => x.id);
     run.phase = 'course';
     run.chart = null;
     run.options = [];
@@ -245,7 +250,8 @@ window.GL = window.GL || {};
     // Kopfgeldjäger-Orte: Bösewichte dieser Insel, sonst einer aus diesem Meer
     const gate = here && here.villain;
     const local = ((here && here.villains) || []).filter(v => v !== gate);
-    const seaPool = (GL.data.hunted || []).filter(h => h.island === Math.min(isl, 2) && h.id !== gate).map(h => h.id);
+    const seaId = GL.data.seaOf(run, isl).id;
+    const seaPool = (GL.data.hunted || []).filter(h => (h.sea || (GL.data.islands[h.island] || {}).id) === seaId && h.id !== gate).map(h => h.id);
     const pool = local.length ? local : seaPool;
     let pi = R.int(run, 0, Math.max(0, pool.length - 1));
     rows.forEach(row => row.forEach(n => {
@@ -678,6 +684,11 @@ window.GL = window.GL || {};
         const id = (run.courseOpts || [])[a.index];
         if (!id) return false;
         const sea = islandIndex(run);
+        const base = GL.data.islands[sea];
+        if (chapterIdx(run) === 0 && base.alt) {
+          run.alt = run.alt || {};
+          run.alt[sea] = base.alt.small.some(x => x.id === id);
+        }
         run.course = run.course || [];
         run.course[sea * 2 + chapterIdx(run)] = id;
         const isl = chapterIsland(run);
@@ -878,12 +889,14 @@ window.GL = window.GL || {};
         unlocked: (p.unlocked || []).slice(),
         epics: (p.epics || []).slice(),
         hunt: p.hunt || null,
+        altOpen: !!p.altOpen,
+        alt: {},
         loot: [],
         // Stand der Freischaltungen beim Start, für ein exaktes Replay:
         // GL.run.replay(run.seed, run.actions, run.start)
         start: {
           unlocked: (p.unlocked || []).slice(), epics: (p.epics || []).slice(),
-          upgrades: Object.assign({}, up), gear: Array.isArray(p.gear) ? p.gear.slice() : [], heat: p.heat || 0, hunt: p.hunt || null,
+          upgrades: Object.assign({}, up), gear: Array.isArray(p.gear) ? p.gear.slice() : [], heat: p.heat || 0, hunt: p.hunt || null, altOpen: !!p.altOpen,
           arts: (p.arts || []).map(a => ({ id: a.id, lvl: a.lvl })),
           items: (p.items || []).map(x => ({ uid: x.uid, id: x.id, r: x.r, lvl: x.lvl || 0 }))
         },
@@ -975,7 +988,7 @@ window.GL = window.GL || {};
     // Name der aktuellen Station (Insel aus der Serie)
     stopName(run, row) {
       const here = chapterIsland(run);
-      if (!here) return GL.data.islands[islandIndex(run)].name;
+      if (!here) return GL.data.seaOf(run, islandIndex(run)).name;
       const r = row == null ? rowIdx(run) : row;
       if (r >= GL.config.chapterSteps - 1) return here.lair || here.name;
       return here.places[r] || here.name;
@@ -985,7 +998,7 @@ window.GL = window.GL || {};
     rowIdx,
 
     island(run) {
-      return GL.data.islands[islandIndex(run)];
+      return GL.data.seaOf(run, islandIndex(run));
     },
 
     totalSteps,

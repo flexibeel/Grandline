@@ -464,11 +464,12 @@ window.GL = window.GL || {};
     // Da pro Run nur 2 von 4 kleinen Inseln und einer von 2 Bossen drankommen, braucht es mehrere Runs,
     // bis alle sechs einmal besiegt wurden - daher ein eigener Fortschrittsbalken über Runs hinweg.
     chapterTargets(seaIdx) {
-      const isl = GL.data.islands[seaIdx];
+      const isl = typeof seaIdx === 'object' ? seaIdx : GL.data.islands[seaIdx];
       if (!isl) return [];
       return [...new Set(isl.small.map(s => s.villain).concat(isl.bosses))];
     },
     chapterProgress(profile, seaIdx) {
+      // seaIdx: Index eines Meeres oder direkt das Meer (z. B. die zweite Route)
       const targets = GL.meta.chapterTargets(seaIdx);
       const counts = profile.counts || {};
       const done = targets.filter(id => (counts['defeated:' + id] || 0) > 0).length;

@@ -31,6 +31,8 @@ GL.data.fruits = [
     effect: { type: 'multi', list: [{ type: 'buffAll', stat: 'atk', value: 4 }, { type: 'buffAll', stat: 'hp', value: 8 }] } },
   { id: 'mera-mera-epic', name: 'Erwachte Mera-Mera-Frucht', awakened: true, text: '+3 Angriff für die ganze Crew und +20 % Krit-Chance',
     effect: { type: 'multi', list: [{ type: 'buffAll', stat: 'atk', value: 3 }, { type: 'crit', value: 0.2 }] } },
+  { id: 'yami-yami-epic', name: 'Erwachte Finsternis-Frucht', awakened: true, text: '+3 Angriff und +14 Leben für die ganze Crew',
+    effect: { type: 'multi', list: [{ type: 'buffAll', stat: 'atk', value: 3 }, { type: 'buffAll', stat: 'hp', value: 14 }] } },
   { id: 'haki-epic',      name: 'Erwachtes Königs-Haki',     awakened: true, text: '+2 Angriff, +12 Leben für die ganze Crew und +10 % Krit-Chance',
     effect: { type: 'multi', list: [{ type: 'buffAll', stat: 'atk', value: 2 }, { type: 'buffAll', stat: 'hp', value: 12 }, { type: 'crit', value: 0.1 }] } }
 ];

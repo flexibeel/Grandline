@@ -809,13 +809,18 @@ window.GL = window.GL || {};
         // Kurs setzen: welche Insel steuert die Crew als Nächstes an?
         const sea = GL.run.island(run);
         const ch = GL.run.chapterIdx(run);
-        const opts = (run.courseOpts || []).map(id => (ch === 0 ? sea.small : sea.big).find(x => x.id === id)).filter(Boolean);
+        const baseSea = GL.data.islands[GL.run.islandIndex(run)];
+        const twoRoutes = ch === 0 && baseSea.alt && run.altOpen;
+        const findIsl = id => (ch === 0 ? sea.small : sea.big).find(x => x.id === id) || (twoRoutes ? baseSea.alt.small.find(x => x.id === id) || baseSea.small.find(x => x.id === id) : null);
+        const opts = (run.courseOpts || []).map(findIsl).filter(Boolean);
         const cards = opts.map((isl, i) => {
+          const route = twoRoutes ? (baseSea.alt.small.includes(isl) ? baseSea.alt.name : baseSea.name) : '';
           const foe = enemyData(ch === 0 ? isl.villain : isl.boss);
           const info = bossInfo(foe);
           const bounty = foe.bounty ? `${foe.bounty} Mio. ฿` : '';
           return `<button class="opt course-opt" data-act="pick" data-i="${i}">
             ${i < 9 ? `<kbd class="key">${i + 1}</kbd>` : ''}
+            ${route ? `<span class="co-routechip">Route: ${esc(route)}</span>` : ''}
             <span class="co-top"><b class="co-name">${isl.name}</b><small>${isl.text}</small></span>
             <span class="co-route">${isl.places.map(p => `<i>${p}</i>`).join('<em>›</em>')}<em>›</em><i class="co-lair">${isl.lair}</i></span>
             <span class="co-foe"><span class="co-sprite">${GL.sprites.render(foe)}</span>
@@ -823,7 +828,7 @@ window.GL = window.GL || {};
               <small>schwach gegen ${badge(info.counter)}${bounty ? ` · Kopfgeld ${bounty}` : ''}</small></span></span>
           </button>`;
         }).join('');
-        return `${noticeBox(run)}<span class="event-kicker">${sea.name} · ${ch === 0 ? 'Erste Insel' : 'Zweite Insel'}</span>
+        return `${noticeBox(run)}<span class="event-kicker">${twoRoutes ? 'Drittes Meer · Zwei Routen' : sea.name + ' · ' + (ch === 0 ? 'Erste Insel' : 'Zweite Insel')}</span>
           <h2>${ch === 0 ? 'Welche Insel steuerst du an?' : 'Kurs auf den Boss des Meeres'}</h2>
           <p class="hint">${ch === 0 ? 'Jede Insel hat ihre eigenen Orte. Am Ende wartet ihr Bösewicht: Sieg bringt Kopfgeld, einen Schatz und eine Verschnaufpause.'
             : 'Auf der großen Insel wartet der Boss dieses Meeres. Wähle den Gegner, gegen den deine Crew die besseren Karten hat.'}</p>
@@ -1802,7 +1807,9 @@ window.GL = window.GL || {};
 
   // Kapitel-Fortschritt: pro Meer alle Bösewichte + Bosse über mehrere Runs besiegen
   function chapterPanel(profile) {
-    const rows = GL.data.islands.map((isl, i) => {
+    const seas = GL.data.islands.map((isl, i) => [isl, i]);
+    if (GL.meta.featureOpen(profile, 'route')) GL.data.islands.forEach(isl => { if (isl.alt) seas.push([isl.alt, isl.alt]); });
+    const rows = seas.map(([isl, i]) => {
       const cp = GL.meta.chapterProgress(profile, i);
       return `<div class="chapter-row${cp.complete ? ' done' : ''}">
         <span class="chapter-name">${esc(isl.name)}${cp.complete ? ' ✓' : ''}</span>
@@ -2339,7 +2346,8 @@ window.GL = window.GL || {};
       const isl = GL.run.island(run);
       if (run.phase === 'course' && run.step % GL.config.stepsPerIsland === 0 && ui.shownIsland !== isl.id + run.seed) {
         ui.shownIsland = isl.id + run.seed;
-        showScene(isl, GL.run.islandIndex(run));
+        const bs = GL.data.islands[GL.run.islandIndex(run)];
+        showScene(bs.alt && run.altOpen ? { id: isl.id, name: bs.name + ' oder ' + bs.alt.name, tagline: 'Zwei Routen. Du entscheidest, wohin die Reise geht.' } : isl, GL.run.islandIndex(run));
       }
       const stopKey = run.seed + ':' + run.step;
       if (run.phase === 'map' && ui.shownStop !== stopKey) {

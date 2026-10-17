@@ -42,5 +42,14 @@ GL.data.hunted = [
   { id: 'jabra', name: 'Jabra', type: 'kraft', island: 2, hpX: 2.3, atkX: 1.1, spd: 7, bounty: 85,
     look: { hair: '#2a2a2a', skin: '#f2c9a0', shirt: '#e8e8e8', pants: '#2a2a2a' } },
   { id: 'foxy', name: 'Foxy', type: 'klinge', island: 2, hpX: 2.1, atkX: 1.0, spd: 6, bounty: 90,
-    look: { hair: '#c86a2a', skin: '#f2c9a0', shirt: '#2a6a3a', pants: '#2a2a2a', hat: 'band', hatColor: '#2a2a2a' } }
+    look: { hair: '#c86a2a', skin: '#f2c9a0', shirt: '#2a6a3a', pants: '#2a2a2a', hat: 'band', hatColor: '#2a2a2a' } },
+  // Thriller Bark (zweite Route des dritten Meeres)
+  { id: 'absalom', name: 'Absalom', type: 'klinge', island: 2, sea: 'thriller-bark', hpX: 1.9, atkX: 0.95, spd: 7, bounty: 70,
+    look: { hair: '#e8e0d0', skin: '#e8c8a0', shirt: '#6a3a6a', pants: '#2a2a2a', hat: 'band', hatColor: '#8a5a2a' } },
+  { id: 'perona', name: 'Perona', type: 'technik', island: 2, sea: 'thriller-bark', hpX: 1.7, atkX: 0.85, spd: 7, bounty: 72,
+    look: { hair: '#e870a0', skin: '#f2d0b8', shirt: '#2a1a2a', pants: '#e870a0' } },
+  { id: 'hogback', name: 'Dr. Hogback', type: 'technik', island: 2, sea: 'thriller-bark', hpX: 1.8, atkX: 0.8, spd: 5, bounty: 68,
+    look: { hair: '#2a2a2a', skin: '#e8c8a0', shirt: '#f0f0f0', pants: '#5a4a3a' } },
+  { id: 'duval', name: 'Duval', type: 'kraft', island: 2, sea: 'thriller-bark', hpX: 2.1, atkX: 0.95, spd: 5, bounty: 66,
+    look: { hair: '#e8c040', skin: '#f2c9a0', shirt: '#5a5a6a', pants: '#3a3a4a', hat: 'cap', hatColor: '#8a8a9a' } }
 ];

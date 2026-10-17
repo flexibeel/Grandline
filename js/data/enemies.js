@@ -62,7 +62,12 @@ GL.data.bosses = [
   { id: 'rob-lucci', name: 'Rob Lucci', type: 'kraft',   hp: 165, atk: 18, spd: 6, escort: 2,
     look: { hair: '#222222', skin: '#f2c9a0', shirt: '#e8e8e8', pants: '#222222', hat: 'cap', hatColor: '#222222' } },
   { id: 'kaku',      name: 'Kaku',      type: 'klinge',  hp: 160, atk: 17, spd: 7, escort: 2,
-    look: { hair: '#8a5a2a', skin: '#f2c9a0', shirt: '#222222', pants: '#222222', hat: 'cap', hatColor: '#f0f0f0' } }
+    look: { hair: '#8a5a2a', skin: '#f2c9a0', shirt: '#222222', pants: '#222222', hat: 'cap', hatColor: '#f0f0f0' } },
+  // Thriller Bark (zweite Route des dritten Meeres)
+  { id: 'moria',     name: 'Gecko Moria', type: 'technik', hp: 175, atk: 16, spd: 5, escort: 2,
+    look: { hair: '#1a1a2a', skin: '#c8b8d8', shirt: '#2a1a3a', pants: '#2a1a3a' } },
+  { id: 'kuma',      name: 'Bartholomew Kuma', type: 'kraft', hp: 190, atk: 15, spd: 5, escort: 2,
+    look: { hair: '#2a2a2a', skin: '#c89a70', shirt: '#3a3a4a', pants: '#2a2a3a', hat: 'cap', hatColor: '#3a3a4a' } }
 ];
 
 // Raid-Bosse: seltene Spezialkämpfe. reward = id der epischen Frucht (fruits.js),
@@ -73,6 +78,8 @@ GL.data.raids = [
   { id: 'doflamingo', name: 'Doflamingo',     type: 'klinge',  hp: 170, atk: 13, spd: 7,  escort: 1, raid: true, reward: 'mera-mera-epic',
     look: { hair: '#e8d070', skin: '#f2c9a0', shirt: '#e870a0', pants: '#f0f0f0' } },
   // Selten (siehe config.rareRaidChance): wer Shanks besiegt, schaltet ihn als Kapitän frei
+  { id: 'teach',      name: 'Blackbeard',     type: 'kraft',   hp: 200, atk: 14, spd: 6,  escort: 1, raid: true, reward: 'yami-yami-epic',
+    look: { hair: '#1a1a1a', skin: '#e0b088', shirt: '#e8e8e8', pants: '#3a2a1a', hat: 'band', hatColor: '#c0392b' } },
   { id: 'shanks',     name: 'Rothaar Shanks', type: 'klinge',  hp: 190, atk: 14, spd: 8,  escort: 2, raid: true, rare: true, reward: 'haki-epic',
     look: { hair: '#c0302a', skin: '#f2c9a0', shirt: '#f0f0f0', pants: '#3a3a3a' } }
 ];

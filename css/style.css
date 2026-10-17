@@ -3114,3 +3114,4 @@ body.is-app { padding-top: env(safe-area-inset-top); padding-bottom: env(safe-ar
   .crew-label .auto-check.mini .ac-short { display: inline; }
   .crew-label .charge-wrap { font-size: .85rem; }
 }
+.co-routechip { align-self: flex-start; font-size: .72rem; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; color: #6a4a8a; background: #efe6f8; padding: 2px 9px; border-radius: 999px; margin-bottom: 4px; }
