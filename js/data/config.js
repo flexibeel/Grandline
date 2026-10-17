@@ -31,7 +31,8 @@ GL.config = {
   bossBounty: [30, 120, 400],  // Kopfgeld in Mio. Berry pro besiegtem Inselboss
   specialBossCut: 0.22,   // Anteil Max-Leben, den der Boss verliert
   specialEscortCut: 0.6,  // Anteil Max-Leben bei Begleitern
-  raidChance: 0.5,        // Chance pro Insel ab der 2. Insel, dass ein Raid auf der Seekarte liegt
+  raidChance: 0.5,
+  rareRaidChance: 0.15,   // Anteil der Raids, die gegen den seltenen Raid-Boss (Shanks) gehen        // Chance pro Insel ab der 2. Insel, dass ein Raid auf der Seekarte liegt
   raidEscapeHp: 0.25,     // verlorener Raid: Crew entkommt mit diesem Anteil Leben
   epicChance: 0.3,        // Chance, dass eine freigeschaltete epische Frucht im Angebot ist
 

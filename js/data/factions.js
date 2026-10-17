@@ -26,6 +26,20 @@ GL.data.factions = {
       { n: 4, text: 'CP9 weicht 30 % aus und +20 % Krit-Chance', mods: [{ scope: 'faction:cp9', dodge: 0.3, crit: 0.2 }] }
     ]
   },
+  weissbart: {
+    name: 'Weißbart-Bande',
+    tiers: [
+      { n: 2, text: 'Familie: ganze Crew heilt 2 Leben pro Runde', mods: [{ scope: 'all', regen: 2 }] },
+      { n: 3, text: 'Familie: ganze Crew heilt 4 Leben pro Runde und erleidet 1 weniger Schaden', mods: [{ scope: 'all', regen: 4, armor: 1 }] }
+    ]
+  },
+  samurai: {
+    name: 'Samurai der Meere',
+    tiers: [
+      { n: 2, text: 'Samurai +20 % Schaden und +10 % Krit-Chance', mods: [{ scope: 'faction:samurai', dmgPct: 0.2, crit: 0.1 }] },
+      { n: 3, text: 'Samurai +40 % Schaden und +20 % Krit-Chance', mods: [{ scope: 'faction:samurai', dmgPct: 0.4, crit: 0.2 }] }
+    ]
+  },
   baroque: {
     name: 'Baroque Works',
     tiers: [

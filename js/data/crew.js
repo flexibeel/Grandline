@@ -80,10 +80,24 @@ GL.data.crew = [
     look: { hair: '#222222', skin: '#f2c9a0', shirt: '#e8e8e8', pants: '#222222', hat: 'cap', hatColor: '#222222' } },
   { id: 'kaku',      name: 'Kaku',      type: 'klinge',  role: 'kaempfer', faction: 'cp9',     hp: 28, atk: 8, spd: 7, locked: true,
     look: { hair: '#8a5a2a', skin: '#f2c9a0', shirt: '#222222', pants: '#222222', hat: 'cap', hatColor: '#f0f0f0' } },
-  { id: 'jinbei',    name: 'Jinbei',    type: 'kraft',   role: 'brecher',                     hp: 40, atk: 7, spd: 4, locked: true,
+  { id: 'jinbei',    name: 'Jinbei',    type: 'kraft',   role: 'brecher',  faction: 'samurai', hp: 40, atk: 7, spd: 4, locked: true,
     look: { hair: '#1a1a1a', skin: '#5a8fc2', shirt: '#e0e0d0', pants: '#2a3a5a' } },
-  { id: 'ace',       name: 'Ace',       type: 'kraft',   role: 'kaempfer',                    hp: 28, atk: 9, spd: 6, locked: true,
+  { id: 'ace',       name: 'Ace',       type: 'kraft',   role: 'kaempfer', faction: 'weissbart', hp: 28, atk: 9, spd: 6, locked: true,
     look: { hair: '#1a1a1a', skin: '#f2c9a0', shirt: '#f2c9a0', pants: '#3a3a3a', hat: 'cap', hatColor: '#e07a2c' } },
-  { id: 'law',       name: 'Law',       type: 'klinge',  role: 'helfer',                      hp: 26, atk: 7, spd: 6, locked: true,
-    look: { hair: '#1a1a1a', skin: '#e8c0a0', shirt: '#222222', pants: '#4a4030', hat: 'cap', hatColor: '#f0f0f0' } }
+  { id: 'law',       name: 'Law',       type: 'klinge',  role: 'helfer',   faction: 'samurai', hp: 26, atk: 7, spd: 6, locked: true,
+    look: { hair: '#1a1a1a', skin: '#e8c0a0', shirt: '#222222', pants: '#4a4030', hat: 'cap', hatColor: '#f0f0f0' } },
+
+  // Neue Freischaltungen über Raids und erwachte Früchte
+  { id: 'marco',      name: 'Marco',       type: 'technik', role: 'helfer',   faction: 'weissbart', hp: 32, atk: 6,  spd: 7, locked: true,
+    look: { hair: '#e8d070', skin: '#f2c9a0', shirt: '#7a4fc4', pants: '#2a3a5a' } },
+  { id: 'whitebeard', name: 'Whitebeard',  type: 'kraft',   role: 'brecher',  faction: 'weissbart', hp: 48, atk: 9,  spd: 3, locked: true,
+    look: { hair: '#f4f4f4', skin: '#e8b890', shirt: '#f0f0f0', pants: '#4a3a6a', hat: 'band', hatColor: '#2a2a2a' } },
+  { id: 'mihawk',     name: 'Mihawk',      type: 'klinge',  role: 'kaempfer', faction: 'samurai',   hp: 30, atk: 11, spd: 6, locked: true,
+    look: { hair: '#1a1a1a', skin: '#f2c9a0', shirt: '#2a2a2a', pants: '#3a2a1a', hat: 'cap', hatColor: '#3a2a1a' } },
+  { id: 'hancock',    name: 'Hancock',     type: 'technik', role: 'kaempfer', faction: 'samurai',   hp: 28, atk: 9,  spd: 7, locked: true,
+    look: { hair: '#1a1a1a', skin: '#f6d2b0', shirt: '#c0304a', pants: '#e8e8e8', longHair: true } },
+  { id: 'doflamingo', name: 'Doflamingo',  type: 'klinge',  role: 'kaempfer', faction: 'samurai',   hp: 30, atk: 9,  spd: 7, locked: true,
+    look: { hair: '#e8d070', skin: '#f2c9a0', shirt: '#e870a0', pants: '#f0f0f0' } },
+  { id: 'shanks',     name: 'Shanks',      type: 'klinge',  role: 'kaempfer',                       hp: 34, atk: 10, spd: 7, locked: true,
+    look: { hair: '#c0302a', skin: '#f2c9a0', shirt: '#f0f0f0', pants: '#3a3a3a' } }
 ];

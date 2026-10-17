@@ -311,7 +311,11 @@ window.GL = window.GL || {};
     const mult = (kind === 'elite' ? (gate && islandIndex(run) === 0 ? 1 : C.eliteMult) + H.eliteMult : 1) * (gate ? C.gateMult : 1);
 
     let boss = kind === 'boss' ? currentBoss(run) : null;
-    if (kind === 'raid') boss = GL.data.raids[R.int(run, 0, GL.data.raids.length - 1)];
+    if (kind === 'raid') {
+      const rare = GL.data.raids.filter(r => r.rare), normal = GL.data.raids.filter(r => !r.rare);
+      const pool = rare.length && R.float(run) < (C.rareRaidChance || 0) ? rare : normal;
+      boss = pool[R.int(run, 0, pool.length - 1)];
+    }
     let count;
     if (boss) count = boss.escort + H.bossEscort;
     else if (gate) count = 2 + Math.min(2, islandIndex(run));   // Bösewicht der Insel + Gefolge (wächst pro Meer)

@@ -406,6 +406,10 @@ window.GL = window.GL || {};
         if (w.reached !== undefined) ok = (counts['reached:' + w.reached] || 0) >= times;
         if (w.win) ok = (counts.win || 0) >= times;
         if (w.winWithout) ok = won && run.captain !== w.winWithout;
+        if (w.epics) ok = (profile.epics || []).length >= w.epics;
+        if (w.epic) ok = (profile.epics || []).includes(w.epic);
+        if (w.raids) ok = GL.data.raids.reduce((s2, r) => s2 + (counts['defeated:' + r.id] || 0), 0) >= w.raids;
+        if (w.heat) ok = (profile.heatMax || 0) >= w.heat;
         if (ok) { profile.unlocked.push(u.unlock); news.push({ kind: 'crew', id: u.unlock }); }
       });
       return news;
@@ -420,6 +424,10 @@ window.GL = window.GL || {};
       if (w.reached !== undefined) have = profile.counts['reached:' + w.reached] || 0;
       if (w.win) have = profile.counts.win || 0;
       if (w.winWithout) have = profile.unlocked.includes(u.unlock) ? 1 : 0;
+      if (w.epics) return { have: Math.min((profile.epics || []).length, w.epics), need: w.epics };
+      if (w.epic) have = (profile.epics || []).includes(w.epic) ? 1 : 0;
+      if (w.raids) return { have: Math.min(GL.data.raids.reduce((s2, r) => s2 + (profile.counts['defeated:' + r.id] || 0), 0), w.raids), need: w.raids };
+      if (w.heat) return { have: Math.min(profile.heatMax || 0, w.heat), need: w.heat };
       return { have: Math.min(have, need), need };
     },
 

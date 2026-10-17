@@ -37,5 +37,8 @@ GL.data.raids = [
   { id: 'kizaru',     name: 'Admiral Kizaru', type: 'technik', hp: 150, atk: 12, spd: 10, escort: 1, raid: true, reward: 'gum-gum-epic',
     look: { hair: '#2a2a2a', skin: '#f2c9a0', shirt: '#e8d030', pants: '#e8d030', hat: 'cap', hatColor: '#f0f0f0' } },
   { id: 'doflamingo', name: 'Doflamingo',     type: 'klinge',  hp: 170, atk: 13, spd: 7,  escort: 1, raid: true, reward: 'mera-mera-epic',
-    look: { hair: '#e8d070', skin: '#f2c9a0', shirt: '#e870a0', pants: '#f0f0f0' } }
+    look: { hair: '#e8d070', skin: '#f2c9a0', shirt: '#e870a0', pants: '#f0f0f0' } },
+  // Selten (siehe config.rareRaidChance): wer Shanks besiegt, schaltet ihn als Kapitän frei
+  { id: 'shanks',     name: 'Rothaar Shanks', type: 'klinge',  hp: 190, atk: 14, spd: 8,  escort: 2, raid: true, rare: true, reward: 'haki-epic',
+    look: { hair: '#c0302a', skin: '#f2c9a0', shirt: '#f0f0f0', pants: '#3a3a3a' } }
 ];

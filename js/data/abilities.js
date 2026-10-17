@@ -106,12 +106,22 @@ GL.data.abilities = {
   jabra:   { name: 'Wolfs-Frucht',    text: '+30 % Schaden. Seine Krallen lassen bluten (3 Schaden pro Runde, 2 Runden).',
              mods: [{ scope: 'char:jabra', dmgPct: 0.3 }], status: { key: 'bleed', rounds: 2, when: 'hit', target: 'target', value: 3 } },
 
+  // Neue Figuren
+  marco:      { name: 'Phönix-Flammen',  kind: 'revive', value: 0.4, text: 'Steht einmal pro Kampf mit 40 % Leben wieder auf.' },
+  whitebeard: { name: 'Gura-Gura-Beben', kind: 'burn', value: 0.35, text: 'Seine Treffer erschüttern alle anderen Gegner (35 % des Schadens).' },
+  mihawk:     { name: 'Schwarzes Schwert', text: '+30 % Krit-Chance, Krits treffen noch härter.', mods: [{ scope: 'char:mihawk', crit: 0.3, critMult: 0.5 }] },
+  hancock:    { name: 'Mero-Mero-Frucht', text: 'Ihre Treffer versteinern mit 20 % Chance (Betäubt).',
+                status: { key: 'stun', rounds: 1, when: 'hit', target: 'target', chance: 0.2 } },
+  shanks:     { name: 'Königs-Haki',     text: 'Zu Kampfbeginn: Furcht für alle Gegner (2 Runden).',
+                status: { key: 'fear', rounds: 2, when: 'start', target: 'all' } },
+
   // Raid-Bosse
   kizaru:      { name: 'Lichtgeschwindigkeit', kind: 'double', text: 'Greift zweimal pro Runde an. Alle 2 Runden blendet er alle (Furcht, 1 Runde).',
                  status: { key: 'fear', rounds: 1, when: 'every', n: 2, target: 'all' } },
   doflamingo:  { name: 'Fadenkäfig',      kind: 'chain', value: 0.6,   text: 'Fäden springen über (60 % Schaden). Zu Kampfbeginn: Furcht für die ganze Crew (3 Runden).',
                  status: { key: 'fear', rounds: 3, when: 'start', target: 'all' } }
 };
+// Seltener Raid: Shanks nutzt im Raid dieselbe Fähigkeit wie als Crewmitglied (Königs-Haki)
 
 // Zustände, die mehrere Runden halten. good = Vorteil für den Träger.
 GL.data.statuses = {

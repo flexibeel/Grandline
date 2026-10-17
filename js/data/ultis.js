@@ -71,6 +71,20 @@ GL.data.ultis = {
   law:     { name: 'Gamma Knife', text: 'Schneidet von innen (250 %), ignoriert Rüstung.',
              fx: [{ do: 'strike', mult: 2.5, target: 'front', pierce: true }] },
 
+  marco:      { name: 'Phönix-Regen', text: 'Heilt die Crew um 22 % und entfernt schlechte Zustände.',
+                fx: [{ do: 'heal', pct: 0.22, target: 'all' }, { do: 'cleanse', target: 'allies' }] },
+  whitebeard: { name: 'Gura-Gura-Schlag', text: 'Erdbeben auf alle (140 %), alle in Furcht.',
+                fx: [{ do: 'strike', mult: 1.4, target: 'all' }, { do: 'status', key: 'fear', rounds: 2, target: 'all' }] },
+  mihawk:     { name: 'Kokuto: Yoru', text: 'Der stärkste Hieb der Welt (320 %), ignoriert Rüstung.',
+                fx: [{ do: 'strike', mult: 3.2, target: 'front', pierce: true }] },
+  hancock:    { name: 'Slave Arrow', text: 'Pfeile auf alle (80 %), der Vorderste versteinert.',
+                fx: [{ do: 'strike', mult: 0.8, target: 'all' }, { do: 'status', key: 'stun', rounds: 1, target: 'front' }] },
+  doflamingo: { name: 'Fadenkäfig', text: 'Fäden durch alle (110 %), alle geschwächt.',
+                fx: [{ do: 'strike', mult: 1.1, target: 'all' }, { do: 'status', key: 'weak', rounds: 2, target: 'all' }] },
+  shanks:     { name: 'Kamusari', text: 'Haki-Hieb (250 %), dazu Mut für die ganze Crew.',
+                fx: [{ do: 'strike', mult: 2.5, target: 'front' }, { do: 'status', key: 'brave', rounds: 2, target: 'allies' }] },
+  kizaru:     { name: 'Yasakani no Magatama', text: 'Lichtkugeln auf alle (100 %).', fx: [{ do: 'strike', mult: 1, target: 'all' }] },
+
   // Bosse und Bösewichte
   smoker:      { name: 'White Blow', text: 'Rauchfaust (200 %), betäubt das Ziel.',
                  fx: [{ do: 'strike', mult: 2, target: 'front' }, { do: 'status', key: 'stun', rounds: 1, target: 'hit' }] },
