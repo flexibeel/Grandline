@@ -3167,4 +3167,3 @@ html, body { overflow-x: hidden; overscroll-behavior-x: none; }
 button, .btn, a, [data-act] { touch-action: manipulation; }
 body.is-app { overscroll-behavior-y: none; -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; }
 body.is-app input, body.is-app textarea { -webkit-user-select: text; user-select: text; }
-main { max-width: 100%; }
