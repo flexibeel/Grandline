@@ -247,7 +247,7 @@
     if (code) {
       const c = String(code).trim().toLowerCase().replace(/[^0-9a-z]/g, '');
       seed = parseInt(c, 36);
-      if (!c || !isFinite(seed) || seed > 0xffffffff) { toast('<span><b>Ungültiger Code</b>Bitte prüfe den Duell-Code.</span>'); return; }
+      if (!c || !isFinite(seed) || seed > 0xffffffff) { toast('<span><b>Ungültiger Code</b>Bitte prüfe den Wettfahrt-Code.</span>'); return; }
     } else {
       seed = GL.rng.newSeed();
     }
@@ -648,9 +648,12 @@
       case 'duel-new': startDuel(null); break;
       case 'duel-join': { const inp = document.getElementById('duel-code'); startDuel(inp ? inp.value : ''); break; }
       case 'duel-copy': {
-        const txt = `Duell in Grand Line! Code: ${el.dataset.id}`;
-        if (navigator.clipboard) navigator.clipboard.writeText(el.dataset.id).then(() => toast('<span><b>Kopiert</b>' + txt + '</span>'), () => toast('<span><b>Duell-Code</b>' + el.dataset.id + '</span>'));
-        else toast('<span><b>Duell-Code</b>' + el.dataset.id + '</span>');
+        const code = el.dataset.id;
+        const txt = `Wettfahrt in Grand Line! Gleiche Route, wer holt mehr Punkte? Code: ${code}\n${location.origin}${location.pathname}`;
+        // Handy: Teilen-Menü (WhatsApp & Co.), sonst kopieren
+        if (navigator.share && matchMedia('(pointer: coarse)').matches) { navigator.share({ title: 'Grand Line Wettfahrt', text: txt }).catch(() => {}); break; }
+        if (navigator.clipboard) navigator.clipboard.writeText(txt).then(() => toast('<span><b>Kopiert</b>Code ' + code + ' samt Link. Einfach an deinen Kumpel schicken.</span>'), () => toast('<span><b>Wettfahrt-Code</b>' + code + '</span>'));
+        else toast('<span><b>Wettfahrt-Code</b>' + code + '</span>');
         break;
       }
       // Account zurücksetzen (Name und Aussehen bleiben) oder ganz löschen. Zweimal klicken zum Bestätigen.

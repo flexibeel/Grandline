@@ -285,7 +285,7 @@ window.GL = window.GL || {};
         <em class="gold-chip" data-tip="Gold für die Taverne.\nGibt es für Siege, verfällt am Run-Ende.">${GL.sprites.coin()} <b>${run.gold || 0}</b></em>
         <em class="bounty-chip" id="bounty-chip" data-tip="Kopfgeld deines Kapitäns.\nZählt für deinen Punktestand und die Rangliste 'Höchstes Kopfgeld'. Bringt sonst nichts im Run.">${GL.sprites.icon('node', 'elite')} <b>${fmtBounty(run.bountyM || 0)}</b></em>
         ${run.heat ? `<em class="heat-chip">Stufe ${run.heat}</em>` : ''}
-        ${run.daily ? '<em class="duel-chip">Tageskarte</em>' : run.duel ? `<em class="duel-chip">⚔ Duell ${run.duel}</em>` : ''}
+        ${run.daily ? '<em class="duel-chip">Tageskarte</em>' : run.duel ? `<em class="duel-chip">Wettfahrt ${run.duel}</em>` : ''}
       </span>`;
   }
 
@@ -1028,9 +1028,9 @@ window.GL = window.GL || {};
         const tro = (run.trophies || []).map(id => (GL.data.artifacts || []).find(a => a.id === id)).filter(Boolean);
         const troHtml = tro.length ? `<div class="trophy-sum"><span class="event-kicker">Neu in der Schatzkammer</span>
           ${tro.map(a => `<span class="trophy-chip" title="${a.text.replace('{v}', '…')}">${artIcon(a)} ${a.name}</span>`).join('')}</div>` : '';
-        const duelHtml = run.daily ? `<div class="duel-sum"><span class="event-kicker">Tageskarte</span><span>Dein Ergebnis heute: <b>${GL.run.score(run).toLocaleString('de-DE')}</b> Punkte. Vergleiche dich in der Rangliste unter „Tageskarte“.</span></div>` : run.duel ? `<div class="duel-sum"><span class="event-kicker">Duell ${run.duel}</span>
+        const duelHtml = run.daily ? `<div class="duel-sum"><span class="event-kicker">Tageskarte</span><span>Dein Ergebnis heute: <b>${GL.run.score(run).toLocaleString('de-DE')}</b> Punkte. Vergleiche dich in der Rangliste unter „Tageskarte“.</span></div>` : run.duel ? `<div class="duel-sum"><span class="event-kicker">Wettfahrt ${run.duel}</span>
           <span>Dein Ergebnis: <b>${GL.run.score(run).toLocaleString('de-DE')}</b> Punkte. Schick deinem Freund den Code <b>${run.duel}</b>, er spielt denselben Run.</span>
-          <button class="btn mini ghost" data-act="duel-copy" data-id="${run.duel}">Code kopieren</button></div>` : '';
+          <button class="btn mini ghost" data-act="duel-copy" data-id="${run.duel}">Code teilen</button></div>` : '';
         return `${head}${duelHtml}${record}${berry}${troHtml}${itemSum}${rankHtml}${heatUp}<div class="end-actions"><button class="btn" data-act="again">Nochmal! ${keyHint('Leertaste')}</button>
           <button class="btn ghost" data-act="hq">Hauptquartier ${keyHint('H')}</button></div>`;
       }
@@ -1056,6 +1056,9 @@ window.GL = window.GL || {};
   const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[ch]);
   // Kategorien der Rangliste: Feld im Eintrag, Name, Einheit
   let dailyCodeShown = null;
+  // Grüner Punkt: Spieler hat sich in den letzten 4 Minuten gemeldet (Lebenszeichen alle 2 Min.)
+  const isOnline = x => { const t = Date.parse(x && x.updated); return isFinite(t) && Date.now() - t < 240000; };
+  const onDot = x => isOnline(x) ? '<i class="on-dot" title="Gerade online" aria-label="online"></i>' : '';
   const yesterday = () => { const d = new Date(Date.now() - 864e5); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
   // Team und Fortschritt einer Tageskarte in einer Zeile
   function dailyLine(e) {
@@ -1078,7 +1081,7 @@ window.GL = window.GL || {};
     { id: 'rankXp',    name: 'Piratenrang',       get: x => x.rankXp,    unit: 'Rang-EP' },
     { id: 'artifacts', name: 'Artefakte',         get: x => x.artifacts, unit: 'Artefakte gefunden' },
     { id: 'squadRating', name: 'Crew-Liga',       get: x => x.squadOn ? (x.squadRating || 1000) : 0, unit: 'Crew-Rating' },
-    { id: 'squadW',    name: 'Duell-Siege',       get: x => x.squadW,    unit: 'Stammcrew-Siege' }
+    { id: 'squadW',    name: 'Crew-Duelle',       get: x => x.squadW,    unit: 'Stammcrew-Siege' }
   ];
   // Dein Profil als Karte: Name, Rang, wichtigste Werte
   function myCard(profile, mine, best, fmt) {
@@ -1228,7 +1231,7 @@ window.GL = window.GL || {};
         <button class="link pcard-close" data-act="lb-view-close">✕</button>
         <div class="pcard-top">
           <span class="pcard-cap">${x.look ? portrait(x.look, x.cos, 'lg') : cap ? GL.sprites.render(cap) : ''}</span>
-          <b class="pcard-name">${medal(GL.meta.rankIndex({ rankXp: x.rankXp || 0 }), 'small')} ${esc(x.name || 'Unbekannter Pirat')} ${badgeIcon(x.cos, true)}${isMe ? ' <em>du</em>' : ''}</b>
+          <b class="pcard-name">${medal(GL.meta.rankIndex({ rankXp: x.rankXp || 0 }), 'small')} ${esc(x.name || 'Unbekannter Pirat')}${onDot(x)} ${badgeIcon(x.cos, true)}${isMe ? ' <em>du</em>' : ''}</b>
           ${x.cos && x.cos.star ? '<span class="admin-tag big">★ Entwickler · hat dieses Spiel gebaut</span>' : ''}
           <small>${x.cos && x.cos.title ? esc(titleName(x.cos.title)) + ' · ' : ''}${esc(x.rank || '')}</small>
         </div>
@@ -1276,7 +1279,7 @@ window.GL = window.GL || {};
       return `<li class="lb-row${x.id === st.uid ? ' me' : ''}${k < 3 ? ' top' + (k + 1) : ''}${x.cos && x.cos.bg ? ' rowbg-' + x.cos.bg : ''}" data-act="lb-view" data-id="${esc(x.id)}" tabindex="0" role="button">
         <span class="lb-pos">${k + 1}</span>
         <span class="lb-cap">${x.look ? portrait(x.look, x.cos, 'sm') : cap ? GL.sprites.render(cap) : ''}</span>
-        <span class="lb-who"><b>${medal(GL.meta.rankIndex({ rankXp: x.rankXp || 0 }), 'tiny')} ${esc(x.name || 'Unbekannter Pirat')} ${badgeIcon(x.cos)}${x.id === st.uid ? ' <em>du</em>' : ''}${x.cos && x.cos.star ? ' <em class="admin-tag" title="Der Entwickler dieses Spiels. Unbesiegbar (fast).">★ Entwickler</em>' : ''}${(x.showcase || []).length ? `<span class="lb-show">${x.showcase.map(lootChip).join('')}</span>` : ''}</b>
+        <span class="lb-who"><b>${medal(GL.meta.rankIndex({ rankXp: x.rankXp || 0 }), 'tiny')} ${esc(x.name || 'Unbekannter Pirat')}${onDot(x)} ${badgeIcon(x.cos)}${x.id === st.uid ? ' <em>du</em>' : ''}${x.cos && x.cos.star ? ' <em class="admin-tag" title="Der Entwickler dieses Spiels. Unbesiegbar (fast).">★ Entwickler</em>' : ''}${(x.showcase || []).length ? `<span class="lb-show">${x.showcase.map(lootChip).join('')}</span>` : ''}</b>
           <small>${x.cos && x.cos.title ? esc(titleName(x.cos.title)) + ' · ' : ''}${esc(x.rank || '')}${extra ? ' · ' + extra : ''}</small>
           ${isDaily ? dailyLine(x.duels[dailyCodeShown]) : x.squadOn && (x.squad || []).length ? `<span class="lb-crew">${squadMini(x.squad)}${leagueChip(x.squadRating)}</span>` : ''}</span>
         <span class="lb-score"><b>${fmt(value)}</b><small>${unit}</small></span>
@@ -1297,9 +1300,9 @@ window.GL = window.GL || {};
     const duelRows = shown ? (st.rows || []).filter(x => x.duels && x.duels[shown])
       .sort((a, b) => b.duels[shown].score - a.duels[shown].score) : [];
     const duelBox = `<div class="duel-box">
-      <div class="duel-head"><b>Duell</b><small>Alle spielen exakt denselben Run: gleiche Angebote, gleiche Gegner, ohne Werft, Lager und Artefakte. Wer mehr Punkte holt, gewinnt.</small></div>
+      <div class="duel-head"><b>Wettfahrt mit Freunden</b><small>Starte eine Fahrt und schick deinem Kumpel den Code. Ihr spielt exakt dieselbe Route, ohne Ausbauten. Wer mehr Punkte holt, gewinnt. (Hat nichts mit der Stammcrew zu tun.)</small></div>
       <div class="duel-actions">
-        <button class="btn" data-act="duel-new">⚔ Neues Duell starten</button>
+        <button class="btn" data-act="duel-new">Neue Wettfahrt starten</button>
         <span class="duel-join"><input id="duel-code" maxlength="8" placeholder="Code vom Freund" value="${esc(ui.duelInput || '')}">
         <button class="btn ghost" data-act="duel-join">Annehmen</button></span>
       </div>
@@ -1307,7 +1310,7 @@ window.GL = window.GL || {};
         `<button class="lb-cat${c === shown ? ' on' : ''}" data-act="duel-view" data-id="${esc(c)}">${esc(c)} <small>${codes[c]}</small></button>`).join('')}</div>` : ''}
       ${duelRows.length ? `<ol class="lb-list">${duelRows.map((x, k) => row(x, k, x.duels[shown].score, 'Punkte',
         `${x.duels[shown].won ? 'Grand Line geschafft' : 'bis ' + esc(x.duels[shown].island || '?')} · ${fmt(x.duels[shown].dmg)} Schaden`)).join('')}</ol>
-        <button class="btn mini ghost" data-act="duel-copy" data-id="${esc(shown)}">Code ${esc(shown)} kopieren</button>` : ''}
+        <button class="btn mini ghost" data-act="duel-copy" data-id="${esc(shown)}">Code ${esc(shown)} teilen</button>` : ''}
     </div>`;
 
     return `<section class="hq-sec leaderboard">

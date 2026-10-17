@@ -3148,3 +3148,4 @@ body.is-app { padding-top: env(safe-area-inset-top); padding-bottom: env(safe-ar
 .fb-card textarea { width: 100%; box-sizing: border-box; resize: none; border-radius: 12px; border: 1px solid #e3d3b4; background: #fffdf8; padding: 8px 10px; font: inherit; font-size: .9rem; margin-bottom: 12px; }
 .fb-note { display: block; margin-top: 8px; color: var(--mute); font-size: .74rem; }
 .fb-link { text-align: center; font-size: .85rem; margin: 6px 0 12px; color: var(--mute); }
+.on-dot { display: inline-block; width: 8px; height: 8px; margin-left: 5px; border-radius: 50%; background: #3fb45a; box-shadow: 0 0 0 2px rgba(63,180,90,.2); vertical-align: middle; }
