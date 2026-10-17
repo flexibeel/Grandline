@@ -1194,6 +1194,7 @@ window.GL = window.GL || {};
   }
   // ---------- Crew-Ausrüstung (Stammcrew) ----------
   const CG_COL = ['#9a8f80', '#4f86c6', '#9a5bd0', '#e0a030'];
+  const CG_ICON = { waffe: '⚔', kleid: '🧥', schmuck: '💍', trophae: '🏆' };
   const CG_ART = {
     sword:   ['........AB', '.......AB.', '......AB..', '.....AB...', '....AB....', '.C.AB.....', '..CB......', '..CC......', '.C..C.....', 'C.........'],
     gun:     ['..........', '..........', 'AAAAAAAAB.', 'BBBBBBAAB.', '.....CCAB.', '.....C.BB.', '......CBB.', '.......BB.', '..........', '..........'],
@@ -1233,14 +1234,14 @@ window.GL = window.GL || {};
     const rows = refs.map(r => `<div class="cg-row"><i class="cg-who">${squadSprite(r)}</i><b>${esc(r.name)}</b>
       <span class="cg-slots">${GL.data.crewGear.slots.map(sl => {
         const it = bag.find(x => x.uid === (W[r.id] || {})[sl.id]);
-        return it ? cgChip(it, 'cg-slot', `data-id="${esc(r.id)}" data-slot="${sl.id}"`)
-          : `<button class="cg-chip empty" data-act="cg-slot" data-id="${esc(r.id)}" data-slot="${sl.id}" title="${sl.name} anlegen">+<small>${sl.name}</small></button>`;
+        return it ? `<span class="cg-slotw">${cgChip(it, 'cg-slot', `data-id="${esc(r.id)}" data-slot="${sl.id}"`)}<small>${sl.name}</small></span>`
+          : `<span class="cg-slotw"><button class="cg-chip empty" data-act="cg-slot" data-id="${esc(r.id)}" data-slot="${sl.id}" title="${sl.name} anlegen">+</button><small>${sl.name}</small></span>`;
       }).join('')}</span></div>`).join('');
     const list = bag.slice().sort((a, b) => b.r - a.r || GL.cgear.power(b) - GL.cgear.power(a));
     return `<div class="cg-panel">
       <div class="cg-head"><b>Ausrüstung</b><small>${bag.length}/${GL.data.crewGear.bagMax} in der Tasche</small></div>
       ${rows}
-      ${list.length ? `<div class="cg-bag">${list.map(it => `<span class="cg-bagit${fresh.includes(it.uid) ? ' new' : ''}${GL.cgear.wornBy(profile, it.uid) ? ' worn' : ''}">${cgChip(it, 'cg-item', `data-uid="${it.uid}"`)}</span>`).join('')}</div>`
+      ${list.length ? `<div class="cg-bag">${GL.data.crewGear.slots.map(sl => { const grp = list.filter(it => GL.cgear.slotOf(it) === sl.id); return grp.length ? `<div class="cg-grp"><small class="cg-grp-t">${CG_ICON[sl.id]} ${sl.id === 'trophae' ? 'Trophäen' : sl.id === 'waffe' ? 'Waffen' : sl.name} <em>${grp.length}</em></small><div class="cg-grp-items">${grp.map(it => `<span class="cg-bagit${fresh.includes(it.uid) ? ' new' : ''}${GL.cgear.wornBy(profile, it.uid) ? ' worn' : ''}">${cgChip(it, 'cg-item', `data-uid="${it.uid}"`)}</span>`).join('')}</div></div>` : ''; }).join('')}</div>`
         : '<p class="hint">Noch leer. Bosse und Raids lassen ab jetzt Waffen, Kleidung und Schmuck fallen, im Endlos-Modus öfter und besser.</p>'}
     </div>`;
   }

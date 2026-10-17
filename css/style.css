@@ -3603,3 +3603,13 @@ body.reloading { opacity: .5; transition: opacity .12s; }
 /* 3-Sterne-Figuren in Taverne und Auswahl: goldener Rahmen und Glanz */
 .opt.card .card-face.cf3.shiny { box-shadow: 0 0 0 2px #e2c27a, 0 0 18px rgba(226,194,122,.55), 0 10px 22px -12px rgba(60,40,15,.4) !important; }
 @media (prefers-reduced-motion: reduce) { .opt.loot-opt.lr-epic, .opt.loot-opt.lr-legendary { animation: none !important; } }
+.cg-slotw { display: grid; justify-items: center; gap: 1px; }
+.cg-slotw > small { font-size: .55rem; font-weight: 700; color: #9a8a70; }
+.cg-chip.empty { font-size: 1.1rem; }
+.cg-bag { display: grid; gap: 8px; }
+.cg-grp-t { display: block; font-weight: 800; color: #6b5a44; margin-bottom: 4px; }
+.cg-grp-t em { font-style: normal; color: #9a8a70; font-weight: 700; }
+.cg-grp-items { display: flex; flex-wrap: wrap; gap: 6px; }
+.cg-slots { gap: 4px; }
+.cg-row { grid-template-columns: 30px minmax(0, 1fr) auto; }
+@media (max-width: 400px) { .cg-chip { width: 38px; height: 38px; } .cg-chip .cg-art { width: 24px; height: 24px; } }
