@@ -173,7 +173,7 @@ window.GL = window.GL || {};
       <em class="lvtag">Lv ${u.lvl}</em>
 
       <div class="bar"><i style="width:${Math.max(0, 100 * u.hp / u.max)}%"></i></div>
-      ${u.points > 0 ? `<span class="skill-tab">+${u.points} Skillen</span>` : ''}
+      ${u.points > 0 ? `<span class="skill-tab" title="${u.points} Trainingspunkte offen">+${u.points} ▲</span>` : ''}
     </div>`;
   }
 
@@ -444,6 +444,12 @@ window.GL = window.GL || {};
   // ---------- Seekarte (wie bei Pokelike) ----------
   // Reihen von unten (Start) nach oben (Inselboss). Erreichbare Orte sind Knöpfe,
   // besuchte Orte sind golden verbunden, das Schiff zeigt, wo die Crew gerade ist.
+  // „Neu“-Markierung: Gegner, die man noch nie besiegt hat, und Inseln, die man noch nie angesteuert hat
+  let seenRef = null;
+  const isNewFoe = id => !!(seenRef && id && !(seenRef.bosses || []).includes(id));
+  const isNewIsl = isl => !!(seenRef && isl && !(seenRef.islands || []).includes(isl.id) && !(seenRef.bosses || []).includes(isl.villain || isl.boss));
+  const newChip = '<span class="new-chip" title="Noch nie besiegt">Neu</span>';
+
   function seaChart(run, boss, tip) {
     const ch = run.chart;
     if (!ch) return '';
@@ -487,13 +493,13 @@ window.GL = window.GL || {};
         const isTip = tip && tip.index === k;
         nodes += `<button class="map-node can n-${n.t}${big ? ' boss' : ''}${n.gate ? ' gate' : ''}${hunted ? ' hunted' : ''}${isTip ? ' is-tip' : ''}" data-act="node" data-i="${k}" style="${style}"
             title="${title}: ${isBoss ? bossInfo(boss).text : hunted ? (ability(hunted.id) ? ability(hunted.id).name + ': ' + ability(hunted.id).text : '') : N[n.t].text}">
-          <span class="mn-icon">${icon}</span>${k < 9 ? `<kbd class="key">${k + 1}</kbd>` : ''}${isTip ? '<span class="tip-badge">Tipp</span>' : ''}
+          <span class="mn-icon">${icon}</span>${k < 9 ? `<kbd class="key">${k + 1}</kbd>` : ''}${isTip ? '<span class="tip-badge">Tipp</span>' : ''}${(isBoss || hunted) && isNewFoe(isBoss ? boss.id : hunted.id) && !isTip ? newChip : ''}
           <span class="mn-label"><b>${isBoss ? boss.name : hunted ? hunted.name : title}</b>${hunted ? `<em class="mn-bounty">${hunted.bounty} Mio. ฿</em>` : ''}${dangerTag(run, n.t)}</span>
         </button>`;
       } else {
         const state = onPath(r, i) ? 'done' : r < pos ? 'gone' : 'future';
         nodes += `<span class="map-node ${state} n-${n.t}${big ? ' boss' : ''}${n.gate ? ' gate' : ''}${hunted ? ' hunted' : ''}" style="${style}" title="${title}">
-          <span class="mn-icon">${icon}</span>${big ? `<span class="mn-label"><b>${isBoss ? boss.name : hunted ? hunted.name : ''}</b></span>` : ''}</span>`;
+          <span class="mn-icon">${icon}</span>${(isBoss || hunted) && state === 'future' && isNewFoe(isBoss ? boss.id : hunted.id) ? newChip : ''}${big ? `<span class="mn-label"><b>${isBoss ? boss.name : hunted ? hunted.name : ''}</b></span>` : ''}</span>`;
       }
     }));
     const shipX = pos === 0 ? startX : X(pos - 1, ch.at);
@@ -568,7 +574,7 @@ window.GL = window.GL || {};
     if (ev.k === 'note') return ev.text;
     if (ev.k === 'round') return '';
     if (ev.k === 'special') return `Spezialangriff: ${ev.name}!`;
-    if (ev.k === 'ult') return `${anyData(ev.by) ? anyData(ev.by).name : ''} entfesselt die Ulti: ${ev.name}!`;
+    if (ev.k === 'ult') return `${anyData(ev.by) ? anyData(ev.by).name : ''} entfesselt die Ulti: ${ev.name}!${ev.tier === 'perfect' ? ' Perfekt, alles stärker!' : ev.bonus ? ` Bonus: ${ev.bonus}.` : ''}`;
     if (ev.k === 'skip') return `${targetName(run, ev.side, ev.to)} ist betäubt und setzt aus.`;
     if (ev.k === 'immune') return `${targetName(run, ev.side, ev.to)} lässt sich nicht beeindrucken (${GL.data.statuses[ev.key].name} abgewehrt).`;
     if (ev.k === 'cleanse') return `${anyData(ev.by) ? anyData(ev.by).name : 'Ein Helfer'} befreit ${targetName(run, ev.side, ev.to)} von ${GL.data.statuses[ev.key].name}.`;
@@ -837,10 +843,11 @@ window.GL = window.GL || {};
           return `<button class="opt course-opt" data-act="pick" data-i="${i}">
             ${i < 9 ? `<kbd class="key">${i + 1}</kbd>` : ''}
             ${route ? `<span class="co-routechip">Route: ${esc(route)}</span>` : ''}
+            ${isNewIsl(isl) ? '<span class="new-chip co-new" title="Hier warst du noch nie">Neue Insel</span>' : ''}
             <span class="co-top"><b class="co-name">${isl.name}</b><small>${isl.text}</small></span>
             <span class="co-route">${isl.places.map(p => `<i>${p}</i>`).join('<em>›</em>')}<em>›</em><i class="co-lair">${isl.lair}</i></span>
             <span class="co-foe"><span class="co-sprite">${GL.sprites.render(foe)}</span>
-              <span><small>${ch === 0 ? 'Bösewicht der Insel' : 'Boss des Meeres'}</small><b>${foe.name} ${badge(foe.type)}</b>
+              <span><small>${ch === 0 ? 'Bösewicht der Insel' : 'Boss des Meeres'}</small><b>${foe.name} ${badge(foe.type)}${isNewFoe(foe.id) ? newChip : ''}</b>
               <small>schwach gegen ${badge(info.counter)}${bounty ? ` · Kopfgeld ${bounty}` : ''}</small></span></span>
           </button>`;
         }).join('');
@@ -1649,7 +1656,7 @@ window.GL = window.GL || {};
           <button class="btn ghost" data-act="intro-open">Anleitung</button>
         </div>
         <button class="link ts-login" data-act="login-open">${st.anon === false && st.email ? 'Angemeldet ✓' : 'Anmelden'}</button>
-        <div class="ts-small"><button class="link ts-notes" data-act="notes-open">Neuigkeiten${profile.nickname && profile.notesSeen !== GL.version ? ' <i class="new-dot"></i>' : ''}</button>${fsLink()}${streamToggle()}</div>
+        <div class="ts-small"><button class="link ts-notes" data-act="notes-open">Neuigkeiten${profile.nickname && profile.notesSeen !== GL.version ? ' <i class="new-dot"></i>' : ''}</button><button class="link ts-reload" data-act="reload">↻ Neu laden</button>${fsLink()}${streamToggle()}</div>
       </div>
       <p class="ts-foot">Inoffizielles Fanprojekt, kostenlos und ohne kommerzielle Absicht. One Piece gehört seinen Rechteinhabern. <a href="legal.html">Rechtliches &amp; Datenschutz</a></p>
     </div>`;
@@ -1947,7 +1954,7 @@ window.GL = window.GL || {};
     const dScore = dd ? dd.score : null;
     return `<div class="daily-card${done ? ' done' : ''}">
       <span class="dc-ico" aria-hidden="true">${featureArt('scroll')}</span>
-      <span class="dc-txt"><b>Tageskarte${(profile.dailyStreak || 0) > 1 && profile.daily && (profile.daily.d === day || profile.daily.d === yesterday()) ? ` <em class="dc-streak">${profile.dailyStreak} Tage in Folge</em>` : ''}</b><small>${done ? (dScore != null ? `Heute: ${Number(dScore).toLocaleString('de-DE')} Punkte. Morgen gibt es eine neue.` : 'Heute schon gestartet. Morgen gibt es eine neue.') : 'Gleiche Route für alle, ohne Ausbauten. Ein Versuch.'}</small></span>
+      <span class="dc-txt"><b>Tageskarte${(profile.dailyStreak || 0) > 1 && profile.daily && (profile.daily.d === day || profile.daily.d === yesterday()) ? ` <em class="dc-streak">${profile.dailyStreak} Tage in Folge</em>` : ''}</b><small>${done ? (dScore != null ? `Heute: ${Number(dScore).toLocaleString('de-DE')} Punkte. Morgen gibt es eine neue.` : 'Heute schon gestartet. Morgen gibt es eine neue.') : '<i class="dc-open">Heute noch offen</i> Alle starten gleich, egal welcher Rang. Dann entscheiden deine Wahl und das Glück. Ein Versuch.'}</small></span>
       ${done ? '<em class="dc-done">✓</em>' : '<button class="btn mini" data-act="daily-start">Starten</button>'}
     </div>`;
   }
@@ -2174,7 +2181,7 @@ window.GL = window.GL || {};
         ${codeBox(profile, uiRef)}
         ${accountLine()}
         ${slotsBox(uiRef)}
-        <p class="fb-link"><button class="link" data-act="notes-open">Neuigkeiten${profile.notesSeen !== GL.version ? ' <i class="new-dot"></i>' : ''}</button> · <button class="link" data-act="fb-open">★ Feedback</button> · <a href="legal.html">Rechtliches</a></p>
+        <p class="fb-link"><button class="link" data-act="notes-open">Neuigkeiten${profile.notesSeen !== GL.version ? ' <i class="new-dot"></i>' : ''}</button> · <button class="link" data-act="fb-open">★ Feedback</button> · <button class="link" data-act="reload">↻ Neu laden</button> · <a href="legal.html">Rechtliches</a></p>
         ${adminBox(profile)}
         ${chapterPanel(profile)}
         ${devicesBox()}
@@ -2419,6 +2426,7 @@ window.GL = window.GL || {};
       const titleEl = $('#title');
       titleEl.hidden = !ui.screen;
       document.body.classList.toggle('on-title', !!ui.screen);
+      seenRef = ui.profile && ui.profile.seen;
       document.body.classList.toggle('streamer', streamOn());
       document.body.classList.toggle('is-app', !!fsApp());
       document.body.classList.toggle('in-run', !!run && !ui.screen);

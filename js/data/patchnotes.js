@@ -1,6 +1,14 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-17h', date: '17.10.', title: 'Ultis mit Überraschung', items: [
+    'Ultis sind nicht mehr immer gleich: Schaden schwankt, kann kritisch treffen und wird mit jeder weiteren Ulti im Kampf stärker',
+    'Manchmal gelingt eine Ulti „Perfekt“ (alles stärker, Zustände halten länger) oder bringt einen Bonus passend zum Kampfstil',
+    'Nach einem Sieg schrumpft das Kampfbild: Level-Aufstiege und Weiter-Knopf ohne Scrollen sichtbar',
+    '„Neu“-Markierung für Gegner, die du noch nie besiegt hast, und Inseln, auf denen du noch nie warst',
+    'Tageskarte schon nach dem ersten Run, besser erklärt und hervorgehoben, solange sie heute noch offen ist',
+    'Neuer Knopf ↻ zum Neuladen der Seite (wie F5, auch in der Handy-App)',
+    'Tipp-Abzeichen auf Schatzkarten wird nicht mehr abgeschnitten' ] },
   { v: '2026-10-17g', date: '17.10.', title: 'Neue Figurenkarten', items: [
     'Figuren sehen jetzt aus wie echte Sammelkarten: Bild mit Podest, Bandenfarbe, Werte als kleine Abzeichen',
     'Drei-Sterne-Karten glänzen ganz leicht',

@@ -120,21 +120,43 @@ window.GL = window.GL || {};
       d = pierce ? Math.round(d) : Math.round(d * (1 - (t.guard || 0))) - (t.armor || 0);
       return Math.max(1, d);
     }
+    // Ulti-Würfel: dieselbe Ulti fühlt sich nie gleich an.
+    //   Schaden schwankt, kann kritisch sein, wird mit jeder weiteren Ulti im Kampf etwas stärker.
+    //   Manchmal „Perfekt“ (alles stärker, Zustände länger), manchmal ein Bonus-Effekt passend zum Kampfstil.
+    const UV = Object.assign({ spread: 0.15, perfect: 0.16, bonus: 0.16, perfectMult: 1.35, ramp: 0.1 }, U.vary || {});
+    const ULT_BONUS = {
+      kraft:   { label: 'Erschütterung', do: 'status', key: 'stun', rounds: 1, target: 'front' },
+      klinge:  { label: 'Tiefe Wunde',   do: 'status', key: 'bleed', rounds: 3, value: 3, target: 'front' },
+      technik: { label: 'Schwachstelle', do: 'status', key: 'weak', rounds: 2, target: 'all' },
+      heal:    { label: 'Zweiter Atem',  do: 'heal', pct: 0.12, target: 'lowest' }
+    };
     function doUlt(u, spark) {
       const ult = u.ult;
       u.energy = 0; u.ultWait = 0;
-      events.push({ k: 'ult', side: u.side, from: idx(u), by: u.id, name: ult.name, spark: !!spark });
+      u.ultCount = (u.ultCount || 0) + 1;
+      const roll = R.float(run);
+      const tier = roll < UV.perfect ? 'perfect' : roll < UV.perfect + UV.bonus ? 'bonus' : '';
+      const hasStrike = ult.fx.some(f => f.do === 'strike');
+      const bonus = tier === 'bonus' ? (hasStrike ? ULT_BONUS[u.type] || ULT_BONUS.technik : ULT_BONUS.heal) : null;
+      const P = tier === 'perfect';
+      events.push({ k: 'ult', side: u.side, from: idx(u), by: u.id, name: ult.name, spark: !!spark, tier, bonus: bonus ? bonus.label : '', combo: u.ultCount });
       let hitList = [];
-      ult.fx.forEach(f => {
+      (bonus ? ult.fx.concat([bonus]) : ult.fx).forEach(f0 => {
+        const f = !P ? f0 : Object.assign({}, f0, {
+          rounds: f0.rounds ? f0.rounds + 1 : f0.rounds,
+          pct: f0.pct ? f0.pct * 1.5 : f0.pct,
+          value: f0.do === 'atk' || f0.do === 'armor' ? f0.value + 1 : f0.value });
         const foes = foesOf(u), al = allies(u);
         if (f.do === 'strike') {
           const living = alive(foes);
           if (!living.length) return;
+          const mult0 = f.mult * (P ? UV.perfectMult : 1) * (1 + UV.ramp * (u.ultCount - 1));
+          const crit = !P && R.float(run) < (u.crit || 0) + (C.baseCrit || 0);
           const targets = f.target === 'all' ? living
             : f.target === 'weakest' ? [living.reduce((a, b) => (b.hp < a.hp ? b : a))] : [living[0]];
-          const list = targets.map(t => { const d = ultStrike(u, t, f.mult, f.pierce); return { to: foes.indexOf(t), dmg: Math.min(t.hp, d), hp: damage(t, d) }; });
+          const list = targets.map(t => { const d = ultStrike(u, t, mult0 * (1 + (R.float(run) * 2 - 1) * UV.spread) * (crit ? (u.critMult || 1.5) : 1), f.pierce); return { to: foes.indexOf(t), dmg: Math.min(t.hp, d), hp: damage(t, d) }; });
           hitList = targets;
-          events.push({ k: 'dmg', side: targets[0].side, list, by: u.id, ult: true });
+          events.push({ k: 'dmg', side: targets[0].side, list, by: u.id, ult: true, crit });
           checkRevives();
         } else if (f.do === 'status') {
           const list = f.target === 'all' ? alive(foes) : f.target === 'front' ? alive(foes).slice(0, 1)

@@ -538,6 +538,13 @@
         }
         break;
       }
+      case 'reload': {
+        // Wie F5, auch in der Handy-App: Stand sichern, dann frisch laden (umgeht alte Zwischenspeicher)
+        try { if (run) GL.save.storeRun(run); } catch (e) {}
+        document.body.classList.add('reloading');
+        setTimeout(() => { location.replace(location.pathname + '?u=' + Date.now() + location.hash); }, 120);
+        break;
+      }
       case 'fullscreen': {
         const d = document, de = d.documentElement;
         const isOn = d.fullscreenElement || d.webkitFullscreenElement;

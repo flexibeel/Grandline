@@ -94,7 +94,9 @@ window.GL = window.GL || {};
       const c = document.createElement('div');
       c.className = 'ult-call ' + (ev.side === 'crew' ? 'us' : 'them');
       c.className += ev.spark ? ' spark' : '';
-      c.innerHTML = `<small>${d ? d.name : ''} · ${ev.spark ? '✨ Glücksfunke!' : 'Ulti'}</small><b>${ev.name}!</b>`;
+      c.className += ev.tier ? ' ' + ev.tier : '';
+      const extra = ev.tier === 'perfect' ? '<em>★ Perfekt!</em>' : ev.bonus ? `<em>+ ${ev.bonus}</em>` : ev.combo > 1 ? `<em>${ev.combo}. Ulti · stärker</em>` : '';
+      c.innerHTML = `<small>${d ? d.name : ''} · ${ev.spark ? '✨ Glücksfunke!' : 'Ulti'}</small><b>${ev.name}!</b>${extra}`;
       field.appendChild(c);
       setTimeout(() => c.remove(), 1500);
     }
@@ -357,7 +359,7 @@ window.GL = window.GL || {};
       const enemyHp = done ? b.enemyEnd : anim.enemyHp;
       const crew = run.crew.map((u, i) => fighter('crew', i, u.def || crewData(u.id), u, crewHp[i])).join('');
       const foes = b.enemies.map((e, i) => fighter('enemy', i, e.def || GL.data.foeDef(e) || crewData(e.id), e, enemyHp[i])).join('');
-      return `<div class="battle3d">${fieldHtml(run, crewHp, enemyHp)}<div class="arena hud isl-${GL.run.island(run).id}${b.kind === 'raid' ? ' raid' : b.kind === 'boss' ? ' bossfight' : ''}${done ? '' : ' entering'}" id="arena">
+      return `<div class="battle3d${done && b.win ? ' won' : ''}">${fieldHtml(run, crewHp, enemyHp)}<div class="arena hud isl-${GL.run.island(run).id}${b.kind === 'raid' ? ' raid' : b.kind === 'boss' ? ' bossfight' : ''}${done ? '' : ' entering'}" id="arena">
         <div class="arena-sky" aria-hidden="true"></div>
         <div class="side side-crew">${crew}</div>
         <div class="side side-enemy">${foes}</div>
