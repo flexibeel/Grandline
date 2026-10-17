@@ -1622,7 +1622,10 @@ window.GL = window.GL || {};
       <button class="btn mini${on ? '' : ' ghost'}" data-act="admin-star">${on ? '★ An' : 'Aus'}</button></div>
       <div class="admin-box"><span class="admin-ico" aria-hidden="true">🧪</span>
       <span><b>Als neuer Spieler testen</b><small>Startet einen frischen Piraten in einem freien Spielstand. Dein Hauptpirat bleibt unberührt. Zurück über „Spielstände“.</small></span>
-      <button class="btn mini ghost" data-act="slot-fresh">Starten</button></div>`;
+      <button class="btn mini ghost" data-act="slot-fresh">Starten</button></div>
+      <div class="admin-box"><span class="admin-ico" aria-hidden="true">💡</span>
+      <span><b>Tester-Modus</b><small>Nach jedem Run kommt wieder ein Tipp-Fenster, jeder dritte Run fragt nach einer Bewertung. So siehst du alles wie ein neuer Spieler.</small></span>
+      <button class="btn mini${profile.testerPops ? '' : ' ghost'}" data-act="admin-tester">${profile.testerPops ? 'An' : 'Aus'}</button></div>`;
   }
   function profileChip(profile) {
     const rp = GL.meta.rankProgress(profile);

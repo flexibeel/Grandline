@@ -253,6 +253,16 @@
     if (!wasFinished && GL.run.isFinished(run)) {
       ui.newBest = GL.save.recordFinished(run);
       ui.lastBerry = GL.meta.finishRun(profile, run);
+      // Tester-Modus (nur Entwickler): nach jedem Run wieder ein Tipp-Fenster, jeder dritte Run fragt nach Bewertung
+      if (profile.testerPops) {
+        const open = (GL.data.features || []).filter(f => GL.meta.featureOpen(profile, f.id));
+        if (open.length) {
+          profile.testerIdx = ((profile.testerIdx || 0) + 1) % open.length;
+          profile.seenFeatures = (profile.seenFeatures || []).filter(id => id !== open[profile.testerIdx].id);
+        }
+        if (((profile.stats && profile.stats.runs) || 0) % 3 === 0) { profile.fb = {}; ui.fbOpen = null; }
+        profile.firstSeen = {};
+      }
       if (run.daily) {
         const sc = GL.run.score(run);
         profile.daily = { d: run.daily, score: sc };
@@ -578,6 +588,13 @@
         const k = Number(el.dataset.i);
         if (ui.slotDel !== k) { ui.slotDel = k; ui.lastStage = null; draw(); break; }
         ui.slotDel = null; GL.slots.remove(k); ui.lastStage = null; draw();
+        break;
+      }
+      case 'admin-tester': {
+        const st = GL.online.state();
+        if (!(st.email && /^westerholt\.felix/i.test(st.email))) break;
+        profile.testerPops = !profile.testerPops; saveProfile(); draw();
+        toast(profile.testerPops ? 'Tester-Modus an: Tipps und Fragen kommen wieder' : 'Tester-Modus aus');
         break;
       }
       case 'admin-star': {
