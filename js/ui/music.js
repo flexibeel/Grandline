@@ -12,7 +12,7 @@ window.GL = window.GL || {};
   let ctx = null, master = null, wet = null, timer = null, mode = 'off', unlocked = false;
   let nextTime = 0, step = 0;
   const BPM = 84, EIGHTH = 60 / BPM / 2;
-  const VOL = { title: 0.55, hq: 0, run: 0, off: 0 };   // nur im Startbildschirm
+  const VOL = { title: 0.55, hq: 0.2, run: 0.13, off: 0 };   // laut im Startbildschirm, danach leise im Hintergrund
 
   const N = n => 440 * Math.pow(2, (n - 69) / 12);       // MIDI-Nummer -> Hz
   const nm = s => { const m = /^([A-G])(#?)(\d)$/.exec(s); return 12 * (+m[3] + 1) + { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 }[m[1]] + (m[2] ? 1 : 0); };

@@ -1108,7 +1108,7 @@ window.GL = window.GL || {};
             <i class="tv-spr">${GL.sprites.renderShaded ? GL.sprites.renderShaded(d) : GL.sprites.render(d)}</i>
             <b class="tv-name">${esc(d.name)}</b>
             <span class="tv-tags">${d.faction ? pxIcon(d.faction) : ''}${pxIcon(d.type)}${pxIcon(d.role)}</span>
-            <small class="tv-sub">${d.faction ? esc(FAC_SHORT[d.faction] || '') + ' · ' : ''}Lv ${m.lvl}</small>
+            <small class="tv-sub">${d.faction ? esc(FAC_SHORT[d.faction] || '') + ' · ' : ''}Lv ${m.lvl}${profRef && GL.meta.bond(profRef, d.id) ? ` <em class="tv-bond" title="Vertraut: kennt deine Crew aus früheren Fahrten">♥${GL.meta.bond(profRef, d.id)}</em>` : ''}</small>
             <span class="tv-cmp">${overall ? arrow(overall) : ''}${fitTag(run, d)}</span>
             <span class="tv-price${can || o.sold ? '' : ' no'}">${o.sold ? 'Gekauft' : `${GL.sprites.coin()} ${price}`}</span>
           </button>`;
@@ -1309,7 +1309,11 @@ window.GL = window.GL || {};
           <b>Die Grand Line ist bezwungen${run.loop ? ` – zum ${run.loop + 1}. Mal` : ''}!</b>
           <span>Weitersegeln? Deine Crew bleibt, die Gegner werden mit jeder Runde stärker. Alles bisher Erreichte ist schon gutgeschrieben.</span></div>` : '';
         const goals = ui.profile && ui.lastBerry != null ? goalList(ui.profile, 3) : '';
-        return `${head}${duelHtml}${endlessHtml}${record}${berry}${shardHtml}${cgHtml}${troHtml}${itemSum}${rankHtml}${heatUp}${goals}<div class="end-actions dock">${canEndless ? `<button class="btn" data-act="endless">Weitersegeln ⚓</button>` : ''}<button class="btn${canEndless ? ' ghost' : ''}" data-act="again">${run.daily ? 'Neuer Run' : run.duel ? 'Normaler Run' : 'Nochmal!'} ${keyHint('Leertaste')}</button>
+        // Verbindung zur Stammcrew: wer mitgesegelt ist, ist vertrauter geworden
+        const bond = ui.lastBond && ui.lastBond.length ? `<div class="trophy-sum bond-sum"><span class="event-kicker">Deine Crew wächst zusammen</span>
+          <span class="bond-row">${ui.lastBond.map(b => `<span class="bond-u${b.up ? ' up' : ''}" data-tip="${esc(b.name)}: +${b.gain} Vertrautheit${b.lvl ? ` · Vertraut ${b.lvl}` : ''}"><i>${GL.sprites.render(b.id === 'self' ? avatarOf(ui.profile) : crewData(b.id))}</i><small>+${b.gain}</small>${b.up ? `<em>♥ ${b.lvl}</em>` : ''}</span>`).join('')}</span>
+          <small class="bond-note">Vertrautheit macht Figuren in Stammcrew, Duellen und Landgang stärker.</small></div>` : '';
+        return `${head}${duelHtml}${endlessHtml}${record}${berry}${bond}${shardHtml}${cgHtml}${troHtml}${itemSum}${rankHtml}${heatUp}${goals}<div class="end-actions dock">${canEndless ? `<button class="btn" data-act="endless">Weitersegeln ⚓</button>` : ''}<button class="btn${canEndless ? ' ghost' : ''}" data-act="again">${run.daily ? 'Neuer Run' : run.duel ? 'Normaler Run' : 'Nochmal!'} ${keyHint('Leertaste')}</button>
           <button class="btn ghost" data-act="hq">Hauptquartier ${keyHint('H')}</button></div>`;
       }
     }
@@ -1572,7 +1576,7 @@ window.GL = window.GL || {};
       <button class="btn squad-match" data-act="squad-match">⚔ Gegner suchen <small>ähnliche Stärke</small></button>
       <div class="sq-xp">${refs.map(r => { const nx = GL.meta.squadNext((profile.squadXp || {})[r.id]);
         return `<span><small>${esc(r.name)}</small><i class="xpbar"><i style="width:${nx ? Math.round(100 * nx.have / nx.need) : 100}%"></i></i></span>`; }).join('')}</div>
-      <p class="hint">Freunde fordern deine Stammcrew in der Rangliste heraus, auch wenn du offline bist. Jedes Duell gibt EP (Sieg 12, Niederlage 4) und damit Extra-Level. Bis zu ${N} Figuren, <b>zuerst gewählt steht vorne</b>.</p>
+      <p class="hint">Freunde fordern deine Stammcrew in der Rangliste heraus, auch wenn du offline bist. Die Crew wächst beim normalen Spielen mit: Wer in einem Run, Duell oder Landgang dabei ist, wird vertrauter und bekommt Extra-Level (♥). Bis zu ${N} Figuren, <b>zuerst gewählt steht vorne</b>.</p>
       <p class="sq-legend"><span class="weak-key"></span> schwächste Figur deiner Stammcrew · Pfeile: so viel stärker oder schwächer wäre eine andere Figur</p>
       <div class="sq-pool">${pick}</div>
     </section>`;
@@ -2677,7 +2681,7 @@ window.GL = window.GL || {};
     }
     if (GL.meta.featureOpen(profile, 'jagd')) {
       const t = profile.hunt && GL.data.raids.find(r => r.id === profile.hunt);
-      tiles.push(`<button class="ad-tile" data-act="hunt-open"><i class="ad-ico">${t ? GL.sprites.render(t) : '🎯'}</i><b>Raid-Ziel</b><small>${t ? esc(t.name.replace(/^Admiral |^Rothaar /, '')) : 'keins'}</small></button>`);
+      tiles.push(`<button class="ad-tile" data-act="hunt-open"><i class="ad-ico">${t ? GL.sprites.render(t) : '🎯'}</i><b>Raid</b><small>${t ? esc(t.name.replace(/^Admiral |^Rothaar /, '')) : 'kein Ziel'}</small></button>`);
     }
     return tiles.length ? `<div class="action-dock">${tiles.join('')}</div>` : '';
   }
@@ -3504,6 +3508,8 @@ window.GL = window.GL || {};
     speedLabel,
     welcomePop,
     petPop,
+    musicBtn,
+    sfxBtn,
     endlessPop,
     huntPop,
     dailyPop,

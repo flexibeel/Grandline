@@ -408,6 +408,30 @@ window.GL = window.GL || {};
       });
       return { gain, ups };
     },
+    // Verbindung Run -> Stammcrew: Wer im Run mitsegelt, sammelt Vertrautheit (dieselben EP wie in Duellen).
+    // So wächst die Stammcrew beim normalen Spielen mit, statt extra gelevelt zu werden.
+    runBond(profile, run) {
+      if (!run || !run.crew) return [];
+      profile.squadXp = profile.squadXp || {};
+      const ch = Math.max(0, Math.floor((run.step || 0) / GL.config.chapterSteps));
+      const base = 3 + 2 * ch + 5 * (run.bounties || 0) + (run.phase === 'win' ? 10 : 0);
+      const ids = run.crew.map(u => u.id);
+      const out = [];
+      ids.forEach((id, i) => {
+        const u = run.crew[i];
+        if (!u) return;
+        const gain = Math.round(base * (u.hp > 0 ? 1 : 0.6));
+        if (gain <= 0) return;
+        const before = GL.meta.squadBonus(profile.squadXp[id]);
+        profile.squadXp[id] = (profile.squadXp[id] || 0) + gain;
+        const after = GL.meta.squadBonus(profile.squadXp[id]);
+        const d = id === 'self' ? { name: profile.nickname || 'Du' } : GL.data.crew.find(c => c.id === id);
+        out.push({ id, name: d ? d.name : id, gain, up: after > before, lvl: after });
+      });
+      return out;
+    },
+    // Vertrautheit einer Figur (Extra-Level aus Runs und Duellen)
+    bond(profile, id) { return GL.meta.squadBonus(((profile && profile.squadXp) || {})[id]); },
     squadRefs(profile) {
       const base = GL.meta.squadLevel(profile);
       const up = profile.upgrades || {};

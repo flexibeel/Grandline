@@ -51,7 +51,7 @@
     GL.music.setMode(ui.screen || ui.intro != null ? 'title' : run && !GL.run.isFinished(run) ? 'run' : 'hq');
     const slot = document.getElementById('mu-slot');
     if (slot) { const fc = (profile.friends || []).length, onl = GL.friends && GL.online ? (profile.friends || []).filter(c => { const r = GL.friends.rowOf(c); return r && Date.now() - Date.parse(r.updated || 0) < 240000; }).length : 0;
-      const h = (profile.nickname ? `<button class="mu-btn head fr-btn" data-act="friends-open" aria-label="Freunde" title="Freunde${fc ? ': ' + fc : ''}">${GL.ui.friendsIcon}${onl ? `<em class="fr-on">${onl}</em>` : ''}</button>` : '') + `<button class="mu-btn head lang-btn" data-act="lang" title="Deutsch / English">${GL.i18n && GL.i18n.lang() === 'en' ? 'DE' : 'EN'}</button><button class="mu-btn head wk-btn${profile.wikiSeen ? '' : ' fresh'}" data-act="wiki-open" aria-label="Wiki öffnen" title="Wiki: Nachschlagen und Meta">${GL.ui.wikiIcon}</button>`; if (slot.innerHTML !== h) slot.innerHTML = h; }
+      const h = (profile.nickname ? `<button class="mu-btn head fr-btn" data-act="friends-open" aria-label="Freunde" title="Freunde${fc ? ': ' + fc : ''}">${GL.ui.friendsIcon}${onl ? `<em class="fr-on">${onl}</em>` : ''}</button>` : '') + `<button class="mu-btn head lang-btn" data-act="lang" title="Deutsch / English">${GL.i18n && GL.i18n.lang() === 'en' ? 'DE' : 'EN'}</button><button class="mu-btn head wk-btn${profile.wikiSeen ? '' : ' fresh'}" data-act="wiki-open" aria-label="Wiki öffnen" title="Wiki: Nachschlagen und Meta">${GL.ui.wikiIcon}</button>${GL.ui.musicBtn ? GL.ui.musicBtn('head') + GL.ui.sfxBtn('head') : ''}`; if (slot.innerHTML !== h) slot.innerHTML = h; }
   }
   // Automatische Aufstellung vor jedem Kampf: Brecher vorne, Kämpfer in der Mitte, Helfer hinten.
   // Läuft über normale Tausch-Aktionen, damit Replays gleich bleiben. Kein Umsortieren per Hand mehr.
@@ -375,6 +375,7 @@
     if (!wasFinished && GL.run.isFinished(run)) {
       ui.newBest = GL.save.recordFinished(run);
       ui.lastBerry = GL.meta.finishRun(profile, run);
+      ui.lastBond = GL.meta.runBond ? GL.meta.runBond(profile, run) : null;
       ui.firstDone = false;
       // Tester-Modus (nur Entwickler): nach jedem Run wieder ein Tipp-Fenster, jeder dritte Run fragt nach Bewertung
       if (profile.testerPops) {
@@ -936,7 +937,7 @@
       }
       case 'music': {
         const onNow = GL.music && GL.music.toggle();
-        toast(onNow ? '<span><b>Musik an</b>Leise, gemütlich, selbst komponiert.</span>' : '<span><b>Musik aus</b>Mit ♪ jederzeit wieder an.</span>');
+        toast(onNow ? '<span><b>Musik an</b>Im Startbild etwas lauter, im Spiel leise im Hintergrund.</span>' : '<span><b>Musik aus</b>Mit ♪ jederzeit wieder an.</span>');
         ui.lastStage = null; const t = document.getElementById('title'); if (t) t.dataset.last = ''; draw();
         break;
       }

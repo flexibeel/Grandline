@@ -1,6 +1,11 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-18k', date: '18.10.', title: 'Eine Crew, nicht zwei', items: [
+    'Deine Stammcrew wächst jetzt beim normalen Spielen mit: Wer in einem Run, Duell oder Landgang dabei ist, wird vertrauter (♥) und bekommt Extra-Level. Am Ende jedes Runs siehst du, wer zusammengewachsen ist',
+    'In der Taverne zeigt ♥, welche Figuren deine Crew schon kennen',
+    'Musik läuft jetzt leise im Hintergrund weiter. Musik und Geräusche schaltest du oben mit Note und Lautsprecher direkt aus',
+    'Hafen am Handy: die vier Kacheln (Endlos, Tageskarte, Landgang, Raid) sauber als 2 × 2' ] },
   { v: '2026-10-18j', date: '18.10.', title: 'Landgang, Geräusche und neue Routen-Momente', items: [
     'Neu: Landgang. Kurze Abenteuer auf Inseln, die du kennst, von Buggys Zirkuszelt bis in den Keller von Impel Down. Erst ein paar schnelle Entscheidungen, die deine Crew mitkommentiert, dann ein echter Bosskampf mit deiner Stammcrew. Gute Entscheidungen schwächen den Boss, Pech macht es knapp. Die erste Erkundung pro Tag bringt volle Beute und mit Glück ein seltenes Fundstück',
     'Leise Geräusche für Kämpfe, Knöpfe und Funde, immer im Takt, auch bei hohem Tempo. Der Lautsprecher-Knopf schaltet sie aus',

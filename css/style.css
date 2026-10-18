@@ -4975,3 +4975,28 @@ body { overscroll-behavior: none; -webkit-tap-highlight-color: transparent; }
 .new-sea b { font-size: 18px; color: #4a2a10; }
 .new-sea em { font-style: normal; font-size: 12px; color: #7a5a34; }
 .ns-star { font-style: normal; color: #e0a83a; font-size: 20px; animation: wow-kick 1.2s steps(2) infinite; }
+/* Run-Ende: Vertrautheit */
+.bond-row { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin: 4px 0; }
+.bond-u { position: relative; display: grid; justify-items: center; gap: 1px; padding: 4px 6px 3px; border-radius: 6px; background: rgba(255,255,255,.55); min-width: 40px; }
+.bond-u i svg { width: 26px; height: 30px; display: block; }
+.bond-u small { font-size: 10px; font-weight: 800; color: #4f9a5a; }
+.bond-u em { position: absolute; top: -7px; right: -6px; font-style: normal; font-size: 10px; font-weight: 800; color: #fff; background: #d0476a; border-radius: 6px; padding: 0 4px; animation: wow-pop .5s cubic-bezier(.2,1.4,.4,1) both; }
+.bond-u.up { box-shadow: 0 0 0 2px #e88aa8; }
+.bond-note { display: block; font-size: 11px; color: #8a6a44; text-align: center; }
+.tv-bond { font-style: normal; color: #d0476a; font-weight: 800; }
+/* Hafen-Kacheln am Handy: vier passen sauber nebeneinander */
+@media (max-width: 560px) {
+  .action-dock { gap: 6px; }
+  .ad-tile { min-width: 0; overflow: hidden; }
+  .ad-tile b { font-size: 12.5px; white-space: nowrap; letter-spacing: -.01em; max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
+  .ad-tile small { font-size: 10.5px; white-space: nowrap; max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
+  .ad-tile .ad-ico svg { width: 26px; height: 26px; }
+}
+@media (max-width: 560px) {
+  .action-dock { grid-auto-flow: row !important; grid-template-columns: 1fr 1fr !important; gap: 6px; }
+  .ad-tile { grid-template-columns: auto 1fr; grid-template-rows: auto auto; justify-items: start; align-items: center; text-align: left; column-gap: 8px; row-gap: 0; padding: 4px 8px 6px !important; }
+  .ad-tile .ad-ico { grid-row: 1 / span 2; font-size: 22px; }
+  .ad-tile .ad-ico svg { width: 26px; height: 26px; }
+  .ad-tile b { font-size: 14px; white-space: nowrap; overflow: visible; text-overflow: clip; }
+  .ad-tile small { font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+}

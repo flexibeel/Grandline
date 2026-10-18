@@ -1,7 +1,8 @@
 // Englisch für den Landgang (ergänzt GL.data.en)
 window.GL = window.GL || {};
 GL.data = GL.data || {};
-GL.data.en = Object.assign(GL.data.en || {}, {
+GL.data.en = Object.assign(GL.data.en || {
+  'Vertrautheit für die Stammcrew': 'bond for your Stammcrew',}, {
   'Landgang': 'Shore Leave', 'Meersplitter': 'Sea Shards', 'Wohin geht es heute?': 'Where to today?', 'Mit dabei': 'Coming along', 'Fundstücke': 'Keepsakes', 'Heute volle Beute': 'Full loot today',
   'Schon erkundet: kleine Beute': 'Explored today: small loot', 'Fundstück noch nicht gefunden': 'Keepsake not found yet', 'kleine Beute': 'small loot',
   'Kleine Abenteuer mit deiner Stammcrew. Jederzeit wiederholbar, die erste Erkundung pro Tag bringt die volle Beute.': 'Little adventures with your core crew. Replay any time; the first trip of the day brings full loot.',
