@@ -894,6 +894,12 @@ window.GL = window.GL || {};
   }
 
   // Auswertung nach dem Kampf: Schaden pro Figur, Erfahrung, Level-ups
+  // Großer Daumen-Knopf im Kampf: erst Turbo, dann bis zum Ende springen
+  function ffButton(anim) {
+    const turbo = (anim.speed || 2) >= 4;
+    const ready = !anim.t0 || Date.now() - anim.t0 >= 1500;
+    return `<button class="fbar-ff${turbo ? ' end' : ''}${turbo && !ready ? ' wait' : ''}" data-act="ff" aria-label="${turbo ? 'Zum Ergebnis springen' : 'Turbo'}"><b>${turbo ? 'Ende' : 'Turbo'}</b><small>${turbo ? 'zum Ergebnis' : 'schneller'}</small><i class="ff-ico">${turbo ? '⏭' : '⏩'}</i></button>`;
+  }
   function speedLabel(n) {
     // Pixel-Vorspulpfeile: je schneller, desto mehr Pfeile leuchten
     const chev = on => `<svg class="spd-ch${on ? ' on' : ''}" viewBox="0 0 4 7" shape-rendering="crispEdges" aria-hidden="true"><path d="M0 0h1v1h1v1h1v1h1v1h-1v1h-1v1h-1v1h-1z"/></svg>`;
@@ -1323,19 +1329,17 @@ window.GL = window.GL || {};
         const b = run.battle;
         const done = !anim || anim.done;
         let log, controls;
+        // Feste Daumen-Leiste: links Tempo, rechts ein großer Knopf (⏩ Turbo → ⏭ Ende → Weiter), immer am selben Platz
+        const sp = done ? 0 : (anim.speed || 2);
+        const seg = [1, 2, 3, 4].map(n => `<button class="fbar-sp${sp === n ? ' on' : ''}" data-act="speed" data-v="${n}" aria-label="Tempo ${n}" title="${['', 'Gemütlich', 'Zügig', 'Schnell', 'Turbo'][n]}"${done ? ' disabled' : ''}>${'▸'.repeat(n === 4 ? 3 : n)}${n === 4 ? '<i>⚡</i>' : ''}</button>`).join('');
         if (done) {
           log = b.win ? 'Sieg! Die Gegner sind besiegt.'
             : b.kind === 'raid' ? 'Der Raid ist gescheitert. Deine Crew entkommt mit letzter Kraft.'
             : 'Niederlage. Deine Crew ist gefallen.';
-          controls = `<div class="fbar fbar-done"><button class="btn fbar-go" data-act="continue">Weiter ${keyHint('Leertaste')}</button></div>`;
+          controls = `<div class="fbar fbar3 is-done"><div class="fbar-seg" role="group" aria-label="Tempo">${seg}</div>${sfxBtn('fc-sfx')}<button class="fbar-ff go" data-act="continue"><b>Weiter</b><small>${keyHint('Leertaste')}</small><i class="ff-ico">›</i></button></div>`;
         } else {
           log = anim.log;
-          // Schnell-Kampf: normale Kämpfe, die klar gewonnen werden, lassen sich überspringen (ab dem zweiten Kampf im Run). Bosse und Raids laufen immer
-          const easy = b.win && !['boss', 'raid'].includes(b.kind) && !(run.pending && run.pending.rival) && ((run.stats && run.stats.fights) || 0) > 1;
-          // Feste Leiste: Tempo als vier Stufen, Überspringen immer am selben Platz (ausgegraut, wenn nicht erlaubt)
-          const sp = anim.speed || 2;
-          const seg = [1, 2, 3, 4].map(n => `<button class="fbar-sp${sp === n ? ' on' : ''}" data-act="speed" data-v="${n}" aria-label="Tempo ${n}" title="${['', 'Gemütlich', 'Zügig', 'Schnell', 'Turbo'][n]}">${'▸'.repeat(n === 4 ? 3 : n)}${n === 4 ? '<i>⚡</i>' : ''}</button>`).join('');
-          controls = `<div class="fbar"><div class="fbar-seg" role="group" aria-label="Tempo">${seg}</div><button class="fbar-skip${easy ? '' : ' off'}" data-act="${easy ? 'skip' : 'noop'}" ${easy ? '' : 'disabled'} title="${easy ? 'Kampf überspringen' : 'Überspringen geht bei klaren Siegen in normalen Kämpfen'}">⏩<span>Überspringen</span></button>${sfxBtn('fc-sfx')}</div>`;
+          controls = `<div class="fbar fbar3"><div class="fbar-seg" role="group" aria-label="Tempo">${seg}</div>${sfxBtn('fc-sfx')}${ffButton(anim)}</div>`;
         }
         const title = b.kind === 'raid' ? 'Raid' : b.kind === 'boss' ? 'Bosskampf' : run.pending && run.pending.rival ? 'Begegnung: ' + esc(run.pending.rival.name) : 'Kampf';
         return `<div class="battle-head"><h2>${title}</h2>${done ? `<span class="result ${b.win ? 'win' : 'lose'}">${b.win ? 'Sieg' : 'Niederlage'}</span>` : ''}</div>
@@ -3255,11 +3259,17 @@ window.GL = window.GL || {};
   }
   // Neuigkeiten
   function notesPop() {
-    return `<div class="fpop-card notes-card" role="dialog" aria-labelledby="nt-t">
-      <span class="fpop-kicker">Neuigkeiten</span>
+    // Neuigkeiten als Zeitleiste: jede Version eine Karte, neueste offen, Punkte mit kleinen Symbolen
+    const ico = t => /story|szene|kapitel/i.test(t) ? '📖' : /kampf|boss|ulti|team-balken|überspring/i.test(t) ? '⚔' : /crew|stammcrew|figur|vertraut|steckbrief/i.test(t) ? '♥' : /englisch|english/i.test(t) ? '🌍' : /sicher/i.test(t) ? '🛡' : /schmiede|ausrüstung|truhe|zerleg|amboss/i.test(t) ? '⚒' : /karte|route|insel|reise|seekarte/i.test(t) ? '🗺' : /flaschenpost|freund/i.test(t) ? '🍾' : /profil|aussehen|titel|flagge/i.test(t) ? '🎨' : /fix|behoben|repariert|wieder richtig/i.test(t) ? '🔧' : '✦';
+    const list = (GL.patchNotes || []).slice(0, 8);
+    return `<div class="fpop-card notes-card nt2" role="dialog" aria-labelledby="nt-t">
+      <span class="fpop-kicker">Logbuch der Entwicklung</span>
       <h3 id="nt-t">Was ist neu?</h3>
-      <div class="notes-list">${(GL.patchNotes || []).slice(0, 4).map(n => `<section><b>${esc(n.title)}</b><small>${esc(n.date)}</small><ul>${n.items.map(i => `<li>${esc(i)}</li>`).join('')}</ul></section>`).join('')}</div>
-      <div class="fpop-btns"><button class="btn" data-act="notes-close">Schön</button></div>
+      ${GL.data.news ? '<button class="nt-replay" data-act="news-replay">✨ Die Neuigkeiten-Tour nochmal ansehen</button>' : ''}
+      <div class="nt-time">${list.map((n, k) => `<details class="nt-up${k === 0 ? ' latest' : ''}"${k < 2 ? ' open' : ''}>
+        <summary><i class="nt-pin"></i><span class="nt-h"><b>${esc(n.title)}</b><small>${esc(n.date)}${k === 0 ? ' · <em>Neueste</em>' : ''}</small></span><i class="nt-chev">▾</i></summary>
+        <ul>${n.items.map(i => `<li><i class="nt-ico">${ico(i)}</i><span>${esc(i)}</span></li>`).join('')}</ul></details>`).join('')}</div>
+      <div class="fpop-btns"><button class="btn" data-act="notes-close">Schön, danke!</button></div>
     </div>`;
   }
   // Hinweis: als App auf den Home-Bildschirm (Vollbild ohne Browserleisten)
@@ -3308,7 +3318,15 @@ window.GL = window.GL || {};
     const L = a => (Array.isArray(a) ? (en ? a[1] : a[0]) : a);
     const slides = N.slides.concat([{ choice: true }]);
     const i = Math.max(0, Math.min(slides.length - 1, idx || 0));
-    const artOf = a => a.crew ? GL.sprites.render(crewData(a.crew) || {}) : a.self ? GL.sprites.render(avatarOf(profile)) : a.ship ? GL.sprites.ship() : a.emoji ? `<span class="nw-emoji">${a.emoji}</span>` : a.fa ? featureArt(a.fa) : '';
+    // Kleine Bühne pro Karte: Schiff im Hintergrund, Figuren nebeneinander, Sterne oder Team-Balken als Deko
+    const artOf = a => {
+      const back = a.ship ? `<span class="nw-ship">${GL.sprites.ship()}</span>` : '';
+      const crew = a.crew ? `<span class="nw-cast">${[].concat(a.crew).map((id, k) => `<i class="nw-c" style="--k:${k}">${GL.sprites.render(crewData(id) || {})}${a.stars ? `<em class="nw-st">${'★'.repeat(k + 2)}</em>` : ''}</i>`).join('')}</span>` : '';
+      const me = a.self ? `<span class="nw-cast"><i class="nw-c big">${GL.sprites.render(avatarOf(profile))}</i></span>` : '';
+      const bar = a.bar ? '<span class="nw-bar"><i></i><i></i><i class="half"></i></span>' : '';
+      const main = a.emoji ? `<span class="nw-emoji">${a.emoji}</span>` : a.fa ? featureArt(a.fa) : (!a.crew && !a.self && a.ship ? '' : '');
+      return back + crew + me + main + bar;
+    };
     const body = slides.map((sl, k) => sl.choice
       ? `<div class="nw-slide nw-choice${k === i ? ' on' : ''}" data-k="${k}"><div class="nw-art tone-gold"><span class="nw-emoji">🧭</span></div>
           <span class="nw-kick">${en ? 'Your choice' : 'Deine Wahl'}</span><h3>${en ? 'How do you want to continue?' : 'Wie willst du weiterspielen?'}</h3>
@@ -3834,6 +3852,7 @@ window.GL = window.GL || {};
   }
 
   GL.ui = {
+    ffButton,
     dressRoom,
     newsPop,
     setStatsSort: k => { uiStats.sort = k; },

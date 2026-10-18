@@ -341,17 +341,50 @@ window.GL = window.GL || {};
   // ---------- 3D-Kampffeld (Pokémon-Stil) ----------
   // Crew vorne links auf ihrer Plattform, Gegner hinten rechts. Die Liste darunter
   // bleibt als Anzeige für Leben und Zustände, das Feld zeigt die Bewegung.
-  const CREW_SLOTS = [[38, 6], [20, 9], [50, 14], [10, 20], [30, 24], [44, 29], [17, 33]];
-  const FOE_SLOTS  = [[70, 44], [84, 41], [92, 50], [62, 53], [78, 57], [90, 60]];
+  // Alle stehen auf einer gemeinsamen Bodenlinie: vorne Reihe 1, dahinter versetzt Reihe 2
+  const CREW_SLOTS = [[38, 8], [24, 10], [10, 12], [45, 19], [31, 21], [17, 23], [5, 25]];
+  const FOE_SLOTS  = [[62, 8], [76, 10], [90, 12], [55, 19], [69, 21], [83, 23]];
+  // Kulisse je Insel (sonst nach Meer)
+  const THEME = {
+    'shells-town': 'town', 'orange-town': 'town', 'loguetown': 'town', 'whisky-peak': 'town',
+    'syrup': 'beach', 'jaya': 'beach', 'baratie': 'deck', 'puffing-tom': 'deck', 'arlong-park': 'pier', 'water-7': 'pier',
+    'little-garden': 'jungle', 'drumm': 'snow', 'alabasta': 'desert', 'skypiea': 'sky', 'long-ring': 'meadow',
+    'enies-gate': 'fort', 'tower': 'fort', 'tor': 'fort', 'sabaody': 'meadow',
+    'tiefsee': 'deep', 'korallenhuegel': 'deep', 'fischmenschen-viertel': 'deep', 'meerwald': 'deep', 'gyoncorde': 'deep', 'ryugu': 'deep',
+    'florian': 'grave', 'grusel-garten': 'grave', 'hogback-labor': 'grave', 'mangroven': 'grave', 'thriller-schloss': 'grave'
+  };
+  const SEA_THEME = { 'east-blue': 'beach', 'paradies': 'desert', 'enies-lobby': 'fort' };
+  function themeOf(run) {
+    if (run.theme) return run.theme;   // Duelle/Landgang können eine Kulisse vorgeben
+    let here = null, sea = null;
+    try { here = GL.run.chapterIsland(run); } catch (e) { here = null; }
+    try { sea = GL.run.island(run).id; } catch (e) { sea = null; }
+    return (here && THEME[here.id]) || SEA_THEME[sea] || 'beach';
+  }
+  // Kleine Pixel-Requisiten je Kulisse (reine CSS-Formen)
+  const PROPS = {
+    town: '<i class="p3 house a"></i><i class="p3 house b"></i><i class="p3 lamp l"></i><i class="p3 barrel r"></i><i class="p3 crate r2"></i>',
+    beach: '<i class="p3 palm l"><i></i></i><i class="p3 palm r"><i></i></i><i class="p3 shell s1"></i><i class="p3 shell s2"></i><i class="p3 rock r"></i>',
+    deck: '<i class="p3 mast"><i></i></i><i class="p3 barrel l"></i><i class="p3 cannon r"></i><i class="p3 ring r2"></i>',
+    pier: '<i class="p3 post l"></i><i class="p3 post r"></i><i class="p3 crate l2"></i><i class="p3 rope r2"></i>',
+    jungle: '<i class="p3 fern l"></i><i class="p3 fern r"></i><i class="p3 bone m"></i><i class="p3 tree bg"></i>',
+    snow: '<i class="p3 pine l"></i><i class="p3 pine r"></i><i class="p3 pine bg"></i><i class="snowfall"></i>',
+    desert: '<i class="p3 pyramid bg"></i><i class="p3 cactus l"></i><i class="p3 cactus r"></i><i class="p3 rock m"></i>',
+    sky: '<i class="p3 puff l"></i><i class="p3 puff r"></i><i class="p3 bell bg"></i>',
+    meadow: '<i class="p3 fence l"></i><i class="p3 flower f1"></i><i class="p3 flower f2"></i><i class="p3 flower f3"></i><i class="p3 tree r"></i>',
+    fort: '<i class="p3 tower bg"></i><i class="p3 torch l"></i><i class="p3 torch r"></i><i class="p3 banner m"></i>',
+    deep: '<i class="p3 coral l"></i><i class="p3 coral r"></i><i class="p3 kelp m"></i><i class="bubbles"></i>',
+    grave: '<i class="p3 tomb l"></i><i class="p3 tomb r"></i><i class="p3 deadtree bg"></i><i class="fog"></i>'
+  };
   function fieldUnit(side, i, entry, unit, hp) {
     const slots = side === 'crew' ? CREW_SLOTS : FOE_SLOTS;
     const [x, y] = slots[Math.min(i, slots.length - 1)];
-    const depth = side === 'crew' ? 1.05 - y / 200 : 0.82 - (y - 46) / 160;
+    const depth = 1.04 - y / 140;
     const scale = (unit.boss ? 1.6 : unit.mini ? 1.15 : 1) * depth;
     const pct = Math.max(0, 100 * hp / unit.max);
     return `<div class="fu fu-${side}${hp <= 0 ? ' ko' : ''}${unit.boss ? ' boss' : ''}${unit.mini ? ' mini' : ''}" data-side="${side}" data-i="${i}"
         style="left:${x}%;bottom:${y}%;z-index:${200 - y};--s:${scale.toFixed(2)}">
-      <div class="fu-shadow"></div>
+      <div class="fu-shadow"></div>${hp <= 0 ? '<span class="fu-ko">K.O.</span>' : ''}
       <div class="fu-aura"></div>
       <div class="fu-body" style="--d:${(i * 0.37 + (side === 'crew' ? 0 : 0.5)).toFixed(2)}s">${GL.sprites.renderShaded ? GL.sprites.renderShaded(entry) : GL.sprites.render(entry)}</div>
       <div class="fu-bar"><i style="width:${pct}%"></i></div>
@@ -405,9 +438,11 @@ window.GL = window.GL || {};
     const crew = run.crew.map((u, i) => fieldUnit('crew', i, u.def || crewData(u.id), u, crewHp[i])).join('');
     const foes = b.enemies.map((e, i) => fieldUnit('enemy', i, e.def || GL.data.foeDef(e) || crewData(e.id), e, enemyHp[i])).join('');
     const isl = GL.run.island(run).id;
+    const th = themeOf(run);
     const n = Math.max(run.crew.length, b.enemies.length);
-    return `<div class="field isl-${isl}${b.kind === 'raid' ? ' raid' : b.kind === 'boss' ? ' bossfight' : ''}${n >= 6 ? ' crowd' : n >= 5 ? ' busy' : ''}" id="field" aria-hidden="true">
+    return `<div class="field v3 th-${th} isl-${isl}${b.kind === 'raid' ? ' raid' : b.kind === 'boss' ? ' bossfight' : ''}${n >= 6 ? ' crowd' : n >= 5 ? ' busy' : ''}" id="field" aria-hidden="true" data-act="faster">
       <div class="f-stage">
+        <div class="b3"><i class="b3-sky"></i><i class="b3-sun"></i><i class="b3-cloud c1"></i><i class="b3-cloud c2"></i><i class="b3-cloud c3"></i><i class="b3-sea"><i></i></i><i class="b3-ground"></i><span class="b3-props">${PROPS[th] || ''}</span>${b.kind === 'boss' || b.kind === 'raid' ? '<i class="b3-flag"></i>' : ''}</div>
         <div class="f-sky"></div>
         <div class="f-sun"></div>
         <div class="f-clouds c1"></div><div class="f-clouds c2"></div>

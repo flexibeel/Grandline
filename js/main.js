@@ -657,13 +657,28 @@
       log: 'Der Kampf beginnt!',
       speed: (profile.settings && profile.settings.speed) || 2,
       done: b.events.length === 0,
-      timer: null
+      timer: null,
+      t0: Date.now()
     };
+    setTimeout(refreshFF, 1600);
     document.body.classList.toggle('fast', anim.speed >= 3);
     anim.rn = 0;
     setTimeout(showSpeed, 50);
     anim.timer = setTimeout(stepAnim, SPEED.normal * SPEEDF[anim.speed]);
   }
+  function setSpeed(v) {
+    anim.speed = Math.max(1, Math.min(4, v)); showSpeed();
+    profile.settings = Object.assign({}, profile.settings, { speed: anim.speed }); saveProfile();
+    document.body.classList.toggle('fast', anim.speed >= 3);
+    document.querySelectorAll('.fbar-sp').forEach(b => b.classList.toggle('on', Number(b.dataset.v) === anim.speed));
+    refreshFF();
+    const left = 1550 - (Date.now() - (anim.t0 || 0)); if (left > 0) setTimeout(refreshFF, left);
+  }
+  function refreshFF() {
+    const b = document.querySelector('.fbar3 .fbar-ff[data-act=ff]');
+    if (b && anim && !anim.done) b.outerHTML = GL.ui.ffButton(anim);
+  }
+  function skipFight() { clearTimeout(anim.timer); anim.done = true; if (GL.sfx) GL.sfx.play(run && run.battle && run.battle.win ? 'win' : 'lose'); draw(); }
   // Drei Tempostufen statt Überspringen: Man sieht den Kampf immer, aber er quält nicht
   const SPEEDF = [1, 0.9, 0.55, 0.32, 0.18];
   const showSpeed = () => { const f = document.getElementById('field'); if (f && anim) f.dataset.speed = anim.speed; };
@@ -970,15 +985,15 @@
           const b = document.querySelector('[data-act=fast]'); if (b) b.innerHTML = GL.ui.speedLabel(anim.speed);
         }
         break;
-      case 'speed':
-        if (anim) {
-          anim.speed = Math.max(1, Math.min(4, Number(el.dataset.v) || 2)); showSpeed();
-          profile.settings = Object.assign({}, profile.settings, { speed: anim.speed }); saveProfile();
-          document.body.classList.toggle('fast', anim.speed >= 3);
-          document.querySelectorAll('.fbar-sp').forEach(b => b.classList.toggle('on', Number(b.dataset.v) === anim.speed));
-        }
-        break;
-      case 'skip': if (anim) { clearTimeout(anim.timer); anim.done = true; draw(); } break;
+      case 'speed': if (anim && !anim.done) setSpeed(Number(el.dataset.v) || 2); break;
+      case 'faster': if (anim && !anim.done) setSpeed(Math.min(4, (anim.speed || 2) + 1)); break;
+      case 'ff':
+        // Daumen-Knopf: erst Turbo, beim zweiten Tipp zum Ergebnis (frühestens nach 1,5 s, damit Boss-Auftritte sichtbar bleiben)
+        if (!anim || anim.done) break;
+        if ((anim.speed || 2) < 4) { setSpeed(4); break; }
+        if (Date.now() - (anim.t0 || 0) < 1500) { el.classList.add('nudge'); setTimeout(() => el.classList.remove('nudge'), 300); break; }
+        skipFight(); break;
+      case 'skip': if (anim && !anim.done) skipFight(); break;
       case 'sail': sail(); break;
       case 'ship-pick': {
         const it = (GL.data.shipParts[el.dataset.k] || []).find(x => x.id === el.dataset.v);
@@ -1317,6 +1332,7 @@
       case 'fpop-map': closeFeature(el.dataset.id, false); setTimeout(() => { ui.wikiTab = 'routen'; openGearPop(GL.ui.wikiPop('routen', profile)); }, 300); break;
       case 'wb-close': closePop(); break;
       case 'news-go': openNews(Number(el.dataset.i)); break;
+      case 'news-replay': { const o = document.getElementById('fpop'); if (o) o.remove(); openNews(0); break; }
       case 'news-done': newsDone(); break;
       case 'news-story': profile.story = { seen: [] }; ui.storyShown = false; newsDone(); toast('<span><b>📖 Die Story beginnt von vorn</b>Kapitel 1 startet gleich, die nächsten kommen mit deinen Fahrten.</span>'); setTimeout(() => { ui.lastStage = null; draw(); }, 600); break;
       case 'pop-close': closePop(); break;
@@ -1768,18 +1784,18 @@
     if ((e.key === 'Enter' || e.key === ' ') && !(e.target.matches && e.target.matches('button, .member, .crewmini'))) {
       e.preventDefault();
       if (anim && !anim.done) {
-        stage.querySelector('[data-act=fast]')?.click();
+        stage.querySelector('[data-act=ff]')?.click();
         return;
       }
       const main = stage.querySelector('[data-act=continue], [data-act=fight], [data-act=sail], [data-act=again], [data-act=hq], [data-act=leave]');
       if (main) main.click();
       return;
     }
-    if ((e.key === 'f' || e.key === 'F') && anim) { stage.querySelector('[data-act=fast]')?.click(); return; }
+    if ((e.key === 'f' || e.key === 'F') && anim && !anim.done) { setSpeed(Math.min(4, (anim.speed || 2) + 1)); return; }
     if ((e.key === 'h' || e.key === 'H') && !anim) { stage.querySelector('[data-act=hq]')?.click(); return; }
     if ((e.key === 'r' || e.key === 'R') && !anim) { stage.querySelector('[data-act=reroll]:not([disabled])')?.click(); return; }
     if ((e.key === 'q' || e.key === 'Q') && !anim) { stage.querySelector('[data-act=special]')?.click(); return; }
-    if ((e.key === 's' || e.key === 'S') && anim) { stage.querySelector('[data-act=skip]')?.click(); return; }
+    if ((e.key === 's' || e.key === 'S') && anim && !anim.done) { if (Date.now() - (anim.t0 || 0) >= 1500) skipFight(); return; }
     // Crew-Karten sind keine echten Buttons, daher Enter/Leertaste selbst auswerten
     if ((e.key === 'Enter' || e.key === ' ') && e.target.matches && e.target.matches('.member, .crewmini')) {
       e.preventDefault();

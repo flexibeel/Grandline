@@ -1,6 +1,12 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-19c', date: '18.10.', title: 'Kampfszenen neu', items: [
+    'Jede Insel hat jetzt ihre eigene Kampfkulisse: Stadt, Strand, Schiffsdeck, Steg, Dschungel, Schnee auf Drum, Wüste in Alabasta, Wolken auf Skypiea und mehr. Bosse kämpfen unter roter Flagge',
+    'Figuren stehen auf festem Boden mit klarem Schatten, Besiegte liegen sauber mit K.O.-Schild. Keine halbdurchsichtigen Kreise mehr',
+    'Eine Hand reicht: großer Knopf rechts im Daumenbereich. 1× tippen Turbo, 2× tippen Ende, danach „Weiter“ am selben Platz. Tippen aufs Kampfbild macht schneller. Überspringen geht jetzt in jedem Kampf',
+    'Neuigkeiten als Zeitleiste mit Symbolen, die Neuigkeiten-Tour lässt sich dort nochmal ansehen. Neu-Fenster mit kleinen Bühnen',
+    'Schmiede: Der Amboss passt am PC wieder in die Breite' ] },
   { v: '2026-10-19b', date: '18.10.', title: 'Neu-Fenster, lebendigere Szenen, schöneres Album', items: [
     'Neuigkeiten zum Durchwischen: Bei großen Updates zeigt ein Karussell, was neu ist. Am Ende entscheidest du: weiterspielen, die Story von vorn erleben oder ganz neu anfangen (mit Nachfrage)',
     'Story-Szenen: kürzer, witziger, mit Wackeln, Zoom, Hüpfen, Blitz und Trommelwirbel. Kulissen mit Palmen, Kisten, Möwen, Krabbe und Glühwürmchen. Auto-Knopf zum Zurücklehnen',
