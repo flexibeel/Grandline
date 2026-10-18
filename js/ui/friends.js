@@ -30,6 +30,7 @@ window.GL = window.GL || {};
       const m = /[?&]ref=([0-9A-Za-z-]{6,8})/.exec(location.search);
       if (!m) return;
       localStorage.setItem(REF_KEY, norm(m[1]));
+      GL.inviteLanding = norm(m[1]);   // für das Einladungs-Fenster beim Öffnen
       const u = new URL(location.href); u.searchParams.delete('ref'); history.replaceState(null, '', u.pathname + (u.search || ''));
     } catch (e) { /* egal */ }
   }

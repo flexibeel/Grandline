@@ -81,7 +81,7 @@ GL.config = {
   awaken: { atk: 4, hp: 10 },
 
   // Gegnerstärke
-  enemyScale: 0.8,        // wie schnell normale Gegner pro Etappe stärker werden (längere Insel-Kapitel -> langsamer hochskalieren)
+  enemyScale: 0.77,        // wie schnell normale Gegner pro Etappe stärker werden (längere Insel-Kapitel -> langsamer hochskalieren)
   eliteMult: 1.3,         // Kopfgeldjäger sind um diesen Faktor stärker
   // Mehr Leben, etwas weniger Angriff: Kämpfe dauern etwas länger, ohne insgesamt härter zu werden
   grunt: { hpBase: 16, hpPerLevel: 4.4, atkBase: 3.7, atkPerLevel: 1.06, spdMin: 3, spdMax: 7 },
@@ -132,3 +132,7 @@ GL.config = {
     { id: 'rueckenwind', name: 'Rückenwind', icon: '⛵', text: 'Deine ganze Crew ist 1 Tempo schneller.' }
   ]
 };
+
+// Großer Neustart (Saison): ab diesem Moment starten alle frisch, Rangliste beginnt bei null.
+//   start = 18.10.2026, 18:00 Uhr deutscher Zeit (16:00 UTC). Startabend bis 19.10. 23:59 → Flagge „Erste Fahrt“.
+GL.config.season = { id: 's1', start: Date.UTC(2026, 9, 18, 16, 0, 0), launchEnd: Date.UTC(2026, 9, 19, 22, 0, 0) };

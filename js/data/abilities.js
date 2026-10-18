@@ -17,6 +17,9 @@
 //     lifesteal     heilt sich um value Anteil des Schadens
 //     chain         Treffer springen auf das nächste Ziel über (value Anteil)
 //     double        greift zweimal pro Runde an
+//     taunt         Leibwache: die Gegenseite greift zuerst diese Figur an (Scharfschützen ausgenommen)
+//     bully         greift immer den Gegner mit dem meisten Angriff an
+//     pack          +value Angriff für jeden gefallenen Verbündeten
 //
 //   status = Zustand, den die Fähigkeit verteilt (hält mehrere Runden, siehe GL.data.statuses):
 //     { key, rounds, when: 'start' | 'hit' | 'every', n (bei every: alle n Runden),
@@ -64,13 +67,13 @@ GL.data.abilities = {
 
   // Bosse (gelten auch, wenn man sie freigeschaltet hat und selbst spielt)
   smoker:      { name: 'Rauchkörper',     text: 'Erleidet 20 % weniger Schaden. Alle 3 Runden betäubt sein Rauch den Vordersten.',
-                 mods: [{ scope: 'char:smoker', guard: 0.2 }], status: { key: 'stun', rounds: 1, when: 'every', n: 3, target: 'front' } },
+                 mods: [{ scope: 'char:smoker', guard: 0.2 }], status: { key: 'stun', rounds: 1, when: 'every', n: 4, target: 'front' } },
   arlong:      { name: 'Haifischzähne',   text: '+30 % Schaden. Seine Bisse lassen bluten (2 Schaden pro Runde, 3 Runden).',
                  mods: [{ scope: 'char:arlong', dmgPct: 0.3 }], status: { key: 'bleed', rounds: 3, when: 'hit', target: 'target', value: 2 } },
   crocodile:   { name: 'Sandsturm',       kind: 'lifesteal', value: 0.5, text: 'Heilt sich um die Hälfte seines Schadens. Zu Kampfbeginn: Furcht für die ganze Crew (2 Runden).',
                  status: { key: 'fear', rounds: 2, when: 'start', target: 'all' } },
   enel:        { name: 'Donnergott',      kind: 'chain', value: 0.5,   text: 'Blitze springen über (50 % Schaden). Alle 3 Runden betäubt er den Vordersten.',
-                 status: { key: 'stun', rounds: 1, when: 'every', n: 3, target: 'front' } },
+                 status: { key: 'stun', rounds: 1, when: 'every', n: 4, target: 'front' } },
   'rob-lucci': { name: 'Rokushiki',       kind: 'double',              text: 'Greift zweimal pro Runde an. Zu Kampfbeginn: Furcht für die ganze Crew (2 Runden).',
                  status: { key: 'fear', rounds: 2, when: 'start', target: 'all' } },
   kaku:        { name: 'Giraffen-Klinge', text: '30 % Krit-Chance. Seine Treffer schwächen: Ziel nimmt 3 Runden 25 % mehr Schaden.',
@@ -93,7 +96,7 @@ GL.data.abilities = {
   moria:   { name: 'Schattenraub',      kind: 'curse', value: 0.18, text: 'Zu Kampfbeginn stiehlt er dem stärksten Gegner 18 % des Lebens. Seine Schatten machen Angst (Furcht, 2 Runden).',
              status: { key: 'fear', rounds: 2, when: 'start', target: 'all' } },
   kuma:    { name: 'Nikyu-Nikyu',       text: 'Erleidet 25 % weniger Schaden. Alle 3 Runden stößt er den Vordersten weg (Betäubt).',
-             mods: [{ scope: 'char:kuma', guard: 0.25 }], status: { key: 'stun', rounds: 1, when: 'every', n: 3, target: 'front' } },
+             mods: [{ scope: 'char:kuma', guard: 0.25 }], status: { key: 'stun', rounds: 1, when: 'every', n: 4, target: 'front' } },
   teach:   { name: 'Finsternis',        kind: 'lifesteal', value: 0.4, text: 'Verschlingt Schaden: heilt sich um 40 % davon. Zu Kampfbeginn schwächt er alle (3 Runden).',
              status: { key: 'weak', rounds: 3, when: 'start', target: 'all' } },
   absalom: { name: 'Durchsichtig',      text: 'Weicht 30 % aller Angriffe aus.', mods: [{ scope: 'char:absalom', dodge: 0.3 }] },
@@ -119,12 +122,20 @@ GL.data.abilities = {
   foxy:    { name: 'Noro-Noro-Strahl', text: 'Seine Treffer verlangsamen: Ziel ist 2 Runden geschwächt (+25 % Schaden).',
              status: { key: 'weak', rounds: 2, when: 'hit', target: 'target' } },
 
+  jango:   { name: 'Eins, zwei… Jango!', text: 'Hypnose: alle 4 Runden schläft dein vorderstes Crewmitglied ein (setzt 1 Aktion aus).',
+             status: { key: 'stun', rounds: 1, when: 'every', n: 4, target: 'front' } },
+  gin:     { name: 'Tonfa-Dämon',      kind: 'bully', text: 'Geht immer auf dein stärkstes Crewmitglied los. Treffer schwächen (30 %: +25 % Schaden, 2 Runden).',
+             status: { key: 'weak', rounds: 2, when: 'hit', target: 'target', chance: 0.3 } },
+  pearl:   { name: 'Eisenwand',        kind: 'taunt', text: 'Seine Schilde fangen alles ab: deine Crew muss ihn zuerst schlagen. Erleidet 25 % weniger Schaden.',
+             mods: [{ scope: 'char:pearl', guard: 0.25 }] },
+  mr4:     { name: 'Lassoos Kanonade', kind: 'burn', value: 0.35, text: 'Sein Hund schießt Bomben: Treffer explodieren (35 % Schaden an alle anderen).' },
+  wanze:   { name: 'Ramen-Kenpo',      kind: 'chain', value: 0.4, text: 'Nudeln aus der Nase: Treffer springen auf das nächste Ziel über (40 % Schaden).' },
   hatchan: { name: 'Sechs Schwerter', kind: 'chain', value: 0.35, text: 'Sechs Arme, sechs Klingen: Treffer springen über (35 % Schaden).' },
   mr9:     { name: 'Baroque-Hinterhalt', kind: 'rally', value: 2, text: 'Zu Kampfbeginn bekommen alle Gegner +2 Angriff.' },
   mr1:     { name: 'Klingenkörper',   text: 'Sein Körper ist eine Klinge: erleidet 25 % weniger Schaden, +20 % Krit-Chance.',
              mods: [{ scope: 'char:mr1', guard: 0.25, crit: 0.2 }] },
   ohm:     { name: 'Eisenwolke',      text: 'Alle 3 Runden fesselt sein Wolkenzaun den Vordersten (Betäubt).',
-             status: { key: 'stun', rounds: 1, when: 'every', n: 3, target: 'front' } },
+             status: { key: 'stun', rounds: 1, when: 'every', n: 4, target: 'front' } },
   blueno:  { name: 'Tekkai-Wand',     text: 'Erleidet 30 % weniger Schaden. Zu Kampfbeginn: Furcht für die ganze Crew (1 Runde).',
              mods: [{ scope: 'char:blueno', guard: 0.3 }], status: { key: 'fear', rounds: 1, when: 'start', target: 'all' } },
   jabra:   { name: 'Wolfs-Frucht',    text: '+30 % Schaden. Seine Krallen lassen bluten (3 Schaden pro Runde, 2 Runden).',

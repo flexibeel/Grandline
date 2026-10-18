@@ -120,7 +120,12 @@
     const old = document.getElementById('fpop');
     if (old && old.dataset.id === 'feedback') return;
     if (old && (old.dataset.id === 'news' || old.dataset.id === 'install' || old.dataset.id === 'notes' || old.dataset.id === 'duel' || old.dataset.id === 'gear' || old.dataset.id === 'welcome')) return;
-    if (!run && !ui.screen && ui.intro == null && !old && GL.data.news && profile.nickname && (profile.rankXp || 0) > 0 && profile.newsSeen !== GL.data.news.v && !ui.newsShown) { ui.newsShown = true; ui.welcomeDue = false; openNews(0); return; }
+    // Großer Neustart: einmal der Einspieler, danach ganz normal weiter
+    if (!run && profile.nickname && (profile.stats.runs || 0) >= 1 && GL.season && GL.season.markLaunch(profile)) {
+      saveProfile();
+      setTimeout(() => toast('<span><b>⛵ Flagge „Erste Fahrt“</b>Du bist am Startabend gesegelt. Flagge und Titel „Erstsegler“ liegen im Profil.</span>'), 1500);
+    }
+    if (!run && !ui.screen && ui.intro == null && !old && GL.data.news && profile.nickname && (profile.rankXp || 0) > 0 && profile.newsSeen !== GL.data.news.v && !ui.newsShown && (!GL.season || GL.season.started())) { ui.newsShown = true; ui.welcomeDue = false; openNews(0); return; }
     if (!run && !ui.screen && ui.intro == null && !old && ui.welcomeDue) { ui.welcomeDue = false; openWelcome(); return; }
     // Story: höchstens ein Kapitel pro Besuch im Hafen (nach jedem Run darf das nächste kommen)
     if (!run && !ui.screen && ui.intro == null && !old && profile.nickname && GL.story && !GL.story.active() && !ui.storyPending && !ui.storyShown && !document.getElementById('intro-card')) {
@@ -621,6 +626,7 @@
     const gear = GL.meta.takeLoadout(profile);
     run = GL.run.create(undefined, {
       unlocked: profile.unlocked, epics: profile.epics, upgrades: profile.upgrades, gear, heat: profile.heat,
+      skills: GL.skills ? GL.skills.bonus(profile) : null,
       arts: GL.meta.takeArtifacts(profile), self: selfNow(), items: GL.meta.takeItems(profile),
       hunt: GL.meta.featureOpen(profile, 'jagd') ? (profile.hunt || null) : null,
       altOpen: GL.meta.featureOpen(profile, 'route'),
@@ -854,6 +860,50 @@
     };
     document.addEventListener('pointerup', end);
     document.addEventListener('pointercancel', e => { if (drag && drag.ghost) drag.ghost.remove(); document.body.classList.remove('cg-dragging'); document.querySelectorAll('.drop-ok, .drop-hover').forEach(x => x.classList.remove('drop-ok', 'drop-hover')); drag = null; });
+  })();
+
+  // ---------- Eigene Teufelsfrucht: ausrüsten (Tippen oder Ziehen auf den Piraten) ----------
+  function setSelfFruit(id) {
+    const ok = id && GL.meta.selfFruits(profile).some(f => f.id === id);
+    const same = ok && profile.selfFruit === id;
+    profile.selfFruit = ok && !same ? id : null;
+    saveProfile();
+    if (GL.sfx) GL.sfx.play(profile.selfFruit ? 'found' : 'tap');
+    if (profile.selfFruit) { const f = GL.loot.fruit(GL.meta.selfFruit(profile)); toast(`<span><b>${esc2(f.name)} ausgerüstet</b>${esc2(f.text)}. Wirkt, wenn dein Pirat Kapitän ist.</span>`); }
+    { const ni = document.getElementById('pf-name'); if (ni && ui.draft) ui.draft.name = ni.value; } { const t = document.getElementById('title'); if (t) t.dataset.last = ''; } ui.lastStage = null; draw();
+  }
+  (function fruitDrag() {
+    let drag = null;
+    document.addEventListener('pointerdown', e => {
+      const tile = e.target.closest('.sf-fruit[data-v]');
+      if (!tile || e.button > 0) return;
+      drag = { tile, id: tile.dataset.v, x: e.clientX, y: e.clientY, on: false, ghost: null, pid: e.pointerId };
+    });
+    document.addEventListener('pointermove', e => {
+      if (!drag || e.pointerId !== drag.pid) return;
+      if (!drag.on) {
+        if (Math.hypot(e.clientX - drag.x, e.clientY - drag.y) < 8) return;
+        drag.on = true;
+        drag.ghost = drag.tile.querySelector('.sf-ico').cloneNode(true); drag.ghost.classList.add('sf-ghost'); document.body.appendChild(drag.ghost);
+        document.querySelectorAll('[data-sfslot]').forEach(x => x.classList.add('drop-ok'));
+      }
+      e.preventDefault();
+      drag.ghost.style.left = e.clientX + 'px'; drag.ghost.style.top = e.clientY + 'px';
+      const t = document.elementFromPoint(e.clientX, e.clientY);
+      document.querySelectorAll('[data-sfslot]').forEach(x => x.classList.toggle('drop-hover', !!(t && t.closest('[data-sfslot], .sf-pirate')) ));
+    }, { passive: false });
+    const end = e => {
+      if (!drag || e.pointerId !== drag.pid) return;
+      const d = drag; drag = null;
+      document.querySelectorAll('[data-sfslot]').forEach(x => x.classList.remove('drop-ok', 'drop-hover'));
+      if (!d.on) return;
+      if (d.ghost) d.ghost.remove();
+      suppressClick = true; setTimeout(() => { suppressClick = false; }, 400);
+      const t = e.type === 'pointerup' && document.elementFromPoint(e.clientX, e.clientY);
+      if (t && t.closest('[data-sfslot], .sf-pirate') && profile.selfFruit !== d.id) setSelfFruit(d.id);
+    };
+    document.addEventListener('pointerup', end);
+    document.addEventListener('pointercancel', end);
   })();
 
   // ---------- Ausrüstung: Vergleich beim Darüberfahren (Maus) ----------
@@ -1107,6 +1157,16 @@
       }
       case 'daily-day': ui.dailyDay = el.dataset.id; ui.lastStage = null; draw(); break;
       case 'mail-reveal': GL.ui.toggleMail(); ui.lastStage = null; { const t = document.getElementById('title'); if (t) t.dataset.last = ''; } draw(); break;
+      // Echtes Zweitkonto (Entwickler): wechseln oder frisch anlegen, zweimal tippen bei „Neu anlegen“
+      case 'acct-switch': case 'acct-fresh': {
+        if (GL.slots && GL.slots.active() !== 0) { toast('<span><b>Erst zurück zum Hauptpiraten</b>Zweitkonten gehen nur vom ersten Spielstand aus.</span>'); break; }
+        if (type === 'acct-fresh' && !el.dataset.armed) { el.dataset.armed = '1'; el.textContent = 'Sicher? Nochmal tippen'; break; }
+        const to = type === 'acct-fresh' ? 'test' : el.dataset.to;
+        if (saveProfile) try { saveProfile(); } catch (e2) { /* egal */ }
+        el.disabled = true; el.textContent = 'Einen Moment …';
+        setTimeout(() => { if (GL.accounts.switchTo(to, type === 'acct-fresh')) location.reload(); else { el.disabled = false; toast('<span><b>Hat nicht geklappt</b>Bitte nochmal versuchen.</span>'); } }, 600);
+        break;
+      }
       case 'slot-switch': case 'slot-fresh': {
         let to = type === 'slot-fresh' ? -1 : Number(el.dataset.i);
         if (type === 'slot-fresh') { for (let k = 1; k < GL.slots.max; k++) if (k !== GL.slots.active() && !GL.slots.info(k)) { to = k; break; } }
@@ -1327,6 +1387,21 @@
       case 'char-type': ui.draft.char.type = el.dataset.v; draw(); break;
       case 'char-role': ui.draft.char.role = el.dataset.v; draw(); break;
       case 'cos-pick': ui.draft.cos[el.dataset.kind] = el.dataset.v; draw(); break;
+      // Eigene Teufelsfrucht: antippen = ausrüsten, nochmal (oder Platz antippen) = ablegen
+      case 'self-fruit': setSelfFruit(el.dataset.slot ? '' : el.dataset.sfslot ? '' : el.dataset.v); break;
+      case 'crew-name': {
+        const inp = document.getElementById('pf-crew');
+        const v = inp ? inp.value.replace(/[<>"'`&\\]/g, '').replace(/\s+/g, ' ').trim().slice(0, 20) : '';
+        const chk = v && GL.nameCheck ? GL.nameCheck(v) : { ok: true };
+        if (!chk.ok) { ui.crewError = chk.msg || 'Dieser Name geht leider nicht.'; }
+        else {
+          ui.crewError = null; profile.crewName = v || null; saveProfile();
+          if (GL.sfx) GL.sfx.play('found');
+          toast(v ? `<span><b>🏴‍☠️ Bande getauft</b>Ihr seid jetzt die „${esc2(v)}“.</span>` : '<span><b>Bandenname entfernt</b></span>');
+        }
+        { const ni = document.getElementById('pf-name'); if (ni && ui.draft) ui.draft.name = ni.value; } { const t = document.getElementById('title'); if (t) t.dataset.last = ''; } ui.lastStage = null; draw();
+        break;
+      }
       case 'pf-tab': ui.editTab = el.dataset.v; ui.editSub = el.dataset.s || null; ui.lastStage = null; { const t = document.getElementById('title'); if (t) t.dataset.last = ''; } draw(); break;
       case 'profile-save': {
         const inp = document.getElementById('pf-name');
@@ -1337,6 +1412,7 @@
         ui.nameError = null;
         profile.char = ui.draft.char;
         profile.cos = ui.draft.cos;
+        { const ci = document.getElementById('pf-crew'); if (ci) { const v = ci.value.replace(/[<>"'`&\\]/g, '').replace(/\s+/g, ' ').trim().slice(0, 20); if (!v) profile.crewName = null; else if (GL.nameCheck(v).ok) profile.crewName = v; } }
         profile.nickname = name.slice(0, 24);
         if (GL.friends && GL.friends.applyRef(profile)) setTimeout(() => toast('<span><b>Willkommen an Bord!</b>Ein Freund hat dich eingeladen: +150 Berry als Geschenk.</span>'), 1200);
         GL.run.registerSelf(selfNow());
@@ -1378,6 +1454,42 @@
       case 'news-done': newsDone(); break;
       case 'news-story': profile.story = { seen: [] }; ui.storyShown = false; newsDone(); toast('<span><b>📖 Die Story beginnt von vorn</b>Kapitel 1 startet gleich, die nächsten kommen mit deinen Fahrten.</span>'); setTimeout(() => { ui.lastStage = null; draw(); }, 600); break;
       case 'pop-close': closePop(); break;
+      // Pause: der Run ist nach jedem Schritt gespeichert (auch online). Hier nur zur Beruhigung sagen und kurz anhalten.
+      case 'pause': {
+        if (anim && !anim.done && anim.speed) { ui.pauseSpeed = anim.speed; }
+        try { if (run) GL.save.storeRun(run); saveProfile(); if (GL.online.flushSave) GL.online.flushSave(); } catch (e2) { /* egal */ }
+        const en = GL.i18n && GL.i18n.lang() === 'en';
+        openGearPop(`<div class="fpop-card pause-pop"><div class="pz-ico">⏸</div><h3>${en ? 'Paused' : 'Pause'}</h3>
+          <p>${en ? 'Your run is saved after every step, also online. You can simply close the game, it waits right here. Even on your other device.' : 'Dein Run ist nach jedem Schritt gespeichert, auch online. Du kannst das Spiel einfach schließen, er wartet genau hier. Auch auf deinem anderen Gerät.'}</p>
+          <button class="btn" data-act="pop-close">${en ? 'Continue' : 'Weiter'}</button></div>`);
+        break;
+      }
+      case 'season-open': openGearPop(GL.season.popup(profile)); break;
+      case 'season-go': closePop(); if (GL.season.stale(profile)) location.reload(); break;
+      // Freiwillig frisch starten (zweimal tippen). Alter Stand bleibt auf dem Gerät gesichert.
+      case 'season-fresh': {
+        if (!el.dataset.armed) { el.dataset.armed = '1'; el.textContent = GL.i18n && GL.i18n.lang() === 'en' ? 'Sure? Tap again' : 'Sicher? Nochmal tippen'; break; }
+        el.disabled = true;
+        try {
+          const f = GL.meta.migrate(GL.season.convert(profile));
+          localStorage.setItem('grandline.profile', JSON.stringify(f));
+          localStorage.removeItem('grandline.run'); sessionStorage.setItem('gl.pulled', '1');
+        } catch (e2) { /* egal */ }
+        location.reload();
+        break;
+      }
+      case 'season-invite': {
+        openGearPop(GL.season.invitePop(profile));
+        GL.friends.qr(GL.friends.link()).then(svg => { const q = document.getElementById('sz-qr'); if (q) q.innerHTML = svg; }).catch(() => { const q = document.getElementById('sz-qr'); if (q) q.innerHTML = '<small>QR-Code gerade nicht verfügbar</small>'; });
+        break;
+      }
+      case 'season-share': {
+        const link = GL.friends.link(), txt = GL.season.shareText() + '\n' + link;
+        if (navigator.share && matchMedia('(pointer: coarse)').matches) { navigator.share({ title: 'Grand Line', text: GL.season.shareText(), url: link }).catch(() => {}); break; }
+        if (navigator.clipboard) navigator.clipboard.writeText(txt).then(() => toast('<span><b>Kopiert</b>Einladung samt Link. Einfach in WhatsApp & Co. einfügen.</span>'), () => {});
+        else { const i = document.querySelector('.sz-link'); if (i) { i.select(); document.execCommand && document.execCommand('copy'); } }
+        break;
+      }
       // ---------- Crew-Ausrüstung ----------
       case 'cg-slot': openGearPop(GL.ui.gearPick(profile, el.dataset.id, el.dataset.slot)); break;
       case 'dress': ui.sqPick = null; showDress({ id: el.dataset.id, slot: null, uid: null }); break;
@@ -1389,6 +1501,19 @@
         showDress({ uid: null, slot: it ? GL.cgear.slotOf(it) : null }); ui.lastStage = null; draw(); break;
       }
       case 'dr-off': GL.cgear.unequip(profile, el.dataset.id, el.dataset.slot); saveProfile(); showDress({ uid: null }); ui.lastStage = null; draw(); break;
+      // Bestes anlegen: alle Plätze einer Figur mit dem stärksten freien Teil
+      case 'dr-best': {
+        const done = GL.cgear.equipBest(profile, el.dataset.id);
+        if (done.length) { profile.gearNew = []; gearThanks(el.dataset.id, done[0].it); saveProfile(); }
+        showDress({ id: el.dataset.id, uid: null, slot: null }); ui.lastStage = null; draw(); break;
+      }
+      // Ganze Stammcrew: von vorne nach hinten jeweils das Beste, was noch frei ist
+      case 'dr-best-all': {
+        let n = 0;
+        GL.meta.squadRefs(profile).forEach(r => { n += GL.cgear.equipBest(profile, r.id).length; });
+        if (n) { profile.gearNew = []; saveProfile(); if (GL.sfx) GL.sfx.play('found'); toast(`<span><b>⚓ Crew ausgerüstet</b>${n} ${n === 1 ? 'Teil' : 'Teile'} angelegt. Alle tragen jetzt das Beste aus der Truhe.</span>`); }
+        ui.lastStage = null; draw(); break;
+      }
       case 'story-book': openGearPop(GL.ui.storyBook(profile)); break;
       case 'story-play': closePop(); setTimeout(() => GL.story.play(profile, el.dataset.id, () => { saveProfile(); }), 300); break;
       case 'bottle': showDress({ send: el.dataset.uid || null }); break;
@@ -1484,6 +1609,22 @@
         break;
       }
       case 'fb-later': closeFeedback(false); break;
+      // Gemütlichkeit (Skilltree)
+      case 'sk-sel': ui.skSel = ui.skSel === el.dataset.id ? null : el.dataset.id; ui.skArmed = false; ui.lastStage = null; draw(); break;
+      case 'sk-learn': {
+        if (!GL.skills || !GL.skills.learn(profile, el.dataset.id)) break;
+        const n = GL.skills.find(el.dataset.id);
+        saveProfile(); ui.lastStage = null; draw();
+        try { GL.sfx && GL.sfx.sting && GL.sfx.sting('sparkle'); } catch (e2) { /* egal */ }
+        toast(`<span><b>✦ ${esc2(n.name)} gelernt</b>${esc2(n.text)}</span>`);
+        const b = document.querySelector(`.sk-node[data-id="${n.id}"], .sk-tal[data-id="${n.id}"]`); if (b) b.classList.add('pop');
+        break;
+      }
+      case 'sk-reset':
+        if (!ui.skArmed) { ui.skArmed = true; ui.lastStage = null; draw(); break; }
+        ui.skArmed = false; ui.skSel = null; GL.skills.reset(profile); saveProfile(); ui.lastStage = null; draw();
+        toast('<span><b>↺ Umgeskillt</b>Alle Skillpunkte sind wieder frei.</span>');
+        break;
       case 'buy-upgrade': if (GL.meta.buyUpgrade(profile, el.dataset.id)) { saveProfile(); draw(); } break;
       case 'buy-gear': if (GL.meta.buyGear(profile, el.dataset.id)) { saveProfile(); draw(); } break;
       case 'toggle-gear': if (GL.meta.toggleLoadout(profile, el.dataset.id)) { saveProfile(); draw(); } break;
@@ -1761,6 +1902,7 @@
         openGearPop(GL.ui.momentPop(profile, id, i)); if (GL.sfx) GL.sfx.play('found');
         break;
       }
+      case 'acard-open': el.classList.toggle('open'); break;   // Album-Karte am Handy: ganzen Text zeigen
       case 'crew-card': { const id = el.dataset.id; if (id) { openGearPop(GL.ui.crewCard(profile, id)); if (GL.sfx) GL.sfx.play('heal'); } break; }
       case 'pet-set': {
         // Begleiter mitnehmen (leer = absetzen). Sitzt im Profil auf der Schulter und steht im Hafen am Steg
@@ -1986,6 +2128,60 @@
   }, 120000);
   syncProfile();
   draw();
+  // Großer Neustart: Countdown jede Sekunde, Live-Fenster bei null, Einladungs-Landung, Online-Eintrag zurücksetzen
+  if (GL.season) {
+    const pre = !GL.season.started();
+    const seasonPop = (html, id) => { openGearPop(html); const p = document.getElementById('fpop'); if (p) p.dataset.id = id || 'season'; };
+    setInterval(() => GL.season.tick(() => {
+      if (!pre) return;
+      const show = () => {
+        if ((anim && !anim.done) || (GL.story && GL.story.active())) { setTimeout(show, 3000); return; }
+        seasonPop(GL.season.popup(profile));
+        if (GL.sfx && GL.sfx.sting) GL.sfx.sting('sparkle');
+      };
+      show();
+    }), 1000);
+    const ref = GL.inviteLanding;
+    if (ref && GL.friends) {
+      const showInv = k => {
+        const row = GL.friends.rowOf(ref);
+        if (!row && k < 6) { setTimeout(() => showInv(k + 1), 700); return; }
+        if (GL.friends.norm(ref) === GL.friends.norm(GL.friends.mine() || '')) return;
+        if (document.getElementById('fpop') || (GL.story && GL.story.active())) { setTimeout(() => showInv(k), 2500); return; }
+        const name = esc2((row && row.name) || (GL.i18n && GL.i18n.lang() === 'en' ? 'A buddy' : 'Ein Kumpel'));
+        // Wer schon spielt, bekommt den Einlader direkt als Segelkumpan
+        if (profile.nickname && GL.friends.add(profile, ref)) {
+          saveProfile();
+          if (row && GL.online.friendSend) GL.online.friendSend(row.id, profile.nickname || 'Pirat', GL.friends.mine());
+        }
+        seasonPop(GL.season.popup(profile, name), 'invite');
+        if (GL.sfx) GL.sfx.play('found');
+      };
+      setTimeout(() => showInv(0), 900);
+    }
+    // Einspieler direkt nach dem frischen Start (egal welcher Bildschirm, die Szene liegt obendrüber)
+    if (profile.launchIntro && profile.nickname) {
+      ui.storyShown = true; ui.newsShown = true;
+      const playLaunch = () => {
+        if (!GL.story || GL.story.active() || document.getElementById('fpop')) { setTimeout(playLaunch, 1500); return; }
+        delete profile.launchIntro; saveProfile();
+        GL.story.play(profile, 'launch', () => { saveProfile(); ui.newsShown = false; ui.lastStage = null; draw(); });
+      };
+      setTimeout(playLaunch, 1200);
+    }
+    if (profile.seasonWipe) {
+      const doWipe = (k) => {
+        const st = GL.online && GL.online.state ? GL.online.state() : {};
+        if (!st.uid && k < 15) { setTimeout(() => doWipe(k + 1), 2000); return; }
+        delete profile.seasonWipe;
+        const keep = { nickname: profile.nickname, char: profile.char, cos: profile.cos };
+        Promise.resolve(st.uid && GL.online.wipe ? GL.online.wipe(false, keep) : null).catch(() => {}).then(() => saveProfile());
+        toast('<span><b>⛵ Frischer Start</b>Neue Saison, neues Glück. Dein alter Stand ist auf diesem Gerät gesichert.</span>');
+        if (profile.vetGift) { delete profile.vetGift; saveProfile(); setTimeout(() => toast('<span><b>🎁 Dankeschön für die Testfahrt</b>Du bist weit gekommen: 2 epische Ausrüstungsteile liegen für deine Crew in der Truhe.</span>'), 2500); }
+      };
+      setTimeout(() => doWipe(0), 2500);
+    }
+  }
   // Einladung per Link (?wettfahrt=CODE): nach dem Profil-Anlegen die Wettfahrt anbieten
   try {
     const inv = new URLSearchParams(location.search).get('wettfahrt');
@@ -2012,6 +2208,12 @@
       if (sessionStorage.getItem('gl.pulled')) return;
       try { sessionStorage.setItem('gl.pulled', '1'); } catch (e2) { /* egal */ }
       // Nicht blind überschreiben: Beute und Freischaltungen aus dem lokalen Stand bleiben erhalten
+      // Laufenden Run vom anderen Gerät übernehmen (mitten im Run weiterspielen)
+      const runJ = remote._runJ; delete remote._runJ;
+      try {
+        if (typeof runJ === 'string' && runJ.length > 2) { const r = JSON.parse(runJ); if (r && r.version === GL.config.saveVersion) localStorage.setItem('grandline.run', runJ); }
+        else if (runJ === null && remote.savedAt) localStorage.removeItem('grandline.run');   // dort ist der Run schon vorbei
+      } catch (e3) { /* egal */ }
       let merged = remote;
       try { if (profile && profile.nickname && (!remote.nickname || remote.nickname === profile.nickname)) merged = GL.meta.mergeProfiles(remote, profile); } catch (e3) { merged = remote; }
       GL.save.replaceProfile(merged);
@@ -2093,6 +2295,13 @@
       if (idle) { try { sessionStorage.removeItem('gl.pulled'); } catch (e2) { /* egal */ } GL.online.resync && GL.online.resync(); }
     };
     document.addEventListener('visibilitychange', backToApp);
+    // Spiel geht in den Hintergrund oder wird geschlossen: Stand sofort hochladen (dann klappt der Wechsel aufs Handy)
+    let hiddenAt = 0;
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) { hiddenAt = Date.now(); if (GL.online.flushSave) GL.online.flushSave(); return; }
+      if (hiddenAt && Date.now() - hiddenAt > 120000 && run && !GL.run.isFinished(run)) toast('<span><b>⚓ Willkommen zurück</b>Dein Run hat hier auf dich gewartet.</span>');
+    });
+    window.addEventListener('pagehide', () => { if (GL.online.flushSave) GL.online.flushSave(); });
     window.addEventListener('focus', backToApp);
     setInterval(() => { if (!document.hidden) checkDefense(); }, 300000);
     setInterval(() => { if (!document.hidden) { lastSync = 0; backToApp(); } }, 180000);   // alle 3 Minuten nach Updates schauen

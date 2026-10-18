@@ -45,6 +45,7 @@ window.GL = window.GL || {};
     rows.forEach(r => {
       r.name = String(r.name || '').slice(0, 24);
       r.id = String(r.id || '');
+      if (r.crewName != null) { const cn = typeof r.crewName === 'string' ? r.crewName.replace(/[<>"'`&\\]/g, '').trim().slice(0, 20) : ''; if (cn && (!GL.nameCheck || GL.nameCheck(cn).ok)) r.crewName = cn; else delete r.crewName; }
       ARR.forEach(k => { if (r[k] != null && !Array.isArray(r[k])) delete r[k]; });
       OBJ.forEach(k => { if (r[k] != null && (typeof r[k] !== 'object' || Array.isArray(r[k]))) delete r[k]; });
       const num = (v, lo, hi) => { const n = Number(v); return isFinite(n) ? Math.max(lo, Math.min(hi, Math.round(n))) : lo; };
@@ -117,7 +118,12 @@ window.GL = window.GL || {};
     state.email = session.user.email || null;
     await pullSave();
     await codeSync();
-    const toRow = r => Object.assign({}, r.data || {}, { id: r.id, name: r.name, score: r.score });
+    // Saison: Einträge ohne Fahrt in der neuen Saison bleiben sichtbar (Freunde, online), zählen aber mit null
+    const PRE = { score: 0, best: null, runs: 0, wins: 0, topBounty: 0, bestDmg: 0, maxHit: 0, totalDmg: 0, kos: 0, crits: 0, bossKills: 0, runLog: [], preSeason: true };
+    const toRow = r => {
+      const row = Object.assign({}, r.data || {}, { id: r.id, name: r.name, score: r.score });
+      return GL.season && GL.season.started() && row.sStat !== GL.season.id() ? Object.assign(row, PRE) : row;
+    };
     store = {
       async get(uid) {
         const { data: d, error } = await client.from('scores').select('id,name,score,data').eq('id', uid).maybeSingle();
@@ -131,6 +137,7 @@ window.GL = window.GL || {};
         await store.refresh();
       },
       async refresh() {
+        // Nach dem großen Neustart zählen nur noch Einträge der neuen Saison
         const { data: d, error } = await client.from('scores').select('id,name,score,data').order('score', { ascending: false }).limit(300);
         if (error) throw error;
         state.rows = dedupe((d || []).map(toRow).filter(r => !r.deleted));
@@ -156,18 +163,34 @@ window.GL = window.GL || {};
       try { lastUid = localStorage.getItem('grandline.uid'); localStorage.setItem('grandline.uid', state.uid); } catch (e) { /* egal */ }
       const switched = !!lastUid && lastUid !== state.uid;
       const remote = d && d.data && typeof d.data === 'object' && !d.data.wiped ? safeData(d.data, 0, true) : null;
-      const remoteBetter = remote && (!local || switched || (remote.savedAt || 0) > (local.savedAt || 0) + 1000
+      const localAt = Math.max((local && local.savedAt) || 0, (GL.save && GL.save.runAt) || 0);
+      const remoteBetter = remote && (!local || switched || (remote.savedAt || 0) > localAt + 1000
         || (!state.anon && (remote.rankXp || 0) > (local.rankXp || 0)));
       if (remoteBetter && onRemote) onRemote(remote);
       else if (local && local.nickname) pushSave(local);   // erster Upload von diesem Gerät
     } catch (e) { /* ohne Tabelle läuft alles lokal weiter */ }
+  }
+  // Laufender Run reist mit (als Text), damit man am anderen Gerät mitten im Run weitermachen kann
+  function withRun(profile) {
+    let runJ = null;
+    try { runJ = localStorage.getItem('grandline.run'); } catch (e) { /* egal */ }
+    const at = Math.max(profile.savedAt || 0, (GL.save && GL.save.runAt) || 0);
+    return Object.assign({}, profile, { savedAt: at, _runJ: runJ && runJ.length < 400000 ? runJ : null });
+  }
+  // Sofort hochladen (z. B. wenn das Spiel in den Hintergrund geht), ohne die 3 Sekunden abzuwarten
+  function flushSave() {
+    if (GL.sandbox && GL.sandbox.on()) return;
+    if (!client || !state.uid || !state.cloud || !profileRef || !profileRef.nickname || !pushTimer) return;
+    clearTimeout(pushTimer); pushTimer = null;
+    try { client.from('saves').upsert({ id: state.uid, data: withRun(profileRef), updated_at: new Date().toISOString() }).then(() => {}, () => {}); } catch (e) { /* egal */ }
+    codeSave(profileRef);
   }
   function pushSave(profile) {
     if (GL.sandbox && GL.sandbox.on()) return;
     if (!client || !state.uid) return;
     clearTimeout(pushTimer);
     pushTimer = setTimeout(async () => {
-      if (state.cloud) { try { await client.from('saves').upsert({ id: state.uid, data: profile, updated_at: new Date().toISOString() }); } catch (e) { /* später erneut */ } }
+      if (state.cloud) { try { await client.from('saves').upsert({ id: state.uid, data: withRun(profile), updated_at: new Date().toISOString() }); } catch (e) { /* später erneut */ } }
       codeSave(profile);
     }, 3000);
     pushLive(profile);
@@ -343,6 +366,7 @@ window.GL = window.GL || {};
       .map(it => ({ id: it.id, r: it.r, lvl: it.lvl || 0 }));
     return {
       name: (profile.nickname || '').slice(0, 24) || 'Unbekannter Pirat',
+      crewName: GL.meta.crewName ? GL.meta.crewName(profile) : null,
       look: profile.char ? profile.char.look : null,
       cos: profile.cos || null,
       ship: profile.ship || null,
@@ -372,6 +396,7 @@ window.GL = window.GL || {};
       landOrte: Object.values(profile.dungeons || {}).filter(d => d && d.clears > 0).length,
       refBy: profile.refBy || null,
       invites: (profile.invites || []).length,
+      season: profile.season || null,
       updated: new Date().toISOString()
     };
   }
@@ -388,7 +413,10 @@ window.GL = window.GL || {};
     const entry = pending;
     pending = null;
     try {
-      const old = await store.get(state.uid);
+      let old = await store.get(state.uid);
+      // Saison: Bestwert und Zähler beginnen mit der ersten Fahrt der neuen Saison bei null
+      const sid = GL.season && GL.season.started() ? GL.season.id() : null;
+      if (sid && old && old.sStat !== sid) old = null;
       const o = old || {};
       const n = v => Number(v) || 0;
       const better = !old || entry.score > n(o.score);
@@ -400,6 +428,7 @@ window.GL = window.GL || {};
         duels[entry.duel] = { score: entry.score, won: entry.won, island: entry.island, dmg: entry.dmg, date: entry.date, step: entry.step, team: entry.team };
       }
       await store.set(state.uid, Object.assign({}, liveFields(profile), {
+        sStat: sid || o.sStat || null,
         score: better ? entry.score : n(o.score),
         best: better ? entry : o.best || null,
         runs: n(o.runs) + 1,
@@ -554,6 +583,7 @@ window.GL = window.GL || {};
     try { await pullSave(); await codeSync(); if (store && store.refresh) await store.refresh(); } catch (e) { /* egal */ }
   }
   const refresh = () => (store && store.refresh ? store.refresh().catch(() => {}) : Promise.resolve());
-  GL.online = { pinboard, refresh, init, submit, rename, register, pushSave, resync, duelReport, duelInbox, bottleSend, bottleInbox, friendSend, friendInbox, sendFeedback, linkEmail, loginEmail, verifyCode, logout, wipe, liveFields, codeLoad, codeSave, codeClaim,
+  const pushRun = () => { if (profileRef && profileRef.nickname) pushSave(profileRef); };
+  GL.online = { flushSave, pushRun, pinboard, refresh, init, submit, rename, register, pushSave, resync, duelReport, duelInbox, bottleSend, bottleInbox, friendSend, friendInbox, sendFeedback, linkEmail, loginEmail, verifyCode, logout, wipe, liveFields, codeLoad, codeSave, codeClaim,
     onRemoteProfile(fn) { onRemote = fn; }, state: () => state, onChange(fn) { listeners.push(fn); } };
 })();

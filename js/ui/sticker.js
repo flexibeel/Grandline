@@ -38,8 +38,12 @@ window.GL = window.GL || {};
     while (c.measureText(info.name).width > S - 140 && fs > 24) { fs -= 2; c.font = `600 ${fs}px "Pixelify Sans", monospace`; }
     c.fillStyle = '#2a1a10'; c.fillText(info.name, S / 2 + 3, 404 + 3);
     c.fillStyle = '#fff6e0'; c.fillText(info.name, S / 2, 404);
-    c.font = '500 22px "Pixelify Sans", monospace'; c.fillStyle = '#f2d24a';
-    c.fillText(info.sub || '', S / 2, 445);
+    // Untertitel: Schrift verkleinern, notfalls kürzen, damit nichts über den Rand läuft
+    let sub = info.sub || '', sfs = 22; c.font = `500 ${sfs}px "Pixelify Sans", monospace`;
+    while (c.measureText(sub).width > S - 130 && sfs > 15) { sfs -= 1; c.font = `500 ${sfs}px "Pixelify Sans", monospace`; }
+    while (c.measureText(sub).width > S - 130 && sub.length > 4) sub = sub.slice(0, -2).trim() + '…';
+    c.fillStyle = '#f2d24a';
+    c.fillText(sub, S / 2, 445);
     // Kleines Spiel-Logo oben links
     c.font = '600 22px "Pixelify Sans", monospace'; c.textAlign = 'left';
     pxRect(c, 62, 62, 150, 36, 6, '#2a1a10'); c.fillStyle = '#fff6e0'; c.fillText('GRAND LINE', 74, 81);

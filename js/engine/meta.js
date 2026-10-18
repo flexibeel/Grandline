@@ -25,7 +25,8 @@ window.GL = window.GL || {};
         artLoadout: [],    // ausgerüstete Artefakte
         rankXp: 0,         // Piratenrang (Account-Fortschritt)
         heatMax: 0,        // höchste freigeschaltete Kopfgeld-Stufe
-        heat: 0            // gewählte Stufe für den nächsten Run
+        heat: 0,           // gewählte Stufe für den nächsten Run
+        season: GL.season && GL.season.started() ? GL.season.id() : null   // Saison des großen Neustarts
       };
     },
 
@@ -49,7 +50,7 @@ window.GL = window.GL || {};
         const art = (GL.data.artifacts || []).find(t => t.id === x.id);
         return s + (art && art.berry ? GL.run.artValue(art, x.lvl) : 0);
       }, 0);
-      return Math.max(0, Math.round(base * (1 + GL.run.upgradeTotal(profile.upgrades, 'berry') + heat + rankBonus + artBonus)) + (run.berry || 0));
+      return Math.max(0, Math.round(base * (1 + GL.run.upgradeTotal(profile.upgrades, 'berry') + heat + rankBonus + artBonus + ((run.sk && run.sk.berry) || 0))) + (run.berry || 0));
     },
 
     // ---------- Piratenrang ----------
@@ -82,7 +83,7 @@ window.GL = window.GL || {};
       const hunted = (run.defeated || []).filter(id => (GL.data.hunted || []).some(h => h.id === id)).length;
       const base = run.step * 3 + run.bounties * 15 + raids * 12 + hunted * 6 + (run.phase === 'win' ? 40 : 0);
       // Kleiner Trost: auch ein kurzer Run bringt etwas Rang-EP
-      return Math.max(10, Math.round(base * (1 + (run.heat || 0) * 0.15)));
+      return Math.max(10, Math.round(base * (1 + (run.heat || 0) * 0.15 + ((run.sk && run.sk.rankXp) || 0))));
     },
 
     // Rang-Erfahrung gutschreiben, Belohnungen verteilen. Gibt neue Ränge zurück.
@@ -125,8 +126,25 @@ window.GL = window.GL || {};
       return {
         name: profile.nickname, type: ch.type || 'kraft', role: ch.role || 'kaempfer', look: ch.look,
         hp: base.hp + Math.round(k * 1.4), atk: base.atk + Math.floor(k / 3), spd: base.spd + Math.floor(k / 7),
-        rally: 1 + Math.floor(k / 5)
+        rally: 1 + Math.floor(k / 5),
+        fruit: GL.meta.selfFruit(profile), crew: GL.meta.crewName(profile)
       };
+    },
+    // Eigene Teufelsfrucht: nur schon gegessene, normale Früchte (keine erwachten, keine Heil-Frucht).
+    // Stufe Gewöhnlich, ab Rang 8 Selten. Wirkt, wenn dein Pirat Kapitän ist.
+    selfFruits(profile) {
+      const seen = (profile.seen && profile.seen.fruits) || [];
+      return GL.data.fruits.filter(f => !f.awakened && !f.unique && seen.includes(f.id));
+    },
+    selfFruit(profile) {
+      const id = profile.selfFruit;
+      if (!id || !GL.meta.selfFruits(profile).some(f => f.id === id)) return null;
+      return { id, r: GL.meta.rankIndex(profile) >= 7 ? 1 : 0 };
+    },
+    // Eigener Bandenname (nur Anzeige, kein Set-Bonus)
+    crewName(profile) {
+      const n = String((profile && profile.crewName) || '').replace(/[<>"'`&\\]/g, '').trim().slice(0, 20);
+      return n || null;
     },
 
     // Verbrauchte/zerlegte Teile merken, damit sie beim Zusammenführen zweier Spielstände nicht zurückkommen
@@ -251,6 +269,8 @@ window.GL = window.GL || {};
         quests: profile.questsDone || 0,
         prestige: GL.meta.prestige(profile),
         invites: (profile.invites || []).length,
+        veteran: profile.veteran ? 1 : 0,   // hat vor dem großen Neustart getestet
+        launch: profile.launch ? 1 : 0,     // ist am Startabend gesegelt
         // Vertrautheit: bond_<id> je Figur und wie viele Figuren mindestens Vertraut 6 sind
         ...Object.fromEntries(Object.keys(profile.squadXp || {}).map(id => ['bond_' + id, GL.meta.squadBonus(profile.squadXp[id])])),
         bondFriends: Object.values(profile.squadXp || {}).filter(x => GL.meta.squadBonus(x) >= 6).length
@@ -266,9 +286,9 @@ window.GL = window.GL || {};
     reqText(item) {
       const L = { rank: 'Rang', runs: 'Runs', wins: 'Siege', kos: 'K.o.s', maxHit: 'Schaden mit einem Schlag', bosses: 'Inselbosse besiegt',
         hunted: 'Kopfgeld-Ziele besiegt', raids: 'Raids gewonnen', artifacts: 'Artefakte gefunden', reached: 'Meer erreicht',
-        islands: 'verschiedene Inseln besucht', heat: 'Kopfgeld-Stufe', duels: 'Stammcrew-Duelle gewonnen', quests: 'Aufträge erledigt', prestige: 'Prestige-Stufe', invites: 'Freund eingeladen' };
+        islands: 'verschiedene Inseln besucht', heat: 'Kopfgeld-Stufe', duels: 'Stammcrew-Duelle gewonnen', quests: 'Aufträge erledigt', prestige: 'Prestige-Stufe', invites: 'Freund eingeladen', veteran: '', launch: '' };
       const bondName = id => { const d = id === 'self' ? null : GL.data.crew.find(c => c.id === id); return d ? d.name : id; };
-      return Object.keys(item.req || {}).map(k => k.startsWith('bond_') ? `Vertraut ${item.req[k]} mit ${bondName(k.slice(5))}` : k === 'bondFriends' ? `${item.req[k]} Figuren mit Vertraut 6` : k === 'heat' ? `Kopfgeld-Stufe ${item.req.heat}` : k === 'rank' ? `Rang ${item.req.rank}` : k === 'reached' ? `${GL.data.islands[item.req.reached].name} erreichen` : `${item.req[k]} ${L[k]}`).join(', ') || 'frei';
+      return Object.keys(item.req || {}).map(k => k.startsWith('bond_') ? `Vertraut ${item.req[k]} mit ${bondName(k.slice(5))}` : k === 'bondFriends' ? `${item.req[k]} Figuren mit Vertraut 6` : k === 'heat' ? `Kopfgeld-Stufe ${item.req.heat}` : k === 'rank' ? `Rang ${item.req.rank}` : k === 'veteran' ? 'Vor dem großen Neustart gesegelt' : k === 'launch' ? 'Am Startabend (18./19.10.) gesegelt' : k === 'reached' ? `${GL.data.islands[item.req.reached].name} erreichen` : `${item.req[k]} ${L[k]}`).join(', ') || 'frei';
     },
 
     // Artefakt-Plätze: einer zu Beginn, dazu einer ab Rang 5, 9 und 13
@@ -428,7 +448,7 @@ window.GL = window.GL || {};
       ids.forEach((id, i) => {
         const u = run.crew[i];
         if (!u) return;
-        const gain = Math.round(base * (u.hp > 0 ? 1 : 0.6) * (run.buddy === id ? 1.5 : 1));   // Vertrauter wächst schneller
+        const gain = Math.round(base * (u.hp > 0 ? 1 : 0.6) * (run.buddy === id ? 1.5 : 1) * (1 + ((run.sk && run.sk.bond) || 0)));   // Vertrauter wächst schneller
         if (gain <= 0) return;
         const before = GL.meta.squadBonus(profile.squadXp[id]);
         profile.squadXp[id] = (profile.squadXp[id] || 0) + gain;

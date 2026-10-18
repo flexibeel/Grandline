@@ -35,7 +35,9 @@ GL.data.crewGear = {
     { id: 'kopftuch', slot: 'kleid',   name: 'Kopftuch',       g: 'n', main: 'hp',    art: 'bandana' },
     { id: 'ring',     slot: 'schmuck', name: 'Goldring',       g: 'm', main: 'crit',  art: 'ring' },
     { id: 'kompass',  slot: 'schmuck', name: 'Kompass',        g: 'm', main: 'spd',   art: 'compass' },
-    { id: 'amulett',  slot: 'schmuck', name: 'Amulett',        g: 'n', main: 'dodge', art: 'ring' }
+    { id: 'amulett',  slot: 'schmuck', name: 'Amulett',        g: 'n', main: 'dodge', art: 'ring' },
+    { id: 'kochmesser', slot: 'waffe', name: 'Kochmesser',     g: 'n', main: 'atk',   art: 'sword' },
+    { id: 'perlen',   slot: 'schmuck', name: 'Perlenkette',    g: 'f', main: 'crit',  art: 'ring' }
   ],
   affixes: {
     atk:    { name: 'Angriff',       min: 1,    max: 3,    adj: 'Wuchtig',   fmt: v => `+${v} Angriff` },

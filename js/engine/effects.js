@@ -81,6 +81,8 @@ window.GL = window.GL || {};
   function flags(run) {
     const f = { winHeal: 0, noWinHeal: false, bossStartCut: 0, vivre: 0, firstBlock: 0,
                 cannon: 0, effBonus: 0, crewLimit: 0, healMult: 1 };
+    // Gemütlichkeit (Skilltree): Bordkanone und Pflaster
+    if (run.sk) { f.cannon += run.sk.cannon || 0; f.winHeal += run.sk.winHeal || 0; }
     // Artefakte aus der Schatzkammer
     (run.arts || []).forEach(x => {
       const art = (GL.data.artifacts || []).find(t => t.id === x.id);

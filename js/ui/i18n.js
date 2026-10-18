@@ -91,7 +91,7 @@ window.GL = window.GL || {};
   };
   // Ausrüstungsnamen (Stammcrew): Eigenschaft + Grundteil
   const GEAR_ADJ = { Wuchtig: 'Mighty', Zäh: 'Sturdy', Flink: 'Swift', Scharf: 'Keen', Schattig: 'Shadowy', Gehärtet: 'Hardened', Wild: 'Wild' };
-  const GEAR_BASE = { Säbel: 'Sabre', Entermesser: 'Cutlass', Muskete: 'Musket', Dreizack: 'Trident', Kapitänsmantel: 'Captain’s Coat', Lederweste: 'Leather Vest', Kopftuch: 'Bandana', Goldring: 'Gold Ring', Kompass: 'Compass', Amulett: 'Amulet' };
+  const GEAR_BASE = { Kochmesser: 'Chef’s Knife', Perlenkette: 'Pearl Necklace', Säbel: 'Sabre', Entermesser: 'Cutlass', Muskete: 'Musket', Dreizack: 'Trident', Kapitänsmantel: 'Captain’s Coat', Lederweste: 'Leather Vest', Kopftuch: 'Bandana', Goldring: 'Gold Ring', Kompass: 'Compass', Amulett: 'Amulet' };
   // Muster mit Zahlen
   const P = [
     [/^Anheuern für (\d+) Gold$/, 'Hire for $1 gold'],
@@ -103,9 +103,9 @@ window.GL = window.GL || {};
     [/^Krit (\d+) %$/, 'Crit $1 %'], [/^Ausweichen (\d+) %$/, 'Dodge $1 %'], [/^Rüstung (\d+)$/, 'Armor $1'], [/^Schaden \+(\d+) %$/, 'Damage +$1 %'],
     [/^🔹 Neu würfeln \((\d+)\)$/, '🔹 Reroll ($1)'], [/^(\d+) neu$/, '$1 new'],
     [/^Zerlegen \(\+(\d+) Berry(, \+(\d+) 🔹)?(, \+(\d+) 🍙)?\)$/, (m, b, x, sh, y, sn) => `Scrap (+${b} Berry${sh ? `, +${sh} 🔹` : ''}${sn ? `, +${sn} 🍙` : ''})`],
-    [/^(Wuchtig|Zäh|Flink|Scharf|Schattig|Gehärtet|Wild)(?:er|e|es) (Säbel|Entermesser|Muskete|Dreizack|Kapitänsmantel|Lederweste|Kopftuch|Goldring|Kompass|Amulett)( \+\d+)?$/, (m, a, b, n) => `${GEAR_ADJ[a]} ${GEAR_BASE[b]}${n || ''}`],
-    [/^(Säbel|Entermesser|Muskete|Dreizack|Kapitänsmantel|Lederweste|Kopftuch|Goldring|Kompass|Amulett)( \+\d+)?$/, (m, b, n) => `${GEAR_BASE[b]}${n || ''}`],
-    [/^(Säbel|Entermesser|Muskete|Dreizack|Kapitänsmantel|Lederweste|Kopftuch|Goldring|Kompass|Amulett) von (.+)$/, (m, b, w) => `${GEAR_BASE[b]} of ${w}`],
+    [/^(Wuchtig|Zäh|Flink|Scharf|Schattig|Gehärtet|Wild)(?:er|e|es) (Säbel|Entermesser|Muskete|Dreizack|Kapitänsmantel|Lederweste|Kopftuch|Goldring|Kompass|Amulett|Kochmesser|Perlenkette)( \+\d+)?$/, (m, a, b, n) => `${GEAR_ADJ[a]} ${GEAR_BASE[b]}${n || ''}`],
+    [/^(Säbel|Entermesser|Muskete|Dreizack|Kapitänsmantel|Lederweste|Kopftuch|Goldring|Kompass|Amulett|Kochmesser|Perlenkette)( \+\d+)?$/, (m, b, n) => `${GEAR_BASE[b]}${n || ''}`],
+    [/^(Säbel|Entermesser|Muskete|Dreizack|Kapitänsmantel|Lederweste|Kopftuch|Goldring|Kompass|Amulett|Kochmesser|Perlenkette) von (.+)$/, (m, b, w) => `${GEAR_BASE[b]} of ${w}`],
     [/^Team-Fähigkeit · (.+)$/, 'Team move · $1'],
     [/^Vergleich für (.+)$/, 'Compared for $1'], [/^Trägt (.+) gerade$/, '$1 is wearing it'],
     [/^Flaschenpost von (.+)$/, 'Message in a bottle from $1'], [/^🍾 Flaschenpost: (.+) an …$/, '🍾 Bottle: send $1 to …'], [/^(.+) schwimmt zu (.+)\.$/, '$1 is floating to $2.'],

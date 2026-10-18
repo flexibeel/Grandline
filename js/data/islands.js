@@ -15,18 +15,23 @@ GL.data.islands = [
     tagline: 'Das ruhigste der vier Meere. Hier beginnt jede Legende.',
     small: [
       { id: 'shells-town', name: 'Shells Town', villain: 'morgan', lair: 'Marine-Basis 153',
-        text: 'Ein Marine-Kapitän regiert die Stadt mit eiserner Axt.', places: ['Hafen', 'Marktgasse'] },
+        text: 'Ein Marine-Kapitän regiert die Stadt mit eiserner Axt.', places: ['Hafen', 'Marktgasse'], bias: ['battle'] },
       { id: 'orange-town', name: 'Orange Town', villain: 'buggy', lair: 'Zirkuszelt',
-        text: 'Die Stadt ist leer, der Clown und seine Bande haben sie besetzt.', places: ['Verlassene Straßen', 'Tierladen'] },
+        text: 'Die Stadt ist leer, der Clown und seine Bande haben sie besetzt.', places: ['Verlassene Straßen', 'Tierladen'], bias: ['recruit'] },
       { id: 'syrup', name: 'Syrup', villain: 'kuro', lair: 'Kayas Anwesen',
-        text: 'Ein friedliches Dorf. Doch der Butler plant etwas Finsteres.', places: ['Küstenhang', 'Dorfplatz'] },
+        text: 'Ein friedliches Dorf. Doch der Butler plant etwas Finsteres.', places: ['Küstenhang', 'Dorfplatz'], bias: ['rest'] },
       { id: 'baratie', name: 'Baratie', villain: 'krieg', lair: 'Restaurant-Deck',
-        text: 'Ein schwimmendes Restaurant. Ein ausgehungerter Pirat will es kapern.', places: ['Offene See', 'Küche'] }
+        text: 'Ein schwimmendes Restaurant. Ein ausgehungerter Pirat will es kapern.', places: ['Offene See', 'Küche'], bias: ['rest', 'fruit'] },
+      // Remix (Großer Neustart): zwei neue Inseln im East Blue
+      { id: 'gecko-klippen', name: 'Gecko-Klippen', villain: 'jango', lair: 'Mondscheinklippe',
+        text: 'Steile Klippen über dem Meer. Ein Hypnotiseur lässt hier ganze Dörfer schlafen.', places: ['Pendelpfad', 'Leuchtfeuer'], bias: ['fruit', 'rest'] },
+      { id: 'eisenbucht', name: 'Eisenbucht', villain: 'gin', lair: 'Rostiges Wrack',
+        text: 'Eine Bucht voller Schiffswracks. Ein ausgehungerter Kampfmeister lauert im Rost.', places: ['Wrackfeld', 'Ankerfriedhof'], bias: ['elite', 'battle'] }
     ],
     big: [
-      { id: 'loguetown', name: 'Loguetown', boss: 'smoker', lair: 'Hinrichtungsplatz', villains: ['buggy', 'morgan'],
+      { id: 'loguetown', name: 'Loguetown', boss: 'smoker', lair: 'Hinrichtungsplatz', villains: ['buggy', 'pearl', 'morgan'], bias: ['recruit'],
         text: 'Die Stadt des Anfangs und des Endes. Ein Marine-Jäger wartet.', places: ['Hafenviertel', 'Marktplatz'] },
-      { id: 'arlong-park', name: 'Arlong Park', boss: 'arlong', lair: 'Arlong Park', villains: ['hatchan'],
+      { id: 'arlong-park', name: 'Arlong Park', boss: 'arlong', lair: 'Arlong Park', villains: ['hatchan', 'pearl'], bias: ['battle'],
         text: 'Fischmenschen haben die Inselgruppe unterworfen.', places: ['Kokos', 'Mandarinenhain'] }
     ] },
 
@@ -34,18 +39,21 @@ GL.data.islands = [
     tagline: 'Die erste Hälfte der Grand Line. Wüsten, Himmelsinseln und Verrat.',
     small: [
       { id: 'whisky-peak', name: 'Whisky Peak', villain: 'mr9', lair: 'Festhalle',
-        text: 'Die Bewohner feiern jeden Piraten. Zu freundlich, um wahr zu sein.', places: ['Kakteenhafen', 'Willkommensfest'] },
+        text: 'Die Bewohner feiern jeden Piraten. Zu freundlich, um wahr zu sein.', places: ['Kakteenhafen', 'Willkommensfest'], bias: ['recruit'] },
       { id: 'little-garden', name: 'Little Garden', villain: 'mr3', lair: 'Kerzenhaus',
-        text: 'Ein Urzeit-Dschungel, auf dem zwei Riesen seit hundert Jahren kämpfen.', places: ['Urwald', 'Riesenlager'] },
+        text: 'Ein Urzeit-Dschungel, auf dem zwei Riesen seit hundert Jahren kämpfen.', places: ['Urwald', 'Riesenlager'], bias: ['fruit'] },
       { id: 'drumm', name: 'Drumm', villain: 'wapol', lair: 'Schloss auf dem Gipfel',
-        text: 'Eine Winterinsel ohne Ärzte. Der alte König will zurück.', places: ['Schneefeld', 'Bighorn'] },
+        text: 'Eine Winterinsel ohne Ärzte. Der alte König will zurück.', places: ['Schneefeld', 'Bighorn'], bias: ['rest'] },
       { id: 'jaya', name: 'Jaya', villain: 'bellamy', lair: 'Mock Town',
-        text: 'Eine Stadt der Spötter, die nicht an Träume glauben.', places: ['Küstenwald', 'Tavernenviertel'] }
+        text: 'Eine Stadt der Spötter, die nicht an Träume glauben.', places: ['Küstenwald', 'Tavernenviertel'], bias: ['treasure'] },
+      // Remix: der Eingang zur Grand Line als eigene Insel
+      { id: 'zwillingskap', name: 'Zwillingskap', villain: 'mr4', lair: 'Leuchtturm am Kap',
+        text: 'Ein Riesenwal rammt seit fünfzig Jahren den Red Line. Am Leuchtturm lauert ein Agent mit Bombenhund.', places: ['Walbauch', 'Rückwärtsberg'], bias: ['fruit', 'rest'] }
     ],
     big: [
-      { id: 'alabasta', name: 'Alabasta', boss: 'crocodile', lair: 'Alubarna', villains: ['mr1'],
+      { id: 'alabasta', name: 'Alabasta', boss: 'crocodile', lair: 'Alubarna', villains: ['mr1', 'mr4'], bias: ['treasure'],
         text: 'Ein Wüstenkönigreich am Rand des Bürgerkriegs.', places: ['Sandora-Wüste', 'Rainbase'] },
-      { id: 'skypiea', name: 'Skypiea', boss: 'enel', lair: 'Upper Yard', villains: ['ohm'],
+      { id: 'skypiea', name: 'Skypiea', boss: 'enel', lair: 'Upper Yard', villains: ['ohm'], bias: ['fruit'],
         text: 'Eine Insel über den Wolken, beherrscht von einem selbsternannten Gott.', places: ['Weiße See', 'Angel Beach'] }
     ],
     // Zweite Route für das zweite Meer (ab Rang 12, feature 'route2'): zehntausend Meter unter dem Meer
@@ -81,9 +89,9 @@ GL.data.islands = [
         text: 'Das Haupttor der Justizinsel. Hier gibt der Chef der CP9 die Befehle.', places: ['Haupttor', 'Gerichtsstadt'] }
     ],
     big: [
-      { id: 'tower', name: 'Turm des Gerichts', boss: 'rob-lucci', lair: 'Turmspitze', villains: ['jabra', 'blueno'],
+      { id: 'tower', name: 'Turm des Gerichts', boss: 'rob-lucci', lair: 'Turmspitze', villains: ['jabra', 'wanze', 'blueno'],
         text: 'Der stärkste Agent der Weltregierung erwartet euch.', places: ['Gerichtshof', 'Treppenhaus'] },
-      { id: 'tor', name: 'Tor der Gerechtigkeit', boss: 'kaku', lair: 'Dach des Turms', villains: ['blueno', 'jabra'],
+      { id: 'tor', name: 'Tor der Gerechtigkeit', boss: 'kaku', lair: 'Dach des Turms', villains: ['blueno', 'wanze', 'jabra'],
         text: 'Der Weg zum Tor führt über die Dächer, bewacht von der Giraffe.', places: ['Brücke', 'Dachgarten'] }
     ],
     // Zweite Route für das dritte Meer (ab Rang 8, siehe features.js): Beim Kurs setzen steht dann
@@ -106,6 +114,18 @@ GL.data.islands = [
         { id: 'sabaody', name: 'Sabaody Archipel', boss: 'kuma', lair: 'Mangrove 13', villains: ['duval', 'perona'],
           text: 'Das Tor zur Neuen Welt. Ein stiller Riese räumt den Weg frei.', places: ['Auktionshaus', 'Vergnügungspark'] }
       ] } }
+];
+// Insel-Twists (Großer Neustart): jedes Insel-Kapitel bekommt aus dem Seed eine kleine Sonderregel,
+// damit sich kein Run wie der letzte anfühlt. Ohne Zufallszug (Replays bleiben gleich), siehe GL.run.twist.
+//   types = zusätzliche Orte im Kartentopf, foeSpd = Tempo der Gegner, foeKinds = Extra-Chance auf besondere Gegner
+GL.data.twists = [
+  { id: 'markttag',   icon: '🏮', name: 'Markttag',        text: 'Mehr Tavernen auf der Karte. Heute ist viel los im Hafen.', types: ['recruit', 'recruit'] },
+  { id: 'kopfgeld',   icon: '📜', name: 'Steckbrief-Woche', text: 'Mehr Kopfgeldjäger unterwegs: starke Gegner, dafür mehr Schätze.', types: ['elite', 'elite'] },
+  { id: 'schatzinsel', icon: '💎', name: 'Schatzinsel',    text: 'Mehr Schatztruhen und Teufelsfrüchte auf der Karte.', types: ['treasure', 'fruit'] },
+  { id: 'patrouille', icon: '⚓', name: 'Marine-Razzia',    text: 'Mehr besondere Gegner: Leibwachen, Sanitäter, Raufbolde.', types: ['battle'], foeKinds: 0.18 },
+  { id: 'ruhig',      icon: '🌙', name: 'Stille Bucht',     text: 'Mehr Rastplätze, alle Gegner sind 1 Tempo langsamer.', types: ['rest'], foeSpd: -1 },
+  { id: 'sturm',      icon: '🌊', name: 'Sturmflut',        text: 'Alle Gegner sind 1 Tempo schneller, dafür treiben mehr Früchte an.', types: ['fruit', 'fruit'], foeSpd: 1 },
+  null, null
 ];
 // Daten eines Meeres im Run (berücksichtigt die gewählte Route)
 GL.data.seaOf = (run, idx) => { const S = GL.data.islands[idx]; return S && S.alt && run && run.alt && run.alt[idx] ? S.alt : S; };

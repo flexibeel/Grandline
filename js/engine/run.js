@@ -229,7 +229,9 @@ window.GL = window.GL || {};
   function registerSelf(def) {
     if (!def) return;
     const entry = { id: 'self', name: def.name, type: def.type, role: def.role, faction: null,
-      hp: def.hp, atk: def.atk, spd: def.spd, look: def.look, locked: true, self: true };
+      hp: def.hp, atk: def.atk, spd: def.spd, look: def.look, locked: true, self: true,
+      crewName: def.crew ? String(def.crew).replace(/[<>"'`&\\]/g, '').slice(0, 20) : null,
+      fruit: def.fruit && def.fruit.id ? { id: String(def.fruit.id), r: def.fruit.r | 0 } : null };
     const i = GL.data.crew.findIndex(c => c.id === 'self');
     if (i >= 0) GL.data.crew[i] = entry; else GL.data.crew.push(entry);
     GL.data.abilities.self = { name: 'Wille des Kapitäns', kind: 'rally', value: def.rally,
@@ -261,7 +263,28 @@ window.GL = window.GL || {};
     const types = ['battle', 'battle', 'battle', 'recruit', 'recruit', 'fruit', 'rest'];
     if (freeRelics(run).length) types.push('treasure');
     if (row >= 1 || chapterIdx(run) === 1) types.push('elite');
+    // Eigenheiten der Insel und Insel-Twist: ein paar Orte mehr von einer Sorte
+    const here = chapterIsland(run), tw = twistOf(run);
+    ((here && here.bias) || []).concat((tw && tw.types) || []).forEach(k => {
+      if (k === 'treasure' && !freeRelics(run).length) return;
+      if (k === 'elite' && row < 1 && chapterIdx(run) === 0) return;
+      types.push(k);
+    });
     return types;
+  }
+
+  // Insel-Twist des aktuellen Insel-Kapitels (aus Seed und Kapitel, ohne Zufallszug)
+  function twistOf(run, step) {
+    const T = GL.data.twists || [];
+    if (!T.length || !run || run.seed == null) return null;
+    const st = step == null ? run.step : step;
+    const per = GL.config.stepsPerIsland;
+    const k = (run.loop || 0) * 16 + Math.floor(st / per) * 2 + Math.floor((st % per) / GL.config.chapterSteps);
+    let h = (run.seed ^ Math.imul(k + 1, 2654435761)) >>> 0;
+    h = Math.imul(h ^ (h >>> 15), 2246822519) >>> 0;
+    h = Math.imul(h ^ (h >>> 13), 3266489917) >>> 0;
+    h = (h ^ (h >>> 16)) >>> 0;
+    return T[h % T.length] || null;
   }
 
   // Eine Karte pro Insel-Kapitel: Reihen mit Orten der Insel, oben der Bösewicht (kleine Insel)
@@ -405,7 +428,7 @@ window.GL = window.GL || {};
       enemies.push({
         id: type.id, type: type.type, hp: max, max,
         atk: Math.round((g.atkBase + level * g.atkPerLevel) * mult * (1 + H.enemyAtk)),
-        spd: Math.max(1, R.int(run, g.spdMin, g.spdMax) + H.enemySpd - (run.mood === 'flaute' ? 1 : 0))
+        spd: Math.max(1, R.int(run, g.spdMin, g.spdMax) + H.enemySpd - (run.mood === 'flaute' ? 1 : 0) + ((twistOf(run) || {}).foeSpd || 0))
       });
     }
     specialize(run, enemies, level);
@@ -453,7 +476,7 @@ window.GL = window.GL || {};
     if (!F || !kinds.length || run.step < (F.fromStep || 0)) return;
     const sea = islandIndex(run);
     const pool = kinds.filter(k => sea >= (k.from || 0));
-    const chance = Math.min(F.cap, F.base + F.perSea * sea);
+    const chance = Math.min(F.cap + 0.1, Math.min(F.cap, F.base + F.perSea * sea) + ((twistOf(run) || {}).foeKinds || 0));
     let n = 0;
     enemies.forEach(e => {
       if (n >= F.max || !pool.length || R.float(run) >= chance) return;
@@ -819,6 +842,11 @@ window.GL = window.GL || {};
         run.crew.push(makeMember(run, offer)); autoEquip(run);
         run.crew[0].points += run.startPoints || 0;
         run.captain = offer.id;
+        // Eigene Teufelsfrucht deines Piraten (im Profil ausgerüstet): wirkt wie eine gegessene Frucht
+        if (offer.id === 'self' && run.start.self && run.start.self.fruit) {
+          const sf = run.start.self.fruit, fd = byId(GL.data.fruits, sf.id);
+          if (fd && !fd.awakened && !fd.unique) { applyEffect(run, GL.loot.fruit({ id: sf.id, r: Math.max(0, Math.min(1, sf.r | 0)) }).effect); run.eaten.push(sf.id); run.selfFruit = sf.id; }
+        }
         run.pool = [];
         if (run.endlessSea != null) {
           // Endlos-Fahrt: direkt ins gewählte Meer, vorher im Hafen eine Crew anheuern
@@ -1029,6 +1057,14 @@ window.GL = window.GL || {};
     return false;
   }
 
+  // Skilltree-Boni säubern (nur bekannte Zahlen, gedeckelt), damit Replays und fremde Spielstände sicher sind
+  function skillBonus(raw) {
+    const MAX = { hp: 20, atk: 3, spd: 2, restHeal: 0.5, winHeal: 0.2, luck: 1, xp: 0.5, choices: 1, gold: 8, points: 2, cannon: 10, berry: 0.3, rankXp: 0.3, bond: 0.5 };
+    const out = {};
+    if (raw && typeof raw === 'object') Object.keys(MAX).forEach(k => { const v = Number(raw[k]); if (isFinite(v) && v > 0) out[k] = Math.min(MAX[k], v); });
+    return out;
+  }
+
   GL.run = {
     // profile = dauerhafte Freischaltungen { unlocked: [...], epics: [...] }.
     // Wird im Run gespeichert, damit ein Replay genau gleich abläuft.
@@ -1079,7 +1115,8 @@ window.GL = window.GL || {};
           upgrades: Object.assign({}, up), gear: Array.isArray(p.gear) ? p.gear.slice() : [], heat: p.heat || 0, hunt: p.hunt || null, altOpen: !!p.altOpen, altOpen1: !!p.altOpen1, buddy: typeof p.buddy === 'string' && p.buddy !== 'self' ? p.buddy : null,
           endlessSea: Number.isInteger(p.endlessSea) ? p.endlessSea : null,
           arts: (p.arts || []).map(a => ({ id: a.id, lvl: a.lvl })),
-          items: (p.items || []).map(x => ({ uid: x.uid, id: x.id, r: x.r, lvl: x.lvl || 0 }))
+          items: (p.items || []).map(x => ({ uid: x.uid, id: x.id, r: x.r, lvl: x.lvl || 0 })),
+          skills: skillBonus(p.skills)
         },
         bonus: {
           restHeal: upgradeTotal(up, 'restHeal'), choices: upgradeTotal(up, 'choices'),
@@ -1121,6 +1158,15 @@ window.GL = window.GL || {};
         if (x.spd) run.mod.spd += x.spd;
         if (x.fruit) { applyEffect(run, GL.loot.fruit({ id: x.fruit, r: x.r }).effect); run.eaten.push(x.fruit); }
       });
+      // Gemütlichkeit (Skilltree): kleine Startboni, Rest wirkt über run.sk (Kanone, Sieg-Heilung, Berry, Rang-EP, Vertrautheit)
+      (sk => {
+        run.sk = sk;
+        run.mod.hp += sk.hp || 0; run.mod.atk += sk.atk || 0; run.mod.spd += sk.spd || 0;
+        run.bonus.restHeal += sk.restHeal || 0; run.bonus.choices += sk.choices || 0; run.bonus.xp += sk.xp || 0;
+        run.luck = (run.luck || 0) + (sk.luck || 0);
+        run.gold = (run.gold || 0) + (sk.gold || 0);
+        run.startPoints += sk.points || 0;
+      })(run.start.skills);
       // Ausgerüstete Artefakte: Start-Wirkungen (Kampfwerte stehen in effects.js)
       run.arts.forEach(a => {
         const art = byId(GL.data.artifacts || [], a.id);
@@ -1186,6 +1232,7 @@ window.GL = window.GL || {};
       return here.places[r] || here.name;
     },
     chapterIsland,
+    twist: twistOf,
     chapterIdx,
     rowIdx,
 

@@ -377,9 +377,13 @@ window.GL = window.GL || {};
           const living = foes.filter(f => f.hp > 0);
           if (!living.length || u.hp <= 0) break;
 
+          // sniper: schwächstes Ziel, bully: stärkstes Ziel (meister Angriff),
+          // sonst: Leibwache (taunt) fängt ab, ansonsten wer vorne steht
           const target = u.ability === 'sniper'
             ? living.reduce((a, b) => (b.hp < a.hp ? b : a))
-            : living[0]; // sonst: wer vorne steht, wird zuerst getroffen
+            : u.ability === 'bully'
+              ? living.reduce((a, b) => (b.atk > a.atk ? b : a))
+              : (living.find(f => f.ability === 'taunt') || living[0]);
           const to = foes.indexOf(target);
 
           let mult = typeMult(u.type, target.type);
@@ -497,6 +501,15 @@ window.GL = window.GL || {};
         if (regenList.length) events.push({ k: 'heal', side: team === crew ? 'crew' : 'enemy', list: regenList, by: 'helfer' });
       });
 
+      // Rudelführer: wird für jeden gefallenen Verbündeten stärker
+      crew.concat(enemies).filter(u => u.hp > 0 && u.ability === 'pack').forEach(u => {
+        const fallen = allies(u).filter(f => f !== u && f.hp <= 0).length;
+        if (fallen > (u.packN || 0)) {
+          const add = u.power * (fallen - (u.packN || 0));
+          u.packN = fallen; u.atk += add;
+          events.push({ k: 'note', by: u.id, side: u.side, text: `${nameOf(u)} wird wütend: +${add} Angriff.` });
+        }
+      });
       crew.concat(enemies).filter(u => u.hp > 0 && u.ability === 'medic').forEach(u => {
         const hurt = alive(allies(u)).filter(f => f.hp < f.max).sort((a, b) => a.hp / a.max - b.hp / b.max)[0];
         if (hurt) {

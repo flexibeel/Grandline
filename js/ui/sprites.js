@@ -199,6 +199,12 @@ window.GL = window.GL || {};
     raid:     { c: { A: '#e8d030', B: '#7b3fbf', C: '#f0f0f0' }, rows: ['.....AAA..', '....AAA...', '...AAA....', '..AAAAAA..', '....AAA...', '...AAA....', '..AAA.....', '.AA.......', '.A........', '..........'] }
   };
 
+  // Eigene Bilder für einzelne Schätze (sonst bunte Schatztruhe)
+  const RELIC_ART = {
+    mandarinen: { c: { A: '#f08a24', B: '#ffc061', C: '#3d8b46', D: '#8a5a32', E: '#5f3c20' }, rows: ['...C..C...', '..ACA.CA..', '.ABAAABAA.', '.AAAAAAAA.', 'DDDDDDDDDD', 'DEEEEEEEED', 'DDDDDDDDDD', 'DEEEEEEEED', 'DDDDDDDDDD', '..........'] },
+    loewenkopf: { c: { A: '#f2c14e', B: '#e08a2a', C: '#fff3c4', D: '#3a2a1e' }, rows: ['.BBBBBBBB.', 'BBAAAAAABB', 'BAAAAAAAAB', 'BADAAAADAB', 'BAAAAAAAAB', 'BAACCCCAAB', 'BAACDDCAAB', 'BBAACCAABB', '.BBAAAABB.', '..BBBBBB..'] }
+  };
+
   function hue(id) {
     let h = 0;
     for (const ch of id) h = (h * 31 + ch.charCodeAt(0)) % 360;
@@ -259,6 +265,15 @@ window.GL = window.GL || {};
         if (id === 'treasure') return GL.sprites.icon('relic', 'kanone');
         const ic = NODE_ICONS[id];
         if (!ic) return '';
+        let r = '';
+        ic.rows.forEach((row, y) => row.split('').forEach((ch, x) => {
+          if (ch !== '.') r += `<rect x="${x}" y="${y}" width="1" height="1" fill="${ic.c[ch]}"/>`;
+        }));
+        cache[key] = `<svg viewBox="0 0 10 10" class="icon" aria-hidden="true">${r}</svg>`;
+        return cache[key];
+      }
+      if (kind === 'relic' && RELIC_ART[id] && !epic) {
+        const ic = RELIC_ART[id];
         let r = '';
         ic.rows.forEach((row, y) => row.split('').forEach((ch, x) => {
           if (ch !== '.') r += `<rect x="${x}" y="${y}" width="1" height="1" fill="${ic.c[ch]}"/>`;

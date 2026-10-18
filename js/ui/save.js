@@ -19,14 +19,18 @@ window.GL = window.GL || {};
     loadRun() {
       const run = read(RUN_KEY);
       if (!run || run.version !== GL.config.saveVersion) return null;
+      GL.save.runAt = Math.max(GL.save.runAt || 0, run.savedAt || 0);
       return run;
     },
-    storeRun(run) { write(RUN_KEY, run); },
+    storeRun(run) { run.savedAt = GL.save.runAt = Date.now(); write(RUN_KEY, run); if (GL.online && GL.online.pushRun) GL.online.pushRun(); },
     clearRun() { try { localStorage.removeItem(RUN_KEY); } catch (e) { /* egal */ } },
 
     // Dauerhaftes Profil: Freischaltungen, Sammelalbum, Statistik
     loadProfile() {
       const p = read(PROFILE_KEY);
+      // Großer Neustart: alter Stand wird gesichert, alle starten frisch
+      // Neue Saison: Fortschritt bleibt, es gibt einmal den Einspieler (frisch starten ist freiwillig)
+      if (p && p.version === 1 && GL.season && GL.season.stale(p)) { p.season = GL.season.id(); p.launchIntro = true; write(PROFILE_KEY, p); }
       return p && p.version === 1 ? GL.meta.migrate(p) : GL.meta.newProfile();
     },
     storeProfile(p) { p.savedAt = Date.now(); write(PROFILE_KEY, p); if (GL.online) GL.online.pushSave(p); },
@@ -156,6 +160,33 @@ GL.slots = (function () {
     }
   };
 })();
+// Echtes Zweitkonto (nur für den Entwickler): komplett eigener Online-Pirat mit eigener Anmeldung.
+// Beim Wechseln werden Spielstand und Anmeldung des aktuellen Kontos weggelegt und die des anderen geladen.
+// „Neu anlegen“ startet einen ganz frischen Online-Piraten (wie ein neuer Spieler), das Hauptkonto bleibt unberührt.
+GL.accounts = (function () {
+  const VAULT = 'grandline.acct.', CUR = 'grandline.acct.cur';
+  const own = k => /^grandline\.(profile|run|best|uid)$/.test(k) || /^sb-.*-auth-token$/.test(k);
+  const cur = () => { try { return localStorage.getItem(CUR) === 'test' ? 'test' : 'main'; } catch (e) { return 'main'; } };
+  function snap() { const o = {}; for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (own(k)) o[k] = localStorage.getItem(k); } return o; }
+  function clear() { const ks = []; for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (own(k)) ks.push(k); } ks.forEach(k => localStorage.removeItem(k)); }
+  function switchTo(to, fresh) {
+    try {
+      const from = cur();
+      if (to === from && !fresh) return false;
+      if (to !== from) localStorage.setItem(VAULT + from, JSON.stringify(snap()));
+      clear();
+      if (!fresh) { const v = JSON.parse(localStorage.getItem(VAULT + to) || '{}'); Object.keys(v).forEach(k => { if (own(k)) localStorage.setItem(k, v[k]); }); }
+      localStorage.removeItem(VAULT + to);
+      localStorage.setItem(CUR, to);
+      sessionStorage.removeItem('gl.pulled');
+      return true;
+    } catch (e) { return false; }
+  }
+  const hasTest = () => { try { return cur() === 'test' || !!localStorage.getItem(VAULT + 'test'); } catch (e) { return false; } };
+  const name = k => { try { const v = k === cur() ? { 'grandline.profile': localStorage.getItem('grandline.profile') } : JSON.parse(localStorage.getItem(VAULT + k) || '{}'); const p = JSON.parse(v['grandline.profile'] || 'null'); return p && p.nickname ? p.nickname : null; } catch (e) { return null; } };
+  return { cur, switchTo, hasTest, name, known: () => { try { return !!localStorage.getItem(CUR); } catch (e) { return false; } } };
+})();
+
 // Für die Online-Funktionen: Zweitpiraten werden nie online gespeichert
 GL.sandbox = { on: () => GL.slots.active() !== 0 };
 

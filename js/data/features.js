@@ -8,6 +8,8 @@ window.GL = window.GL || {};
 GL.data = GL.data || {};
 
 GL.data.features = [
+  { id: 'gemuet',    lvl: 2, tab: 'gemuet', req: () => !GL.season || GL.season.started(), name: 'Gemütlichkeit', art: 'flag', text: 'Ein kleiner Skilltree für deine ganze Crew. Punkte kommen nebenbei: mit jedem Rang, mit Fahrten, Landgängen und Vertrautheit.',
+    steps: ['Im Hafen unter „Gemütlichkeit“', 'Knoten antippen, dann „Lernen“', 'Umskillen ist jederzeit kostenlos'] },
   { id: 'quests',    lvl: 2, name: 'Aufträge',       art: 'scroll', text: 'Kleine Aufgaben für zwischendurch. Jeden Tag kommen neue.',
     steps: ['Steht oben im Hauptquartier', 'Erledigt sich nebenbei beim Spielen', 'Abholen bringt Berry und Rang-EP'] },
   { id: 'schmiede',  lvl: 3, tab: 'schmiede', name: 'Die Schmiede', art: 'anvil', text: 'Ausrüstung aus deinen Runs landet hier. Du kannst sie verbessern und mit auf See nehmen.',

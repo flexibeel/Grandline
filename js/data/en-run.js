@@ -204,3 +204,23 @@ GL.data.en = Object.assign(GL.data.en || {}, {
   'Schaden gegen den Vordersten ×{n}': 'Damage against the front enemy ×{n}',
   'Lv {n} · wähle ein Training': 'Lv {n} · pick a training'
 });
+// Daumen-Karten (Routen-Dock, Training)
+GL.data.en = Object.assign(GL.data.en || {}, {
+  'Nächster Halt': 'Next stop',
+  'Kampf, bringt Gold': 'Battle, earns gold',
+  'Starker Gegner, dafür ein Schatz': 'Tough foe, but a treasure',
+  'Neue Crew anheuern': 'Hire new crew',
+  'Teufelsfrucht aussuchen': 'Choose a devil fruit',
+  'Schatz für den ganzen Run': 'Treasure for the whole run',
+  'Alle heilen 40 %': 'Heal everyone 40 %',
+  'Kopfgeld und Erwachen': 'Bounty and awakening',
+  'Extrem stark, epische Frucht': 'Extremely strong, epic fruit',
+  'Raid': 'Raid', 'Kopfgeld-Ziel': 'Bounty target', 'Bösewicht der Insel': 'Island villain',
+  'Kampftraining': 'Combat drill', 'Ausdauer': 'Stamina', 'Sprinttraining': 'Sprint drill', 'Ausgewogen': 'Balanced',
+  // Neue Items zur großen Neuauflage
+  'Fleischkeule am Knochen': 'Meat on the Bone', 'Rumble-Ball-Dose': 'Rumble Ball Tin', 'Strohsandalen': 'Straw Sandals', 'Kochschürze': 'Chef\'s Apron',
+  'Mandarinen-Kiste': 'Tangerine Crate', 'Sunny-Löwenkopf': 'Sunny Lion Head',
+  'Kochmesser': 'Chef\'s Knife', 'Perlenkette': 'Pearl Necklace',
+  'Ganze Crew heilt sich am Ende jeder Runde um {n}.': 'The whole crew heals {n} at the end of every round.',
+  'Zu Kampfbeginn erleiden alle Gegner {a} Schaden, ganze Crew +{b} Tempo.': 'At battle start all enemies take {a} damage, whole crew +{b} speed.'
+});

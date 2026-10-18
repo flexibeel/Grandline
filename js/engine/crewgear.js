@@ -162,6 +162,26 @@ window.GL = window.GL || {};
     });
     return t;
   }
+  // Verbesserungen: pro Platz das stärkste freie Teil (trägt niemand), das besser ist als das angelegte
+  //   → { waffe: { it, cur, delta }, … }  (delta = Unterschied in ⚔-Stärke)
+  function upgrades(profile, crewId) {
+    const B = bag(profile), W = worn(profile)[crewId] || {}, out = {};
+    const used = new Set(); Object.values(worn(profile)).forEach(m => Object.values(m || {}).forEach(u => used.add(u)));
+    B.forEach(it => {
+      if (used.has(it.uid)) return;
+      const s = slotOf(it); if (!s) return;
+      const cur = B.find(x => x.uid === W[s]) || null;
+      const d = power(it) - (cur ? power(cur) : 0);
+      if (d > 0 && (!out[s] || d > out[s].delta)) out[s] = { it, cur, delta: d };
+    });
+    return out;
+  }
+  // Für eine Figur alle Plätze mit dem besten freien Teil belegen (fremde Teile bleiben, wo sie sind)
+  function equipBest(profile, crewId) {
+    const U = upgrades(profile, crewId), done = [];
+    Object.keys(U).forEach(s => { if (equip(profile, crewId, U[s].it.uid)) done.push(U[s]); });
+    return done;
+  }
   // Kompakte Kopie für die Rangliste (Freunde sehen Werte und Herkunft)
   function wornList(profile, crewId) {
     const W = worn(profile)[crewId] || {}, B = bag(profile);
@@ -205,5 +225,5 @@ window.GL = window.GL || {};
     return got;
   }
 
-  GL.cgear = { clean, reroll, trophy, perk, migrate, roll, name, lines, power, slotOf, from, base, bag, worn, wornBy, equip, unequip, scrap, totals, wornList, drops, RNAME, RID };
+  GL.cgear = { clean, reroll, trophy, perk, migrate, roll, name, lines, power, slotOf, from, base, bag, worn, wornBy, equip, unequip, scrap, totals, wornList, drops, upgrades, equipBest, RNAME, RID };
 })();

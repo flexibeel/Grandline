@@ -39,3 +39,5 @@ GL.data.en = Object.assign(GL.data.en || {}, {
   'Noch keine Werte': 'No stats yet', 'Ab deinem nächsten Run sammeln sich hier die Werte jeder Figur.': 'From your next run on, every character\'s stats collect here.', 'Siege': 'Wins', 'Schaden': 'Damage', 'Runs': 'Runs', 'K.o.s': 'K.O.s',
   'Jetzt': 'Now', 'Dann': 'Then', 'Bringt': 'Gives', 'im Lager': 'in storage'
 });
+// Feinschliff (Kapitänsbuch-Kacheln, Album)
+Object.assign(GL.data.en, { 'Statistik': 'Stats', 'Sticker': 'Stickers', 'Freunde': 'Friends', 'Story': 'Story', 'Noch nicht gegessen': 'Not eaten yet', 'Noch nicht gefunden': 'Not found yet', 'Noch nicht besiegt': 'Not defeated yet' });

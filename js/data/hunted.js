@@ -17,7 +17,16 @@ GL.data.hunted = [
     look: { hair: '#2a2a2a', skin: '#e0b088', shirt: '#c8a040', pants: '#5a5a5a' } },
   { id: 'hatchan', name: 'Hatchan', type: 'klinge', island: 0, hpX: 1.6, atkX: 0.8, spd: 5, bounty: 12,
     look: { hair: '#c0392b', skin: '#e89a8a', shirt: '#e8c040', pants: '#3a5a8a', mask: 'octo' } },
+  // Remix: neue Kopfgeld-Ziele im East Blue
+  { id: 'jango', name: 'Jango', type: 'technik', island: 0, hpX: 1.4, atkX: 0.75, spd: 6, bounty: 9,
+    look: { hair: '#2a2a2a', skin: '#f2c9a0', shirt: '#f0f0f0', pants: '#3a5aa8', hat: 'tricorn', hatColor: '#2a2a2a' } },
+  { id: 'gin', name: 'Dämon Gin', type: 'klinge', island: 0, hpX: 1.45, atkX: 0.78, spd: 7, bounty: 12,
+    look: { hair: '#1a1a1a', skin: '#e8c09a', shirt: '#2a2a2a', pants: '#2a2a2a', hat: 'band', hatColor: '#1a1a1a' } },
+  { id: 'pearl', name: 'Eisenwand Pearl', type: 'kraft', island: 0, hpX: 1.7, atkX: 0.6, spd: 3, bounty: 11,
+    look: { hair: '#e8d070', skin: '#f2c9a0', shirt: '#c8c8d0', pants: '#7a7a8a', hat: 'cap', hatColor: '#c8c8d0' } },
   // Paradies
+  { id: 'mr4', name: 'Mr. 4 & Lassoo', type: 'kraft', island: 1, hpX: 2.4, atkX: 0.9, spd: 3, bounty: 26,
+    look: { hair: '#2a2a2a', skin: '#f2c9a0', shirt: '#e8e0a0', pants: '#2a2a2a', hat: 'band', hatColor: '#e8d070' } },
   { id: 'mr9', name: 'Mr. 9', type: 'technik', island: 1, hpX: 1.6, atkX: 0.85, spd: 7, bounty: 20,
     look: { hair: '#d0d0d0', skin: '#f2c9a0', shirt: '#3a5aa8', pants: '#2a2a2a', hat: 'band', hatColor: '#c0392b' } },
   { id: 'mr1', name: 'Mr. 1', type: 'klinge', island: 1, hpX: 2.2, atkX: 1.05, spd: 6, bounty: 60,
@@ -54,6 +63,8 @@ GL.data.hunted = [
     look: { hair: '#2a2a2a', skin: '#f2c9a0', shirt: '#e8e8e8', pants: '#2a2a2a' } },
   { id: 'foxy', name: 'Foxy', type: 'klinge', island: 2, hpX: 2.1, atkX: 1.0, spd: 6, bounty: 90,
     look: { hair: '#c86a2a', skin: '#f2c9a0', shirt: '#2a6a3a', pants: '#2a2a2a', hat: 'band', hatColor: '#2a2a2a' } },
+  { id: 'wanze', name: 'Wanze', type: 'technik', island: 2, hpX: 2.0, atkX: 0.95, spd: 7, bounty: 64,
+    look: { hair: '#2a2a2a', skin: '#f2c9a0', shirt: '#f0f0f0', pants: '#2a2a2a', hat: 'band', hatColor: '#f0f0f0' } },
   // Thriller Bark (zweite Route des dritten Meeres)
   { id: 'absalom', name: 'Absalom', type: 'klinge', island: 2, sea: 'thriller-bark', hpX: 1.9, atkX: 0.95, spd: 7, bounty: 70,
     look: { hair: '#e8e0d0', skin: '#e8c8a0', shirt: '#6a3a6a', pants: '#2a2a2a', hat: 'band', hatColor: '#8a5a2a' } },

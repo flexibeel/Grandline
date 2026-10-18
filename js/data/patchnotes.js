@@ -1,6 +1,20 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-20a', date: '18.10.', title: 'Saison 1: ein neues Spielsystem', items: [
+    '⛵ Saison 1 startet am 18.10. um 18 Uhr: Countdown im Titelbild und im Hafen, Live-Fenster mit „In den Kalender“, Einspieler „Leinen los auf der Grand Line“. Die Rangliste beginnt bei null (nur Fahrten ab 18 Uhr), dein Fortschritt bleibt',
+    'Freiwillig frisch starten mit Belohnung: Titel „Veteran der Testfahrt“, wer weit kam, bekommt 2 epische Ausrüstungsteile. Am Startabend gesegelt? Flagge „Erste Fahrt“ und Titel „Erstsegler“',
+    '💌 Kumpels einladen: Link mit QR-Code, schönes Willkommensfenster beim Öffnen, automatisch Segelkumpan, 150 Berry Geschenk',
+    '✦ Skillbaum „Gemütlichkeit“ (ab 18 Uhr): Punkte kommen nebenbei, Schiff ausbauen (Hängematten, Herd, Krähennest, Bordkanone, Galionsfigur), Zusammenhalt, Abenteuer und Talente für jeden Strohhut. Umskillen kostenlos',
+    '🗺 Neue Inseln: Gecko-Klippen und Eisenbucht im East Blue, Zwillingskap am Eingang zur Grand Line. Inseln mischen eigene Orte auf die Karte',
+    'Neue Kopfgeld-Ziele: Jango, Dämon Gin, Eisenwand Pearl, Mr. 4 & Lassoo, Wanze. Neue Tiere: Seekuh Momoo und Kampfaffe. Leibwachen, Raufbolde und Rudelführer kämpfen klüger',
+    '🎲 Insel-Twists: Fast jede Insel hat eine Sonderregel (Markttag, Steckbrief-Woche, Schatzinsel, Marine-Razzia, Stille Bucht, Sturmflut)',
+    'Neue Items: Fleischkeule am Knochen, Rumble-Ball-Dose, Strohsandalen, Kochschürze, Mandarinen-Kiste, Sunny-Löwenkopf, Kochmesser, Perlenkette',
+    'Dein eigener Pirat: Teufelsfrucht reinziehen (Profil → Kampf) und eigene Bande taufen, sichtbar auf deiner Karte und in der Rangliste',
+    'Große Daumen-Karten: Route, Training, Schätze und Früchte am Handy viel leichter zu treffen. Kampf: feste Daumen-Leiste unten, nichts springt mehr',
+    'Stammcrew: grüne Pfeile zeigen bessere Ausrüstung, „Bestes anlegen“ und „Alle ausrüsten“ mit einem Tipp',
+    '⏸ Pause im Run. Dein Run reist jetzt auch online mit: am PC aufhören, am Handy genau dort weitermachen. Gespeichert wird sofort, wenn das Spiel in den Hintergrund geht',
+    'Feinschliff: jede Crew-Karte mit eigener Kulisse (Windmühle, Dojo, Mandarinenhain, Baratie, Drumm …), Händler-Waren mit eigenen Bildern, Album, Aufträge, Kapitänsbuch und Wiki aufgeräumt und kompakter' ] },
   { v: '2026-10-19d', date: '18.10.', title: 'Segelkumpane, Pinnwand, lebendige Karten', items: [
     'Visitenkarte neu: großes Porträt, klare Werte, Artefakte und Funde als Symbole, die Stammcrew mit Ausrüstung als Mini-Karten. Neu: gemeisterte Landgänge',
     '⚓ Als Segelkumpan anheuern: Tipp in der Rangliste auf einen Piraten und nimm ihn in deine Freundesliste auf. Er bekommt Bescheid und kann dich zurück anheuern',

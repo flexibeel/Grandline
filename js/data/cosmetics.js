@@ -88,6 +88,8 @@ GL.data.cosmetics = {
     { id: 'sammler',    name: 'Sammler',           req: { artifacts: 6 } },
     { id: 'wuchtig',    name: 'Der Wuchtige',      req: { maxHit: 80 } },
     { id: 'legende',    name: 'Legende der Meere', req: { wins: 5 } },
+    { id: 'veteran',    name: 'Veteran der Testfahrt', req: { veteran: 1 }, rare: true },
+    { id: 'erstsegler', name: 'Erstsegler',        req: { launch: 1 }, rare: true },
     { id: 'matrose',    name: 'Matrose',           req: { runs: 5 } },
     { id: 'rookie',     name: 'Super-Rookie',      req: { rank: 4 } },
     { id: 'entdecker',  name: 'Entdecker',         req: { islands: 6 } },
@@ -147,6 +149,7 @@ GL.data.cosmetics = {
     { id: 'narbe',      name: 'Drei Narben',       req: { raids: 4, rank: 12 } },
     { id: 'faust',      name: 'Faust',             req: { kos: 800 } },
     { id: 'freunde',    name: 'Freundschaft',      req: { invites: 1 } },
+    { id: 'erstefahrt', name: 'Erste Fahrt',       req: { launch: 1 }, rare: true },
     { id: 'strohhut',   name: 'Strohhut-Totenkopf', req: { wins: 3 } },
     { id: 'kraken',     name: 'Kraken',            req: { runs: 60 } },
     { id: 'schnurrbart', name: 'Weißer Schnurrbart', req: { bosses: 20 } }
@@ -203,6 +206,7 @@ GL.data.charLocks = {
     drache:    { cloth: '#25704d', rows: ['.............', '........WWWW.', '.......WW.WWW', '.......WW....', '..WWW...WW...', '.WW.WW...WW..', 'WW...WW..WW..', '......WWWW...', '.............', '..W.W.W.W.W..', '.............'] },
     faust:     { cloth: '#5a3c26', rows: ['.............', '.............', '...WWWWWWW...', '..WW.W.W.WW..', '..WWWWWWWWW..', '..WWWWWWWWW..', '..WW.WWWWWW..', '...WWWWWWW...', '....WWWWW....', '....WWWWW....', '.............'] },
     freunde:   { cloth: '#b04470', rows: ['.............', '..YYY...YYY..', '.YYYYY.YYYYY.', '.YYYYYYYYYYY.', '.YYYYYYYYYYY.', '..YYYYYYYYY..', '...YYYYYYY...', '....YYYYY....', '.....YYY.....', '......Y......', '.............'] },
+    erstefahrt: { cloth: '#1f3f6e', rows: ['......Y......', '.....YYY.....', '..Y..YYY..Y..', '......Y......', '...YYYYYYY...', '...Y..W..Y...', '.....WWW.....', '....WWWWW....', '..DDDDDDDDD..', '.W.W.W.W.W.W.', 'W.W.W.W.W.W.W'] },
     kraken:    { cloth: '#1d2a4a', rows: ['.............', '....PPPPP....', '...PPPPPPP...', '...PWPPPWP...', '...PPPPPPP...', '..P.P.P.P.P..', '.P..P.P.P..P.', '.P.P..P..P.P.', '..P...P...P..', '......P......', '.............'] }
   };
   const fcache = {};

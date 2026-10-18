@@ -105,3 +105,21 @@ GL.data = GL.data || {};
       ] }
   ];
 })();
+
+// Einspieler zu Saison 1 (18.10.2026, 18 Uhr). Läuft einmal nach dem frischen Start, nicht Teil der Kapitel-Reihe.
+GL.data.storyLaunch = [
+  { id: 'launch', no: 0, bg: 'hafen', kicker: ['Live-Event', 'Live event'],
+    title: ['Leinen los auf der Grand Line', 'Cast off on the Grand Line'], need: ['Saison 1', 'Season 1'],
+    lines: [
+      ['kalle', 'KRAA! Extrablatt! KRAA! Saison 1 auf der Grand Line hat begonnen!', 'KRAA! Extra! KRAA! Season 1 on the Grand Line has begun!', '!', 'shake'],
+      ['nami', 'Moment. Die Rangliste fängt bei null an? Auch MEIN Platz?!', 'Wait. The leaderboard starts at zero? MY spot too?!', '💢', 'zoom'],
+      ['robin', 'Es begann an einem Herbstabend. Ein junger Kapitän namens Felix wollte ein gemütliches Abenteuer bauen.', 'It began on an autumn evening. A young captain named Felix wanted to build a cozy adventure.', '', 'dramatic'],
+      ['robin', 'Erst ein Schiff aus Pixeln. Dann eine Crew. Dann Inseln, Schätze und ziemlich viele Bugs.', 'First a ship made of pixels. Then a crew. Then islands, treasure and quite a lot of bugs.'],
+      ['nami', 'Und dann kamen die Testpiraten. Tausende Fahrten. Danke euch!', 'And then came the test pirates. Thousands of voyages. Thank you!', '♥', 'sparkle'],
+      ['franky', 'Neuer Rumpf, neue Segel, neue Ausrüstung. Alles SUUUPER poliert! Mit Skillbaum und Bordkanone!', 'New hull, new sails, new gear. Everything SUUUPER polished! With a skill tree and a deck cannon!', '✨', 'sparkle'],
+      ['zorro', 'Saison 1. Alle an derselben Startlinie. So mag ich das.', 'Season 1. Everyone at the same starting line. That is how I like it.'],
+      ['self', 'Also… alle zusammen an derselben Startlinie?', 'So… everyone together at the same starting line?', '?'],
+      ['ruffy', 'GENAU! Wer zuerst die tollste Beute hat, kriegt … Respekt! Und danach essen wir alle zusammen!', 'EXACTLY! Whoever gets the best loot first gets… respect! And then we all eat together!', '🍖', 'jump'],
+      ['ruffy', 'LEINEN LOS! AUF DIE GRAND LINE!', 'CAST OFF! TO THE GRAND LINE!', '!', 'flash']
+    ] }
+];

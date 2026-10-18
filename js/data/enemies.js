@@ -22,6 +22,13 @@ GL.data.grunts = [
   { id: 'gull', name: 'Möwe', type: 'technik', seas: [0],
     art: { c: { W: '#f4f4f0', G: '#9aa7b4', K: '#1a1a1a', O: '#f29a2e' },
       rows: ['................', '.......WWW......', '......WWWWW.....', '.....KWWWWW.....', '...OOWWWWWW.....', '.....WWWWWWG....', '....WWWWWWWGGG..', '....WWWWWWGGGGG.', '.....WWWWWWGGGGG', '......WWWWWWGG..', '.......WWWW.....', '........O.O.....', '........O.O.....', '.......OO.OO....'] } },
+  // Remix: Seekuh Momoo (East Blue) und Kampfaffe (Paradies)
+  { id: 'momoo', name: 'Seekuh Momoo', type: 'kraft', seas: [0],
+    art: { c: { B: '#7f9fc4', b: '#4f6f94', W: '#f4f0e0', E: '#1a1a1a', P: '#e8a0a8', Y: '#f2d24a', w: '#9fd2ee' },
+      rows: ['................', '..W..........W..', '..WW........WW..', '...BBBBBBBBBB...', '..BBBBBBBBBBBB..', '.BBEBBBBBBBBEBB.', '.BBBBBBBBBBBBBB.', '.bBBPPPPPPPPBBb.', '..bPPEPPPPEPPb..', '..bPPPPYYPPPPb..', '...bPPPYYPPPb...', '....bbbbbbbb....', 'wwwwwwwwwwwwwwww', '.ww.wwww.www.ww.', '................', '................'] } },
+  { id: 'kampfaffe', name: 'Kampfaffe', type: 'kraft', seas: [1, 2],
+    art: { c: { F: '#8a5a34', f: '#5a3a1e', S: '#e8c09a', E: '#1a1a1a', R: '#c0392b', k: '#2a1a10' },
+      rows: ['................', '.....FFFFFF.....', '....FFFFFFFF....', '...FFSSSSSSFF...', '..FFSESSSSESFF..', '..FFSSSSSSSSFF..', '...FSSSkkSSSF...', '....FSSSSSSF....', '..RRRFFFFFFRRR..', '.RRFFFFFFFFFFRR.', '.SS.FFFFFFFF.SS.', '.SS.FFFFFFFF.SS.', '....FF....FF....', '....ff....ff....', '...kkk....kkk...', '................'] } },
   { id: 'bananacroc', name: 'Bananen-Krokodil', type: 'kraft', seas: [1, 2],
     art: { c: { G: '#5c9a42', g: '#2f5a24', E: '#f2d24a', T: '#f4f0e0', Y: '#f2d24a', y: '#c9a22a' },
       rows: ['................', '..........YY....', '.........YYYy...', '........YYyy....', '..GGGGG..GGG....', '.GGEGGGGGGGGG...', 'GGGGGGGGGGGGGGG.', 'TGTGTGGGGGGGGGGG', 'GGGGGGGGGGGGGGGg', '.gGGGGGGGGGGGGgg', '..GG..GGGG..GGg.', '..gg..gg....gg..', '................', '................'] } },
@@ -60,6 +67,17 @@ GL.data.foeKinds = [
     status: { key: 'poison', rounds: 3, when: 'hit', target: 'target' }, statusValue: l => 1 + Math.floor(l / 3),
     text: 'Treffer vergiften (Schaden am Rundenende, 3 Runden).',
     look: { shirt: '#5a3a7a', skin: '#c8d8a0', hat: 'hood', hatColor: '#3a2a5a' } }
+,
+  // Remix: neue Verhaltensweisen (battle.js: taunt, bully, pack)
+  { key: 'leibwache', name: 'Leibwache',  tag: 'Fängt Treffer ab', from: 0, w: 1, hpX: 1.25, atkX: 0.6,
+    ability: 'taunt', mods: { guard: 0.15 }, text: 'Solange er steht, muss deine Crew ihn zuerst schlagen. Scharfschützen zielen trotzdem frei.',
+    look: { shirt: '#8a6a3a', pants: '#4a3a2a', hat: 'cap', hatColor: '#c9a46a' } },
+  { key: 'raufbold', name: 'Raufbold',    tag: 'Jagt Starke',      from: 1, w: 2, hpX: 0.95, atkX: 0.95,
+    ability: 'bully', text: 'Greift immer dein Crewmitglied mit dem meisten Angriff an.',
+    look: { shirt: '#a83a2a', pants: '#3a2a2a', hat: 'band', hatColor: '#1a1a1a' } },
+  { key: 'rudel', name: 'Rudelführer',    tag: 'Wird wütend',      from: 1, w: 2, hpX: 1.1, atkX: 0.9,
+    ability: 'pack', power: l => 2 + Math.floor(l / 4), text: 'Für jeden gefallenen Verbündeten bekommt er mehr Angriff. Zuerst oder zuletzt besiegen?',
+    look: { shirt: '#5a5a6a', pants: '#2a2a3a', hat: 'hood', hatColor: '#3a3a4a' } }
 ];
 GL.data.foeKind = key => GL.data.foeKinds.find(k => k.key === key) || null;
 // Darstellung eines Gegners (Name, Aussehen) inkl. besonderer Gegner

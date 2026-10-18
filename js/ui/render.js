@@ -84,14 +84,45 @@ window.GL = window.GL || {};
   const PX_STAR = pxArt(['....Y.....', '...YYY....', 'YYYYYYYYY.', '.YYYOYYY..', '..YYYYY...', '..YYOYY...', '.YYY.YYY..', '.YY...YY..', 'Y.......Y.', '..........'], { Y: '#f2c94c', O: '#e0a020' }, [10, 10]);
   // Kleine Pixel-Icons für wichtige Knöpfe (10×10, eigene Palette mit dunkler Kontur oder 'C' = Knopf-Textfarbe)
   const PXI_ART = {
+    chart: [['..........', '........K.', '.......KGK', '....K..KGK', '...KBK.KGK', '...KBK.KGK', 'K..KBK.KGK', 'KRKKBK.KGK', 'KRKKBKKKGK', 'KKKKKKKKKK'], { K: '#3a2416', R: '#e0483b', B: '#4f8fe0', G: '#5aa04a' }],
+    sticker: [['....K.....', '...KYK....', '...KYK....', 'KKKKYYKKKK', 'KYYYYYYYYK', '.KYYYYYYK.', '..KYYYYK..', '.KYYKKYYK.', '.KYK..KYK.', '.KK....KK.'], { K: '#6b4a10', Y: '#f2c94c' }],
+    book: [['..........', '.KKKK.KKKK', 'KWWWWKWWWW', 'KWssWKWssW', 'KWWWWKWWWW', 'KWssWKWssW', 'KWWWWKWWWW', 'KRRRRKRRRR', '.KKKK.KKKK', '..........'], { K: '#3a2416', W: '#fffaf0', s: '#b8a890', R: '#a8693a' }],
     dice: [['.KKKKKKKK.', 'KWWWWWWWWK', 'KWKKWWWWWK', 'KWKKWWWWWK', 'KWWWKKWWWK', 'KWWWKKWWWK', 'KWWWWWKKWK', 'KWWWWWKKWK', 'KssssssssK', '.KKKKKKKK.'], { K: '#3a2416', W: '#fffaf0', s: '#d8c8b0' }],
     ship: [['....R.....', '....KWW...', '...WKWWs..', '..WWKWWWs.', '..WWKWWWs.', '....K.....', 'KBBBBBBBBK', '.KbbbbbbK.', '..KKKKKK..', 'w.ww..ww.w'], { K: '#3a2416', W: '#fffaf0', s: '#d8c8b0', R: '#e0483b', B: '#c07a3a', b: '#8a4f24', w: '#7fc4e8' }],
     swords: [['W........W', '.W......W.', '..W....W..', '...W..W...', '....WW....', '....WW....', '...G..G...', '..G....G..', '.K......K.', 'K........K'], { W: '#eef3f8', G: '#f2c94c', K: '#6b4a2a' }],
     coin: [['...KKKK...', '..KYYYYK..', '.KYYWYYOK.', 'KYYWYYYYOK', 'KYYYYYYYOK', 'KYYYYYYYOK', 'KYYYYYYOOK', '.KYYYYOOK.', '..KOOOOK..', '...KKKK...'], { K: '#7a4a14', Y: '#f2d24a', O: '#d99a20', W: '#fff6c8' }],
     anchor: [['....CC....', '...C..C...', '....CC....', '..CCCCCC..', '....CC....', '....CC....', 'C...CC...C', 'CC..CC..CC', '.CC.CC.CC.', '..CCCCCC..'], {}],
+    heart: [['..........', '.KK...KK..', 'KRRK.KRRK.', 'KRWRKRRRK.', 'KRRRRRRRK.', '.KRRRRRK..', '..KRRRK...', '...KRK....', '....K.....', '..........'], { K: '#5a1c1c', R: '#e0483b', W: '#ffd0c8' }],
+    bolt: [['.....KKK..', '....KYYK..', '...KYYK...', '..KYYKKKK.', '.KYYYYYYK.', '.KKKKYYK..', '....KYK...', '...KYK....', '...KK.....', '..K.......'], { K: '#6b4a14', Y: '#f2d24a' }],
+    scale: [['....KK....', '.KKKKKKKK.', '.K..KK..K.', 'K.K.KK.K.K', 'K.K.KK.K.K', 'KYYKKKKYYK', '.KK.KK.KK.', '....KK....', '..KKKKKK..', '..KBBBBK..'], { K: '#5a3a1c', Y: '#f2d24a', B: '#a8693a' }],
     loop: [['...CCCC.C.', '.CCCCCCCC.', '.CC...CCC.', 'CC...CCCC.', 'CC........', 'CC......CC', '.CC....CC.', '.CCCCCCCC.', '...CCCC...', '..........'], {}]
   };
   const pxiCache = {};
+  // Händler-Waren: eigene Pixel-Bilder statt der einheitlichen Truhe
+  const GEAR_ART = {
+    bordkanone: [['..........', '..........', '......KKK.', '.KKKKKKSSK', 'KSSSSSSSSK', 'KSSSSSSSKK', '.KKKKKKK..', '..KWWK....', '.KWBBWK...', '..KWWK....'], { K: '#2a2a32', S: '#5a5a66', W: '#8a5a2a', B: '#c9a24a' }],
+    proviant: [['..........', '..KKKKKK..', '.KBBBBBBK.', '.KMMMMMMK.', '.KBBBBBBK.', '.KBBBBBBK.', '.KMMMMMMK.', '.KBBBBBBK.', '..KKKKKK..', '..........'], { K: '#4a2e16', B: '#b07a3c', M: '#7a7a84' }],
+    logport: [['..........', '...KKKK...', '..KLLLLK..', '.KLWLLLLK.', '.KLLLRLLK.', '.KLLLLLLK.', '..KLLLLK..', '.KBBBBBBK.', 'KBBBBBBBBK', '.KKKKKKKK.'], { K: '#2a3a4a', L: '#bfe6f6', W: '#ffffff', R: '#e0483b', B: '#a8693a' }],
+    steckbrief: [['.KKKKKKKK.', '.KPPPPPPK.', '.KPKKKKPK.', '.KPPPPPPK.', '.KPPFFPPK.', '.KPFFFFPK.', '.KPPFFPPK.', '.KPKKKKPK.', '.KPPPPPPK.', '.KKKKKKKK.'], { K: '#6b4422', P: '#f3e2b4', F: '#8a6a4a' }],
+    muenze: [['..........', '...KKKK...', '..KGGGGK..', '.KGYGGYGK.', '.KGGVVGGK.', '.KGGVVGGK.', '.KGYGGYGK.', '..KGGGGK..', '...KKKK...', '..........'], { K: '#8a5a10', G: '#f2c94c', Y: '#fff2a8', V: '#4f9a4a' }],
+    trainbuch: [['..........', '.KKKKKKKK.', '.KRRRRRRK.', '.KRWWWWRK.', '.KRRRRRRK.', '.KRSKKSRK.', '.KRSSSSRK.', '.KRSKKSRK.', '.KKKKKKKK.', '..........'], { K: '#3a2416', R: '#c2412f', W: '#fff2d0', S: '#5a5a66' }],
+    fruchtkorb: [['..........', '...G..G...', '..PPGOOO..', '.PPPPOOOO.', '.PPPPOOOO.', 'KBBBBBBBBK', 'KBWBWBWBBK', '.KBBBBBBK.', '..KBWBWK..', '...KKKK...'], { K: '#4a2e16', B: '#c08a4a', W: '#8a5a2a', P: '#9b7ac8', O: '#f39a2a', G: '#4f9a4a' }],
+    kriegskasse: [['..........', '...Y.Y.Y..', '..YGYGYGY.', '.KKKKKKKK.', 'KBBBBBBBBK', 'KKKKGGKKKK', 'KBBBGGBBBK', 'KBBBBBBBBK', 'KKKKKKKKKK', '..........'], { K: '#4a2e16', B: '#b07a3c', G: '#c99a2e', Y: '#f2d24a' }],
+    kampfgeist: [['....R.....', '...RR..R..', '..RRYR.RR.', '..RYYRRRR.', '.RRYYYYRR.', '.RYYWWYYR.', '.RYWWWWYR.', '.RRYWWYRR.', '..RRRRRR..', '..........'], { R: '#e0483b', Y: '#f2a02a', W: '#fff2a8' }],
+    schleifstein: [['........S.', '.......SW.', '......SW..', '.....SW...', '....SW....', '..KKSKKKK.', '.KGGGGGGGK', '.KGgGgGgGK', '.KKKKKKKKK', '..........'], { K: '#3a3a44', S: '#9aa4b0', W: '#eef2f6', G: '#8a8f9a', g: '#6a6f7a' }],
+    rumfass: [['..........', '......KK..', '......KGK.', '..KKKKKGK.', '.KBBBBKGK.', '.KMMMMKKK.', '.KBBBBBBK.', '.KMMMMMMK.', '..KKKKKK..', '..........'], { K: '#3a2416', B: '#a8693a', M: '#6a6a74', G: '#5aa04a' }]
+  };
+  const gearArtCache = {};
+  function gearIco(id) {
+    const a = GEAR_ART[id];
+    if (!a) return GL.sprites.icon('relic', id);
+    if (!gearArtCache[id]) {
+      let r = '';
+      a[0].forEach((row, y) => row.split('').forEach((ch, x) => { const f = a[1][ch]; if (f) r += `<rect x="${x}" y="${y}" width="1" height="1" fill="${f}"/>`; }));
+      gearArtCache[id] = `<svg class="icon gear-art" viewBox="0 0 10 10" shape-rendering="crispEdges" aria-hidden="true">${r}</svg>`;
+    }
+    return gearArtCache[id];
+  }
   function pxIco(name) {
     if (name === 'chest') return `<i class="pxi pxi-chest">${PX_CHEST(false)}</i>`;
     if (name === 'fire') return `<i class="pxi pxi-fire">${PX_FLAME}</i>`;
@@ -200,7 +231,7 @@ window.GL = window.GL || {};
   };
   const RAR_COL = ['#8a94a3', '#4a8be0', '#9a63e0', '#e2a92a'];
   function itemIcon(it) {
-    const rows = ITEM_PIX[it.id];
+    const rows = ITEM_PIX[it.id] || (GL.data.items.find(x => x.id === it.id) || {}).px;
     if (!rows) return GL.sprites.icon('relic', 'kanone');
     let rects = '';
     rows.forEach((row, y) => row.split('').forEach((ch, x) => {
@@ -387,9 +418,11 @@ window.GL = window.GL || {};
   // Kleine lebendige Bühne hinter jeder Figur: Thema nach Bande, sonst nach Kampfstil
   const CARD_THEME = { strohhut: 'beach', marine: 'navy', cp9: 'city', baroque: 'desert', weissbart: 'whale', samurai: 'dusk', buggy: 'circus', fischmensch: 'reef', revolution: 'wind', rothaar: 'sunset', supernova: 'bubble', thriller: 'grave' };
   const TYPE_THEME = { kraft: 'beach', klinge: 'bamboo', technik: 'town' };
+  // Eigene Kulisse für die Strohhüte und ein paar Ikonen: Heimat oder Lieblingsort
+  const CHAR_THEME = { ruffy: 'foosha', zorro: 'dojo', nami: 'orchard', lysop: 'syrup', sanji: 'baratie', chopper: 'snow', robin: 'ruins', franky: 'dock', brook: 'mist', enel: 'sky', ace: 'whale', shanks: 'sunset', vivi: 'desert', mihawk: 'dusk' };
   function cardDelay(id) { let h = 0; for (const c of String(id)) h = (h * 31 + c.charCodeAt(0)) >>> 0; return -((h % 23) / 10).toFixed(1); }
   function cardStage(d) {
-    const th = CARD_THEME[d.faction] || TYPE_THEME[d.type] || 'beach';
+    const th = CHAR_THEME[d.id] || CARD_THEME[d.faction] || TYPE_THEME[d.type] || 'beach';
     const props = {
       beach: '<i class="cs-ship"></i><i class="cs-palm"></i>',
       navy: '<i class="cs-flag"></i><i class="cs-post"></i>',
@@ -404,7 +437,17 @@ window.GL = window.GL || {};
       bubble: '<i class="cs-bub a"></i><i class="cs-bub b"></i><i class="cs-bub c"></i>',
       grave: '<i class="cs-moon"></i><i class="cs-stone"></i><i class="cs-tree"></i>',
       bamboo: '<i class="cs-bam a"></i><i class="cs-bam b"></i><i class="cs-bam c"></i>',
-      town: '<i class="cs-house a"></i><i class="cs-house b"></i><i class="cs-lamp"></i>'
+      town: '<i class="cs-house a"></i><i class="cs-house b"></i><i class="cs-lamp"></i>',
+      foosha: '<i class="cs-hill"></i><i class="cs-mill"><i class="cs-blades"></i></i><i class="cs-hatsign"></i>',
+      dojo: '<i class="cs-wall"></i><i class="cs-rack"></i><i class="cs-dummy"></i>',
+      orchard: '<i class="cs-mtree a"></i><i class="cs-mtree b"></i><i class="cs-mtree c"></i>',
+      syrup: '<i class="cs-hill"></i><i class="cs-fence"></i><i class="cs-target"></i>',
+      baratie: '<i class="cs-fishboat"></i><i class="cs-pot"><i class="cs-steam"></i></i>',
+      snow: '<i class="cs-peak"></i><i class="cs-flake a"></i><i class="cs-flake b"></i><i class="cs-flake c"></i>',
+      ruins: '<i class="cs-pillar a"></i><i class="cs-pillar b"></i><i class="cs-glyph"></i><i class="cs-moon"></i>',
+      dock: '<i class="cs-crane"></i><i class="cs-cola"></i>',
+      mist: '<i class="cs-moon"></i><i class="cs-ghostship"></i><i class="cs-fog a"></i><i class="cs-fog b"></i>',
+      sky: '<i class="cs-bell"></i><i class="cs-puff a"></i><i class="cs-puff b"></i>'
     }[th] || '';
     return `<span class="c3-stage cs-${th}" aria-hidden="true"><i class="cs-cloud"></i><i class="cs-cloud b"></i><i class="cs-sea"></i>${props}<i class="cs-ground"></i><i class="cs-spark"></i></span>`;
   }
@@ -419,7 +462,7 @@ window.GL = window.GL || {};
     const rare = (o.stars || 0) >= 3;
     return `<span class="card-face cf3 fac-${d.faction || 'none'} ty-${d.type}${o.gold ? ' frame-gold' : ''}${rare ? ' shiny' : ''}">
       <span class="c3-top">
-        <span class="c3-head"><span class="c3-fac">${fac ? pxIcon(d.faction, 'sm') + esc(FAC_SHORT[d.faction] || fac.name) : 'Ohne Bande'}</span>${o.stars ? stars(o.stars) : ''}</span>
+        <span class="c3-head"><span class="c3-fac${!fac && d.crewName ? ' own' : ''}">${fac ? pxIcon(d.faction, 'sm') + esc(FAC_SHORT[d.faction] || fac.name) : d.crewName ? '<i class="c3-jolly" aria-hidden="true"></i>' + esc(d.crewName) : 'Ohne Bande'}</span>${o.stars ? stars(o.stars) : ''}</span>
         ${cardStage(d)}
         <span class="c3-sprite" style="--cd:${cardDelay(d.id)}s"><i class="c3-shadow" aria-hidden="true"></i>${GL.sprites.renderShaded ? GL.sprites.renderShaded(d) : GL.sprites.render(d)}</span>
         ${o.lvl ? `<em class="c3-lv">Lv ${o.lvl}</em>` : ''}
@@ -430,6 +473,7 @@ window.GL = window.GL || {};
       <span class="c3-ab">
         ${a ? `<span title="${esc(a.text)}"><b>${a.name}</b> ${esc(shortText(a.text))}</span>` : ''}
         ${t ? `<span class="c3-trait" title="${esc(t.text)}"><b>${t.name}</b> ${esc(shortText(t.text))}</span>` : ''}
+        ${d.self && d.fruit ? (sf => sf ? `<span class="c3-fruit" title="${esc(sf.text)}"><i>${GL.sprites.icon('fruit', sf.id)}</i><b>${esc(sf.name)}</b> ${esc(shortText(sf.text))}</span>` : '')(GL.data.fruits.some(f => f.id === d.fruit.id) ? GL.loot.fruit(d.fruit) : null) : ''}
         ${o.extra || ''}
       </span>
       ${u ? `<span class="c3-ult" title="${esc(u.text)}">✦ ${esc(u.name)}</span>` : ''}
@@ -531,7 +575,7 @@ window.GL = window.GL || {};
     return `${bars}<span class="track-loc">${island} · <b class="stop-name">${run.phase === 'course' ? 'Kurs setzen' : run.phase === 'starter' ? 'Kapitän wählen' : GL.run.stopName(run)}</b>${run.phase === 'course' || run.phase === 'starter' ? '' : ` <small class="muted">(${pos}/${GL.config.chapterSteps})</small>`}</span>
       <span class="head-chips">
         <em class="gold-chip" data-tip="Gold für die Taverne.\nGibt es für Siege, verfällt am Run-Ende.">${GL.sprites.coin()} <b>${run.gold || 0}</b></em>
-        <em class="bounty-chip" id="bounty-chip" data-tip="Kopfgeld deines Kapitäns.\nZählt für deinen Punktestand und die Rangliste 'Höchstes Kopfgeld'. Bringt sonst nichts im Run.">${GL.sprites.icon('node', 'elite')} <b>${fmtBounty(run.bountyM || 0)}</b></em>${run.mood && GL.config.moods ? (m => m ? `<em class="mood-chip" data-tip="${esc('Laune der See: ' + m.name + '\n' + m.text)}">${m.icon}<b>${esc(m.name)}</b></em>` : '')(GL.config.moods.find(x => x.id === run.mood)) : ''}${(run.streak || 0) >= 2 ? `<em class="streak-chip${run.streak >= 6 ? ' hot' : run.streak >= 3 ? ' warm' : ''}" data-tip="Kopfgeld-Serie: ${run.streak} Siege in Folge ohne K.O.\nAb 3 Siegen +1 Gold pro Sieg, ab 6 +2. Am Run-Ende Extra-Berry.\nFällt jemand, beginnt die Serie neu.">${PX_FLAME}<b>${run.streak}</b></em>` : ''}
+        <em class="bounty-chip" id="bounty-chip" data-tip="Kopfgeld deines Kapitäns.\nZählt für deinen Punktestand und die Rangliste 'Höchstes Kopfgeld'. Bringt sonst nichts im Run.">${GL.sprites.icon('node', 'elite')} <b>${fmtBounty(run.bountyM || 0)}</b></em>${run.mood && GL.config.moods ? (m => m ? `<em class="mood-chip" data-tip="${esc('Laune der See: ' + m.name + '\n' + m.text)}">${m.icon}<b>${esc(m.name)}</b></em>` : '')(GL.config.moods.find(x => x.id === run.mood)) : ''}${GL.run.twist && !GL.run.isFinished(run) ? (tw => tw ? `<em class="mood-chip twist-chip" data-tip="${esc('Insel-Twist: ' + tw.name + '\n' + tw.text)}">${tw.icon}<b>${esc(tw.name)}</b></em>` : '')(GL.run.twist(run)) : ''}${(run.streak || 0) >= 2 ? `<em class="streak-chip${run.streak >= 6 ? ' hot' : run.streak >= 3 ? ' warm' : ''}" data-tip="Kopfgeld-Serie: ${run.streak} Siege in Folge ohne K.O.\nAb 3 Siegen +1 Gold pro Sieg, ab 6 +2. Am Run-Ende Extra-Berry.\nFällt jemand, beginnt die Serie neu.">${PX_FLAME}<b>${run.streak}</b></em>` : ''}
         ${run.heat ? `<em class="heat-chip">Stufe ${run.heat}</em>` : ''}
         ${run.loop ? `<em class="duel-chip endless-chip">Endlos ${run.loop + 1}</em>` : ''}
         ${run.daily ? '<em class="duel-chip">Tageskarte</em>' : run.duel ? `<button class="duel-chip" data-act="duel-copy" data-id="${run.duel}" title="Code teilen">Wettfahrt ${run.duel} · teilen</button>` : ''}
@@ -756,6 +800,32 @@ window.GL = window.GL || {};
       ${nodes}
       <span class="sc-ship" style="left:${shipX}%;top:${shipY}px" aria-hidden="true">${GL.sprites.ship()}</span>
     </div>`;
+  }
+
+  // Große Daumen-Karten unter der Seekarte: eine Karte pro erreichbarem Ort (gleiche Aktion wie die Kartenpunkte)
+  const DOCK_TXT = { battle: 'Kampf, bringt Gold', elite: 'Starker Gegner, dafür ein Schatz', recruit: 'Neue Crew anheuern', fruit: 'Teufelsfrucht aussuchen',
+    treasure: 'Schatz für den ganzen Run', rest: 'Alle heilen 40 %', boss: 'Kopfgeld und Erwachen', raid: 'Extrem stark, epische Frucht' };
+  function routeDock(run, boss, tip) {
+    const ch = run.chart;
+    if (!ch || !run.optCols || !run.optCols.length) return '';
+    const N = GL.data.nodes, pos = GL.run.rowIdx(run), row = ch.rows[pos] || [];
+    const cards = run.optCols.map((col, k) => {
+      const n = row[col];
+      if (!n) return '';
+      const isBoss = n.t === 'boss';
+      const hunted = n.t === 'elite' && n.who ? enemyData(n.who) : null;
+      const foe = isBoss ? boss : hunted;
+      const isTip = tip && tip.index === k;
+      const icon = foe ? GL.sprites.render(foe) : GL.sprites.icon('node', n.t);
+      const name = isBoss ? boss.name : hunted ? hunted.name : N[n.t].title;
+      const sub = isBoss ? N.boss.title : n.gate && hunted ? 'Bösewicht der Insel' : hunted ? 'Kopfgeld-Ziel' : DOCK_TXT[n.t] || N[n.t].text;
+      return `<button class="rd-card n-${n.t}${foe ? ' rd-foe' : ''}${n.gate || isBoss ? ' rd-big' : ''}${isTip ? ' is-tip' : ''}" data-act="node" data-i="${k}" style="--d:${k * 0.05}s">
+        ${isTip ? '<span class="tip-badge">Tipp</span>' : ''}${k < 9 ? `<kbd class="key">${k + 1}</kbd>` : ''}
+        <span class="rd-ico">${icon}</span>
+        <span class="rd-txt"><b>${esc(name)}</b><small>${esc(sub)}</small>${hunted ? `<em class="mn-bounty">${hunted.bounty} Mio. ฿</em>` : ''}${dangerTag(run, n.t)}</span>
+      </button>`;
+    }).join('');
+    return `<div class="route-dock" role="group" aria-label="Nächster Halt"><span class="rd-kick">Nächster Halt</span><div class="rd-grid rd-n${run.optCols.length}">${cards}</div></div>`;
   }
 
   // ---------- Buff-Leiste links (wie bei TFT) ----------
@@ -1007,6 +1077,7 @@ window.GL = window.GL || {};
           <span class="poster-label">Steckbrief</span>
           <div class="poster-art">${GL.sprites.render(d)}</div>
           <h3>${d.name}</h3>
+          ${d.self && d.crewName ? `<small class="poster-crew"><i class="c3-jolly" aria-hidden="true"></i>${esc(d.crewName)}</small>` : ''}
           <div>${stars(u.stars)} <em class="lv">Lv ${u.lvl}</em></div>
           <div class="xpbar big"><i style="width:${Math.min(100, 100 * u.xp / need)}%"></i></div>
           <small>${u.xp} / ${need} EP bis Level ${u.lvl + 1}</small>
@@ -1014,7 +1085,7 @@ window.GL = window.GL || {};
         <button class="sheet-nav" data-act="sheet" data-i="${(i + 1) % run.crew.length}" aria-label="Nächste Figur">›</button>
       </div>
       <div class="sheet-tags">${badge(u.type)} <span>${tags(d)}</span> ${traitChip(u.trait)}</div>
-      <p class="sheet-abil">${abilityLine(u.id)}${ultiLine(u.id, u.role)}<span class="abil"><b>Eigenschaft ${t.name}:</b> ${t.text}</span></p>
+      <p class="sheet-abil">${abilityLine(u.id)}${d.self && d.fruit && GL.data.fruits.some(f => f.id === d.fruit.id) ? (f => `<span class="abil sf-abil"><i>${GL.sprites.icon('fruit', f.id)}</i><b>${esc(f.name)}:</b> ${esc(f.text)}</span>`)(GL.loot.fruit(d.fruit)) : ''}${ultiLine(u.id, u.role)}<span class="abil"><b>Eigenschaft ${t.name}:</b> ${t.text}</span></p>
 
       ${u.points > 0 ? `<div class="spend">
         <b>${u.points} Statuspunkte verteilen</b>
@@ -1178,7 +1249,7 @@ window.GL = window.GL || {};
         const preview = last ? ''
           : `<div class="lbl">${gateFoe ? 'Bösewicht der Insel' : 'Boss des Meeres'}: ${foe.name} ${badge(foe.type)} schwach gegen ${badge(info.counter)}</div>`;
         const tip = GL.advice.map(run);
-        return `${noticeBox(run)}<h2>${here ? here.name : 'Wähle deine Route'}</h2>${preview}${seaChart(run, boss, tip)}${tipLine(tip)}`;
+        return `${noticeBox(run)}<h2>${here ? here.name : 'Wähle deine Route'}</h2>${preview}${seaChart(run, boss, tip)}${routeDock(run, boss, tip)}${tipLine(tip)}`;
       }
 
       case 'recruit': {
@@ -1607,6 +1678,8 @@ window.GL = window.GL || {};
         : '<p class="hint">Noch leer. Bosse und Raids lassen ab jetzt Waffen, Kleidung und Schmuck fallen, im Endlos-Modus öfter und besser.</p>'}
     </div>`;
   }
+  // Kleiner grüner Pixel-Pfeil nach oben (bessere Ausrüstung verfügbar)
+  const PX_UPG = '<svg class="px-up" viewBox="0 0 7 7" shape-rendering="crispEdges" aria-hidden="true"><rect x="3" y="0" width="1" height="1" fill="#1f6b33"/><rect x="2" y="1" width="3" height="1" fill="#2f9a4a"/><rect x="1" y="2" width="5" height="1" fill="#3fb85c"/><rect x="0" y="3" width="7" height="1" fill="#1f6b33"/><rect x="2" y="3" width="3" height="4" fill="#3fb85c"/><rect x="2" y="6" width="3" height="1" fill="#1f6b33"/></svg>';
   // Wer trägt dieses Teil? (Mini-Figur + Name)
   function gearWearer(profile, by) {
     if (!by) return null;
@@ -1701,12 +1774,13 @@ window.GL = window.GL || {};
       const r = refs[k];
       if (!r) return `<div class="sqd-card empty${pick ? ' target' : ''}" data-act="sq-place" data-k="${k}" data-sqslot="${k}"><span class="sqd-plus">+</span><small>${pick ? 'Hier einsetzen' : 'Karte hierher ziehen'}</small></div>`;
       const d = dOf(r.id), xp = (profile.squadXp || {})[r.id] || 0, bond = GL.meta.squadBonus(xp);
+      const UP = GL.cgear && GL.cgear.upgrades ? GL.cgear.upgrades(profile, r.id) : {}, upN = Object.keys(UP).length;
       const slots = SL.map(sl => { const it = bag.find(x => x.uid === (W[r.id] || {})[sl.id]);
-        return it ? `<span class="sqd-g cr-${GL.cgear.RID[it.r]}" title="${esc(GL.cgear.name(it))}">${cgArt(it)}</span>` : `<span class="sqd-g none" title="${esc(sl.name)}">${CG_ICON[sl.id]}</span>`; }).join('');
+        return (it ? `<span class="sqd-g cr-${GL.cgear.RID[it.r]}${UP[sl.id] ? ' can-up' : ''}" title="${esc(GL.cgear.name(it))}">${cgArt(it)}</span>` : `<span class="sqd-g none${UP[sl.id] ? ' can-up' : ''}" title="${esc(sl.name)}">${CG_ICON[sl.id]}</span>`); }).join('');
       return `<div class="sqd-card${pick ? ' target' : ''}${k === 0 ? ' front' : ''}" data-sqslot="${k}" data-sqid="${esc(r.id)}">
         <button class="sqd-main" data-act="${pick ? 'sq-place' : 'dress'}" data-k="${k}" data-id="${esc(r.id)}">
           <span class="sqd-pos">${k === 0 ? 'Vorne' : k + 1}</span>
-          <span class="sqd-lv">Lv ${r.lvl}</span>
+          <span class="sqd-lv">Lv ${r.lvl}</span>${upN && !pick ? `<span class="up-badge" title="${upN} ${upN === 1 ? 'Platz' : 'Plätze'} mit besserer Ausrüstung in der Truhe">${PX_UPG}<b>${upN}</b></span>` : ''}
           <i class="sqd-spr">${squadSprite(r)}</i>
           <b class="sqd-name">${esc(d.name)}</b>
           <span class="sqd-st"><em>♥${r.max}</em><em>⚔${r.atk}</em><em>➤${r.spd}</em></span>
@@ -1726,7 +1800,7 @@ window.GL = window.GL || {};
     const filt = `<div class="sqc-filter" role="tablist">${types.map(t => `<button class="sqc-f${flt === t ? ' on' : ''}" data-act="sq-filter" data-v="${t}">${t === 'all' ? 'Alle' : `${pxIcon(t)}${esc(GL.data.types[t].name)}`}</button>`).join('')}</div>`;
     const LIM = 12, all = uiRef && uiRef.sqAll, cut = !all && shown.length > LIM + 2;
     const coll = (cut ? shown.slice(0, LIM) : shown).map(x => `<button class="sqc${x.on ? ' on' : ''}${pick === x.id ? ' picked' : ''}${weakest && weakest.id === x.id ? ' weak' : ''}" data-act="sq-pick" data-id="${esc(x.id)}" data-sqcard="${esc(x.id)}">
-        ${x.on ? '<span class="sqc-on">Dabei</span>' : delta(x)}
+        ${x.on ? '<span class="sqc-on">Dabei</span>' : delta(x)}${x.on && GL.cgear && GL.cgear.upgrades ? (n => n ? `<span class="up-badge sm" title="Bessere Ausrüstung in der Truhe">${PX_UPG}<b>${n}</b></span>` : '')(Object.keys(GL.cgear.upgrades(profile, x.id)).length) : ''}
         <i class="sqc-spr">${GL.sprites.render(x.d)}</i><b>${esc(x.d.name)}</b>
         <span class="sqc-ty">${pxIcon(typeOf(x))}<small>♥${x.r.max} ⚔${x.r.atk}</small></span></button>`).join('') + (cut ? `<button class="sqc-more" data-act="sq-all">Alle ${shown.length} Karten zeigen</button>` : '');
     const w = profile.squadW || 0, l = profile.squadL || 0;
@@ -1743,6 +1817,7 @@ window.GL = window.GL || {};
       ${pick ? `<div class="sq-pickbar"><i>${GL.sprites.render(pd)}</i><span><b>${esc(pd.name)}</b> einsetzen: tipp oben auf einen Platz</span><button class="btn mini ghost" data-act="sq-pick" data-id="${esc(pick)}">Abbrechen</button></div>`
         : `<p class="sq-tip">Karte antippen zum Ankleiden. Aus der Sammlung eine Karte auf einen Platz ziehen oder antippen. <b>Vorne</b> steht, wer zuerst getroffen wird.</p>`}
       <button class="btn squad-match" data-act="squad-match">${pxIco('swords')}Gegner suchen <small>ähnliche Stärke</small></button>
+      ${GL.cgear && GL.cgear.upgrades && refs.some(x => Object.keys(GL.cgear.upgrades(profile, x.id)).length) ? `<button class="btn sq-best-all" data-act="dr-best-all">${PX_UPG}Alle mit dem Besten ausrüsten <small>${refs.reduce((n, x) => n + Object.keys(GL.cgear.upgrades(profile, x.id)).length, 0)} Verbesserungen in der Truhe</small></button>` : ''}
       ${GL.cgear ? `<button class="sq-chest" data-act="dress" data-id="${esc((refs[0] || {}).id || 'self')}"><i class="sq-chest-ico">${pxIco('chest')}</i><span><b>Truhe & Ankleiden</b><small>${bag.length}/${GL.data.crewGear.bagMax} Teile · 🔹 ${profile.shards || 0}${(profile.gearNew || []).length ? ` · <em class="sq-new">${profile.gearNew.length} neu</em>` : ''}</small></span><span class="sq-chest-go">›</span></button>` : ''}
       <div class="sqc-head"><b>Deine Karten</b><small>${cards.length} Figuren · ${ids.length}/${N} dabei</small></div>
       ${filt}
@@ -1810,10 +1885,12 @@ window.GL = window.GL || {};
     const slotSel = st.slot || null;
     const curOf = sid => bag.find(x => x.uid === (W[id] || {})[sid]);
     const sel = st.uid ? bag.find(x => x.uid === st.uid) : (slotSel ? curOf(slotSel) : null);
-    const slotBtn = sl => { const it = curOf(sl.id);
-      return `<button class="dr-slot${slotSel === sl.id ? ' on' : ''}${it ? ' cr-' + GL.cgear.RID[it.r] : ' empty'}" data-act="dr-slot" data-slot="${sl.id}" data-cgslot="${sl.id}" data-id="${esc(id)}">
-        <i class="dr-art">${it ? cgArt(it) : `<span class="dr-ph">${CG_ICON[sl.id]}</span>`}</i><small>${esc(sl.name)}</small>${it ? `<em class="dr-pow">⚔${GL.cgear.power(it)}</em>` : ''}</button>`; };
-    const tabs = refs.map(x => `<button class="dr-tab${x.id === id ? ' on' : ''}" data-act="dress" data-id="${esc(x.id)}"><i>${squadSprite(x)}</i><small>${esc(String(x.name).split(' ')[0])}</small></button>`).join('');
+    const UP = GL.cgear.upgrades ? GL.cgear.upgrades(profile, id) : {}, upN = Object.keys(UP).length;
+    const slotBtn = sl => { const it = curOf(sl.id), u = UP[sl.id];
+      return `<button class="dr-slot${slotSel === sl.id ? ' on' : ''}${it ? ' cr-' + GL.cgear.RID[it.r] : ' empty'}${u ? ' can-up' : ''}" data-act="dr-slot" data-slot="${sl.id}" data-cgslot="${sl.id}" data-id="${esc(id)}"${u ? ` title="Besser in der Truhe: ${esc(GL.cgear.name(u.it))} (+${u.delta} ⚔)"` : ''}>
+        <i class="dr-art">${it ? cgArt(it) : `<span class="dr-ph">${CG_ICON[sl.id]}</span>`}</i><small>${esc(sl.name)}</small>${it ? `<em class="dr-pow">⚔${GL.cgear.power(it)}</em>` : ''}${u ? `<em class="dr-upchip">▲ +${u.delta}</em>` : ''}</button>`; };
+    const tabUp = x => { const n = GL.cgear.upgrades ? Object.keys(GL.cgear.upgrades(profile, x.id)).length : 0; return n ? `<em class="dr-tabup" title="${n} Verbesserungen">▲${n}</em>` : ''; };
+    const tabs = refs.map(x => `<button class="dr-tab${x.id === id ? ' on' : ''}" data-act="dress" data-id="${esc(x.id)}"><i>${squadSprite(x)}</i><small>${esc(String(x.name).split(' ')[0])}</small>${tabUp(x)}</button>`).join('');
     const g = r.gb || {};
     const extra = [g.crit ? `Krit ${Math.round(g.crit * 100)} %` : '', g.dodge ? `Ausweichen ${Math.round(g.dodge * 100)} %` : '', g.armor ? `Rüstung ${g.armor}` : '', g.dmgPct ? `Schaden +${Math.round(g.dmgPct * 100)} %` : ''].filter(Boolean);
     // Detail: ausgewähltes Teil mit Vergleich zum jetzigen auf dem Platz
@@ -1827,20 +1904,26 @@ window.GL = window.GL || {};
       const btns = mine
         ? `<button class="btn mini ghost" data-act="dr-off" data-id="${esc(id)}" data-slot="${sid}">Abnehmen</button>`
         : `<button class="btn mini" data-act="dr-on" data-id="${esc(id)}" data-uid="${sel.uid}">${by ? `Von ${esc(w.name)} nehmen` : `${pxIco('anchor')}Anlegen`}</button>`;
-      detail = `<div class="dr-detail">${cgCard(sel, `<div class="cg-optfoot">${wornTag(profile, by, mine)}</div>${mine ? '' : gearCompare(sel, cur, true)}
+      const su = mine && UP[sid] ? UP[sid] : null;   // Platz angetippt, in der Truhe liegt etwas Besseres
+      detail = `${su ? `<div class="dr-hintbar up"><span>${PX_UPG}<b>Besser in der Truhe:</b> ${esc(GL.cgear.name(su.it))} <em>+${su.delta} ⚔</em></span><button class="btn mini" data-act="dr-on" data-id="${esc(id)}" data-uid="${su.it.uid}">${pxIco('anchor')}Anlegen</button></div>` : ''}<div class="dr-detail">${cgCard(sel, `<div class="cg-optfoot">${wornTag(profile, by, mine)}</div>${mine ? '' : gearCompare(sel, cur, true)}
         ${!by && st.send === sel.uid ? bottlePick(profile, sel) : ''}
         <div class="dr-btns">${btns}${!by && st.send !== sel.uid ? `<button class="btn mini ghost" data-act="bottle" data-uid="${sel.uid}">🍾 Verschicken</button>` : ''}${canRe ? `<button class="btn mini ghost" data-act="cg-reroll" data-uid="${sel.uid}"${sh < cost ? ' disabled' : ''}>🔹 Neu würfeln (${cost})</button>` : ''}${by ? '' : `<button class="btn mini ghost danger-btn" data-act="cg-scrap" data-uid="${sel.uid}">Zerlegen (+${C.scrap[sel.r]} Berry${C.shardScrap[sel.r] ? `, +${C.shardScrap[sel.r]} 🔹` : ''}${(C.snackScrap || [])[sel.r] ? `, +${C.snackScrap[sel.r]} 🍙` : ''})</button>`}</div>`)}</div>`;
     } else if (slotSel) {
-      detail = `<p class="dr-empty">Noch nichts auf „${esc((SL.find(x => x.id === slotSel) || {}).name || '')}“. Wähl unten ein Teil aus der Truhe oder zieh es auf den Platz.</p>`;
+      const u = UP[slotSel];
+      detail = u ? `<div class="dr-hintbar up"><span>${PX_UPG}<b>Besser in der Truhe:</b> ${esc(GL.cgear.name(u.it))} <em>+${u.delta} ⚔</em></span><button class="btn mini" data-act="dr-on" data-id="${esc(id)}" data-uid="${u.it.uid}">${pxIco('anchor')}Anlegen</button></div>`
+        : `<p class="dr-empty">${curOf(slotSel) ? 'Hier trägt die Figur schon das Beste, was frei in der Truhe liegt.' : `Noch nichts auf „${esc((SL.find(x => x.id === slotSel) || {}).name || '')}“. Bosse und Raids lassen passende Teile fallen.`}</p>`;
     } else {
-      detail = `<p class="dr-empty">Tipp einen Platz an oder ein Teil in der Truhe. Teile kannst du auch direkt auf einen Platz ziehen.</p>`;
+      detail = upN
+        ? `<div class="dr-hintbar up"><span>${PX_UPG}<b>${upN} ${upN === 1 ? 'Platz' : 'Plätze'}</b> mit besserer Ausrüstung: ${SL.filter(s => UP[s.id]).map(s => esc(s.name)).join(', ')}</span><button class="btn mini" data-act="dr-best" data-id="${esc(id)}">${PX_UPG}Bestes anlegen</button></div>`
+        : `<p class="dr-empty">Alles bestens: ${esc(d.name)} trägt das Stärkste aus der Truhe. Tipp einen Platz oder ein Teil an, um zu vergleichen.</p>`;
     }
-    const list = bag.filter(x => !slotSel || GL.cgear.slotOf(x) === slotSel).sort((a, b) => b.r - a.r || GL.cgear.power(b) - GL.cgear.power(a));
+    const bestUid = slotSel && UP[slotSel] ? UP[slotSel].it.uid : null;
+    const list = bag.filter(x => !slotSel || GL.cgear.slotOf(x) === slotSel).sort((a, b) => slotSel ? (GL.cgear.power(b) - GL.cgear.power(a)) : (b.r - a.r || GL.cgear.power(b) - GL.cgear.power(a)));
     const better = it => { const c = curOf(GL.cgear.slotOf(it)); return !GL.cgear.wornBy(profile, it.uid) && (!c || GL.cgear.power(it) > GL.cgear.power(c)); };
     const chest = list.length ? list.map(it => { const by = GL.cgear.wornBy(profile, it.uid), w = gearWearer(profile, by);
-      return `<span class="cg-bagit dr-it${fresh.includes(it.uid) ? ' new' : ''}${by ? ' worn' : ''}${sel && sel.uid === it.uid ? ' on' : ''}">${cgChip(it, 'dr-item', `data-uid="${it.uid}" data-id="${esc(id)}"`)}${w ? `<i class="cg-face" title="Angelegt bei ${esc(w.name)}">${w.spr}</i>` : better(it) ? '<i class="dr-up" title="Besser als das jetzige">▲</i>' : ''}</span>`; }).join('')
+      return `<span class="cg-bagit dr-it${fresh.includes(it.uid) ? ' new' : ''}${by ? ' worn' : ''}${sel && sel.uid === it.uid ? ' on' : ''}${bestUid === it.uid ? ' best' : ''}">${cgChip(it, 'dr-item', `data-uid="${it.uid}" data-id="${esc(id)}"`)}${w ? `<i class="cg-face" title="Angelegt bei ${esc(w.name)}">${w.spr}</i>` : better(it) ? '<i class="dr-up" title="Besser als das jetzige">▲</i>' : ''}</span>`; }).join('')
       : `<p class="hint">${slotSel ? 'Keine passenden Teile in der Truhe.' : 'Die Truhe ist leer. Bosse und Raids lassen Waffen, Kleidung und Schmuck fallen.'}</p>`;
-    const fl = `<div class="dr-filter"><button class="sqc-f${!slotSel ? ' on' : ''}" data-act="dr-slot" data-slot="" data-id="${esc(id)}">Alle <em>${bag.length}</em></button>${SL.map(sl => { const n = bag.filter(x => GL.cgear.slotOf(x) === sl.id).length; return `<button class="sqc-f${slotSel === sl.id ? ' on' : ''}" data-act="dr-slot" data-slot="${sl.id}" data-id="${esc(id)}">${CG_ICON[sl.id]} <em>${n}</em></button>`; }).join('')}</div>`;
+    const fl = `<div class="dr-filter"><button class="sqc-f${!slotSel ? ' on' : ''}" data-act="dr-slot" data-slot="" data-id="${esc(id)}">Alle <em>${bag.length}</em></button>${SL.map(sl => { const n = bag.filter(x => GL.cgear.slotOf(x) === sl.id).length; return `<button class="sqc-f${slotSel === sl.id ? ' on' : ''}${UP[sl.id] ? ' can-up' : ''}" data-act="dr-slot" data-slot="${sl.id}" data-id="${esc(id)}">${CG_ICON[sl.id]} <em>${n}</em>${UP[sl.id] ? '<i class="f-up">▲</i>' : ''}</button>`; }).join('')}</div>`;
     return `<div class="fpop-card dress-pop" role="dialog" aria-labelledby="fpop-t">
       <button class="dr-x" data-act="pop-close" aria-label="Schließen">✕</button>
       <span class="fpop-kicker">Ankleiden</span>
@@ -1965,6 +2048,7 @@ window.GL = window.GL || {};
           <div class="pc2-id">
             <b class="pc2-name">${medal(GL.meta.rankIndex({ rankXp: x.rankXp || 0 }), 'small')} ${esc(x.name || 'Unbekannter Pirat')}${onDot(x)} ${badgeIcon(x.cos, true)}${isMe ? ' <em class="pc2-you">du</em>' : ''}</b>
             <small class="pc2-sub">${x.cos && x.cos.title ? `<em class="pc2-title">${esc(titleName(x.cos.title))}</em>` : ''}${esc(x.rank || '')}</small>
+            ${x.crewName ? `<span class="pc2-crew"><i class="c3-jolly" aria-hidden="true"></i>${esc(x.crewName)}</span>` : ''}
             <span class="pc2-chips">${x.squadOn || x.squadRating ? leagueChip(x.squadRating, true) : ''}${lg ? `<em class="pc2-chip land">🏝 ${fmt(lg)} Landgänge</em>` : ''}${x.pets ? `<em class="pc2-chip">🐾 ${fmt(x.pets)}</em>` : ''}</span>
             ${x.cos && x.cos.star ? '<span class="admin-tag big">★ Entwickler · hat dieses Spiel gebaut</span>' : ''}
           </div>
@@ -2037,6 +2121,9 @@ window.GL = window.GL || {};
     dailyCodeShown = GL.daily.code(ui.dailyDay === 'y' ? yesterday() : GL.daily.today());
     let rows = (st.rows || []).slice().sort((a, b) => (Number(cat.get(b)) || 0) - (Number(cat.get(a)) || 0));
     if (isDaily) rows = rows.filter(x => x.duels && x.duels[dailyCodeShown]);
+    // Saison 1: wer seit dem Start noch nicht gesegelt ist, taucht bei Fahrt-Wertungen erst nach der ersten Fahrt auf
+    rows = rows.filter(x => !x.preSeason || (Number(cat.get(x)) || 0) > 0);
+    if (GL.season && GL.season.started()) info = '⛵ Saison 1: Bestwerte und Zähler starten bei null, es zählen nur Fahrten ab dem 18.10., 18 Uhr. ' + info;
     const MAIN = ['score', 'daily', 'endless', 'squadRating', 'rankXp', 'topBounty'];
     const chip = c => `<button class="lb-cat${c.id === cat.id ? ' on' : ''}" data-act="lb-cat" data-id="${c.id}">${c.name}</button>`;
     const more = LB_CATS.filter(c => !MAIN.includes(c.id));
@@ -2048,7 +2135,7 @@ window.GL = window.GL || {};
       return `<li class="lb-row${x.id === st.uid ? ' me' : ''}${k < 3 ? ' top' + (k + 1) : ''}${x.cos && x.cos.bg ? ' rowbg-' + x.cos.bg : ''}" data-act="lb-view" data-id="${esc(x.id)}" tabindex="0" role="button">
         <span class="lb-pos">${k + 1}</span>
         <span class="lb-cap">${x.look ? portrait(x.look, x.cos, 'sm') : cap ? GL.sprites.render(cap) : ''}</span>
-        <span class="lb-who"><b>${medal(GL.meta.rankIndex({ rankXp: x.rankXp || 0 }), 'tiny')} ${esc(x.name || 'Unbekannter Pirat')}${onDot(x)} ${badgeIcon(x.cos)}${x.id === st.uid ? ' <em>du</em>' : ''}${x.cos && x.cos.star ? ' <em class="admin-tag" title="Der Entwickler dieses Spiels. Unbesiegbar (fast).">★ Entwickler</em>' : ''}${(x.showcase || []).length ? `<span class="lb-show">${x.showcase.map(lootChip).join('')}</span>` : ''}</b>
+        <span class="lb-who"><b>${medal(GL.meta.rankIndex({ rankXp: x.rankXp || 0 }), 'tiny')} ${esc(x.name || 'Unbekannter Pirat')}${x.crewName ? `<small class="lb-crewname" title="Bande">${esc(x.crewName)}</small>` : ''}${onDot(x)} ${badgeIcon(x.cos)}${x.id === st.uid ? ' <em>du</em>' : ''}${x.cos && x.cos.star ? ' <em class="admin-tag" title="Der Entwickler dieses Spiels. Unbesiegbar (fast).">★ Entwickler</em>' : ''}${(x.showcase || []).length ? `<span class="lb-show">${x.showcase.map(lootChip).join('')}</span>` : ''}</b>
           ${isDaily ? dailyLine(x.duels[dailyCodeShown]) : isCrew && x.squadOn && (x.squad || []).length ? `<span class="lb-crew">${squadMini(x.squad)}${leagueChip(x.squadRating)}</span>` : journey(x)}</span>
         <span class="lb-score"><b>${fmt(value)}</b><small>${unit}</small></span>
       </li>`;
@@ -2193,7 +2280,7 @@ window.GL = window.GL || {};
       const full = !on && used >= slots;
       return `<button class="lg-tile${on ? ' on' : ''}${full ? ' full' : ''}" data-act="toggle-gear" data-id="${g.id}"${full ? ' disabled' : ''}>
         ${on ? '<span class="fk-on">Dabei</span>' : ''}<em class="lg-n">×${profile.gear[g.id]}</em>
-        <span class="lg-ico">${GL.sprites.icon('relic', g.id)}</span>
+        <span class="lg-ico">${gearIco(g.id)}</span>
         <b>${esc(g.name)}</b><small>${esc(g.text)}</small>
         <span class="lg-btn">${on ? '✓ Kommt mit' : full ? 'Plätze voll' : 'Mitnehmen'}</span></button>`;
     }).join('');
@@ -2272,7 +2359,7 @@ window.GL = window.GL || {};
     }).join('') + (nextSlotRank != null ? `<span class="vk-slot locked"><span class="vk-ico">🔒</span><small>ab Rang ${nextSlotRank + 1}</small></span>` : '');
     const tile = art => {
       const n = profile.vault[art.id] || 0;
-      if (!n) return `<div class="vk-tile locked" data-tip="Fundort: ${esc(artSource(art))}"><span class="vk-ico">?</span><b>???</b><small>${esc(artSource(art).split(',')[0])}</small></div>`;
+      if (!n) return `<div class="vk-tile locked" data-tip="Fundort: ${esc(artSource(art))}"><span class="vk-ico vk-myst">${pxIco('chest')}<i class="vk-q">?</i></span><b>???</b><small>${esc(artSource(art).split(',')[0])}</small></div>`;
       const lvl = GL.meta.artLevelFor(n), on = profile.artLoadout.includes(art.id), full = !on && used >= slotsA;
       const pipsA = [1, 2, 3, 4, 5].map(k => `<i class="${k <= lvl ? 'on' : ''}"></i>`).join('');
       const nx = lvl < 5 ? `Stufe ${lvl + 1} bei ${GL.config.artLevels[lvl]} Funden (${n}): ${fmtArt(art, GL.run.artValue(art, lvl + 1))}` : 'Höchste Stufe erreicht';
@@ -2282,7 +2369,7 @@ window.GL = window.GL || {};
     };
     const fr = GL.data.fruits.filter(f => f.awakened).map(f => {
       const have = profile.epics.includes(f.id), raid = GL.data.raids.find(x => x.reward === f.id);
-      return `<div class="vk-tile fruit${have ? ' have' : ' locked'}"><span class="vk-ico">${have ? GL.sprites.icon('fruit', f.id, true) : '?'}</span><b>${have ? esc(f.name) : '???'}</b><small>${have ? esc(f.text) : `Raid: ${esc(raid ? raid.name : '?')}`}</small></div>`;
+      return `<div class="vk-tile fruit${have ? ' have' : ' locked'}"><span class="vk-ico${have ? '' : ' vk-myst'}">${have ? GL.sprites.icon('fruit', f.id, true) : GL.sprites.icon('fruit', f.id, true) + '<i class="vk-q">?</i>'}</span><b>${have ? esc(f.name) : '???'}</b><small>${have ? esc(f.text) : `Raid: ${esc(raid ? raid.name : '?')}`}</small></div>`;
     }).join('');
     return `<section class="hq-sec vault2">
       <div class="vk-head pxf"><div class="lg-title"><b>✦ Aktiv im nächsten Run</b><small>${used}/${slotsA} Plätze · Artefakte bleiben für immer, jeder Fund hebt die Stufe</small></div><div class="vk-slots">${active}</div></div>
@@ -2864,12 +2951,27 @@ window.GL = window.GL || {};
     }
     return `<div class="slots-box"><b>Spielstände</b><small>Probier andere Kapitäne aus. Zweitpiraten zählen nicht für die Rangliste.</small>${rows.join('')}</div>`;
   }
+  // Echtes Zweitkonto: wechseln oder ganz neu anlegen (nur Entwickler, im Zweitkonto immer sichtbar)
+  function acctBox() {
+    const A = GL.accounts; if (!A) return '';
+    const inTest = A.cur() === 'test';
+    if (!isAdmin() && !inTest) return '';
+    const other = A.name(inTest ? 'main' : 'test');
+    return `<div class="admin-box acct-box"><span class="admin-ico" aria-hidden="true">👥</span>
+      <span><b>${inTest ? 'Du bist im Zweitkonto' : 'Echtes Zweitkonto'}</b><small>${inTest
+        ? `Ein richtiger Online-Pirat mit eigener Anmeldung. Hier kannst du eine andere E-Mail verknüpfen. Zurück zum Hauptkonto${other ? ' (' + esc(other) + ')' : ''} geht jederzeit, nichts geht verloren.`
+        : `Ein zweiter, richtiger Online-Pirat (Rangliste, Freunde, E-Mail) in diesem Browser. Dein Hauptkonto bleibt sicher weggelegt.${other ? ' Zweitkonto: ' + esc(other) + '.' : ''}`}</small></span>
+      <span class="acct-btns">${inTest
+        ? `<button class="btn mini" data-act="acct-switch" data-to="main">Zum Hauptkonto</button><button class="btn mini ghost" data-act="acct-fresh">Neu anlegen</button>`
+        : `<button class="btn mini${A.hasTest() ? '' : ' ghost'}" data-act="${A.hasTest() ? 'acct-switch' : 'acct-fresh'}" data-to="test">${A.hasTest() ? 'Wechseln' : 'Anlegen'}</button>${A.hasTest() ? '<button class="btn mini ghost" data-act="acct-fresh">Neu anlegen</button>' : ''}`}</span></div>`;
+  }
   function adminBox(profile) {
-    if (!isAdmin()) return '';
+    if (!isAdmin()) return acctBox();
     const on = !!(profile.cos && profile.cos.star);
     return `<div class="admin-box"><span class="portrait sm star-power demo">${GL.sprites.render({ id: 'self', look: lookOf(profile) })}</span>
       <span><b>Entwickler-Modus</b><small>Regenbogen-Stern wie in Mario Kart. Alle sehen ihn in der Rangliste. Nur du kannst ihn einschalten.</small></span>
       <button class="btn mini${on ? '' : ' ghost'}" data-act="admin-star">${on ? '★ An' : 'Aus'}</button></div>
+      ${acctBox()}
       <div class="admin-box"><span class="admin-ico" aria-hidden="true">🧪</span>
       <span><b>Als neuer Spieler testen</b><small>Startet einen frischen Piraten in einem freien Spielstand. Dein Hauptpirat bleibt unberührt. Zurück über „Spielstände“.</small></span>
       <button class="btn mini ghost" data-act="slot-fresh">Starten</button></div>
@@ -2910,7 +3012,7 @@ window.GL = window.GL || {};
         <div class="ts-crew">${crew}</div>
       </div>
       <div class="ts-menu">
-        ${pulse}
+        ${GL.season ? GL.season.banner(profile) : ''}${pulse}
         <button class="btn ts-play" data-act="title-play">${run ? 'Weiterspielen' : profile.nickname ? 'Spielen' : 'Neues Spiel'} ${keyHint('Leertaste')}</button>
         <div class="ts-row">
           ${GL.meta.featureOpen(profile, 'rangliste') ? `<button class="btn ghost" data-act="title-go" data-tab="rangliste">Rangliste</button>` : `<button class="btn ghost locked" data-act="title-go" data-tab="rangliste" title="Ab Rang 2">Rangliste <small>ab Rang 2</small></button>`}
@@ -2993,6 +3095,40 @@ window.GL = window.GL || {};
       <p class="hint">Dein Schiff segelt im Hauptquartier und auf der Seekarte. Neue Teile schaltest du mit Rängen, Siegen und Funden frei.</p>
       ${grp('sail', 'Segel')}${grp('hull', 'Rumpf')}${grp('flag', 'Flagge')}${grp('deco', 'Galionsfigur')}</div>`;
   }
+  // Eigene Teufelsfrucht: Frucht auf den Piraten ziehen oder antippen
+  function selfFruitBlock(profile) {
+    const list = GL.meta.selfFruits(profile), cur = GL.meta.selfFruit(profile);
+    const def = cur ? GL.loot.fruit(cur) : null;
+    const look = profile.char ? profile.char.look : null;
+    const slot = `<div class="sf-stage">
+        <span class="sf-pirate">${look ? GL.sprites.render({ id: 'self', look }) : ''}<i class="sf-shadow"></i></span>
+        <button class="sf-slot${cur ? ' full' : ''}" data-act="self-fruit" data-v="${cur ? cur.id : ''}" data-sfslot="1" aria-label="${cur ? 'Frucht ablegen' : 'Fruchtplatz'}">
+          ${cur ? `<i class="sf-ico">${GL.sprites.icon('fruit', cur.id)}</i>` : '<i class="sf-q">?</i>'}
+          ${cur ? '<em class="sf-x" aria-hidden="true">✕</em>' : ''}
+        </button>
+        <span class="sf-info">${def ? `<b>${esc(def.name)}</b><small>${esc(def.text)}</small><em class="sf-r r${def.rarity}">${esc(GL.loot.rarityName(def.rarity))}</em>` : `<b>Noch keine Frucht</b><small>Zieh eine Frucht auf den Platz oder tipp sie an.</small>`}</span>
+      </div>`;
+    const tiles = list.length ? `<div class="sf-list">${list.map(f => `<button class="sf-fruit${cur && cur.id === f.id ? ' on' : ''}" data-act="self-fruit" data-v="${f.id}" title="${esc(f.name)}">
+        <i class="sf-ico">${GL.sprites.icon('fruit', f.id)}</i><small>${esc(f.name.replace(/-Frucht$/, ''))}</small></button>`).join('')}</div>`
+      : `<p class="pe-note sf-empty">Iss im Run eine Teufelsfrucht. Danach kannst du sie hier deinem Piraten geben.</p>`;
+    return `<div class="sf-wrap">${slot}${tiles}<p class="pe-note">Wirkt, wenn dein Pirat Kapitän ist: wie eine gegessene Frucht am Start. Stufe Gewöhnlich, ab Rang 8 Selten. Erwachte Früchte und die Heil-Frucht gehen nicht.</p></div>`;
+  }
+  // Eigener Bandenname: nur für dich und dein Team, kein Set-Bonus
+  function flagArt(profile) {
+    const f = profile.cos && profile.cos.flag;
+    return GL.data.flagSvg ? GL.data.flagSvg(f && f !== 'keine' ? f : 'totenkopf') : '<i class="c3-jolly big" aria-hidden="true"></i>';
+  }
+  function crewNameBlock(profile, ui) {
+    const n = GL.meta.crewName(profile);
+    return `<div class="cn-wrap">
+      <div class="cn-flag"><span class="cn-jolly">${flagArt(profile)}</span>
+        <span class="cn-banner"><small>Deine Bande</small><b>${n ? esc(n) : 'Noch ohne Namen'}</b></span></div>
+      <div class="cn-row"><input id="pf-crew" class="pe-name cn-inp" maxlength="20" autocomplete="off" placeholder="z. B. Mandarinen-Piraten" aria-label="Bandenname" value="${esc(n || '')}">
+        <button class="btn cn-go" data-act="crew-name">Taufen</button></div>
+      ${ui.crewError ? `<p class="login-err">${esc(ui.crewError)}</p>` : ''}
+      <p class="pe-note">Der Name steht auf deiner Kapitänskarte, im Steckbrief und auf deiner Spielerkarte in der Rangliste. Er gilt nur für deine eigene Crew.</p>
+    </div>`;
+  }
   function profileScreen(profile, ui) {
     const d = ui.draft;
     const P = GL.data.charParts;
@@ -3039,9 +3175,10 @@ window.GL = window.GL || {};
     } else if (tab === 'kampf') {
       const big = (act, cur, list, src) => `<div class="pe-big">${list.map(id => { const x = src[id] || {}; const t = (x.tiers || [])[0];
         return `<button class="pe-bt${cur === id ? ' on' : ''}" data-act="${act}" data-v="${id}"><i>${pxIcon(id, 'lg')}</i><b>${esc(x.name || id)}</b>${act === 'char-type' && x.strong ? `<small>stark gegen ${esc((src[x.strong] || {}).name || '')}</small>` : t ? `<small>${esc(t.text)}</small>` : ''}</button>`; }).join('')}</div>`;
-      body = `<span class="pe-h">Kampfstil</span>${big('char-type', d.char.type, ['kraft', 'klinge', 'technik'], GL.data.types)}
+      const s = subs('kampf', [['stil', 'Kampfstil'], ['frucht', 'Teufelsfrucht'], ['bande', 'Bande']]);
+      body = s.html + (s.cur === 'frucht' ? selfFruitBlock(profile) : s.cur === 'bande' ? crewNameBlock(profile, ui) : `<span class="pe-h">Kampfstil</span>${big('char-type', d.char.type, ['kraft', 'klinge', 'technik'], GL.data.types)}
         <span class="pe-h">Rolle</span>${big('char-role', d.char.role, ['kaempfer', 'brecher', 'helfer'], GL.data.roles)}
-        <p class="pe-note">Dein Pirat ist als Kapitän spielbar und wird mit jedem Piratenrang stärker.</p>`;
+        <p class="pe-note">Dein Pirat ist als Kapitän spielbar und wird mit jedem Piratenrang stärker.</p>`);
     } else if (tab === 'stil') {
       const s = subs('stil', [['bg', 'Hintergrund'], ['frame', 'Rahmen'], ['anim', 'Animation']]);
       body = s.html + cosGrid({ bg: 'backgrounds', frame: 'frames', anim: 'animations' }[s.cur], s.cur);
@@ -3152,7 +3289,7 @@ window.GL = window.GL || {};
     const bonus = rp.i * 2;
     const road = R.map((r, k) => {
       const state = k < rp.i ? 'done' : k === rp.i ? 'now' : k === rp.i + 1 ? 'next' : 'locked';
-      const rew = [r.reward.berry ? `${GL.sprites.coin()} ${r.reward.berry}` : '', r.reward.gear ? `${GL.sprites.icon('relic', r.reward.gear)} ${byId(GL.data.gear, r.reward.gear).name}` : '']
+      const rew = [r.reward.berry ? `${GL.sprites.coin()} ${r.reward.berry}` : '', r.reward.gear ? `${gearIco(r.reward.gear)} ${byId(GL.data.gear, r.reward.gear).name}` : '']
         .filter(Boolean).join('<br>');
       return `<div class="road-step ${state}${r.reward.gear ? ' has-gear' : ''}" title="${r.name}: ab ${fmt(r.xp)} EP">
         ${medal(k, 'small')}
@@ -3294,6 +3431,7 @@ window.GL = window.GL || {};
   function tabAlert(profile, id) {
     if (id === 'werft') return GL.data.upgrades.some(u => { const c = GL.meta.upgradeCost(profile, u.id); return c != null && profile.berry >= c; });
     if (id === 'stammcrew') return !!(GL.cgear && (profile.gearNew || []).length);
+    if (id === 'gemuet') return !!(GL.skills && GL.skills.free(profile) > 0 && GL.skills.all().some(n => !GL.skills.blocker(profile, n.id)));
     if (id === 'schmiede') return GL.config.rarities.slice(0, -1).some((x, r) => GL.meta.fusable(profile, r).length >= 3 && profile.berry >= GL.meta.fuseCost(r));
     if (id === 'crew') return ROOM_GROUPS.crew.some(x => GL.meta.featureOpen(profile, x) && tabAlert(profile, x));
     if (id === 'auftraege') return GL.meta.featureOpen(profile, 'quests') && GL.meta.questsEnsure(profile).some(q => GL.meta.questProgress(profile, q).done);
@@ -3437,7 +3575,7 @@ window.GL = window.GL || {};
     // Kleine Bühne pro Karte: Schiff im Hintergrund, Figuren nebeneinander, Sterne oder Team-Balken als Deko
     const artOf = a => {
       const back = a.ship ? `<span class="nw-ship">${GL.sprites.ship()}</span>` : '';
-      const crew = a.crew ? `<span class="nw-cast">${[].concat(a.crew).map((id, k) => `<i class="nw-c" style="--k:${k}">${GL.sprites.render(crewData(id) || {})}${a.stars ? `<em class="nw-st">${'★'.repeat(k + 2)}</em>` : ''}</i>`).join('')}</span>` : '';
+      const crew = a.crew ? `<span class="nw-cast">${[].concat(a.crew).map((id, k) => `<i class="nw-c" style="--k:${k}">${GL.sprites.render(crewData(id) || byId(GL.data.hunted || [], id) || {})}${a.stars ? `<em class="nw-st">${'★'.repeat(k + 2)}</em>` : ''}</i>`).join('')}</span>` : '';
       const me = a.self ? `<span class="nw-cast"><i class="nw-c big">${GL.sprites.render(avatarOf(profile))}</i></span>` : '';
       const bar = a.bar ? '<span class="nw-bar"><i></i><i></i><i class="half"></i></span>' : '';
       const main = a.emoji ? `<span class="nw-emoji">${a.emoji}</span>` : a.fa ? featureArt(a.fa) : (!a.crew && !a.self && a.ship ? '' : '');
@@ -3508,6 +3646,14 @@ window.GL = window.GL || {};
     return `<div class="fnext"><span class="fnext-art">${featureArt(f.art)}</span><span><small>Ab Rang ${f.lvl}</small><b>${esc(f.name)}</b></span><i class="fnext-bar"><i style="width:${pct}%"></i></i></div>`;
   }
 
+  // Auftrags-Symbole als Pixel-Icons (statt Emoji)
+  function questIco(d) {
+    const k = d.kind;
+    if (k === 'ko_kraft' || k === 'ko_klinge' || k === 'ko_technik') return pxIcon(k.slice(3), 'sm') || '';
+    const M = { dmg: () => pxIco('fire'), maxHit: () => pxIco('fire'), kos: () => GL.sprites.icon('node', 'battle'), crits: () => pxIco('bolt'), ults: () => pxIco('bolt'),
+      won: () => pxIco('swords'), hunted: () => GL.sprites.icon('node', 'elite'), bosses: () => GL.sprites.icon('node', 'elite'), steps: () => pxIco('ship'), duels: () => pxIco('swords') };
+    return M[k] ? M[k]() : '';
+  }
   function questBoard(profile) {
     if (!GL.meta.featureOpen(profile, 'quests')) return '';
     const qs = GL.meta.questsEnsure(profile);
@@ -3515,7 +3661,7 @@ window.GL = window.GL || {};
       const d = GL.meta.questDef(q);
       const p = GL.meta.questProgress(profile, q);
       return `<div class="quest${p.done ? ' done' : ''}">
-        <span class="q-ico">${d.icon}</span>
+        <span class="q-ico">${questIco(d) || d.icon}</span>
         <span class="q-body"><b>${esc(d.text.replace('{n}', q.n.toLocaleString('de-DE')))}</b>
           <span class="q-bar"><i style="width:${Math.round(100 * p.have / p.need)}%"></i><em>${p.have.toLocaleString('de-DE')} / ${p.need.toLocaleString('de-DE')}</em></span>
           <small class="q-rew">${GL.sprites.coin()} ${q.berry} · ✦ ${q.xp} EP</small></span>
@@ -3532,6 +3678,7 @@ window.GL = window.GL || {};
     { id: 'stammcrew', name: 'Stammcrew', art: 'flag', sub: p => GL.meta.squadUnlocked(p) ? `⚔ ${GL.meta.squadPower(GL.meta.squadRefs(p))}` : '' },
     { id: 'rangliste', name: 'Rangliste', art: 'podium', sub: () => '' },
     { id: 'werft', name: 'Werft', art: 'ship', sub: () => 'Ausbauten' },
+    { id: 'gemuet', name: 'Gemütlichkeit', art: 'flag', sub: p => GL.skills ? (GL.skills.free(p) ? `✦ ${GL.skills.free(p)} frei` : 'Skilltree') : '' },
     { id: 'schmiede', name: 'Schmiede', art: 'anvil', sub: p => `${(p.itemLoadout || []).length}/${GL.meta.itemSlots(p)} dabei` },
     { id: 'kammer', name: 'Schatzkammer', art: 'chest', sub: p => `${p.artLoadout.length}/${GL.meta.artSlots(p)} dabei` },
     { id: 'lager', name: 'Lager', art: 'crate', sub: p => `${p.loadout.length}/${GL.meta.slots(p)} dabei` },
@@ -3545,8 +3692,8 @@ window.GL = window.GL || {};
       `<button class="hub-tile" data-act="hq-tab" data-tab="${r.id}"><i class="hub-art">${roomArt(r.art)}</i><b>${r.name}</b>${r.sub(profile) ? `<small>${r.sub(profile)}</small>` : ''}${tabAlert(profile, r.id) ? '<i class="tab-dot" title="Hier gibt es etwas zu tun"></i>' : ''}</button>`).join('')}</div></nav>`;
   }
   // Räume, die zusammengehören: oben als Umschalter (wie Tabs in einer App)
-  const ROOM_GROUPS = { crew: ['stammcrew', 'schmiede', 'lager', 'kammer'], hafen: ['werft', 'haendler'] };
-  const SEG_NAME = { stammcrew: 'Crew', schmiede: 'Schmiede', lager: 'Lager', kammer: 'Kammer', werft: 'Werft', haendler: 'Händler' };
+  const ROOM_GROUPS = { crew: ['stammcrew', 'schmiede', 'lager', 'kammer'], hafen: ['werft', 'gemuet', 'haendler'] };
+  const SEG_NAME = { stammcrew: 'Crew', schmiede: 'Schmiede', lager: 'Lager', kammer: 'Kammer', werft: 'Werft', gemuet: 'Skills', haendler: 'Händler' };
   const groupOf = id => Object.keys(ROOM_GROUPS).find(g => ROOM_GROUPS[g].includes(id)) || null;
   // Erster offener Raum der Crew-Gruppe (für den Crew-Knopf unten)
   function crewRoom(profile, last) {
@@ -3560,6 +3707,77 @@ window.GL = window.GL || {};
     const segHtml = seg.length > 1 ? `<div class="room-seg seg-${seg.length}" role="tablist">${seg.map(x => `<button class="seg-btn${x.id === r.id ? ' on' : ''}" data-act="hq-tab" data-tab="${x.id}" role="tab" aria-selected="${x.id === r.id}"><i class="seg-ico">${roomArt(x.art)}</i><span>${SEG_NAME[x.id] || x.name}</span>${tabAlert(profile, x.id) ? '<i class="tab-dot"></i>' : ''}</button>`).join('')}</div>` : '';
     return `<div class="room-head app-bar"><button class="room-back" data-act="hq-home" aria-label="Zurück zum Hafen">‹ <span>Hafen</span></button><span class="room-title"><i class="hub-art sm">${roomArt(r.art)}</i>${r.name}</span><span class="room-berry" title="Berry">${GL.sprites.coin()}<b>${Number(profile.berry || 0).toLocaleString('de-DE')}</b></span><button class="room-x" data-act="hq-home" aria-label="Schließen" title="Schließen (Esc)">✕</button></div>
       ${segHtml}`;
+  }
+  // ---------- Gemütlichkeit: Skilltree ----------
+  // Eigene kleine Pixel-Bilder für die Knoten (10×10)
+  const SK_ART = {
+    bed:    [['..........', '..........', 'KK........', 'KWWKKKKKKK', 'KWWRRRRRRK', 'KKKRrRrRRK', 'KBBBBBBBBK', 'KbbbbbbbbK', 'K.K....K.K', '..........'], { K: '#3a2416', W: '#fffaf0', R: '#e0483b', r: '#f29a8a', B: '#a8693a', b: '#7a4a24' }],
+    pot:    [['...w..w...', '..w..w....', '...w..w...', '.KKKKKKKK.', 'KGGGGGGGGK', 'KgGGGGGGgK', 'KgGGGGGGgK', '.KgggggK..', '..KKKKKK..', '.O.O.O.O..'], { K: '#2a2a2e', G: '#6d6d78', g: '#4a4a52', w: '#d8e4ee', O: '#f29a2e' }],
+    scope:  [['..........', 'KK........', 'KYK.......', '.KBK......', '..KBBK....', '...KBBBK..', '....KBBBK.', '.....KBBYK', '......KKGK', '........KK'], { K: '#3a2416', B: '#a8693a', Y: '#f2d24a', G: '#9fd4f0' }],
+    cannon: [['..........', '.......w.w', '..KKKKKK.w', '.KGGGGGGK.', 'KGgGGGGGGK', 'KGGGGGGGgK', '.KKgggggK.', '.KBBK.KBK.', 'KBbbK.KbBK', '.KK....KK.'], { K: '#22222a', G: '#5a5a66', g: '#3a3a44', B: '#a8693a', b: '#7a4a24', w: '#cfd6de' }],
+    figure: [['....KK....', '...KYYK...', '..KYWYYK..', '..KYYYYK..', '...KYYK...', '.KKYYYYKK.', 'KYYYYYYYYK', '.KKYYYYKK.', '...KYYK...', '...KKKK...'], { K: '#6b4a14', Y: '#f2c94c', W: '#fff4c0' }],
+    book:   [['..........', '.KKKK.KKKK', 'KWWWWKWWWW', 'KWssWKWssW', 'KWWWWKWWWW', 'KWssWKWssW', 'KWWWWKWWWW', 'KRRRRKRRRR', '.KKKK.KKKK', '..........'], { K: '#3a2416', W: '#fffaf0', s: '#b8a890', R: '#a8693a' }],
+    flag:   [['K.........', 'KRRRRRR...', 'KRRWWRRR..', 'KRWKKWRR..', 'KRRWWRRR..', 'KRRRRRR...', 'K.........', 'K.........', 'K.........', 'KK........'], { K: '#3a2416', R: '#2a2a2e', W: '#fffaf0' }],
+    scroll: [['.KKKKKKKK.', 'KWWWWWWWWK', '.KWWWWWWK.', '.KWssssWK.', '.KWWWWWWK.', '.KWsssWWK.', '.KWWWWWWK.', '.KWssssWK.', 'KWWWWWWWWK', '.KKKKKKKK.'], { K: '#7a4a24', W: '#f6e7c8', s: '#b8a080' }],
+    map:    [['KKKKKKKKKK', 'KWWWWWWWWK', 'KWWsWWWWWK', 'KWWWsWWWWK', 'KWWWWsWRWK', 'KWWWWWRWRK', 'KWWWWWWRWK', 'KWWWWWRWRK', 'KWWWWWWWWK', 'KKKKKKKKKK'], { K: '#7a4a24', W: '#f6e7c8', s: '#b8a080', R: '#e0483b' }]
+  };
+  const skArtCache = {};
+  function skArt(art) {
+    if (art === 'fire') return PX_FLAME;
+    if (art === 'chest') return PX_CHEST(false);
+    if (PXI_ART[art]) return pxIco(art);
+    const a = SK_ART[art];
+    if (!a) return pxIco('anchor');
+    if (!skArtCache[art]) {
+      let r = '';
+      a[0].forEach((row, y) => row.split('').forEach((ch, x) => { const f = a[1][ch]; if (f) r += `<rect x="${x}" y="${y}" width="1.02" height="1.02" fill="${f}"/>`; }));
+      skArtCache[art] = `<svg viewBox="0 0 10 10" shape-rendering="crispEdges" aria-hidden="true">${r}</svg>`;
+    }
+    return skArtCache[art];
+  }
+  function skillSection(profile, uiRef) {
+    const S = GL.skills, T = GL.data.skilltree;
+    if (!S || !T) return '';
+    const free = S.free(profile), src = S.sources(profile);
+    const sel = uiRef && uiRef.skSel && S.find(uiRef.skSel) ? uiRef.skSel : null;
+    const node = (n, extra) => {
+      const has = S.has(profile, n.id), why = S.blocker(profile, n.id), can = !why;
+      const st = has ? 'got' : can ? 'can' : 'lock';
+      return `<button class="sk-node ${st}${sel === n.id ? ' sel' : ''}${extra || ''}" data-act="sk-sel" data-id="${n.id}" aria-label="${esc(n.name)}"><i class="sk-ico">${extra === ' tal' ? '' : skArt(n.art)}</i>${n.cost > 1 ? `<em class="sk-cost">${n.cost}</em>` : ''}${has ? '<em class="sk-ok">✓</em>' : ''}<small>${esc(n.name)}</small></button>`;
+    };
+    const paths = T.paths.map(p => {
+      const got = p.nodes.filter(n => S.has(profile, n.id)).length;
+      const ship = p.id === 'schiff' ? `<span class="sk-ship${got ? ' g' + got : ''}">${GL.sprites.ship()}${p.nodes.filter(n => S.has(profile, n.id)).map((n, i) => `<i class="sk-part p${i}">${skArt(n.art)}</i>`).join('')}</span>` : '';
+      return `<div class="sk-path sk-${p.id}">
+        <div class="sk-ph"><b><i>${p.icon}</i>${esc(p.name)}</b><small>${got}/${p.nodes.length}</small></div>${ship}
+        <div class="sk-trail">${p.nodes.map(n => node(n)).join('')}</div></div>`;
+    }).join('');
+    const tal = T.talents.map(n => {
+      const d = GL.data.crew.find(c => c.id === n.who);
+      const has = S.has(profile, n.id), why = S.blocker(profile, n.id);
+      const st = has ? 'got' : !why ? 'can' : 'lock';
+      return `<button class="sk-tal ${st}${sel === n.id ? ' sel' : ''}" data-act="sk-sel" data-id="${n.id}" aria-label="${esc(n.name)}"><span class="sk-face">${d ? GL.sprites.render(d) : ''}</span>${has ? '<em class="sk-ok">✓</em>' : st === 'lock' ? '<em class="sk-lk">🔒</em>' : ''}<small>${esc(d ? d.name : n.who)}</small></button>`;
+    }).join('');
+    let info = `<div class="sk-info empty"><span>Tipp auf einen Knoten, um zu sehen, was er bringt.</span></div>`;
+    if (sel) {
+      const n = S.find(sel), has = S.has(profile, sel), why = S.blocker(profile, sel);
+      const d = n.who ? GL.data.crew.find(c => c.id === n.who) : null;
+      info = `<div class="sk-info"><i class="sk-big">${d ? GL.sprites.render(d) : skArt(n.art)}</i>
+        <span class="sk-it"><small>${n.path === 'talent' ? 'Talent' : esc((T.paths.find(p => p.id === n.path) || {}).name || '')}${(n.cost || 1) > 1 ? ' · ' + n.cost + ' Punkte' : ''}</small><b>${esc(n.name)}</b><span>${esc(n.text)}</span></span>
+        ${has ? '<span class="sk-done">✓ Gelernt</span>' : why ? `<span class="sk-why">🔒 ${esc(why)}</span>` : `<button class="btn sk-learn" data-act="sk-learn" data-id="${n.id}">Lernen ✦</button>`}</div>`;
+    }
+    const chip = (ico, n, lbl, tip) => `<span class="sk-src" data-tip="${esc(tip)}"><i>${ico}</i><b>${n}</b><small>${lbl}</small></span>`;
+    return `<section class="hq-sec sk-room">
+      <div class="sk-top">
+        <div class="sk-pts${free ? ' has' : ''}"><b>${free}</b><span>✦ Skillpunkte frei</span></div>
+        <div class="sk-srcs">${chip('⭐', src.rank, 'Rang', '1 Punkt pro Piratenrang')}${chip('⛵', src.runs, 'Fahrten', '1 Punkt alle 6 Fahrten')}${chip('🏝', src.land, 'Landgang', '1 Punkt alle 3 Landgänge')}${chip('♥', src.bond, 'Vertraut', '1 Punkt alle 5 Vertraut-Stufen deiner Stammcrew')}</div>
+      </div>
+      ${info}
+      <div class="sk-tree">${paths}</div>
+      <div class="sk-tal-h"><b>✨ Talente</b><small>Ab Vertraut 2 mit der Figur</small></div>
+      <div class="sk-tals">${tal}</div>
+      <div class="sk-foot"><small>Gilt für alle kommenden Fahrten. Umskillen ist kostenlos.</small>${S.learned(profile).length ? `<button class="btn mini ghost" data-act="sk-reset">${uiRef && uiRef.skArmed ? 'Sicher? Nochmal tippen' : '↺ Umskillen'}</button>` : ''}</div>
+    </section>`;
   }
   function roomFoot() { return `<div class="room-foot"><button class="btn ghost" data-act="hq-home">‹ Zurück zum Hafen</button></div>`; }
   function hq(profile, tab, uiRef) {
@@ -3592,14 +3810,14 @@ window.GL = window.GL || {};
       const on = profile.loadout.includes(g.id);
       const full = !on && profile.loadout.length >= slots;
       return `<div class="hq-item${on ? ' on' : ''}">
-        <i>${GL.sprites.icon('relic', g.id)}</i>
+        <i>${gearIco(g.id)}</i>
         <span><b>${g.name}</b> <small>×${profile.gear[g.id]}</small><small>${g.text}</small></span>
         <button class="btn mini${on ? '' : ' ghost'}" data-act="toggle-gear" data-id="${g.id}"${full ? ' disabled' : ''}>${on ? 'Kommt mit' : 'Mitnehmen'}</button>
       </div>`;
     }).join('') : '<p class="muted">Das Lager ist leer. Beim Händler bekommst du Ausrüstung für deine Runs.</p>';
 
     const shop = GL.data.gear.map(g => `<div class="wf-tile shop${profile.berry >= g.cost ? ' can-buy' : ''}">
-        <div class="wf-top"><i class="wf-ico">${GL.sprites.icon('relic', g.id)}</i><span class="wf-name"><b>${g.name}</b>${profile.gear[g.id] ? `<em class="wf-own">×${profile.gear[g.id]} <span>im Lager</span></em>` : ''}</span></div>
+        <div class="wf-top"><i class="wf-ico">${gearIco(g.id)}</i><span class="wf-name"><b>${g.name}</b>${profile.gear[g.id] ? `<em class="wf-own">×${profile.gear[g.id]} <span>im Lager</span></em>` : ''}</span></div>
         <small class="wf-next">${g.text}</small>
         <button class="btn mini buy wf-buy" data-act="buy-gear" data-id="${g.id}"${profile.berry < g.cost ? ' disabled' : ''}>${GL.sprites.coin()} ${fmt(g.cost)}</button>
       </div>`).join('');
@@ -3618,7 +3836,7 @@ window.GL = window.GL || {};
     const rankHtml = rankPanel(profile, rp, fmt);
 
     // Was kommt mit in den nächsten Run: kleine Symbole statt Text
-    const board = profile.loadout.map(id => { const g = byId(GL.data.gear, id); return g ? `<span class="sb-chip" data-tip="${esc(g.name)}: ${esc(g.text)}">${GL.sprites.icon('relic', g.id)}</span>` : ''; })
+    const board = profile.loadout.map(id => { const g = byId(GL.data.gear, id); return g ? `<span class="sb-chip" data-tip="${esc(g.name)}: ${esc(g.text)}">${gearIco(g.id)}</span>` : ''; })
       .concat(profile.artLoadout.map(id => { const a = GL.data.artifacts.find(x => x.id === id); return a ? `<span class="sb-chip art" data-tip="${esc(a.name)}">${artIcon(a)}</span>` : ''; }))
       .concat(GL.meta.takeItems(profile).map(x => `<span class="sb-chip" data-tip="${esc(itemName(x))}">${itemIcon(x)}</span>`)).filter(Boolean);
     return `<div class="hq">
@@ -3644,7 +3862,7 @@ window.GL = window.GL || {};
           <div class="ss-dock"><span class="ss-lamp"></span>${crew.map(fig).join('')}${(() => { const a = cosOf(profile).pet; return a && petDef(a) ? `<i class="ss-mate ss-buddy">${petArt(a)}</i>` : ''; })()}</div>
           <span class="ss-title">${uiRef && uiRef.peek ? 'Dein Run läuft noch' : esc(greeting(profile, t))}</span>
         </div>`; })()}
-        ${atSeaBox()}
+        ${atSeaBox()}${uiRef && uiRef.peek ? '' : (GL.season ? GL.season.banner(profile) : '')}
         ${uiRef && uiRef.peek ? `<small class="sail-note">Oben links geht es zurück zum Run.</small>` : `
         <div class="sail-row">
           <button class="btn sail" data-act="sail">${pxIco('ship')}Leinen los! ${keyHint('Leertaste')}</button>
@@ -3664,7 +3882,7 @@ window.GL = window.GL || {};
         <div class="wf-grid">${upgrades}</div></section>` : ''}
 
       ${tab === 'profil' ? `<section class="hq-sec">
-        <div class="pf-quick"><button class="btn ghost" data-act="album" data-tab="stats">📊 Statistik</button><button class="btn ghost" data-act="sticker">Sticker</button><button class="btn ghost" data-act="friends-open">♥ Freunde</button><button class="btn ghost" data-act="story-book">📖 Story</button></div>
+        <div class="pf-quick"><button class="btn ghost" data-act="album" data-tab="stats">${pxIco('chart')}<span>Statistik</span></button><button class="btn ghost" data-act="sticker">${pxIco('sticker')}<span>Sticker</span></button><button class="btn ghost" data-act="friends-open">${pxIco('heart')}<span>Freunde</span></button><button class="btn ghost" data-act="story-book">${pxIco('book')}<span>Story</span></button></div>
         ${rankHtml}
         <div class="hq-stats">
           <div><b>${profile.stats.runs}</b><span>Runs</span></div>
@@ -3686,6 +3904,7 @@ window.GL = window.GL || {};
       ${tab === 'kammer' ? vaultSection(profile) : ''}
       ${tab === 'schmiede' ? forgeSection(profile, uiRef) : ''}
       ${tab === 'rangliste' ? leaderboard(profile, uiRef) : ''}
+      ${tab === 'gemuet' ? skillSection(profile, uiRef) : ''}
       ${tab === 'lager' ? lagerSection(profile, slots) : ''}
 
       ${tab === 'haendler' ? `<section class="hq-sec">
@@ -3724,7 +3943,7 @@ window.GL = window.GL || {};
           sub = `Gesperrt: ${u.text}${pr.need > 1 ? ` (${pr.have}/${pr.need})` : ''}`;
         }
         if (known && !(u && !profile.unlocked.includes(d.id))) {
-          return { known, html: `<div class="acard-card"><span class="no">#${String(idx + 1).padStart(3, '0')}</span>${crewCardFace(d, { atk: d.atk, max: d.hp, spd: d.spd }, { gold: d.locked, style: true })}</div>` };
+          return { known, html: `<div class="acard-card" data-act="acard-open" role="button" tabindex="0"><span class="no">#${String(idx + 1).padStart(3, '0')}</span>${crewCardFace(d, { atk: d.atk, max: d.hp, spd: d.spd }, { gold: d.locked, style: true })}</div>` };
         }
         return { known, html: albumCard(known, GL.sprites.render(d), d.name, sub, d.locked ? 'gold-book' : '', idx + 1) };
       }),
@@ -3732,18 +3951,18 @@ window.GL = window.GL || {};
         const n = profile.counts['defeated:' + d.id] || 0;
         const known = n > 0;
         return { known, html: albumCard(known, GL.sprites.render(d), d.name,
-          known ? `${n}-mal besiegt` : (d.raid ? 'Raid-Boss' : d.bounty ? `Kopfgeld ${d.bounty} Mio. ฿` : 'Noch nicht besiegt'), d.raid ? 'epic' : d.bounty ? 'rare' : '') };
+          known ? `${n}-mal besiegt` : (d.raid ? 'Raid-Boss' : d.bounty ? `Kopfgeld ${d.bounty} Mio. ฿` : 'Noch nicht besiegt'), (d.raid ? 'epic' : d.bounty ? 'rare' : '') + ' k-boss') };
       }),
       fruits: GL.data.fruits.map(f => {
         const known = seen.fruits.includes(f.id) || (f.awakened && profile.epics.includes(f.id));
         const text = GL.loot.make(f, f.vals ? 1 : -1).text + (f.vals ? ' (Seltene Stufe)' : '');
         return { known, html: albumCard(known, GL.sprites.icon('fruit', f.id, f.awakened), f.name,
-          known ? text : (f.awakened ? 'Erwacht, nur aus Raids' : 'Noch nicht gegessen'), f.awakened ? 'epic' : '') };
+          known ? text : (f.awakened ? 'Erwacht, nur aus Raids' : 'Noch nicht gegessen'), (f.awakened ? 'epic' : '') + ' k-fruit') };
       }),
       relics: GL.data.relics.map(r => {
         const known = seen.relics.includes(r.id);
         const text = GL.loot.make(r, r.vals ? 1 : -1).text + (r.vals ? ' (Seltene Stufe)' : '');
-        return { known, html: albumCard(known, GL.sprites.icon('relic', r.id), r.name, known ? text : 'Noch nicht gefunden') };
+        return { known, html: albumCard(known, known ? GL.sprites.icon('relic', r.id) : (pxIco('chest') || GL.sprites.icon('relic', r.id)), r.name, known ? text : 'Noch nicht gefunden', 'k-relic') };
       }),
       pets: (GL.data.pets || []).map(p => {
         const known = (profile.pets || []).includes(p.id), on = cosOf(profile).pet === p.id;
@@ -3939,10 +4158,10 @@ window.GL = window.GL || {};
 
   // Training nach Level-up: kurze Wahl aus Trainingskarten statt Punkte einzeln verteilen
   const TRAIN = [
-    { c: 'atk', ico: '⚔', name: 'Kampftraining', fx: p => `+${p * GL.config.point.atk} Angriff` },
-    { c: 'hp',  ico: '❤', name: 'Ausdauer',      fx: p => `+${p * GL.config.point.hp} Leben` },
-    { c: 'spd', ico: '⚡', name: 'Sprinttraining', fx: p => `+${p * GL.config.point.spd} Tempo` },
-    { c: 'mix', ico: '⚖', name: 'Ausgewogen',     fx: p => `+${Math.ceil(p / 2) * GL.config.point.hp} Leben, +${Math.floor(p / 2) * GL.config.point.atk} Angriff` }
+    { c: 'atk', ico: '⚔', px: 'swords', name: 'Kampftraining', fx: p => `+${p * GL.config.point.atk} Angriff` },
+    { c: 'hp',  ico: '❤', px: 'heart', name: 'Ausdauer',      fx: p => `+${p * GL.config.point.hp} Leben` },
+    { c: 'spd', ico: '⚡', px: 'bolt', name: 'Sprinttraining', fx: p => `+${p * GL.config.point.spd} Tempo` },
+    { c: 'mix', ico: '⚖', px: 'scale', name: 'Ausgewogen',     fx: p => `+${Math.ceil(p / 2) * GL.config.point.hp} Leben, +${Math.floor(p / 2) * GL.config.point.atk} Angriff` }
   ];
   // Haken: Training nach Level-up automatisch wählen
   function autoCheck(profile, cls) {
@@ -3962,7 +4181,7 @@ window.GL = window.GL || {};
         <span><b>${d.name} hat trainiert!</b><small>Lv ${u.lvl} · wähle ein Training${others > 0 ? ` · danach noch ${others} weitere` : ''}</small></span>
         <button class="link" data-act="train-auto" title="Für alle das empfohlene Training wählen">Für alle</button></div>
       <div class="train-opts">${TRAIN.map(t => `<button class="train-opt${rec && rec.stat === t.c ? ' rec' : ''}" data-act="train" data-i="${i}" data-c="${t.c}">
-        ${rec && rec.stat === t.c ? '<span class="tip-badge">Tipp</span>' : ''}<i>${t.ico}</i><b>${t.name}</b><small>${t.fx(u.points)}</small></button>`).join('')}</div>
+        ${rec && rec.stat === t.c ? '<span class="tip-badge">Tipp</span>' : ''}<i class="to-ico">${pxIco(t.px) || t.ico}</i><b>${t.name}</b><small>${t.fx(u.points)}</small></button>`).join('')}</div>
       <div class="train-auto-row">${autoCheck(profile)}<small>Automatisch verteilen</small></div>
     </div>`;
   }
@@ -4070,7 +4289,7 @@ window.GL = window.GL || {};
       } else $('#pcard').dataset.last = '';
       if (!run) {
         $('#track').innerHTML = '';
-        ['#crew', '#syn', '#crew-label', '#restart', '#sheet', '#traits', '#synbar', '#peek', '#peek-btn'].forEach(sel => { $(sel).hidden = true; });
+        ['#crew', '#syn', '#crew-label', '#restart', '#sheet', '#traits', '#synbar', '#peek', '#peek-btn', '#pause-btn'].forEach(sel => { $(sel).hidden = true; });
         const html = hq(ui.profile, ui.hqTab || 'profil', ui);
         if (html !== ui.lastStage) {
           $('#stage').innerHTML = html; ui.lastStage = html;
@@ -4085,6 +4304,7 @@ window.GL = window.GL || {};
       }
       // Kurzblick ins Hauptquartier mitten im Run: Run bleibt unangetastet im Hintergrund bestehen
       $('#peek-btn').hidden = GL.run.isFinished(run);
+      if ($('#pause-btn')) $('#pause-btn').hidden = GL.run.isFinished(run);
       $('#peek').hidden = !ui.peek;
       if (ui.peek) {
         $('#peek').innerHTML = `<div class="peek-bar"><b>Hauptquartier (Kurzblick)</b>

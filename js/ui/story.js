@@ -50,7 +50,7 @@ window.GL = window.GL || {};
     c.fidgetT = setTimeout(() => fidget(c), 1400 + Math.random() * 1800);
   }
   function play(profile, id, onDone) {
-    const ch = (GL.data.story || []).find(c => c.id === id);
+    const ch = (GL.data.story || []).concat(GL.data.storyLaunch || []).find(c => c.id === id);
     if (!ch || document.getElementById('story')) return;
     const cast = [...new Set(ch.lines.map(l => l[0]))];
     const W = {}; cast.forEach(c => { W[c] = who(profile, c); });
@@ -62,7 +62,7 @@ window.GL = window.GL || {};
       <div class="st-sea">${['hafen', 'schiff', 'insel', 'nacht'].includes(ch.bg) ? `<span class="st-ship">${GL.sprites.ship ? GL.sprites.ship((profile.cos && profile.cos.ship) || undefined) : ''}</span>` : ''}</div><div class="st-ground">${props(ch.bg)}</div><i class="st-bird a"></i><i class="st-bird b"></i>
       <div class="st-cast">${cast.map((c, i) => `<span class="st-who" data-w="${esc(c)}" style="--i:${i};--n:${cast.length};--from:${i < cast.length / 2 ? -1 : 1}"><i class="st-emote"></i><i class="st-spr">${W[c].spr}</i><i class="st-shadow"></i></span>`).join('')}</div>
       <div class="st-bar top"></div><div class="st-bar bot"></div>
-      <div class="st-title"><small>${en() ? 'Chapter' : 'Kapitel'} ${ch.no}</small><b>${esc(L(ch.title))}</b></div>
+      <div class="st-title"><small>${ch.kicker ? esc(L(ch.kicker)) : (en() ? 'Chapter' : 'Kapitel') + ' ' + ch.no}</small><b>${esc(L(ch.title))}</b></div>
       <div class="st-ctl"><button class="st-auto${auto ? ' on' : ''}" data-st="auto">${en() ? 'Auto' : 'Auto'} ▶</button><button class="st-skip" data-st="skip">${en() ? 'Skip' : 'Überspringen'} ⏭</button></div>
       <div class="st-box" data-st="next"><span class="st-face"></span><div class="st-txt"><b class="st-name"></b><p class="st-line"></p></div><i class="st-more">▼</i></div>`;
     document.body.appendChild(el);
