@@ -1,6 +1,8 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-18m', date: '18.10.', title: 'Kleinigkeiten', items: [
+    'Entwickler-Bereich im Kapitänsbuch erkennt das Entwickler-Konto jetzt zuverlässig' ] },
   { v: '2026-10-18l', date: '18.10.', title: 'Hafen wie eine App', items: [
     'Räume öffnen sich am Handy als eigene Seite mit fester Kopfleiste. Crew, Schmiede, Lager und Kammer liegen zusammen unter „Crew“ unten und lassen sich oben umschalten. Ein Punkt zeigt, wo etwas wartet',
     'Kurs setzen am Handy: beide Inseln passen ohne Scrollen auf den Bildschirm',
