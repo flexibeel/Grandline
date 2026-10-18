@@ -144,7 +144,7 @@ window.GL = window.GL || {};
       const union = (a, b) => Array.from(new Set([].concat(a || [], b || [])));
       ['unlocked', 'epics', 'invites', 'friends', 'artLoadout', 'pets'].forEach(k => { if (other[k]) p[k] = k === 'artLoadout' ? (p[k] || other[k]) : union(p[k], other[k]); });
       const maxMap = k => { p[k] = Object.assign({}, other[k] || {}, p[k] || {}); Object.keys(other[k] || {}).forEach(x => { p[k][x] = Math.max(p[k][x] || 0, other[k][x] || 0); }); };
-      ['vault', 'loot', 'counts'].forEach(maxMap);
+      ['vault', 'loot', 'counts', 'squadXp', 'pairXp'].forEach(maxMap);
       if (other.seen) { p.seen = p.seen || {}; Object.keys(other.seen).forEach(k => { p.seen[k] = union(p.seen[k], other.seen[k]); }); }
       ['rankXp', 'heatMax', 'bestStep', 'endlessBest', 'endlessLoops', 'squadW', 'shards', 'albumClaimed', 'snacks'].forEach(k => { if (other[k] != null) p[k] = Math.max(p[k] || 0, other[k] || 0); });
       if (other.stats) { p.stats = p.stats || {}; ['runs', 'wins', 'berryTotal'].forEach(k => { p.stats[k] = Math.max(p.stats[k] || 0, other.stats[k] || 0); }); }
@@ -250,7 +250,10 @@ window.GL = window.GL || {};
         duels: profile.squadW || 0,
         quests: profile.questsDone || 0,
         prestige: GL.meta.prestige(profile),
-        invites: (profile.invites || []).length
+        invites: (profile.invites || []).length,
+        // Vertrautheit: bond_<id> je Figur und wie viele Figuren mindestens Vertraut 6 sind
+        ...Object.fromEntries(Object.keys(profile.squadXp || {}).map(id => ['bond_' + id, GL.meta.squadBonus(profile.squadXp[id])])),
+        bondFriends: Object.values(profile.squadXp || {}).filter(x => GL.meta.squadBonus(x) >= 6).length
       };
     },
     cosmeticUnlocked(profile, item, vals) {
@@ -264,7 +267,8 @@ window.GL = window.GL || {};
       const L = { rank: 'Rang', runs: 'Runs', wins: 'Siege', kos: 'K.o.s', maxHit: 'Schaden mit einem Schlag', bosses: 'Inselbosse besiegt',
         hunted: 'Kopfgeld-Ziele besiegt', raids: 'Raids gewonnen', artifacts: 'Artefakte gefunden', reached: 'Meer erreicht',
         islands: 'verschiedene Inseln besucht', heat: 'Kopfgeld-Stufe', duels: 'Stammcrew-Duelle gewonnen', quests: 'Aufträge erledigt', prestige: 'Prestige-Stufe', invites: 'Freund eingeladen' };
-      return Object.keys(item.req || {}).map(k => k === 'heat' ? `Kopfgeld-Stufe ${item.req.heat}` : k === 'rank' ? `Rang ${item.req.rank}` : k === 'reached' ? `${GL.data.islands[item.req.reached].name} erreichen` : `${item.req[k]} ${L[k]}`).join(', ') || 'frei';
+      const bondName = id => { const d = id === 'self' ? null : GL.data.crew.find(c => c.id === id); return d ? d.name : id; };
+      return Object.keys(item.req || {}).map(k => k.startsWith('bond_') ? `Vertraut ${item.req[k]} mit ${bondName(k.slice(5))}` : k === 'bondFriends' ? `${item.req[k]} Figuren mit Vertraut 6` : k === 'heat' ? `Kopfgeld-Stufe ${item.req.heat}` : k === 'rank' ? `Rang ${item.req.rank}` : k === 'reached' ? `${GL.data.islands[item.req.reached].name} erreichen` : `${item.req[k]} ${L[k]}`).join(', ') || 'frei';
     },
 
     // Artefakt-Plätze: einer zu Beginn, dazu einer ab Rang 5, 9 und 13
@@ -398,6 +402,7 @@ window.GL = window.GL || {};
       profile.squadXp = profile.squadXp || {};
       const gain = win ? 12 : 4;
       const ups = [];
+      GL.meta.pairGain(profile, ids, Math.round(gain / 2));
       ids.forEach(id => {
         const before = GL.meta.squadBonus(profile.squadXp[id]);
         profile.squadXp[id] = (profile.squadXp[id] || 0) + gain;
@@ -418,6 +423,7 @@ window.GL = window.GL || {};
       const ids = run.crew.map(u => u.id);
       const out = [];
       profile.lastSnacks = 1 + (run.phase === 'win' ? 1 : 0);
+      GL.meta.pairGain(profile, run.crew.map(u => u.id), Math.max(1, Math.round(base / 2)));
       profile.snacks = (profile.snacks || 0) + profile.lastSnacks;
       ids.forEach((id, i) => {
         const u = run.crew[i];
@@ -431,6 +437,23 @@ window.GL = window.GL || {};
         out.push({ id, name: d ? d.name : id, gain, up: after > before, lvl: after });
       });
       return out;
+    },
+    // Freundschaft zwischen zwei Crewmitgliedern: wächst, wenn beide zusammen unterwegs sind
+    pairKey(a, b) { return a < b ? a + '|' + b : b + '|' + a; },
+    pairGain(profile, ids, amount) {
+      if (!amount) return;
+      profile.pairXp = profile.pairXp || {};
+      const u = ids.filter((v, i, l) => v && l.indexOf(v) === i);
+      for (let i = 0; i < u.length; i++) for (let j = i + 1; j < u.length; j++) {
+        const k = GL.meta.pairKey(u[i], u[j]); profile.pairXp[k] = (profile.pairXp[k] || 0) + amount;
+      }
+    },
+    pairLevel(xp) { return Math.min(10, Math.floor(Math.sqrt((xp || 0) / 12))); },
+    // Beste Freunde einer Figur: [{ id, lvl, xp }]
+    friendsOf(profile, id, n) {
+      const P = profile.pairXp || {};
+      return Object.keys(P).filter(k => k.split('|').includes(id)).map(k => ({ id: k.split('|').find(x => x !== id), xp: P[k], lvl: GL.meta.pairLevel(P[k]) }))
+        .filter(x => x.lvl > 0).sort((a, b) => b.xp - a.xp).slice(0, n || 3);
     },
     // Kümmern: Proviant schenken (Lieblingsessen) bringt Vertrautheit. Proviant gibt es nach Runs und Landgängen
     giveSnack(profile, id) {

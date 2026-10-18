@@ -5125,3 +5125,10 @@ button.ss-mate { background: none; border: 0; padding: 0; cursor: pointer; font:
 .mo-line b { display: block; font-size: 11px; color: #a0724a; }
 @keyframes mo-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) { .mo-line { animation: none; opacity: 1; } .cc-mbtn.fresh, .cc-spr.gifted { animation: none; } }
+.cc-friends { display: grid; gap: 4px; }
+.cc-fr { display: grid; grid-template-columns: 28px auto 1fr; align-items: center; gap: 6px; font-size: 13px; }
+.cc-fr i svg { width: 24px; height: 28px; display: block; }
+.cc-fr em { font-style: normal; color: #d0476a; }
+.cc-fr small { grid-column: 2 / -1; font-size: 11px; color: #6a4a8a; margin-top: -4px; }
+.cc-title { margin: 8px 0 0; font-size: 12px; color: #7a5a34; }
+.crew-card .cc-title { font-size: 12px !important; margin: 8px 0 0 !important; text-align: left; }

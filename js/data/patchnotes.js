@@ -1,6 +1,9 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-18p', date: '18.10.', title: 'Freundschaften in der Crew', items: [
+    'Wer zusammen segelt, wird befreundet: Im Steckbrief siehst du die besten Freunde jeder Figur, mit Herzen und dem passenden Duo',
+    'Neue Titel für enge Freundschaften: Bei Vertraut 10 mit einem Strohhut, z. B. „Zorros Wegweiser“ oder „Namis Kassenwart“, und „Herz der Crew“ für vier enge Freunde' ] },
   { v: '2026-10-18o', date: '18.10.', title: 'Kümmer dich um deine Crew', items: [
     'Proviant 🍙: nach jedem Run (Sieg doppelt) und jedem Landgang. Im Steckbrief schenkst du einer Figur ihr Lieblingsessen und sie wird vertrauter',
     'Gemeinsame Momente: kleine Szenen mit Sprechblasen ab Vertraut 3, 6 und 10. Die Strohhüte haben eigene, alle anderen passend zu ihrer Rolle',

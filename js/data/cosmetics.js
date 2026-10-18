@@ -118,7 +118,18 @@ GL.data.cosmetics = {
     { id: 'schatzkoenig', name: 'Schatzkönig',     req: { artifacts: 11 } },
     { id: 'krakenbaendiger', name: 'Krakenbändiger', req: { bosses: 25 } },
     { id: 'laternenhueter', name: 'Hüter der Hafenlaterne', req: { runs: 100 } },
-    { id: 'schwarzeflagge', name: 'Schrecken unter schwarzer Flagge', req: { wins: 25 } }
+    { id: 'schwarzeflagge', name: 'Schrecken unter schwarzer Flagge', req: { wins: 25 } },
+    // Vertrautheit: Titel für eine enge Freundschaft mit einer Figur
+    { id: 'b-ruffy',   name: 'Ruffys Fleischpartner', req: { bond_ruffy: 10 } },
+    { id: 'b-zorro',   name: 'Zorros Wegweiser',      req: { bond_zorro: 10 } },
+    { id: 'b-nami',    name: 'Namis Kassenwart',      req: { bond_nami: 10 } },
+    { id: 'b-lysop',   name: 'Lysops Mitlügner',      req: { bond_lysop: 10 } },
+    { id: 'b-sanji',   name: 'Sanjis Stammgast',      req: { bond_sanji: 10 } },
+    { id: 'b-chopper', name: 'Choppers Lieblingspatient', req: { bond_chopper: 10 } },
+    { id: 'b-robin',   name: 'Robins Lesefreund',     req: { bond_robin: 10 } },
+    { id: 'b-franky',  name: 'Frankys Mitbauer',      req: { bond_franky: 10 } },
+    { id: 'b-brook',   name: 'Brooks Publikum',       req: { bond_brook: 10 } },
+    { id: 'b-herz',    name: 'Herz der Crew',         req: { bondFriends: 4 } },
   ],
   // Piratenflagge: kleines Abzeichen am Porträt (Profil, Rangliste)
   flags: [

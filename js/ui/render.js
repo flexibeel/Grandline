@@ -2049,6 +2049,15 @@ window.GL = window.GL || {};
             : `<span class="cc-mbtn locked">🔒 ab Vertraut ${m.lvl}</span>`).join('')}</div>` : '';
         return care + mom;
       })()}
+      ${(() => {
+        const fr = GL.meta.friendsOf ? GL.meta.friendsOf(profile, id, 3) : [];
+        const duo = o => (GL.data.duos || []).find(x => (x.a === id && x.b === o) || (x.b === id && x.a === o));
+        const t = (GL.data.cosmetics.titles || []).find(x => x.req && x.req['bond_' + id]);
+        const frH = fr.length ? `<div class="cc-friends"><span class="cc-k">Beste Freunde in der Crew</span>${fr.map(f => { const fd = f.id === 'self' ? avatarOf(profile) : crewData(f.id); const du = duo(f.id);
+            return fd ? `<span class="cc-fr"><i>${GL.sprites.render(fd)}</i><b>${esc(fd.name)}</b><em>${'♥'.repeat(Math.min(5, Math.ceil(f.lvl / 2)))}</em>${du ? `<small>Duo: ${esc(du.name)}</small>` : ''}</span>` : ''; }).join('')}</div>` : '';
+        const tH = t ? `<p class="cc-title">${lv >= 10 ? '🏅 Titel freigeschaltet' : '🏅 Bei Vertraut 10'}: <b>„${esc(t.name)}“</b></p>` : '';
+        return frH + tH;
+      })()}
       ${gear.length ? `<div class="cc-gear"><span class="cc-k">Trägt</span>${gear.map(it => `<span class="trophy-chip cr-${GL.cgear.RID[it.r]}">${esc(GL.cgear.name(it))}</span>`).join('')}</div>` : ''}
       <small class="cc-note">Vertrautheit wächst, wenn ${esc(d.name)} in Runs, Duellen oder beim Landgang dabei ist.</small>
       <div class="fpop-btns"><button class="btn ghost" data-act="pop-close">Schließen</button></div>

@@ -155,5 +155,18 @@ GL.data.en = Object.assign(GL.data.en || {}, {
 "Das merken wir. Danke.": "We notice. Thank you.",
 "Unerschütterlich": "Unshakable",
 "Solange ich stehe, steht die Crew.": "As long as I stand, the crew stands.",
-"Und du stehst immer.": "And you always stand."
+"Und du stehst immer.": "And you always stand.",
+"Beste Freunde in der Crew": "Best friends in the crew",
+"🏅 Titel freigeschaltet": "🏅 Title unlocked",
+"🏅 Bei Vertraut 10": "🏅 At bond 10",
+"Ruffys Fleischpartner": "Luffy’s Meat Buddy",
+"Zorros Wegweiser": "Zoro’s Compass",
+"Namis Kassenwart": "Nami’s Treasurer",
+"Lysops Mitlügner": "Usopp’s Fellow Fibber",
+"Sanjis Stammgast": "Sanji’s Regular",
+"Choppers Lieblingspatient": "Chopper’s Favourite Patient",
+"Robins Lesefreund": "Robin’s Reading Buddy",
+"Frankys Mitbauer": "Franky’s Co-Builder",
+"Brooks Publikum": "Brook’s Audience",
+"Herz der Crew": "Heart of the Crew"
 });
