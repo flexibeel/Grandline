@@ -236,3 +236,43 @@ Object.assign(GL.data.en, {
   'Gemütlicher Einstieg': 'Cozy start', 'Ordentlich was los': 'Quite a bit going on', 'Wird ungemütlich': 'Getting rough'
 });
 GL.i18nExtraP = (GL.i18nExtraP || []).concat([[/^Insel-Twist dieser Etappe: ([\s\S]+)$/, 'Island twist for this leg: $1']]);
+// Fork Y: Kampf-Vorbereitung
+Object.assign(GL.data.en, {
+  'Typen': 'Types', 'Fähigkeit': 'Ability', 'Spezialangriff': 'Special attack', '✦ Einsetzen': '✦ Use', '✓ Aktiv': '✓ Active', 'lädt': 'charging',
+  'Boss': 'Boss', 'Raid': 'Raid', 'Kopfgeld-Ziel': 'Bounty target', 'Bösewicht der Insel': 'Island villain',
+  '2 Wellen': '2 waves', 'Erwachte Frucht': 'Awakened fruit', 'Heilung': 'Healing', 'Begegnung auf See': 'Encounter at sea',
+  'Helfer reinigen am Rundenende von Zuständen.': 'Helpers cleanse status effects at the end of each round.',
+  'Brecher sind immun gegen Angst.': 'Breakers are immune to fear.',
+  'Ein robuster Brecher steht automatisch vorne und fängt die Betäubung ab.': 'A sturdy breaker automatically stands in front and takes the stun.',
+  'Heilung über mehrere Runden hilft gegen diesen Zustand.': 'Healing over several rounds helps against this status.',
+  'Brook macht Mut.': 'Brook boosts courage.'
+});
+GL.i18nExtraP = (GL.i18nExtraP || []).concat([
+  [/^Helfer (\d+)$/, 'Helpers $1'], [/^Brecher (\d+)$/, 'Breakers $1'], [/^(.+)s Crew$/, '$1’s crew']
+]);
+Object.assign(GL.data.en, {
+  '▲ Stark für dich': '▲ Great for you', '◦ Passt': '◦ Fits', '▽ Gerade nicht': '▽ Not right now',
+  'Stark für dich': 'Great for you', 'Passt': 'Fits', 'Gerade nicht': 'Not right now',
+  'Kein Heiler an Bord, wirkt erst später': 'No healer aboard, pays off later', 'Versicherung für später': 'Insurance for later',
+  'Hilft gegen Bösewichte und Bosse': 'Helps against villains and bosses', 'Platz für eine Figur mehr': 'Room for one more crew member',
+  'Deine Crew ist voll: Platz für eine Figur mehr': 'Your crew is full: room for one more',
+  'Brennen: Das Ziel verliert ein paar Runden lang am Rundenende Leben. Mehrere Brände stapeln sich.': 'Burn: the target loses HP at the end of each round for a few rounds. Burns stack.',
+  'Einfrieren: Das Ziel setzt eine Runde aus. Bei Bossen seltener.': 'Freeze: the target skips a round. Less often on bosses.',
+  'Austrocknen: Das Ziel nimmt eine Weile mehr Schaden.': 'Dry out: the target takes more damage for a while.',
+  'Rückprall: Wer dich trifft, bekommt einen Teil des Schadens zurück.': 'Rebound: whoever hits you gets part of the damage back.',
+  'Wut: Mit wenig Leben teilt die Figur deutlich mehr aus.': 'Rage: on low HP the crew member hits much harder.',
+  'Wiederaufstehen: Fällt die Figur, kommt sie einmal pro Kampf zurück.': 'Rise again: if they fall, they come back once per fight.',
+  'Ausweichen: Angriffe gehen ab und zu komplett daneben.': 'Dodge: attacks sometimes miss completely.',
+  'Krit: Treffer machen dann deutlich mehr Schaden.': 'Crit: hits then deal much more damage.',
+  'Sehr effektiv: Kraft schlägt Technik, Technik schlägt Klinge, Klinge schlägt Kraft.': 'Super effective: Power beats Technique, Technique beats Blade, Blade beats Power.'
+});
+GL.i18nExtraP = (GL.i18nExtraP || []).concat([
+  [/^Noch keine (.+)-Figur an Bord, wirkt erst später$/, (m, a) => 'No ' + ({ Kraft: 'Power', Klinge: 'Blade', Technik: 'Technique', 'Kämpfer': 'Fighter', Helfer: 'Helper', Brecher: 'Breaker' }[a] || a) + ' crew member aboard yet, pays off later'],
+  [/^(\d+) gefallen: hilft sofort$/, '$1 fallen: helps right away'],
+  [/^(\d+) von (\d+)$/, '$1 of $2'],
+  [/^Wirkt bei$/, 'Works on'], [/^Stärkt deine Heiler$/, 'Boosts your healers'], [/^Wirkt bei der ganzen Crew$/, 'Works on the whole crew'], [/^Ganze Crew$/, 'Whole crew']
+]);
+Object.assign(GL.data.en, { 'Spezial': 'Special', 'Aktiv': 'Active' });
+GL.i18nExtraP = (GL.i18nExtraP || []).concat([
+  [/^(.+)\n(Boss −\d+ % Leben, Begleiter −\d+ %, Crew 2 Runden mutig\.)(\nLädt: (\d+)\/(\d+) \(Siege laden auf\))?$/, (m, n, e, l, a, b) => n + '\n' + e.replace('Leben', 'HP').replace('Begleiter', 'escorts').replace('Crew 2 Runden mutig.', 'crew brave for 2 rounds.') + (l ? `\nCharging: ${a}/${b} (wins charge it)` : '')]
+]);

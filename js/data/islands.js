@@ -124,8 +124,27 @@ GL.data.twists = [
   { id: 'schatzinsel', icon: '💎', name: 'Schatzinsel',    text: 'Mehr Schatztruhen und Teufelsfrüchte auf der Karte.', types: ['treasure', 'fruit'] },
   { id: 'patrouille', icon: '⚓', name: 'Marine-Razzia',    text: 'Mehr besondere Gegner: Leibwachen, Sanitäter, Raufbolde.', types: ['battle'], foeKinds: 0.18 },
   { id: 'ruhig',      icon: '🌙', name: 'Stille Bucht',     text: 'Mehr Rastplätze, alle Gegner sind 1 Tempo langsamer.', types: ['rest'], foeSpd: -1 },
-  { id: 'sturm',      icon: '🌊', name: 'Sturmflut',        text: 'Alle Gegner sind 1 Tempo schneller, dafür treiben mehr Früchte an.', types: ['fruit', 'fruit'], foeSpd: 1 },
-  null, null
+  { id: 'sturm',      icon: '🌊', name: 'Sturmflut',        text: 'Alle Gegner sind 1 Tempo schneller, dafür treiben mehr Früchte an.', types: ['fruit', 'fruit'], foeSpd: 1, weather: 'storm' },
+  // Wetter und Lage (Lage & Wetter): goldX = mehr/weniger Gold nach Siegen, restAdd = Rast heilt mehr/weniger, foeHp = Gegner-Leben
+  { id: 'regen',      icon: '🌧', name: 'Dauerregen',       text: 'Rutschiges Deck: Gegner 1 Tempo langsamer. Die Decken sind nass, Rast heilt weniger.', foeSpd: -1, restAdd: -0.1, weather: 'rain',
+    en: ['Endless rain', 'Slippery deck: enemies 1 speed slower. The blankets are wet, resting heals less.'] },
+  { id: 'nebel',      icon: '🌫', name: 'Dichter Nebel',    text: 'Im Nebel findet man Dinge. Und Dinge finden einen: mehr Schätze, mehr besondere Gegner.', types: ['treasure'], foeKinds: 0.12, weather: 'fog',
+    en: ['Thick fog', 'In the fog you find things. And things find you: more treasure, more special enemies.'] },
+  { id: 'hitze',      icon: '☀', name: 'Hitzewelle',       text: 'Alle schwitzen, die Gegner am meisten: 8 % weniger Leben. Dafür gibt es weniger Gold, keiner will arbeiten.', foeHp: -0.08, goldX: -0.2,
+    en: ['Heatwave', 'Everyone sweats, enemies most of all: 8% less health. Less gold, though, nobody wants to work.'] },
+  { id: 'vollmond',   icon: '🌕', name: 'Vollmond',         text: 'Die Gegner sind gereizt (+8 % Leben), mehr Kopfgeldjäger. Wer gewinnt, kassiert 25 % mehr Gold.', foeHp: 0.08, goldX: 0.25, types: ['elite'], time: 'night',
+    en: ['Full moon', 'Enemies are grumpy (+8% health), more bounty hunters. Winners earn 25% more gold.'] },
+  { id: 'marktfest',  icon: '🎪', name: 'Marktfest',        text: 'Überall Stände: mehr Tavernen und 20 % mehr Gold nach Siegen. Die Taschendiebe sind auch da.', types: ['recruit'], goldX: 0.2,
+    en: ['Market fair', 'Stalls everywhere: more taverns and 20% more gold after wins. The pickpockets came too.'] },
+  { id: 'schnee',     icon: '❄', name: 'Schneegestöber',   text: 'Alle frieren: Gegner 1 Tempo langsamer, aber dick eingepackt (+6 % Leben).', foeSpd: -1, foeHp: 0.06, weather: 'snow',
+    en: ['Snow flurry', 'Everyone is freezing: enemies 1 speed slower, but well wrapped up (+6% health).'] },
+  { id: 'gewitter',   icon: '⛈', name: 'Gewitter',         text: 'Blitze über dem Meer: Gegner 1 Tempo schneller, aber die Beute glänzt (+30 % Gold).', foeSpd: 1, goldX: 0.3, weather: 'storm',
+    en: ['Thunderstorm', 'Lightning over the sea: enemies 1 speed faster, but the loot shines (+30% gold).'] },
+  { id: 'moewen',     icon: '🐦', name: 'Möwenplage',       text: 'Die Möwen klauen Kleingeld (−15 % Gold), lassen aber Früchte fallen. Kalle bestreitet alles.', goldX: -0.15, types: ['fruit'],
+    en: ['Gull plague', 'Gulls steal small change (−15% gold) but drop fruit. Kalle denies everything.'] },
+  { id: 'abendrot',   icon: '🌅', name: 'Abendrot',         text: 'Ein schöner Abend. Rast heilt mehr, und keiner hat Lust auf Streit.', restAdd: 0.12, types: ['rest'], time: 'dusk',
+    en: ['Red sky at night', 'A lovely evening. Resting heals more and nobody fancies a fight.'] },
+  null, null, null
 ];
 // Daten eines Meeres im Run (berücksichtigt die gewählte Route)
 GL.data.seaOf = (run, idx) => { const S = GL.data.islands[idx]; return S && S.alt && run && run.alt && run.alt[idx] ? S.alt : S; };

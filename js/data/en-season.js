@@ -28,3 +28,16 @@ GL.i18nExtraP = (GL.i18nExtraP || []).concat([
 ]);
 Object.assign(GL.data.en, { '📬 Postfach': '📬 Mailbox', 'Post abholen': 'Check mail', '🍾 Schaue nach …': '🍾 Checking …', 'Keine neue Post. Das Meer ist ruhig.': 'No new mail. The sea is quiet.',
   'Noch keine Flaschenpost. Verschicken geht so: Stammcrew → Figur antippen → Teil aus der Truhe wählen → „🍾 Flaschenpost“. Beim Freund kommt sie an, sobald er das Spiel öffnet, und landet in seiner Truhe.': 'No bottles yet. To send one: home crew → tap a member → pick an item from the chest → “🍾 Message in a bottle”. Your friend gets it as soon as they open the game, straight into their chest.' });
+Object.assign(GL.data.en, { 'SUUUPER, du bist da! Hier baust du Schiff und Crew gemütlicher aus. Punkte kommen nebenbei: pro Rang, durch Fahrten, Landgänge und Vertrautheit. Tipp auf einen hellen Knoten, dann „Lernen ✦“. Gilt für jede kommende Fahrt, Umskillen kostet nix.': 'SUUUPER, you made it! This is where you make ship and crew cozier. Points come along the way: per rank, from voyages, shore leaves and bonds. Tap a bright node, then “Learn ✦”. Counts for every voyage to come, respec is free.' });
+Object.assign(GL.data.en, {
+  'Bis zum Ende der Insel:': 'Until the island ends:', 'Bis zum Ende der Insel': 'Until the island ends',
+  'Kämpfer': 'Fighter', '⚔ Kämpfer': '⚔ Fighter',
+  'Deine Crew ist wieder voll geheilt. Als Belohnung wird': 'Your crew is fully healed again. As a reward,', 'eine Figur deiner Wahl': 'one crew member of your choice', 'stärker, bis zum Ende dieses Runs.': 'gets stronger until the end of this run.',
+  'Tipp: Am meisten bringt es deinem stärksten Angreifer oder der Figur, die vorne viel einsteckt.': 'Tip: it pays off most on your strongest attacker or whoever takes the most hits up front.',
+  'Insel-Twist dieser Etappe': 'Island twist of this stage'
+});
+GL.i18nExtraP = (GL.i18nExtraP || []).concat([
+  [/^Kämpfer (\d+)$/, 'Fighter $1'],
+  [/^Rang (\d+)( · Vertraut (\d+))? → \+(\d+) Leben, \+(\d+) Angriff(?:, \+(\d+) Tempo)?$/, (m, r, b, bv, hp, atk, spd) => `Rank ${r}${bv ? ' · Bond ' + bv : ''} → +${hp} HP, +${atk} attack${spd ? ', +' + spd + ' speed' : ''}`],
+  [/^Rank (\d+)( · Vertraut (\d+))? → \+(\d+) Leben, \+(\d+) Angriff(?:, \+(\d+) Tempo)?$/, (m, r, b, bv, hp, atk, spd) => `Rank ${r}${bv ? ' · Bond ' + bv : ''} → +${hp} HP, +${atk} attack${spd ? ', +' + spd + ' speed' : ''}`]
+]);

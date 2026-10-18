@@ -1,6 +1,16 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-20g', date: '18.10.', title: 'Klarer, schöner, mit Weltkarte', items: [
+    '🗺 Weltkarte „Wie weit bin ich?“: alle Meere und Inseln, besucht, geschafft, gesperrt, wo du gerade bist, welche Modi frei sind. Im Hafen und über die Schiffs-Leiste',
+    'Nächstes Ziel im Hafen: höchstens zwei klare Empfehlungen mit Grund, antippen und los',
+    '☁ Lage & Wetter: 9 neue Insel-Bedingungen (Dauerregen, Nebel, Hitzewelle, Vollmond, Marktfest, Schneegestöber, Gewitter, Möwenplage, Abendrot). Wetter sieht man in der Szene, alles Aktive steckt in einem Abzeichen oben',
+    'Passt das zu mir? Schätze und Früchte zeigen, bei wem sie wirken, ▲ stark für dich / ◦ passt / ▽ gerade nicht, Mechaniken per „?“ erklärt',
+    'Events: Buffs und Debuffs als Abzeichen (grün, rot, Gold, ⏱ bis Inselende), Vorschau auf den Wahlkarten',
+    'Kampf-Vorbereitung aufgeräumt: Abzeichen statt Absätze, Gegner und Crew nebeneinander, Spezial als kleiner ✦-Knopf neben „Kampf starten“',
+    'Team auf einen Blick: Boni als Wappen mit Stufen-Punkten, Details beim Antippen',
+    'Meta im Wiki: Siegquote und Schaden je Kampfstil, Kombos und Frucht-Familien, ab 30 echten Runs live aus allen Spielern',
+    'Schönere Knöpfe im Hafen, Franky erklärt den Skillbaum beim ersten Besuch, Erster Maat zeigt alle wartenden Figuren, Englisch-Lücken geschlossen' ] },
   { v: '2026-10-20f', date: '18.10.', title: 'Du bist Kapitän: Reise, Folgen, Wellen', items: [
     '⚓ Du bist immer selbst Kapitän. Zum Start wählst du deinen Ersten Maat (3 Angebote, kein Neu-Würfeln, seine Heuer ist dein Startgold). Dein Pirat wächst dauerhaft mit Rang und Vertrautheit',
     'Die Reise erzählt sich: statt Knotenkarte eine kleine Szene, deine Crew beschreibt die Lage, du wählst Wege als Szenen-Karten. Die Karte gibt es noch hinter „🗺 Karte“',

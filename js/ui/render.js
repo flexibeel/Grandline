@@ -317,7 +317,7 @@ window.GL = window.GL || {};
     const d = crewData(u.id);
     return `<div class="crewmini role-bg-${d.role || ''}${u.hp <= 0 ? ' dead' : ''}${u.points > 0 ? ' has-points' : ''}" role="button" tabindex="0" data-act="sheet" data-i="${i}"
         title="${d.name}: ${d.role ? GL.data.roles[d.role].name + ', ' : ''}Level ${u.lvl}, ${u.hp}/${u.max} Leben${u.points > 0 ? `, ${u.points} Statuspunkte offen` : ''}">
-      ${roleBadge(d.role)}
+      ${roleBadge(d.role)}<i class="tm-tdot t-${d.type || ''}" aria-hidden="true"></i>
       <i>${GL.sprites.render(d)}</i>
       ${u.hp <= 0 ? `<span class="down-mark">${PX_GRAVE}<b>K.O.</b></span>` : ''}
       <em class="lvtag">Lv ${u.lvl}</em>
@@ -328,6 +328,7 @@ window.GL = window.GL || {};
   }
 
   function synergyChips(run) {
+    if (run) return '';   // Fork AE: steht schon als Wappen in der Boni-Leiste
     return GL.effects.status(run.crew).filter(s => s.active).map(s =>
       `<span class="chip${s.kind === 'faction' ? ' set' : ''}" title="${s.active.text}">${s.name} ${s.count}</span>`).join('')
       + GL.effects.duos(run.crew).map(d => `<span class="chip duo" title="${esc(d.text)}">Duo: ${d.name}</span>`).join('');
@@ -543,7 +544,78 @@ window.GL = window.GL || {};
     const T = FAM[fd.fam].tiers;
     const hit = T.filter(x => x.n === n)[0];
     const max = T[T.length - 1].n;
-    return `<span class="fr-fam fam-${fd.fam}"><b>${FAM[fd.fam].icon} ${esc(FAM[fd.fam].name)} ${Math.min(n, max)}/${max}</b>${fd.mech ? `<small>${esc(fd.mech)}</small>` : ''}${hit ? `<em>Neu: ${esc(hit.text)}</em>` : ''}</span>`;
+    return `<span class="fr-fam fam-${fd.fam}"><b>${FAM[fd.fam].icon} ${esc(FAM[fd.fam].name)} ${Math.min(n, max)}/${max}</b></span>`;
+  }
+  // „Passt das zu mir?“ Relevanz eines Angebots für die aktuelle Crew: Bewertung + kurze Zeile + Erklärung zum Antippen (Fork AD)
+  const FIT_NAME = { kraft: 'Kraft', klinge: 'Klinge', technik: 'Technik', kaempfer: 'Kämpfer', helfer: 'Helfer', brecher: 'Brecher' };
+  const FIT_HEAL = ['chopper', 'vivi'];
+  function fitInfo(run, item, kind, ben) {
+    if (!run || !item) return null;
+    const crew = (run.crew || []).map(u => ({ u, d: crewData(u.id) || {} }));
+    const typeOf = x => x.u.type || x.d.type, roleOf = x => x.u.role || x.d.role, facOf = x => x.u.faction || x.d.faction;
+    const B = GL.effects && GL.effects.build ? GL.effects.build(run.crew) : null;
+    const minis = list => `<span class="fit-faces">${list.slice(0, 4).map(x => `<i>${GL.sprites.render(x.d.id ? x.d : x.u)}</i>`).join('')}</span>`;
+    const n = crew.length;
+    // Schätze: wen treffen die Werte?
+    if (kind === 'relic') {
+      const mods = item.mods || [], fl = GL.data.relics.find(r => r.id === item.id) || {}, flags = fl.flags || {};
+      const scoped = mods.find(m => m.scope && m.scope !== 'all');
+      if (scoped) {
+        const [k, v] = scoped.scope.split(':');
+        const hit = crew.filter(x => (k === 'type' ? typeOf(x) : k === 'role' ? roleOf(x) : facOf(x)) === v);
+        const nm = FIT_NAME[v] || v;
+        if (!hit.length) return { g: 'down', html: `Noch keine ${esc(nm)}-Figur an Bord, wirkt erst später` };
+        const style = B && B.key === v;
+        return { g: style || hit.length >= Math.max(2, Math.ceil(n / 2)) ? 'up' : 'ok', html: `Wirkt bei ${minis(hit)}<b>${hit.length} von ${n}</b>${style ? ` · passt zu ${B.icon || ''} ${esc(B.name)}` : ''}` };
+      }
+      if (flags.healBonus) {
+        const heal = crew.filter(x => roleOf(x) === 'helfer' || FIT_HEAL.includes(x.d.id));
+        return heal.length ? { g: 'up', html: `Stärkt deine Heiler ${minis(heal)}` } : { g: 'down', html: 'Kein Heiler an Bord, wirkt erst später' };
+      }
+      if (flags.reviveWin || flags.vivre) {
+        const ko = crew.filter(x => x.u.hp <= 0).length;
+        return { g: ko ? 'up' : 'ok', html: ko ? `${ko} gefallen: hilft sofort` : 'Versicherung für später' };
+      }
+      if (flags.crewLimit) return { g: n >= (GL.config.crewMax || 6) ? 'up' : 'ok', html: n >= (GL.config.crewMax || 6) ? 'Deine Crew ist voll: Platz für eine Figur mehr' : 'Platz für eine Figur mehr' };
+      if (flags.bossStartCut || mods.some(m => m.bossPct)) return { g: B && B.key === 'kraft' ? 'up' : 'ok', html: 'Hilft gegen Bösewichte und Bosse' };
+      if (mods.some(m => m.scope === 'all') || flags.cannon || flags.winHeal || flags.firstBlock) return { g: 'ok', html: `Wirkt bei der ganzen Crew ${minis(crew)}` };
+      return null;
+    }
+    // Früchte: wer isst, was bringt die Familie?
+    if (kind === 'fruit') {
+      const e = item.effect || {};
+      let g = ben ? (ben.meh ? 'down' : ben.good ? 'up' : 'ok') : 'ok', html = ben ? esc(ben.t) : '';
+      const list = e.type === 'multi' ? e.list : [e];
+      if (!html && list.some(x => x.type === 'buffAll')) html = `Ganze Crew ${minis(crew)}`;
+      if (!html && list.some(x => x.type === 'buffFront')) { const f = crew.find(x => x.u.hp > 0); if (f) html = `Für ${esc(f.d.name || '')} vorne ${minis([f])}`; }
+      const fd = (GL.data.fruits || []).find(f => f.id === item.id), FAM = GL.data.fruitFams || {};
+      if (fd && fd.fam && FAM[fd.fam]) {
+        const ids = [...new Set(run.eaten || [])];
+        const have = ids.filter(id => { const f = GL.data.fruits.find(x => x.id === id); return f && f.fam === fd.fam; });
+        const k = have.length + (have.includes(item.id) ? 0 : 1);
+        const hit = FAM[fd.fam].tiers.find(x => x.n === k);
+        if (hit) { g = 'up'; html = `${FAM[fd.fam].icon} Neu: ${esc(hit.text)}${html ? ' · ' + html : ''}`; }
+      }
+      return html ? { g, html } : { g, html: '' };
+    }
+    return null;
+  }
+  // Mechanik in Klartext (Antippen/Darüberfahren statt Dauertext)
+  const FIT_EXPLAIN = [
+    [/brand|brennt|brennen/i, 'Brennen: Das Ziel verliert ein paar Runden lang am Rundenende Leben. Mehrere Brände stapeln sich.'],
+    [/einfrier|friert/i, 'Einfrieren: Das Ziel setzt eine Runde aus. Bei Bossen seltener.'],
+    [/austrock/i, 'Austrocknen: Das Ziel nimmt eine Weile mehr Schaden.'],
+    [/zurück|rückprall|federn/i, 'Rückprall: Wer dich trifft, bekommt einen Teil des Schadens zurück.'],
+    [/wut/i, 'Wut: Mit wenig Leben teilt die Figur deutlich mehr aus.'],
+    [/aufsteh|phönix|wieder auf/i, 'Wiederaufstehen: Fällt die Figur, kommt sie einmal pro Kampf zurück.'],
+    [/ausweich/i, 'Ausweichen: Angriffe gehen ab und zu komplett daneben.'],
+    [/krit/i, 'Krit: Treffer machen dann deutlich mehr Schaden.'],
+    [/sehr effektiv/i, 'Sehr effektiv: Kraft schlägt Technik, Technik schlägt Klinge, Klinge schlägt Kraft.']
+  ];
+  function fitExplain(...txts) {
+    const s = txts.filter(Boolean).join(' ');
+    const out = FIT_EXPLAIN.filter(([re]) => re.test(s)).map(([, t]) => t);
+    return out.length ? out.join('\n') : '';
   }
   function treasureFace(item, kind, ben) {
     const rid = item.awakened ? 'awakened' : item.rarity >= 0 ? GL.config.rarities[item.rarity].id : 'unique';
@@ -557,7 +629,12 @@ window.GL = window.GL || {};
         <span class="tc-sign">${item.name}</span>
         <span class="tc-text">${item.text}</span>
         ${kind === 'fruit' ? fruitFamLine(item) : ''}
-        ${ben ? `<span class="card-ben tc-ben${ben.meh ? ' meh' : ben.good ? ' good' : ''}">${ben.meh ? '◦' : '▲'} ${esc(ben.t)}</span>` : ''}
+        ${(() => { const run = window.__glRunRef || (GL.save && GL.save.loadRun && GL.save.loadRun()); const f = fitInfo(run, item, kind, ben);
+          const fd = kind === 'fruit' ? (GL.data.fruits || []).find(x => x.id === item.id) : null;
+          const ex = fitExplain(item.text, fd && fd.mech);
+          if (!f && !ex) return '';
+          const G = { up: ['▲', 'Stark für dich'], ok: ['◦', 'Passt'], down: ['▽', 'Gerade nicht'] }[f ? f.g : 'ok'];
+          return `<span class="fit fit-${f ? f.g : 'ok'}"><em class="fit-g" title="${G[1]}">${G[0]} ${G[1]}</em>${f && f.html ? `<span class="fit-t">${f.html}</span>` : ''}${ex ? `<i class="fit-q" data-tip="${esc(ex)}" aria-label="Was heißt das?">?</i>` : ''}</span>`; })()}
         <span class="tc-take"><span class="tc-take-a">Antippen</span><span class="tc-take-b">✓ Gewählt</span></span>
       </span>
     </span>`;
@@ -613,10 +690,10 @@ window.GL = window.GL || {};
     const here = GL.run.chapterIsland(run);
     const island = here && run.phase !== 'course' ? here.name : GL.run.island(run).name;
     const pos = Math.min(GL.run.rowIdx(run) + 1, GL.config.chapterSteps);
-    return `${bars}<span class="track-loc">${island} · <b class="stop-name">${run.phase === 'course' ? 'Kurs setzen' : run.phase === 'starter' ? 'Kapitän wählen' : GL.run.stopName(run)}</b>${run.phase === 'course' || run.phase === 'starter' ? '' : ` <small class="muted">(${pos}/${GL.config.chapterSteps})</small>`}</span>
+    return `${bars}${GL.worldmap ? `<button class="vy-map" data-act="worldmap" aria-label="Weltkarte" title="Weltkarte: Wie weit bin ich?">${GL.art && GL.art.prop ? GL.art.prop('karte') : '🗺'}</button>` : ''}<span class="track-loc">${island} · <b class="stop-name">${run.phase === 'course' ? 'Kurs setzen' : run.phase === 'starter' ? 'Kapitän wählen' : GL.run.stopName(run)}</b>${run.phase === 'course' || run.phase === 'starter' ? '' : ` <small class="muted">(${pos}/${GL.config.chapterSteps})</small>`}</span>
       <span class="head-chips">
         <em class="gold-chip" data-tip="Gold für die Taverne.\nGibt es für Siege, verfällt am Run-Ende.">${GL.sprites.coin()} <b>${run.gold || 0}</b></em>
-        <em class="bounty-chip" id="bounty-chip" data-tip="Kopfgeld deines Kapitäns.\nZählt für deinen Punktestand und die Rangliste 'Höchstes Kopfgeld'. Bringt sonst nichts im Run.">${GL.sprites.icon('node', 'elite')} <b>${fmtBounty(run.bountyM || 0)}</b></em>${run.mood && GL.config.moods ? (m => m ? `<em class="mood-chip" data-tip="${esc('Laune der See: ' + m.name + '\n' + m.text)}">${m.icon}<b>${esc(m.name)}</b></em>` : '')(GL.config.moods.find(x => x.id === run.mood)) : ''}${GL.run.twist && !GL.run.isFinished(run) ? (tw => tw ? `<em class="mood-chip twist-chip" data-tip="${esc('Insel-Twist: ' + tw.name + '\n' + tw.text)}">${tw.icon}<b>${esc(tw.name)}</b></em>` : '')(GL.run.twist(run)) : ''}${(bd => bd ? `<em class="mood-chip build-chip b-${bd.key}" data-tip="${esc('Dein Stil: ' + bd.name + ' (' + bd.count + '× ' + bd.label + ')\n' + bd.pitch + '\n' + bd.tiers.map(x => (bd.count >= x.n ? '✓ ' : '· ') + x.n + ': ' + x.text).join('\n') + comboTip(run.crew))}">${bd.icon}<b>${esc(bd.name)}</b><small>${'★'.repeat(bd.tier)}</small>${GL.effects.combos && GL.effects.combos(run.crew).length ? '<i class="combo-dot" aria-hidden="true">✦</i>' : ''}</em>` : '')(GL.effects.build ? GL.effects.build(run.crew) : null)}${run.epi && run.epi.part && !GL.run.isFinished(run) ? (ep => ep ? `<em class="mood-chip ep-chip" data-tip="${esc((GL.i18n && GL.i18n.lang() === 'en' ? 'Episode on this island: ' + ep.title[1] + '\nYour choices pay off before the villain.' : 'Folge auf dieser Insel: ' + ep.title[0] + '\nDeine Entscheidungen zahlen sich vor dem Bösewicht aus.'))}">📜<b>${esc(GL.i18n && GL.i18n.lang() === 'en' ? ep.title[1] : ep.title[0])} (${Math.min(3, run.epi.part)}/3)</b></em>` : '')((GL.data.crewEpisodes || []).find(e => e.id === run.epi.id)) : ''}${(run.streak || 0) >= 2 ? `<em class="streak-chip${run.streak >= 6 ? ' hot' : run.streak >= 3 ? ' warm' : ''}" data-tip="Kopfgeld-Serie: ${run.streak} Siege in Folge ohne K.O.\nAb 3 Siegen +1 Gold pro Sieg, ab 6 +2. Am Run-Ende Extra-Berry.\nFällt jemand, beginnt die Serie neu.">${PX_FLAME}<b>${run.streak}</b></em>` : ''}
+        <em class="bounty-chip" id="bounty-chip" data-tip="Kopfgeld deines Kapitäns.\nZählt für deinen Punktestand und die Rangliste 'Höchstes Kopfgeld'. Bringt sonst nichts im Run.">${GL.sprites.icon('node', 'elite')} <b>${fmtBounty(run.bountyM || 0)}</b></em>${lageChip(run)}${(bd => bd ? `<em class="mood-chip build-chip b-${bd.key}" data-tip="${esc('Dein Stil: ' + bd.name + ' (' + bd.count + '× ' + bd.label + ')\n' + bd.pitch + '\n' + bd.tiers.map(x => (bd.count >= x.n ? '✓ ' : '· ') + x.n + ': ' + x.text).join('\n') + comboTip(run.crew))}">${bd.icon}<b>${esc(bd.name)}</b><small>${'★'.repeat(bd.tier)}</small>${GL.effects.combos && GL.effects.combos(run.crew).length ? '<i class="combo-dot" aria-hidden="true">✦</i>' : ''}</em>` : '')(GL.effects.build ? GL.effects.build(run.crew) : null)}${(run.streak || 0) >= 2 ? `<em class="streak-chip${run.streak >= 6 ? ' hot' : run.streak >= 3 ? ' warm' : ''}" data-tip="Kopfgeld-Serie: ${run.streak} Siege in Folge ohne K.O.\nAb 3 Siegen +1 Gold pro Sieg, ab 6 +2. Am Run-Ende Extra-Berry.\nFällt jemand, beginnt die Serie neu.">${PX_FLAME}<b>${run.streak}</b></em>` : ''}
         ${run.heat ? `<em class="heat-chip">Stufe ${run.heat}</em>` : ''}
         ${run.loop ? `<em class="duel-chip endless-chip">Endlos ${run.loop + 1}</em>` : ''}
         ${run.daily ? '<em class="duel-chip">Tageskarte</em>' : run.duel ? `<button class="duel-chip" data-act="duel-copy" data-id="${run.duel}" title="Code teilen">Wettfahrt ${run.duel} · teilen</button>` : ''}
@@ -658,6 +735,7 @@ window.GL = window.GL || {};
       <ul>${relics.map(r => `<li>${rarityPill(r.rarity)} <b>${r.name}:</b> ${r.text}</li>`).join('')}</ul></details>` : '';
 
     const duoHtml = GL.effects.duos(run.crew).map(d => `<div class="syn-row on duo"><b class="syn-name">${esc(d.name)}<small>Duo</small></b><span class="syn-count">♥</span><span class="pips"></span><span class="syn-text">${esc(d.text)}</span></div>`).join('');
+    if (rows || duoHtml || pendingHtml) return `${teamGrid(run, true)}${relicHtml}${details}`;   // Fork AE
     return `<div class="syn">${rows}${duoHtml}</div>${pendingHtml}${relicHtml}${details}`;
   }
 
@@ -703,6 +781,47 @@ window.GL = window.GL || {};
       <span class="muted">Zu Kampfbeginn: Boss verliert ${Math.round(GL.config.specialBossCut * 100)} %, Begleiter ${Math.round(GL.config.specialEscortCut * 100)} % Leben. Die Crew wird von allen Zuständen befreit und hat 2 Runden Mut.</span>
       <button class="btn${on ? '' : ' ghost'} sp-btn" data-act="special">${on ? '✦ Wird eingesetzt' : '✦ Spezialangriff einsetzen'} ${keyHint('Q')}</button>
     </div>`;
+  }
+
+  // Kampf-Vorbereitung: Konter als kleine Abzeichen (Haken = dabei), Erklärung beim Antippen
+  function prepCounter(run, key) {
+    const alive = run.crew.filter(u => u.hp > 0);
+    const helfer = alive.filter(u => u.role === 'helfer').length;
+    const brecher = alive.filter(u => u.role === 'brecher').length;
+    const brook = alive.some(u => u.id === 'brook');
+    const chip = (ok, ico, label, tip) => `<span class="pz-c ${ok ? 'ok' : 'no'}" tabindex="0" data-tip="${esc(tip)}"><i>${ico}</i>${label}<em>${ok ? '✓' : '✗'}</em></span>`;
+    const parts = [chip(helfer > 0, '✚', helfer ? `Helfer ${helfer}` : 'Helfer', 'Helfer reinigen am Rundenende von Zuständen.')];
+    if (key === 'fear') parts.push(chip(brecher > 0, '🛡', brecher ? `Brecher ${brecher}` : 'Brecher', 'Brecher sind immun gegen Angst.'));
+    else if (key === 'stun') parts.push(chip(brecher > 0, '🛡', 'Brecher', 'Ein robuster Brecher steht automatisch vorne und fängt die Betäubung ab.'));
+    else parts.push(`<span class="pz-c tip" tabindex="0" data-tip="${esc('Heilung über mehrere Runden hilft gegen diesen Zustand.')}"><i>♥</i>Heilung</span>`);
+    if (brook && (key === 'fear' || key === 'stun')) parts.push(chip(true, '♪', 'Brook', 'Brook macht Mut.'));
+    return `<div class="pz-counter"><span class="pz-mech-k">Konter</span>${parts.join('')}</div>`;
+  }
+  // Spezialangriff als Pixel-Abzeichen mit Ladebalken statt Textblock
+  // Spezialangriff als kleiner Knopf neben „Kampf starten“: Ladepunkte, bereit = dezenter Puls, Info per Antippen/Halten (data-tip)
+  function specialBtn(run) {
+    if (!['boss', 'raid'].includes(run.pending.kind)) return '';
+    const max = GL.config.specialMax, c = Math.min(max, run.charge || 0);
+    const cap = crewData(run.captain || run.crew[0].id) || {};
+    const name = (GL.data.specials && GL.data.specials[cap.id]) || 'Crew-Großangriff';
+    const pips = `<span class="sb-pips" aria-hidden="true">${Array.from({ length: max }, (_, i) => `<i class="${i < c ? 'on' : ''}"></i>`).join('')}</span>`;
+    const eff = `Boss −${Math.round(GL.config.specialBossCut * 100)} % Leben, Begleiter −${Math.round(GL.config.specialEscortCut * 100)} %, Crew 2 Runden mutig.`;
+    if (c < max) return `<span class="sp-btn off" tabindex="0" role="img" aria-label="${esc(name)}: ${c}/${max}" data-tip="${esc(name + '\n' + eff + '\n' + 'Lädt: ' + c + '/' + max + ' (Siege laden auf)')}"><i class="sb-star">✦</i>${pips}</span>`;
+    const on = !!run.pending.special;
+    return `<button class="sp-btn ready${on ? ' on' : ''}" data-act="special" aria-pressed="${on}" aria-label="${esc(name)}" data-tip="${esc(name + '\n' + eff)}"><i class="sb-star">${on ? '✓' : '✦'}</i>${pips}<small class="sb-k">${on ? 'Aktiv' : 'Spezial'}</small></button>`;
+  }
+  function specialBadge(run) {
+    if (!['boss', 'raid'].includes(run.pending.kind)) return '';
+    const max = GL.config.specialMax, c = Math.min(max, run.charge || 0);
+    const cap = crewData(run.captain || run.crew[0].id) || {};
+    const name = (GL.data.specials && GL.data.specials[cap.id]) || 'Crew-Großangriff';
+    const bar = `<span class="pz-bar" aria-label="${c} von ${max}">${Array.from({ length: max }, (_, i) => `<i class="${i < c ? 'on' : ''}"></i>`).join('')}</span>`;
+    const desc = `Zu Kampfbeginn: Boss verliert ${Math.round(GL.config.specialBossCut * 100)} %, Begleiter ${Math.round(GL.config.specialEscortCut * 100)} % Leben. Die Crew wird von allen Zuständen befreit und hat 2 Runden Mut.`;
+    if (c < max) {
+      return `<div class="pz-sp off" tabindex="0" data-tip="${esc(`Spezialangriff: ${c} von ${max}\nSiege laden ihn auf, Kopfgeldjäger doppelt.`)}"><span class="pz-sp-art">${GL.sprites.render(cap)}</span><span class="pz-sp-t"><small>Spezialangriff</small><b>${esc(name)}</b>${bar}</span><span class="pz-sp-st">lädt</span></div>`;
+    }
+    const on = !!run.pending.special;
+    return `<div class="pz-sp ready${on ? ' on' : ''}"><span class="pz-sp-art">${GL.sprites.render(cap)}</span><span class="pz-sp-t" tabindex="0" data-tip="${esc(name + '\n' + desc)}"><small>Spezialangriff <i class="pz-more" aria-hidden="true">ⓘ</i></small><b>${esc(name)}</b>${bar}</span><button class="pz-sp-btn" data-act="special" aria-pressed="${on}">${on ? '✓ Aktiv' : '✦ Einsetzen'} ${keyHint('Q')}</button></div>`;
   }
 
   // ---------- Kopfgeld ----------
@@ -917,8 +1036,8 @@ window.GL = window.GL || {};
         <span class="jr-txt"><span class="jr-lbl">${esc(lbl)}${foe ? ` · ${esc(foe.name)}` : ''}${foe && foe.bounty && !isBoss ? ` <em>${foe.bounty} Mio. ฿</em>` : ''}</span><b>${esc(txt)}</b>${dangerTag(run, n.t)}</span>
       </button>`;
     }).join('');
-    return `<div class="journey ${seaCls}">
-      <div class="jr-stage" aria-hidden="true">${(s => s ? `<span class="jr-art">${s}</span>` : '')(art('scene', (here && here.id) || ((GL.run.island(run) || {}).id)))}<i class="jr-sun"></i><i class="jr-cloud a"></i><i class="jr-cloud b"></i>
+    return `<div class="journey ${seaCls}${(s => (s.weather ? ' wx-' + s.weather : '') + (s.time ? ' tm-' + s.time : ''))(lageSky(run))}">
+      <div class="jr-stage" aria-hidden="true">${(s => s ? `<span class="jr-art">${s}</span>` : '')((() => { try { return GL.art && GL.art.scene ? GL.art.scene((here && here.id) || ((GL.run.island(run) || {}).id), Object.assign({ run, ship: false }, lageSky(run))).replace('<svg ', '<svg preserveAspectRatio="xMidYMid slice" ') : ''; } catch (e) { return ''; } })())}<i class="jr-sun"></i><i class="jr-cloud a"></i><i class="jr-cloud b"></i>
         ${here ? `<span class="jr-isle"><i></i></span>` : ''}
         <span class="jr-ship">${GL.sprites.ship ? GL.sprites.ship() : ''}</span><span class="jr-deck">${crewOnDeck}</span><i class="jr-wave a"></i><i class="jr-wave b"></i></div>
       <div class="jr-say"><span class="jr-face">${face}</span><span class="jr-bubble"><b>${esc(spDef.name || 'Kalle')}</b><span class="jr-line">${esc(lineTxt)}</span></span></div>
@@ -926,9 +1045,88 @@ window.GL = window.GL || {};
     </div>`;
   }
 
+  // ---------- Lage & Wetter: alles, was gerade auf der ganzen Etappe wirkt, in einem Abzeichen ----------
+  const LAGE_SKY = { regen: { weather: 'rain' }, nebel: { weather: 'fog' }, schnee: { weather: 'snow' }, gewitter: { weather: 'storm' }, sturm: { weather: 'storm' }, vollmond: { time: 'night' }, abendrot: { time: 'dusk' }, ruhig: { time: 'night' } };
+  function lageItems(run) {
+    if (!run || GL.run.isFinished(run)) return [];
+    const en = GL.i18n && GL.i18n.lang() === 'en', out = [];
+    const m = run.mood && GL.config.moods ? GL.config.moods.find(x => x.id === run.mood) : null;
+    if (m) out.push({ k: 'mood', icon: m.icon, kick: en ? 'Mood of the sea' : 'Laune der See', name: m.name, text: m.text });
+    const tw = GL.run.twist ? GL.run.twist(run) : null;
+    if (tw) out.push({ k: 'twist', icon: tw.icon, kick: en ? 'On this island' : 'Auf dieser Insel', name: en && tw.en ? tw.en[0] : tw.name, text: en && tw.en ? tw.en[1] : tw.text, raw: !!(en && tw.en) });
+    const ep = run.epi && run.epi.part ? (GL.data.crewEpisodes || []).find(e => e.id === run.epi.id) : null;
+    if (ep) out.push({ k: 'ep', icon: '📜', kick: en ? 'Episode' : 'Folge', name: (en ? ep.title[1] : ep.title[0]) + ' (' + Math.min(3, run.epi.part) + '/3)', text: en ? 'Your choices pay off before the villain.' : 'Deine Entscheidungen zahlen sich vor dem Bösewicht aus.', raw: true });
+    (run.epTemp || []).forEach(x => out.push({ k: 'temp', icon: x.value > 0 ? '▲' : '▼', kick: en ? 'Until the end of the island' : 'Bis zum Ende der Insel', name: (x.value > 0 ? '+' : '') + x.value + ' ' + ({ atk: en ? 'attack' : 'Angriff', hp: en ? 'health' : 'Leben', spd: en ? 'speed' : 'Tempo' }[x.stat] || x.stat), text: en ? 'For the whole crew.' : 'Für die ganze Crew.', raw: true, bad: x.value < 0 }));
+    return out;
+  }
+  function lageSky(run) { const tw = GL.run.twist ? GL.run.twist(run) : null; return Object.assign({}, tw && LAGE_SKY[tw.id] || {}, tw && tw.weather ? { weather: tw.weather } : {}, tw && tw.time ? { time: tw.time } : {}); }
+  function lageChip(run) {
+    const L = lageItems(run);
+    if (!L.length) return '';
+    const en = GL.i18n && GL.i18n.lang() === 'en';
+    const main = L.find(x => x.k === 'twist') || L[0];
+    return `<button class="lage-chip" data-act="lage" aria-label="${en ? 'Conditions' : 'Lage'}: ${L.length}" title="${esc(L.map(x => x.name).join(' · '))}"><i>${main.icon}</i>${L.length > 1 ? `<b>${L.length}</b>` : `<b class="lg-one">${esc(main.name)}</b>`}</button>`;
+  }
+  function lagePop(run) {
+    const L = lageItems(run), en = GL.i18n && GL.i18n.lang() === 'en';
+    const sky = lageSky(run), id = (GL.run.chapterIsland(run) || {}).id;
+    const art = GL.art && GL.art.scene ? GL.art.scene('see', Object.assign({ ship: true }, sky)).replace('<svg ', '<svg preserveAspectRatio="xMidYMid slice" ') : '';
+    return `<div class="fpop-card lage-pop">
+      ${art ? `<div class="lg-sky" aria-hidden="true">${art}</div>` : ''}
+      <span class="event-kicker">${en ? 'Current conditions' : 'Die Lage'}</span>
+      <div class="lg-list">${L.map(x => `<div class="lg-row lg-${x.k}${x.bad ? ' bad' : ''}"><i class="lg-ico">${x.icon}</i><span><small>${esc(x.kick)}</small><b>${esc(x.name)}</b><em>${esc(x.text)}</em></span></div>`).join('')}</div>
+      <div class="fpop-btns"><button class="btn" data-act="pop-close">${en ? 'Got it' : 'Verstanden'}</button></div></div>`;
+  }
+
   // ---------- Buff-Leiste links (wie bei TFT) ----------
   // Zeigt alle Synergien, die die Crew gerade hat: aktive oben, angefangene darunter.
+  // ---------- Team auf einen Blick (Fork AE): Wappen mit Stufen-Punkten, Details nur beim Antippen ----------
+  // e = { ico, name, kind, lv ('gold'|'silver'|'bronze'|'off'|'duo'|'ally'|'combo'|'fruit'), on, max, count, miss, now, next }
+  function teamEmblem(e) {
+    const pips = e.max ? `<span class="tm-pips">${Array.from({ length: e.max }, (_, k) => `<i class="${k < e.on ? 'on' : ''}"></i>`).join('')}</span>` : '';
+    const tip = [e.name + (e.kind ? ' · ' + e.kind : ''), e.now || '', e.next || ''].filter(Boolean).join('\n');
+    return `<button class="tm-em tm-${e.lv}" data-act="tm-tip" data-tip="${esc(tip)}" data-n="${esc(e.name)}" data-k="${esc(e.kind || '')}" data-a="${esc(e.now || '')}" data-b="${esc(e.next || '')}" aria-label="${esc(e.name)}">
+      <i class="tm-ico">${e.ico}</i>${e.count != null ? `<b class="tm-n">${e.count}</b>` : ''}${e.miss ? `<em class="tm-miss">+${e.miss}</em>` : ''}${pips}</button>`;
+  }
+  function teamEmblems(run) {
+    const crew = run.crew;
+    const st = GL.effects.status(crew).filter(s => s.count > 0);
+    const tierIdx = s => s.active ? s.tiers.indexOf(s.active) : -1;
+    const lv = s => !s.active ? 'off' : tierIdx(s) === s.tiers.length - 1 ? 'gold' : tierIdx(s) >= 1 ? 'silver' : 'bronze';
+    const ico = s => ICON_ART[s.key] ? pxIcon(s.key) : `<span class="tm-hex">${esc(s.name.slice(0, 2))}</span>`;
+    const em = s => teamEmblem({ ico: ico(s), name: s.name, kind: s.kind === 'faction' ? 'Bande' : s.kind === 'type' ? 'Stil' : 'Rolle', lv: lv(s),
+      on: s.tiers.filter(x => s.count >= x.n).length, max: s.tiers.length, count: s.count, miss: s.next ? s.next.n - s.count : 0,
+      now: s.active ? s.active.text : '', next: s.next ? 'Ab ' + s.next.n + ': ' + s.next.text : '' });
+    st.sort((a, b) => (!!b.active - !!a.active) || (tierIdx(b) - tierIdx(a)) || ((b.kind === 'faction') - (a.kind === 'faction')) || (b.count - a.count));
+    const on = st.filter(s => s.active).map(em);
+    const near = st.filter(s => !s.active).map(em);
+    (GL.effects.combos ? GL.effects.combos(crew) : []).forEach(c => on.push(teamEmblem({ ico: `<span class="tm-hex">${c.icon}</span>`, name: c.name, kind: 'Kombo', lv: 'combo', now: c.text })));
+    GL.effects.alliances(crew).forEach(a => on.push(teamEmblem({ ico: pxIcon(a.a), name: a.name, kind: 'Bündnis', lv: 'ally', now: a.text })));
+    const duos = GL.effects.duos(crew);
+    if (duos.length) on.push(teamEmblem({ ico: '<span class="tm-hex">♥</span>', name: duos.length === 1 ? duos[0].name : duos.map(d => d.name).join(' · '), kind: 'Duo', lv: 'duo', count: duos.length > 1 ? duos.length : null,
+      now: duos.map(d => d.text).join(' ') }));
+    if (GL.fruitFx) GL.fruitFx.families(run).forEach(f => (f.active ? on : near).push(teamEmblem({ ico: `<span class="tm-hex">${f.icon}</span>`, name: f.name, kind: 'Früchte', lv: f.active ? 'fruit' : 'off',
+      on: f.tiers.filter(x => f.count >= x.n).length, max: f.tiers.length, count: f.count, miss: f.next ? f.next.n - f.count : 0, now: f.active ? f.active.text : '', next: f.next ? 'Ab ' + f.next.n + ': ' + f.next.text : '' })));
+    (GL.effects.combosNear ? GL.effects.combosNear(crew) : []).slice(0, 2).forEach(c => near.push(teamEmblem({ ico: `<span class="tm-hex">${c.icon}</span>`, name: c.name, kind: 'Kombo', lv: 'off', next: c.text })));
+    GL.effects.alliancesNear(crew).slice(0, 2).forEach(a => near.push(teamEmblem({ ico: pxIcon(a.a), name: a.name, kind: 'Bündnis', lv: 'off', next: a.text })));
+    return { on, near };
+  }
+  function teamGrid(run, wide) {
+    const E = teamEmblems(run);
+    if (!E.on.length && !E.near.length) return '';
+    return `<div class="tm-wrap${wide ? ' wide' : ''}">
+      <div class="tm-grid">${E.on.join('') || '<span class="tm-none">—</span>'}</div>
+      ${E.near.length ? `<div class="tm-grid near">${E.near.join('')}</div>` : ''}
+      <div class="tm-detail" aria-live="polite"><small>Antippen für Details</small></div></div>`;
+  }
+
   function traitRail(run) {
+    if (!(GL.effects && GL.effects.status)) return '';
+    const grid = run.crew.length ? teamGrid(run, false) : '';
+    if (grid) return `<div class="tr-head">Boni</div>${grid}`;
+    return traitRailOld(run);
+  }
+  function traitRailOld(run) {
     const list = GL.effects.status(run.crew).filter(s => s.count > 0);
     const famRows = GL.fruitFx ? GL.fruitFx.families(run).map(f => `<div class="tr tr-fruit${f.active ? ' on' : ' tr-off'}" tabindex="0" data-tip="${esc(f.name + ' (Teufelsfrüchte)\n' + f.text + '\n' + f.tiers.map(x => (f.count >= x.n ? '✓ ' : '· ') + x.n + ': ' + x.text).join('\n'))}">
         <span class="tr-icon"><span class="tr-hex">${f.icon}</span></span>
@@ -1015,8 +1213,8 @@ window.GL = window.GL || {};
   function synPop(run) {
     return `<div class="fpop-card syn-pop">
       <span class="event-kicker">Deine Boni</span>
-      <p class="hint">Gleiche Banden, Kampfstile und Rollen in der Crew schalten Boni frei. Zwei aktive Banden-Boni können zusätzlich ein <b>Bündnis</b> bilden.</p>
-      <div class="syn-pop-list">${traitRail(run)}</div>
+      <div class="syn-pop-list">${teamGrid(run, true) || '<p class="tr-empty">Noch keine Boni.</p>'}</div>
+      <p class="tm-legend"><i class="tm-l on"></i>aktiv <i class="tm-l"></i>fast <em>+1</em> fehlt noch</p>
       <div class="fpop-btns"><button class="btn ghost" data-act="wiki-open" data-v="boni">Alle Banden im Wiki</button><button class="btn" data-act="pop-close">Alles klar</button></div></div>`;
   }
 
@@ -1339,12 +1537,81 @@ window.GL = window.GL || {};
     </div>`;
   }
 
+  // ---------- Event-Ergebnisse als Pixel-Abzeichen (Fork AC) ----------
+  // Kleine Pixel-Symbole, die es sonst nicht gibt: Uhr (gilt bis Inselende), Plus (Wiederbeleben), Pfeil (Buff)
+  const evPx = (rows, pal) => { let r = ''; rows.forEach((row, y) => row.split('').forEach((ch, x) => { if (pal[ch]) r += `<rect x="${x}" y="${y}" width="1" height="1" fill="${pal[ch]}"/>`; })); return `<i class="pxi"><svg viewBox="0 0 8 8" shape-rendering="crispEdges" aria-hidden="true">${r}</svg></i>`; };
+  const EV_ICO = {
+    clock: () => evPx(['..KKKK..', '.KWWWWK.', 'KWWKWWWK', 'KWWKWWWK', 'KWWKKKWK', 'KWWWWWWK', '.KWWWWK.', '..KKKK..'], { K: '#5a3a1e', W: '#fff4d6' }),
+    plus: () => evPx(['..KKKK..', '..KGGK..', 'KKKGGKKK', 'KGGGGGGK', 'KGGGGGGK', 'KKKGGKKK', '..KGGK..', '..KKKK..'], { K: '#1f5a2a', G: '#5fc46a' }),
+    up: () => evPx(['...KK...', '..KGGK..', '.KGGGGK.', 'KGGGGGGK', 'KKKGGKKK', '..KGGK..', '..KGGK..', '..KKKK..'], { K: '#1f5a2a', G: '#5fc46a' }),
+    down: () => evPx(['..KKKK..', '..KRRK..', '..KRRK..', 'KKKRRKKK', 'KRRRRRRK', '.KRRRRK.', '..KRRK..', '...KK...'], { K: '#6a1f18', R: '#e0604a' }),
+    star: () => evPx(['...KK...', '...KYK..', 'KKKYYKKK', 'KYYYYYYK', '.KYYYYK.', '.KYKKYK.', 'KYK..KYK', 'KK....KK'], { K: '#5a3a1e', Y: '#f2c94c' })
+  };
+  const evIco = k => ({ gold: () => GL.sprites.coin(), berry: () => GL.sprites.coin(), heal: () => pxIco('heart'), hurt: () => pxIco('heart'), revive: EV_ICO.plus, xp: () => pxIco('book'), lvl: EV_ICO.star, points: EV_ICO.star,
+    atk: () => pxIco('swords'), hp: () => pxIco('heart'), spd: () => pxIco('bolt'), crit: () => pxIco('bolt'), treasure: () => pxIco('chest'), fruit: () => (GL.art && GL.art.icon ? GL.art.icon('frucht') : GL.sprites.icon('node', 'fruit')),
+    recruit: () => GL.sprites.icon('node', 'recruit'), dice: () => pxIco('dice'), luck: () => pxIco('dice'), unluck: () => pxIco('dice') }[k] || (() => ''))();
+  // tone: buff (grün), debuff (rötlich), gold (gelb), info (Holz)
+  function evChip(kind, label, tone, opt) {
+    const o = opt || {};
+    return `<span class="ev-chip t-${tone}${o.big ? ' big' : ''}" style="--k:${o.k || 0}"${o.tip ? ` data-tip="${esc(o.tip)}"` : ''}><i class="ev-ic">${evIco(kind)}</i><b>${label}</b>${o.until ? `<i class="ev-until" title="${o.en ? 'until the island ends' : 'bis Inselende'}">${EV_ICO.clock()}</i>` : ''}${o.arrow ? `<i class="ev-arr">${o.arrow === 'up' ? EV_ICO.up() : EV_ICO.down()}</i>` : ''}</span>`;
+  }
+  const EV_STAT = { Angriff: 'atk', Leben: 'hp', Tempo: 'spd' };
+  const EV_STAT_EN = { atk: 'ATK', hp: 'HP', spd: 'SPD' };
+  // Ergebnis-Zeilen (deutsch aus der Engine) → Abzeichen. Was nicht passt, bleibt eine kurze Textzeile.
+  function lineChip(l, k, en) {
+    let m;
+    const o = { k, tip: l, en };
+    if ((m = /^([+-]?\d+) Gold$/.exec(l))) return evChip('gold', `${+m[1] > 0 ? '+' : '−'}${Math.abs(+m[1])}`, +m[1] >= 0 ? 'gold' : 'debuff', o);
+    if ((m = /^([+-]?\d+) Berry/.exec(l))) return evChip('berry', `${+m[1] > 0 ? '+' : '−'}${Math.abs(+m[1])} ฿`, 'gold', o);
+    if ((m = /^Crew heilt (\d+) %/.exec(l))) return evChip('heal', `+${m[1]} %`, 'buff', o);
+    if ((m = /^Crew verliert (\d+) %/.exec(l))) return evChip('hurt', `−${m[1]} %`, 'debuff', o);
+    if ((m = /(\d+) % Leben wieder auf/.exec(l))) return evChip('revive', `${m[1]} %`, 'buff', o);
+    if (/^Niemand musste geflickt/.test(l)) return evChip('revive', '✓', 'info', o);
+    if ((m = /^\+(\d+) Erfahrung/.exec(l))) return evChip('xp', `+${m[1]} EP`, 'buff', o);
+    if ((m = /^(.+) erreicht Level (\d+)!?$/.exec(l))) return evChip('lvl', `${esc(m[1])} Lv ${m[2]}`, 'buff', o);
+    if ((m = /^Kapitän \+(\d+) Statuspunkte/.exec(l))) return evChip('points', `+${m[1]} ${en ? 'pts' : 'Pkt'}`, 'buff', o);
+    if ((m = /^Ganze Crew \+(\d+) % Krit-Chance/.exec(l))) return evChip('crit', `+${m[1]} % ${en ? 'crit' : 'Krit'}`, 'buff', o);
+    if ((m = /^Bis zum Ende der Insel: Ganze Crew ([+-]\d+) (Angriff|Leben|Tempo)/.exec(l))) { const s = EV_STAT[m[2]], v = +m[1]; return evChip(s, `${v > 0 ? '+' : '−'}${Math.abs(v)} ${en ? EV_STAT_EN[s] : m[2]}`, v >= 0 ? 'buff' : 'debuff', Object.assign(o, { until: true })); }
+    if ((m = /^Ganze Crew ([+-]?\d+) (Angriff|Leben|Tempo)/.exec(l))) { const s = EV_STAT[m[2]], v = +m[1]; return evChip(s, `${v >= 0 ? '+' : '−'}${Math.abs(v)} ${en ? EV_STAT_EN[s] : m[2]}`, v >= 0 ? 'buff' : 'debuff', Object.assign(o, { arrow: v >= 0 ? 'up' : 'down' })); }
+    if ((m = /^Schatz gefunden: (.+?) \((.+)\)$/.exec(l))) return evChip('treasure', esc(m[1]), 'gold', Object.assign(o, { big: true }));
+    if (/^Glück gehabt/.test(l)) return evChip('luck', en ? 'Lucky!' : 'Glück!', 'buff', o);
+    if (/^Pech gehabt/.test(l)) return evChip('unluck', en ? 'Unlucky' : 'Pech', 'debuff', o);
+    return null;
+  }
+  // Vorschau auf den Wahlkarten: grob, was die Option bringt. Glücksspiel: nur „?“
+  function outcomePreview(o, en) {
+    if (!o) return '';
+    if (o.chance !== undefined) return evChip('dice', '?', 'info', { tip: en ? 'Luck decides' : 'Das Glück entscheidet' });
+    const c = [];
+    const sg = v => `${v > 0 ? '+' : '−'}${Math.abs(v)}`;
+    if (o.gold) c.push(evChip('gold', sg(o.gold), o.gold > 0 ? 'gold' : 'debuff'));
+    if (o.berry) c.push(evChip('berry', sg(o.berry), 'gold'));
+    if (o.heal) c.push(evChip('heal', `+${Math.round(o.heal * 100)} %`, 'buff'));
+    if (o.hurt) c.push(evChip('hurt', `−${Math.round(o.hurt * 100)} %`, 'debuff'));
+    if (o.revive) c.push(evChip('revive', `${Math.round(o.revive * 100)} %`, 'buff'));
+    if (o.xp) c.push(evChip('xp', `+${o.xp}`, 'buff'));
+    if (o.points) c.push(evChip('points', `+${o.points}`, 'buff'));
+    if (o.crit) c.push(evChip('crit', `+${Math.round(o.crit * 100)} %`, 'buff'));
+    if (o.buffAll) c.push(evChip(o.buffAll.stat, `${sg(o.buffAll.value)}`, o.buffAll.value >= 0 ? 'buff' : 'debuff'));
+    if (o.temp) c.push(evChip(o.temp.stat, `${sg(o.temp.value)}`, o.temp.value >= 0 ? 'buff' : 'debuff', { until: true, en }));
+    if (o.relic !== undefined || o.pick === 'relic' || o.pick === 'treasure') c.push(evChip('treasure', en ? 'Treasure' : 'Schatz', 'gold'));
+    if (o.pick === 'fruit') c.push(evChip('fruit', en ? 'Fruit' : 'Frucht', 'gold'));
+    if (o.pick === 'recruit' || o.recruit) c.push(evChip('recruit', en ? 'Crew' : 'Crew', 'gold'));
+    return c.join('');
+  }
   function noticeBox(run) {
     const n = run.notice;
     if (!n) return '';
-    const L2 = v => Array.isArray(v) ? v[GL.i18n && GL.i18n.lang && GL.i18n.lang() === 'en' ? 1 : 0] : v;
-    return `<div class="notice"><b>${L2(n.title)}</b> <span>${L2(n.text)}</span>
-      ${n.lines.length ? `<ul>${n.lines.map(l => `<li>${l}</li>`).join('')}</ul>` : ''}</div>`;
+    const en = !!(GL.i18n && GL.i18n.lang && GL.i18n.lang() === 'en');
+    const L2 = v => Array.isArray(v) ? v[en ? 1 : 0] : v;
+    const chips = [], rest = [];
+    (n.lines || []).forEach(l => { const c = lineChip(l, chips.length, en); if (c) chips.push(c); else rest.push(l); });
+    return `<div class="notice ev-res">
+      <span class="ev-res-k">${en ? 'Outcome' : 'Ergebnis'}</span>
+      <b class="ev-res-t">${L2(n.title)}</b>
+      ${n.text ? `<p class="ev-res-x">${L2(n.text)}</p>` : ''}
+      ${chips.length ? `<div class="ev-chips">${chips.join('')}</div>` : ''}
+      ${rest.length ? `<div class="ev-rest">${rest.map(l => `<small>${l}</small>`).join('')}</div>` : ''}</div>`;
   }
 
   // ---------- Hauptbereich je nach Phase ----------
@@ -1375,9 +1642,9 @@ window.GL = window.GL || {};
       return `<div class="ce-line ${side}" style="--k:${k}"><i class="ce-face">${f.spr}</i><span class="ce-bub"><b>${esc(f.name)}</b>${fill(en ? l[2] : l[1])}</span></div>`; }).join('');
     const ico = (CE_ICON[ev.icon] || CE_ICON.map)();
     const opts = ev.choices.map((c, i) => `<button class="opt ce-opt" data-act="pick" data-i="${i}">${i < 9 ? `<kbd class="key">${i + 1}</kbd>` : ''}
-        <span class="ce-opt-b"><b>${esc(L2(c.label))}</b><small>${esc(L2(c.hint))}</small></span><i class="ce-go" aria-hidden="true">›</i></button>`).join('');
+        <span class="ce-opt-b"><b>${esc(L2(c.label))}</b><small>${esc(L2(c.hint))}</small>${(pv => pv ? `<span class="ev-chips sm">${pv}</span>` : '')(outcomePreview(c.outcome, en))}</span><i class="ce-go" aria-hidden="true">›</i></button>`).join('');
     return `<div class="event ce-event">
-      <div class="ce-head"><i class="ce-ico">${ico}</i><span><small>${ev.ep ? `📜 ${en ? 'Episode' : 'Folge'} · ${en ? 'part' : 'Teil'} ${ev.part}/3` : (en ? 'On the way' : 'Unterwegs')}</small><h2>${esc(L2(ev.title))}</h2></span></div>
+      <div class="ce-head"><i class="ce-ico">${ico}</i><span><small>${ev.ep ? `<span class="ev-ep">📜 ${en ? 'Episode' : 'Folge'}<i class="ev-ep-dots">${[1, 2, 3].map(k => `<i class="${k <= ev.part ? 'on' : ''}"></i>`).join('')}</i>${ev.part}/3</span>` : (en ? 'On the way' : 'Unterwegs')}</small><h2>${esc(L2(ev.title))}</h2></span></div>
       <div class="ce-stage bg-${ev.bg || 'insel'}"><span class="ce-cast">${cast.map(k => `<i class="ce-who">${fig(k).spr}</i>`).join('')}</span></div>
       <div class="ce-lines">${lines}</div>
       <div class="ce-opts">${opts}</div>
@@ -1394,7 +1661,7 @@ window.GL = window.GL || {};
           <span class="event-kicker">Ereignis auf See</span>
           <h2>${ev.title}</h2>
           <p>${ev.text}</p>
-          <div class="opts">${ev.choices.map((c, i) => button('pick', i, c.label, c.hint, 'event-opt')).join('')}</div>
+          <div class="opts">${ev.choices.map((c, i) => button('pick', i, c.label, c.hint + ((pv => pv ? `<span class="ev-chips sm">${pv}</span>` : '')(outcomePreview(c.outcome, !!(GL.i18n && GL.i18n.lang && GL.i18n.lang() === 'en')))), 'event-opt')).join('')}</div>
         </div>`;
       }
 
@@ -1403,7 +1670,8 @@ window.GL = window.GL || {};
         // Freigeschaltet (rotieren durch die Auswahl) und wirklich noch gesperrt: klar getrennt, nichts doppelt
         const owned = (ui.profile && ui.profile.unlocked) || [];
         const locked = GL.data.unlocks.filter(u => !owned.includes(u.unlock) && !offered.includes(u.unlock));
-        const resting = GL.data.unlocks.filter(u => owned.includes(u.unlock) && !offered.includes(u.unlock));
+        // Alle eigenen Figuren (Freischaltungen + Starter), die gerade nicht zur Wahl stehen — auch solche ohne Eintrag in unlocks.js
+        const resting = [...new Set(owned.concat(run.mateMode ? GL.config.starters : []))].filter(id => id !== 'self' && !offered.includes(id) && crewData(id)).map(id => ({ unlock: id }));
         const restHtml = resting.length ? `<div class="capq-rest"><span class="capq-h">⚓ Ebenfalls in deiner Crew <small>${resting.length}</small></span>
           <div class="capq-row">${resting.map(u => { const d = crewData(u.unlock); return `<span class="capq-mini" title="${esc(d.name)}: kommt in einem anderen Run zur Wahl"><i>${GL.sprites.render(d)}</i><b>${esc(d.name)}</b></span>`; }).join('')}</div>
           <small class="capq-note">Sie wechseln sich mit den Kapitänen oben ab. Nächster Run, neues Glück.</small></div>` : '';
@@ -1492,7 +1760,7 @@ window.GL = window.GL || {};
         const seaBanner = freshSea ? `<div class="new-sea"><i class="ns-star">★</i><span><small>Neues Meer entdeckt</small><b>${esc(twoRoutes ? baseSea.name + ' oder ' + baseSea.alt.name : baseSea.name)}</b><em>${esc(baseSea.tagline || '')}</em></span><i class="ns-star">★</i></div>` : '';
         return `${noticeBox(run)}${seaBanner}<span class="event-kicker">${twoRoutes ? (GL.run.islandIndex(run) === 1 ? 'Zweites Meer' : 'Drittes Meer') + ' · Zwei Routen' : sea.name + ' · ' + (ch === 0 ? 'Erste Insel' : 'Zweite Insel')}</span>
           <h2>${ch === 0 ? 'Welche Insel steuerst du an?' : 'Kurs auf den Boss des Meeres'}</h2>
-          ${GL.run.twist ? (tw => tw ? `<span class="co-twist" data-tip="${esc('Insel-Twist dieser Etappe: ' + tw.name + '\n' + tw.text)}">${tw.icon || '🎲'} <b>${esc(tw.name)}</b><small>${esc(tw.text)}</small></span>` : '')(GL.run.twist(run)) : ''}
+          ${GL.run.twist ? (tw => tw ? `<span class="co-twist" data-tip="${esc('Insel-Twist dieser Etappe: ' + tw.name + '\n' + tw.text)}">${tw.icon || '🎲'} <b>${esc(tw.name)}</b><small>${esc(tw.text)}</small></span>` : '')((t0 => t0 && t0.en && GL.i18n && GL.i18n.lang() === 'en' ? Object.assign({}, t0, { name: t0.en[0], text: t0.en[1] }) : t0)(GL.run.twist(run))) : ''}
           <p class="hint course-hint">${ch === 0 ? 'Jede Insel hat ihre eigenen Orte. Am Ende wartet ihr Bösewicht: Sieg bringt Kopfgeld, einen Schatz und eine Verschnaufpause.'
             : 'Auf der großen Insel wartet der Boss dieses Meeres. Wähle den Gegner, gegen den deine Crew die besseren Karten hat.'}</p>
           <div class="course-grid">${cards}</div>`;
@@ -1662,22 +1930,29 @@ window.GL = window.GL || {};
           </div>`;
         }).join('');
         const huntedT = boss && boss.mini ? enemyData(boss.id) : null;
-        const rivalBox = run.pending.rival ? `<div class="rival-box"><span class="event-kicker">Begegnung auf See</span>
-          <b>${esc(run.pending.rival.name)}s Crew kreuzt deinen Kurs!</b>
-          <small>Die echte Stammcrew eines Mitspielers, auf dein Level angepasst. Sieg bringt Extra-Gold.</small></div>` : '';
-        return `${rivalBox}<h2>${run.pending.rival ? 'Aufstellung' : run.pending.kind === 'raid' ? 'Raid: ' + enemyData(boss.id).name : run.pending.kind === 'boss' ? 'Bosskampf: Aufstellung' : huntedT ? (run.pending.gate ? 'Bösewicht der Insel: ' : 'Kopfgeld-Ziel: ') + huntedT.name : 'Aufstellung'}</h2>
-          ${huntedT ? `<p class="hint">Auf ${huntedT.name} sind <b>${huntedT.bounty} Mio. ฿</b> ausgesetzt. Sieg: Das Kopfgeld geht an deinen Kapitän, dazu ein Schatz.</p>` : ''}
-          ${run.pending.kind === 'raid' ? `<p class="hint">Gewinnst du, gehört dir eine erwachte Teufelsfrucht für immer. Verlierst du, entkommt deine Crew mit wenig Leben.</p>` : ''}
-          <div class="pv isl-${GL.run.island(run).id}${run.pending.kind === 'raid' ? ' raid' : ''}">
-            <div class="pv-side"><span class="pv-label">Deine Crew ${dangerTag(run, run.pending.kind)}</span><div class="pv-row">${crewRows}</div></div>
+        const kind = run.pending.kind;
+        // Kompakt wie eine App: kurze Abzeichen oben, Details erst beim Antippen (data-tip)
+        const T = GL.data.types;
+        const typeTip = Object.keys(T).map(k => `${T[k].name} schlägt ${T[T[k].strong].name}`).join('\n');
+        const chips = [];
+        if (huntedT) chips.push(`<span class="pz-chip gold" tabindex="0" data-tip="${esc(`Kopfgeld: ${huntedT.bounty} Mio. ฿\nSieg: Das Kopfgeld geht an deinen Kapitän, dazu ein Schatz.`)}"><i class="pz-ic">${GL.sprites.icon('node', 'elite')}</i><b>${huntedT.bounty} Mio. ฿</b></span>`);
+        if (kind === 'raid') chips.push(`<span class="pz-chip epic" tabindex="0" data-tip="${esc('Raid-Beute\nGewinnst du, gehört dir eine erwachte Teufelsfrucht für immer. Verlierst du, entkommt deine Crew mit wenig Leben.')}"><i class="pz-ic">${GL.sprites.icon('node', 'fruit')}</i><b>Erwachte Frucht</b></span>`);
+        if (foes.some(e => e.wave === 2)) chips.push(`<span class="pz-chip wave" tabindex="0" data-tip="${esc('2 Wellen\nNach der ersten Gruppe kommt Nachschub.')}"><i class="pz-ic">🌊</i><b>2 Wellen</b></span>`);
+        chips.push(`<span class="pz-chip info" tabindex="0" data-tip="${esc('Aufstellung automatisch\nBrecher vorne, Helfer hinten.\n' + typeTip)}"><i class="pz-ic">ⓘ</i><b>Typen</b></span>`);
+        const ab = boss && !run.pending.rival ? ability(boss.id) : null;
+        const mech = ab ? `<div class="pz-mech" tabindex="0" data-tip="${esc(`${unitName(boss)}: ${ab.name}\n${ab.text}`)}"><span class="pz-mech-k">Fähigkeit</span><b>${esc(ab.name)}</b><span class="pz-tags">${abilityTag(ab)}</span><i class="pz-more" aria-hidden="true">ⓘ</i></div>` : '';
+        const counter = ab && ab.status ? prepCounter(run, ab.status.key) : '';
+        const rivalBox = run.pending.rival ? `<div class="pz-rival" tabindex="0" data-tip="${esc('Die echte Stammcrew eines Mitspielers, auf dein Level angepasst. Sieg bringt Extra-Gold.')}"><i class="pz-ic">⚔</i><span><small>Begegnung auf See</small><b>${esc(run.pending.rival.name)}s Crew</b></span><i class="pz-more" aria-hidden="true">ⓘ</i></div>` : '';
+        const title = run.pending.rival ? 'Aufstellung' : kind === 'raid' ? 'Raid: ' + enemyData(boss.id).name : kind === 'boss' ? 'Bosskampf' : huntedT ? huntedT.name : 'Aufstellung';
+        const kick = run.pending.rival ? '' : kind === 'raid' ? 'Raid' : kind === 'boss' ? 'Boss' : huntedT ? (run.pending.gate ? 'Bösewicht der Insel' : 'Kopfgeld-Ziel') : 'Kampf';
+        return `${rivalBox}<div class="pz-head">${kick ? `<small class="pz-kick">${kick}</small>` : ''}<h2>${title}</h2><div class="pz-chips">${dangerTag(run, kind)}${chips.join('')}</div></div>
+          <div class="pv pz-pv isl-${GL.run.island(run).id}${kind === 'raid' ? ' raid' : ''}">
+            <div class="pv-side"><span class="pv-label">Deine Crew</span><div class="pv-row">${crewRows}</div></div>
             <div class="pv-vs" aria-hidden="true">VS</div>
-            <div class="pv-side"><span class="pv-label">Gegner${foes.some(e => e.wave === 2) ? ' <em class="pv-waves">2 Wellen</em>' : ''}</span><div class="pv-row">${foeRows}</div></div>
+            <div class="pv-side"><span class="pv-label">Gegner</span><div class="pv-row">${foeRows}</div></div>
           </div>
-          <p class="hint form-hint">Aufstellung automatisch: <b>Brecher vorne</b>, Helfer hinten. ${typeChart()}</p>
-          ${boss && ability(boss.id) && !run.pending.rival ? `<p class="hint boss-mech"><b>${unitName(boss)}, ${ability(boss.id).name}:</b> ${abilityTag(ability(boss.id))} ${ability(boss.id).text}</p>` : ''}
-          ${boss && ability(boss.id) && ability(boss.id).status ? counterHint(run, ability(boss.id).status.key) : ''}
-          ${specialPanel(run)}
-          <div class="dock"><button class="btn" data-act="fight">${pxIco('swords')}Kampf starten ${keyHint('Leertaste')}</button></div>`;
+          ${mech || counter ? `<div class="pz-info">${mech}${counter}</div>` : ''}
+          <div class="dock pz-dock">${specialBtn(run)}<button class="btn" data-act="fight">${pxIco('swords')}Kampf starten ${keyHint('Leertaste')}</button></div>`;
       }
 
       case 'battle': {
@@ -3083,10 +3358,73 @@ window.GL = window.GL || {};
           <h4>Figuren, die oft gewinnen</h4><div class="wk-meta-row">${M.chars.slice(0, 8).map(x => crewData(x.id) ? `<span class="wk-mc">${mini(crewData(x.id), !known(x.id))}<b>${esc(crewData(x.id).name)}</b><small>${pct(x.win)} Siege</small></span>` : '').join('')}</div>
           ${M.alliances && M.alliances.length ? `<h4>Bündnisse</h4><div class="wk-list">${M.alliances.slice(0, 4).map(x => `<div class="wk-row"><span><b>${esc(x.name)}</b><small>${x.n} Runs, ${pct(x.win)} Siege</small></span></div>`).join('')}</div>` : ''}
           <p class="muted">Nur zum Nachschlagen: Jede Crew kann gewinnen. Die Liste wird mit Updates neu berechnet.</p></section>` : '';
-      body = real + live + powerupMeta(runs, M) + sim;
+      body = styleMeta(runs, M) + real + live + powerupMeta(runs, M) + sim;
     }
     return `<div class="fpop-card wiki-pop"><div class="wk-head"><span class="event-kicker">Wiki</span><b>Nachschlagen</b></div>${tabs}<div class="wk-body">${body}</div>
       <div class="fpop-btns"><button class="btn" data-act="pop-close">Schließen</button></div></div>`;
+  }
+
+  // Meta im Wiki: Kampfstile (Wucht, Schwertkunst, Tempo, Lazarett, Bollwerk, Sturmtrupp), Kombos, Frucht-Familien.
+  // Live aus echten Runs (runLog: b = Stil am Ende, m = Ø-Schaden pro Kampf; ältere Einträge: Stil aus dem Team abgeleitet),
+  // sonst aus der Bot-Simulation (GL.data.metaSim.styles).
+  const SM_KEYS = ['kraft', 'klinge', 'technik', 'helfer', 'brecher', 'kaempfer'];
+  function smDef(k) { const d = (GL.data.types[k] || GL.data.roles[k]); return d ? { k, name: d.build || d.name, icon: d.icon || '', label: d.name } : null; }
+  function styleMeta(runs, M) {
+    const S = M && M.styles;
+    const keyOf = x => {
+      if (x.b && SM_KEYS.includes(x.b)) return x.b;
+      if (x.b === undefined && Array.isArray(x.t) && GL.effects && GL.effects.build) {
+        const crew = x.t.filter(id => id !== 'self').map(id => crewData(id)).filter(Boolean).map(d => ({ id: d.id, type: d.type, role: d.role, faction: d.faction }));
+        try { const b = GL.effects.build(crew); return b && SM_KEYS.includes(b.key) ? b.key : null; } catch (e) { return null; }
+      }
+      return null;
+    };
+    const agg = {};
+    runs.forEach(x => { const k = keyOf(x); if (!k) return; const o = agg[k] || (agg[k] = { n: 0, w: 0, m: 0, mn: 0 }); o.n++; o.w += x.w ? 1 : 0; if (x.m > 0 && x.m < 100000) { o.m += x.m; o.mn++; } });
+    const liveN = Object.values(agg).reduce((a, o) => a + o.n, 0);
+    const liveOn = liveN >= 30;
+    const sim = k => (S && S.formed || []).find(x => x.id === k);
+    const com = k => (S && S.commit || []).find(x => x.id === k);
+    const rows = SM_KEYS.map(k => {
+      const d = smDef(k); if (!d) return null;
+      const L = agg[k], useLive = liveOn && L && L.n >= 5;
+      const f = sim(k), c = com(k);
+      const win = useLive ? L.w / L.n : f ? f.win : null;
+      const dmg = useLive && L.mn ? Math.round(L.m / L.mn) : f ? f.dmg : null;
+      return { ...d, win, dmg, n: useLive ? L.n : f ? f.n : 0, live: useLive, commit: c ? c.win : null, wall: f && f.wall };
+    }).filter(x => x && x.win != null).sort((a, b) => b.win - a.win);
+    if (!rows.length) return '';
+    const maxDmg = Math.max(1, ...rows.map(r => r.dmg || 0));
+    const pct = v => Math.round(v * 100) + ' %';
+    const top = rows[0], low = rows[rows.length - 1];
+    // Wer haut am härtesten? Live: echte Ø-Werte; sonst Bots, die sich von Anfang an festlegen (fairer als „am Ende aktiv“)
+    const hitVal = r => liveOn ? (r.dmg || 0) : ((com(r.k) || {}).dmg || 0);
+    const hit = rows.slice().sort((a, b) => hitVal(b) - hitVal(a))[0];
+    const coms = SM_KEYS.map(com).filter(Boolean);
+    const cMin = coms.length ? Math.min(...coms.map(x => x.win)) : 0, cMax = coms.length ? Math.max(...coms.map(x => x.win)) : 0;
+    const fazit = `${top.icon} <b>${esc(top.name)}</b> ist gerade vorne, ${low.icon} ${esc(low.name)} braucht Geduld. Am härtesten pro Kampf haut ${hit.icon} ${esc(hit.name)} zu.`;
+    const card = r => {
+      const boss = r.wall ? byId(GL.data.bosses.concat(GL.data.raids || []), r.wall) : null;
+      return `<div class="sm-card" data-tip="${esc(r.name + ' (' + r.label + ')' + (r.commit != null ? '\nVon Anfang an festgelegt: ' + pct(r.commit) + ' Siege' : '') + (boss ? '\nStolperstein: ' + boss.name : ''))}">
+        <span class="sm-ico">${r.icon}</span>
+        <span class="sm-main"><b>${esc(r.name)}</b><small>${esc(r.label)}${r.live ? ` · ${r.n} Runs` : ''}</small>
+          <span class="sm-bar win"><i style="width:${Math.round(r.win * 100)}%"></i></span>
+          <span class="sm-bar dmg"><i style="width:${Math.round(100 * (r.dmg || 0) / maxDmg)}%"></i></span></span>
+        <span class="sm-num"><b>${pct(r.win)}</b><small>⚔ ${r.dmg != null ? r.dmg : '–'}</small></span>
+      </div>`;
+    };
+    const combos = (S && S.combos || []).slice().sort((a, b) => b.win - a.win).map(x => { const c = (GL.data.combos || []).find(y => y.id === x.id); return c ? `<span class="sm-chip" data-tip="${esc(c.name + ': ' + c.text)}"><i>${c.icon}</i><b>${esc(c.name)}</b><em>${pct(x.win)}</em></span>` : ''; }).join('');
+    const fams = (S && S.famCommit || []).map(x => { const F = (GL.data.fruitFams || {})[x.id]; const ff = (S.famFormed || []).find(y => y.id === x.id); return F ? `<span class="sm-chip" data-tip="${esc(F.name + (F.text ? ': ' + F.text : ''))}"><i>${F.icon || '🍈'}</i><b>${esc(F.name)}</b><em>${pct(x.win)}</em>${ff ? `<small>steht sie: ${pct(ff.win)}</small>` : ''}</span>` : ''; }).join('');
+    const src = liveOn ? `Aus ${liveN} echten Runs (14 Tage), Stil am Ende des Runs. Aktualisiert sich bei jedem Run.`
+      : `Aus ${S ? S.runs.toLocaleString('de-DE') : 0} Bot-Runs (Stand ${S ? esc(S.date.split('-').reverse().join('.')) : ''}). Siegquote, wenn der Stil am Ende aktiv war. Live-Zahlen kommen ab 30 echten Runs (bisher ${liveN}).`;
+    return `<section class="wk-sec sm-sec"><h3>Kampfstile${liveOn ? ' <i class="wk-new">live</i>' : ''}</h3>
+      <p class="sm-fazit">${fazit}</p>
+      <div class="sm-legend"><span><i class="win"></i>Siegquote</span><span><i class="dmg"></i>Ø Schaden pro Kampf</span></div>
+      <div class="sm-list">${rows.map(card).join('')}</div>
+      ${coms.length ? `<p class="muted sm-note">Wer sich von Anfang an auf einen Stil festlegt, landet bei ${pct(cMin)} bis ${pct(cMax)}. Kein Stil ist Pflicht, Hauptsache, er steht.</p>` : ''}
+      ${combos ? `<h4>Kombos</h4><div class="sm-chips">${combos}</div><p class="muted sm-note">Siegquote von Crews mit dieser Kombo, die die erste Insel geschafft haben.</p>` : ''}
+      ${fams ? `<h4>Frucht-Familien</h4><div class="sm-chips">${fams}</div><p class="muted sm-note">Wer gezielt Früchte einer Familie sammelt. „Steht sie“ = Familienbonus am Ende aktiv.</p>` : ''}
+      <p class="muted sm-note">${src}</p></section>`;
   }
 
   // Meta im Wiki: welche Power-ups (Schätze, Früchte, Artefakte) gerade stark sind.
@@ -4054,6 +4392,8 @@ window.GL = window.GL || {};
         <div class="sk-pts${free ? ' has' : ''}"><b>${free}</b><span>✦ Skillpunkte frei</span></div>
         <div class="sk-srcs">${chip('⭐', src.rank, 'Rang', '1 Punkt pro Piratenrang')}${chip('⛵', src.runs, 'Fahrten', '1 Punkt alle 6 Fahrten')}${chip('🏝', src.land, 'Landgang', '1 Punkt alle 3 Landgänge')}${chip('♥', src.bond, 'Vertraut', '1 Punkt alle 5 Vertraut-Stufen deiner Stammcrew')}</div>
       </div>
+      ${S.learned(profile).length ? '' : (() => { const fr = GL.data.crew.find(c => c.id === 'franky');
+        return `<div class="sk-intro"><i class="sk-intro-face">${fr ? GL.sprites.render(fr) : '⚓'}</i><span><b>Franky</b>SUUUPER, du bist da! Hier baust du Schiff und Crew gemütlicher aus. Punkte kommen nebenbei: pro Rang, durch Fahrten, Landgänge und Vertrautheit. Tipp auf einen hellen Knoten, dann „Lernen ✦“. Gilt für jede kommende Fahrt, Umskillen kostet nix.</span></div>`; })()}
       ${info}
       <div class="sk-tree">${paths}</div>
       <div class="sk-tal-h"><b>✨ Talente</b><small>Ab Vertraut 2 mit der Figur</small></div>
@@ -4149,7 +4489,7 @@ window.GL = window.GL || {};
         <div class="sail-row">
           <button class="btn sail" data-act="sail">${pxIco('ship')}Leinen los! ${keyHint('Leertaste')}</button>
         </div>
-        ${actionDock(profile)}
+        ${GL.worldmap ? GL.worldmap.goalCard(profile) : ''}${actionDock(profile)}
         <div class="sail-meta">${heatBox}${board.length ? `<span class="sail-board"><span class="sb-lbl">An Bord</span>${board.join('')}</span>` : ''}${buddyChip(profile)}</div>`}
       </div>`}
 
@@ -4470,6 +4810,7 @@ window.GL = window.GL || {};
   }
 
   GL.ui = {
+    lagePop, lageSky,
     ffButton,
     gearTipItem,
     kumpanPop,
@@ -4629,7 +4970,7 @@ window.GL = window.GL || {};
       const firstPts = run.crew.findIndex(u => u.points > 0);
       const downN = run.crew.filter(u => u.hp <= 0).length;
       $('#crew-label').innerHTML = `<span class="nowrap">Deine Crew ${run.crew.length ? `<small>${run.crew.length}/${GL.run.crewLimit(run)}</small>` : ''}</span>${downN ? `<span class="down-chip sm">${PX_GRAVE} ${downN} K.O.</span>` : ''}
-        <span class="nowrap charge-wrap">Spezial ${chargePips(run)}</span>
+        <span class="nowrap charge-wrap" title="Spezialangriff">⚡ ${chargePips(run)}</span>
         ${autoCheck(ui.profile, 'mini')}
 
         <button class="link" data-act="crew-toggle" aria-expanded="${!!ui.crewOpen}">${ui.crewOpen ? 'Kompakt' : 'Details'}</button>`;

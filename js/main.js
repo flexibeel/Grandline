@@ -214,6 +214,14 @@
     document.body.appendChild(el);
     requestAnimationFrame(() => el.classList.add('in'));
   }
+  // „?“ auf Beute-Karten: Erklärung zeigen statt die Karte zu wählen (Fork AD)
+  document.addEventListener('click', e => {
+    const q = e.target.closest && e.target.closest('.fit-q');
+    if (!q) return;
+    e.preventDefault(); e.stopPropagation();
+    const txt = String(q.dataset.tip || '').split('\n').map(s => esc2(s)).join('<br>');
+    if (txt) toast(`<span><b>${GL.i18n && GL.i18n.lang() === 'en' ? 'What does that mean?' : 'Was heißt das?'}</b>${txt}</span>`);
+  }, true);
   // Jedes Fenster bekommt oben rechts einen schönen Schließen-Knopf (Handy: schnell raus)
   (function popCloser() {
     const add = () => {
@@ -1461,6 +1469,20 @@
       case 'news-done': newsDone(); break;
       case 'news-story': profile.story = { seen: [] }; ui.storyShown = false; newsDone(); toast('<span><b>📖 Die Story beginnt von vorn</b>Kapitel 1 startet gleich, die nächsten kommen mit deinen Fahrten.</span>'); setTimeout(() => { ui.lastStage = null; draw(); }, 600); break;
       case 'pop-close': closePop(); break;
+      // Team-Wappen: Details in der Leiste darunter zeigen (nichts neu zeichnen)
+      case 'tm-tip': {
+        const w = el.closest('.tm-wrap'), box = w && w.querySelector('.tm-detail');
+        if (!box) break;
+        const was = el.classList.contains('sel');
+        w.querySelectorAll('.tm-em.sel').forEach(x => x.classList.remove('sel'));
+        if (was) { box.innerHTML = `<small>${esc2(GL.i18n && GL.i18n.lang() === 'en' ? 'Tap for details' : 'Antippen für Details')}</small>`; break; }
+        el.classList.add('sel');
+        const T = s => (GL.i18n && GL.i18n.t ? GL.i18n.t(s) : s);
+        box.innerHTML = `<b>${esc2(T(el.dataset.n))}</b>${el.dataset.k ? `<em>${esc2(T(el.dataset.k))}</em>` : ''}${el.dataset.a ? `<span class="tm-a">${esc2(T(el.dataset.a))}</span>` : ''}${el.dataset.b ? `<span class="tm-b">${esc2(T(el.dataset.b))}</span>` : ''}`;
+        break;
+      }
+      case 'worldmap': if (GL.worldmap) { openGearPop(GL.worldmap.html(profile)); if (GL.sfx) GL.sfx.play('tap'); } break;
+      case 'lage': if (run) { openGearPop(GL.ui.lagePop(run)); const p = document.getElementById('fpop'); if (p) p.dataset.id = 'lage'; } break;
       case 'post-check': { el.disabled = true; el.textContent = '🍾 Schaue nach …'; if (GL.checkBottles) GL.checkBottles(); setTimeout(() => { if (!document.querySelector('.bottle-pop')) { el.textContent = 'Keine neue Post. Das Meer ist ruhig.'; } }, 2500); break; }
       // Gemeinschafts-Fahrt (js/ui/coop.js)
       case 'coop-open-pick': case 'coop-close-pick': case 'coop-pick': case 'coop-drop': case 'coop-invite': case 'coop-go':

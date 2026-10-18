@@ -444,7 +444,7 @@ window.GL = window.GL || {};
     const isl = GL.run.island(run).id;
     const th = themeOf(run);
     const n = Math.max(run.crew.length, b.enemies.length);
-    return `<div class="field v3 th-${th} isl-${isl}${b.kind === 'raid' ? ' raid' : b.kind === 'boss' ? ' bossfight' : ''}${n >= 6 ? ' crowd' : n >= 5 ? ' busy' : ''}" id="field" aria-hidden="true" data-act="faster">
+    return `<div class="field v3 th-${th} isl-${isl}${(() => { try { const s = GL.ui && GL.ui.lageSky ? GL.ui.lageSky(run) : {}; return s.weather ? ' lw-' + s.weather : ''; } catch (e) { return ''; } })()}${b.kind === 'raid' ? ' raid' : b.kind === 'boss' ? ' bossfight' : ''}${n >= 6 ? ' crowd' : n >= 5 ? ' busy' : ''}" id="field" aria-hidden="true" data-act="faster">
       <div class="f-stage">
         <div class="b3"><i class="b3-sky"></i><i class="b3-sun"></i><i class="b3-cloud c1"></i><i class="b3-cloud c2"></i><i class="b3-cloud c3"></i><i class="b3-sea"><i></i></i><i class="b3-ground"></i><span class="b3-props">${PROPS[th] || ''}</span>${b.kind === 'boss' || b.kind === 'raid' ? '<i class="b3-flag"></i>' : ''}</div>
         <div class="f-sky"></div>

@@ -44,3 +44,4 @@ GL.i18nExtraP = (GL.i18nExtraP || []).concat([
   [/^Rang (\d+)( · Vertraut (\d+))? → \+(\d+) Leben, \+(\d+) Angriff(, \+(\d+) Tempo)?(\. Wächst mit jedem Rang und mit der Vertrautheit deiner Crew\.)?$/, (m, r, b, bv, hp, atk, s, sv, tail) => `Rank ${r}${b ? ' · Bond ' + bv : ''} → +${hp} HP, +${atk} attack${s ? ', +' + sv + ' speed' : ''}${tail ? '. Grows with every rank and with your crew’s bond.' : ''}`],
   [/^(.+): wartet auf die nächste Fahrt$/, '$1: waits for the next voyage']
 ]);
+Object.assign(GL.data.en, { 'Antippen für Details': 'Tap for details', 'Bande': 'Crew', 'Stil': 'Style', 'Rolle': 'Role', 'Kombo': 'Combo', 'Bündnis': 'Alliance', 'Früchte': 'Fruits', 'Boni': 'Bonuses', 'aktiv': 'active', 'fast': 'almost', 'fehlt noch': 'still missing', 'Noch keine Boni.': 'No bonuses yet.' });

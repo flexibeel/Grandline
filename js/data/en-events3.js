@@ -7,3 +7,4 @@ GL.i18nExtraP = (GL.i18nExtraP || []).concat([
   [/^Bis zum Ende der Insel: Ganze Crew ([+-]\d+) Leben$/, 'Until the island ends: whole crew $1 HP'],
   [/^Bis zum Ende der Insel: Ganze Crew ([+-]\d+) Tempo$/, 'Until the island ends: whole crew $1 speed']
 ]);
+GL.data.en = Object.assign(GL.data.en || {}, { 'Ergebnis': 'Outcome', 'Das Glück entscheidet': 'Luck decides', 'bis Inselende': 'until the island ends' });

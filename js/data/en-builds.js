@@ -89,3 +89,21 @@ GL.i18nExtraP = (GL.i18nExtraP || []).concat([
   [/^Ein Gefallener steht mit (\d+) % Leben wieder auf$/, 'One fallen member gets back up with $1 % HP'],
   [/^(\d+) Gefallene stehen mit (\d+) % Leben wieder auf$/, '$1 fallen get back up with $2 % HP']
 ]);
+// Fork AB: Meta-Statistik im Wiki
+(function () {
+  const BN = { 'Wucht': 'Smash', 'Schwertkunst': 'Swordplay', 'Tempo': 'Tempo', 'Lazarett': 'Field Hospital', 'Bollwerk': 'Bulwark', 'Sturmtrupp': 'Strike Team' };
+  const tn = s => s.replace(/Wucht|Schwertkunst|Lazarett|Bollwerk|Sturmtrupp/g, m => BN[m] || m);
+  Object.assign(GL.data.en, {
+    'Kampfstile': 'Fighting styles', 'Siegquote': 'Win rate', 'Ø Schaden pro Kampf': 'Avg. damage per fight', 'Kombos': 'Combos', 'Frucht-Familien': 'Fruit families',
+    'Siegquote von Crews mit dieser Kombo, die die erste Insel geschafft haben.': 'Win rate of crews with this combo that cleared the first island.',
+    'Wer gezielt Früchte einer Familie sammelt. „Steht sie“ = Familienbonus am Ende aktiv.': 'Collecting fruits of one family on purpose. “Formed” = family bonus active at the end.'
+  });
+  GL.i18nExtraP = (GL.i18nExtraP || []).concat([
+    [/^\s*ist gerade vorne, (.+) braucht Geduld\. Am härtesten pro Kampf haut (.+) zu\.$/, (m, a, b) => 'leads right now, ' + tn(a) + ' needs patience. Hardest hitter per fight: ' + tn(b) + '.'],
+    [/^Wer sich von Anfang an auf einen Stil festlegt, landet bei (\d+) % bis (\d+) %\. Kein Stil ist Pflicht, Hauptsache, er steht\.$/, 'Committing to one style from the start lands you at $1 % to $2 %. No style is mandatory, as long as it comes together.'],
+    [/^Aus (\d+) echten Runs \(14 Tage\), Stil am Ende des Runs\. Aktualisiert sich bei jedem Run\.$/, 'From $1 real runs (14 days), style at the end of the run. Updates with every run.'],
+    [/^Aus ([\d.]+) Bot-Runs \(Stand (.+)\)\. Siegquote, wenn der Stil am Ende aktiv war\. Live-Zahlen kommen ab 30 echten Runs \(bisher (\d+)\)\.$/, 'From $1 bot runs (as of $2). Win rate when the style was active at the end. Live numbers start at 30 real runs (so far $3).'],
+    [/^steht sie: (\d+) %$/, 'formed: $1 %'],
+    [/^(\d+) Runs$/, '$1 runs']
+  ]);
+})();
