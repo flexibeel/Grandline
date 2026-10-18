@@ -50,6 +50,9 @@ window.GL = window.GL || {};
     }
     // 2) Kleine Dinge, die sich gerade lohnen
     const extra = [];
+    if (!p.crewName && ((p.stats && p.stats.runs) || 0) >= 2) extra.push({ k: 'crew', ico: '🏴', act: 'crew-name-open',
+      title: L('Gib deiner Bande einen Namen', 'Name your crew'),
+      why: L('Steht auf deiner Karte und in der Rangliste. Profil → Kampf → Bande.', 'Shows on your card and in the leaderboard. Profile → Combat → Crew.') });
     const sk = GL.skills && isOpen(p, 'gemuet') ? GL.skills.free(p) : 0;
     if (sk > 0) extra.push({ k: 'skill', ico: '✦', act: 'hq-tab', tab: 'gemuet',
       title: L(`${sk} Skillpunkt${sk === 1 ? '' : 'e'} frei`, `${sk} skill point${sk === 1 ? '' : 's'} free`),

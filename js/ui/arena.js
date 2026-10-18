@@ -268,6 +268,16 @@ window.GL = window.GL || {};
     (GL.effects.status(alive) || []).filter(s => s.active && s.kind === 'faction').forEach(s => chips.push(`<span class="sy-chip fac">${s.name} ${s.count}</span>`));
     (GL.effects.alliances ? GL.effects.alliances(alive) : []).forEach(x => chips.push(`<span class="sy-chip ally">✦ ${x.name}</span>`));
     if (!chips.length) return;
+    // Nicht mehr über die Szene legen: still in die schmale Leiste unter dem Kampfbild
+    const strip = $('#f-strip');
+    if (strip) {
+      if (strip.querySelector('.fs-syn')) return;
+      const s = document.createElement('span');
+      s.className = 'fs-syn';
+      s.innerHTML = chips.slice(0, 4).join('');
+      strip.appendChild(s);
+      return;
+    }
     const n = document.createElement('div');
     n.className = 'sy-intro';
     n.innerHTML = `<small>Zusammenspiel</small>${chips.slice(0, 4).join('')}`;
@@ -511,6 +521,12 @@ window.GL = window.GL || {};
     const word = !/^[-+]\d/.test(String(text));
     const n = fx((word ? 'ptag ' : 'fnum ') + (cls || ''), { x: p.x + (word ? 0 : Math.random() * 30 - 15), y: p.y - (word ? 40 : 24) }, word ? 1000 : 1100);
     if (n) n.textContent = text;
+    // ART2: Zahlen als Pixel-Ziffern (Text bleibt als Fallback/Vorlese-Label)
+    if (n && !word && GL.art && GL.art.digits) {
+      const c = cls || '', kind = /crit|lucky/.test(c) ? 'crit' : /heal/.test(c) ? 'heal' : /burn/.test(c) ? 'burn' : /poison|gift/.test(c) ? 'poison' : /block|shield/.test(c) ? 'shield' : 'normal';
+      const h = GL.art.digits(String(text).replace(/[^0-9+\-%]/g, ''), kind);
+      if (h) { n.setAttribute('aria-label', text); n.innerHTML = h; n.classList.add('fpx'); }
+    }
   }
   function tagAt(side, i, text, cls, dy) {
     const p = center(fu(side, i));
@@ -653,11 +669,11 @@ window.GL = window.GL || {};
       const enemyHp = done ? b.enemyEnd : anim.enemyHp;
       const crew = run.crew.map((u, i) => fighter('crew', i, u.def || crewData(u.id), u, crewHp[i])).join('');
       const foes = b.enemies.map((e, i) => fighter('enemy', i, e.def || GL.data.foeDef(e) || crewData(e.id), e, enemyHp[i])).join('');
-      return `<div class="battle3d${done && b.win ? ' won' : ''}">${fieldHtml(run, crewHp, enemyHp)}<div class="arena hud isl-${GL.run.island(run).id}${b.kind === 'raid' ? ' raid' : b.kind === 'boss' ? ' bossfight' : ''}${done ? '' : ' entering'}" id="arena">
+      return `<div class="battle3d${done && b.win ? ' won' : ''}">${fieldHtml(run, crewHp, enemyHp)}<div class="f-strip" id="f-strip">${teamBarHtml(run, done)}</div><div class="arena hud isl-${GL.run.island(run).id}${b.kind === 'raid' ? ' raid' : b.kind === 'boss' ? ' bossfight' : ''}${done ? '' : ' entering'}" id="arena">
         <div class="arena-sky" aria-hidden="true"></div>
         <div class="side side-crew">${crew}</div>
         <div class="side side-enemy">${foes}</div>
-      </div>${teamBarHtml(run, done)}</div>`;
+      </div></div>`;
     },
 
     // Nach dem Einfügen ins DOM: Max-Werte merken, vorderste markieren

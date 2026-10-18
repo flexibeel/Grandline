@@ -128,6 +128,8 @@ GL.data.abilities = {
              status: { key: 'weak', rounds: 2, when: 'hit', target: 'target', chance: 0.3 } },
   pearl:   { name: 'Eisenwand',        kind: 'taunt', text: 'Seine Schilde fangen alles ab: deine Crew muss ihn zuerst schlagen. Erleidet 25 % weniger Schaden.',
              mods: [{ scope: 'char:pearl', guard: 0.25 }] },
+  chew:    { name: 'Wasserkanone',     kind: 'burn', value: 0.3, text: 'Spuckt Wasser wie andere Leute Kirschkerne: Treffer spritzen (30 % Schaden an alle anderen).' },
+  zala:    { name: 'Toge-Toge',        kind: 'thorns', value: 2, text: 'Ganz Stacheln, null Umarmung: wer sie trifft, erleidet 2 Schaden.' },
   mr4:     { name: 'Lassoos Kanonade', kind: 'burn', value: 0.35, text: 'Sein Hund schießt Bomben: Treffer explodieren (35 % Schaden an alle anderen).' },
   wanze:   { name: 'Ramen-Kenpo',      kind: 'chain', value: 0.4, text: 'Nudeln aus der Nase: Treffer springen auf das nächste Ziel über (40 % Schaden).' },
   hatchan: { name: 'Sechs Schwerter', kind: 'chain', value: 0.35, text: 'Sechs Arme, sechs Klingen: Treffer springen über (35 % Schaden).' },

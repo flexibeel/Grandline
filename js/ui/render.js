@@ -570,14 +570,15 @@ window.GL = window.GL || {};
   function lootBenefit(run, item) {
     const e = item && item.effect; if (!run || !e) return null;
     const alive = run.crew.filter(u => u.hp > 0), front = alive[0];
-    const STN = { atk: 'Angriff', hp: 'Leben', spd: 'Tempo' };
+    const EN = GL.i18n && GL.i18n.lang() === 'en';
+    const STN = EN ? { atk: 'attack', hp: 'HP', spd: 'speed' } : { atk: 'Angriff', hp: 'Leben', spd: 'Tempo' };
     const one = x => {
       if (x.type === 'healAll') {
         const miss = alive.reduce((s, u) => s + (u.max - u.hp), 0), n = alive.filter(u => u.hp < u.max).length;
-        return miss > 0 ? { t: `+${miss} Leben für ${n} ${n === 1 ? 'Verletzten' : 'Verletzte'}`, good: miss >= 20 } : { t: 'Deine Crew ist gerade gesund', good: false, meh: true };
+        return miss > 0 ? { t: EN ? `+${miss} HP for ${n} wounded` : `+${miss} Leben für ${n} ${n === 1 ? 'Verletzten' : 'Verletzte'}`, good: miss >= 20 } : { t: 'Deine Crew ist gerade gesund', good: false, meh: true };
       }
       if (x.type === 'buffAll') return null;   // steht schon im Kartentext
-      if (x.type === 'buffFront') return front ? { t: `+${x.value} ${STN[x.stat] || x.stat} für ${crewData(front.id).name} (vorne)`, good: true } : null;
+      if (x.type === 'buffFront') return front ? { t: EN ? `+${x.value} ${STN[x.stat] || x.stat} for ${crewData(front.id).name} (front)` : `+${x.value} ${STN[x.stat] || x.stat} für ${crewData(front.id).name} (vorne)`, good: true } : null;
       if (x.type === 'crit') return null;
       return null;
     };
@@ -673,7 +674,7 @@ window.GL = window.GL || {};
         const have = ids.filter(id => { const f = GL.data.fruits.find(x => x.id === id); return f && f.fam === fd.fam; });
         const k = have.length + (have.includes(item.id) ? 0 : 1);
         const hit = FAM[fd.fam].tiers.find(x => x.n === k);
-        if (hit) { g = 'up'; html = `${FAM[fd.fam].icon} Neu: ${esc(hit.text)}${html ? ' · ' + html : ''}`; }
+        if (hit) { g = 'up'; html = `${FAM[fd.fam].icon} ${GL.i18n && GL.i18n.lang() === 'en' ? 'New' : 'Neu'}: ${esc(hit.text)}${html ? ' · ' + html : ''}`; }
       }
       return html ? { g, html } : { g, html: '' };
     }
@@ -769,7 +770,7 @@ window.GL = window.GL || {};
     const here = GL.run.chapterIsland(run);
     const island = here && run.phase !== 'course' ? here.name : GL.run.island(run).name;
     const pos = Math.min(GL.run.rowIdx(run) + 1, GL.config.chapterSteps);
-    return `${bars}${GL.worldmap ? `<button class="vy-map" data-act="worldmap" aria-label="Weltkarte" title="Weltkarte: Wie weit bin ich?">${GL.art && GL.art.prop ? GL.art.prop('karte') : '🗺'}</button>` : ''}<span class="track-loc">${island} · <b class="stop-name">${run.phase === 'course' ? 'Kurs setzen' : run.phase === 'starter' ? 'Kapitän wählen' : GL.run.stopName(run)}</b>${run.phase === 'course' || run.phase === 'starter' ? '' : ` <small class="muted">(${pos}/${GL.config.chapterSteps})</small>`}</span>
+    return `${bars}${GL.worldmap ? `<button class="vy-map" data-act="worldmap" aria-label="Weltkarte" title="Weltkarte: Wie weit bin ich?">${GL.art && GL.art.prop ? GL.art.prop('karte') : '🗺'}</button>` : ''}<span class="track-loc">${island} · <b class="stop-name">${run.phase === 'course' ? 'Kurs setzen' : run.phase === 'starter' ? (run.mateMode ? 'Ersten Maat wählen' : 'Kapitän wählen') : GL.run.stopName(run)}</b>${run.phase === 'course' || run.phase === 'starter' ? '' : ` <small class="muted">(${pos}/${GL.config.chapterSteps})</small>`}</span>
       <span class="head-chips">
         <em class="gold-chip" data-tip="Gold für die Taverne.\nGibt es für Siege, verfällt am Run-Ende.">${GL.sprites.coin()} <b>${run.gold || 0}</b></em>
         <em class="bounty-chip" id="bounty-chip" data-tip="Kopfgeld deines Kapitäns.\nZählt für deinen Punktestand und die Rangliste 'Höchstes Kopfgeld'. Bringt sonst nichts im Run.">${GL.sprites.icon('node', 'elite')} <b>${fmtBounty(run.bountyM || 0)}</b></em>${lageChip(run)}${(bd => bd ? `<em class="mood-chip build-chip b-${bd.key}" data-tip="${esc('Dein Stil: ' + bd.name + ' (' + bd.count + '× ' + bd.label + ')\n' + bd.pitch + '\n' + bd.tiers.map(x => (bd.count >= x.n ? '✓ ' : '· ') + x.n + ': ' + x.text).join('\n') + comboTip(run.crew))}">${bd.icon}<b>${esc(bd.name)}</b><small>${'★'.repeat(bd.tier)}</small>${GL.effects.combos && GL.effects.combos(run.crew).length ? '<i class="combo-dot" aria-hidden="true">✦</i>' : ''}</em>` : '')(GL.effects.build ? GL.effects.build(run.crew) : null)}${(run.streak || 0) >= 2 ? `<em class="streak-chip${run.streak >= 6 ? ' hot' : run.streak >= 3 ? ' warm' : ''}" data-tip="Kopfgeld-Serie: ${run.streak} Siege in Folge ohne K.O.\nAb 3 Siegen +1 Gold pro Sieg, ab 6 +2. Am Run-Ende Extra-Berry.\nFällt jemand, beginnt die Serie neu.">${PX_FLAME}<b>${run.streak}</b></em>` : ''}
@@ -1435,17 +1436,18 @@ window.GL = window.GL || {};
       const levels = xp ? xp.to.lvl - before.lvl : 0;
       const fromPct = Math.min(100, 100 * before.xp / GL.run.xpNeed(before.lvl));
       const toPct = Math.min(100, 100 * u.xp / GL.run.xpNeed(u.lvl));
-      return `<div class="sum-row${i === mvp && dealt[i] > 0 ? ' mvp' : ''}">
+      // Kompakte Kachel: Mini-Figur, Level, dünner Balken, Schaden. Name und Details im Tooltip
+      const isMvp = i === mvp && dealt[i] > 0;
+      return `<div class="sum-row bs-tile${isMvp ? ' mvp' : ''}" title="${esc(d.name)} · ${dealt[i]} Schaden${xp ? ' · +' + xp.gain + ' EP' : ''}">
+        ${isMvp ? '<em class="bs-crown" aria-label="MVP">♛</em>' : ''}
         <i class="sum-sprite">${GL.sprites.render(d)}</i>
-        <span class="sum-name"><b>${d.name}</b>${i === mvp && dealt[i] > 0 ? '<em class="mvp-tag">MVP</em>' : ''}<small>${dealt[i]} Schaden</small></span>
-        <span class="sum-xp">
-          <span class="sum-xp-top"><em class="lv">Lv <span class="lvnum">${before.lvl}</span></em>${xp ? `<small>+${xp.gain} EP</small>` : ''}</span>
-          <span class="xpbar big"><i class="xpfill" style="width:${fromPct}%" data-to="${toPct}" data-levels="${levels}" data-newlv="${u.lvl}"></i></span>
-        </span>
-        <span class="lvup" hidden>Level ${u.lvl}! Training wartet</span>
+        <span class="bs-name">${esc(d.name)}</span>
+        <span class="bs-lvrow"><em class="lv">Lv <span class="lvnum">${before.lvl}</span></em><span class="lvup" hidden>▲</span></span>
+        <span class="xpbar"><i class="xpfill" style="width:${fromPct}%" data-to="${toPct}" data-levels="${levels}" data-newlv="${u.lvl}"></i></span>
+        <small class="bs-dmg">${dealt[i]}</small>
       </div>`;
     }).join('');
-    const g = run.lastGold && b.win ? `<div class="sum-gold">${GL.sprites.coin()} +${run.lastGold.base} Gold${run.lastGold.interest ? ` <small>+${run.lastGold.interest} Zinsen</small>` : ''}</div>` : '';
+    const g = run.lastGold && b.win ? `<span class="bs-chip gold" title="+${run.lastGold.base} Gold${run.lastGold.interest ? ' +' + run.lastGold.interest + ' Zinsen' : ''}">${GL.sprites.coin()}<b>+${run.lastGold.base}</b>${run.lastGold.interest ? `<small>+${run.lastGold.interest}</small>` : ''}</span>` : '';
     const it = run.lastItem && b.win ? (run.items || []).find(x => x.uid === run.lastItem && x.isNew) : null;
     const bd = GL.effects.build ? GL.effects.build(run.crew) : null;
     // Kampfbilanz: was dein Stil in diesem Kampf geleistet hat
@@ -1458,22 +1460,27 @@ window.GL = window.GL || {};
     const styleDmg = bd ? run.crew.reduce((s, u, i) => s + ((bd.kind === 'type' ? u.type : u.role) === bd.key ? dealt[i] : 0), 0) : 0;
     const TQ = { kraft: 'Subtil war gestern.', klinge: 'Präzise. Und ein kleines bisschen gemein.', technik: 'Getroffen werden ist auch nur eine Option.',
       helfer: 'Pflaster sind auch eine Waffe.', brecher: 'Steht im Weg. Absichtlich.', kaempfer: 'Viel Lärm, viel Schaden, wenig Plan.' };
-    const chip = (on, ico, txt) => `<span class="tally${on ? ' on' : ''}"><i>${ico}</i>${txt}</span>`;
-    const tally = b.win ? `<div class="sum-tally">${[
-      chip(bd && (bd.key === 'kraft' || bd.key === 'kaempfer'), '💥', `${styleDmg || dealt.reduce((a, x) => a + x, 0)} ${bd && styleDmg ? 'Stil-Schaden' : 'Schaden'}`),
-      crits ? chip(bd && bd.key === 'klinge', '⚔', `${crits} ${crits === 1 ? 'Krit' : 'Krits'}`) : '',
-      dodges ? chip(bd && bd.key === 'technik', '💨', `${dodges}× ausgewichen${heavyDodged ? ' (auch dem großen Schlag!)' : ''}`) : '',
-      healed ? chip(bd && (bd.key === 'helfer' || bd.key === 'brecher'), '💚', `${healed} geheilt`) : ''
-    ].join('')}${bd && TQ[bd.key] ? `<em class="tally-q">${TQ[bd.key]}</em>` : ''}</div>` : '';
+    // Eine schmale Zeile: Gold + Kampfbilanz als Symbole mit Zahl, Erklärung im Tooltip
+    const chip = (on, ico, n, tip) => `<span class="bs-chip tally${on ? ' on' : ''}" title="${esc(tip)}"><i>${ico}</i><b>${n}</b></span>`;
+    const tally = b.win ? [
+      chip(bd && (bd.key === 'kraft' || bd.key === 'kaempfer'), '💥', styleDmg || dealt.reduce((a, x) => a + x, 0), `${styleDmg || dealt.reduce((a, x) => a + x, 0)} ${bd && styleDmg ? 'Stil-Schaden' : 'Schaden'}`),
+      crits ? chip(bd && bd.key === 'klinge', '⚔', crits, `${crits} ${crits === 1 ? 'Krit' : 'Krits'}`) : '',
+      dodges ? chip(bd && bd.key === 'technik', '💨', dodges, `${dodges}× ausgewichen${heavyDodged ? ' (auch dem großen Schlag!)' : ''}`) : '',
+      healed ? chip(bd && (bd.key === 'helfer' || bd.key === 'brecher'), '💚', healed, `${healed} geheilt`) : ''
+    ].join('') : '';
+    const quote = b.win && bd && TQ[bd.key] ? TQ[bd.key] : '';
     const cb = GL.effects.combos ? GL.effects.combos(run.crew) : [];
-    const comboLine = cb.length ? `<div class="sum-combo">${cb.map(c => `<span title="${esc(c.text)}"><i>${c.icon}</i><b>${esc(c.name)}</b></span>`).join('')}</div>` : '';
-    const bl = bd ? `<div class="sum-build b-${bd.key}"><i>${bd.icon}</i><span><b>${esc(bd.name)} ${'★'.repeat(bd.tier)}</b><small>${bd.next ? `Noch ${bd.next.n - bd.count}× ${esc(bd.label)} bis: ${esc(bd.next.text)}` : 'Höchste Stufe erreicht!'}</small></span></div>`
-      : `<div class="sum-build none"><i>✦</i><span><b>Noch kein Stil</b><small>2 gleiche Kampfstile oder Rollen ergeben einen Stil, z. B. 💥 Wucht, ⚔ Schwertkunst, 💨 Tempo oder 💚 Lazarett.</small></span></div>`;
+    const comboLine = cb.map(c => `<span class="bs-chip combo" title="${esc(c.name + ': ' + c.text)}"><i>${c.icon}</i></span>`).join('');
+    // Stil kompakt: Symbol, Name, Sterne; was bis zur nächsten Stufe fehlt im Tooltip und als „+n“
+    const nextTip = bd ? (bd.next ? `Noch ${bd.next.n - bd.count}× ${bd.label} bis: ${bd.next.text}` : 'Höchste Stufe erreicht!') : '2 gleiche Kampfstile oder Rollen ergeben einen Stil, z. B. 💥 Wucht, ⚔ Schwertkunst, 💨 Tempo oder 💚 Lazarett.';
+    const bl = bd ? `<span class="bs-chip build b-${bd.key}" title="${esc(nextTip + (quote ? '\n' + quote : ''))}"><i>${bd.icon}</i><b>${esc(bd.name)}</b><small>${'★'.repeat(bd.tier)}</small>${bd.next ? `<em class="bs-next">+${bd.next.n - bd.count}</em>` : ''}</span>`
+      : `<span class="bs-chip build none" title="${esc(nextTip)}"><i>✦</i><b>Noch kein Stil</b></span>`;
     // Gefallene rappeln sich nach dem Sieg wieder auf (Medizinkoffer mehr)
     const down = b.win ? run.crew.filter(u => u.hp <= 0) : [];
     const rvP = Math.max(GL.config.reviveAfterWin || 0, (GL.effects.flags(run).reviveWin || 0));
     const revLine = down.length && rvP > 0 ? `<div class="sum-revive"><i>✚</i><span>${down.map(u => esc(unitName(u))).join(', ')} ${down.length === 1 ? 'rappelt sich' : 'rappeln sich'} mit ${Math.round(rvP * 100)} % Leben wieder auf.</span></div>` : '';
-    return `<div class="summary">${rows}</div>${g}${bl}${comboLine}${revLine}${tally}`;
+    return `<div class="bs-wrap"><div class="bs-line">${bl}${comboLine}${g}${tally}</div>${revLine}
+      <div class="summary bs-grid"><div class="bs-train"><i>▲</i><span>Training wartet</span></div>${rows}</div></div>`;
   }
   // Tooltip-Zeilen für aktive und fast erreichte Stil-Kombos
   function comboTip(crew) {
@@ -1685,7 +1692,7 @@ window.GL = window.GL || {};
     const L2 = v => Array.isArray(v) ? v[en ? 1 : 0] : v;
     const chips = [], rest = [];
     (n.lines || []).forEach(l => { const c = lineChip(l, chips.length, en); if (c) chips.push(c); else rest.push(l); });
-    return `<div class="notice ev-res">
+    return `<div class="notice ev-res ux-ntoast">
       <span class="ev-res-k">${en ? 'Outcome' : 'Ergebnis'}</span>
       <b class="ev-res-t">${L2(n.title)}</b>
       ${n.text ? `<p class="ev-res-x">${L2(n.text)}</p>` : ''}
@@ -1854,8 +1861,10 @@ window.GL = window.GL || {};
         const foe = gateFoe || boss;
         const info = bossInfo(foe);
         const last = GL.run.rowIdx(run) === GL.config.chapterSteps - 1;
+        // UX1: Bösewicht + „So knackst du ihn“ nur auf der ersten Etappe einer Insel, danach als kleiner Chip
         const preview = last ? ''
-          : `<div class="lbl">${gateFoe ? 'Bösewicht der Insel' : 'Boss des Meeres'}: ${foe.name} ${badge(foe.type)} schwach gegen ${badge(info.counter)}</div>${crackHint(foe).html}`;
+          : GL.run.rowIdx(run) === 0 ? `<div class="lbl">${gateFoe ? 'Bösewicht der Insel' : 'Boss des Meeres'}: ${foe.name} ${badge(foe.type)} schwach gegen ${badge(info.counter)}</div>${crackHint(foe).html}`
+          : `<div class="ux-foechip"><span>${gateFoe ? 'Bösewicht' : 'Boss'}:</span> <b>${foe.name}</b> ${badge(foe.type)} <small>schwach gegen</small> ${badge(info.counter)}</div>`;
         const tip = GL.advice.map(run);
         return `${noticeBox(run)}<h2>${here ? here.name : 'Wähle deine Route'}</h2>${preview}${journeyView(run, boss, tip)}<details class="jr-map"><summary>🗺 ${GL.i18n && GL.i18n.lang && GL.i18n.lang() === 'en' ? 'Map' : 'Karte'}</summary>${seaChart(run, boss, tip)}</details>${tipLine(tip)}`;
       }
@@ -2140,8 +2149,30 @@ window.GL = window.GL || {};
         const bdE = GL.effects.build ? GL.effects.build(run.crew) : null;
         const buildEnd = bdE ? `<div class="sum-build b-${bdE.key}"><i>${bdE.icon}</i><span><b>Dein Stil: ${esc(bdE.name)} ${'★'.repeat(bdE.tier)}</b><small>${esc(bdE.pitch)}. ${bdE.next ? `Mit ${bdE.next.n}× ${esc(bdE.label)} wird er noch stärker.` : 'Volle Stufe, stark!'}</small></span></div>`
           : `<div class="sum-build none"><i>✦</i><span><b>Probier mal einen Stil</b><small>Sammle gleiche Kampfstile: 💥 Wucht (Kraft) knackt Bosse, ⚔ Schwertkunst (Klinge) kritet, 💨 Tempo (Technik) weicht aus, 💚 Lazarett (Helfer) heilt.</small></span></div>`;
-        return `${head}${buildEnd}${duelHtml}${endlessHtml}${record}${berry}${bond}${shardHtml}${cgHtml}${troHtml}${itemSum}${rankHtml}${heatUp}${goals}<div class="end-actions dock">${canEndless ? `<button class="btn" data-act="endless">${pxIco('ship')}Weitersegeln</button>` : ''}<button class="btn${canEndless ? ' ghost' : ''}" data-act="again">${pxIco('loop')}${run.daily ? 'Neuer Run' : run.duel ? 'Normaler Run' : 'Nochmal!'} ${keyHint('Leertaste')}</button>
+        // UX1: „Daran bist du gescheitert“ und „Nächstes Mal“ aus vorhandenen Daten
+        const uxWhy = (() => {
+          if (run.phase === 'win') return '';
+          const b = run.battle; if (!b || !b.enemies || !b.enemies.length) return '';
+          const k = Math.max(0, b.enemies.findIndex(e => e.boss || e.raid || e.mini));
+          const e = b.enemies[k], d = e ? (enemyData(e.id) || crewData(e.id)) : null;
+          const max = e && (e.max || e.hp), left = b.enemyEnd ? b.enemyEnd[k] : null;
+          const pct = max && left != null ? Math.max(0, Math.round(100 * left / max)) : null;
+          const name = d ? esc(d.name) : 'ein Gegner';
+          const txt = pct != null && pct <= 30 && pct > 0 ? `Beinahe: ${name} hatte nur noch ${pct} % Leben.`
+            : pct != null && pct > 0 ? `${name} stand am Ende noch mit ${pct} % Leben da.` : `Endstation: ${name}.`;
+          return `<p class="ux-why"><span>Daran bist du gescheitert</span><b>${txt}</b></p>`;
+        })();
+        const uxNext = (() => {
+          if (bdE && bdE.next) { const n = Math.max(1, bdE.next.n - bdE.count); return `noch ${n} ${esc(bdE.label)}-${n === 1 ? 'Figur' : 'Figuren'} für ${esc(bdE.name)} ${'★'.repeat(bdE.tier + 1)}`; }
+          if (!bdE) return 'zwei gleiche Kampfstile sammeln, dann zündet ein Stil-Bonus';
+          const rp = ui.profile && GL.meta.rankProgress(ui.profile);
+          return rp && rp.next ? `noch ${rp.need - rp.have} Rang-EP bis ${esc(rp.next.name)}` : '';
+        })();
+        const uxNextHtml = uxNext ? `<p class="ux-next"><span>Nächstes Mal:</span><b>${uxNext}</b></p>` : '';
+        const uxRew = (ui.runRewards || []).length ? `<details class="ux-rew"><summary>🎁 ${ui.runRewards.length} Profil-Belohnungen in diesem Run</summary><div class="ux-rew-list">${ui.runRewards.map(h => `<div class="toast ux-rew-it">${h}</div>`).join('')}</div></details>` : '';
+        const uxActs = `<div class="end-actions ux-end-top">${canEndless ? `<button class="btn" data-act="endless">${pxIco('ship')}Weitersegeln</button>` : ''}<button class="btn big${canEndless ? ' ghost' : ''}" data-act="again">${pxIco('loop')}${run.daily ? 'Neuer Run' : run.duel ? 'Normaler Run' : 'Nochmal!'} ${keyHint('Leertaste')}</button>
           <button class="btn ghost" data-act="hq">${pxIco('anchor')}Hauptquartier ${keyHint('H')}</button></div>`;
+        return `<div class="ux-end">${head}${uxActs}${uxWhy}${uxNextHtml}</div><div class="ux-end-rest">${record}${berry}${rankHtml}${heatUp}${buildEnd}${duelHtml}${endlessHtml}${uxRew}${bond}${shardHtml}${cgHtml}${troHtml}${itemSum}${goals}</div>`;
       }
     }
     return '';
@@ -2475,9 +2506,17 @@ window.GL = window.GL || {};
       if (!nextShown) { nextShown = true; const ready = c.when(profile); return `<div class="stb-row next${ready ? ' ready' : ''}"><em class="stb-no">${c.no}</em><span><b>${esc(t)}</b><small>${ready ? (en ? 'Comes on your next visit to the harbor' : 'Kommt beim nächsten Besuch im Hafen') : (en ? 'Unlocks: ' : 'Kommt: ') + esc(en ? c.need[1] : c.need[0])}</small></span><i class="stb-go">${ready ? '✨' : '🔒'}</i></div>`; }
       return `<div class="stb-row locked"><em class="stb-no">${c.no}</em><span><b>???</b><small>${en ? 'Later' : 'Später'}</small></span><i class="stb-go">🔒</i></div>`;
     }).join('');
+    // Crew-Momente: gesehene Mini-Clips nachspielen, ungesehene als ??? mit Kulisse
+    const clips = GL.data.crewClips || [];
+    const clipRows = clips.length ? `<h4 class="stb-sec">${en ? 'Crew moments' : 'Crew-Momente'} <small>${clips.filter(c => seen.includes(c.id)).length}/${clips.length}</small></h4><div class="stb-clips">${clips.map(c => {
+      const thumb = `<span class="stb-thumb">${cardStage({ id: c.home })}</span>`;
+      return seen.includes(c.id)
+        ? `<button class="stb-clip" data-act="story-play" data-id="${c.id}">${thumb}<b>▶ ${esc(en ? c.title[1] : c.title[0])}</b></button>`
+        : `<div class="stb-clip locked">${thumb}<b>??? · ${esc((crewData(c.home) || {}).name || '')}</b></div>`;
+    }).join('')}</div>` : '';
     return `<div class="fpop-card story-book" role="dialog"><span class="fpop-kicker">${en ? 'Story' : 'Story'}</span><h3 id="fpop-t">${en ? 'The Recipe from the End of the World' : 'Das Rezept vom Ende der Welt'}</h3>
       <p class="hint">${en ? 'Little scenes with your crew. A new chapter comes with your progress.' : 'Kleine Szenen mit deiner Crew. Mit deinem Fortschritt kommt ein neues Kapitel.'}</p>
-      <div class="stb-list">${rows}</div>
+      <div class="stb-list">${rows}</div>${clipRows}
       <div class="fpop-btns"><button class="btn ghost" data-act="pop-close">${en ? 'Close' : 'Schließen'}</button></div></div>`;
   }
   // Vergleich zweier Teile Wert für Wert (neu gegen angelegt)
@@ -2646,7 +2685,7 @@ window.GL = window.GL || {};
     if (res) return `<div class="pcard-bg" data-act="lb-view-close"><div class="pcard" data-act="noop">
         <button class="link pcard-close" data-act="lb-view-close">✕</button>
         ${duelReport(res, x.name || 'Gegner')}
-        ${sf && sf.ratingDelta != null ? `<p class="duel-rating">Crew-Rating ${sf.ratingDelta >= 0 ? '+' : ''}${sf.ratingDelta} → ${leagueChip(ui.profile.squadRating, true)}</p>` : ''}
+        ${sf && sf.ratingDelta != null ? `<p class="duel-rating">Crew-Rating ${sf.ratingDelta >= 0 ? '+' : ''}${sf.ratingDelta} → ${leagueChip(ui.profile.squadRating, true)}</p>` : sf && sf.practice ? `<p class="duel-rating">Übungskampf: Ab 1100 zählt die Marine nicht mehr für die Liga.</p>` : ''}
         ${sf && sf.xp ? `<p class="duel-xp">Stammcrew-EP: +${sf.xp.gain} für jede Figur${sf.xp.ups.length ? ` · <b>Level-up: ${sf.xp.ups.map(esc).join(', ')}</b>` : ''}</p>` : ''}
         <div class="duel-actions"><button class="btn" data-act="squad-match">⚔ Nächster Gegner</button><button class="btn ghost" data-act="squad-fight" data-id="${esc(x.id)}">Nochmal</button>
           <button class="btn ghost" data-act="squad-back">Zur Visitenkarte</button></div>
@@ -3369,7 +3408,7 @@ window.GL = window.GL || {};
         <section class="wk-sec"><h3>Rollen</h3><div class="wk-tri">${Object.keys(Rl).map(k => `<div class="wk-card">${pxIcon(k, 'lg')}<b>${Rl[k].name}</b><small>${{ brecher: 'Steht vorne, steckt ein', kaempfer: 'Macht den Schaden', helfer: 'Heilt und stärkt' }[k] || ''}</small></div>`).join('')}</div>
           <p>Vor jedem Kampf stellt sich die Crew <b>automatisch</b> auf: Brecher vorne, Kämpfer in der Mitte, Helfer hinten.</p></section>
         <section class="wk-sec"><h3>So läuft ein Run</h3><ol class="wk-steps">
-          <li><b>Kapitän wählen.</b> Er bleibt den ganzen Run.</li>
+          <li><b>Ersten Maat wählen.</b> Kapitän bist du selbst, dein Maat bleibt den ganzen Run.</li>
           <li><b>Route segeln.</b> Kämpfe, Taverne, Schätze, Früchte, Rast.</li>
           <li><b>Crew bauen.</b> Gleiche Banden, Stile und Rollen schalten Boni frei.</li>
           <li><b>Boss besiegen.</b> Pro Meer ein Bösewicht und ein Boss. Drei Meere bis zum Ziel.</li></ol></section>
@@ -3622,10 +3661,11 @@ window.GL = window.GL || {};
     event: 'Ereignis auf See: Jede Wahl hat ihren Preis, der Hinweis sagt dir, was passiert.'
   };
   function coach(run, profile) {
-    if (!profile || (profile.stats.runs || 0) >= 2 || !COACH[run.phase]) return '';
+    // UX1: höchstens 3 Tipps im ersten Run, als kleine Sprechblase statt Kasten
+    if (!profile || (profile.stats.runs || 0) >= 2 || !COACH[run.phase] || !['map', 'recruit', 'prep'].includes(run.phase)) return '';
     const seen = profile.coachSeen || [];
     if (seen.includes(run.phase)) return '';
-    return `<div class="coach"><i class="coach-ico">${PX_STAR}</i><span>${esc(COACH[run.phase])}</span><button class="coach-x" data-act="coach-ok" data-v="${run.phase}" aria-label="Verstanden">✓</button></div>`;
+    return `<div class="coach coach-bubble ux-cb-${run.phase}"><i class="coach-ico">${PX_STAR}</i><span>${esc(COACH[run.phase])}</span><button class="coach-x" data-act="coach-ok" data-v="${run.phase}" aria-label="Verstanden">✓</button></div>`;
   }
   // Pixel-Notenschlüssel als Musik-Schalter (an/aus)
   function musicBtn(cls) {
@@ -4802,7 +4842,7 @@ window.GL = window.GL || {};
       kicker: 'So läuft ein Run',
       title: 'Wählen, kämpfen, weitersegeln',
       body: `<div class="in-rows">
-        ${irow(pxIco('anchor'), 'Kapitän wählen', 'Er oder sie bleibt den ganzen Run.')}
+        ${irow(pxIco('anchor'), 'Ersten Maat wählen', 'Kapitän bist du selbst. Dein Maat bleibt den ganzen Run.')}
         ${irow(GL.sprites.icon('node', 'recruit'), 'Route wählen', 'Kampf, Taverne, Schatz, Frucht oder Rast.')}
         ${irow(pxIco('swords'), 'Kämpfe laufen allein', 'Du planst, deine Crew prügelt.')}
         ${irow(GL.sprites.icon('node', 'elite'), 'Boss besiegen', 'Am Ende jeder Insel wartet ein Bösewicht.')}</div>`
@@ -4901,6 +4941,7 @@ window.GL = window.GL || {};
   }
 
   GL.ui = {
+    cardStage,
     lagePop, lageSky,
     ffButton,
     gearTipItem,
@@ -5002,6 +5043,7 @@ window.GL = window.GL || {};
         const h = playerCard(viewRow, ui.viewPlayer === st0.uid, ui);
         if ($('#pcard').dataset.last !== h) { $('#pcard').innerHTML = h; $('#pcard').dataset.last = h; }
       } else $('#pcard').dataset.last = '';
+      if (!run) document.body.classList.remove('ux-crewfold');
       if (!run) {
         $('#track').innerHTML = '';
         ['#crew', '#syn', '#crew-label', '#restart', '#sheet', '#traits', '#synbar', '#peek', '#peek-btn', '#pause-btn'].forEach(sel => { $(sel).hidden = true; });
@@ -5057,6 +5099,9 @@ window.GL = window.GL || {};
       $('#crew').hidden = battle;
       $('#syn').hidden = battle || !ui.crewOpen;
       $('#crew-label').hidden = !run.crew.length || battle;
+      // UX1: Crew-Reihe und Boni-Leiste nur in Vorbereitung/Taverne/Schatz offen, sonst eingeklappt (ein Tipp klappt auf)
+      const uxFold = !['prep', 'recruit', 'shop', 'treasure', 'fruit', 'awaken', 'starter'].includes(run.phase) && !ui.crewUnfold;
+      document.body.classList.toggle('ux-crewfold', uxFold && !battle);
       const openPts = run.crew.reduce((s, u) => s + u.points, 0);
       const firstPts = run.crew.findIndex(u => u.points > 0);
       const downN = run.crew.filter(u => u.hp <= 0).length;
@@ -5064,7 +5109,8 @@ window.GL = window.GL || {};
         <span class="nowrap charge-wrap" title="Spezialangriff">⚡ ${chargePips(run)}</span>
         ${autoCheck(ui.profile, 'mini')}
 
-        <button class="link" data-act="crew-toggle" aria-expanded="${!!ui.crewOpen}">${ui.crewOpen ? 'Kompakt' : 'Details'}</button>`;
+        <button class="link" data-act="crew-toggle" aria-expanded="${!!ui.crewOpen}">${ui.crewOpen ? 'Kompakt' : 'Details'}</button>
+        <button class="link ux-fold-btn" data-act="ux-crew-unfold" aria-expanded="${!uxFold}">${uxFold ? '▾ Zeigen' : '▴ Einklappen'}</button>`;
       $('#crew').classList.toggle('compact', !ui.crewOpen);
       $('#crew').title = 'Deine Crew. Vor jedem Kampf stellt sie sich automatisch auf: Brecher vorne, Helfer hinten.';
       $('#crew').innerHTML = ui.crewOpen

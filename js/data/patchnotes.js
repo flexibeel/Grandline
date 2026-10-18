@@ -1,6 +1,16 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-20j', date: '18.10.', title: 'Aufgeräumt, mehr Inhalt, ruhigere Reise', items: [
+    '☰ Handy aufgeräumt: Knöpfe im Run-Kopf stecken im Menü, Crew-Reihe und Boni klappen sich ein, nur noch ein Hinweis gleichzeitig',
+    'Weniger Tippen: Nach klaren Siegen geht es von selbst weiter, Training verteilt sich automatisch (abschaltbar), Coach nur noch 3 kurze Tipps',
+    'Run-Ende: „Nochmal!“ oben, darunter woran es lag und was nächstes Mal fehlt',
+    'Ruhigere Reise: weniger Zwischen-Events, nie zwei Szenen am Stück. Dafür 14 Crew-Momente im Hafen, im Kapitänsbuch nachspielbar',
+    'Neu: 15 Crew-Ereignisse, 3 Folgen (Kochduell, Muschel, Leuchtturm), 6 Schätze, 2 Kopfgeld-Ziele (Chew, Miss Doublefinger), neue Grüße',
+    'Kampf: Lebensbalken direkt in der Szene, Kampfende kompakt auf einen Blick, Schadenszahlen in Pixel-Schrift',
+    'Der Erste Maat will Heuer: zwei Drittel des Startgolds. Der Rest reicht für die erste Taverne',
+    'Stammcrew: Die Marine hat bemerkt, dass sie seit Tagen verliert, und weigert sich, das weiter zu protokollieren. Ab 1100 zählt die Übungscrew nicht mehr für die Liga, sie trainiert jetzt auf deinem Niveau',
+    'Bandenname: Erinnerung im Hafen, wenn deine Bande noch namenlos segelt' ] },
   { v: '2026-10-20i', date: '18.10.', title: 'Klügere Gegner, klarere Taverne', items: [
     '🛡 Formation: Bosse und Kopfgeld-Ziele stehen hinten, ihr Gefolge schützt sie. Erst durchschlagen, Technik-Figuren schießen über die Köpfe (gegen den Boss etwas schwächer)',
     '„Für den Boss!“: Trifft deine Crew den Anführer, legt sich sein Gefolge kurz mehr ins Zeug. Wütende Bosse pfeifen einmal einen Gefallenen zurück',

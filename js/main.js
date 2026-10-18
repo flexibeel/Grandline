@@ -1,6 +1,8 @@
 // Startpunkt: verbindet Spiellogik, Speicherstand und Oberfläche.
 (function () {
   const profile = GL.save.loadProfile();
+  // UX1: Auto-Training ist für neue Piraten von Anfang an an (bleibt im Run umschaltbar)
+  if (!(profile.stats && profile.stats.runs)) { profile.settings = profile.settings || {}; if (profile.settings.autoTrain === undefined) profile.settings.autoTrain = true; }
   if (profile.nickname && !profile.playerCode) { GL.code.ensure(profile); GL.save.storeProfile(profile); }
   // Vitrine-Beute einmalig als Trophäen für die Stammcrew bereitstellen
   if (GL.cgear && profile.nickname && !profile.trophyInit && GL.meta.featureOpen(profile, 'stammcrew')) { GL.cgear.migrate(profile); GL.save.storeProfile(profile); }
@@ -45,7 +47,35 @@
     const m = (GL.config.moods || []).find(x => x.id === run.mood);
     if (m) setTimeout(() => toast(`<span><b>${m.icon} Laune der See: ${m.name}</b>${m.text}</span>`), 600);
   }
-  function draw() { autoArrange(); moodNote(); GL.ui.render(run, anim, ui); featureCheck(); livePos(); musicMode(); if (ui.petQueue && ui.petQueue.length) setTimeout(showPets, 450); }
+  function draw() { autoArrange(); moodNote(); GL.ui.render(run, anim, ui); featureCheck(); livePos(); musicMode(); if (ui.petQueue && ui.petQueue.length) setTimeout(showPets, 450); autoGo(); }
+  // UX1: Nach einem gewonnenen Kampf ohne offene Entscheidung kurz verweilen, dann von selbst weiter zur Route (Tippen überspringt)
+  let autoGoT = null, autoGoKey = null;
+  function autoGo() {
+    const ok = run && run.phase === 'battle' && run.battle && run.battle.win && anim && anim.done && !document.getElementById('fpop')
+      && !(GL.story && GL.story.active()) && document.querySelector('#stage [data-act="continue"]');
+    const key = ok ? (run.seed + ':' + (run.step || 0)) : null;
+    if (!ok) { clearTimeout(autoGoT); autoGoT = null; autoGoKey = null; return; }
+    if (autoGoKey === key) return;
+    autoGoKey = key;
+    const b = document.querySelector('#stage [data-act="continue"]'); if (b) b.classList.add('ux-auto');
+    clearTimeout(autoGoT);
+    autoGoT = setTimeout(() => {
+      autoGoT = null;
+      if (!run || run.phase !== 'battle' || !anim || !anim.done || document.getElementById('fpop') || (run.seed + ':' + (run.step || 0)) !== autoGoKey) return;
+      stopAnim(); act({ type: 'continue' });
+    }, 1400);
+  }
+  // Wer selbst tippt, hat Vorrang: Timer weg (der Tipp auf „Weiter“ macht dann sowieso weiter)
+  // Tipp auf freie Fläche im Kampfbild überspringt das Warten, Tipp auf einen Knopf/Tooltip hält an
+  document.addEventListener('pointerdown', e => {
+    if (!autoGoT || !e.target.closest) return;
+    if (e.target.closest('[data-act="continue"]')) return;
+    clearTimeout(autoGoT); autoGoT = null;
+    const b = document.querySelector('.ux-auto'); if (b) b.classList.remove('ux-auto');
+    if (e.target.closest('#stage') && !e.target.closest('button, a, details, [data-act], [data-tip], input, select')) {
+      e.preventDefault(); setTimeout(() => { if (run && run.phase === 'battle' && anim && anim.done) { stopAnim(); act({ type: 'continue' }); } }, 0);
+    }
+  }, true);
   // Musik: Titelbild etwas hörbarer, Hauptquartier leise, auf Fahrt ganz leise
   function musicMode() {
     if (!GL.music) return;
@@ -147,7 +177,20 @@
         && !(GL.story && GL.story.active()) && !document.getElementById('story') && GL.greet.due(profile, ui.greetAway)) {
       setTimeout(() => { if (!run && !ui.screen && !document.getElementById('fpop') && !(GL.story && GL.story.active())) { GL.greet.show(profile, ui.greetAway, () => saveProfile()); saveProfile(); } }, 700);
       try { sessionStorage.setItem('gl.greeted', '1'); } catch (e) { /* egal */ }
+      ui.clipDue = false;   // kein Crew-Moment im selben Hafenbesuch wie ein Gruß
       return;
+    }
+    // Crew-Moment: kleiner Mini-Clip an der Heimat-Kulisse einer Figur (höchstens einer pro Hafenbesuch, jede zweite Fahrt)
+    if (!run && !ui.screen && ui.intro == null && !old && ui.clipDue && !ui.storyShown && !ui.storyPending && GL.story && GL.story.clip
+        && !GL.story.active() && !(GL.greet && GL.greet.active()) && ((profile.stats && profile.stats.runs) || 0) >= 3 && profile.stats.runs % 2 === 0) {
+      ui.clipDue = false;
+      const ids = (ui.clipIds || []).concat(GL.meta.squadIds ? GL.meta.squadIds(profile) : []);
+      const c = GL.story.clip(profile, ids);
+      if (c) {
+        ui.storyPending = true;
+        setTimeout(() => { ui.storyPending = false; if (run || ui.screen || document.getElementById('fpop') || GL.story.active() || (GL.greet && GL.greet.active())) return; ui.storyShown = true; GL.story.play(profile, c.id, () => { saveProfile(); ui.lastStage = null; draw(); }); }, 1100);
+        return;
+      }
     }
     if (!run && !ui.screen && ui.intro == null && !old && feedbackDue()) { openFeedback(); return; }
     if (!run && !ui.screen && ui.intro == null && !old && installDue()) { openInstall(); return; }
@@ -214,6 +257,11 @@
     document.body.appendChild(el);
     requestAnimationFrame(() => el.classList.add('in'));
   }
+  // UX1: Tipp außerhalb schließt das ☰-Menü
+  document.addEventListener('click', e => {
+    const hd = document.querySelector('header.menu-open');
+    if (hd && e.target.closest && !e.target.closest('.head-actions')) { hd.classList.remove('menu-open'); const mb = hd.querySelector('.menu-btn'); if (mb) mb.setAttribute('aria-expanded', 'false'); }
+  }, true);
   // „?“ auf Beute-Karten: Erklärung zeigen statt die Karte zu wählen (Fork AD)
   document.addEventListener('click', e => {
     const q = e.target.closest && e.target.closest('.fit-q');
@@ -336,14 +384,34 @@
   }
 
   // Neue Freischaltungen kurz einblenden
+  // Höchstens 2 Hinweise gleichzeitig, der Rest wartet kurz (sonst stapeln sie sich am Run-Ende über den ganzen Bildschirm)
+  const toastQ = [];
+  // UX1: Profil-Belohnungen, die gleichzeitig kommen, werden zu EINEM Hinweis gebündelt (Details am Run-Ende)
+  const REWARD_RX = /Neu für dein Profil|Freigeschaltet:|Epische Frucht|Kapitel abgeschlossen|Sammelbuch: neue Stufe|weitere Profil-Teile/;
+  let rewardBuf = [];
+  function inRun() { return !!(run && !GL.run.isFinished(run)); }
+  function flushRewards() {
+    const list = rewardBuf; rewardBuf = [];
+    if (!list.length) return;
+    if (run) ui.runRewards = (ui.runRewards || []).concat(list).slice(-20);
+    if (list.length === 1) return toastNow(list[0]);
+    const en = GL.i18n && GL.i18n.lang() === 'en';
+    toastNow(`<span><b>🎁 +${list.length} ${en ? 'profile rewards' : 'Profil-Belohnungen'}</b>${en ? 'The full list waits at the end of the run. Pirates collect first, read later.' : 'Die Liste gibt es am Run-Ende. Piraten sammeln erst und lesen später.'}</span>`);
+  }
   function toast(html) {
+    if (REWARD_RX.test(String(html))) { if (!rewardBuf.length) setTimeout(flushRewards, 80); rewardBuf.push(html); return; }
+    toastNow(html);
+  }
+  function toastNow(html) {
     const box = document.getElementById('toasts');
+    // Im Run höchstens ein Hinweis gleichzeitig (Handy: sonst ist die halbe Route zugedeckt)
+    if (box.querySelectorAll('.toast:not(.out)').length >= (inRun() ? 1 : 2)) { if (toastQ.length < 12) toastQ.push(html); return; }
     const t = document.createElement('div');
     t.className = 'toast';
     t.innerHTML = html;
     box.appendChild(t);
     setTimeout(() => t.classList.add('out'), 3400);
-    setTimeout(() => t.remove(), 3900);
+    setTimeout(() => { t.remove(); if (toastQ.length) toastNow(toastQ.shift()); }, 3900);
   }
 
   function saveProfile() { if (profile.nickname) GL.code.ensure(profile); GL.save.storeProfile(profile); }
@@ -396,7 +464,13 @@
   function showPets() {
     if (!ui.petQueue || !ui.petQueue.length || document.getElementById('fpop') || (anim && !anim.done)) return;
     // Nicht mitten in eine Auswahl platzen (Schatz, Training, Kopfgeld-Plakat): erst auf der Seekarte oder im Hafen zeigen
-    if (run && !GL.run.isFinished(run) && !['map', 'course'].includes(run.phase)) return;
+    // UX1: mitten im Run nur ein kurzer Hinweis, das Fenster kommt im Hafen
+    if (run && !GL.run.isFinished(run)) {
+      if (!ui.petToasted) { ui.petToasted = true; const en = GL.i18n && GL.i18n.lang() === 'en';
+        toastNow(`<span><b>🐾 ${en ? 'A new companion is waiting' : 'Ein neuer Begleiter wartet'}</b>${en ? 'It will say hello in the harbor. It is patient. Mostly.' : 'Er stellt sich im Hafen vor. Er ist geduldig. Meistens.'}</span>`); }
+      return;
+    }
+    ui.petToasted = false;
     if (document.getElementById('story')) return;
     const id = ui.petQueue.shift();
     openGearPop(GL.ui.petPop(id, profile));
@@ -499,7 +573,7 @@
     }
     if (!wasFinished && GL.run.isFinished(run)) {
       ui.newBest = GL.save.recordFinished(run);
-      ui.lastBerry = GL.meta.finishRun(profile, run); ui.storyShown = false;
+      ui.lastBerry = GL.meta.finishRun(profile, run); ui.storyShown = false; ui.clipDue = true; ui.clipIds = (run.crew || []).map(u => u.id);
       ui.lastBond = GL.meta.runBond ? GL.meta.runBond(profile, run) : null;
       (ui.lastBond || []).filter(b => b.up).forEach(b => {
         const d = b.id === 'self' ? null : GL.data.crew.find(c => c.id === b.id);
@@ -577,7 +651,7 @@
     run = GL.run.create(seed >>> 0, { heat: 0 });
     run.duel = duelCode(seed);
     ui.newBest = false;
-    ui.lastBerry = null;
+    ui.lastBerry = null; ui.runRewards = [];
     saveProfile();
     GL.save.storeRun(run);
     draw();
@@ -626,7 +700,7 @@
       profile.daily = { d: day, score: null, tries: 1 };
       profile.dailyPay = (profile.dailyPay || []).concat([day]).slice(-7);
     }
-    ui.newBest = false; ui.lastBerry = null; ui.restartArmed = false;
+    ui.newBest = false; ui.lastBerry = null; ui.runRewards = []; ui.restartArmed = false;
     saveProfile();
     GL.save.storeRun(run);
     draw();
@@ -650,7 +724,7 @@
       endlessSea: Number.isInteger(endlessSea) && GL.meta.seasCleared(profile).includes(endlessSea) ? endlessSea : undefined
     });
     ui.newBest = false;
-    ui.lastBerry = null;
+    ui.lastBerry = null; ui.runRewards = [];
     ui.restartArmed = false;
     saveProfile();
     GL.save.storeRun(run);
@@ -737,14 +811,16 @@
     if (ui.squadFight && ui.squadFight.timer) clearTimeout(ui.squadFight.timer);
     const res = GL.squad.fight(GL.meta.squadRefs(profile), row.squad, (Date.now() ^ (Math.random() * 1e9)) >>> 0);
     if (res.win) profile.squadW = (profile.squadW || 0) + 1; else profile.squadL = (profile.squadL || 0) + 1;
-    const ratingDelta = GL.meta.squadRate(profile, row.npc ? (profile.squadRating == null ? 1000 : profile.squadRating) - 80 : row.squadRating, res.win);
-    const xp = GL.meta.squadGainXp ? GL.meta.squadGainXp(profile, res.me.map(r => r.id), res.win) : null;
+    const myRating = profile.squadRating == null ? 1000 : profile.squadRating;
+    // Gegen die Übungscrew zählen Punkte nur bis 1100, darüber muss man echte Banden schlagen
+    const ratingDelta = row.npc && myRating >= 1100 ? null : GL.meta.squadRate(profile, row.npc ? myRating - 80 : row.squadRating, res.win);
+    const xp = GL.meta.squadGainXp ? GL.meta.squadGainXp(profile, res.me.map(r => r.id), res.win, row.npc) : null;
     // Darstellung im Kampffeld: Figuren in Startzustand, fremder Pirat mit eigenem Aussehen
     const dRun = { step: 0, seed: 1, captain: res.me[0] && res.me[0].id,
       crew: res.me.map(r => Object.assign({}, r, { hp: r.max, def: r.id === 'self' ? { id: 'self', name: r.name, look: r.look, type: r.type } : null })),
       battle: { kind: 'duel', events: res.events, shown: false,
         enemies: res.foe.map(r => Object.assign({}, r, { hp: r.max, def: r.id === 'rival' ? { id: 'self', name: r.name, look: r.look, type: r.type } : null })) } };
-    ui.squadFight = { id: row.id, res, xp, ratingDelta, playing: true, i: 0, dRun, theirName: row.name };
+    ui.squadFight = { id: row.id, res, xp, ratingDelta, practice: !!row.npc, playing: true, i: 0, dRun, theirName: row.name };
     if (!row.npc && GL.online.duelReport) GL.online.duelReport(row.id, res.win, Math.abs(ratingDelta || 0), profile.nickname);
     saveProfile(); draw();
     GL.arena.mounted(dRun);
@@ -1026,7 +1102,10 @@
     if (type !== 'logout') ui.logoutArmed = false;
     if (type !== 'slot-del') ui.slotDel = null;
 
+    // UX1: ☰-Menü im Kopf (Handy): jeder andere Tipp schließt es wieder
+    if (type !== 'hmenu') { const hd = document.querySelector('header.menu-open'); if (hd) { hd.classList.remove('menu-open'); const mb = hd.querySelector('.menu-btn'); if (mb) mb.setAttribute('aria-expanded', 'false'); } }
     switch (type) {
+      case 'hmenu': { const hd = document.querySelector('header'); const on = hd.classList.toggle('menu-open'); el.setAttribute('aria-expanded', on ? 'true' : 'false'); break; }
       case 'node': {
         // Begegnung auf See: manchmal kreuzt die Crew eines anderen Spielers deinen Kurs (statt eines normalen Kampfes)
         const RV = GL.config.rival;
@@ -1109,6 +1188,7 @@
         if (ui.restartArmed) toHq();
         else { ui.restartArmed = true; draw(); }
         break;
+      case 'ux-crew-unfold': ui.crewUnfold = !ui.crewUnfold; draw(); break;
       case 'crew-toggle': ui.crewOpen = !ui.crewOpen; draw(); break;
       case 'heat': GL.meta.setHeat(profile, profile.heat + Number(el.dataset.d)); saveProfile(); draw(); break;
       case 'theme': {
@@ -1132,6 +1212,7 @@
         ui.screen = null; ui.hqTab = el.dataset.tab; ui.hqRoom = el.dataset.tab; if (el.dataset.tab === 'album') { ui.album = 'crew'; ui.hqTab = null; } draw(); break;
       case 'title-back': ui.screen = ui.profileFrom === 'hq' ? null : 'title'; draw(); break;
       case 'profile-edit': openProfile(); break;
+      case 'crew-name-open': ui.editTab = 'kampf'; ui.editSub = 'bande'; openProfile(); break;
       case 'login-open': ui.loginFrom = ui.screen || 'hq'; ui.screen = 'login'; draw(); break;
       case 'login-back': ui.screen = ui.loginFrom === 'hq' ? null : 'title'; draw(); break;
       case 'cap-filter': ui.capFilter = el.dataset.v; ui.lastStage = null; draw(); break;
@@ -1164,7 +1245,7 @@
       case 'daily-start': closePop(); startDaily(); break;
       case 'endless': {
         if (!run || run.phase !== 'win') break;
-        stopAnim(); ui.newBest = false; ui.lastBerry = null;
+        stopAnim(); ui.newBest = false; ui.lastBerry = null; ui.runRewards = [];
         act({ type: 'endless' });
         toast(`<span><b>Endlos-Runde ${run.loop + 1}</b>Die Gegner sind jetzt stärker. Viel Glück!</span>`);
         window.scrollTo(0, 0);
@@ -1345,6 +1426,10 @@
           const ids = ['koby', 'tashigi', 'hina', 'garp', 'smoker'].sort(() => Math.random() - 0.5).slice(0, GL.meta.squadIds(profile).length);
           const squad = ids.map(id => { const d = GL.data.crew.find(c => c.id === id); const max = d.hp + (lvl - 1) * 3;
             return { id, name: d.name, type: d.type, role: d.role, faction: d.faction, lvl, hp: max, max, atk: d.atk + Math.floor((lvl - 1) * 0.45), spd: d.spd }; });
+          // Die Marine trainiert mit: etwa 90 % deiner Stärke statt nur Grundwerte (sonst war sie ein Punktesparschwein)
+          const base = squad.reduce((t, r) => t + r.max * 0.5 + r.atk * 4, 0), spdP = squad.reduce((t, r) => t + r.spd * 2, 0);
+          const f = base > 0 ? (mine * 0.9 - spdP) / base : 1;
+          if (f > 1) squad.forEach(r => { r.max = r.hp = Math.round(r.max * f); r.atk = Math.round(r.atk * f); });
           row = ui.npcRow = { id: 'npc-marine', name: 'Übungscrew der Marine', rank: 'Marine-Ausbilder', squad, squadPower: GL.meta.squadPower(squad), npc: true };
         }
         // Erst zeigen, wer es ist und wie die Chancen stehen, dann angreifen oder weitersuchen
@@ -2292,6 +2377,7 @@
         saveProfile();
         const x = got[0], who = esc2(GL.safeName ? GL.safeName(x.from || 'Pirat') : (x.from || 'Pirat'));
         if (GL.sfx) GL.sfx.play('found');
+        if (inRun()) { toastNow(`<span><b>🍾 ${got.length === 1 ? `${who} hat dir etwas geschickt` : `${got.length} Flaschen angespült`}</b>Liegt in der Truhe. Auspacken im Hafen.</span>`); return; }
         openGearPop(`<div class="fpop-card bottle-pop" role="dialog"><span class="fpop-kicker">Flaschenpost</span><div class="bottle-art">🍾</div>
           <h3 id="fpop-t">${got.length === 1 ? `${who} hat dir etwas geschickt!` : `${got.length} Flaschen sind angespült!`}</h3>
           <div class="bottle-items">${got.map(g => `<span class="bottle-it cr-${GL.cgear.RID[g.it.r]}">${GL.ui.cgArtOf(g.it)}<b>${esc2(GL.cgear.name(g.it))}</b><small>von ${esc2(g.from || 'Pirat')}</small></span>`).join('')}</div>

@@ -31,7 +31,7 @@ GL.data.islands = [
     big: [
       { id: 'loguetown', name: 'Loguetown', boss: 'smoker', lair: 'Hinrichtungsplatz', villains: ['buggy', 'pearl', 'morgan'], bias: ['recruit'],
         text: 'Die Stadt des Anfangs und des Endes. Ein Marine-Jäger wartet.', places: ['Hafenviertel', 'Marktplatz'] },
-      { id: 'arlong-park', name: 'Arlong Park', boss: 'arlong', lair: 'Arlong Park', villains: ['hatchan', 'pearl'], bias: ['battle'],
+      { id: 'arlong-park', name: 'Arlong Park', boss: 'arlong', lair: 'Arlong Park', villains: ['hatchan', 'pearl', 'chew'], bias: ['battle'],
         text: 'Fischmenschen haben die Inselgruppe unterworfen.', places: ['Kokos', 'Mandarinenhain'] }
     ] },
 
@@ -51,7 +51,7 @@ GL.data.islands = [
         text: 'Ein Riesenwal rammt seit fünfzig Jahren den Red Line. Am Leuchtturm lauert ein Agent mit Bombenhund.', places: ['Walbauch', 'Rückwärtsberg'], bias: ['fruit', 'rest'] }
     ],
     big: [
-      { id: 'alabasta', name: 'Alabasta', boss: 'crocodile', lair: 'Alubarna', villains: ['mr1', 'mr4'], bias: ['treasure'],
+      { id: 'alabasta', name: 'Alabasta', boss: 'crocodile', lair: 'Alubarna', villains: ['mr1', 'mr4', 'zala'], bias: ['treasure'],
         text: 'Ein Wüstenkönigreich am Rand des Bürgerkriegs.', places: ['Sandora-Wüste', 'Rainbase'] },
       { id: 'skypiea', name: 'Skypiea', boss: 'enel', lair: 'Upper Yard', villains: ['ohm'], bias: ['fruit'],
         text: 'Eine Insel über den Wolken, beherrscht von einem selbsternannten Gott.', places: ['Weiße See', 'Angel Beach'] }

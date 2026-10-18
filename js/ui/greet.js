@@ -44,7 +44,18 @@ window.GL = window.GL || {};
     { who: 'robin', de: 'Willkommen zurück. Das Meer hat auf dich gewartet. Geduldig, wie Meere so sind.', en: 'Welcome back. The sea has been waiting for you. Patiently, as seas do.' },
     { who: 'kalle', de: 'KRAA! Neuigkeiten aus aller Welt: {name} ist wieder an Bord! Mehr gibt es heute nicht zu berichten.', en: 'KRAA! News from around the world: {name} is back aboard! That is all the news today.' },
     { who: 'chopper', de: 'Kurzer Gesundheitscheck: Puls gut, Laune gut, Abenteuerlust … sehr gut! Du darfst segeln.', en: 'Quick check-up: pulse good, mood good, thirst for adventure … very good! You may sail.' },
-    { who: 'zorro', de: '… Ah. Du. Gut. Dann kann es ja losgehen. Wo ist eigentlich vorne?', en: '… Ah. You. Good. Then we can go. Which way is forward, anyway?' }
+    { who: 'zorro', de: '… Ah. Du. Gut. Dann kann es ja losgehen. Wo ist eigentlich vorne?', en: '… Ah. You. Good. Then we can go. Which way is forward, anyway?' },
+    // Inhalt-Update
+    { who: 'sanji', de: 'Willkommen zurück, {name}. Ich hab gekocht, als wüsste ich, dass du kommst. Ich koche immer so.', en: 'Welcome back, {name}. I cooked as if I knew you were coming. I always cook like that.' },
+    { who: 'nami', de: 'Bevor du fragst: Nein, die Kasse ist nicht leer. Sie ist nur sehr gut versteckt. Vor euch.', en: 'Before you ask: no, the purse is not empty. It is just very well hidden. From you.' },
+    { who: 'lysop', de: 'Gut, dass du da bist! Ich hab gerade einen Plan. Er hat drei Teile. Teil eins ist Weglaufen.', en: 'Good thing you are here! I have a plan. It has three parts. Part one is running away.' },
+    { who: 'franky', de: 'Willkommen, {name}! Das Schiff hat jetzt einen Getränkehalter am Steuer. Frag nicht, wie lange das gedauert hat.', en: 'Welcome, {name}! The ship now has a cup holder on the helm. Do not ask how long that took.' },
+    { who: 'chopper', de: 'Du siehst ausgeruht aus! Das freut mich als Arzt. Als Freund freut es mich auch. Mehr sogar.', en: 'You look well rested! That makes me happy as a doctor. As a friend too. More, actually.' },
+    { who: 'robin', de: 'Ich hab ein Buch über verfluchte Inseln gelesen. Sehr interessant. Wir fahren übrigens gleich zu einer.', en: 'I read a book about cursed islands. Very interesting. We are heading to one shortly, by the way.' },
+    { who: 'brook', de: 'Darf ich dir ein Lied spielen? Es heißt „Willkommen zurück“. Es ist sehr kurz. Das war es schon. Yohoho!', en: 'May I play you a song? It is called “Welcome back”. It is very short. That was it. Yohoho!' },
+    { who: 'zorro', de: 'Ich hab trainiert, während du weg warst. Und geschlafen. Meistens geschlafen. Aber mit Ehrgeiz.', en: 'I trained while you were away. And slept. Mostly slept. But ambitiously.' },
+    { who: 'ruffy', de: '{name}! Endlich! Sanji wollte ohne dich nicht anfangen. Ich schon. Aber Sanji ist strenger.', en: '{name}! Finally! Sanji would not start without you. I would have. But Sanji is stricter.' },
+    { who: 'kalle', de: 'KRAA! Wetterbericht: Wind aus Westen, Laune an Bord gut, Fleischvorrat bedenklich.', en: 'KRAA! Weather report: wind from the west, mood aboard good, meat supply worrying.' }
   ];
 
   function who(profile, id) {

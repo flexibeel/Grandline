@@ -8571,3 +8571,228 @@ em.type.t-technik { background: #5b86b3 !important; }
   .tv-off .tv-fitb { width: 16px; height: 16px; font-size: .66rem; top: 3px; right: 3px; }
 }
 .tv-off .tv-fitb.fit-ok { font-size: 1rem; line-height: .8; }
+
+/* ===== ART2: neue Grafiken ===== */
+/* Pixel-Ziffern für Schadenszahlen: gleiche Bewegung wie .fnum, Größe über die SVG-Höhe (Krit/groß/klein gestaffelt) */
+.fnum.fpx { text-shadow: none; font-size: 0; line-height: 0; filter: drop-shadow(0 3px 0 rgba(0,0,0,.35)); }
+.fnum.fpx .ga-digits { display: block; height: 28px !important; width: auto !important; image-rendering: pixelated; }
+.fnum.fpx.crit .ga-digits { height: 36px !important; }
+.fnum.fpx.big .ga-digits { height: 34px !important; }
+.fnum.fpx.huge .ga-digits { height: 42px !important; }
+.fnum.fpx.weak .ga-digits, .fnum.fpx.burn .ga-digits, .fnum.fpx.heal .ga-digits { height: 22px !important; }
+.ga-monster, .ga-npc { display: block; width: 100%; height: auto; image-rendering: pixelated; }
+@media (max-width: 560px) { .fnum.fpx .ga-digits { height: 24px !important; } .fnum.fpx.crit .ga-digits { height: 30px !important; } .fnum.fpx.huge .ga-digits { height: 36px !important; } .fnum.fpx.weak .ga-digits, .fnum.fpx.burn .ga-digits, .fnum.fpx.heal .ga-digits { height: 20px !important; } }
+
+/* ===== Kampfende kompakt ===== */
+/* Eine schmale Zeile mit Stil, Kombos, Gold und Bilanz, darunter ein Raster kleiner Crew-Kacheln */
+.bs-wrap { margin-top: 8px; }
+.bs-line { display: flex; flex-wrap: wrap; gap: 5px; align-items: center; margin-bottom: 6px; }
+.bs-chip { display: inline-flex; align-items: center; gap: 4px; height: 26px; padding: 0 8px; border-radius: 8px; background: var(--panel); border: 2px solid var(--line);
+  box-shadow: 0 2px 0 var(--line); font-size: .78rem; line-height: 1; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.bs-chip i { font-style: normal; font-size: .9rem; display: inline-grid; place-items: center; }
+.bs-chip i svg, .bs-chip > svg { width: 14px; height: 14px; }
+.bs-chip b { font-weight: 800; }
+.bs-chip small { color: var(--mute); font-size: .7rem; }
+.bs-chip.gold { background: #fff4d0; border-color: #e6c27a; box-shadow: 0 2px 0 #e6c27a; color: #6a4a12; }
+.bs-chip.tally.on { background: #fff8e6; border-color: #e0b45c; box-shadow: 0 2px 0 #e0b45c; }
+.bs-chip.build { background: #fff4d8; border-color: #e6c27a; box-shadow: 0 2px 0 #e6c27a; max-width: 100%; }
+.bs-chip.build b { font: 600 .8rem Fredoka, sans-serif; overflow: hidden; text-overflow: ellipsis; }
+.bs-chip.build small { color: #c08a2e; letter-spacing: -1px; }
+.bs-chip.build.none { background: var(--panel-2); border-color: var(--line); box-shadow: 0 2px 0 var(--line); }
+.bs-chip.build.none b { color: var(--mute); }
+.bs-chip.b-kraft { background: #fde4dc; border-color: #e8a08a; box-shadow: 0 2px 0 #e8a08a; }
+.bs-chip.b-klinge { background: #e3f1e6; border-color: #93c4a0; box-shadow: 0 2px 0 #93c4a0; }
+.bs-chip.b-technik { background: #e2eefa; border-color: #93b6dc; box-shadow: 0 2px 0 #93b6dc; }
+.bs-chip.b-helfer { background: #e6f6e3; border-color: #9fd08a; box-shadow: 0 2px 0 #9fd08a; }
+.bs-next { font-style: normal; font-size: .66rem; font-weight: 800; color: #fff; background: #c08a2e; border-radius: 5px; padding: 2px 4px; }
+.bs-chip.combo { padding: 0 6px; background: #f3ecfb; border-color: #c9b0ea; box-shadow: 0 2px 0 #c9b0ea; }
+.bs-wrap .sum-revive { margin: 0 0 6px; padding: 5px 9px; font-size: .78rem; }
+/* Raster: am Handy 4 Kacheln pro Reihe */
+.summary.bs-grid { display: grid !important; grid-template-columns: repeat(4, minmax(0, 1fr)) !important; gap: 6px; margin: 0; padding: 0; background: none; border: 0; box-shadow: none; }
+.bs-train { display: none; grid-column: 1 / -1; align-items: center; gap: 6px; padding: 4px 9px; border-radius: 8px; background: #efe9fb; border: 2px solid #c6b4ee; color: #5b3fa8; font: 600 .78rem Fredoka, sans-serif; }
+.bs-train i { font-style: normal; font-size: .8rem; }
+.summary.bs-grid:has(.sum-row.leveled) .bs-train { display: flex; }
+.sum-row.bs-tile { position: relative; display: flex !important; flex-direction: column; align-items: center; gap: 2px; min-width: 0; margin: 0 !important;
+  padding: 6px 4px 5px !important; border-radius: 10px; background: var(--panel); border: 2px solid var(--line); box-shadow: 0 2px 0 var(--line); grid-template-columns: none !important; }
+.bs-tile .sum-sprite { width: 28px; height: 28px; display: grid; place-items: center; margin: 0 !important; }
+.bs-tile .sum-sprite svg { width: 24px !important; height: auto !important; max-height: 28px; }
+.bs-name { max-width: 100%; font: 600 .7rem/1.1 Fredoka, sans-serif; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bs-lvrow { display: flex; align-items: center; gap: 3px; }
+.bs-tile .lv { font-size: .64rem !important; padding: 1px 5px !important; border-radius: 6px; font-variant-numeric: tabular-nums; }
+.bs-tile .lvup { font-size: .66rem; font-weight: 800; color: #6a46c8; }
+.bs-tile .xpbar { width: 100%; height: 4px !important; margin: 1px 0 0; border-radius: 3px; }
+.bs-tile .xpbar .xpfill { height: 100%; }
+.bs-dmg { font-size: .66rem; color: var(--mute); font-variant-numeric: tabular-nums; line-height: 1; }
+.bs-dmg::before { content: '⚔ '; font-size: .6rem; }
+.bs-tile.mvp { border-color: #e0b04a; box-shadow: 0 2px 0 #e0b04a, 0 0 0 2px rgba(224, 176, 74, .18); background: #fffaea; }
+.bs-crown { position: absolute; top: -9px; left: 50%; transform: translateX(-50%); font-style: normal; font-size: .82rem; color: #d49a20; text-shadow: 0 1px 0 #7a5212; line-height: 1; }
+.bs-tile.leveled { border-color: #b9a2ec; box-shadow: 0 2px 0 #b9a2ec; background: linear-gradient(180deg, #f6f1ff, var(--panel) 70%); }
+.bs-tile.leveled .lv { background: #7a55d8 !important; color: #fff !important; }
+@media (min-width: 561px) {
+  .summary.bs-grid { grid-template-columns: repeat(auto-fill, minmax(76px, 88px)) !important; justify-content: start; }
+  .bs-tile .sum-sprite svg { width: 34px !important; }
+  .bs-name { font-size: .76rem; }
+}
+@media (prefers-reduced-motion: no-preference) { .bs-tile.leveled { animation: bs-glow 1.2s ease-out 1; } }
+@keyframes bs-glow { 0% { box-shadow: 0 2px 0 #b9a2ec, 0 0 0 0 rgba(122, 85, 216, .45); } 100% { box-shadow: 0 2px 0 #b9a2ec, 0 0 0 8px rgba(122, 85, 216, 0); } }
+/* Kampfende: „Sieg!“ steht schon im Schild oben, die Textzeile darunter entfällt, damit alles ohne Scrollen passt */
+.stage:has(.bs-wrap) #log { display: none !important; }
+@media (max-width: 560px) { .stage:has(.bs-wrap) .bs-wrap { margin-top: 6px; } }
+
+/* ===== Kampf: Szene im Fokus ===== */
+/* 1) Lebensbalken direkt im Bild: klein, pixelig, Crew grün, Gegner rot */
+#field .fu-bar { display: block !important; width: 40px; height: 5px; margin: 2px auto 0; border-radius: 0; background: rgba(20,14,8,.55);
+  box-shadow: 0 0 0 1px rgba(20,14,8,.7); overflow: hidden; opacity: .95; }
+#field .fu-bar i { background: #5bd16f !important; border-radius: 0; box-shadow: inset 0 -2px 0 rgba(0,0,0,.18); }
+#field .fu-enemy .fu-bar i { background: #e0574a !important; }
+#field .fu.boss .fu-bar, #field .fu.mini .fu-bar { width: 58px; height: 6px; }
+#field .fu.ko .fu-bar, #field .fu.w2-wait .fu-bar { opacity: 0; }
+@media (max-width: 520px) { #field .fu-bar { width: 32px; height: 4px; } #field .fu.boss .fu-bar { width: 46px; height: 5px; } }
+
+/* 2) Schmale Leiste unter dem Bild: Team-Balken und Zusammenspiel, nichts mehr über der Szene */
+.f-strip { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 4px 6px; margin: 6px 0 0; min-height: 0; }
+.f-strip:empty { display: none; }
+.f-strip .team-bar { margin: 0; padding: 2px 6px 2px 3px; gap: 5px; transform: scale(.92); transform-origin: center; }
+.f-strip .team-bar .tb-txt small { display: none; }
+.f-strip .team-bar .tb-txt b { font-size: .7rem; }
+.fs-syn { display: inline-flex; flex-wrap: wrap; gap: 3px; animation: fs-in .4s ease-out; }
+.fs-syn .sy-chip { font-size: .58rem; padding: 3px 5px 2px; opacity: .92; }
+@keyframes fs-in { from { opacity: 0; transform: translateY(-3px); } }
+#field .sy-intro { display: none !important; }
+/* Kurze Ansagen im Bild kleiner und oben am Rand, damit die Figuren frei bleiben */
+#field .ult-call { transform: translateX(-50%) scale(.82) !important; top: 6px !important; }
+#field .callout.on-field { font-size: .62rem !important; padding: 2px 5px !important; }
+
+/* 3) Die großen Kästen unter dem Bild: kompakte Zwei-Spalten-Liste, eine schmale Zeile pro Figur */
+.battle3d .arena.hud { display: grid !important; grid-template-columns: 1fr 1fr; gap: 6px !important; margin-top: 6px; }
+.battle3d .hud .side { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.battle3d .hud .fighter, .battle3d .hud .side-enemy .fighter {
+  display: grid !important; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: 'name hp' 'bar bar';
+  align-items: center; gap: 1px 6px; padding: 3px 7px 4px !important; min-height: 0 !important; border-width: 1px !important; border-radius: 6px !important;
+  box-shadow: 0 1px 0 var(--line) !important; position: relative; }
+.battle3d .hud .f-info { display: contents; }
+.battle3d .hud .f-name { grid-area: name; font-size: .72rem !important; line-height: 1.15; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; margin: 0 !important; }
+.battle3d .hud .f-name b { font-weight: 600; }
+.battle3d .hud .f-name .badge, .battle3d .hud .f-name .type, .battle3d .hud .f-name > span:not(b) { display: none !important; }
+.battle3d .hud .fighter::before { content: ''; position: absolute; left: 0; top: 4px; bottom: 4px; width: 3px; border-radius: 0 2px 2px 0; background: var(--line); }
+.battle3d .hud .side-enemy .fighter::before { left: auto; right: 0; border-radius: 2px 0 0 2px; }
+.battle3d .hud .f-hp { grid-area: hp; font-size: .64rem !important; font-variant-numeric: tabular-nums; white-space: nowrap; margin: 0 !important; }
+.battle3d .hud .f-bar { grid-area: bar; height: 4px !important; margin: 0 !important; border: 0 !important; border-radius: 2px !important; }
+.battle3d .hud .f-en { grid-area: bar; align-self: end; height: 1px !important; margin: 0 !important; opacity: .7; }
+.battle3d .hud .side-enemy .fighter { grid-template-areas: 'hp name' 'bar bar'; grid-template-columns: auto minmax(0, 1fr); text-align: right; }
+.battle3d .hud .side-enemy .f-name { justify-self: end; }
+.battle3d .hud .f-status { position: absolute !important; top: -7px; right: 4px; left: auto; display: flex; gap: 2px; transform: scale(.78); transform-origin: top right; pointer-events: none; }
+.battle3d .hud .side-enemy .f-status { right: auto; left: 4px; transform-origin: top left; }
+.battle3d .hud .fighter.front { border-color: var(--btn) !important; }
+.battle3d .hud .fighter.ko { opacity: .45; }
+.battle3d .hud .fighter.ko .f-bar { opacity: .3; }
+.battle3d .hud .fighter.w2-wait { display: none !important; }
+.battle3d .hud .fighter .fx, .battle3d .hud .fighter .float { display: none !important; }
+@media (min-width: 761px) {
+  .battle3d .hud .fighter, .battle3d .hud .side-enemy .fighter { padding: 4px 9px 5px !important; }
+  .battle3d .hud .f-name { font-size: .8rem !important; }
+  .battle3d .hud .f-hp { font-size: .7rem !important; }
+  .battle3d .hud .f-bar { height: 5px !important; }
+}
+
+/* ===== EVT2: Crew-Momente ===== */
+.story .st-home { position: absolute; inset: 0 0 24% 0; z-index: 0; overflow: hidden; }
+.story .st-home .c3-stage { position: absolute; inset: 0; width: 100%; height: 100%; }
+.story .st-home::after { content: ''; position: absolute; inset: 0; background: linear-gradient(transparent 55%, rgba(0,0,0,.18)); }
+.st-homebg .st-sky, .st-homebg .st-sea, .st-homebg .st-sun, .st-homebg .st-cloud { display: none; }
+.stb-sec { margin: 12px 0 4px; font-size: 13px; letter-spacing: .04em; text-transform: uppercase; opacity: .75; }
+.stb-clips { display: grid; grid-template-columns: repeat(auto-fill, minmax(132px, 1fr)); gap: 6px; }
+.stb-clip { position: relative; display: flex; flex-direction: column; align-items: stretch; padding: 0; overflow: hidden; border: 2px solid rgba(0,0,0,.25); background: #fff8e8; color: inherit; font: inherit; text-align: left; min-height: 64px; }
+.stb-clip .stb-thumb { position: relative; height: 38px; overflow: hidden; }
+.stb-clip .stb-thumb .c3-stage { position: absolute; inset: 0; }
+.stb-clip b { display: block; padding: 3px 6px 4px; font-size: 12px; line-height: 1.2; }
+.stb-clip.locked { opacity: .55; cursor: default; }
+.stb-clip.locked .stb-thumb { filter: grayscale(1) brightness(.8); }
+@media (min-width: 761px) {
+  /* PC: jede Seite zweispaltig, damit 7 gegen 5 über die feste Leiste passt */
+  .battle3d .hud .side { display: grid !important; grid-template-columns: 1fr 1fr; gap: 3px 4px; align-content: start; }
+  .battle3d .hud .fighter, .battle3d .hud .side-enemy .fighter { padding: 3px 8px 4px !important; }
+}
+@media (max-width: 560px) {
+  .battle3d .hud .fighter, .battle3d .hud .side-enemy .fighter { padding: 2px 6px 3px !important; }
+  .battle3d .hud .side { gap: 2px; }
+}
+
+/* ===== UX1: Aufgeräumt ===== */
+/* ☰-Menü: auf dem Handy liegen Hauptquartier, Pause, Run aufgeben, Anleitung, Musik usw. in einem Holz-Popover */
+.menu-btn { display: none; }
+@media (max-width: 560px) {
+  header { position: relative; }
+  header .head-actions { position: absolute; top: 4px; right: 4px; z-index: 40; display: block; }
+  header .head-actions > .menu-btn { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 32px; padding: 0; font-size: 20px; line-height: 1;
+    border-radius: 9px; background: var(--panel, #fbf3e2); border: 2px solid #c9a46a; color: #4a3218; box-shadow: 0 2px 0 rgba(90, 60, 25, .25); }
+  header:not(.menu-open) .head-actions > :not(.menu-btn) { display: none !important; }
+  header.menu-open .head-actions { display: flex; flex-direction: column; align-items: stretch; gap: 4px; min-width: 190px; padding: 8px;
+    background: var(--panel, #fbf3e2); border: 2px solid #c9a46a; border-radius: 12px; box-shadow: 0 10px 28px rgba(60, 35, 10, .28); }
+  header.menu-open .head-actions > .menu-btn { align-self: flex-end; box-shadow: none; }
+  header.menu-open .head-actions > :not(.menu-btn):not([hidden]) { display: flex !important; justify-content: flex-start; text-align: left; padding: 8px 10px; border-radius: 8px; font-size: 14px; }
+  header.menu-open .head-actions > .link:not(.menu-btn):hover { background: rgba(201, 164, 106, .18); }
+  header.menu-open .head-actions > #mu-slot { gap: 6px; }
+  /* Kopfzeile im Run: Gold, Kopfgeld, Lage, Stil in EINER schmalen Zeile */
+  header .track { padding-right: 42px; }
+  header .track .head-chips { display: flex; flex-wrap: nowrap; gap: 4px; overflow-x: auto; scrollbar-width: none; }
+  header .track .head-chips::-webkit-scrollbar { display: none; }
+  header .track .head-chips > * { flex: 0 0 auto; white-space: nowrap; }
+  header .track .track-loc { display: block; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+  body:has(#stage .journey, #stage .jr-map, #stage .tavern) header h1 { display: none; }
+
+  /* Crew-Reihe und Boni-Leiste eingeklappt (außer Vorbereitung/Taverne/Schatz) */
+  body.ux-crewfold #crew, body.ux-crewfold #synbar, body.ux-crewfold #syn { display: none !important; }
+  body.ux-crewfold #crew-label [data-act="crew-toggle"] { display: none; }
+  .ux-fold-btn { display: none; }
+  body.ux-crewfold .ux-fold-btn, body:not(.ux-crewfold) #crew-label .ux-fold-btn { display: inline; }
+
+  /* Hafen: höchstens ein „Nächstes Ziel“, keine doppelte Zielliste, Kopfgeld-Sperre nur im Wiki */
+  .wg-card .wg-goal ~ .wg-goal { display: none; }
+  .hq-goals { display: none; }
+  .heat-pill.locked { display: none; }
+  /* Gerüchte/Sammelalbum und „Ab Rang X“ stehen im Kapitänsbuch, im Hafen am Handy nur der erste Hinweis */
+  .hook-box .hook-row ~ .hook-row { display: none; }
+  .fnext { display: none; }
+}
+.ux-fold-btn { margin-left: auto; font-weight: 700; }
+
+/* Bösewicht ab der 2. Etappe nur als kleiner Chip */
+.ux-foechip { display: inline-flex; align-items: center; flex-wrap: wrap; gap: 4px; margin: 0 0 6px; padding: 3px 9px; border-radius: 999px; font-size: 12px;
+  background: rgba(140, 40, 30, .08); border: 1px solid rgba(140, 40, 30, .25); color: #5a2418; }
+.ux-foechip small { opacity: .75; }
+
+/* Ereignis-Ergebnis als Toast statt Kasten über der Route */
+.notice.ux-ntoast { position: fixed; left: 50%; top: calc(10px + env(safe-area-inset-top)); transform: translateX(-50%); z-index: 59; width: min(420px, calc(100% - 20px));
+  margin: 0; box-shadow: 0 10px 26px rgba(50, 30, 10, .25); animation: uxNt 5.2s ease forwards; pointer-events: none; }
+@keyframes uxNt { 0% { opacity: 0; transform: translate(-50%, -8px); } 6%, 82% { opacity: 1; transform: translate(-50%, 0); } 100% { opacity: 0; transform: translate(-50%, -8px); visibility: hidden; } }
+
+/* Coach-Tipp als kleine Sprechblase, schiebt nichts weg */
+#stage { position: relative; }
+.coach.coach-bubble { position: absolute; z-index: 30; right: 8px; top: 4px; max-width: min(300px, 82%); margin: 0; padding: 7px 8px 7px 10px; font-size: 12.5px;
+  border-radius: 12px; box-shadow: 0 8px 20px rgba(50, 30, 10, .22); animation: uxCb .35s ease both; }
+.coach.coach-bubble::after { content: ''; position: absolute; left: 22px; bottom: -8px; border: 8px solid transparent; border-bottom: 0; border-top-color: currentColor; color: #f6e3b4; }
+@keyframes uxCb { from { opacity: 0; transform: translateY(-6px) scale(.97); } to { opacity: 1; transform: none; } }
+
+/* Kampf gewonnen: „Weiter“ läuft von selbst voll */
+.fbar-ff.ux-auto { position: relative; overflow: hidden; }
+.fbar-ff.ux-auto::before { content: ''; position: absolute; inset: auto 0 0 0; height: 3px; background: rgba(255, 255, 255, .85); transform-origin: left; animation: uxGo 1.4s linear forwards; }
+@keyframes uxGo { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+/* Run-Ende: „Nochmal!“ groß oben, dann Grund und nächster Schritt, Rest kompakt */
+.ux-end { display: grid; gap: 8px; margin-bottom: 10px; }
+.ux-end h2 { margin-bottom: 0; }
+.ux-end > p { margin: 0; }
+.ux-end .end-actions.ux-end-top { position: static; display: flex; gap: 8px; flex-wrap: wrap; margin: 4px 0 2px; padding: 0; background: none; box-shadow: none; border: 0; }
+.ux-end .end-actions.ux-end-top .btn[data-act="again"] { flex: 2 1 200px; font-size: 19px; padding: 14px 16px; }
+.ux-end .end-actions.ux-end-top .btn[data-act="hq"] { flex: 1 1 120px; }
+.ux-why, .ux-next { display: grid; gap: 1px; padding: 7px 10px; border-radius: 10px; font-size: 14px; }
+.ux-why { background: rgba(150, 40, 30, .08); border-left: 4px solid #b4442e; }
+.ux-next { background: rgba(40, 120, 70, .08); border-left: 4px solid #3f8a52; }
+.ux-why span, .ux-next span { font-size: 11px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; opacity: .7; }
+.ux-end-rest { display: grid; gap: 6px; font-size: 13px; }
+.ux-end-rest > p { margin: 0; }
+.ux-end-rest .trophy-sum, .ux-end-rest .sum-build, .ux-end-rest .rank-gain, .ux-end-rest .berry-gain { margin: 0; }
+.ux-rew summary { cursor: pointer; font-weight: 700; padding: 6px 2px; }
+.ux-rew-list { display: grid; gap: 6px; }
+.ux-rew-it.toast { position: static; animation: none; opacity: 1; transform: none; pointer-events: auto; }

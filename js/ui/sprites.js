@@ -201,6 +201,12 @@ window.GL = window.GL || {};
 
   // Eigene Bilder für einzelne Schätze (sonst bunte Schatztruhe)
   const RELIC_ART = {
+    hammer: { c: { A: '#8a8f99', B: '#c9ced8', C: '#6b4a2e', D: '#3a2a1e' }, rows: ['..........', '.AAAAAAA..', '.ABBBBBA..', '.AAAAAAA..', '....C.....', '....C.....', '....C.....', '....C.....', '...DCD....', '..........'] },
+    wetzstein: { c: { A: '#7a8088', B: '#a9b0b8', C: '#d8dde4', D: '#4d5258' }, rows: ['..........', '..........', '.DDDDDDDD.', 'DAAAAAAAAD', 'DABBBBBBAD', 'DCCCCCCCCD', '.DDDDDDDD.', '..........', '..........', '..........'] },
+    federschuh: { c: { A: '#c98a4e', B: '#8a5a32', C: '#f4efe2', D: '#5f3c20' }, rows: ['......C...', '.....CC...', '....CC....', '..AAAA....', '..AAAA....', '..AAAAAA..', '.AAAAAAAA.', '.BBBBBBBB.', '.DDDDDDDD.', '..........'] },
+    kraeuter: { c: { A: '#5d8f4a', B: '#8cc06a', C: '#d6c08a', D: '#8a6a44' }, rows: ['...DDDD...', '..DDDDDD..', '..CCCCCC..', '..CBBBBC..', '..CBAABC..', '..CBAABC..', '..CBBBBC..', '..CCCCCC..', '..DDDDDD..', '..........'] },
+    ankerkette: { c: { A: '#6b7078', B: '#9aa0a8', C: '#3f444b' }, rows: ['....AA....', '...A..A...', '....AA....', '....B.....', '....B.....', '.A..B..A..', '.AA.B.AA..', '..AAAAA...', '...CCC....', '..........'] },
+    trommel: { c: { A: '#b3362d', B: '#e8d8b0', C: '#6b4a2e', D: '#f2c94c' }, rows: ['..........', '.BBBBBBBB.', 'BBBBBBBBBB', 'ADADADADAD', 'AAAAAAAAAA', 'ADADADADAD', 'AAAAAAAAAA', '.CCCCCCCC.', '..........', '..........'] },
     mandarinen: { c: { A: '#f08a24', B: '#ffc061', C: '#3d8b46', D: '#8a5a32', E: '#5f3c20' }, rows: ['...C..C...', '..ACA.CA..', '.ABAAABAA.', '.AAAAAAAA.', 'DDDDDDDDDD', 'DEEEEEEEED', 'DDDDDDDDDD', 'DEEEEEEEED', 'DDDDDDDDDD', '..........'] },
     medkoffer: { c: { A: '#e8e2d4', B: '#c9bfa8', C: '#d8433a', D: '#6b4a2e', E: '#8a6a44' }, rows: ['...DDDD...', '...D..D...', '.AAAAAAAA.', 'AAAACCAAAA', 'AAAACCAAAA', 'ACCCCCCCCA', 'ACCCCCCCCA', 'AAAACCAAAA', 'ABBBCCBBBA', '.BBBBBBBB.'] },
     loewenkopf: { c: { A: '#f2c14e', B: '#e08a2a', C: '#fff3c4', D: '#3a2a1e' }, rows: ['.BBBBBBBB.', 'BBAAAAAABB', 'BAAAAAAAAB', 'BADAAAADAB', 'BAAAAAAAAB', 'BAACCCCAAB', 'BAACDDCAAB', 'BBAACCAABB', '.BBAAAABB.', '..BBBBBB..'] }

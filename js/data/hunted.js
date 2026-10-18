@@ -24,6 +24,8 @@ GL.data.hunted = [
     look: { hair: '#1a1a1a', skin: '#e8c09a', shirt: '#2a2a2a', pants: '#2a2a2a', hat: 'band', hatColor: '#1a1a1a' } },
   { id: 'pearl', name: 'Eisenwand Pearl', type: 'kraft', island: 0, hpX: 1.7, atkX: 0.6, spd: 3, bounty: 11,
     look: { hair: '#e8d070', skin: '#f2c9a0', shirt: '#c8c8d0', pants: '#7a7a8a', hat: 'cap', hatColor: '#c8c8d0' } },
+  { id: 'chew', name: 'Chew', type: 'technik', island: 0, hpX: 1.45, atkX: 0.72, spd: 5, bounty: 10,
+    look: { hair: '#2a2a3a', skin: '#8ab0c8', shirt: '#e8e0c8', pants: '#3a4a6a', mask: 'shark' } },
   // Paradies
   { id: 'mr4', name: 'Mr. 4 & Lassoo', type: 'kraft', island: 1, hpX: 2.4, atkX: 0.9, spd: 3, bounty: 26,
     look: { hair: '#2a2a2a', skin: '#f2c9a0', shirt: '#e8e0a0', pants: '#2a2a2a', hat: 'band', hatColor: '#e8d070' } },
@@ -37,6 +39,8 @@ GL.data.hunted = [
     look: { hair: '#1a1a1a', skin: '#f2c9a0', shirt: '#f0f0f0', pants: '#2a2a5a' } },
   { id: 'wapol', name: 'Wapol', type: 'kraft', island: 1, hpX: 2.4, atkX: 1.0, spd: 4, bounty: 32,
     look: { hair: '#c0392b', skin: '#f2c9a0', shirt: '#4a7a3a', pants: '#2a2a2a', hat: 'cap', hatColor: '#d0d0d0' } },
+  { id: 'zala', name: 'Miss Doublefinger', type: 'klinge', island: 1, hpX: 1.9, atkX: 0.95, spd: 7, bounty: 29,
+    look: { hair: '#2a2a2a', skin: '#f2c9a0', shirt: '#5a3a7a', pants: '#2a2a2a', hat: 'band', hatColor: '#e8d070' } },
   { id: 'bellamy', name: 'Bellamy', type: 'kraft', island: 1, hpX: 2.0, atkX: 1.05, spd: 7, bounty: 55,
     look: { hair: '#e8d070', skin: '#e0b088', shirt: '#e0e0e0', pants: '#2a3a5a' } },
   // Fischmenscheninsel (zweite Route des zweiten Meeres)

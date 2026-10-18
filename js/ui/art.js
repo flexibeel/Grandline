@@ -9,7 +9,11 @@
 //   GL.art.icon(id)         → SVG 12×12 (Knotentypen und mehr)
 //     ids: kampf, taverne, schatz, frucht, rast, elite, boss, event, haendler, landgang, raid
 //     Aliase wie die Run-Knoten: battle, recruit, treasure, fruit, rest, elite, boss, raid, shop, dungeon
-//   GL.art.ids()            → { scenes, props, icons } für Galerie/Tests
+//   GL.art.monster(id)      → SVG 14×16 (ART2): seekoenig, krabbe, sumpfaffe, marinerekrut, jaegerduo, fischmensch, skorpion, schneewolf, wolkenwaechter, zombiematrose, giftqualle, roboter
+//   GL.art.npc(id)          → SVG 14×16 Porträt (ART2): hafenwirtin, kartograph, kadettin, fischerjunge, haendler, waerter
+//   Szenen (ART2) zusätzlich: geisterschiff, grotte, markt_nacht, vulkan, wrackfriedhof, kirschhafen
+//   GL.art.digits(text, kind) → Pixel-Ziffern (0-9 + - % KRIT !), kind: normal | crit | heal | poison | shield | burn
+//   GL.art.ids()            → { scenes, props, icons, monsters, npcs } für Galerie/Tests
 window.GL = window.GL || {};
 
 (function () {
@@ -345,6 +349,125 @@ window.GL = window.GL || {};
     nebel: (t) => sky(t) + sea(t) + boat(25, 13) + weather('fog')
   };
 
+  // ===== ART2: Monster, NPC-Porträts, Quest-Kulissen, Pixel-Ziffern =====
+  // Monster 14×16 (gleiche Größenordnung wie die Arena-Sprites), nur Grafik, noch keine Gegnerdaten.
+  const MONSTERS = {
+    seekoenig: { pal: { h: '#3fa7a0', H: '#2a7470', i: '#bfe8d8' }, rows: [
+      '....kkk.......', '...khhhk..kk..', '..khwzhhk.kik.', '..khhhhhhkkik.', '.khhhhhhhhhHk.', '.krrrrkhhhhHk.',
+      '..kwkwkhiiHk..', '...kkkkhiiHk..', '.......khiHk..', '......khiiHk..', '.....khiiHk...', '....khiiHk....',
+      '..kkhiiHHk....', '.kihhhHHk..k..', 'kiihhHkk..kik.', '.kkkkk....kk..'] },
+    krabbe: { rows: [
+      '..............', '..............', '..kk......kk..', '.krrk....krrk.', '.krRk....kRrk.', '..kk.kkkk.kk..',
+      '...kkrrrrkk...', '..krrzrrzrrk..', '.krrrrrrrrrRk.', 'krrfrrrrrrrRRk', 'krRrrrrrrrRRRk', '.kRRRRRRRRRRk.',
+      '..kkkkkkkkkk..', '.k.k.k..k.k.k.', 'k..k..kk..k..k', '..............'] },
+    sumpfaffe: { rows: [
+      '....kkkkkk....', '...kbbbbbbk...', '..kbnnnnnnbk..', '.kkbnzknzkbkk.', 'kbkbnnnnnnbkbk', '.k.kbnRRnbk.k.',
+      '....kbbbbk....', '...kbbgbbbk...', '..kbbgggbbBk..', '.kbkbbgbbBkbk.', '.kbkbbbbbBkbk.', '.kk.kbbbBk.kk.',
+      '....kbBkbBk...', '....kbk.kbk...', '...kddk.kddk..', '...kkk..kkk...'] },
+    marinerekrut: { rows: [
+      '.....kkkk.....', '....kwwwwk....', '...kuuuuuuk...', '....knnnnk....', '....knzznk....', '....knnNnk....',
+      '...kwwwwwwk.k.', '..kwwuwwuwwkek', '..kwwwwwwwwkek', '..knkwwwwkknek', '....kwwwwk..ek', '....kuuuuk..k.',
+      '....kuk.kuk...', '....kuk.kuk...', '...kddk.kddk..', '...kkk..kkk...'] },
+    jaegerduo: { rows: [
+      '..kkk...kkk...', '.kdddk.kRRRk..', 'kdddddkRRRRRk.', '.knnk...knnk..', '.kzzk...kzzk..', '.knnk...knnk..',
+      'kooook.kttttk.', 'kooOok.ktTttk.', 'kooOokskTttk..', '.kook.s.kttk..', '.kbbk...kssk..', '.kbbk...kssk..',
+      '.kbbk...kssk..', '.kddk...kddk..', 'kddk...kddk...', 'kkk....kkk....'] },
+    fischmensch: { pal: { h: '#5fb3c8', H: '#3a7f94' }, rows: [
+      '.....kkkk.....', '....khhhhk.k..', '...khhzhhhkhk.', '...khhhhhhhk..', '..kkhrrrrhkk..', '.khhhkwwkhhhk.',
+      'khhhhhkkhhhhhk', 'khhHhhhhhhHhhk', '.khkHhhhhHkhk.', '.khk.ksssk.khk', '..k..ksssk..k.', '.....khhhk....',
+      '....khhkhhk...', '....khk.khk...', '...kHHk.kHHk..', '...kkk..kkk...'] },
+    skorpion: { rows: [
+      '..............', '..............', '.........kk...', '........kook..', '.........kok..', '..........kok.',
+      '..........kok.', '.........kook.', '..kk....kook..', '.kOok.kkook...', 'kooOkkooook...', '.kkkooozoook..',
+      '...kooooooOk..', '..kOooooooOOk.', '.k.kOOOOOOk.k.', 'k.k.kkkkkk.k.k'] },
+    schneewolf: { rows: [
+      '..............', '..............', '..............', '.kk...........', 'kwWk..........', 'kwwWk......k..',
+      'kwzwwkkkkkkwk.', 'kkwwwwwwwwwwk.', '.kwwwwwwwwwWk.', '..kwwwwwwwWWk.', '..kwWwwwwWWk..', '..kwk.kwk.kWk.',
+      '..kwk.kwk.kwk.', '..kSk.kSk.kSk.', '..kk..kk..kk..', '..............'] },
+    wolkenwaechter: { rows: [
+      '.......y......', '..kk...yk.kk..', '.kwwk.kykkwwk.', 'kwwWk.knnk.kwk', 'kwWk..kzzk..kk', '.kk..kknnkk.y.',
+      '....kwwwwwwkyk', '...kwwyywwwkyk', '...kwwwwwwwkyk', '....kwwwwwk.yk', '....kssssk..y.', '....kwwwwk..y.',
+      '....kwk.kwk...', '...kwwk.kwwk..', '..kwwwwkwwwwk.', '...kkkk.kkkk..'] },
+    zombiematrose: { pal: { h: '#9bb08a', H: '#6f8462' }, rows: [
+      '....kkkkk.....', '...kuuuuuk....', '...khhhhhk....', '...khzhkhk....', '...khhhhHk....', '...khRRhk.....',
+      '..kwuwwuwk....', '.kwwuwwuwwk...', 'khkwuwwuwkhk..', 'kh.kwwwwwk.hk.', '.k.kwkwwwk..k.', '...kuuuuuk....',
+      '...kuk.kuk....', '...kuk..khk...', '..kddk..khk...', '..kkk...kkk...'] },
+    giftqualle: { rows: [
+      '....kkkkkk....', '..kkqqqqqqkk..', '.kqqpqqqqqpqk.', 'kqqpppqqqppqqk', 'kqqqqzqqzqqqqk', 'kpqqqqqqqqqqpk',
+      '.kpPpPpPpPpPk.', '..kp.kp.kp.k..', '..kp.kp..kp...', '...kp.kp.kp...', '...kp..kp.kp..', '..kp...kp..k..',
+      '..k....kp.....', '.......k......', '..............', '..............'] },
+    roboter: { rows: [
+      '....kkkkkk....', '...kssssssk...', '..kssSssSssk..', '..ksfkssfksk..', '..ksssssssSk..', '...kStttStk...',
+      '.kksssssssskk.', 'kssksSssSsksSk', 'ksSksssssksSSk', 'kssktttttksSSk', '.kk.ksssSk.kk.', '....kssSSk....',
+      '....ksk.kSk...', '...kssk.kSSk..', '..ktttk.ktttk.', '..kkkkk.kkkkk.'] }
+  };
+  // NPC-Porträts 14×16 (Kopf und Schultern), eigene Figuren
+  const NPCS = {
+    hafenwirtin: { rows: [
+      '...kkkkkkkk...', '..kRrrrrrrRk..', '.kRrrRrrRrrRk.', '.kRknnnnnnkRk.', '.kRnnnnnnnnRk.', '.kRnzknnkznRk.',
+      '..knnnnnnnnk..', '..knnnrrnnnk..', '...knnnnnnk...', '....kkNNkk....', '..kkwwwwwwkk..', '.kwwrwwwwrwwk.',
+      'kwwwwrrrrwwwwk', 'kwwwwwwwwwwwWk', 'kbbbbbbbbbbbBk', 'kkkkkkkkkkkkkk'] },
+    kartograph: { rows: [
+      '....kkkkkk....', '...kSSSSSSk...', '..kSsnnnnsSk..', '..knnnnnnnnk..', '..kzzzknzzzk..', '..kzwzkkzwzk..',
+      '..knnnnNnnnk..', '..knsssssnnk..', '...kssssssk...', '....kssssk....', '..kkCccccCkk..', '.kCccmccmccCk.',
+      'kCcccccccccCCk', 'kCccCcccCcccCk', 'kCCCCCCCCCCCCk', 'kkkkkkkkkkkkkk'] },
+    kadettin: { rows: [
+      '...kkkkkkkk...', '..kwwwwwwwwk..', '.kuuuuuuuuuuk.', '..kooonnooook.', '..konnnnnnook.', '..knzknnkznok.',
+      '..knnnnnnnnok.', '..knnnRnnnnok.', '...knnnnnnkok.', '....kkNNkk.ok.', '..kkwwuuwwkkk.', '.kwwwwuuwwwwk.',
+      'kwwuwwwwwwuwwk', 'kwwwwwwwwwwwWk', 'kuuuuuuuuuuuUk', 'kkkkkkkkkkkkkk'] },
+    fischerjunge: { rows: [
+      '..............', '...kkkkkkkk...', '..kyyyyyyyyk..', '.kyyYyyyyYyyk.', '..kdnnnnnndk..', '..knzknnkznk..',
+      '..knnnnnnnnk..', '..knnnRRnnnk..', '...knnnnnnk...', '....kkNNkk....', '..kkuuuuuukk..', '.kuuauuuauuuk.',
+      'kuuuuuuuuuuuUk', 'kuuuuuuuuuuuUk', 'kbbbbbbbbbbbBk', 'kkkkkkkkkkkkkk'] },
+    haendler: { rows: [
+      '....kkkkkk....', '...kPPPPPPk...', '..kPpppppppk..', '.kkkkkkkkkkkk.', '..knnnnnnnnk..', '..knzknnkzzk..',
+      '..knnnnnnnnk..', '..knddddddnk..', '...kdnnnndk...', '....kkNNkk....', '..kkppppppkk..', '.kppyppppyppk.',
+      'kpppppppppppPk', 'kppppppppkskPk', 'kPPPPPPPPkSkPk', 'kkkkkkkkkkkkkk'] },
+    waerter: { rows: [
+      '....kkkkkk....', '...kttttttk...', '..kttttttttk..', '..ktnnnnnntk..', '..knzknnkznk..', '..knnnnnnnnk..',
+      '..kSnnnnnnSk..', '..kSSnnnnSSk..', '...kSSSSSSk...', '....kSSSSk....', '..kkrrwwrrkk..', '.krrwwrrwwrrk.',
+      'krrwwrrwwrrwwk', 'kwwrrwwrrwwrRk', 'krrwwrrwwrrwRk', 'kkkkkkkkkkkkkk'] }
+  };
+  // Neue Quest-/Folgen-Kulissen (gleiche Hilfen wie oben, time/weather passen)
+  function mastBroken(x, y, h) { return r(x, y, 2, h, '#4a3424') + r(x - 3, y + 2, 7, 1, '#3a2a1e') + r(x + 2, y + 3, 4, 3, '#cfc6b4', 0.8); }
+  function stall(x, y, roof) { return r(x, y, 12, 2, roof) + r(x + 1, y + 2, 10, 1, '#f2e6cf') + r(x + 1, y + 3, 1, 6, '#5e3b1d') + r(x + 10, y + 3, 1, 6, '#5e3b1d') + r(x, y + 8, 12, 2, '#8a5a30') + r(x + 3, y + 7, 2, 1, '#f08a24') + r(x + 6, y + 7, 2, 1, '#d8433a'); }
+  function lantern(x, y) { return r(x, y, 1, 2, '#3a2a1e') + r(x - 1, y + 2, 3, 3, '#ffd58a') + r(x - 2, y + 1, 5, 5, '#ffd58a', 0.25); }
+  function sakura(x, y) { return r(x + 3, y + 7, 2, 9, '#6b4424') + r(x + 1, y, 6, 2, '#f6b8cf') + r(x, y + 2, 8, 3, '#f6b8cf') + r(x + 5, y + 2, 3, 3, '#e08aab') + r(x + 1, y + 5, 6, 2, '#e08aab'); }
+  Object.assign(SCENES, {
+    geisterschiff: (t) => sky('night') + sea('night') + `<g class="ga-ship">${r(22, 8, 2, 14, '#2a2a33')}${r(36, 6, 2, 16, '#2a2a33')}${r(17, 10, 8, 6, '#a9b6a0', 0.6)}${r(31, 8, 9, 7, '#a9b6a0', 0.55)}${r(18, 15, 2, 1, '#2a2a33')}${r(33, 13, 3, 2, '#2a2a33')}${r(12, 21, 36, 2, '#24242c')}${r(14, 23, 32, 2, '#1b1b22')}${r(25, 19, 2, 2, '#7dff9a')}${r(40, 19, 2, 2, '#7dff9a')}${r(10, 18, 44, 8, '#7dff9a', 0.08)}</g>` + weather('fog'),
+    grotte: () => r(0, 0, 64, 12, '#2a6e9e') + r(0, 12, 64, 12, '#215a86') + r(0, 24, 64, 12, '#18456c') + r(18, 0, 4, 20, '#9fd3f0', 0.25) + r(34, 0, 3, 24, '#9fd3f0', 0.2) + r(46, 0, 5, 16, '#9fd3f0', 0.18) + r(0, 28, 20, 8, '#3a4a5a') + r(44, 26, 20, 10, '#3a4a5a') + r(2, 25, 10, 3, '#4a5a6a') + r(48, 23, 12, 3, '#4a5a6a') + r(24, 31, 16, 5, '#e9d6a0') + r(28, 14, 4, 2, '#f08a24') + r(27, 15, 1, 1, '#f08a24') + r(40, 9, 3, 2, '#f2c94c') + `<g class="ga-gull">${r(14, 18, 1, 1, '#cfe4f4')}${r(16, 14, 1, 1, '#cfe4f4')}${r(15, 10, 2, 2, '#cfe4f4')}${r(50, 12, 1, 1, '#cfe4f4')}${r(52, 8, 2, 2, '#cfe4f4')}</g>` + r(10, 30, 2, 6, '#3d8b46') + r(8, 32, 2, 4, '#2f6a2e') + r(54, 28, 2, 8, '#d8433a', 0.8),
+    markt_nacht: () => sky('night') + r(0, 22, 64, 14, '#3a2e26') + r(0, 22, 64, 1, '#5a4636') + stall(4, 13, '#c0503a') + stall(24, 12, '#3f6fa0') + stall(44, 13, '#c9a227') + lantern(20, 8) + lantern(40, 7) + lantern(60, 9) + r(0, 30, 64, 1, '#2a2019') + r(10, 26, 2, 3, '#f2c9a0') + r(30, 27, 2, 3, '#f2c9a0') + r(52, 26, 2, 3, '#f2c9a0'),
+    vulkan: (t) => r(0, 0, 64, 7, '#4a1f1f') + r(0, 7, 64, 7, '#7a2e22') + r(0, 14, 64, 7, '#b0452a') + mountain(32, 24, 16, '#4a3a34', '#2e2420', false) + r(29, 7, 6, 2, '#ff8a2a') + r(30, 5, 4, 2, '#ffd27a') + r(28, 9, 2, 6, '#ff5a1a') + r(34, 10, 2, 7, '#ff5a1a') + r(26, 2, 3, 2, '#5a5a5a', 0.7) + r(33, 0, 4, 3, '#5a5a5a', 0.6) + sea('dusk', 24).replace(/#5a6fa0|#4a5e90|#3c4f80/g, m => ({ '#5a6fa0': '#6a3a3a', '#4a5e90': '#5a3030', '#3c4f80': '#4a2626' }[m])) + boat(4, 15),
+    wrackfriedhof: (t) => sky(t === 'night' ? 'night' : 'storm') + sea(t === 'night' ? 'night' : 'storm') + mastBroken(8, 14, 10) + mastBroken(24, 11, 12) + mastBroken(44, 13, 10) + r(38, 22, 14, 2, '#3a2a1e') + r(4, 23, 12, 2, '#3a2a1e') + r(20, 24, 10, 1, '#3a2a1e') + r(56, 18, 3, 6, '#4a3424') + weather('fog'),
+    kirschhafen: (t) => sky(t) + clouds(t) + sea(t, 23) + r(0, 20, 42, 3, '#8a5a30') + r(0, 23, 42, 1, '#5e3b1d') + [4, 14, 24, 34].map(x => r(x, 24, 2, 5, '#5e3b1d')).join('') + sakura(44, 6) + sakura(54, 9) + r(44, 21, 20, 2, '#6aa25a') + `<g class="ga-snow">${[[10, 4], [18, 9], [30, 3], [38, 12], [48, 2], [58, 14], [26, 16]].map(([x, y]) => r(x, y, 1, 1, '#f6b8cf')).join('')}</g>` + boat(22, 9)
+  });
+  // Pixel-Ziffern 3×5 (+ Umriss) für Schadenszahlen: 0-9 + - % und „KRIT“
+  const FONT = {
+    '0': ['xxx', 'x.x', 'x.x', 'x.x', 'xxx'], '1': ['.x.', 'xx.', '.x.', '.x.', 'xxx'], '2': ['xxx', '..x', 'xxx', 'x..', 'xxx'],
+    '3': ['xxx', '..x', '.xx', '..x', 'xxx'], '4': ['x.x', 'x.x', 'xxx', '..x', '..x'], '5': ['xxx', 'x..', 'xxx', '..x', 'xxx'],
+    '6': ['xxx', 'x..', 'xxx', 'x.x', 'xxx'], '7': ['xxx', '..x', '.x.', '.x.', '.x.'], '8': ['xxx', 'x.x', 'xxx', 'x.x', 'xxx'],
+    '9': ['xxx', 'x.x', 'xxx', '..x', 'xxx'], '+': ['...', '.x.', 'xxx', '.x.', '...'], '-': ['...', '...', 'xxx', '...', '...'],
+    '%': ['x.x', '..x', '.x.', 'x..', 'x.x'], 'K': ['x.x', 'x.x', 'xx.', 'x.x', 'x.x'], 'R': ['xx.', 'x.x', 'xx.', 'x.x', 'x.x'],
+    'I': ['xxx', '.x.', '.x.', '.x.', 'xxx'], 'T': ['xxx', '.x.', '.x.', '.x.', '.x.'], ' ': ['...', '...', '...', '...', '...'], '!': ['.x.', '.x.', '.x.', '...', '.x.']
+  };
+  const DIGIT_COL = { normal: ['#ffffff', '#d8d2c4'], crit: ['#ffe28a', '#f2a91c'], heal: ['#a8f08a', '#4fbf4a'], poison: ['#d6a8ff', '#9b6fd1'], shield: ['#a8d8ff', '#4f8fe0'], burn: ['#ffb07a', '#f06a24'] };
+  function digits(text, kind) {
+    const s = String(text).toUpperCase().split('').filter(ch => FONT[ch]);
+    if (!s.length) return '';
+    const key = 'dg:' + s.join('') + ':' + (kind || 'normal');
+    if (cache[key]) return cache[key];
+    const [c1, c2] = DIGIT_COL[kind] || DIGIT_COL.normal;
+    const W = s.length * 4 + 1, H = 7;
+    // Umriss: jedes gesetzte Pixel bekommt einen dunklen 1-px-Rand, darüber Füllung mit Licht oben / Schatten unten
+    const on = new Set(), px = [];
+    s.forEach((ch, i) => FONT[ch].forEach((row, y) => row.split('').forEach((v, x) => { if (v === 'x') { const X = i * 4 + x + 1, Y = y + 1; on.add(X + ',' + Y); px.push([X, Y]); } })));
+    let out = '';
+    const seen = new Set();
+    px.forEach(([x, y]) => { for (let dx = -1; dx <= 1; dx++) for (let dy = -1; dy <= 1; dy++) { const k = (x + dx) + ',' + (y + dy); if (!on.has(k) && !seen.has(k)) { seen.add(k); out += r(x + dx, y + dy, 1, 1, '#2b1d14'); } } });
+    px.forEach(([x, y]) => { out += r(x, y, 1, 1, y >= 4 ? c2 : c1); });
+    return (cache[key] = `<svg viewBox="-1 -1 ${W + 1} ${H + 1}" shape-rendering="crispEdges" class="ga-digits dg-${kind || 'normal'}" style="width:${(W + 1) * 3}px;height:${(H + 1) * 3}px" aria-hidden="true">${out}</svg>`);
+  }
+
   GL.art = {
     scene(id, opts) {
       const o = opts || {}, t = o.time || 'day', key = 'sc:' + id + ':' + t + ':' + (o.weather || '') + ':' + (o.ship === false ? 0 : 1);
@@ -369,6 +492,21 @@ window.GL = window.GL || {};
       if (!rows) return '';
       return (cache[key] = svg(12, 12, grid(rows, 12), 'ga-icon icon'));
     },
-    ids: () => ({ scenes: Object.keys(SCENES), props: Object.keys(PROPS), icons: Object.keys(ICONS) })
+    monster(id) {
+      const key = 'mo:' + id;
+      if (cache[key]) return cache[key];
+      const m = MONSTERS[id];
+      if (!m) return '';
+      return (cache[key] = svg(14, 16, grid(m.rows, 14, m.pal), 'ga-monster'));
+    },
+    npc(id) {
+      const key = 'np:' + id;
+      if (cache[key]) return cache[key];
+      const m = NPCS[id];
+      if (!m) return '';
+      return (cache[key] = svg(14, 16, grid(m.rows, 14, m.pal), 'ga-npc'));
+    },
+    digits,
+    ids: () => ({ scenes: Object.keys(SCENES), props: Object.keys(PROPS), icons: Object.keys(ICONS), monsters: Object.keys(MONSTERS), npcs: Object.keys(NPCS) })
   };
 })();

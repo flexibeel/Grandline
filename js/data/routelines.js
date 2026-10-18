@@ -180,3 +180,28 @@ GL.data.routeLines = {
     ]
   }
 };
+
+// Nachschub (Inhalt-Update): 15 weitere Sätze, in die vorhandenen Töpfe gemischt.
+(function (R) {
+  const add = (arr, xs) => { if (arr) xs.forEach(x => arr.push(x)); };
+  add(R.intro.ruffy, [['Ich hab die Karte falsch rum gehalten. Ist aber egal, die Insel ist rund.', 'I held the map upside down. Does not matter, the island is round.']]);
+  add(R.intro.nami, [['Drei Wege. Einer ist sicher, einer ist kurz, einer ist der, den Ruffy nimmt.', 'Three routes. One is safe, one is short, one is the one Luffy takes.']]);
+  add(R.intro.zorro, [['Ich geh vor. … Warum lacht ihr?', 'I will lead. … Why are you laughing?']]);
+  add(R.intro.sanji, [['Egal, wohin es geht: Ich hab Proviant für vier Tage. Für Ruffy also bis Mittag.', 'Wherever we go: I packed food for four days. So, for Luffy, until noon.']]);
+  add(R.intro.brook, [['Der Nebel ist dicht. Ich sehe nichts. Ich habe allerdings auch keine Augen. Yohoho!', 'The fog is thick. I see nothing. Then again, I have no eyes. Yohoho!']]);
+  add(R.intro.robin, [['Auf alten Karten stand hier „Hier sind Ungeheuer“. Auf neuen steht nichts. Ich weiß nicht, was mir lieber ist.', 'Old maps said “Here be monsters”. New ones say nothing. I am not sure which I prefer.']]);
+  add(R.near, [
+    ['{foe} wurde zuletzt hier gesehen. Von einer Möwe. Die Möwe ist seitdem sehr still.', '{foe} was last seen here. By a gull. The gull has been very quiet since.'],
+    ['Im Hafen redet man nur von {foe}. Leise. Und mit Blick über die Schulter.', 'The harbour talks only of {foe}. Quietly. With glances over the shoulder.']
+  ]);
+  const N = R.node;
+  add(N.battle, [
+    ['Eine Patrouille übt Formationen. Sie hat gerade „Kreis“ geübt. Gut für uns.', 'A patrol is drilling formations. They just practised “circle”. Good for us.'],
+    ['Piraten, die ihr Schiff nach sich selbst benannt haben. Das sagt eigentlich alles.', 'Pirates who named their ship after themselves. That says it all, really.']
+  ]);
+  add(N.elite, [['{foe} poliert gerade die eigene Waffe. Gründlich. Sehr gründlich.', '{foe} is polishing their weapon. Thoroughly. Very thoroughly.']]);
+  add(N.treasure, [['Eine Truhe, halb im Sand. Die andere Hälfte ist vermutlich auch Truhe.', 'A chest, half buried in sand. The other half is probably also chest.']]);
+  add(N.rest, [['Eine Bucht, ruhig wie ein Sonntag. Chopper hat schon die Decken verteilt.', 'A bay, quiet as a Sunday. Chopper is already handing out blankets.']]);
+  add(N.recruit, [['Jemand sitzt allein am Steg und wirft Steine. Sieht nach Anheuern aus.', 'Someone sits alone on the dock throwing stones. Looks like recruiting material.']]);
+  add(N.fruit, [['Ein Händler verkauft „ganz normales Obst“. Er betont das sehr oft.', 'A merchant sells “perfectly normal fruit”. He stresses that a lot.']]);
+})(GL.data.routeLines);

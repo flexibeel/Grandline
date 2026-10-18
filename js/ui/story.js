@@ -9,7 +9,7 @@ window.GL = window.GL || {};
   const seenOf = p => ((p.story = p.story || {}).seen = p.story.seen || []);
 
   function who(profile, id) {
-    if (id === 'self') { const s = GL.meta.selfDef(profile); return { name: profile.nickname || (en() ? 'You' : 'Du'), spr: GL.sprites.render({ id: 'self', name: s.name, look: s.look }) }; }
+    if (id === 'self') { const s = GL.meta.selfDef(profile) || { name: '', look: {} }; return { name: profile.nickname || (en() ? 'You' : 'Du'), spr: GL.sprites.render({ id: 'self', name: s.name, look: s.look }) }; }
     if (id === 'kalle') { const p = (GL.data.pets || []).find(x => x.id === 'moewe'); return { name: en() ? 'Kalle the News Coo' : 'Kalle, die Zeitungsmöwe', spr: p ? GL.sprites.renderShaded({ id: 'pet-moewe', art: p.art }) : '' }; }
     const d = GL.data.crew.find(c => c.id === id);
     return d ? { name: d.name, spr: GL.sprites.renderShaded ? GL.sprites.renderShaded(d) : GL.sprites.render(d) } : { name: id, spr: '' };
@@ -50,19 +50,19 @@ window.GL = window.GL || {};
     c.fidgetT = setTimeout(() => fidget(c), 1400 + Math.random() * 1800);
   }
   function play(profile, id, onDone) {
-    const ch = (GL.data.story || []).concat(GL.data.storyLaunch || []).find(c => c.id === id);
+    const ch = (GL.data.story || []).concat(GL.data.storyLaunch || [], GL.data.crewClips || []).find(c => c.id === id);
     if (!ch || document.getElementById('story')) return;
     const cast = [...new Set(ch.lines.map(l => l[0]))];
     const W = {}; cast.forEach(c => { W[c] = who(profile, c); });
     let auto = false; try { auto = localStorage.getItem('grandline.storyAuto') === '1'; } catch (e) { /* egal */ }
     const el = document.createElement('div');
-    el.id = 'story'; el.className = `story bg-${ch.bg}`;
+    el.id = 'story'; el.className = `story bg-${ch.bg || 'hafen'}${ch.home ? ' st-homebg' : ''}`;
     el.setAttribute('role', 'dialog');
     el.innerHTML = `<div class="st-sky"><i class="st-sun"></i><i class="st-cloud a"></i><i class="st-cloud b"></i><i class="st-stars"></i></div>
-      <div class="st-sea">${['hafen', 'schiff', 'insel', 'nacht'].includes(ch.bg) ? `<span class="st-ship">${GL.sprites.ship ? GL.sprites.ship((profile.cos && profile.cos.ship) || undefined) : ''}</span>` : ''}</div><div class="st-ground">${props(ch.bg)}</div><i class="st-bird a"></i><i class="st-bird b"></i>
+      ${ch.home && GL.ui && GL.ui.cardStage ? `<div class="st-home">${GL.ui.cardStage({ id: ch.home })}</div>` : ''}<div class="st-sea">${['hafen', 'schiff', 'insel', 'nacht'].includes(ch.bg) ? `<span class="st-ship">${GL.sprites.ship ? GL.sprites.ship((profile.cos && profile.cos.ship) || undefined) : ''}</span>` : ''}</div><div class="st-ground">${props(ch.bg)}</div><i class="st-bird a"></i><i class="st-bird b"></i>
       <div class="st-cast">${cast.map((c, i) => `<span class="st-who" data-w="${esc(c)}" style="--i:${i};--n:${cast.length};--from:${i < cast.length / 2 ? -1 : 1}"><i class="st-emote"></i><i class="st-spr">${W[c].spr}</i><i class="st-shadow"></i></span>`).join('')}</div>
       <div class="st-bar top"></div><div class="st-bar bot"></div>
-      <div class="st-title"><small>${ch.kicker ? esc(L(ch.kicker)) : (en() ? 'Chapter' : 'Kapitel') + ' ' + ch.no}</small><b>${esc(L(ch.title))}</b></div>
+      <div class="st-title"><small>${ch.kicker ? esc(L(ch.kicker)) : ch.home ? (en() ? 'Crew moment' : 'Crew-Moment') : (en() ? 'Chapter' : 'Kapitel') + ' ' + ch.no}</small><b>${esc(L(ch.title))}</b></div>
       <div class="st-ctl"><button class="st-auto${auto ? ' on' : ''}" data-st="auto">${en() ? 'Auto' : 'Auto'} ▶</button><button class="st-skip" data-st="skip">${en() ? 'Skip' : 'Überspringen'} ⏭</button></div>
       <div class="st-box" data-st="next"><span class="st-face"></span><div class="st-txt"><b class="st-name"></b><p class="st-line"></p></div><i class="st-more">▼</i></div>`;
     document.body.appendChild(el);
@@ -148,5 +148,11 @@ window.GL = window.GL || {};
     else if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); if (!cur.el.classList.contains('go')) { cur.el.classList.add('go'); step(); } else tap(); }
   }, true);
 
-  GL.story = { next, play, active: () => !!cur };
+  // Crew-Momente: ein ungesehener Clip mit einer Figur aus Stammcrew oder letztem Run
+  function clip(profile, ids) {
+    const seen = seenOf(profile);
+    const have = new Set(ids || []);
+    return (GL.data.crewClips || []).find(c => !seen.includes(c.id) && have.has(c.home) && c.lines.every(l => l[0] === 'self' || l[0] === 'kalle' || have.has(l[0]) || ['ruffy', 'nami', 'zorro', 'lysop', 'sanji', 'chopper', 'robin', 'franky', 'brook'].includes(l[0]))) || null;
+  }
+  GL.story = { next, play, clip, active: () => !!cur };
 })();

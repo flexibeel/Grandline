@@ -276,3 +276,25 @@ Object.assign(GL.data.en, { 'Spezial': 'Special', 'Aktiv': 'Active' });
 GL.i18nExtraP = (GL.i18nExtraP || []).concat([
   [/^(.+)\n(Boss −\d+ % Leben, Begleiter −\d+ %, Crew 2 Runden mutig\.)(\nLädt: (\d+)\/(\d+) \(Siege laden auf\))?$/, (m, n, e, l, a, b) => n + '\n' + e.replace('Leben', 'HP').replace('Begleiter', 'escorts').replace('Crew 2 Runden mutig.', 'crew brave for 2 rounds.') + (l ? `\nCharging: ${a}/${b} (wins charge it)` : '')]
 ]);
+
+// UX1: Aufgeräumt (Run-Ende, Chips, Hinweise)
+Object.assign(GL.data.en, {
+  'Daran bist du gescheitert': 'What sank you',
+  'Nächstes Mal:': 'Next time:',
+  'zwei gleiche Kampfstile sammeln, dann zündet ein Stil-Bonus': 'collect two of the same fighting style and a style bonus kicks in',
+  '▾ Zeigen': '▾ Show',
+  '▴ Einklappen': '▴ Fold',
+  'Bösewicht:': 'Villain:',
+  'Boss:': 'Boss:',
+  'Profil-Belohnungen in diesem Run': 'profile rewards this run',
+  'Liegt in der Truhe. Auspacken im Hafen.': 'It’s in the chest. Unpack it in the harbor.'
+});
+GL.i18nExtraP = (GL.i18nExtraP || []).concat([
+  [/^Beinahe: (.+) hatte nur noch (\d+) % Leben\.$/, 'So close: $1 had only $2 % health left.'],
+  [/^(.+) stand am Ende noch mit (\d+) % Leben da\.$/, '$1 was still standing with $2 % health.'],
+  [/^Endstation: (.+)\.$/, 'Last stop: $1.'],
+  [/^noch (\d+) (.+)-(?:Figur|Figuren) für (.+)$/, '$1 more $2 member(s) for $3'],
+  [/^noch (\d+) Rang-EP bis (.+)$/, '$1 more rank XP until $2'],
+  [/^(.+) hat dir etwas geschickt$/, '$1 sent you something'],
+  [/^(\d+) Flaschen angespült$/, '$1 bottles washed ashore']
+]);

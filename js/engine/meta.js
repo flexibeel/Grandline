@@ -426,9 +426,9 @@ window.GL = window.GL || {};
       const from = 15 * L * (L + 1), to = 15 * (L + 1) * (L + 2);
       return { have: (xp || 0) - from, need: to - from };
     },
-    squadGainXp(profile, ids, win) {
+    squadGainXp(profile, ids, win, practice) {
       profile.squadXp = profile.squadXp || {};
-      const gain = win ? 12 : 4;
+      const gain = practice ? (win ? 6 : 2) : (win ? 12 : 4);   // Übung schweißt weniger zusammen als echte Gegner
       const ups = [];
       GL.meta.pairGain(profile, ids, Math.round(gain / 2));
       ids.forEach(id => {

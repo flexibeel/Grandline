@@ -57,5 +57,18 @@ GL.data.relics = [
   { id: 'medkoffer',  name: 'Choppers Medizinkoffer', vals: { p: [0.3, 0.35, 0.45, 0.6] }, text: 'Nach jedem Sieg stehen Gefallene mit {p} Leben wieder auf. Chopper hat sie gebeten, nicht so viel zu sterben.',
     flags: { reviveWin: 'p' } },
   { id: 'loewenkopf', name: 'Sunny-Löwenkopf',     vals: { a: [5, 7, 9, 12], b: [1, 2, 3, 4] }, text: 'Zu Kampfbeginn erleiden alle Gegner {a} Schaden, ganze Crew +{b} Tempo.',
-    mods: [{ scope: 'all', spd: 'b' }], flags: { cannon: 'a' } }
+    mods: [{ scope: 'all', spd: 'b' }], flags: { cannon: 'a' } },
+  // Je ein Schatz pro Kampfstil (Wucht, Schwertkunst, Tempo, Lazarett, Bollwerk, Sturmtrupp)
+  { id: 'hammer',     name: 'Schmiedehammer',      vals: { a: [1, 1, 1, 2], p: [0.1, 0.15, 0.2, 0.3] }, text: 'Kraft-Figuren +{a} Angriff und +{p} Schaden gegen Bosse. Klopft auch Rost aus Kanonen.',
+    mods: [{ scope: 'type:kraft', atk: 'a', bossPct: 'p' }] },
+  { id: 'wetzstein',  name: 'Alter Wetzstein',     vals: { p: [0.15, 0.25, 0.35, 0.5] }, text: 'Krits von Klinge-Figuren treffen {p} härter. Zorro schwört drauf. Zorro schwört auf vieles.',
+    mods: [{ scope: 'type:klinge', critMult: 'p' }] },
+  { id: 'federschuh', name: 'Federleichte Schuhe', vals: { a: [1, 1, 1, 2], p: [0.04, 0.05, 0.07, 0.1] }, text: 'Technik-Figuren +{a} Tempo und {p} Ausweichen. Riechen leicht nach Möwe.',
+    mods: [{ scope: 'type:technik', spd: 'a', dodge: 'p' }] },
+  { id: 'kraeuter',   name: 'Kräutertee-Dose',     vals: { p: [0.08, 0.1, 0.15, 0.2], q: [0.2, 0.3, 0.4, 0.5] }, text: 'Helfer erleiden {p} weniger Schaden, Heilung durch Helfer +{q}. Schmeckt nach Wiese.',
+    mods: [{ scope: 'role:helfer', guard: 'p' }], flags: { healBonus: 'q' } },
+  { id: 'ankerkette', name: 'Ankerkette',          vals: { a: [1, 1, 2, 2], p: [0.02, 0.03, 0.04, 0.05] }, text: 'Brecher erleiden {a} weniger Schaden, ganze Crew {p} weniger. Schwer, aber beruhigend.',
+    mods: [{ scope: 'role:brecher', armor: 'a' }, { scope: 'all', guard: 'p' }] },
+  { id: 'trommel',    name: 'Kriegstrommel',       vals: { p: [0.1, 0.14, 0.2, 0.28] }, text: 'Kämpfer +{p} Schaden. Brook spielt sie, wenn ihr nicht hinseht.',
+    mods: [{ scope: 'role:kaempfer', dmgPct: 'p' }] }
 ];

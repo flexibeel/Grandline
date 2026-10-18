@@ -116,3 +116,4 @@ GL.i18nExtraP = (GL.i18nExtraP || []).concat([
   [/^„Für den Boss!“ Das Gefolge von (.+) wird wütend: \+(\d+) % Angriff\.$/, '“For the boss!” $1\'s escort gets angry: +$2 % attack.'],
   [/^(.+) pfeift\. (.+) steht wieder auf und tut so, als wäre nichts gewesen\.$/, '$1 whistles. $2 gets back up and pretends nothing happened.']
 ]);
+Object.assign(GL.data.en, { 'Training wartet': 'Training awaits' });

@@ -559,11 +559,15 @@ window.GL = window.GL || {};
     // Zwischen-Event mit der Crew: einmal pro Insel-Kapitel sicher in der Reihe vor dem Bösewicht
     const CE = GL.data.crewEvents || [], rI = rowIdx(run), chap = run.step - rI;
     // Folge: Teil 2 unterwegs, Teil 3 direkt vor dem Bösewicht
-    if (run.epi && run.epi.chap === chap && run.epi.part < 3 && (rI === 1 || rI === GL.config.chapterSteps - 2)) { episodePart(run, rI === 1 ? 2 : 3); return; }
-    if (CE.length && rI === GL.config.chapterSteps - 2 && run.ceChap !== chap) { startCrewEvent(run, chap); return; }
+    if (run.epi && run.epi.chap === chap && run.epi.part < 3 && (rI === 1 || rI === GL.config.chapterSteps - 2)) { episodePart(run, rI === 1 ? 2 : 3); run.sceneStep = run.step; return; }
+    // Dichte in Maßen (Felix): Kapitel mit Folge bekommen keine weiteren Szenen,
+    // sonst ein Crew-Event vor dem Bösewicht und höchstens ein Ereignis auf See, nie zwei Szenen direkt hintereinander
+    if (run.epi && run.epi.chap === chap) return;
+    const calm = run.sceneStep === run.step - 1;
+    if (CE.length && rI === GL.config.chapterSteps - 2 && run.ceChap !== chap && !calm) { startCrewEvent(run, chap); run.sceneStep = run.step; return; }
     // Gelegentlich ein Ereignis auf See (nicht direkt vor dem Bösewicht oder Boss)
-    if (rI < GL.config.chapterSteps - 1 && R.float(run) < GL.config.eventChance) {
-      if (CE.length && run.ceChap !== chap && R.float(run) < 0.35) { startCrewEvent(run, chap); return; }
+    if (rI < GL.config.chapterSteps - 2 && !calm && run.evChap !== chap && R.float(run) < GL.config.eventChance) {
+      run.evChap = chap; run.sceneStep = run.step;
       const ev = GL.data.events[R.int(run, 0, GL.data.events.length - 1)];
       run.event = { id: ev.id };
       run.phase = 'event';
@@ -575,7 +579,7 @@ window.GL = window.GL || {};
   function startEpisode(run) {
     const EP = GL.data.crewEpisodes || [];
     if (!EP.length) return false;
-    if (R.float(run) >= 0.6) return false;
+    if (R.float(run) >= 0.4) return false;   // Folgen in etwa 40 % der Kapitel
     run.epSeen = run.epSeen || [];
     let pool = EP.filter(e => !run.epSeen.includes(e.id));
     if (!pool.length) { run.epSeen = []; pool = EP.slice(); }
@@ -960,8 +964,8 @@ window.GL = window.GL || {};
           run.crew.push(makeMember(run, run.selfOffer));
           run.crew.push(makeMember(run, offer));
           run.mate = offer.id;
-          // Der Maat will auch bezahlt werden: seine Heuer ist dein ganzes Startgold
-          run.gold = 0;
+          // Der Maat will auch bezahlt werden: seine Heuer kostet zwei Drittel des Startgolds
+          run.gold = Math.floor((run.gold || 0) / 3);   // Heuer: zwei Drittel des Startgolds, der Rest bleibt für die erste Taverne
         } else run.crew.push(makeMember(run, offer));
         autoEquip(run);
         run.crew[0].points += run.startPoints || 0;

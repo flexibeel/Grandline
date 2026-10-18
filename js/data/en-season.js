@@ -2,6 +2,7 @@
 window.GL = window.GL || {};
 GL.data = GL.data || {};
 GL.data.en = Object.assign(GL.data.en || {}, {
+  'Übungskampf: Ab 1100 zählt die Marine nicht mehr für die Liga.': 'Practice bout: above 1100 the Marines no longer count for the league.',
   'Veteran der Testfahrt': 'Test Voyage Veteran', 'Erstsegler': 'First Sailor', 'Erste Fahrt': 'Maiden Voyage',
   'Vor dem großen Neustart gesegelt': 'Sailed before the big relaunch', 'Am Startabend (18./19.10.) gesegelt': 'Sailed on launch night (Oct 18/19)',
   '⛵ Flagge „Erste Fahrt“': '⛵ “Maiden Voyage” flag',
@@ -41,3 +42,12 @@ GL.i18nExtraP = (GL.i18nExtraP || []).concat([
   [/^Rang (\d+)( · Vertraut (\d+))? → \+(\d+) Leben, \+(\d+) Angriff(?:, \+(\d+) Tempo)?$/, (m, r, b, bv, hp, atk, spd) => `Rank ${r}${bv ? ' · Bond ' + bv : ''} → +${hp} HP, +${atk} attack${spd ? ', +' + spd + ' speed' : ''}`],
   [/^Rank (\d+)( · Vertraut (\d+))? → \+(\d+) Leben, \+(\d+) Angriff(?:, \+(\d+) Tempo)?$/, (m, r, b, bv, hp, atk, spd) => `Rank ${r}${bv ? ' · Bond ' + bv : ''} → +${hp} HP, +${atk} attack${spd ? ', +' + spd + ' speed' : ''}`]
 ]);
+// Hotfix-Runde 2
+Object.assign(GL.data.en, {
+  'Ersten Maat wählen': 'Choose your first mate',
+  'Kapitän bist du selbst. Dein Maat bleibt den ganzen Run.': 'You are the captain. Your mate stays for the whole run.',
+  'Kapitän bist du selbst, dein Maat bleibt den ganzen Run.': 'you are the captain, your mate stays for the whole run.',
+  'Ersten Maat wählen.': 'Choose your first mate.'
+});
+Object.assign(GL.data.en, { 'Kurs setzen': 'Set course', 'Automatisch verteilen': 'Distribute automatically' });
+Object.assign(GL.data.en, { 'Deine Crew ist gerade gesund': 'Your crew is healthy right now' });
