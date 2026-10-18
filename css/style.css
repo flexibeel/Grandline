@@ -5064,3 +5064,38 @@ body { overscroll-behavior: none; -webkit-tap-highlight-color: transparent; }
   .course-opt .co-top { padding-right: 96px; }
 }
 @media (max-width: 560px) { .fs-btn { display: none !important; } }
+/* Crew-Leben: Figuren am Steg antippbar, eine sagt etwas */
+.sail-stage .ss-dock, .sail-stage .ss-mate { pointer-events: auto; }
+button.ss-mate { background: none; border: 0; padding: 0; cursor: pointer; font: inherit; color: inherit; }
+.ss-mate .ss-say { position: absolute; left: 50%; bottom: calc(100% + 6px); transform: translateX(-30%); z-index: 5; white-space: nowrap; max-width: 220px; overflow: hidden; text-overflow: ellipsis;
+  font-size: 10.5px; font-weight: 700; line-height: 1.2; color: #3a2a18; background: #fffaf0; border-radius: 6px; padding: 4px 7px; box-shadow: 0 2px 0 rgba(0,0,0,.18); animation: say-in .35s ease-out both, say-bob 3s ease-in-out .4s infinite; }
+.ss-mate .ss-say::after { content: ''; position: absolute; left: 30%; top: 100%; border: 5px solid transparent; border-top-color: #fffaf0; }
+@keyframes say-in { from { opacity: 0; transform: translate(-30%, 6px); } to { opacity: 1; transform: translate(-30%, 0); } }
+@keyframes say-bob { 50% { transform: translate(-30%, -2px); } }
+/* Steckbrief */
+.crew-card { text-align: left; }
+.cc-top { display: flex; gap: 12px; align-items: center; }
+.cc-spr svg { width: 64px; height: 74px; shape-rendering: crispEdges; display: block; }
+.cc-top h3 { margin: 0 0 2px; }
+.cc-bond { display: block; color: #d0476a; font-size: 15px; letter-spacing: 1px; }
+.cc-bond small { color: #8a6a44; font-size: 11px; letter-spacing: 0; }
+.cc-tag { display: inline-block; margin-top: 3px; font-style: normal; font-size: 10px; font-weight: 800; color: #2f6a3a; background: #dff0d8; border-radius: 5px; padding: 1px 6px; }
+.cc-say { margin: 10px 0 6px; padding: 7px 10px; background: #fffaf0; border-radius: 8px; font-style: italic; color: #5a3a1e; box-shadow: inset 0 -2px 0 rgba(0,0,0,.06); }
+.cc-facts { display: grid; grid-template-columns: auto 1fr; gap: 3px 10px; margin: 8px 0; font-size: 13px; }
+.cc-facts dt { font-weight: 800; color: #a0724a; font-size: 11px; text-transform: uppercase; letter-spacing: .04em; padding-top: 2px; }
+.cc-facts dd { margin: 0; }
+.cc-k { display: block; font-size: 11px; font-weight: 800; color: #a0724a; text-transform: uppercase; letter-spacing: .04em; margin: 8px 0 3px; }
+.cc-mem ul { margin: 0; padding-left: 18px; font-size: 13px; }
+.cc-none { margin: 0; font-size: 13px; color: #8a6a44; }
+.cc-gear { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
+.cc-gear .cc-k { width: 100%; }
+.cc-note { display: block; margin-top: 10px; font-size: 11px; color: #8a6a44; }
+/* Stammcrew: Namen antippbar */
+.sq-xpb { display: grid; gap: 2px; background: none; border: 0; padding: 2px 0; text-align: left; font: inherit; color: inherit; cursor: pointer; width: 100%; }
+.sq-xpb em { font-style: normal; color: #d0476a; font-weight: 800; }
+/* Run-Ende: Crew-Kommentar */
+.bond-say { display: flex; gap: 8px; align-items: center; justify-content: center; margin: 8px 0 0; }
+.bond-say i svg { width: 28px; height: 32px; display: block; }
+.bond-say span { background: #fffaf0; border-radius: 8px; padding: 5px 9px; font-size: 13px; text-align: left; box-shadow: 0 2px 0 rgba(0,0,0,.12); }
+.bond-say b { display: block; font-size: 11px; color: #a0724a; }
+@media (prefers-reduced-motion: reduce) { .ss-say { animation: none !important; } }

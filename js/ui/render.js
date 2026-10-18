@@ -1312,7 +1312,11 @@ window.GL = window.GL || {};
         // Verbindung zur Stammcrew: wer mitgesegelt ist, ist vertrauter geworden
         const bond = ui.lastBond && ui.lastBond.length ? `<div class="trophy-sum bond-sum"><span class="event-kicker">Deine Crew wächst zusammen</span>
           <span class="bond-row">${ui.lastBond.map(b => `<span class="bond-u${b.up ? ' up' : ''}" data-tip="${esc(b.name)}: +${b.gain} Vertrautheit${b.lvl ? ` · Vertraut ${b.lvl}` : ''}"><i>${GL.sprites.render(b.id === 'self' ? avatarOf(ui.profile) : crewData(b.id))}</i><small>+${b.gain}</small>${b.up ? `<em>♥ ${b.lvl}</em>` : ''}</span>`).join('')}</span>
-          <small class="bond-note">Vertrautheit macht Figuren in Stammcrew, Duellen und Landgang stärker.</small></div>` : '';
+          <small class="bond-note">Vertrautheit macht Figuren in Stammcrew, Duellen und Landgang stärker.</small>
+          ${(() => { const who = ui.lastBond[0]; const foe = run.battle && run.battle.enemies && run.battle.enemies[0]; const fd = foe ? (enemyData(foe.id) || crewData(foe.id)) : null;
+            const t = lifeLine(ui.profile, who.id, run.phase === 'win' ? 'win' : 'lose', { boss: fd ? fd.name : 'den Boss' });
+            const d = who.id === 'self' ? avatarOf(ui.profile) : crewData(who.id);
+            return t && d ? `<p class="bond-say"><i>${GL.sprites.render(d)}</i><span><b>${esc(d.name)}</b>${esc(t)}</span></p>` : ''; })()}</div>` : '';
         return `${head}${duelHtml}${endlessHtml}${record}${berry}${bond}${shardHtml}${cgHtml}${troHtml}${itemSum}${rankHtml}${heatUp}${goals}<div class="end-actions dock">${canEndless ? `<button class="btn" data-act="endless">Weitersegeln ⚓</button>` : ''}<button class="btn${canEndless ? ' ghost' : ''}" data-act="again">${run.daily ? 'Neuer Run' : run.duel ? 'Normaler Run' : 'Nochmal!'} ${keyHint('Leertaste')}</button>
           <button class="btn ghost" data-act="hq">Hauptquartier ${keyHint('H')}</button></div>`;
       }
@@ -1575,7 +1579,7 @@ window.GL = window.GL || {};
       ${gearPanel(profile, refs)}
       <button class="btn squad-match" data-act="squad-match">⚔ Gegner suchen <small>ähnliche Stärke</small></button>
       <div class="sq-xp">${refs.map(r => { const nx = GL.meta.squadNext((profile.squadXp || {})[r.id]);
-        return `<span><small>${esc(r.name)}</small><i class="xpbar"><i style="width:${nx ? Math.round(100 * nx.have / nx.need) : 100}%"></i></i></span>`; }).join('')}</div>
+        return `<button class="sq-xpb" data-act="crew-card" data-id="${r.id}"><small>${esc(r.name)} <em>♥${GL.meta.squadBonus((profile.squadXp || {})[r.id])}</em></small><i class="xpbar"><i style="width:${nx ? Math.round(100 * nx.have / nx.need) : 100}%"></i></i></button>`; }).join('')}</div>
       <p class="hint">Freunde fordern deine Stammcrew in der Rangliste heraus, auch wenn du offline bist. Die Crew wächst beim normalen Spielen mit: Wer in einem Run, Duell oder Landgang dabei ist, wird vertrauter und bekommt Extra-Level (♥). Bis zu ${N} Figuren, <b>zuerst gewählt steht vorne</b>.</p>
       <p class="sq-legend"><span class="weak-key"></span> schwächste Figur deiner Stammcrew · Pfeile: so viel stärker oder schwächer wäre eine andere Figur</p>
       <div class="sq-pool">${pick}</div>
@@ -1992,6 +1996,50 @@ window.GL = window.GL || {};
         <span><small>Sammelalbum · Stufe ${st.reached + 1}</small><b>Noch ${st.left} ${st.left === 1 ? 'Entdeckung' : 'Entdeckungen'} bis ${rew}</b>
         <i class="hook-bar"><i style="width:${Math.round(100 * st.ac.have / Math.max(1, st.need))}%"></i></i></span></button>` : '';
     return rumor || book ? `<div class="hook-box pxf">${rumor}${book}</div>` : '';
+  }
+  // Crew-Leben: ein Satz einer Figur (Hafen, Sieg, Niederlage). Wechselt alle 10 Minuten bzw. pro Run
+  function lifeLine(profile, id, kind, vars) {
+    const d = id === 'self' ? { role: profile.char && profile.char.role } : crewData(id) || {};
+    const L = GL.data.lifeOf ? GL.data.lifeOf(id, d.role) : null;
+    const list = (L && L[kind]) || [];
+    if (!list.length) return '';
+    const k = Math.floor(Date.now() / 600000) + id.length;
+    let t = list[k % list.length];
+    Object.keys(vars || {}).forEach(x => { t = t.replace('{' + x + '}', vars[x]); });
+    return t.replace(/\{[a-z]+\}/g, 'ihn');
+  }
+  // Steckbrief einer Figur: Vertrautheit, Lieblingsessen, Spielweise, gemeinsame Erinnerungen, Ausrüstung
+  function crewCard(profile, id) {
+    const d = id === 'self' ? avatarOf(profile) : crewData(id);
+    if (!d) return '';
+    const role = id === 'self' ? profile.char && profile.char.role : d.role;
+    const L = GL.data.lifeOf ? GL.data.lifeOf(id, role) : {};
+    const xp = (profile.squadXp || {})[id] || 0, lv = GL.meta.squadBonus(xp), nx = GL.meta.squadNext(xp);
+    const cs = (profile.charStats || {})[id] || {};
+    const n = x => (x || 0).toLocaleString('de-DE');
+    const mem = [
+      cs.runs ? `<li><b>${n(cs.runs)}</b> ${cs.runs === 1 ? 'Fahrt' : 'Fahrten'} zusammen${cs.wins ? `, <b>${n(cs.wins)}</b> davon gewonnen` : ''}</li>` : '',
+      cs.fights ? `<li><b>${n(cs.fights)}</b> Kämpfe Seite an Seite</li>` : '',
+      cs.kos ? `<li><b>${n(cs.kos)}</b> Gegner umgehauen</li>` : '',
+      cs.best ? `<li>Härtester Treffer: <b>${n(cs.best)}</b></li>` : ''
+    ].filter(Boolean);
+    const inSquad = GL.meta.squadIds(profile).includes(id);
+    const gear = GL.cgear && GL.cgear.wornList ? GL.cgear.wornList(profile, id) : [];
+    const style = GL.data.styles && GL.data.styles[id];
+    const say = lifeLine(profile, id, 'hafen');
+    return `<div class="fpop-card crew-card" role="dialog">
+      <span class="fpop-kicker">Steckbrief</span>
+      <div class="cc-top"><i class="cc-spr pet-hop">${GL.sprites.renderShaded ? GL.sprites.renderShaded(d) : GL.sprites.render(d)}</i>
+        <span><h3>${esc(d.name)}</h3>
+          <span class="cc-bond">${'♥'.repeat(Math.min(5, Math.ceil(lv / 2)))}${'♡'.repeat(Math.max(0, 5 - Math.ceil(lv / 2)))} <small>Vertraut ${lv}${nx ? ` · noch ${nx.need - nx.have} bis ${lv + 1}` : ' · ganz eng'}</small></span>
+          ${inSquad ? '<em class="cc-tag">In deiner Stammcrew</em>' : ''}</span></div>
+      ${say ? `<p class="cc-say">„${esc(say)}“</p>` : ''}
+      <dl class="cc-facts"><dt>Lieblingsessen</dt><dd>${esc(L.food || 'Alles, was es gibt')}</dd>${style ? `<dt>Spielweise</dt><dd>${esc(style)}</dd>` : ''}</dl>
+      <div class="cc-mem"><span class="cc-k">Eure Erinnerungen</span>${mem.length ? `<ul>${mem.join('')}</ul>` : '<p class="cc-none">Noch keine gemeinsamen Fahrten. Nimm sie mal mit!</p>'}</div>
+      ${gear.length ? `<div class="cc-gear"><span class="cc-k">Trägt</span>${gear.map(it => `<span class="trophy-chip cr-${GL.cgear.RID[it.r]}">${esc(GL.cgear.name(it))}</span>`).join('')}</div>` : ''}
+      <small class="cc-note">Vertrautheit wächst, wenn ${esc(d.name)} in Runs, Duellen oder beim Landgang dabei ist.</small>
+      <div class="fpop-btns"><button class="btn ghost" data-act="pop-close">Schließen</button></div>
+    </div>`;
   }
   // Hafengerücht: zeigt auf einen Begleiter, der noch fehlt (wechselt jeden Tag)
   function petRumor(profile) {
@@ -2997,7 +3045,10 @@ window.GL = window.GL || {};
 
       ${room ? '' : `<div class="hq-sail game">
         ${(() => { const t = timeOfDay(); const crew = (GL.meta.squadUnlocked(profile) ? GL.meta.squadIds(profile) : ['self'].concat(GL.config.starters.slice(0, 2))).slice(0, 4);
-          const fig = id => { const d = id === 'self' ? avatarOf(profile) : crewData(id); return d ? `<i class="ss-mate">${GL.sprites.renderShaded ? GL.sprites.renderShaded(d) : GL.sprites.render(d)}</i>` : ''; };
+          const talk = crew[Math.floor(Date.now() / 600000) % Math.max(1, crew.length)];
+          const fig = id => { const d = id === 'self' ? avatarOf(profile) : crewData(id); if (!d) return '';
+            const say = id === talk ? lifeLine(profile, id, 'hafen') : '';
+            return `<button class="ss-mate" data-act="crew-card" data-id="${id}" aria-label="${esc(d.name)}">${say ? `<span class="ss-say">${esc(say)}</span>` : ''}${GL.sprites.renderShaded ? GL.sprites.renderShaded(d) : GL.sprites.render(d)}</button>`; };
           return `<div class="sail-stage tod-${t.id}" aria-hidden="true">
           <div class="ss-sun"></div>${t.id === 'night' ? '<div class="ss-stars"></div>' : ''}<div class="ss-cloud c1"></div><div class="ss-cloud c2"></div>
           <div class="ss-sea"></div><div class="ss-ship">${GL.sprites.ship()}${(() => {
@@ -3523,6 +3574,7 @@ window.GL = window.GL || {};
     speedLabel,
     welcomePop,
     petPop,
+    crewCard,
     musicBtn,
     sfxBtn,
     endlessPop,

@@ -1,6 +1,11 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-18n', date: '18.10.', title: 'Deine Crew lebt', items: [
+    'Im Hafen sagt deine Crew jetzt etwas, alle paar Minuten jemand anderes. Tipp eine Figur am Steg an, dann öffnet sich ihr Steckbrief',
+    'Steckbrief: Vertrautheit in Herzen, Lieblingsessen, Spielweise und eure gemeinsamen Erinnerungen (Fahrten, Siege, K.o.s, härtester Treffer)',
+    'Nach jedem Run sagt ein Crewmitglied etwas zum Ergebnis. In der Stammcrew öffnen die Namen den Steckbrief',
+    'Fenster schließen: Steckbrief und Album gehen mit einem Tipp daneben zu, ohne dahinter etwas auszulösen. Esc schließt auch das Blatt in der Taverne' ] },
   { v: '2026-10-18m', date: '18.10.', title: 'Kleinigkeiten', items: [
     'Entwickler-Bereich im Kapitänsbuch erkennt das Entwickler-Konto jetzt zuverlässig' ] },
   { v: '2026-10-18l', date: '18.10.', title: 'Hafen wie eine App', items: [

@@ -728,6 +728,13 @@
 
   document.addEventListener('click', e => {
     if (suppressClick) { suppressClick = false; e.stopPropagation(); return; }
+    // Offenes Fenster (Steckbrief im Run, Album): Klick daneben schließt es, ohne dahinter etwas auszulösen
+    if (!e.target.closest('#toasts, #fpop')) {
+      const sh = document.getElementById('sheet'), al = document.getElementById('album');
+      const opener = e.target.closest('[data-act=sheet]');
+      if (ui.sheet != null && sh && !sh.hidden && !sh.contains(e.target) && !opener) { ui.sheet = null; draw(); e.stopPropagation(); return; }
+      if (ui.album && al && !al.hidden && !al.contains(e.target)) { ui.album = null; draw(); e.stopPropagation(); return; }
+    }
     const el = e.target.closest('[data-act]');
     if (!el || el.disabled) return;
     const type = el.dataset.act;
@@ -1423,6 +1430,7 @@
         break;
       }
       case 'album': checkAlbum(); ui.album = el.dataset.tab || 'stats'; draw(); break;
+      case 'crew-card': { const id = el.dataset.id; if (id) { openGearPop(GL.ui.crewCard(profile, id)); if (GL.sfx) GL.sfx.play('heal'); } break; }
       case 'pet-set': {
         // Begleiter mitnehmen (leer = absetzen). Sitzt im Profil auf der Schulter und steht im Hafen am Steg
         const v = el.dataset.v || null;
@@ -1472,6 +1480,7 @@
       if (ui.peek) { ui.peek = false; draw(); return; }
     }
     if (e.key === 'Escape' && (ui.album || ui.sheet != null)) { ui.album = null; ui.sheet = null; draw(); return; }
+    if (e.key === 'Escape' && run && ui.tvSel != null && ui.tvSel >= 0) { ui.tvSel = -1; ui.lastStage = null; draw(); return; }
     if (e.key === 'Escape' && !run && ui.hqRoom) { ui.hqRoom = null; draw(); return; }
     if (ui.album || ui.sheet != null) return;
     const stage = document.getElementById('stage');
