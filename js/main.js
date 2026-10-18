@@ -896,14 +896,14 @@
       }
       case 'admin-tester': {
         const st = GL.online.state();
-        if (!(st.email && /^westerholt\.felix/i.test(st.email))) break;
+        if (!(st.email && /^westerhol[dt]\.felix/i.test(st.email))) break;
         profile.testerPops = !profile.testerPops; saveProfile(); draw();
         toast(profile.testerPops ? 'Tester-Modus an: Tipps und Fragen kommen wieder' : 'Tester-Modus aus');
         break;
       }
       case 'admin-star': {
         const st = GL.online.state();
-        if (!(st.email && /^westerholt\.felix/i.test(st.email))) break;
+        if (!(st.email && /^westerhol[dt]\.felix/i.test(st.email))) break;
         profile.cos = Object.assign({}, profile.cos || {}, { star: !(profile.cos && profile.cos.star) });
         saveProfile(); ui.lastStage = null; draw();
         if (GL.online.register) GL.online.register(profile);

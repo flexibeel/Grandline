@@ -2270,7 +2270,7 @@ window.GL = window.GL || {};
   }
   function isAdmin() {
     const st = GL.online ? GL.online.state() : {};
-    return !!(st.email && /^westerholt\.felix/i.test(st.email));
+    return !!(st.email && /^westerhol[dt]\.felix/i.test(st.email));
   }
   // Spielstände: bis zu 3 Piraten, Platz 1 ist der Hauptpirat
   function slotsBox(uiRef) {
