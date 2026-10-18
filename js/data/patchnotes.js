@@ -1,6 +1,10 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-20m', date: '18.10.', title: 'Kurswahl mit Folgen, aufgeräumte Kajüte', items: [
+    '🧭 „Gemütlich“ und „ungemütlich“ sind jetzt keine Wettervorhersage mehr: Ungemütliche Inseln haben stärkere Gegner (⚔ +12 %), zahlen dafür mehr Gold (💰 +30 %) und Kopfgeld (฿ +30 %), und ihr Bösewicht lässt oft einen Extra-Schatz fallen 🎁',
+    'Die Gefahr richtet sich nach der echten Stärke des Bösewichts, nicht nach seinem Ruf. Steht direkt auf der Karte',
+    '☰ im Run öffnet die Kapitänskajüte: Weitersegeln, Hauptquartier, Pause und Run aufgeben als große Knöpfe. Aufgeben fragt im selben Fenster nach, statt sich wegzuklappen' ] },
   { v: '2026-10-20l', date: '18.10.', title: 'Man segelt nicht allein', items: [
     '⛵ Gerade auf See: Im Hafen ankern jetzt die Schiffe anderer Spieler neben deinem, mit Namen und wo sie gerade kreuzen. Antippen zeigt ihre Karte',
     '📜 Hafen-Logbuch: Wer einen Boss gelegt, eine Liga erklommen oder seine Bande getauft hat, steht hier. Mit 🍻 kann man anstoßen. Die Marine liest mit',

@@ -1824,7 +1824,10 @@ window.GL = window.GL || {};
           const info = bossInfo(foe);
           const bounty = foe.bounty ? `${foe.bounty} Mio. ฿` : '';
           const th = ISL_THEME[isl.id] || 'beach';
-          const lvl = opts.length > 1 ? Math.min(2, Math.round(2 * rankOf(foe.bounty || 0) / (opts.length - 1))) : 1;
+          const lvl = GL.run.courseRisk ? (GL.run.courseRisk(run)[i] || 0) : (opts.length > 1 ? Math.min(2, Math.round(2 * rankOf(foe.bounty || 0) / (opts.length - 1))) : 1);
+          const RK = GL.run.riskOf ? GL.run.riskOf({ risk: lvl }) : {};
+          const pct = v => Math.round(v * 100);
+          const fx = lvl ? `<span class="co-riskfx"><i class="rf-foe" title="Gegner stärker">⚔+${pct(RK.foe)}%</i><i class="rf-gold" title="Mehr Gold pro Sieg">💰+${pct(RK.gold)}%</i><i class="rf-b" title="Mehr Kopfgeld">฿+${pct(RK.bounty)}%</i>${RK.drop ? '<i class="rf-loot" title="Bösewicht lässt oft einen Extra-Schatz fallen">🎁</i>' : ''}</span>` : '<span class="co-riskfx calm"><i>Normale Gegner, normale Beute</i></span>';
           const danger = `<span class="co-danger d${lvl}" title="${['Gemütlicher Einstieg', 'Ordentlich was los', 'Wird ungemütlich'][lvl]}">${[0, 1, 2].map(k => `<i class="${k <= lvl ? 'on' : ''}"></i>`).join('')}<small>${['gemütlich', 'ordentlich', 'ungemütlich'][lvl]}</small></span>`;
           const pet = (() => { const pt = (GL.data.pets || []).find(p => p.isl === isl.id); const pr = profRef; return pt && pr && !(pr.pets || []).includes(pt.id) ? `<span class="co-petchip"><i class="pet-sil">${petArt(pt.id)}</i>Begleiter?</span>` : ''; })();
           return `<button class="opt course-opt co2" data-act="pick" data-i="${i}">
@@ -1838,6 +1841,7 @@ window.GL = window.GL || {};
               <span class="co-route">${isl.places.map(p => `<i>${p}</i>`).join('<em>›</em>')}<em>›</em><i class="co-lair">${isl.lair}</i></span>
               <span class="co-foe2"><span><small>${ch === 0 ? 'Bösewicht der Insel' : 'Boss des Meeres'}</small><b>${foe.name} ${badge(foe.type)}${isNewFoe(foe.id) ? newChip : ''}</b>
                 <small>schwach gegen ${badge(info.counter)}${bounty ? ` · ${bounty}` : ''}</small></span>${danger}</span>
+              ${fx}
               ${crackHint(foe).html}
             </span>
           </button>`;

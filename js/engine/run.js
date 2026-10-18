@@ -219,7 +219,7 @@ window.GL = window.GL || {};
   // Gold nach einem Sieg: fester Betrag je Kampfart plus Zinsen (je 10 Gold 1, höchstens 3)
   function earnGold(run, kind) {
     const S = GL.config.shop;
-    const base = Math.round((S.win[kind] || 0) * (run.mood === 'goldrausch' ? 1.4 : 1) * Math.max(0, 1 + ((twistOf(run) || {}).goldX || 0)));
+    const base = Math.round((S.win[kind] || 0) * (run.mood === 'goldrausch' ? 1.4 : 1) * Math.max(0, 1 + ((twistOf(run) || {}).goldX || 0) + (riskOf(run).gold || 0)));
     const interest = Math.min(S.interestMax, Math.floor((run.gold || 0) / 10));
     run.gold = (run.gold || 0) + base + interest;
     run.lastGold = { base, interest };
@@ -377,6 +377,21 @@ window.GL = window.GL || {};
   }
 
   // Summe aller Kopfgeld-Stufen bis zur gewählten
+  // Kurswahl mit Folgen: 0 gemütlich, 1 ordentlich, 2 ungemütlich (nach Stärke des Bösewichts/Bosses der Auswahl)
+  function courseRisk(run) {
+    const ids = run.courseOpts || [];
+    if (ids.length < 2) return ids.map(() => 0);
+    const sea = GL.data.islands[islandIndex(run)], ch = chapterIdx(run);
+    const isl = id => (ch === 0 ? sea.small.concat((sea.alt && sea.alt.small) || []) : sea.big).find(x => x.id === id);
+    const foeB = id => { const i = isl(id); const fid = i && (ch === 0 ? i.villain : i.boss); const d = fid && (byId(GL.data.grunts, fid) || byId(GL.data.bosses, fid) || byId(GL.data.hunted || [], fid)); return d ? (d.hp || 0) + (d.atk || 0) * 6 + (d.spd || 0) * 2 + (d.escort || 0) * 12 : 0; };   // echte Stärke, nicht nur Ruf
+    const b = ids.map(foeB);
+    return b.map(x => Math.min(2, Math.round(2 * b.filter(y => y < x).length / (ids.length - 1))));
+  }
+  function riskOf(run) { const R = GL.config.risk || []; return R[run.risk || 0] || { foe: 0, gold: 0, bounty: 0 }; }
+  function riskH(run) {
+    const H0 = run.H || heatMods(0), f = riskOf(run).foe || 0;
+    return f ? Object.assign({}, H0, { enemyHp: H0.enemyHp + f, enemyAtk: H0.enemyAtk + f }) : H0;
+  }
   function heatMods(level) {
     const out = { enemyHp: 0, enemyAtk: 0, bossAtk: 0, bossHp: 0, enemySpd: 0, eliteMult: 0, bossEscort: 0, winHeal: 0, restHeal: 0 };
     (GL.data.heat || []).filter(h => h.lvl <= level).forEach(h => {
@@ -405,7 +420,7 @@ window.GL = window.GL || {};
   function makeEnemies(run, kind, who, gate) {
     const C = GL.config;
     const g = C.grunt;
-    const H = run.H || heatMods(0);
+    const H = riskH(run);
     const level = (run.step + (run.loopSteps || 0)) * C.enemyScale;
     const mult = (kind === 'elite' ? (gate && islandIndex(run) === 0 ? 1 : C.eliteMult) + H.eliteMult : 1) * (gate ? C.gateMult : 1);
 
@@ -854,7 +869,7 @@ window.GL = window.GL || {};
     if (rv > 0) run.crew.forEach(u => { if (u.hp <= 0) { u.hp = Math.max(1, Math.ceil(u.max * rv)); run.revived.push(u.id); } });
     if (b.kind === 'elite' && run.pending && run.pending.who) {
       const h = byId(GL.data.hunted, run.pending.who);
-      const bm = run.mood === 'kopfgeld' ? 1.5 : 1;
+      const bm = (run.mood === 'kopfgeld' ? 1.5 : 1) * (1 + (riskOf(run).bounty || 0));
       run.bountyM = (run.bountyM || 0) + Math.round(h.bounty * (1 + 0.25 * (run.heat || 0)) * bm);
       run.lastBounty = { id: h.id, gain: Math.round(h.bounty * (1 + 0.25 * (run.heat || 0)) * bm) };
       run.defeated.push(h.id);
@@ -863,9 +878,10 @@ window.GL = window.GL || {};
     if (b.kind === 'elite' && run.pending && run.pending.gate) heal(run, 0.3);   // Insel befreit: kurz durchatmen
     if ((b.kind === 'elite' && run.pending && run.pending.gate) || b.kind === 'boss') petCheck(run);
     if (b.kind === 'elite') dropItem(run, C.items.dropElite);
+    if (b.kind === 'elite' && run.pending && run.pending.gate && riskOf(run).drop) dropItem(run, riskOf(run).drop);   // ungemütliche Insel: Bösewicht hat mehr in den Taschen
     if (b.kind === 'boss') dropItem(run, C.items.dropBoss, 1);
     if (b.kind === 'boss') {
-      const bossGain = Math.round(GL.config.bossBounty[Math.min(run.bounties, GL.config.bossBounty.length - 1)] * (1 + 0.25 * (run.heat || 0)));
+      const bossGain = Math.round(GL.config.bossBounty[Math.min(run.bounties, GL.config.bossBounty.length - 1)] * (1 + 0.25 * (run.heat || 0)) * (1 + (riskOf(run).bounty || 0)));
       run.bountyM = (run.bountyM || 0) + bossGain;
       run.lastBounty = { id: leadOf(b).id, gain: bossGain };
       run.bounties++;
@@ -993,6 +1009,7 @@ window.GL = window.GL || {};
         if (a.type !== 'pick') return false;
         const id = (run.courseOpts || [])[a.index];
         if (!id) return false;
+        run.risk = courseRisk(run)[a.index] || 0;
         const sea = islandIndex(run);
         const base = GL.data.islands[sea];
         if (chapterIdx(run) === 0 && base.alt) {
@@ -1200,6 +1217,7 @@ window.GL = window.GL || {};
   }
 
   GL.run = {
+    courseRisk, riskOf,
     // profile = dauerhafte Freischaltungen { unlocked: [...], epics: [...] }.
     // Wird im Run gespeichert, damit ein Replay genau gleich abläuft.
     // profile.upgrades = Werft-Stufen { rumpf: 2, ... }, profile.gear = mitgenommene Ausrüstung [ids]
@@ -1397,7 +1415,7 @@ window.GL = window.GL || {};
       const C = GL.config;
       const g = C.grunt;
       const level = (run.step + (run.loopSteps || 0)) * C.enemyScale;
-      const H = run.H || heatMods(0);
+      const H = riskH(run);
       const mult = kind === 'elite' ? C.eliteMult + H.eliteMult : 1;
       let hp = 0, atk = 0, count;
       let boss = kind === 'boss' ? currentBoss(run) : null;

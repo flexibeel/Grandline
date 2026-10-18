@@ -86,6 +86,12 @@ GL.config = {
   awaken: { atk: 4, hp: 10 },
 
   // Gegnerstärke
+  // Kurswahl: gemütlich / ordentlich / ungemütlich. Stärkere Gegner auf der Insel, dafür mehr Gold, Kopfgeld und Beute
+  risk: [
+    { foe: 0, gold: 0, bounty: 0 },
+    { foe: 0.06, gold: 0.15, bounty: 0.15 },
+    { foe: 0.12, gold: 0.3, bounty: 0.3, drop: 0.6 }
+  ],
   enemyScale: 0.997,         // wie schnell normale Gegner pro Etappe stärker werden (längere Insel-Kapitel -> langsamer hochskalieren)
   eliteMult: 1.3,         // Kopfgeldjäger sind um diesen Faktor stärker
   // Mehr Leben, etwas weniger Angriff: Kämpfe dauern etwas länger, ohne insgesamt härter zu werden

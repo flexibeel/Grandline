@@ -250,6 +250,25 @@
     if (fb.shown || fb.asked || fb.sent) return false;
     return runs >= 3;
   }
+  // ☰ im Run: Kapitänskajüte mit großen Daumen-Knöpfen
+  function runMenuHtml() {
+    const en = GL.i18n && GL.i18n.lang() === 'en';
+    const row = (act, ico, t, sub, cls) => `<button class="rm-row${cls ? ' ' + cls : ''}" data-act="${act}"><i>${ico}</i><span><b>${t}</b><small>${sub}</small></span></button>`;
+    const peekOk = !document.getElementById('peek-btn') || !document.getElementById('peek-btn').hidden;
+    return `<div class="fpop-card rm-pop"><h3>${en ? 'Captain\'s cabin' : 'Kapitänskajüte'}</h3>
+      <div class="rm-list">
+        ${row('pop-close', '⛵', en ? 'Keep sailing' : 'Weitersegeln', en ? 'Back to your run' : 'Zurück in den Run')}
+        ${peekOk ? row('rm-peek', '🏠', en ? 'Headquarters' : 'Hauptquartier', en ? 'Have a look around, the run waits' : 'Kurz umsehen, der Run wartet') : ''}
+        ${row('pause', '⏸', en ? 'Pause' : 'Pause', en ? 'Saved. Close the game whenever you like' : 'Gespeichert. Spiel einfach zumachen')}
+        ${row('rm-quit', '🏳', en ? 'Give up run' : 'Run aufgeben', en ? 'Ends the run, back to the harbor' : 'Beendet den Run, zurück in den Hafen', 'quit')}
+      </div>
+      <div class="rm-small">
+        <button class="mu-btn" data-act="intro-open" title="${en ? 'Guide' : 'Anleitung'}">📖</button>
+        ${GL.ui.musicBtn ? GL.ui.musicBtn() + GL.ui.sfxBtn() : ''}
+        <button class="mu-btn" data-act="lang" title="Deutsch / English">${en ? 'DE' : 'EN'}</button>
+        <button class="mu-btn" data-act="reload" title="${en ? 'Reload' : 'Neu laden'}">↻</button>
+      </div></div>`;
+  }
   function openGearPop(html) {
     const old = document.getElementById('fpop'); if (old) old.remove();
     const el = document.createElement('div');
@@ -1106,8 +1125,20 @@
 
     // UX1: ☰-Menü im Kopf (Handy): jeder andere Tipp schließt es wieder
     if (type !== 'hmenu') { const hd = document.querySelector('header.menu-open'); if (hd) { hd.classList.remove('menu-open'); const mb = hd.querySelector('.menu-btn'); if (mb) mb.setAttribute('aria-expanded', 'false'); } }
+    if (el && el.closest && el.closest('.rm-pop') && ['intro-open', 'lang', 'reload'].includes(type)) closePop();
     switch (type) {
-      case 'hmenu': { const hd = document.querySelector('header'); const on = hd.classList.toggle('menu-open'); el.setAttribute('aria-expanded', on ? 'true' : 'false'); break; }
+      case 'hmenu': {
+        // Im Run: eine ruhige Kajüte statt Aufklapp-Liste. Alles bleibt offen, bis man sich entschieden hat.
+        if (run && document.body.classList.contains('in-run')) { openGearPop(runMenuHtml()); break; }
+        const hd = document.querySelector('header'); const on = hd.classList.toggle('menu-open'); el.setAttribute('aria-expanded', on ? 'true' : 'false'); break; }
+      case 'rm-peek': closePop(); ui.peek = true; draw(); break;
+      case 'rm-quit': {
+        // Zweimal tippen, aber im selben Fenster: erst fragen, dann wirklich aufgeben
+        const en = GL.i18n && GL.i18n.lang() === 'en';
+        if (!el.dataset.armed) { el.dataset.armed = '1'; el.classList.add('armed');
+          el.innerHTML = `<i>🏳</i><span><b>${en ? 'Really give up?' : 'Wirklich aufgeben?'}</b><small>${en ? 'Tap again. Loot from this run is lost.' : 'Nochmal tippen. Die Beute dieses Runs geht über Bord.'}</small></span>`; break; }
+        closePop(); toHq(); break;
+      }
       case 'node': {
         // Begegnung auf See: manchmal kreuzt die Crew eines anderen Spielers deinen Kurs (statt eines normalen Kampfes)
         const RV = GL.config.rival;

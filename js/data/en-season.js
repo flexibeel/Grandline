@@ -2,6 +2,7 @@
 window.GL = window.GL || {};
 GL.data = GL.data || {};
 GL.data.en = Object.assign(GL.data.en || {}, {
+  'Normale Gegner, normale Beute': 'Normal foes, normal loot', 'Gegner stärker': 'Stronger foes', 'Mehr Gold pro Sieg': 'More gold per win', 'Mehr Kopfgeld': 'More bounty', 'Bösewicht lässt oft einen Extra-Schatz fallen': 'The villain often drops an extra treasure',
   'Übungskampf: Ab 1100 zählt die Marine nicht mehr für die Liga.': 'Practice bout: above 1100 the Marines no longer count for the league.',
   'Veteran der Testfahrt': 'Test Voyage Veteran', 'Erstsegler': 'First Sailor', 'Erste Fahrt': 'Maiden Voyage',
   'Vor dem großen Neustart gesegelt': 'Sailed before the big relaunch', 'Am Startabend (18./19.10.) gesegelt': 'Sailed on launch night (Oct 18/19)',
