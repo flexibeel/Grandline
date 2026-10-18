@@ -222,5 +222,6 @@ GL.data.en = Object.assign(GL.data.en || {}, {
   'Mandarinen-Kiste': 'Tangerine Crate', 'Sunny-Löwenkopf': 'Sunny Lion Head',
   'Kochmesser': 'Chef\'s Knife', 'Perlenkette': 'Pearl Necklace',
   'Ganze Crew heilt sich am Ende jeder Runde um {n}.': 'The whole crew heals {n} at the end of every round.',
+  'Ganze Crew heilt sich am Ende jeder Runde um 1.': 'The whole crew heals 1 at the end of every round.', 'Ganze Crew heilt sich am Ende jeder Runde um 2.': 'The whole crew heals 2 at the end of every round.',
   'Zu Kampfbeginn erleiden alle Gegner {a} Schaden, ganze Crew +{b} Tempo.': 'At battle start all enemies take {a} damage, whole crew +{b} speed.'
 });

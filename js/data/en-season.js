@@ -23,3 +23,6 @@ GL.i18nExtraP = (GL.i18nExtraP || []).concat([
   [/^⛵ Saison 1: Bestwerte und Zähler starten bei null, es zählen nur Fahrten ab dem 18\.10\., 18 Uhr\. (.*)$/, (m, a) => '⛵ Season 1: best scores and counters start at zero, only voyages from Oct 18, 6 pm count. ' + (GL.i18n && GL.i18n.t ? GL.i18n.t(a) : a)]
 ]);
 Object.assign(GL.data.en, { '⏸ Pause': '⏸ Pause', '⚓ Willkommen zurück': '⚓ Welcome back', 'Dein Run hat hier auf dich gewartet.': 'Your run waited right here for you.' });
+GL.i18nExtraP = (GL.i18nExtraP || []).concat([
+  [/^Ganze Crew heilt sich am Ende jeder Runde um (\d+)\.$/, 'The whole crew heals $1 at the end of every round.']
+]);
