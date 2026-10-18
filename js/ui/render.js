@@ -468,7 +468,7 @@ window.GL = window.GL || {};
         ${o.lvl ? `<em class="c3-lv">Lv ${o.lvl}</em>` : ''}
       </span>
       <span class="c3-name">${d.name}</span>
-      <span class="c3-sub"><i class="c3-dot t-${d.type}"></i>${T ? esc(T.name) : ''}<span>·</span>${R ? esc(R.name) : ''}</span>
+      <span class="c3-sub"><span class="c3-tag"><i class="c3-dot t-${d.type}"></i>${T ? esc(T.name) : ''}</span><span class="c3-tag">${R ? (ROLE_ICON[d.role] || '') + ' ' + esc(R.name) : ''}</span></span>
       ${o.style && styleOf(d.id) ? `<span class="c3-style">${esc(styleOf(d.id))}</span>` : ''}
       <span class="c3-ab">
         ${a ? `<span title="${esc(a.text)}"><b>${a.name}</b> ${esc(shortText(a.text))}</span>` : ''}
@@ -531,6 +531,20 @@ window.GL = window.GL || {};
     return `<svg class="tc-chest tc-ped" viewBox="0 0 20 16" shape-rendering="crispEdges" aria-hidden="true">${
       r(2, 6, 16, 2, hi) + r(1, 7, 18, 2, band) + r(1, 9, 18, 1, dark) + r(5, 10, 10, 3, '#b07a44') + r(5, 10, 10, 1, '#d9a868') + r(5, 12, 10, 1, '#5e3b1d') + r(3, 13, 14, 3, '#8a5a30') + r(3, 13, 14, 1, '#b07a44') + r(3, 15, 14, 1, '#5e3b1d')}</svg>`;
   }
+  // Teufelsfrucht: Familie, Eigenheit und was sie mit deinen anderen Früchten macht (Fork M)
+  function fruitFamLine(item) {
+    const fd = (GL.data.fruits || []).find(f => f.id === item.id);
+    const FAM = GL.data.fruitFams || {};
+    if (!fd || !fd.fam || !FAM[fd.fam]) return '';
+    let run = null; try { run = GL.save.loadRun(); } catch (e) { /* egal */ }
+    const ids = [...new Set((run && run.eaten) || [])];
+    const have = ids.filter(id => { const f = GL.data.fruits.find(x => x.id === id); return f && f.fam === fd.fam; });
+    const n = have.length + (have.includes(item.id) ? 0 : 1);
+    const T = FAM[fd.fam].tiers;
+    const hit = T.filter(x => x.n === n)[0];
+    const max = T[T.length - 1].n;
+    return `<span class="fr-fam fam-${fd.fam}"><b>${FAM[fd.fam].icon} ${esc(FAM[fd.fam].name)} ${Math.min(n, max)}/${max}</b>${fd.mech ? `<small>${esc(fd.mech)}</small>` : ''}${hit ? `<em>Neu: ${esc(hit.text)}</em>` : ''}</span>`;
+  }
   function treasureFace(item, kind, ben) {
     const rid = item.awakened ? 'awakened' : item.rarity >= 0 ? GL.config.rarities[item.rarity].id : 'unique';
     const label = item.awakened ? 'Erwacht' : item.rarity >= 0 ? GL.loot.rarityName(item.rarity) : 'Einzigartig';
@@ -542,6 +556,7 @@ window.GL = window.GL || {};
         <span class="tc-rib">${label} · ${kind === 'fruit' ? 'Teufelsfrucht' : 'Schatz'}</span>
         <span class="tc-sign">${item.name}</span>
         <span class="tc-text">${item.text}</span>
+        ${kind === 'fruit' ? fruitFamLine(item) : ''}
         ${ben ? `<span class="card-ben tc-ben${ben.meh ? ' meh' : ben.good ? ' good' : ''}">${ben.meh ? '◦' : '▲'} ${esc(ben.t)}</span>` : ''}
         <span class="tc-take"><span class="tc-take-a">Antippen</span><span class="tc-take-b">✓ Gewählt</span></span>
       </span>
@@ -601,7 +616,7 @@ window.GL = window.GL || {};
     return `${bars}<span class="track-loc">${island} · <b class="stop-name">${run.phase === 'course' ? 'Kurs setzen' : run.phase === 'starter' ? 'Kapitän wählen' : GL.run.stopName(run)}</b>${run.phase === 'course' || run.phase === 'starter' ? '' : ` <small class="muted">(${pos}/${GL.config.chapterSteps})</small>`}</span>
       <span class="head-chips">
         <em class="gold-chip" data-tip="Gold für die Taverne.\nGibt es für Siege, verfällt am Run-Ende.">${GL.sprites.coin()} <b>${run.gold || 0}</b></em>
-        <em class="bounty-chip" id="bounty-chip" data-tip="Kopfgeld deines Kapitäns.\nZählt für deinen Punktestand und die Rangliste 'Höchstes Kopfgeld'. Bringt sonst nichts im Run.">${GL.sprites.icon('node', 'elite')} <b>${fmtBounty(run.bountyM || 0)}</b></em>${run.mood && GL.config.moods ? (m => m ? `<em class="mood-chip" data-tip="${esc('Laune der See: ' + m.name + '\n' + m.text)}">${m.icon}<b>${esc(m.name)}</b></em>` : '')(GL.config.moods.find(x => x.id === run.mood)) : ''}${GL.run.twist && !GL.run.isFinished(run) ? (tw => tw ? `<em class="mood-chip twist-chip" data-tip="${esc('Insel-Twist: ' + tw.name + '\n' + tw.text)}">${tw.icon}<b>${esc(tw.name)}</b></em>` : '')(GL.run.twist(run)) : ''}${(bd => bd ? `<em class="mood-chip build-chip b-${bd.key}" data-tip="${esc('Dein Stil: ' + bd.name + ' (' + bd.count + '× ' + bd.label + ')\n' + bd.pitch + '\n' + bd.tiers.map(x => (bd.count >= x.n ? '✓ ' : '· ') + x.n + ': ' + x.text).join('\n'))}">${bd.icon}<b>${esc(bd.name)}</b><small>${'★'.repeat(bd.tier)}</small></em>` : '')(GL.effects.build ? GL.effects.build(run.crew) : null)}${(run.streak || 0) >= 2 ? `<em class="streak-chip${run.streak >= 6 ? ' hot' : run.streak >= 3 ? ' warm' : ''}" data-tip="Kopfgeld-Serie: ${run.streak} Siege in Folge ohne K.O.\nAb 3 Siegen +1 Gold pro Sieg, ab 6 +2. Am Run-Ende Extra-Berry.\nFällt jemand, beginnt die Serie neu.">${PX_FLAME}<b>${run.streak}</b></em>` : ''}
+        <em class="bounty-chip" id="bounty-chip" data-tip="Kopfgeld deines Kapitäns.\nZählt für deinen Punktestand und die Rangliste 'Höchstes Kopfgeld'. Bringt sonst nichts im Run.">${GL.sprites.icon('node', 'elite')} <b>${fmtBounty(run.bountyM || 0)}</b></em>${run.mood && GL.config.moods ? (m => m ? `<em class="mood-chip" data-tip="${esc('Laune der See: ' + m.name + '\n' + m.text)}">${m.icon}<b>${esc(m.name)}</b></em>` : '')(GL.config.moods.find(x => x.id === run.mood)) : ''}${GL.run.twist && !GL.run.isFinished(run) ? (tw => tw ? `<em class="mood-chip twist-chip" data-tip="${esc('Insel-Twist: ' + tw.name + '\n' + tw.text)}">${tw.icon}<b>${esc(tw.name)}</b></em>` : '')(GL.run.twist(run)) : ''}${(bd => bd ? `<em class="mood-chip build-chip b-${bd.key}" data-tip="${esc('Dein Stil: ' + bd.name + ' (' + bd.count + '× ' + bd.label + ')\n' + bd.pitch + '\n' + bd.tiers.map(x => (bd.count >= x.n ? '✓ ' : '· ') + x.n + ': ' + x.text).join('\n') + comboTip(run.crew))}">${bd.icon}<b>${esc(bd.name)}</b><small>${'★'.repeat(bd.tier)}</small>${GL.effects.combos && GL.effects.combos(run.crew).length ? '<i class="combo-dot" aria-hidden="true">✦</i>' : ''}</em>` : '')(GL.effects.build ? GL.effects.build(run.crew) : null)}${(run.streak || 0) >= 2 ? `<em class="streak-chip${run.streak >= 6 ? ' hot' : run.streak >= 3 ? ' warm' : ''}" data-tip="Kopfgeld-Serie: ${run.streak} Siege in Folge ohne K.O.\nAb 3 Siegen +1 Gold pro Sieg, ab 6 +2. Am Run-Ende Extra-Berry.\nFällt jemand, beginnt die Serie neu.">${PX_FLAME}<b>${run.streak}</b></em>` : ''}
         ${run.heat ? `<em class="heat-chip">Stufe ${run.heat}</em>` : ''}
         ${run.loop ? `<em class="duel-chip endless-chip">Endlos ${run.loop + 1}</em>` : ''}
         ${run.daily ? '<em class="duel-chip">Tageskarte</em>' : run.duel ? `<button class="duel-chip" data-act="duel-copy" data-id="${run.duel}" title="Code teilen">Wettfahrt ${run.duel} · teilen</button>` : ''}
@@ -858,7 +873,13 @@ window.GL = window.GL || {};
   // Zeigt alle Synergien, die die Crew gerade hat: aktive oben, angefangene darunter.
   function traitRail(run) {
     const list = GL.effects.status(run.crew).filter(s => s.count > 0);
-    if (!list.length && !GL.effects.duos(run.crew).length) return '';
+    const famRows = GL.fruitFx ? GL.fruitFx.families(run).map(f => `<div class="tr tr-fruit${f.active ? ' on' : ' tr-off'}" tabindex="0" data-tip="${esc(f.name + ' (Teufelsfrüchte)\n' + f.text + '\n' + f.tiers.map(x => (f.count >= x.n ? '✓ ' : '· ') + x.n + ': ' + x.text).join('\n'))}">
+        <span class="tr-icon"><span class="tr-hex">${f.icon}</span></span>
+        <span class="tr-body"><b>${esc(f.name)}</b><span class="tr-steps">${f.tiers.map(x => `<i class="${f.count >= x.n ? 'on' : ''}">${x.n}</i>`).join('<b>›</b>')}</span></span>
+        <span class="tr-count">${f.count}${f.next ? `<small>/${f.next.n}</small>` : ''}</span>
+        <span class="tr-text">${f.active ? esc(f.active.text) : ''}${f.next ? `<em>Ab ${f.next.n}: ${esc(f.next.text)}</em>` : ''}</span>
+      </div>`).join('') : '';
+    if (!list.length && !GL.effects.duos(run.crew).length && !famRows) return '';
     const tierIdx = s => s.active ? s.tiers.indexOf(s.active) : -1;
     list.sort((a, b) => (!!b.active - !!a.active) || (tierIdx(b) - tierIdx(a)) ||
       ((b.kind === 'faction') - (a.kind === 'faction')) || (b.count - a.count));
@@ -897,9 +918,20 @@ window.GL = window.GL || {};
         <span class="tr-body"><b>${esc(a.name)}</b><span class="tr-steps">Bündnis</span></span>
         <span class="tr-text"><em>Fehlt: Set-Bonus ${esc(F[miss].name)}. ${esc(a.text)}</em></span></div>`;
     }).join('');
-    return `<div class="tr-head">Aktive Boni</div>${active.map(row).join('') + allyRows + duoRows || '<p class="tr-empty">Noch keine. Gleiche Banden, Stile oder Rollen schalten Boni frei.</p>'}
+    const comboRows = (GL.effects.combos ? GL.effects.combos(run.crew) : []).map(c => `<div class="tr tr-combo" tabindex="0" data-tip="${esc('Stil-Kombo: ' + c.name + '\n' + c.text + '\n„' + c.joke + '“')}">
+        <span class="tr-icon"><span class="tr-hex">${c.icon}</span></span>
+        <span class="tr-body"><b>${esc(c.name)}</b><span class="tr-steps">Stil-Kombo</span></span>
+        <span class="tr-text">${esc(c.text)}</span>
+      </div>`).join('');
+    const comboNear = (GL.effects.combosNear ? GL.effects.combosNear(run.crew) : []).slice(0, 2).map(c => `<div class="tr tr-off tr-combo-near" tabindex="0" data-tip="${esc('Stil-Kombo: ' + c.name + '\n' + c.text)}">
+        <span class="tr-icon"><span class="tr-hex">${c.icon}</span></span>
+        <span class="tr-body"><b>${esc(c.name)}</b><span class="tr-steps">Kombo in Reichweite</span></span>
+        <span class="tr-text">${esc(c.text)}</span>
+      </div>`).join('');
+    return `<div class="tr-head">Aktive Boni</div>${active.map(row).join('') + comboRows + allyRows + duoRows + famRows || '<p class="tr-empty">Noch keine. Gleiche Banden, Stile oder Rollen schalten Boni frei.</p>'}
       ${rest.length ? `<div class="tr-head sub">Fast geschafft</div>${rest.map(row).join('')}` : ''}
-      ${near ? `<div class="tr-head sub">Bündnisse in Reichweite</div>${near}` : ''}`;
+      ${near ? `<div class="tr-head sub">Bündnisse in Reichweite</div>${near}` : ''}
+      ${comboNear ? `<div class="tr-head sub">Stil-Kombos in Reichweite</div>${comboNear}` : ''}`;
   }
   // Handy: kompakte Leiste wie bei TFT. Ein Abzeichen pro Bonus mit Stufe, Tippen öffnet alle Details.
   function synBar(run, add) {
@@ -946,6 +978,8 @@ window.GL = window.GL || {};
   }
 
   const SPECIAL = {
+    'mera-mera': 'Die Mera-Mera-Frucht', 'suna-suna': 'Die Suna-Suna-Frucht', 'hie-hie': 'Die Hie-Hie-Frucht', 'hana-hana': 'Ein Extra-Arm',
+    'gum-gum': 'Gummi', 'hito-hito': 'Der Doktor', 'tori-tori': 'Die Phönix-Flamme',
     kanone: 'Die Schiffskanone',
     seestein: 'Das Seestein-Netz',
     vivre: 'Die Vivre Card',
@@ -954,6 +988,7 @@ window.GL = window.GL || {};
     special: 'Der Spezialangriff'
   };
 
+  let windupN = -1;
   function battleText(run, ev) {
     if (ev.k === 'note') return ev.text;
     if (ev.k === 'round') return '';
@@ -964,6 +999,13 @@ window.GL = window.GL || {};
     if (ev.k === 'rage' && ev.phase === 3) return `Endphase! ${anyData(ev.by) ? anyData(ev.by).name : 'Der Boss'} setzt alles auf eine Karte.`;
     if (ev.k === 'rage') return `${anyData(ev.by) ? anyData(ev.by).name : 'Der Boss'} wird wütend: stärker und schneller!`;
     if (ev.k === 'will') return 'Letzter Wille: Die Crew gibt nicht auf! Ulti-Leisten laden, alle bekommen Mut.';
+    if (ev.k === 'windup') {
+      const n = anyData(ev.by) ? anyData(ev.by).name : 'Der Boss';
+      const L = [`${n} holt weit aus … Nächste Runde wird es laut. Ausweichen hilft doppelt.`,
+        `${n} krempelt die Ärmel hoch. Das ist selten ein gutes Zeichen. Rüstung zählt jetzt doppelt.`,
+        `${n} atmet tief ein. Ein guter Moment, schnell zu sein.`];
+      windupN = (windupN + 1) % L.length; return L[windupN];
+    }
     if (ev.k === 'skip') return `${targetName(run, ev.side, ev.to)} ist betäubt und setzt aus.`;
     if (ev.k === 'immune') return `${targetName(run, ev.side, ev.to)} lässt sich nicht beeindrucken (${GL.data.statuses[ev.key].name} abgewehrt).`;
     if (ev.k === 'cleanse') return `${anyData(ev.by) ? anyData(ev.by).name : 'Ein Helfer'} befreit ${targetName(run, ev.side, ev.to)} von ${GL.data.statuses[ev.key].name}.`;
@@ -972,7 +1014,7 @@ window.GL = window.GL || {};
       const s = GL.data.statuses[ev.list[0].key];
       const names = ev.list.map(x => targetName(run, ev.side, x.to));
       const who = names.length > 2 ? (ev.side === 'crew' ? 'die ganze Crew' : 'alle Gegner') : names.join(' und ');
-      const src = ev.by === 'special' ? 'Der Spezialangriff' : (anyData(ev.by) ? anyData(ev.by).name : '');
+      const src = ev.by === 'special' ? 'Der Spezialangriff' : SPECIAL[ev.by] || (anyData(ev.by) ? anyData(ev.by).name : '');
       return `${src}: ${who} ${names.length > 1 ? 'haben' : 'hat'} ${s.name} (${ev.list[0].rounds} ${ev.list[0].rounds === 1 ? 'Runde' : 'Runden'}).`;
     }
 
@@ -982,7 +1024,9 @@ window.GL = window.GL || {};
         : unitName(run.battle.enemies[ev.from]);
       const target = targetName(run, ev.side === 'crew' ? 'enemy' : 'crew', ev.to);
       if (ev.blocked) return `${attacker} greift ${target} an, aber der Impact Dial wehrt ab.`;
+      if (ev.miss && ev.heavy) return `${target} duckt sich unter dem schweren Schlag von ${attacker} weg. Elegant. Fast.`;
       if (ev.miss) return `${target} weicht ${attacker} aus.`;
+      if (ev.heavy) return `${attacker} landet den schweren Schlag: ${ev.dmg} Schaden an ${target}.${ev.hp <= 0 ? ' Autsch.' : ''}`;
       const eff = ev.eff === 'strong' ? ' Sehr effektiv!' : ev.eff === 'weak' ? ' Wenig effektiv.' : '';
       return `${attacker} trifft ${target} für ${ev.dmg}${ev.crit ? ' (kritisch!)' : ''}.${eff}` +
         `${ev.hp <= 0 ? ' ' + target + ' ist besiegt.' : ''}`;
@@ -1006,6 +1050,7 @@ window.GL = window.GL || {};
       return `${actor}${skill} heilt ${who} um ${n}.`;
     }
     if (ev.k === 'revive') {
+      if (ev.by === 'tori-tori') return `${targetName(run, 'crew', ev.list[0].to)} steht in blauer Phönix-Flamme wieder auf!`;
       return ev.by === 'vivre'
         ? 'Die Vivre Card bringt die ganze Crew zurück!'
         : `${actor} steht wieder auf${skill}!`;
@@ -1057,9 +1102,35 @@ window.GL = window.GL || {};
     const g = run.lastGold && b.win ? `<div class="sum-gold">${GL.sprites.coin()} +${run.lastGold.base} Gold${run.lastGold.interest ? ` <small>+${run.lastGold.interest} Zinsen</small>` : ''}</div>` : '';
     const it = run.lastItem && b.win ? (run.items || []).find(x => x.uid === run.lastItem && x.isNew) : null;
     const bd = GL.effects.build ? GL.effects.build(run.crew) : null;
+    // Kampfbilanz: was dein Stil in diesem Kampf geleistet hat
+    let crits = 0, dodges = 0, healed = 0, heavyDodged = 0;
+    b.events.forEach(ev => {
+      if (ev.k === 'hit' && ev.side === 'crew' && ev.crit) crits++;
+      if (ev.k === 'hit' && ev.side === 'enemy' && ev.miss) { dodges++; if (ev.heavy) heavyDodged++; }
+      if (ev.k === 'heal' && ev.side === 'crew') healed += (ev.list || []).reduce((s, x) => s + (x.amount || 0), 0);
+    });
+    const styleDmg = bd ? run.crew.reduce((s, u, i) => s + ((bd.kind === 'type' ? u.type : u.role) === bd.key ? dealt[i] : 0), 0) : 0;
+    const TQ = { kraft: 'Subtil war gestern.', klinge: 'Präzise. Und ein kleines bisschen gemein.', technik: 'Getroffen werden ist auch nur eine Option.',
+      helfer: 'Pflaster sind auch eine Waffe.', brecher: 'Steht im Weg. Absichtlich.', kaempfer: 'Viel Lärm, viel Schaden, wenig Plan.' };
+    const chip = (on, ico, txt) => `<span class="tally${on ? ' on' : ''}"><i>${ico}</i>${txt}</span>`;
+    const tally = b.win ? `<div class="sum-tally">${[
+      chip(bd && (bd.key === 'kraft' || bd.key === 'kaempfer'), '💥', `${styleDmg || dealt.reduce((a, x) => a + x, 0)} ${bd && styleDmg ? 'Stil-Schaden' : 'Schaden'}`),
+      crits ? chip(bd && bd.key === 'klinge', '⚔', `${crits} ${crits === 1 ? 'Krit' : 'Krits'}`) : '',
+      dodges ? chip(bd && bd.key === 'technik', '💨', `${dodges}× ausgewichen${heavyDodged ? ' (auch dem großen Schlag!)' : ''}`) : '',
+      healed ? chip(bd && (bd.key === 'helfer' || bd.key === 'brecher'), '💚', `${healed} geheilt`) : ''
+    ].join('')}${bd && TQ[bd.key] ? `<em class="tally-q">${TQ[bd.key]}</em>` : ''}</div>` : '';
+    const cb = GL.effects.combos ? GL.effects.combos(run.crew) : [];
+    const comboLine = cb.length ? `<div class="sum-combo">${cb.map(c => `<span title="${esc(c.text)}"><i>${c.icon}</i><b>${esc(c.name)}</b></span>`).join('')}</div>` : '';
     const bl = bd ? `<div class="sum-build b-${bd.key}"><i>${bd.icon}</i><span><b>${esc(bd.name)} ${'★'.repeat(bd.tier)}</b><small>${bd.next ? `Noch ${bd.next.n - bd.count}× ${esc(bd.label)} bis: ${esc(bd.next.text)}` : 'Höchste Stufe erreicht!'}</small></span></div>`
       : `<div class="sum-build none"><i>✦</i><span><b>Noch kein Stil</b><small>2 gleiche Kampfstile oder Rollen ergeben einen Stil, z. B. 💥 Wucht, ⚔ Schwertkunst, 💨 Tempo oder 💚 Lazarett.</small></span></div>`;
-    return `<div class="summary">${rows}</div>${g}${bl}`;
+    return `<div class="summary">${rows}</div>${g}${bl}${comboLine}${tally}`;
+  }
+  // Tooltip-Zeilen für aktive und fast erreichte Stil-Kombos
+  function comboTip(crew) {
+    if (!GL.effects.combos) return '';
+    const on = GL.effects.combos(crew), near = GL.effects.combosNear(crew).slice(0, 2);
+    return (on.length ? '\n\nKombo: ' + on.map(c => c.name + ' (' + c.text + ')').join('\n') : '') +
+      (near.length ? '\n\nFast: ' + near.map(c => c.name).join(', ') : '');
   }
 
   // „So knackst du ihn“: welcher Build gegen diesen Bösewicht besonders gut ist
@@ -1198,7 +1269,8 @@ window.GL = window.GL || {};
   function noticeBox(run) {
     const n = run.notice;
     if (!n) return '';
-    return `<div class="notice"><b>${n.title}</b> <span>${n.text}</span>
+    const L2 = v => Array.isArray(v) ? v[GL.i18n && GL.i18n.lang && GL.i18n.lang() === 'en' ? 1 : 0] : v;
+    return `<div class="notice"><b>${L2(n.title)}</b> <span>${L2(n.text)}</span>
       ${n.lines.length ? `<ul>${n.lines.map(l => `<li>${l}</li>`).join('')}</ul>` : ''}</div>`;
   }
 
@@ -1208,10 +1280,42 @@ window.GL = window.GL || {};
     return phaseStage(run, anim, ui);
   }
 
+  // Zwischen-Event mit der Crew: kleine Bühne, 2–3 Sprechzeilen, dann große Wahlkarten
+  const CE_ICON = { fruit: () => GL.sprites.icon('node', 'fruit'), rest: () => GL.sprites.icon('node', 'rest'), elite: () => GL.sprites.icon('node', 'elite'), map: () => pxIco('ship'), battle: () => GL.sprites.icon('node', 'battle'), chest: () => pxIco('chest'), recruit: () => GL.sprites.icon('node', 'recruit') };
+  function crewEventStage(run) {
+    const ev = byId(GL.data.crewEvents || [], run.event.id);
+    if (!ev) return '';
+    const en = GL.i18n && GL.i18n.lang && GL.i18n.lang() === 'en';
+    const L2 = v => Array.isArray(v) ? v[en ? 1 : 0] : v;
+    const [aId, bId] = run.event.cast || [];
+    const gull = (GL.data.pets || []).find(x => x.id === 'moewe');
+    const fig = key => {
+      if (key === 'B' && bId === 'kalle') key = 'kalle';
+      if (key === 'kalle') return { name: en ? 'Kalle the News Coo' : 'Kalle, die Zeitungsmöwe', spr: gull ? GL.sprites.render({ id: 'pet-moewe', art: gull.art }) : '' };
+      const d = crewData(key === 'A' ? aId : bId) || {};
+      return { name: d.name || '?', spr: d.id ? GL.sprites.render(d) : '' };
+    };
+    const A = fig('A'), B = fig('B');
+    const fill = s => esc(s).replace(/\{A\}/g, esc(A.name)).replace(/\{B\}/g, esc(B.name));
+    const cast = [...new Set(ev.lines.map(l => l[0]))];
+    const lines = ev.lines.map((l, k) => { const f = fig(l[0]); const side = cast.indexOf(l[0]) % 2 ? 'r' : 'l';
+      return `<div class="ce-line ${side}" style="--k:${k}"><i class="ce-face">${f.spr}</i><span class="ce-bub"><b>${esc(f.name)}</b>${fill(en ? l[2] : l[1])}</span></div>`; }).join('');
+    const ico = (CE_ICON[ev.icon] || CE_ICON.map)();
+    const opts = ev.choices.map((c, i) => `<button class="opt ce-opt" data-act="pick" data-i="${i}">${i < 9 ? `<kbd class="key">${i + 1}</kbd>` : ''}
+        <span class="ce-opt-b"><b>${esc(L2(c.label))}</b><small>${esc(L2(c.hint))}</small></span><i class="ce-go" aria-hidden="true">›</i></button>`).join('');
+    return `<div class="event ce-event">
+      <div class="ce-head"><i class="ce-ico">${ico}</i><span><small>${en ? 'On the way' : 'Unterwegs'}</small><h2>${esc(L2(ev.title))}</h2></span></div>
+      <div class="ce-stage bg-${ev.bg || 'insel'}"><span class="ce-cast">${cast.map(k => `<i class="ce-who">${fig(k).spr}</i>`).join('')}</span></div>
+      <div class="ce-lines">${lines}</div>
+      <div class="ce-opts">${opts}</div>
+    </div>`;
+  }
+
   function phaseStage(run, anim, ui) {
     const N = GL.data.nodes;
     switch (run.phase) {
       case 'event': {
+        if (run.event.crew) return crewEventStage(run);
         const ev = byId(GL.data.events, run.event.id);
         return `<div class="event">
           <span class="event-kicker">Ereignis auf See</span>
@@ -1223,12 +1327,19 @@ window.GL = window.GL || {};
 
       case 'starter': {
         const offered = run.pool.map(o => o.id);
-        const locked = GL.data.unlocks.filter(u => !offered.includes(u.unlock));
-        const lockedHtml = locked.length ? `<details class="locked-wrap"><summary>Noch gesperrt <small>${locked.length}</small></summary><div class="locked-grid">${locked.map(u => {
+        // Freigeschaltet (rotieren durch die Auswahl) und wirklich noch gesperrt: klar getrennt, nichts doppelt
+        const owned = (ui.profile && ui.profile.unlocked) || [];
+        const locked = GL.data.unlocks.filter(u => !owned.includes(u.unlock) && !offered.includes(u.unlock));
+        const resting = GL.data.unlocks.filter(u => owned.includes(u.unlock) && !offered.includes(u.unlock));
+        const restHtml = resting.length ? `<div class="capq-rest"><span class="capq-h">⚓ Ebenfalls in deiner Crew <small>${resting.length}</small></span>
+          <div class="capq-row">${resting.map(u => { const d = crewData(u.unlock); return `<span class="capq-mini" title="${esc(d.name)}: kommt in einem anderen Run zur Wahl"><i>${GL.sprites.render(d)}</i><b>${esc(d.name)}</b></span>`; }).join('')}</div>
+          <small class="capq-note">Sie wechseln sich mit den Kapitänen oben ab. Nächster Run, neues Glück.</small></div>` : '';
+        const lockedHtml = locked.length ? `<details class="locked-wrap capq-lock"><summary>🔒 Noch gesperrt <small>${locked.length}</small></summary><div class="capq-grid">${locked.map(u => {
           const d = crewData(u.unlock);
           const pr = ui.profile ? GL.meta.progress(ui.profile, u) : { have: 0, need: 1 };
-          return `<div class="locked-cap"><i class="opt-sprite silhouette">${GL.sprites.render(d)}</i>
-            <span><b>${d.name}</b><small>${u.text}${pr.need > 1 ? ` (${pr.have}/${pr.need})` : ''}</small></span></div>`;
+          const pct = pr.need > 0 ? Math.min(100, Math.round(100 * pr.have / pr.need)) : 0;
+          return `<div class="capq-tile"><i class="capq-sil">${GL.sprites.render(d)}<em>🔒</em></i>
+            <span><b>${esc(d.name)}</b><small>${u.text}</small>${pr.need > 1 ? `<i class="capq-bar"><i style="width:${pct}%"></i></i><small class="capq-n">${pr.have}/${pr.need}</small>` : ''}</span></div>`;
         }).join('')}</div></details>` : '';
         // Viele Kapitäne: nach Kampfstil/Rolle filtern statt alle auf einmal zu zeigen
         const f = ui.capFilter || 'all';
@@ -1242,7 +1353,7 @@ window.GL = window.GL || {};
           <p class="hint">Mit ihm oder ihr beginnt deine Reise. Werte und Eigenschaft sind bei jedem Run neu ausgewürfelt.</p>
           ${filters}
           <div class="cards">${shown.map(x =>
-            offerButton(run, x.o, x.i, 'cap' + (x.d.locked ? ' unlocked-cap' : '') + (run.buddy === x.o.id ? ' buddy-cap' : ''), false)).join('')}</div>${run.buddy && run.pool.some(o => o.id === run.buddy) ? `<p class="hint buddy-hint">♥ ${esc(crewData(run.buddy).name)} ist dein Vertrauter und steht extra zur Wahl.</p>` : ''}${lockedHtml}`;
+            offerButton(run, x.o, x.i, 'cap' + (x.d.locked ? ' unlocked-cap' : '') + (run.buddy === x.o.id ? ' buddy-cap' : ''), false)).join('')}</div>${run.buddy && run.pool.some(o => o.id === run.buddy) ? `<p class="hint buddy-hint">♥ ${esc(crewData(run.buddy).name)} ist dein Vertrauter und steht extra zur Wahl.</p>` : ''}${restHtml}${lockedHtml}`;
       }
 
       case 'course': {
@@ -1480,7 +1591,8 @@ window.GL = window.GL || {};
           controls = `<div class="fbar fbar3"><div class="fbar-seg" role="group" aria-label="Tempo">${seg}</div>${sfxBtn('fc-sfx')}${ffButton(anim)}</div>`;
         }
         const title = b.kind === 'raid' ? 'Raid' : b.kind === 'boss' ? 'Bosskampf' : run.pending && run.pending.rival ? 'Begegnung: ' + esc(run.pending.rival.name) : 'Kampf';
-        return `<div class="battle-head"><h2>${title}</h2>${done ? `<span class="result ${b.win ? 'win' : 'lose'}">${b.win ? 'Sieg' : 'Niederlage'}</span>` : ''}</div>
+        const sty = GL.effects.build ? GL.effects.build(run.crew) : null;
+        return `<div class="battle-head"><h2>${title}</h2>${sty ? `<span class="bh-style b-${sty.key}" title="${esc(sty.pitch)}">${sty.icon}<b>${esc(sty.name)}</b><small>${'★'.repeat(sty.tier)}</small></span>` : ''}${done ? `<span class="result ${b.win ? 'win' : 'lose'}">${b.win ? 'Sieg' : 'Niederlage'}</span>` : ''}</div>
           ${GL.arena.html(run, anim)}
           <div class="log" id="log" role="status" aria-live="polite">${log}</div>
           ${done && b.win ? battleSummary(run) : ''}
@@ -2694,7 +2806,7 @@ window.GL = window.GL || {};
   }
 
   // ---------- Wiki: einfach erklärt, mit kleinen Bildern. Plus Meta-Liste (was ist gerade stark) ----------
-  const WIKI_TABS = [['basis', 'Grundlagen'], ['boni', 'Boni'], ['bosse', 'Bosse'], ['routen', 'Routen'], ['meta', 'Meta'], ['pinnwand', '📌 Pinnwand']];
+  const WIKI_TABS = [['basis', 'Grundlagen'], ['stile', '⚔ Kampf'], ['boni', 'Boni'], ['bosse', 'Bosse'], ['routen', 'Routen'], ['meta', 'Meta'], ['pinnwand', '📌 Pinnwand']];
   // Wer war schon auf dieser Route? Freunde zuerst (mit Bild), dazu die Zahl aller Piraten in der Rangliste
   function routeVisitors(profile, ids) {
     const st = GL.online ? GL.online.state() : { rows: [] };
@@ -2791,6 +2903,19 @@ window.GL = window.GL || {};
           <li><b>Boss besiegen.</b> Pro Meer ein Bösewicht und ein Boss. Drei Meere bis zum Ziel.</li></ol></section>
         <section class="wk-sec"><h3>Zustände im Kampf</h3><div class="wk-list">${Object.keys(GL.data.statuses).map(k => { const x = GL.data.statuses[k]; return `<div class="wk-row"><i class="wk-st ${x.good ? 'good' : 'bad'}">${esc(x.icon)}</i><span><b>${esc(x.name)}</b><small>${esc(x.text)}</small></span></div>`; }).join('')}</div></section>
         <section class="wk-sec"><h3>Ultis</h3><p>Jede Figur lädt im Kampf ihre Ulti-Leiste. Ist sie voll, kommt die Spezialattacke. Kapitäne und Ausrüstung können mit Energie starten.</p></section>`;
+    } else if (t === 'stile') {
+      // Kampfstile, Kombos und der schwere Schlag der Bosse
+      const B = Object.keys(T).map(k => ['type', k, T[k]]).concat(Object.keys(Rl).map(k => ['role', k, Rl[k]])).filter(x => x[2].build);
+      const how = { kraft: 'Für alle, die Probleme gern direkt lösen.', klinge: 'Lebt vom Glück. Und davon hat sie erstaunlich viel.', technik: 'Wer nicht getroffen wird, muss auch nicht geheilt werden.',
+        brecher: 'Eine Wand mit Gefühlen.', kaempfer: 'Plan: draufhauen. Plan B: fester draufhauen.', helfer: 'Langsam, aber die Crew steht am Ende noch.' };
+      const EN = GL.i18n && GL.i18n.lang && GL.i18n.lang() === 'en';
+      body = `<section class="wk-sec"><h3>Finde deinen Stil</h3><p>${EN ? 'Collect at least <b>2 characters</b> with the same fighting style or role and your crew gets a <b>style</b>. The more, the stronger (★ › ★★ › ★★★). The top of your run shows which style you are playing.' : 'Sammle mindestens <b>2 Figuren</b> mit demselben Kampfstil oder derselben Rolle, und deine Crew bekommt einen <b>Stil</b>. Je mehr, desto stärker (★ › ★★ › ★★★). Oben im Run steht, welchen Stil du gerade spielst.'}</p>
+        <div class="wk-styles">${B.map(([kind, k, x]) => `<div class="wk-style b-${k}"><div class="wk-style-h"><i>${x.icon}</i><span><b>${esc(x.build)}</b><small>${esc(x.name)} · ${esc(x.pitch)}</small></span></div>
+          <p class="wk-style-q">${esc(how[k] || '')}</p><div class="wk-tiers">${x.tiers.map(tt => `<span><b>${tt.n}</b> ${esc(tt.text)}</span>`).join('')}</div></div>`).join('')}</div></section>
+        <section class="wk-sec"><h3>Stil-Kombos</h3><p>${EN ? 'Run <b>two styles</b> at once and you get a small extra bonus on top.' : 'Laufen <b>zwei Stile</b> gleichzeitig, gibt es einen kleinen Extra-Bonus obendrauf.'}</p>
+        <div class="wk-list">${(GL.data.combos || []).map(c => `<div class="wk-row"><span class="wk-combo-ico">${c.icon}</span><span><b>${esc(c.name)}</b><small>${esc(c.text)}</small><em class="wk-joke">„${esc(c.joke)}“</em></span></div>`).join('')}</div></section>
+        <section class="wk-sec"><h3>Der schwere Schlag</h3><p>${EN ? 'Bosses <b>wind up</b> before they really hit. When you see “winds up …”, next round brings a blow with almost double force. What helps: <b>💨 dodge</b> counts double, <b>🛡 armor</b> counts double. Or just knock them over first.' : 'Bosse <b>holen aus</b>, bevor sie richtig zuschlagen. Siehst du „holt aus …“, kommt in der nächsten Runde ein Schlag mit fast doppelter Wucht. Dagegen hilft: <b>💨 Ausweichen</b> zählt doppelt, <b>🛡 Rüstung</b> zählt doppelt. Oder einfach vorher umfallen lassen.'}</p>
+        <p>${EN ? 'Every boss shows <b>“How to crack him”</b> on the map: which style works especially well against him.' : 'Jeder Boss zeigt auf der Karte <b>„So knackst du ihn“</b>, also welcher Stil gegen ihn besonders gut ist.'}</p></section>`;
     } else if (t === 'boni') {
       const tiers = x => `<div class="wk-tiers">${x.tiers.map(tt => `<span><b>${tt.n}</b> ${esc(tt.text)}</span>`).join('')}</div>`;
       body = `<section class="wk-sec"><h3>Banden</h3><p>Mehrere Figuren derselben Bande geben einen <b>Set-Bonus</b>. Die Stufen stehen daneben.</p>
@@ -2917,6 +3042,9 @@ window.GL = window.GL || {};
         <small class="muted">Zählt nach dem ersten Run deines Freundes, jeder bringt ein legendäres Teil. Bisher: <b>${inv}</b>. Er bekommt 150 Berry.</small></div>`
         : `<p class="hint">Freunde gibt es, sobald du online bist (nach deinem ersten Run).</p>`}
       <div class="fr-add"><input id="fr-code" maxlength="8" placeholder="Code eines Freundes" autocomplete="off"><button class="btn" data-act="friend-add">Hinzufügen</button></div>
+      <div class="post-box"><div class="post-head"><b>📬 Postfach</b><button class="btn mini" data-act="post-check">Post abholen</button></div>
+        ${(profile.post || []).length ? `<div class="post-list">${(profile.post || []).slice(0, 6).map(p => `<span class="post-it ${p.d}"><i>${p.d === 'in' ? '🍾' : '⛵'}</i><span><b class="cr-${(GL.cgear.RID || [])[p.r] || ''}">${esc(p.name)}</b><small>${GL.i18n && GL.i18n.lang() === 'en' ? (p.d === 'in' ? 'from' : 'to') : (p.d === 'in' ? 'von' : 'an')} ${esc(p.who)}</small></span></span>`).join('')}</div>`
+          : '<small class="muted">Noch keine Flaschenpost. Verschicken geht so: Stammcrew → Figur antippen → Teil aus der Truhe wählen → „🍾 Flaschenpost“. Beim Freund kommt sie an, sobald er das Spiel öffnet, und landet in seiner Truhe.</small>'}</div>
       <div class="fr-list">${list.length ? list.map(row).join('') : emptyState(GL.sprites.ship(), 'Noch allein auf See', 'Gib deinen Code weiter oder trag oben einen ein. Zusammen segelt es sich schöner, und ihr könnt euch Flaschenpost schicken.')}</div>
       <div class="fpop-btns"><button class="btn ghost" data-act="pop-close">Schließen</button></div></div>`;
   }
@@ -3722,6 +3850,7 @@ window.GL = window.GL || {};
     { id: 'auftraege', name: 'Aufträge', art: 'scroll', sub: p => { const qs = GL.meta.questsEnsure(p); const done = qs.filter(q => GL.meta.questProgress(p, q).done).length; return done ? `${done} abholen!` : `${qs.length} offen`; } },
     { id: 'stammcrew', name: 'Stammcrew', art: 'flag', sub: p => GL.meta.squadUnlocked(p) ? `⚔ ${GL.meta.squadPower(GL.meta.squadRefs(p))}` : '' },
     { id: 'rangliste', name: 'Rangliste', art: 'podium', sub: () => '' },
+    { id: 'gemeinschaft', name: 'Gemeinschaft', art: 'trident', sub: p => GL.coop ? `${GL.coop.boss().short} · ${GL.coop.triesLeft(p)}/3` : '' },
     { id: 'werft', name: 'Werft', art: 'ship', sub: () => 'Ausbauten' },
     { id: 'gemuet', name: 'Gemütlichkeit', art: 'flag', sub: p => GL.skills ? (GL.skills.free(p) ? `✦ ${GL.skills.free(p)} frei` : 'Skilltree') : '' },
     { id: 'schmiede', name: 'Schmiede', art: 'anvil', sub: p => `${(p.itemLoadout || []).length}/${GL.meta.itemSlots(p)} dabei` },
@@ -3950,6 +4079,7 @@ window.GL = window.GL || {};
       ${tab === 'schmiede' ? forgeSection(profile, uiRef) : ''}
       ${tab === 'rangliste' ? leaderboard(profile, uiRef) : ''}
       ${tab === 'gemuet' ? skillSection(profile, uiRef) : ''}
+      ${tab === 'gemeinschaft' && GL.coop ? GL.coop.section(profile, uiRef) : ''}
       ${tab === 'lager' ? lagerSection(profile, slots) : ''}
 
       ${tab === 'haendler' ? `<section class="hq-sec">

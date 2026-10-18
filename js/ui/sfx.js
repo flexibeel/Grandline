@@ -94,13 +94,14 @@ window.GL = window.GL || {};
   function battle(ev, speed) {
     if (!on || !ev) return;
     switch (ev.k) {
-      case 'hit': play(ev.miss ? 'miss' : ev.blocked ? 'block' : ev.crit ? 'crit' : 'hit', speed); if (ev.hp === 0 && ev.dmg > 0) play('ko', speed); break;
+      case 'hit': play(ev.miss ? 'miss' : ev.blocked ? 'block' : ev.crit || ev.heavy ? 'crit' : 'hit', speed); if (ev.hp === 0 && ev.dmg > 0) play('ko', speed); break;
       case 'dmg': play('hit', speed); if ((ev.list || []).some(x => x.hp === 0)) play('ko', speed); break;
       case 'heal': play('heal', speed); break;
       case 'status': play('status', speed); break;
       case 'ult': case 'special': play('ult', speed); break;
       case 'revive': play('revive', speed); break;
       case 'rage': case 'will': play('rage', speed); break;
+      case 'windup': play('status', speed); break;
       default: break;
     }
   }

@@ -8,6 +8,8 @@ window.GL = window.GL || {};
 GL.data = GL.data || {};
 
 GL.data.features = [
+  { id: 'gemeinschaft', lvl: 1, tab: 'gemeinschaft', req: p => !!(GL.meta && GL.meta.squadUnlocked && GL.meta.squadUnlocked(p)), name: 'Gemeinschafts-Fahrt', art: 'trident', text: 'Deine Stammcrew und bis zu drei Crews deiner Segelkumpane gegen den Welt-Boss der Woche. Wer mehr Schaden macht, darf angeben.',
+    steps: ['Im Hafen unter „Gemeinschaft“', 'Bis zu 3 Kumpane oder Gast-Crews dazuholen', 'Drei Versuche am Tag, Beute beim ersten'] },
   { id: 'gemuet',    lvl: 2, tab: 'gemuet', req: () => !GL.season || GL.season.started(), name: 'Gemütlichkeit', art: 'flag', text: 'Ein kleiner Skilltree für deine ganze Crew. Punkte kommen nebenbei: mit jedem Rang, mit Fahrten, Landgängen und Vertrautheit.',
     steps: ['Im Hafen unter „Gemütlichkeit“', 'Knoten antippen, dann „Lernen“', 'Umskillen ist jederzeit kostenlos'] },
   { id: 'quests',    lvl: 2, name: 'Aufträge',       art: 'scroll', text: 'Kleine Aufgaben für zwischendurch. Jeden Tag kommen neue.',

@@ -1,6 +1,16 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-20d', date: '18.10.', title: 'Das Herz schlägt: Kampf, Früchte, Abenteuer', items: [
+    'Bosse holen aus: eine Runde vorher kündigen sie den schweren Schlag an. Ausweichen und Rüstung zählen dagegen doppelt',
+    '5 Stil-Kombos, wenn zwei Stile aktiv sind: Sturmangriff, Tausend Schnitte, Festung, Zäher Brocken, Klingensturm. Dazu Staub bei Wucht, „Knapp vorbei!“ beim Ausweichen, kleine Plus beim Heilen und eine Kampfbilanz nach jedem Sieg',
+    'Teufelsfrucht-Familien: 🔥 Logia, 🌀 Paramecia, 🐾 Zoan mit eigenen Boni ab 2 und 3 Früchten. Jede Frucht hat eine Eigenheit (Brand, Austrocknen, Einfrieren, Rückprall, Extra-Arm, Wut, Phönix …). Neu: Hie-Hie, Bara-Bara, Hito-Hito, Tori-Tori Phönix',
+    '16 Zwischen-Events mit deiner Crew auf der Route: kurze Szene, dann entscheidest du. Eins pro Insel sicher vor dem Bösewicht',
+    'Landgang: Werte-Vergleich vor dem Boss (Seine Stärke, eure Stärke, „Runden bis er fällt“), jeder Landgang-Boss mit eigenem Spezialangriff, neue Expedition mit 5 Räumen, 12 Stufen',
+    'Neu im Hafen: Gemeinschaft. Bis zu 4 Stammcrews (du und deine Segelkumpane) gegen den Welt-Boss der Woche',
+    '📬 Postfach in der Freundesliste: Flaschenpost-Verlauf und „Post abholen“',
+    'Texte überarbeitet: weniger Jugendsprache, mehr trockener Humor',
+    'Kapitänswahl übersichtlicher (freigeschaltet und gesperrt getrennt), Charakter-Karten mit Pixel-Rahmen und Banden-Wappen' ] },
   { v: '2026-10-20c', date: '18.10.', title: 'Kampfstile mit Tiefe', items: [
     '💥 Wucht (Kraft): +2 › +5 › +9 Angriff, ab 4 Figuren deutlich mehr Schaden gegen Bosse',
     '⚔ Schwertkunst (Klinge): Krit-Chance 20 › 40 › 55 %, mit immer härteren Krits',

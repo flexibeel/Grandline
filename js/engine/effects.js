@@ -66,10 +66,20 @@ window.GL = window.GL || {};
     return (GL.data.alliances || []).filter(a => on.has(a.a) !== on.has(a.b));
   }
 
-  // Aktive Synergie-mods (nur die höchste erreichte Stufe pro Synergie) plus Duos und Bündnisse
+  // Stil-Kombos: zwei Kampfstile/Rollen gleichzeitig aktiv
+  function combos(crew) {
+    const on = new Set(status(crew).filter(s => s.active && s.kind !== 'faction').map(s => s.kind + ':' + s.key));
+    return (GL.data.combos || []).filter(c => on.has(c.a) && on.has(c.b));
+  }
+  // Kombos, denen nur noch eine Seite fehlt (für Hinweise)
+  function combosNear(crew) {
+    const on = new Set(status(crew).filter(s => s.active && s.kind !== 'faction').map(s => s.kind + ':' + s.key));
+    return (GL.data.combos || []).filter(c => on.has(c.a) !== on.has(c.b));
+  }
+  // Aktive Synergie-mods (nur die höchste erreichte Stufe pro Synergie) plus Duos, Bündnisse und Stil-Kombos
   function synergyMods(crew) {
     return status(crew).filter(s => s.active).flatMap(s => s.active.mods)
-      .concat(duos(crew).flatMap(d => d.mods)).concat(alliances(crew).flatMap(a => a.mods));
+      .concat(duos(crew).flatMap(d => d.mods)).concat(alliances(crew).flatMap(a => a.mods)).concat(combos(crew).flatMap(c => c.mods));
   }
 
   // Gefundene Schätze mit ausgewürfelten Werten
@@ -179,5 +189,5 @@ window.GL = window.GL || {};
     return { kind: s.kind, key: s.key, name: d.build, icon: d.icon, pitch: d.pitch, count: s.count, tier: lvl(s) + 1, tiers: s.tiers, active: s.active, next: s.next, label: d.name };
   }
 
-  GL.effects = { counts, status, flags, setup, relicList, duos, duosWith, alliances, alliancesNear, build };
+  GL.effects = { counts, status, flags, setup, relicList, duos, duosWith, alliances, alliancesNear, build, combos, combosNear };
 })();

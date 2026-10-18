@@ -28,3 +28,8 @@ Object.assign(GL.data.en, {
   'Tippe einen grünen Platz an': 'Tap a green slot'
 });
 GL.i18nExtraP = (GL.i18nExtraP || []).concat([[/^(\d+) Verbesserungen in der Truhe$/, '$1 upgrades in the chest']]);
+Object.assign(GL.data.en, {
+  '⚓ Ebenfalls in deiner Crew': '⚓ Also in your crew',
+  'Sie wechseln sich mit den Kapitänen oben ab. Nächster Run, neues Glück.': 'They take turns with the captains above. Next run, new luck.',
+  '🔒 Noch gesperrt': '🔒 Still locked'
+});

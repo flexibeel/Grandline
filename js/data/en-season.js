@@ -26,3 +26,5 @@ Object.assign(GL.data.en, { '⏸ Pause': '⏸ Pause', '⚓ Willkommen zurück': 
 GL.i18nExtraP = (GL.i18nExtraP || []).concat([
   [/^Ganze Crew heilt sich am Ende jeder Runde um (\d+)\.$/, 'The whole crew heals $1 at the end of every round.']
 ]);
+Object.assign(GL.data.en, { '📬 Postfach': '📬 Mailbox', 'Post abholen': 'Check mail', '🍾 Schaue nach …': '🍾 Checking …', 'Keine neue Post. Das Meer ist ruhig.': 'No new mail. The sea is quiet.',
+  'Noch keine Flaschenpost. Verschicken geht so: Stammcrew → Figur antippen → Teil aus der Truhe wählen → „🍾 Flaschenpost“. Beim Freund kommt sie an, sobald er das Spiel öffnet, und landet in seiner Truhe.': 'No bottles yet. To send one: home crew → tap a member → pick an item from the chest → “🍾 Message in a bottle”. Your friend gets it as soon as they open the game, straight into their chest.' });

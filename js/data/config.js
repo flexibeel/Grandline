@@ -81,7 +81,7 @@ GL.config = {
   awaken: { atk: 4, hp: 10 },
 
   // Gegnerstärke
-  enemyScale: 0.78,        // wie schnell normale Gegner pro Etappe stärker werden (längere Insel-Kapitel -> langsamer hochskalieren)
+  enemyScale: 0.83,         // wie schnell normale Gegner pro Etappe stärker werden (längere Insel-Kapitel -> langsamer hochskalieren)
   eliteMult: 1.3,         // Kopfgeldjäger sind um diesen Faktor stärker
   // Mehr Leben, etwas weniger Angriff: Kämpfe dauern etwas länger, ohne insgesamt härter zu werden
   grunt: { hpBase: 16, hpPerLevel: 4.4, atkBase: 3.7, atkPerLevel: 1.06, spdMin: 3, spdMax: 7 },
@@ -101,7 +101,7 @@ GL.config = {
   critMult: 2,
   // Kampfwetter (nur normale Kämpfe und Kopfgeldjäger): so oft kommt eins, und was es tut
   // Bosskampf: länger je Meer, Boss weicht manchmal aus und kontert
-  bossFight: { hp: 0.2, hpPerSea: 0.12, atk: 0.92, dodge: 0.08, counter: 0.15, counterMult: 0.6 },
+  bossFight: { hp: 0.2, hpPerSea: 0.12, atk: 0.92, dodge: 0.08, counter: 0.15, counterMult: 0.6, windup: 1.8 },   // windup: schwerer Schlag nach Ankündigung
   // Begegnung auf See mit der Crew eines anderen Spielers (statt eines normalen Kampfes)
   rival: { chance: 0.2, hp: 1.05, atk: 0.9, max: 4, gold: 12 },
   weatherChance: 0.35,

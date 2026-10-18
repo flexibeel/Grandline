@@ -7,7 +7,10 @@
 window.GL = window.GL || {};
 
 (function () {
-  const STEPS = 3;            // Szenen vor dem Anlauf
+  const STEPS = 3;            // Szenen vor dem Anlauf (Erkundung); Expedition hat 5
+  const DEEP = { steps: 5, hp: 1.22, atk: 1.15, loot: 1.6 };   // Expedition: länger, härter, bessere Beute
+  const MAXLVL = 12;
+  const NS = () => (cur && cur.nSteps) || STEPS;
   let cur = null;             // laufende Erkundung
   const T = s => (GL.i18n && GL.i18n.t ? GL.i18n.t(s) : s);
   const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
@@ -85,7 +88,7 @@ window.GL = window.GL || {};
   const findArt = f => pix(f.art, D().huntPal);
   const hashStr = t => { let h = 0; for (const c of String(t)) h = (h * 31 + c.charCodeAt(0)) >>> 0; return h; };
   // Stufe eines Ortes: steigt mit jedem gemeisterten Landgang (max 8)
-  function landgangLevel(profile, id) { return Math.min(8, (peek(profile, id).clears || 0)); }
+  function landgangLevel(profile, id) { return Math.min(MAXLVL, (peek(profile, id).clears || 0)); }
   function bossOf(d) {
     const X = D();
     return [].concat(X.hunted || [], X.bosses || [], X.crew || [], X.grunts || []).find(x => x.id === d.boss);
@@ -104,7 +107,7 @@ window.GL = window.GL || {};
     </div>`;
   }
   function dots() {
-    const n = STEPS + 2;   // Szenen, Anlauf, Kampf
+    const n = NS() + 2;   // Szenen, Anlauf, Kampf
     return `<span class="dg-dots">${Array.from({ length: n }, (_, i) => `<i class="${i < cur.i ? 'done' : i === cur.i ? 'now' : ''}${i >= n - 2 ? ' boss' : ''}"></i>`).join('')}</span>`;
   }
   const card = (inner, cls) => `<div class="fpop-card dg-card${cls ? ' ' + cls : ''}" role="dialog">${inner}</div>`;
@@ -112,14 +115,15 @@ window.GL = window.GL || {};
   // ---------- Beute ----------
   function give(kind, big) {
     const d = cur.d, s = d.sea || 0, L = cur.loot, full = cur.fresh;
-    const berry = n => { const v = Math.max(5, Math.round(n * (full ? 1 : 0.2))); L.berry += v; return `+${v} Berry`; };
+    const berry = n => { const v = Math.max(5, Math.round(n * (full ? 1 : 0.2) * (cur.deep ? DEEP.loot : 1))); L.berry += v; return `+${v} Berry`; };
     if (kind === 'b') return berry((big ? 90 : 22) + (big ? 55 : 14) * s + Math.floor(Math.random() * 12));
     if (kind === 's') { if (!full) return berry(15 + 8 * s); L.shards += 1; return T('+1 Meersplitter'); }
     if (kind === 'h') { L.berry += 5; return '+5 Berry'; }
     if (kind === 'g') {
       if (!full || !GL.cgear) return berry(30 + 15 * s);
       if (!big && Math.random() > 0.45) return berry(30 + 15 * s);
-      const it = GL.cgear.roll({ r: Math.random() < (big ? 0.22 : 0.08) ? 2 : 1, name: d.name, seaName: d.name, sea: s });
+      const ep = (big ? 0.22 : 0.08) + (cur.deep ? 0.15 : 0) + 0.02 * Math.min(10, landgangLevel(cur.profile, d.id));
+      const it = GL.cgear.roll({ r: Math.random() < ep ? 2 : 1, name: d.name, seaName: d.name, sea: s + (cur.deep ? 1 : 0) });
       L.gear.push(it);
       return T('Ausrüstung gefunden!');
     }
@@ -137,7 +141,7 @@ window.GL = window.GL || {};
         <span class="dg-mini" style="--sky:${d.scene.sky};--ground:${d.scene.ground}">${pix(d.scene.deco)}</span>
         <span class="dg-rt"><b>${esc(T(d.name))}</b><small>${status}</small></span>
         <span class="dg-find${has ? '' : ' sil'}" title="${esc(has ? T(d.find.name) : T('Fundstück noch nicht gefunden'))}">${findArt(d.find)}</span>
-        ${st.clears ? `<span class="dg-clears" title="${esc(T('Gemeistert'))}">${st.clears}× · ${esc(T('St.'))} ${Math.min(8, st.clears) + 1}</span>` : ''}
+        ${st.clears ? `<span class="dg-clears" title="${esc(T('Gemeistert'))}">${st.clears}× · ${esc(T('St.'))} ${Math.min(MAXLVL, st.clears) + 1}</span>` : ''}
       </button>`;
     }).join('');
     const nf = (profile.dgFinds || []).length;
@@ -149,6 +153,95 @@ window.GL = window.GL || {};
       <p class="dg-sub small">${esc(T('Fundstücke'))}: ${nf}/${(D().dungeons || []).length}</p>
       <div class="fpop-btns"><button class="btn ghost" data-act="pop-close">${esc(T('Schließen'))}</button></div>`, 'dg-listcard');
   }
+  // ---------- Werte-Vergleich (Boss gegen dein Team) ----------
+  // Kleine Pixel-Symbole (7x7) für die Werte-Kacheln
+  const IC = {
+    hp:   ['.##.##.', '#######', '#######', '.#####.', '..###..', '...#...', '.......'],
+    atk:  ['......#', '.....#.', '#...#..', '.#.#...', '..#....', '.#.#...', '#......'],
+    spd:  ['...##..', '..##...', '.#####.', '...##..', '..##...', '.##....', '.......'],
+    heal: ['..###..', '..###..', '#######', '#######', '#######', '..###..', '..###..'],
+    def:  ['#######', '#######', '#######', '.#####.', '.#####.', '..###..', '...#...'],
+    aoe:  ['#..#..#', '.#.#.#.', '..###..', '###.###', '..###..', '.#.#.#.', '#..#..#'],
+    chain:['##.....', '.##....', '..##...', '...##..', '....##.', '.....##', '......#'],
+    single:['...#...', '..###..', '.#####.', '#######', '...#...', '...#...', '...#...'],
+    drain:['..#....', '.###...', '#####..', '.###...', '..#.#..', '....##.', '.....#.'],
+    thorns:['#..#..#', '.#####.', '#######', '.#####.', '#######', '.#####.', '#..#..#'],
+    revive:['..###..', '.#...#.', '.#...#.', '..###..', '...#...', '.#####.', '...#...']
+  };
+  const ICOL = { hp: '#e05a5a', atk: '#8a5a34', spd: '#3f86b8', heal: '#4f9a5a', def: '#7a6c57', aoe: '#d9783a', chain: '#c9a43a', single: '#8a55c8', drain: '#b0405a', thorns: '#5f7a3a', revive: '#8f6fd1' };
+  function ico(k) {
+    const rows = IC[k] || IC.single, c = ICOL[k] || '#7a6c57';
+    let r = ''; rows.forEach((row, y) => row.split('').forEach((ch, x) => { if (ch === '#') r += `<rect x="${x}" y="${y}" width="1" height="1" fill="${c}"/>`; }));
+    return `<svg class="dg-ico" viewBox="0 0 7 7" shape-rendering="crispEdges" aria-hidden="true">${r}</svg>`;
+  }
+  const TAGNAME = { aoe: 'Flächenschaden', chain: 'Kettenschaden', single: 'Einzelziel', drain: 'Saugt Leben', thorns: 'Stacheln', revive: 'Steht wieder auf' };
+  // Teamwerte aus den Stammcrew-Refs
+  function teamStats(profile, refs) {
+    const me = refs || GL.meta.squadRefs(profile);
+    const n = me.length || 1;
+    const weakest = me.slice().sort((a, b) => a.max - b.max)[0] || null;
+    return {
+      n, hp: me.reduce((s, r) => s + r.max, 0), atk: me.reduce((s, r) => s + r.atk, 0),
+      spd: Math.round(me.reduce((s, r) => s + r.spd, 0) / n * 10) / 10,
+      heal: me.reduce((s, r) => s + ((r.gb && r.gb.regen) || 0), 0),
+      armor: me.reduce((s, r) => s + ((r.gb && r.gb.armor) || 0), 0),
+      dodge: Math.round(me.reduce((s, r) => s + ((r.gb && r.gb.dodge) || 0), 0) / n * 100),
+      weakest
+    };
+  }
+  // Vorschau: Boss-Werte, Team-Werte und ein paar ehrliche Sätze dazu
+  function bossPreview(profile, d, deep) {
+    const S = fightSetup(profile, d, { deep: !!deep });
+    if (!S) return null;
+    const tm = teamStats(profile, S.me), b = S.boss, sp = S.special;
+    const minHp = S.minions.reduce((s, m) => s + m.max, 0), minAtk = S.minions.reduce((s, m) => s + m.atk, 0);
+    const bossHit = b.atk * (sp && sp.kind === 'double' ? 2 : 1);
+    const perRound = Math.max(1, bossHit + minAtk + (sp && sp.tag === 'aoe' ? Math.round(b.atk * sp.power) * Math.max(0, tm.n - 1) : 0) - tm.heal - tm.armor * 2);
+    const youNeed = Math.ceil((b.max * (sp && sp.kind === 'revive' ? 1 + sp.power : 1) + minHp) / Math.max(1, tm.atk * 1.3));   // 1.3: Krits, Ultis und Teamwork grob eingerechnet
+    const heNeeds = Math.ceil(tm.hp / perRound);
+    const say = [];
+    if (youNeed <= heNeeds * 0.7) say.push(['good', 'Auf dem Papier gewinnt ihr bequem. Papier lügt manchmal.']);
+    else if (youNeed <= heNeeds) say.push(['mid', 'Knapp, aber machbar. Gute Laune einpacken.']);
+    else say.push(['bad', 'Rechnerisch verliert ihr. Kluge Entscheidungen unterwegs schwächen ihn.']);
+    if (sp && sp.tag === 'aoe' && tm.weakest) {
+      const hits = Math.max(1, Math.floor(tm.weakest.max / Math.max(1, Math.round(b.atk * sp.power))));
+      say.push(hits <= 5 ? ['bad', `Flächenschaden: ${tm.weakest.id === 'self' ? (profile.nickname || 'Du') : T(tm.weakest.name)} hält nur etwa ${hits} Spritzer aus.`] : ['good', 'Dein Team steckt Flächenschaden gut weg.']);
+    }
+    if (sp && sp.tag === 'drain') say.push(tm.heal ? ['mid', 'Er heilt sich, ihr zum Glück auch.'] : ['bad', 'Er heilt sich, ihr nicht. Mehr Angriff oder Heil-Ausrüstung hilft.']);
+    if (sp && sp.tag === 'thorns') say.push(['mid', 'Stacheln: Wer oft zuschlägt, tut sich selbst weh. Wenige harte Schläge sind besser.']);
+    if (sp && sp.tag === 'revive') say.push(['mid', 'Er steht einmal wieder auf. Puste für Runde zwei einplanen.']);
+    if (sp && sp.tag === 'chain') say.push(['mid', 'Seine Treffer springen weiter. Viel Leben in der ganzen Crew hilft.']);
+    if (sp && sp.tag === 'single') say.push(tm.weakest && tm.weakest.max < bossHit * 3 ? ['bad', 'Er schlägt doppelt auf ein Ziel. Wer wenig Leben hat, liegt schnell.'] : ['good', 'Seine Doppelschläge tun weh, aber euer Vordermann hält das aus.']);
+    if (b.spd > tm.spd + 0.5) say.push(['mid', 'Er ist schneller als ihr und schlägt zuerst.']);
+    else if (tm.spd > b.spd + 0.5) say.push(['good', 'Ihr seid schneller und habt den ersten Schlag.']);
+    if (S.minions.length) say.push(['mid', `Mit ${S.minions.length} ${S.minions.length === 1 ? 'Scherge' : 'Schergen'}. Die halten auch mal den Kopf hin.`]);
+    return { boss: b, team: tm, special: sp, minions: S.minions, youNeed, heNeeds, say: say.slice(0, 4), lvl: S.lvl };
+  }
+  function tile(k, v, lbl) { return `<span class="dg-st">${ico(k)}<b>${esc(String(v))}</b><small>${esc(T(lbl))}</small></span>`; }
+  function statsHtml(profile, d, deep) {
+    const P = bossPreview(profile, d, deep);
+    if (!P) return '';
+    const b = P.boss, tm = P.team, sp = P.special, def = bossOf(d);
+    const verdict = P.youNeed <= P.heNeeds * 0.7 ? 'good' : P.youNeed <= P.heNeeds ? 'mid' : 'bad';
+    return `<div class="dg-vs">
+      <div class="dg-side foe"><span class="dg-side-h"><i class="dg-side-spr">${GL.sprites.render(def)}</i><b>${esc(T(def.name))}</b>${P.minions.length ? `<em>+${P.minions.length}</em>` : ''}</span>
+        <span class="dg-tiles">${tile('hp', b.max, 'Leben')}${tile('atk', b.atk, 'Angriff')}${tile('spd', b.spd, 'Tempo')}</span>
+        ${sp ? `<span class="dg-spec">${ico(sp.tag)}<span><b>${esc(T(sp.name))}</b><small>${esc(T(TAGNAME[sp.tag] || ''))} · ${esc(T(sp.text))}</small></span></span>` : ''}
+      </div>
+      <div class="dg-meter ${verdict}" title="${esc(T('Geschätzte Runden'))}"><span><b>${P.youNeed}</b><small>${esc(T('Runden bis er fällt'))}</small></span><i>vs</i><span><b>${P.heNeeds}</b><small>${esc(T('Runden, die ihr durchhaltet'))}</small></span></div>
+      <div class="dg-side mine"><span class="dg-side-h"><b>${esc(T('Dein Team'))}</b><em>${tm.n}</em></span>
+        <span class="dg-tiles">${tile('hp', tm.hp, 'Leben')}${tile('atk', tm.atk, 'Schaden/Runde')}${tile('spd', tm.spd, 'Tempo')}${tile('heal', tm.heal, 'Heilung')}${tile('def', tm.armor, 'Rüstung')}</span>
+      </div>
+      <ul class="dg-say">${P.say.map(([c, s]) => `<li class="${c}"><i></i>${esc(T(s))}</li>`).join('')}</ul>
+    </div>`;
+  }
+  function depthHtml(profile, d) {
+    const can = (peek(profile, d.id).clears || 0) >= 1;
+    return `<div class="dg-depth" role="group" aria-label="${esc(T('Wie tief?'))}">
+      <button class="dg-dep${cur.deep ? '' : ' on'}" data-act="dg-depth" data-v="0"><b>${esc(T('Erkundung'))}</b><small>${STEPS} ${esc(T('Räume'))}</small></button>
+      <button class="dg-dep deep${cur.deep ? ' on' : ''}" data-act="dg-depth" data-v="1"${can ? '' : ' disabled'}><b>${esc(T('Expedition'))}</b><small>${can ? `${DEEP.steps} ${esc(T('Räume · härter · bessere Beute'))}` : esc(T('Erst einmal meistern'))}</small></button>
+    </div>`;
+  }
   function introHtml() {
     const d = cur.d, m = pick(cur.crew);
     return card(`${scene(d)}
@@ -156,7 +249,11 @@ window.GL = window.GL || {};
       <h3>${esc(T(d.name))}</h3>
       ${(() => { const lv = landgangLevel(cur.profile, d.id); return lv ? `<p class="dg-lvl"><b>${esc(T('Stufe'))} ${lv + 1}</b> · ${esc(T('Gegner'))} +${lv * 7} %${lv >= 1 ? ` · ${esc(T('mit Gefolge'))}` : ''}</p>` : ''; })()}
       <p class="dg-text">${esc(T(d.intro))}</p>
+      ${depthHtml(cur.profile, d)}
+      ${statsHtml(cur.profile, d, cur.deep)}
       ${bubble(m, line(m, 'go'))}
+      <!-- Platz für den Gemeinschafts-Landgang (Fork P): GL.coop.dungeonSlot(d, profile) liefert HTML -->
+      <div class="dg-coop-slot" data-dg="${esc(d.id)}">${GL.coop && GL.coop.dungeonSlot ? GL.coop.dungeonSlot(d, cur.profile) : ''}</div>
       <div class="fpop-btns"><button class="btn" data-act="dg-go">${esc(T('Los geht’s'))}</button><button class="btn ghost" data-act="dg-list">${esc(T('Zurück'))}</button></div>`);
   }
   function choiceBtn(c, i) {
@@ -168,7 +265,7 @@ window.GL = window.GL || {};
   }
   // Szene oder Anlauf auf den Boss (cur.i === STEPS)
   function stepHtml() {
-    const d = cur.d, boss = cur.i >= STEPS;
+    const d = cur.d, boss = cur.i >= NS();
     const st = boss ? { t: d.bossText, c: d.bossC } : cur.steps[cur.i];
     if (!cur.plans) cur.plans = st.c.map(c => plan(c, cur.crew));
     const m = boss ? pick(cur.crew) : null;
@@ -191,10 +288,12 @@ window.GL = window.GL || {};
   }
 
   // ---------- Bosskampf ----------
-  function buildFight(profile) {
-    const d = cur.d, sea = d.sea || 0;
-    const has = k => cur.fx.filter(x => x === k).length;
-    const me = GL.meta.squadRefs(profile).map(r => {
+  // Kampf-Aufbau ohne Anzeige (auch für Vorschau und Gemeinschafts-Landgang nutzbar):
+  //   fightSetup(profile, d, { fx: [...], deep: bool, lvl: n, me: [Crew-Refs] }) -> { me, boss, minions, special }
+  function fightSetup(profile, d, opts) {
+    const o = opts || {}, sea = d.sea || 0, fxl = o.fx || [];
+    const has = k => fxl.filter(x => x === k).length;
+    const me = (o.me || GL.meta.squadRefs(profile)).map(r => {
       const x = Object.assign({}, r);
       if (x.id === 'self') { x.ability = 'rally'; x.power = r.rally || 1; }
       x.max = Math.round(x.max * (1 + FX.heal.v * has('heal')));
@@ -209,17 +308,28 @@ window.GL = window.GL || {};
     const atkUp = 1 + FX.bossAtk.v * has('bossAtk') + FX.bossAtk2.v * has('bossAtk2');
     const max = Math.round(sumAtk / (1 + FX.atk.v * has('atk')) * BOSS.rounds * (1 + BOSS.perSea * sea) * hpCut);
     // Wiederholte Landgänge werden schwerer und abwechslungsreicher: Stufe pro Sieg, ab Stufe 1 Gefolge
-    const lvl = landgangLevel(profile, d.id), mult = 1 + 0.07 * lvl;
-    const nMin = lvl >= 4 ? 2 : lvl >= 1 ? 1 : 0;
-    const boss = { id: def.id, name: def.name, type: def.type, boss: true, hp: Math.round(max * mult * (1 - 0.12 * nMin)), max: Math.round(max * mult * (1 - 0.12 * nMin)),
-      atk: Math.max(3, Math.round(sumHp / (BOSS.rounds * BOSS.k) * (1 + BOSS.atkPerSea * sea) * atkUp * mult * (1 - 0.1 * nMin))),
-      spd: Math.round(me.reduce((s, r) => s + r.spd, 0) / me.length) };
+    const lvl = o.lvl != null ? o.lvl : landgangLevel(profile, d.id), mult = 1 + 0.07 * lvl;
+    const nMin = lvl >= 8 ? 3 : lvl >= 4 ? 2 : lvl >= 1 ? 1 : 0;
+    const sp = (D().dungeonSpecials || {})[d.id] || null;
+    const spCut = sp ? ({ drain: 0.96, thorns: 0.85, revive: 0.8, single: 0.92 }[sp.tag] || 0.9) : 1;   // Spezialangriff macht ihn gefährlich, dafür etwas weniger Masse
+    const dh = o.deep ? DEEP.hp : 1, da = o.deep ? DEEP.atk : 1;
+    const boss = { id: def.id, name: def.name, type: def.type, boss: true, hp: Math.round(max * mult * dh * spCut * (1 - 0.12 * Math.min(2, nMin))), max: Math.round(max * mult * dh * spCut * (1 - 0.12 * Math.min(2, nMin))),
+      atk: Math.max(3, Math.round(sumHp / (BOSS.rounds * BOSS.k) * (1 + BOSS.atkPerSea * sea) * atkUp * mult * da * spCut * (1 - 0.1 * Math.min(2, nMin)))),
+      spd: Math.round(me.reduce((s, r) => s + r.spd, 0) / me.length) + (lvl >= 6 ? 1 : 0) };
+    if (sp) { boss.ability = sp.kind; boss.power = sp.power; }
     const X = D(), pool = [].concat((X.hunted || []).filter(h => d.alt && h.island === d.alt), X.grunts || []);
     const minions = Array.from({ length: nMin }, (_, k) => {
       const g = pool[(hashStr(d.id) + lvl * 3 + k * 5) % pool.length];
       const mm = Math.round(boss.max * 0.26), ma = Math.max(2, Math.round(boss.atk * 0.45));
       return { id: g.id, name: g.name, type: g.type, hp: mm, max: mm, atk: ma, spd: Math.max(1, boss.spd - 1), look: g.look };
     });
+    return { me, boss, minions, special: sp, lvl, def };
+  }
+  function buildFight(profile) {
+    const d = cur.d, sea = d.sea || 0, X = D();
+    const S = fightSetup(profile, d, { fx: cur.fx, deep: cur.deep });
+    if (!S) return null;
+    const { me, boss, minions, lvl, def } = S;
     const seed = (Date.now() ^ Math.floor(Math.random() * 1e9)) >>> 0;
     const run = { rng: seed || 1, crew: me, relics: [], arts: [], items: [], crit: 0, bounties: 0, captain: me[0].id, mod: { atk: 0, hp: 0, spd: 0 } };
     // Startwerte merken, bevor die Simulation die Leben verändert (sonst startet die Anzeige mit dem Endstand)
@@ -273,7 +383,7 @@ window.GL = window.GL || {};
     const f = cur.fight, win = f.res.win;
     cur.won = win;
     const profile = cur.profile;
-    if (win) { give('b', true); give('g', true); }
+    if (win) { give('b', true); give('g', true); if (cur.deep && cur.fresh) give('g', true); }
     else { const s = cur.d.sea || 0; cur.loot.berry = Math.round(cur.loot.berry * 0.5) + Math.round((10 + 5 * s) * (cur.fresh ? 1 : 0.2)); cur.loot.gear = []; }
     const html = finish(profile);
     const box = document.getElementById('fpop');
@@ -311,12 +421,12 @@ window.GL = window.GL || {};
     const own = (d.steps || []).slice();
     if (own.length) steps.push(own.splice(Math.floor(Math.random() * own.length), 1)[0]);
     const rest = pool.filter(s => !steps.includes(s));
-    while (steps.length < STEPS && rest.length) steps.push(rest.splice(Math.floor(Math.random() * rest.length), 1)[0]);
-    cur = { d, steps, i: 0, crew: members(profile), fresh: fresh(profile, d.id), loot: { berry: 0, shards: 0, gear: [], find: null }, fx: [], plans: null, last: null, won: false, profile };
+    while (steps.length < DEEP.steps && rest.length) steps.push(rest.splice(Math.floor(Math.random() * rest.length), 1)[0]);
+    cur = { d, steps, i: 0, nSteps: STEPS, deep: false, crew: members(profile), fresh: fresh(profile, d.id), loot: { berry: 0, shards: 0, gear: [], find: null }, fx: [], plans: null, last: null, won: false, profile };
     return introHtml();
   }
   function choose(i) {
-    const boss = cur.i >= STEPS;
+    const boss = cur.i >= NS();
     const st = boss ? { c: cur.d.bossC } : cur.steps[cur.i];
     const c = st.c[i], p = cur.plans && cur.plans[i];
     if (!c || !p || cur.last && cur.last.step === cur.i) return stepHtml();
@@ -363,6 +473,7 @@ window.GL = window.GL || {};
       if (name === 'dg-start') return start(profile, data.v) || listHtml(profile);
       if (!cur) return listHtml(profile);
       cur.profile = profile;
+      if (name === 'dg-depth') { if (cur.i > 0 || cur.fight) return stepHtml(); const deep = data.v === '1' && (peek(profile, cur.d.id).clears || 0) >= 1; cur.deep = deep; cur.nSteps = deep ? DEEP.steps : STEPS; return introHtml(); }
       if (name === 'dg-go') { cur.i = 0; cur.plans = null; return stepHtml(); }
       if (name === 'dg-pick') return choose(Number(data.i));
       if (name === 'dg-fast') { if (cur.fight) { cur.fight.fast = !cur.fight.fast; } return undefined; }
@@ -371,7 +482,7 @@ window.GL = window.GL || {};
         if (cur.last && cur.last.boss) {
           cur.fight = buildFight(profile);
           if (!cur.fight) return listHtml(profile);
-          cur.i = STEPS + 1;
+          cur.i = NS() + 1;
           this.pending = 'fight';
           return fightHtml();
         }
@@ -390,6 +501,8 @@ window.GL = window.GL || {};
     closed() { if (cur && cur.fight && !cur.fight.done) { stop(); cur.fight.done = true; endFight(true); } },
     open: GL.dungeonOpen,
     list: listHtml,
+    // Für den Gemeinschafts-Landgang und Tests: Kampfaufbau, Teamwerte, Vorschau
+    fightSetup, teamStats, bossPreview, specials: () => D().dungeonSpecials || {},
     _cfg: BOSS,
     _cur: () => cur
   };

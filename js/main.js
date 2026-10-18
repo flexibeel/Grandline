@@ -711,7 +711,7 @@
     // Fähigkeiten-Hinweise etwas länger stehen lassen, damit man sie lesen kann
     // Wie bei TFT: lange Kämpfe werden mit den Runden von selbst etwas flotter
     const f = (SPEEDF[anim.speed] || 0.55) * (anim.rn >= 7 ? 0.65 : anim.rn >= 4 ? 0.82 : 1);
-    const big = ev.k === 'rage' || ev.k === 'will' || ev.k === 'weather' || ev.final || (ev.k === 'revive' && ev.by === 'vivre');   // Wendepunkte bekommen immer etwas Zeit
+    const big = ev.k === 'rage' || ev.k === 'windup' || ev.heavy || ev.k === 'will' || ev.k === 'weather' || ev.final || (ev.k === 'revive' && ev.by === 'vivre');   // Wendepunkte bekommen immer etwas Zeit
     const wait = ev.k === 'special' ? Math.max(900, 1800 * f) : ev.k === 'ult' ? Math.max(500, SPEED.ult * f)
       : ev.k === 'revive' && ev.by === 'vivre' ? Math.max(1700, 2600 * f) : big ? Math.max(900, 1500 * f) : ev.k === 'hit' ? SPEED.normal * f : SPEED.special * f;
     anim.timer = setTimeout(stepAnim, wait);
@@ -1072,7 +1072,7 @@
       case 'endless-open': openGearPop(GL.ui.endlessPop(profile)); break;
       case 'hunt-open': openGearPop(GL.ui.huntPop(profile)); break;
       // Landgang: kleine Abenteuer im Fenster (js/ui/dungeon.js)
-      case 'dg-open': case 'dg-list': case 'dg-start': case 'dg-go': case 'dg-pick': case 'dg-next': case 'dg-fast': {
+      case 'dg-open': case 'dg-list': case 'dg-start': case 'dg-go': case 'dg-pick': case 'dg-next': case 'dg-fast': case 'dg-depth': {
         // Landgang mit Bosskampf der Stammcrew: Beute wird beim Kampfende gespeichert (onSave)
         GL.dungeon.onSave = () => { saveProfile(); ui.lastStage = null; draw(); };
         const h = GL.dungeon.act(type, el.dataset, profile);
@@ -1454,6 +1454,12 @@
       case 'news-done': newsDone(); break;
       case 'news-story': profile.story = { seen: [] }; ui.storyShown = false; newsDone(); toast('<span><b>📖 Die Story beginnt von vorn</b>Kapitel 1 startet gleich, die nächsten kommen mit deinen Fahrten.</span>'); setTimeout(() => { ui.lastStage = null; draw(); }, 600); break;
       case 'pop-close': closePop(); break;
+      case 'post-check': { el.disabled = true; el.textContent = '🍾 Schaue nach …'; if (GL.checkBottles) GL.checkBottles(); setTimeout(() => { if (!document.querySelector('.bottle-pop')) { el.textContent = 'Keine neue Post. Das Meer ist ruhig.'; } }, 2500); break; }
+      // Gemeinschafts-Fahrt (js/ui/coop.js)
+      case 'coop-open-pick': case 'coop-close-pick': case 'coop-pick': case 'coop-drop': case 'coop-invite': case 'coop-go':
+        if (GL.coop) GL.coop.act(type, el, profile, ui, { draw, toast, save: saveProfile, pop: html => openGearPop(html),
+          invite: () => { if (GL.season && GL.friends && GL.online.state().uid) { openGearPop(GL.season.invitePop(profile)); GL.friends.qr(GL.friends.link()).then(svg => { const q = document.getElementById('sz-qr'); if (q) q.innerHTML = svg; }).catch(() => {}); } else openGearPop(GL.ui.friendsPop(profile)); } });
+        break;
       // Pause: der Run ist nach jedem Schritt gespeichert (auch online). Hier nur zur Beruhigung sagen und kurz anhalten.
       case 'pause': {
         if (anim && !anim.done && anim.speed) { ui.pauseSpeed = anim.speed; }
@@ -1525,6 +1531,7 @@
         GL.online.bottleSend(to, JSON.parse(JSON.stringify(it)), profile.nickname || 'Pirat').then(res => {
           if (res.ok) {
             const j = B.findIndex(x => x.uid === it.uid); if (j >= 0) B.splice(j, 1);
+            profile.post = [{ d: 'out', who: String(nm || 'Pirat').slice(0, 24), name: GL.cgear.name(it), r: it.r, at: Date.now() }].concat(profile.post || []).slice(0, 12);
             GL.meta.gone(profile, it.uid); saveProfile();
             if (GL.sfx) GL.sfx.play('found');
             toast(`<span><b>🍾 Flaschenpost unterwegs</b>${esc2(GL.cgear.name(it))} schwimmt zu ${esc2(nm)}.</span>`);
@@ -2251,6 +2258,8 @@
         const got = list.map(x => ({ it: GL.cgear.clean(x.item, GL.safeName ? GL.safeName(x.from_name || 'Pirat') : x.from_name), from: x.from_name })).filter(x => x.it);
         if (!got.length) return;
         got.forEach(x => { GL.cgear.bag(profile).push(x.it); profile.gearNew = (profile.gearNew || []).concat([x.it.uid]); });
+        // Postfach-Verlauf (für die Freundesliste): was kam von wem
+        profile.post = got.map(x => ({ d: 'in', who: String(x.from || 'Pirat').slice(0, 24), name: GL.cgear.name(x.it), r: x.it.r, at: Date.now() })).concat(profile.post || []).slice(0, 12);
         saveProfile();
         const x = got[0], who = esc2(GL.safeName ? GL.safeName(x.from || 'Pirat') : (x.from || 'Pirat'));
         if (GL.sfx) GL.sfx.play('found');
@@ -2263,6 +2272,7 @@
       });
     };
     setTimeout(checkBottles, 8000);
+    GL.checkBottles = () => { checkBottles(); };
     // Segelkumpane: wer hat dich angeheuert?
     const checkKumpan = () => {
       if (!profile.nickname || !GL.online.friendInbox) return;

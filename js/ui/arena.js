@@ -550,12 +550,24 @@ window.GL = window.GL || {};
     att.style.setProperty('--dy', ((T.y - A.y) * reach).toFixed(0) + 'px');
     pulse(att, 'atk');
     cam(tside);
+    const fast = document.body.classList.contains('fast');
     const impact = () => {
-      if (ev.miss) { pulse(tgt, 'dodge'); fieldFloat(tside, ev.to, 'Ausgewichen', 'miss'); return; }
+      if (ev.heavy) { const b = fu('enemy', ev.from); if (b) b.classList.remove('windup'); }
+      if (ev.miss) {
+        // Ausweichen: kurzes Nachbild, bei schwerem Schlag ein extra Lob
+        pulse(tgt, 'dodge'); if (!fast) pulse(tgt, 'kghost');
+        fieldFloat(tside, ev.to, ev.heavy ? 'Knapp vorbei!' : 'Daneben!', 'miss');
+        return;
+      }
       if (ev.blocked) { fx('fx-block', T, 600); fieldFloat(tside, ev.to, 'Geblockt', 'miss'); return; }
       if (type === 'klinge') fx('fx-slash', T, 500);
       else if (type === 'technik') fx('fx-burst', T, 600);
       else fx('fx-impact', T, 600);
+      // Wucht: Staubwölkchen am Boden, bei richtig großen Treffern ruckelt kurz das Bild
+      const big = bigNum(tside, ev.to, ev.dmg);
+      if (type === 'kraft' && !fast) fx('kfx-dust', { x: T.x, y: T.y + 22 }, 520);
+      if ((type === 'kraft' && big === ' huge') || ev.heavy) pulse($('#field'), 'knudge');
+      if (ev.heavy) { fx('kfx-heavy', T, 650); tagAt(tside, ev.to, 'Schwerer Schlag!', 'debuff', 60); }
       if (ev.eff === 'strong') fx('fx-ring', T, 700);
       pulse(tgt, ev.crit ? 'hurt-crit' : 'hurt');
       if (ev.crit) tagAt(tside, ev.to, 'KRIT!', 'crit', 56);
@@ -714,6 +726,7 @@ window.GL = window.GL || {};
         ev.list.forEach(x => {
           pulse(el(ev.side, x.to), 'healed'); float(ev.side, x.to, '+' + x.amount, 'heal'); setHp(ev.side, x.to, x.hp);
           fx('fx-heal', center(fu(ev.side, x.to)), 900); fieldFloat(ev.side, x.to, '+' + x.amount, 'heal');
+          if (ev.side === 'crew' && !document.body.classList.contains('fast')) { const c = center(fu(ev.side, x.to)); if (c) fx('kfx-plus', { x: c.x, y: c.y - 6 }, 900); }
         });
       } else if (ev.k === 'revive') {
         if (GL.data.abilities[ev.by]) callout(ev.by, ev.side);
@@ -740,6 +753,10 @@ window.GL = window.GL || {};
           fieldFloat(ev.side, x.to, d.name + '!', d.good ? 'buff' : 'debuff');
           float(ev.side, x.to, d.name + '!', 'tag ' + (d.good ? 'buff' : 'debuff'));
         });
+      } else if (ev.k === 'windup') {
+        // Boss holt aus: lehnt sich zurück, kleines Warnzeichen, nächste Runde kommt der schwere Schlag
+        const b = fu('enemy', ev.to); if (b) b.classList.add('windup');
+        tagAt('enemy', ev.to, 'holt aus …', 'debuff', 64);
       } else if (ev.k === 'counter') {
         fieldFloat('enemy', ev.from, 'Konter!', 'debuff');
         pulse(fu('enemy', ev.from), 'atk'); pulse($('#field'), 'boss-slam');

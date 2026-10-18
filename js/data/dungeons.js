@@ -233,3 +233,18 @@ GL.data.dungeons = [
     find: { id: 'zellenschluessel', name: 'Großer Zellenschlüssel', text: 'Passt in jede Zelle von Ebene 1 bis 5. Angeblich.',
       art: ['............', '..gggg......', '.gGGGGg.....', '.gG..Gg.....', '.gGGGGg.....', '..gGGgg.....', '....gG......', '....gG......', '....gGgg....', '....gG......', '....gGgg....', '............'] } }
 ];
+
+// Spezialangriffe der Landgang-Bosse (laufen über die normale Kampf-Engine, also deterministisch):
+//   kind = Fähigkeit im Kampf (burn = trifft alle anderen mit, chain = springt weiter, double = zwei Schläge,
+//          lifesteal = heilt sich, thorns = Stacheln, revive = steht wieder auf), power = Stärke
+//   tag  = Schadensart für die Anzeige: aoe (Fläche), chain (Kette), single (Einzelziel), drain (saugt), thorns, revive
+GL.data.dungeonSpecials = {
+  zirkus:  { kind: 'chain',     power: 0.45, tag: 'chain',  name: 'Messer-Jonglage', text: 'Seine Messer springen nach jedem Treffer zum nächsten Opfer weiter.' },
+  drumm:   { kind: 'lifesteal', power: 0.4,  tag: 'drain',  name: 'Alles-Fresser',   text: 'Frisst sich satt: heilt sich um 40 % seines Schadens.' },
+  graeber: { kind: 'double',    power: 1,    tag: 'single', name: 'Klingenkörper',   text: 'Schlägt zweimal pro Runde zu, immer auf dasselbe arme Ziel.' },
+  ruinen:  { kind: 'burn',      power: 0.3,  tag: 'aoe',    name: 'Eisenwolken',     text: 'Jeder Treffer prasselt mit 30 % auf die ganze restliche Crew.' },
+  kanaele: { kind: 'thorns',    power: 3,    tag: 'thorns', name: 'Tekkai-Bauch',    text: 'Wer ihn haut, kriegt 3 Schaden zurück. Schnelle Mehrfachschläger leiden.' },
+  gruft:   { kind: 'revive',    power: 0.35, tag: 'revive', name: 'Unsichtbares Comeback', text: 'Steht einmal mit 35 % Leben wieder auf. Er hat es nicht so mit dem Liegenbleiben.' },
+  koralle: { kind: 'burn',      power: 0.25, tag: 'aoe',    name: 'Acht Gift-Klingen', text: 'Acht Arme, acht Schwerter: jeder Treffer streift die ganze Crew (25 %).' },
+  impel:   { kind: 'burn',      power: 0.35, tag: 'aoe',    name: 'Nasenpopel-Bombe', text: 'Explodiert alles, was er anfasst: 35 % Flächenschaden. Ja, wirklich mit der Nase.' }
+};

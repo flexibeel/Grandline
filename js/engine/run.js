@@ -528,12 +528,32 @@ window.GL = window.GL || {};
     // Neues Insel-Kapitel: erst den Kurs wählen
     if (rowIdx(run) === 0) { openCourse(run); return; }
     run.options = genOptions(run);
+    // Zwischen-Event mit der Crew: einmal pro Insel-Kapitel sicher in der Reihe vor dem Bösewicht
+    const CE = GL.data.crewEvents || [], rI = rowIdx(run), chap = run.step - rI;
+    if (CE.length && rI === GL.config.chapterSteps - 2 && run.ceChap !== chap) { startCrewEvent(run, chap); return; }
     // Gelegentlich ein Ereignis auf See (nicht direkt vor dem Bösewicht oder Boss)
-    if (rowIdx(run) < GL.config.chapterSteps - 1 && R.float(run) < GL.config.eventChance) {
+    if (rI < GL.config.chapterSteps - 1 && R.float(run) < GL.config.eventChance) {
+      if (CE.length && run.ceChap !== chap && R.float(run) < 0.35) { startCrewEvent(run, chap); return; }
       const ev = GL.data.events[R.int(run, 0, GL.data.events.length - 1)];
       run.event = { id: ev.id };
       run.phase = 'event';
     }
+  }
+  // Mini-Szene mit Kapitän (A) und jemandem aus der Crew (B), danach eine Entscheidung
+  function startCrewEvent(run, chap) {
+    const CE = GL.data.crewEvents;
+    run.ceSeen = run.ceSeen || [];
+    let pool = CE.filter(e => !run.ceSeen.includes(e.id));
+    if (!pool.length) { run.ceSeen = []; pool = CE.slice(); }
+    const ev = pool[R.int(run, 0, pool.length - 1)];
+    const alive = run.crew.filter(u => u.hp > 0);
+    const a = (alive[0] || run.crew[0] || {}).id || 'ruffy';
+    const others = alive.filter(u => u.id !== a);
+    const b = others.length ? others[R.int(run, 0, others.length - 1)].id : 'kalle';   // allein an Bord: die Zeitungsmöwe redet mit
+    run.ceSeen.push(ev.id);
+    run.ceChap = chap;
+    run.event = { id: ev.id, crew: true, cast: [a, b] };
+    run.phase = 'event';
   }
 
   // ---------- Ereignisse auf See ----------
@@ -558,6 +578,8 @@ window.GL = window.GL || {};
       });
     }
     if (o.points && run.crew[0]) { run.crew[0].points += o.points; lines.push(`Kapitän +${o.points} Statuspunkte`); }
+    if (o.buffAll) { run.crew.forEach(u => { const v = o.buffAll.value; if (o.buffAll.stat === 'hp') { u.max += v; if (u.hp > 0) u.hp += v; } else u[o.buffAll.stat] += v; });   /* nur wer jetzt an Bord ist */ lines.push(`Ganze Crew +${o.buffAll.value} ${{ atk: 'Angriff', hp: 'Leben', spd: 'Tempo' }[o.buffAll.stat] || o.buffAll.stat}`); }
+    if (o.crit) { run.crit = (run.crit || 0) + o.crit; lines.push(`Ganze Crew +${Math.round(o.crit * 100)} % Krit-Chance`); }
     if (o.relic !== undefined) {
       const free = freeRelics(run);
       if (free.length) {
@@ -977,7 +999,7 @@ window.GL = window.GL || {};
 
       case 'event': {
         if (a.type !== 'pick') return false;
-        const ev = byId(GL.data.events, run.event.id);
+        const ev = run.event.crew ? byId(GL.data.crewEvents || [], run.event.id) : byId(GL.data.events, run.event.id);
         const ch = ev.choices[a.index];
         if (!ch) return false;
         const lines = [];

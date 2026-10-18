@@ -29,3 +29,40 @@ GL.i18nExtraP = (GL.i18nExtraP || []).concat([
   [/^(.+)\. Mit (\d+)× (.+) wird er noch stärker\.$/, (m, p, n, l) => (GL.data.en[p] || p) + '. With ' + n + '× ' + (GL.data.en[l] || l) + ' it gets even stronger.'],
   [/^(.+)\. Volle Stufe, stark!$/, (m, p) => (GL.data.en[p] || p) + '. Full tier, strong!']
 ]);
+// Kampf-Herz: Kombos, schwerer Schlag, Kampfbilanz, Wiki „Kampf“
+Object.assign(GL.data.en, {
+  'Daneben!': 'Missed!', 'Knapp vorbei!': 'Close call!', 'Schwerer Schlag!': 'Heavy blow!', 'holt aus …': 'winds up …',
+  'Sturmangriff': 'Charge', 'Tausend Schnitte': 'Thousand Cuts', 'Festung': 'Fortress', 'Zäher Brocken': 'Tough Nut', 'Klingensturm': 'Blade Storm',
+  'Ganze Crew +1 Tempo, Kraft-Figuren +10 % Schaden.': 'Whole crew +1 speed, Power characters +10 % damage.',
+  'Klinge-Figuren +8 % Krit-Chance und +6 % Ausweichen.': 'Blade characters +8 % crit chance and +6 % dodge.',
+  'Ganze Crew +1 Rüstung, Brecher heilen 2 Leben pro Runde.': 'Whole crew +1 armor, Breakers heal 2 HP per round.',
+  'Kraft-Figuren heilen 2 Leben pro Runde und erleiden 5 % weniger Schaden.': 'Power characters heal 2 HP per round and take 5 % less damage.',
+  'Krits von Kämpfern treffen 25 % härter.': 'Fighter crits hit 25 % harder.',
+  'Erst rennen, dann hauen. Die Reihenfolge ist wichtig.': 'Run first, hit second. The order matters.',
+  'Schneller schneiden, als der Gegner „Moment mal“ sagen kann.': 'Cut faster than the enemy can say “hang on”.',
+  'Niemand kommt rein. Leider auch kein Lieferdienst.': 'Nobody gets in. Sadly, neither does the delivery guy.',
+  'Haut zu. Steht wieder auf. Haut wieder zu. Ein Kreislauf.': 'Hits. Gets up. Hits again. The circle of life.',
+  'Spitze Sachen. Viele davon. In schneller Folge.': 'Pointy things. Lots of them. In quick succession.',
+  'Stil-Kombo': 'Style combo', 'Kombo in Reichweite': 'Combo within reach', 'Stil-Kombos in Reichweite': 'Style combos within reach',
+  'Stil-Schaden': 'style damage', 'Schaden': 'damage', 'Krit': 'crit', 'Krits': 'crits', 'geheilt': 'healed',
+  'Subtil war gestern.': 'Subtle was yesterday.', 'Präzise. Und ein kleines bisschen gemein.': 'Precise. And a tiny bit mean.',
+  'Getroffen werden ist auch nur eine Option.': 'Getting hit is just one option.', 'Pflaster sind auch eine Waffe.': 'Band-aids are a weapon too.',
+  'Steht im Weg. Absichtlich.': 'In the way. On purpose.', 'Viel Lärm, viel Schaden, wenig Plan.': 'Lots of noise, lots of damage, little plan.',
+  '⚔ Kampf': '⚔ Combat', 'Finde deinen Stil': 'Find your style', 'Stil-Kombos': 'Style combos', 'Der schwere Schlag': 'The heavy blow',
+  'Für alle, die Probleme gern direkt lösen.': 'For people who like to solve problems directly.',
+  'Lebt vom Glück. Und davon hat sie erstaunlich viel.': 'Lives on luck. And has a surprising amount of it.',
+  'Wer nicht getroffen wird, muss auch nicht geheilt werden.': 'If you never get hit, you never need healing.',
+  'Eine Wand mit Gefühlen.': 'A wall with feelings.', 'Plan: draufhauen. Plan B: fester draufhauen.': 'Plan: hit it. Plan B: hit it harder.',
+  'Langsam, aber die Crew steht am Ende noch.': 'Slow, but the crew is still standing at the end.'
+});
+GL.i18nExtraP = (GL.i18nExtraP || []).concat([
+  [/^(.+) holt weit aus … Nächste Runde wird es laut\. Ausweichen hilft doppelt\.$/, '$1 winds up … Next round gets loud. Dodging counts double.'],
+  [/^(.+) krempelt die Ärmel hoch\. Das ist selten ein gutes Zeichen\. Rüstung zählt jetzt doppelt\.$/, '$1 rolls up their sleeves. Rarely a good sign. Armor counts double now.'],
+  [/^(.+) atmet tief ein\. Ein guter Moment, schnell zu sein\.$/, '$1 takes a deep breath. A good moment to be fast.'],
+  [/^(.+) duckt sich unter dem schweren Schlag von (.+) weg\. Elegant\. Fast\.$/, '$1 ducks under the heavy blow from $2. Elegant. Almost.'],
+  [/^(.+) landet den schweren Schlag: (\d+) Schaden an (.+?)\.( Autsch\.)?$/, (m, a, d, t, x) => a + ' lands the heavy blow: ' + d + ' damage to ' + t + '.' + (x ? ' Ouch.' : '')],
+  [/^(\d+) (Stil-Schaden|Schaden)$/, (m, n, w) => n + ' ' + (w === 'Schaden' ? 'damage' : 'style damage')],
+  [/^(\d+) (Krit|Krits)$/, (m, n, w) => n + (w === 'Krit' ? ' crit' : ' crits')],
+  [/^(\d+)× ausgewichen( \(auch dem großen Schlag!\))?$/, (m, n, x) => 'dodged ' + n + '×' + (x ? ' (even the big one!)' : '')],
+  [/^(\d+) geheilt$/, '$1 healed']
+]);

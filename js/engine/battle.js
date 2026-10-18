@@ -36,6 +36,7 @@ window.GL = window.GL || {};
     const events = [];
     const alive = list => list.filter(u => u.hp > 0);
     const sideOf = s => (s === 'crew' ? crew : enemies);
+    let FX = null;   // Teufelsfrucht-Mechaniken (js/engine/fruitfx.js)
 
     function damage(u, amount) {
       u.hp = Math.max(0, u.hp - amount);
@@ -58,6 +59,7 @@ window.GL = window.GL || {};
 
     // Sieht nach Schaden nach, ob jemand wieder aufsteht
     function checkRevives() {
+      if (FX) FX.onFall();
       crew.concat(enemies).forEach(u => {
         if (u.hp === 0 && u.ability === 'revive' && !u.revived) {
           u.revived = true;
@@ -337,12 +339,20 @@ window.GL = window.GL || {};
       }
     }
     let firstBlock = flags.firstBlock;  // Anzahl abgewehrter Treffer pro Kampf
+    FX = GL.fruitFx && !pvp && kind !== 'duel' ? GL.fruitFx.setup(run, crew, enemies, { events, addStatus, damage, heal }) : null;
     let rounds = 0;
 
     // ---------- Runden ----------
     while (alive(crew).length && alive(enemies).length && rounds < C.battleRoundsMax) {
       rounds++;
       events.push({ k: 'round', n: rounds });
+      // Boss holt aus: alle 3 Runden kündigt er einen schweren Schlag an, der in der nächsten Runde kommt.
+      // Konter: Ausweichen zählt doppelt, Rüstung (Bollwerk) doppelt.
+      if (!pvp && BF.windup) enemies.forEach(e => {
+        if (e.hp <= 0 || !(e.boss || e.raid)) return;
+        if (e.wind === 1) e.wind = 2;
+        else if (!e.wind && rounds % 3 === 2) { e.wind = 1; events.push({ k: 'windup', side: 'enemy', to: idx(e), by: e.id }); }
+      });
       // Zustände, die alle n Runden kommen (z. B. Smokers Rauch)
       crew.concat(enemies).filter(u => u.hp > 0).forEach(u => {
         const st = statusOf(u);
@@ -400,12 +410,15 @@ window.GL = window.GL || {};
           if (crit) dmg *= u.critMult;
           if (u.status.fear) dmg *= 0.65;
           if (target.status.weak) dmg *= 1.25;
-          dmg = Math.max(1, Math.round(dmg * (1 - target.guard)) - target.armor);
+          if (FX) dmg *= FX.dmgMult(u, target);
+          const heavy = u.wind === 2 && u.side === 'enemy';
+          if (heavy) { dmg *= BF.windup; u.wind = 0; }
+          dmg = Math.max(1, Math.round(dmg * (1 - target.guard)) - target.armor * (heavy ? 2 : 1));
 
           let blocked = false;
           let miss = false;
           if (u.side === 'enemy' && firstBlock > 0) { blocked = true; firstBlock--; dmg = 0; }
-          else if ((target.dodge || 0) + wxMiss > 0 && R.float(run) < (target.dodge || 0) + wxMiss) { miss = true; dmg = 0; }
+          else if ((target.dodge || 0) + wxMiss > 0 && R.float(run) < ((target.dodge || 0) + wxMiss) * (heavy ? 2 : 1)) { miss = true; dmg = 0; }
 
           // Volltreffer: seltener Glücksschlag der eigenen Crew
           let lucky = false;
@@ -414,7 +427,7 @@ window.GL = window.GL || {};
           charge(u, U.gainHit);
           if (dmg > 0) charge(target, U.gainHurt);
           const eff = mult > 1 ? 'strong' : mult < 1 ? 'weak' : '';
-          events.push({ k: 'hit', side: u.side, from: idx(u), to, dmg, crit: crit && dmg > 0, lucky, eff, blocked, miss, hp: target.hp,
+          events.push({ k: 'hit', side: u.side, from: idx(u), to, dmg, crit: crit && dmg > 0, lucky, eff, blocked, miss, hp: target.hp, heavy: heavy || undefined,
             ea: u.ult ? u.energy : null, et: target.ult ? target.energy : null });
 
           // Konter: Bosse schlagen manchmal sofort zurück
@@ -426,6 +439,7 @@ window.GL = window.GL || {};
           }
           // Fähigkeiten nach einem Treffer
           if (dmg > 0) {
+            if (FX) FX.onHit(u, target, dmg);
             const st = statusOf(u);
             if (st && st.when === 'hit' && target.hp > 0 && (!st.chance || R.float(run) < st.chance)) spreadStatus(u, st, target);
             if (u.ability === 'ramp') u.atk += u.power;
@@ -476,6 +490,7 @@ window.GL = window.GL || {};
         if (list.length) events.push({ k: 'dmg', side, list, by: 'bleed' });
       });
       checkRevives();
+      if (FX) FX.roundEnd();
       // Konter: jeder Helfer entfernt einen schlechten Zustand im eigenen Team (Furcht zuerst)
       [crew, enemies].forEach(team => alive(team).filter(u => u.role === 'helfer').forEach(h => {
         for (const key of DEBUFF_ORDER) {

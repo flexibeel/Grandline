@@ -46,3 +46,17 @@ GL.data.en = Object.assign(GL.data.en || {}, {
   'Kein Grund zur Sorge, Kinder.': 'No need to worry, children.', 'Ha! Zu leicht.': 'Ha! Too easy.', 'Yahahaha! Natürlich.': 'Yahahaha! Naturally.', 'Unmöglich.': 'Impossible.', 'Hm. Gut.': 'Hm. Good.', 'Tch. Nochmal.': 'Tch. Again.',
   'Kukuku. Wie erwartet.': 'Kukuku. As expected.', 'Erbärmlich.': 'Pathetic.', 'Das hat Spaß gemacht!': 'That was fun!', 'Alle heil zurück. Schön.': 'Everyone back safe. Lovely.', 'Erst ausruhen, dann nochmal.': 'Rest first, then again.', 'Steht noch alles.': 'Everything’s still standing.'
 });
+
+Object.assign(GL.data.en, {
+  'Ich habe die Karte gelesen. Sie war verkehrt herum. Wir fahren trotzdem.': 'I read the map. It was upside down. We sail anyway.',
+  'Ich hab das Frühstück schon gegessen. Und deins. Tut mir nicht leid.': 'I already ate breakfast. And yours. Not sorry.',
+  'Wenn wir verlieren, gewinnen wir halt beim nächsten Mal. Einfach.': 'If we lose, we just win next time. Easy.',
+  'Der Hafen ist links. Sagt Nami. Ich glaube ihr nicht.': 'The harbor is to the left. Says Nami. I do not believe her.',
+  'Lächeln kostet nichts. Alles andere schon.': 'Smiling is free. Everything else is not.',
+  'Ich hab heute schon zwei Mal den Mut verloren und drei Mal wiedergefunden.': 'I lost my courage twice today and found it three times.',
+  'Wer Essen verschwendet, schwimmt nach Hause.': 'Whoever wastes food swims home.',
+  'Ich bin kein Waschbär. Ich sag’s nur, falls jemand fragt.': 'I am not a raccoon. Just saying, in case anyone asks.',
+  'Hier ist es so friedlich. Fast verdächtig.': 'It is so peaceful here. Almost suspicious.',
+  'Ich hab das Schiff verbessert. Es hat jetzt einen Knopf. Drück ihn nicht.': 'I improved the ship. It has a button now. Do not press it.',
+  'Ich habe heute Morgen in den Spiegel geschaut. Er hat zuerst gelacht. Yohoho!': 'I looked in the mirror this morning. It laughed first. Yohoho!'
+});

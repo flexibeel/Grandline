@@ -220,3 +220,34 @@ GL.data.en = Object.assign(GL.data.en, {
   'Gleich haben wir ihn!': 'We almost have him!', 'Nicht nachlassen!': 'Don’t let up!', 'Letzter Akt! Durchhalten!': 'Final act! Hold on!',
   'Nein! Steh auf!': 'No! Get up!', 'Das war knapp…': 'That was close…', 'Wir schaffen das auch so!': 'We can still do this!', 'Das wird knapp!': 'This is going to be close!', 'Oh nee… knapp!': 'Oh no… so close!', 'Halte durch!': 'Hang in there!'
 });
+// Fork O: Werte-Vergleich, Expedition, Boss-Spezialangriffe
+Object.assign(GL.data.en, {
+  'Erkundung': 'Exploration', 'Expedition': 'Expedition', 'Räume': 'rooms', 'Räume · härter · bessere Beute': 'rooms · harder · better loot', 'Erst einmal meistern': 'Clear it once first',
+  'Wie tief?': 'How deep?', 'Leben': 'HP', 'Angriff': 'Attack', 'Tempo': 'Speed', 'Heilung': 'Healing', 'Rüstung': 'Armor', 'Schaden/Runde': 'Damage/round', 'Dein Team': 'Your team',
+  'Geschätzte Runden': 'Estimated rounds', 'Runden bis er fällt': 'rounds until he falls', 'Runden, die ihr durchhaltet': 'rounds you can last',
+  'Flächenschaden': 'Area damage', 'Kettenschaden': 'Chain damage', 'Einzelziel': 'Single target', 'Saugt Leben': 'Drains life', 'Stacheln': 'Thorns', 'Steht wieder auf': 'Gets back up',
+  'Auf dem Papier gewinnt ihr bequem. Papier lügt manchmal.': 'On paper you win comfortably. Paper lies sometimes.',
+  'Knapp, aber machbar. Gute Laune einpacken.': 'Close, but doable. Pack good spirits.',
+  'Rechnerisch verliert ihr. Kluge Entscheidungen unterwegs schwächen ihn.': 'By the numbers you lose. Smart choices on the way weaken him.',
+  'Dein Team steckt Flächenschaden gut weg.': 'Your team shrugs off area damage.',
+  'Er heilt sich, ihr zum Glück auch.': 'He heals, luckily so do you.',
+  'Er heilt sich, ihr nicht. Mehr Angriff oder Heil-Ausrüstung hilft.': 'He heals, you don’t. More attack or healing gear helps.',
+  'Stacheln: Wer oft zuschlägt, tut sich selbst weh. Wenige harte Schläge sind besser.': 'Thorns: hitting often hurts yourself. A few hard hits are better.',
+  'Er steht einmal wieder auf. Puste für Runde zwei einplanen.': 'He gets up once more. Save some breath for round two.',
+  'Seine Treffer springen weiter. Viel Leben in der ganzen Crew hilft.': 'His hits jump along. Plenty of HP across the crew helps.',
+  'Er schlägt doppelt auf ein Ziel. Wer wenig Leben hat, liegt schnell.': 'He hits one target twice. Low HP means a quick nap on the floor.',
+  'Seine Doppelschläge tun weh, aber euer Vordermann hält das aus.': 'His double hits hurt, but your front man can take it.',
+  'Er ist schneller als ihr und schlägt zuerst.': 'He is faster and strikes first.', 'Ihr seid schneller und habt den ersten Schlag.': 'You are faster and get the first hit.',
+  'Messer-Jonglage': 'Knife Juggling', 'Seine Messer springen nach jedem Treffer zum nächsten Opfer weiter.': 'His knives jump to the next victim after every hit.',
+  'Alles-Fresser': 'Eats Everything', 'Frisst sich satt: heilt sich um 40 % seines Schadens.': 'Eats his fill: heals 40 % of his damage.',
+  'Klingenkörper': 'Blade Body', 'Schlägt zweimal pro Runde zu, immer auf dasselbe arme Ziel.': 'Strikes twice per round, always at the same poor target.',
+  'Eisenwolken': 'Iron Clouds', 'Jeder Treffer prasselt mit 30 % auf die ganze restliche Crew.': 'Every hit rains 30 % onto the rest of the crew.',
+  'Tekkai-Bauch': 'Tekkai Belly', 'Wer ihn haut, kriegt 3 Schaden zurück. Schnelle Mehrfachschläger leiden.': 'Hit him and take 3 damage back. Fast multi-hitters suffer.',
+  'Unsichtbares Comeback': 'Invisible Comeback', 'Steht einmal mit 35 % Leben wieder auf. Er hat es nicht so mit dem Liegenbleiben.': 'Gets back up once with 35 % HP. Lying down is not his thing.',
+  'Acht Gift-Klingen': 'Eight Poison Blades', 'Acht Arme, acht Schwerter: jeder Treffer streift die ganze Crew (25 %).': 'Eight arms, eight swords: every hit grazes the whole crew (25 %).',
+  'Nasenpopel-Bombe': 'Booger Bomb', 'Explodiert alles, was er anfasst: 35 % Flächenschaden. Ja, wirklich mit der Nase.': 'Everything he touches explodes: 35 % area damage. Yes, really with his nose.'
+});
+GL.i18nExtraP = (GL.i18nExtraP || []).concat([
+  [/^Flächenschaden: (.+) hält nur etwa (\d+) Spritzer aus\.$/, 'Area damage: $1 only lasts about $2 splashes.'],
+  [/^Mit (\d+) (Scherge|Schergen)\. Die halten auch mal den Kopf hin\.$/, (m, n) => `With ${n} ${n === '1' ? 'henchman' : 'henchmen'}. They take a hit for the boss now and then.`]
+]);
