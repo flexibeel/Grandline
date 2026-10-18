@@ -85,7 +85,16 @@ window.GL = window.GL || {};
 
   const cache = {};
 
+  // Sicherheit: Farben kommen auch aus Online-Daten anderer Spieler. Nur echte Farbcodes zulassen
+  const safeCol = c => (typeof c === 'string' && /^#[0-9a-f]{3,8}$/i.test(c)) ? c : '#888888';
+  function safeLook(look) {
+    const l = Object.assign({}, look || {});
+    ['hair', 'skin', 'shirt', 'pants', 'hatColor', 'beard', 'nose'].forEach(k => { if (l[k] != null) l[k] = safeCol(l[k]); });
+    ['hat', 'acc', 'mask', 'hairStyle', 'style', 'eyes'].forEach(k => { if (l[k] != null && !/^[a-z0-9_-]{0,24}$/i.test(String(l[k]))) delete l[k]; });
+    return l;
+  }
   function svg(look) {
+    look = safeLook(look);
     const grid = BASE.map(r => r.split(''));
     applyLook(grid, look);
     const colors = Object.assign({
@@ -106,6 +115,7 @@ window.GL = window.GL || {};
     return '#' + c.map((v, i) => Math.round(v + (t[i] - v) * k).toString(16).padStart(2, '0')).join('');
   };
   function svgShaded(look) {
+    look = safeLook(look);
     const grid = BASE.map(r => r.split(''));
     applyLook(grid, look);
     const colors = Object.assign({ H: look.hair, S: look.skin, E: '#1a1a1a', C: look.shirt, P: look.pants, O: '#2a1f14', B: look.hatColor || look.hair, D: look.beard, N: look.nose }, ACC_COL, MASK_COL[look.mask] || {});
