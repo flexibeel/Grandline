@@ -492,8 +492,15 @@ window.GL = window.GL || {};
   function header(run) {
     const total = GL.run.totalSteps();
     const per = GL.config.stepsPerIsland;
-    const bars = Array.from({ length: total }, (_, i) =>
-      `<i class="${i < run.step ? 'done' : i === run.step ? 'now' : ''}${i % GL.config.chapterSteps === GL.config.chapterSteps - 1 ? ' boss' : ''}${i % per === per - 1 ? ' sea' : ''}"></i>`).join('');
+    // Reiseleiste: Tau mit Etappen-Knoten, Inseln als kleine Inseln, Meeresende als Flagge, das Schiff zeigt, wo du bist
+    const cs = GL.config.chapterSteps, at = Math.min(run.step, total - 1);
+    const px = i => ((i + 0.5) / total * 100).toFixed(2);
+    const marks = Array.from({ length: total }, (_, i) => {
+      const st = i < run.step ? 'done' : i === run.step ? 'now' : '';
+      const kind = i % per === per - 1 ? 'sea' : i % cs === cs - 1 ? 'isl' : 'dot';
+      return `<i class="vy-m ${kind} ${st}" style="left:${px(i)}%"></i>`;
+    }).join('');
+    const bars = `<span class="voy" aria-label="Etappe ${run.step + 1} von ${total}"><span class="vy-rope"><i class="vy-fill" style="width:${px(at)}%"></i></span>${marks}<span class="vy-ship" style="left:${px(at)}%">${GL.sprites.ship()}</span></span>`;
     const here = GL.run.chapterIsland(run);
     const island = here && run.phase !== 'course' ? here.name : GL.run.island(run).name;
     const pos = Math.min(GL.run.rowIdx(run) + 1, GL.config.chapterSteps);
@@ -659,13 +666,16 @@ window.GL = window.GL || {};
     const N = GL.data.nodes;
     const rows = ch.rows;
     const pos = GL.run.rowIdx(run);
-    const ROW = 108, TOP = 58, BOTTOM = 104;
-    const H = TOP + (rows.length - 1) * ROW + BOTTOM;
+    // Kompakt: am Handy enger, und schon gesegelte Reihen fallen weg (nur die letzte bleibt als Ankerpunkt)
+    const phone = typeof window !== 'undefined' && window.innerWidth < 560;
+    const ROW = phone ? 74 : 92, TOP = phone ? 52 : 58, BOTTOM = pos === 0 ? (phone ? 64 : 80) : (phone ? 30 : 40);
+    const o = Math.max(0, pos - 1);
+    const H = TOP + (rows.length - 1 - o) * ROW + BOTTOM;
     // kleine, feste Verschiebung pro Ort, damit die Karte nicht wie ein Raster aussieht
     const jit = (r, i) => { const h = Math.sin((run.seed % 997) * 12.9898 + r * 78.233 + i * 37.719) * 43758.5453; return (h - Math.floor(h) - 0.5) * 7; };
     const X = (r, i) => (rows[r].length === 1 ? 58 : 20 + (i + 1) / (rows[r].length + 1) * 78 + jit(r, i));   // links Platz für die Inselnamen
     const Y = r => TOP + (rows.length - 1 - r) * ROW;
-    const startX = 58, startY = H - 26;
+    const startX = 58, startY = H - (phone ? 22 : 26);
     const reach = new Map();
     run.optCols.forEach((c, k) => reach.set(c, k));
     const onPath = (r, i) => r < pos && ch.path[r] === i;
@@ -673,8 +683,8 @@ window.GL = window.GL || {};
     // Wege
     let lines = '';
     const line = (x1, y1, x2, y2, cls) => { lines += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" class="${cls}"/>`; };
-    rows[0].forEach((_, i) => line(startX, startY, X(0, i), Y(0), pos === 0 ? 'can' : onPath(0, i) ? 'done' : 'off'));
-    rows.forEach((row, r) => row.forEach((n, i) => n.next.forEach(j => {
+    if (o === 0 && pos === 0) rows[0].forEach((_, i) => line(startX, startY, X(0, i), Y(0), 'can'));
+    rows.forEach((row, r) => r >= o && row.forEach((n, i) => n.next.forEach(j => {
       let cls = 'off';
       if (onPath(r, i) && onPath(r + 1, j)) cls = 'done';
       else if (r === pos - 1 && ch.at === i && reach.has(j)) cls = 'can';
@@ -684,7 +694,8 @@ window.GL = window.GL || {};
 
     // Orte
     let nodes = '';
-    rows.forEach((row, r) => row.forEach((n, i) => {
+    rows.forEach((row, r) => r >= o && row.forEach((n, i) => {
+      if (r < pos && !onPath(r, i)) return;   // verpasste Orte der letzten Reihe nicht mehr zeigen
       const style = `left:${X(r, i)}%;top:${Y(r)}px`;
       const isBoss = n.t === 'boss';
       const hunted = n.t === 'elite' && n.who ? enemyData(n.who) : null;
@@ -708,14 +719,16 @@ window.GL = window.GL || {};
     const shipX = pos === 0 ? startX : X(pos - 1, ch.at);
     const shipY = pos === 0 ? startY : Y(pos - 1);
     const labels = rows.map((row, r) => {
+      if (r < o) return '';
       const name = GL.run.stopName(run, r);
       const state = r < pos ? 'done' : r === pos ? 'now' : '';
       return `<span class="sc-stop ${state}" style="top:${Y(r)}px">${name}</span>`;
     }).join('');
-    return `<div class="sea-chart isl-${GL.run.island(run).id}" style="height:${H}px">
+    return `<div class="sea-chart v2 isl-${GL.run.island(run).id}" style="height:${H}px">
       ${labels}
       <svg class="sc-lines" viewBox="0 0 100 ${H}" preserveAspectRatio="none" aria-hidden="true">${lines}</svg>
-      <span class="sc-start" style="left:${startX}%;top:${startY}px">Start</span>
+      ${pos === 0 ? `<span class="sc-start" style="left:${startX}%;top:${startY}px">Start</span>` : ''}
+      ${o > 0 ? `<span class="sc-past">⚓ ${o} ${o === 1 ? 'Etappe' : 'Etappen'} gesegelt</span>` : ''}
       ${nodes}
       <span class="sc-ship" style="left:${shipX}%;top:${shipY}px" aria-hidden="true">${GL.sprites.ship()}</span>
     </div>`;
@@ -1314,12 +1327,15 @@ window.GL = window.GL || {};
           log = b.win ? 'Sieg! Die Gegner sind besiegt.'
             : b.kind === 'raid' ? 'Der Raid ist gescheitert. Deine Crew entkommt mit letzter Kraft.'
             : 'Niederlage. Deine Crew ist gefallen.';
-          controls = `<button class="btn" data-act="continue">Weiter ${keyHint('Leertaste')}</button>`;
+          controls = `<div class="fbar fbar-done"><button class="btn fbar-go" data-act="continue">Weiter ${keyHint('Leertaste')}</button></div>`;
         } else {
           log = anim.log;
           // Schnell-Kampf: normale Kämpfe, die klar gewonnen werden, lassen sich überspringen (ab dem zweiten Kampf im Run). Bosse und Raids laufen immer
           const easy = b.win && !['boss', 'raid'].includes(b.kind) && !(run.pending && run.pending.rival) && ((run.stats && run.stats.fights) || 0) > 1;
-          controls = `<div class="fight-ctrl"><button class="speed-btn px-btn" data-act="fast" aria-label="Tempo ändern">${speedLabel(anim.speed || 2)}</button>${easy ? `<button class="skip-btn px-btn" data-act="skip" title="Kampf überspringen">⏩ <span>Überspringen</span></button>` : ''}${sfxBtn('fc-sfx')}</div>`;
+          // Feste Leiste: Tempo als vier Stufen, Überspringen immer am selben Platz (ausgegraut, wenn nicht erlaubt)
+          const sp = anim.speed || 2;
+          const seg = [1, 2, 3, 4].map(n => `<button class="fbar-sp${sp === n ? ' on' : ''}" data-act="speed" data-v="${n}" aria-label="Tempo ${n}" title="${['', 'Gemütlich', 'Zügig', 'Schnell', 'Turbo'][n]}">${'▸'.repeat(n === 4 ? 3 : n)}${n === 4 ? '<i>⚡</i>' : ''}</button>`).join('');
+          controls = `<div class="fbar"><div class="fbar-seg" role="group" aria-label="Tempo">${seg}</div><button class="fbar-skip${easy ? '' : ' off'}" data-act="${easy ? 'skip' : 'noop'}" ${easy ? '' : 'disabled'} title="${easy ? 'Kampf überspringen' : 'Überspringen geht bei klaren Siegen in normalen Kämpfen'}">⏩<span>Überspringen</span></button>${sfxBtn('fc-sfx')}</div>`;
         }
         const title = b.kind === 'raid' ? 'Raid' : b.kind === 'boss' ? 'Bosskampf' : run.pending && run.pending.rival ? 'Begegnung: ' + esc(run.pending.rival.name) : 'Kampf';
         return `<div class="battle-head"><h2>${title}</h2>${done ? `<span class="result ${b.win ? 'win' : 'lose'}">${b.win ? 'Sieg' : 'Niederlage'}</span>` : ''}</div>
@@ -1713,6 +1729,23 @@ window.GL = window.GL || {};
         <small>Das Teil verlässt deine Truhe und kommt beim nächsten Öffnen bei deinem Freund an. Bis zu 5 Flaschen am Tag.</small>`
         : '<small>Noch keine Freunde in deiner Liste. Freunde fügst du im Kapitänsbuch unter „♥ Freunde“ hinzu.</small>'}
       <button class="btn mini ghost" data-act="bottle" data-uid="">Abbrechen</button></div>`;
+  }
+  // Logbuch: alle Story-Kapitel, gesehene zum Nochmal-Ansehen, das nächste mit Hinweis
+  function storyBook(profile) {
+    const en = GL.i18n && GL.i18n.lang && GL.i18n.lang() === 'en';
+    const seen = (profile.story && profile.story.seen) || [];
+    let nextShown = false;
+    const rows = (GL.data.story || []).map(c => {
+      const done = seen.includes(c.id);
+      const t = en ? c.title[1] : c.title[0];
+      if (done) return `<button class="stb-row done" data-act="story-play" data-id="${c.id}"><em class="stb-no">${c.no}</em><span><b>${esc(t)}</b><small>${en ? 'Watch again' : 'Nochmal ansehen'}</small></span><i class="stb-go">▶</i></button>`;
+      if (!nextShown) { nextShown = true; const ready = c.when(profile); return `<div class="stb-row next${ready ? ' ready' : ''}"><em class="stb-no">${c.no}</em><span><b>${esc(t)}</b><small>${ready ? (en ? 'Comes on your next visit to the harbor' : 'Kommt beim nächsten Besuch im Hafen') : (en ? 'Unlocks: ' : 'Kommt: ') + esc(en ? c.need[1] : c.need[0])}</small></span><i class="stb-go">${ready ? '✨' : '🔒'}</i></div>`; }
+      return `<div class="stb-row locked"><em class="stb-no">${c.no}</em><span><b>???</b><small>${en ? 'Later' : 'Später'}</small></span><i class="stb-go">🔒</i></div>`;
+    }).join('');
+    return `<div class="fpop-card story-book" role="dialog"><span class="fpop-kicker">${en ? 'Story' : 'Story'}</span><h3 id="fpop-t">${en ? 'The Recipe from the End of the World' : 'Das Rezept vom Ende der Welt'}</h3>
+      <p class="hint">${en ? 'Little scenes with your crew. A new chapter comes with your progress.' : 'Kleine Szenen mit deiner Crew. Mit deinem Fortschritt kommt ein neues Kapitel.'}</p>
+      <div class="stb-list">${rows}</div>
+      <div class="fpop-btns"><button class="btn ghost" data-act="pop-close">${en ? 'Close' : 'Schließen'}</button></div></div>`;
   }
   // Vergleich zweier Teile Wert für Wert (neu gegen angelegt)
   function gearCompare(sel, cur, st0) {
@@ -2841,67 +2874,79 @@ window.GL = window.GL || {};
     const d = ui.draft;
     const P = GL.data.charParts;
     const vals = GL.meta.progressValues(profile);
-    const sw = (part, list) => `<div class="sw-row"><span>${{ hair: 'Haare', skin: 'Haut', shirt: 'Oberteil', pants: 'Hose', hatColor: 'Hutfarbe' }[part]}</span>
-      <div class="sw">${list.map(c => `<button class="sw-c${d.char.look[part] === c ? ' on' : ''}" style="background:${c}" data-act="char-part" data-part="${part}" data-v="${c}" aria-label="${c}"></button>`).join('')}</div></div>`;
-    const hats = { '': 'Ohne', straw: 'Strohhut', band: 'Kopftuch', cap: 'Mütze', hood: 'Kapuze', afro: 'Locken', tophat: 'Zylinder', tricorn: 'Dreispitz', ears: 'Tierohren' };
+    const tab = ui.editTab || 'look';
+    const L0 = d.char.look;
     // Gesperrte Teile zeigen ein Schloss und die Bedingung
     const lockOf = key => { const L = (GL.data.charLocks || {})[key]; return L && !GL.meta.cosmeticUnlocked(profile, L, vals) ? L : null; };
-    const opt = (act, cur, list, part) => list.map(([id, name]) => {
-      const L = part && id ? lockOf(part + ':' + id) : null;
-      return `<button class="seg${cur === id ? ' on' : ''}${L ? ' locked' : ''}" data-act="${act}" data-v="${id}"${L ? ` disabled title="${esc(GL.meta.reqText(L))}"` : ''}>${L ? '🔒 ' : ''}${name}</button>`;
-    }).join('');
-    const swOpt = (part, label, list) => {
-      const L = lockOf(part);
-      return `<div class="sw-row"><span>${label}</span>${L ? `<small class="muted">🔒 ${esc(GL.meta.reqText(L))}</small>` : `<div class="sw">${list.map(c => `<button class="sw-c${(d.char.look[part] || '') === c ? ' on' : ''}" style="background:${c || 'transparent'}" data-act="char-part" data-part="${part}" data-v="${c}" aria-label="${c || 'ohne'}">${c ? '' : '✕'}</button>`).join('')}</div>`}</div>`;
+    const PART = { hair: 'Haare', skin: 'Haut', shirt: 'Oberteil', pants: 'Hose', hatColor: 'Hutfarbe', beard: 'Bart', nose: 'Nase' };
+    // Farbfelder als runde 3D-Knöpfe
+    const sw = (part, list, optional) => {
+      const L = optional ? lockOf(part) : null;
+      return `<div class="pe-row"><span class="pe-lbl">${PART[part]}</span>${L ? `<small class="pe-lock">🔒 ${esc(GL.meta.reqText(L))}</small>` : `<div class="pe-sw">${list.map(c => `<button class="pe-c${(L0[part] || '') === c ? ' on' : ''}${c ? '' : ' none'}" style="--c:${c || 'transparent'}" data-act="char-part" data-part="${part}" data-v="${c}" aria-label="${c || 'ohne'}">${c ? '' : '✕'}</button>`).join('')}</div>`}</div>`;
     };
-    const cosGrid = (kind, label, cls) => `<div class="cos-block"><span class="lbl">${label}</span><div class="cos-grid">${(kind === 'badges' ? GL.data.badges : GL.data.cosmetics[kind]).map(it => {
+    // Teile als kleine Kacheln mit Mini-Vorschau der Figur
+    const HATS = { '': 'Ohne', straw: 'Strohhut', band: 'Kopftuch', cap: 'Mütze', hood: 'Kapuze', afro: 'Locken', tophat: 'Zylinder', tricorn: 'Dreispitz', ears: 'Tierohren' };
+    const ACCS = { '': 'Ohne', augenklappe: 'Augenklappe', narbe: 'Narbe', brille: 'Brille', ohrring: 'Ohrring', pfeife: 'Pfeife', blume: 'Blume' };
+    const tiles = (act, key, list, names) => `<div class="pe-tiles">${list.map(id => {
+      const L = id ? lockOf(key + ':' + id) : null, on = (L0[key] || '') === id;
+      const look = Object.assign({}, L0, { [key]: id || undefined });
+      return `<button class="pe-tile${on ? ' on' : ''}${L ? ' locked' : ''}" data-act="${act}" data-v="${id}"${L ? ` disabled title="${esc(GL.meta.reqText(L))}"` : ''}>
+        <i class="pe-mini">${GL.sprites.render({ id: 'self', look })}</i><small>${L ? '🔒 ' : ''}${esc(names[id] || id)}</small></button>`;
+    }).join('')}</div>`;
+    // Kosmetik als Kacheln
+    const cosGrid = (kind, cls) => `<div class="pe-cos">${(kind === 'badges' ? GL.data.badges : GL.data.cosmetics[kind]).map(it => {
       const ok = GL.meta.cosmeticUnlocked(profile, it, vals);
       const on = d.cos[cls] === it.id;
       const prev = kind === 'titles' ? `<b class="cos-title">${esc(it.name)}</b>` : kind === 'badges' ? `<span class="badge-prev">${badgeSvg(it.id) || '–'}</span>`
-        : portrait(d.char.look, Object.assign({}, d.cos, { [cls]: it.id }), 'xs');
-      return `<button class="cos${on ? ' on' : ''}${ok ? '' : ' locked'}${it.rare ? ' rare-item' : ''}" data-act="cos-pick" data-kind="${cls}" data-v="${it.id}"${ok ? '' : ' disabled'} title="${esc(it.name)}${ok ? '' : ': ' + GL.meta.reqText(it)}">
-        ${prev}<small>${ok ? esc(it.name) : '🔒 ' + GL.meta.reqText(it)}</small>${GL.devAll && Object.keys(it.req || {}).length ? `<em class="cos-req">${esc(GL.meta.reqText(it))}</em>` : ''}</button>`;
-    }).join('')}</div></div>`;
+        : portrait(L0, Object.assign({}, d.cos, { [cls]: it.id }), 'xs');
+      return `<button class="pe-ct${on ? ' on' : ''}${ok ? '' : ' locked'}${it.rare ? ' rare-item' : ''}${kind === 'titles' ? ' ttl' : ''}" data-act="cos-pick" data-kind="${cls}" data-v="${it.id}"${ok ? '' : ' disabled'} title="${esc(it.name)}${ok ? '' : ': ' + GL.meta.reqText(it)}">
+        ${prev}${kind === 'titles' ? '' : `<small>${esc(it.name)}</small>`}${ok ? '' : `<em class="pe-req">🔒 ${esc(GL.meta.reqText(it))}</em>`}</button>`;
+    }).join('')}</div>`;
     const def = GL.meta.selfDef(Object.assign({}, profile, { nickname: d.name || 'Pirat', char: d.char }));
-    return `<div class="ts-inner pf-screen wide">
+    const TABS = [['look', 'Aussehen', pxIco('anchor')], ['kampf', 'Kampf', pxIco('swords')], ['stil', 'Stil', pxIco('chest')], ['titel', 'Titel & Flagge', pxIco('coin')]]
+      .concat(profile.nickname ? [['schiff', 'Schiff', pxIco('ship')], ['konto', 'Konto', pxIco('loop')]] : []);
+    const subs = (k, list) => { const cur = ui.editSub && list.some(x => x[0] === ui.editSub) ? ui.editSub : list[0][0];
+      return { cur, html: `<div class="pe-subs">${list.map(([id, n]) => `<button class="sqc-f${cur === id ? ' on' : ''}" data-act="pf-tab" data-v="${k}" data-s="${id}">${n}</button>`).join('')}</div>` }; };
+    let body = '';
+    if (tab === 'look') {
+      const s = subs('look', [['farbe', 'Farben'], ['hut', 'Hut'], ['extra', 'Extras']]);
+      body = s.html + (s.cur === 'farbe' ? `${sw('hair', P.hair)}${sw('skin', P.skin)}${sw('shirt', P.shirt)}${sw('pants', P.pants)}`
+        : s.cur === 'hut' ? `${tiles('char-hat', 'hat', P.hat, HATS)}${L0.hat ? sw('hatColor', P.hatColor) : ''}`
+        : `${P.acc ? tiles('char-acc', 'acc', P.acc, ACCS) : ''}${P.beard ? sw('beard', P.beard, true) : ''}${P.nose ? sw('nose', P.nose, true) : ''}`);
+    } else if (tab === 'kampf') {
+      const big = (act, cur, list, src) => `<div class="pe-big">${list.map(id => { const x = src[id] || {}; const t = (x.tiers || [])[0];
+        return `<button class="pe-bt${cur === id ? ' on' : ''}" data-act="${act}" data-v="${id}"><i>${pxIcon(id, 'lg')}</i><b>${esc(x.name || id)}</b>${act === 'char-type' && x.strong ? `<small>stark gegen ${esc((src[x.strong] || {}).name || '')}</small>` : t ? `<small>${esc(t.text)}</small>` : ''}</button>`; }).join('')}</div>`;
+      body = `<span class="pe-h">Kampfstil</span>${big('char-type', d.char.type, ['kraft', 'klinge', 'technik'], GL.data.types)}
+        <span class="pe-h">Rolle</span>${big('char-role', d.char.role, ['kaempfer', 'brecher', 'helfer'], GL.data.roles)}
+        <p class="pe-note">Dein Pirat ist als Kapitän spielbar und wird mit jedem Piratenrang stärker.</p>`;
+    } else if (tab === 'stil') {
+      const s = subs('stil', [['bg', 'Hintergrund'], ['frame', 'Rahmen'], ['anim', 'Animation']]);
+      body = s.html + cosGrid({ bg: 'backgrounds', frame: 'frames', anim: 'animations' }[s.cur], s.cur);
+    } else if (tab === 'titel') {
+      const s = subs('titel', [['title', 'Titel'], ['flag', 'Flagge'], ['badge', 'Abzeichen']]);
+      body = s.html + cosGrid({ title: 'titles', flag: 'flags', badge: 'badges' }[s.cur], s.cur) + '<p class="pe-note">Alles hier sehen andere in der Rangliste. 🔒 zeigt, was dir noch fehlt.</p>';
+    } else if (tab === 'schiff') {
+      body = shipBlock(profile, vals);
+    } else if (tab === 'konto') {
+      body = accountLine() + dangerZone(ui);
+    }
+    return `<div class="ts-inner pf-screen pf2 wide">
       <div class="pf-card">
-        <span class="event-kicker">${profile.nickname ? 'Dein Pirat' : 'Erstelle deinen Piraten'}</span>
-        <div class="pf-grid">
-          <div class="pf-preview">
-            ${portrait(d.char.look, d.cos, 'xl')}
-            <b class="pf-prev-name">${esc(d.name || 'Dein Name')}</b>
-            <small>${esc(titleName(d.cos.title))}</small>
-            <div class="pf-stats"><span>❤ ${def.hp}</span><span>⚔ ${def.atk}</span><span>➤ ${def.spd}</span></div>
-            <small class="muted">Spielbar als Kapitän. Wird mit jedem Piratenrang stärker.</small>
-          </div>
-          <div class="pf-form">
-            <label for="pf-name">Piratenname</label>
-            <input id="pf-name" maxlength="24" autocomplete="off" placeholder="z. B. Felix der Furchtlose" value="${esc(d.name || '')}">${ui.nameError ? `<p class="login-err">${esc(ui.nameError)}</p>` : ''}
-            <span class="lbl">Kampfstil</span><div class="segs">${opt('char-type', d.char.type, [['kraft', 'Kraft'], ['klinge', 'Klinge'], ['technik', 'Technik']])}</div>
-            <span class="lbl">Rolle</span><div class="segs">${opt('char-role', d.char.role, [['kaempfer', 'Kämpfer'], ['brecher', 'Brecher'], ['helfer', 'Helfer']])}</div>
-            <span class="lbl">Aussehen</span>
-            ${sw('hair', P.hair)}${sw('skin', P.skin)}${sw('shirt', P.shirt)}${sw('pants', P.pants)}
-            <div class="sw-row"><span>Hut</span><div class="segs small">${opt('char-hat', d.char.look.hat || '', P.hat.map(h => [h, hats[h]]), 'hat')}</div></div>
-            ${d.char.look.hat ? sw('hatColor', P.hatColor) : ''}
-            ${P.beard ? swOpt('beard', 'Bart', P.beard) : ''}${P.nose ? swOpt('nose', 'Nase', P.nose) : ''}
-            ${P.acc ? `<div class="sw-row"><span>Extra</span><div class="segs small">${opt('char-acc', d.char.look.acc || '', P.acc.map(a => [a, { '': 'Ohne', augenklappe: 'Augenklappe', narbe: 'Narbe', brille: 'Brille', ohrring: 'Ohrring', pfeife: 'Pfeife', blume: 'Blume' }[a]]), 'acc')}</div></div>` : ''}
+        <div class="pe-head">
+          <div class="pe-port">${portrait(L0, d.cos, 'xl')}</div>
+          <div class="pe-id">
+            <span class="event-kicker">${profile.nickname ? 'Dein Pirat' : 'Erstelle deinen Piraten'}</span>
+            <input id="pf-name" class="pe-name" maxlength="24" autocomplete="off" placeholder="Piratenname" aria-label="Piratenname" value="${esc(d.name || '')}">${ui.nameError ? `<p class="login-err">${esc(ui.nameError)}</p>` : ''}
+            <small class="pe-ttl">${esc(titleName(d.cos.title))}</small>
+            <div class="pe-stats"><span>❤ ${def.hp}</span><span>⚔ ${def.atk}</span><span>➤ ${def.spd}</span><span class="pe-ty">${pxIcon(d.char.type)}${pxIcon(d.char.role)}</span></div>
           </div>
         </div>
-        <div class="cos-all">
-          <p class="hint">Alles hier sehen andere in der Rangliste. 🔒 zeigt, was dir noch fehlt.</p>
-          ${cosGrid('backgrounds', 'Hintergrund', 'bg')}
-          ${cosGrid('frames', 'Rahmen', 'frame')}
-          ${cosGrid('animations', 'Animation', 'anim')}
-          ${cosGrid('titles', 'Titel', 'title')}
-          ${cosGrid('flags', 'Piratenflagge', 'flag')}
-          ${cosGrid('badges', 'Abzeichen', 'badge')}
-        </div>
-        ${profile.nickname ? shipBlock(profile, vals) : ''}
-        <div class="pf-actions">
+        <nav class="pe-tabs n${TABS.length}" role="tablist">${TABS.map(([id, n, ic]) => `<button class="pe-tab${tab === id ? ' on' : ''}" data-act="pf-tab" data-v="${id}" role="tab" aria-selected="${tab === id}">${ic}<span>${n}</span></button>`).join('')}</nav>
+        <div class="pe-body">${body}</div>
+        <div class="pf-actions pe-actions">
           ${profile.nickname ? '<button class="btn ghost" data-act="title-back">Zurück</button>' : ''}
           <button class="btn" data-act="profile-save">${profile.nickname ? 'Speichern' : 'Profil erstellen'} ${keyHint('Enter')}</button>
         </div>
-        ${profile.nickname ? accountLine() + dangerZone(ui) : ''}
       </div>
     </div>`;
   }
@@ -3453,7 +3498,7 @@ window.GL = window.GL || {};
         <div class="hq-grid">${upgrades}</div></section>` : ''}
 
       ${tab === 'profil' ? `<section class="hq-sec">
-        <div class="pf-quick"><button class="btn ghost" data-act="album" data-tab="stats">📊 Statistik</button><button class="btn ghost" data-act="sticker">Sticker</button><button class="btn ghost" data-act="friends-open">♥ Freunde</button></div>
+        <div class="pf-quick"><button class="btn ghost" data-act="album" data-tab="stats">📊 Statistik</button><button class="btn ghost" data-act="sticker">Sticker</button><button class="btn ghost" data-act="friends-open">♥ Freunde</button><button class="btn ghost" data-act="story-book">📖 Story</button></div>
         ${rankHtml}
         <div class="hq-stats">
           <div><b>${profile.stats.runs}</b><span>Runs</span></div>
@@ -3751,6 +3796,7 @@ window.GL = window.GL || {};
 
   GL.ui = {
     dressRoom,
+    storyBook,
     cgArtOf: it => cgArt(it),
     gearTip,
     pxIcon,

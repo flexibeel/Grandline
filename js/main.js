@@ -121,6 +121,20 @@
     if (old && old.dataset.id === 'feedback') return;
     if (old && (old.dataset.id === 'install' || old.dataset.id === 'notes' || old.dataset.id === 'duel' || old.dataset.id === 'gear' || old.dataset.id === 'welcome')) return;
     if (!run && !ui.screen && ui.intro == null && !old && ui.welcomeDue) { ui.welcomeDue = false; openWelcome(); return; }
+    // Story: höchstens ein Kapitel pro Besuch im Hafen (nach jedem Run darf das nächste kommen)
+    if (!run && !ui.screen && ui.intro == null && !old && profile.nickname && GL.story && !GL.story.active() && !ui.storyPending && !ui.storyShown && !document.getElementById('intro-card')) {
+      const ch = GL.story.next(profile);
+      if (ch) {
+        ui.storyPending = true;
+        setTimeout(() => {
+          ui.storyPending = false;
+          if (run || ui.screen || document.getElementById('fpop') || GL.story.active()) return;
+          ui.storyShown = true;
+          GL.story.play(profile, ch.id, () => { saveProfile(); ui.lastStage = null; draw(); });
+        }, 900);
+        return;
+      }
+    }
     if (!run && !ui.screen && ui.intro == null && !old && feedbackDue()) { openFeedback(); return; }
     if (!run && !ui.screen && ui.intro == null && !old && installDue()) { openInstall(); return; }
     if (run || ui.screen || ui.intro != null || !profile.nickname || !GL.meta.featuresNew) { if (old && !ui.fpop) old.remove(); return; }
@@ -428,7 +442,7 @@
     }
     if (!wasFinished && GL.run.isFinished(run)) {
       ui.newBest = GL.save.recordFinished(run);
-      ui.lastBerry = GL.meta.finishRun(profile, run);
+      ui.lastBerry = GL.meta.finishRun(profile, run); ui.storyShown = false;
       ui.lastBond = GL.meta.runBond ? GL.meta.runBond(profile, run) : null;
       (ui.lastBond || []).filter(b => b.up).forEach(b => {
         const d = b.id === 'self' ? null : GL.data.crew.find(c => c.id === b.id);
@@ -920,6 +934,14 @@
           const b = document.querySelector('[data-act=fast]'); if (b) b.innerHTML = GL.ui.speedLabel(anim.speed);
         }
         break;
+      case 'speed':
+        if (anim) {
+          anim.speed = Math.max(1, Math.min(4, Number(el.dataset.v) || 2)); showSpeed();
+          profile.settings = Object.assign({}, profile.settings, { speed: anim.speed }); saveProfile();
+          document.body.classList.toggle('fast', anim.speed >= 3);
+          document.querySelectorAll('.fbar-sp').forEach(b => b.classList.toggle('on', Number(b.dataset.v) === anim.speed));
+        }
+        break;
       case 'skip': if (anim) { clearTimeout(anim.timer); anim.done = true; draw(); } break;
       case 'sail': sail(); break;
       case 'ship-pick': {
@@ -1212,6 +1234,7 @@
       case 'char-type': ui.draft.char.type = el.dataset.v; draw(); break;
       case 'char-role': ui.draft.char.role = el.dataset.v; draw(); break;
       case 'cos-pick': ui.draft.cos[el.dataset.kind] = el.dataset.v; draw(); break;
+      case 'pf-tab': ui.editTab = el.dataset.v; ui.editSub = el.dataset.s || null; ui.lastStage = null; { const t = document.getElementById('title'); if (t) t.dataset.last = ''; } draw(); break;
       case 'profile-save': {
         const inp = document.getElementById('pf-name');
         const name = inp ? inp.value.trim() : '';
@@ -1269,6 +1292,8 @@
         showDress({ uid: null, slot: it ? GL.cgear.slotOf(it) : null }); ui.lastStage = null; draw(); break;
       }
       case 'dr-off': GL.cgear.unequip(profile, el.dataset.id, el.dataset.slot); saveProfile(); showDress({ uid: null }); ui.lastStage = null; draw(); break;
+      case 'story-book': openGearPop(GL.ui.storyBook(profile)); break;
+      case 'story-play': closePop(); setTimeout(() => GL.story.play(profile, el.dataset.id, () => { saveProfile(); }), 300); break;
       case 'bottle': showDress({ send: el.dataset.uid || null }); break;
       case 'bottle-to': {
         const B = GL.cgear.bag(profile), k = B.findIndex(x => x.uid === el.dataset.uid);

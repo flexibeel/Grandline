@@ -110,6 +110,60 @@ window.GL = window.GL || {};
     [/^Vergleich für (.+)$/, 'Compared for $1'], [/^Trägt (.+) gerade$/, '$1 is wearing it'],
     [/^Flaschenpost von (.+)$/, 'Message in a bottle from $1'], [/^🍾 Flaschenpost: (.+) an …$/, '🍾 Bottle: send $1 to …'], [/^(.+) schwimmt zu (.+)\.$/, '$1 is floating to $2.'],
     [/^(.+) hat dir etwas geschickt!$/, '$1 sent you something!'], [/^(\d+) Flaschen sind angespült!$/, '$1 bottles washed ashore!'], [/^von (.+)$/, 'from $1'],
+    // ---- Kampf-Log (fork i18n) ----
+    [/^(.+?) trifft (.+?) für (\d+)( \(kritisch!\))?\.( Sehr effektiv!| Wenig effektiv\.)?(?: (.+) (ist|sind) besiegt\.)?$/, (m, a, t, n, c, e, ko, v) =>
+      `${ACT(a)} hits ${NM(t)} for ${n}${c ? ' (critical!)' : ''}.${e ? (e.includes('Sehr') ? ' Super effective!' : ' Not very effective.') : ''}${ko ? ` ${NM(ko)} ${v === 'ist' ? 'is' : 'are'} defeated.` : ''}`],
+    [/^(.+) greift (.+) an, aber der Impact Dial wehrt ab\.$/, (m, a, b) => `${NM(a)} attacks ${NM(b)}, but the Impact Dial blocks it.`],
+    [/^(.+) weicht (.+) aus\.$/, (m, a, b) => `${NM(a)} dodges ${NM(b)}.`],
+    [/^(.*) entfesselt die Ulti: (.+?)!( Perfekt, alles stärker!| Bonus: (.+)\.)?$/, (m, a, u, x, b) => `${NM(a)} unleashes the Ulti: ${tr(u)}!${x ? (b ? ` Bonus: ${tr(b)}.` : ' Perfect, everything stronger!') : ''}`],
+    [/^Konter! (.+) schlägt sofort zurück: (\d+) Schaden an (.+)\.$/, (m, a, n, b) => `Counter! ${NM(a)} strikes back at once: ${n} damage to ${NM(b)}.`],
+    [/^Kampfwetter: (.+?)\. (.+)$/, (m, a, b) => `Battle weather: ${tr(a)}. ${tr(b)}`],
+    [/^Endphase! (.+) setzt alles auf eine Karte\.$/, (m, a) => `Final phase! ${NM(a)} goes all in.`],
+    [/^(.+) wird wütend: stärker und schneller!$/, (m, a) => `${NM(a)} gets angry: stronger and faster!`],
+    [/^(.+) ist betäubt und setzt aus\.$/, (m, a) => `${NM(a)} is stunned and skips a turn.`],
+    [/^(.+) lässt sich nicht beeindrucken \((.+) abgewehrt\)\.$/, (m, a, s) => `${NM(a)} is not impressed (${tr(s)} blocked).`],
+    [/^(.+) befreit (.+) von (.+)\.$/, (m, a, b, s) => `${NM(a)} frees ${NM(b)} from ${tr(s)}.`],
+    [/^(.*): (.+) (hat|haben) (.+) \((\d+) (Runde|Runden)\)\.$/, (m, a, b, h, s, n) => `${NM(a)}: ${NM(b)} ${h === 'hat' ? 'gets' : 'get'} ${tr(s)} (${n} ${n === '1' ? 'round' : 'rounds'}).`],
+    [/^(.+?) heilt (.+) um (\d+)\.$/, (m, a, b, n) => `${ACT(a)} heals ${NM(b)} by ${n}.`],
+    [/^(.+) steht wieder auf(?: \((.+)\))?!$/, (m, a, s) => `${NM(a)} gets back up${s ? ' (' + tr(s) + ')' : ''}!`],
+    [/^Spezialangriff: (.+)!$/, (m, a) => `Special attack: ${tr(a)}!`],
+    [/^(.+) bremst alle Gegner aus: -(\d+) Tempo\.$/, (m, a, n) => `${NM(a)} slows all enemies: -${n} speed.`],
+    [/^(.+) feuert alle an: \+(\d+) Angriff\.$/, (m, a, n) => `${NM(a)} cheers everyone on: +${n} attack.`],
+    [/^(.+) verwandelt sich und hat jetzt (\d+) Angriff\.$/, (m, a, n) => `${NM(a)} transforms and now has ${n} attack.`],
+    [/^(.+): (alle|selbst) \+(\d+) (Angriff|Rüstung)\.$/, (m, a, w, n, s) => `${NM(a)}: ${w === 'alle' ? 'everyone' : 'self'} +${n} ${s === 'Angriff' ? 'attack' : 'armor'}.`],
+    [/^Die Schiffskanone trifft alle Gegner für (\d+)\.$/, 'The ship cannon hits all enemies for $1.'],
+    // ---- Run, Meldungen, Tooltips ----
+    [/^Auf (.+) sind$/, (m, a) => `${NM(a)} has`],
+    [/^ausgesetzt\. Sieg: Das Kopfgeld geht an deinen Kapitän, dazu ein Schatz\.$/, 'on their head. Win: the bounty goes to your captain, plus a treasure.'],
+    [/^für (.+)$/, (m, a) => `for ${NM(a)}`],
+    [/^Neu für dein Profil: (Hintergrund|Rahmen|Animation|Titel|Flagge|Abzeichen) „(.+)“$/, (m, k, n) => `New for your profile: ${({ Hintergrund: 'background', Rahmen: 'frame', Animation: 'animation', Titel: 'title', Flagge: 'flag', Abzeichen: 'badge' })[k]} “${tr(n)}”`],
+    [/^Automatisch angelegt bei (.+)\. Antippen einer Figur hängt um\.$/, (m, a) => `Auto-equipped on ${NM(a)}. Tap a crew member to move it.`],
+    [/^(Gewöhnlich|Selten|Episch|Legendär) und damit stärker als die anderen Angebote\.$/, (m, r) => `${tr(r)}, so stronger than the other offers.`],
+    [/^(Gewöhnlich|Selten|Episch|Legendär|Einzigartig): (.+)$/, (m, r, n) => `${tr(r)}: ${tr(n)}`],
+    [/^(.+) hat trainiert!$/, (m, a) => `${NM(a)} trained!`],
+    [/^danach noch (\d+) weitere?$/, 'then $1 more'],
+    [/^(\d+) Schatz$/, '$1 treasure'], [/^(\d+) Schätze$/, '$1 treasures'],
+    [/^Auftrag erfüllt: (\S+) (.+)$/, (m, i, q) => `Quest done: ${i} ${tr(q)}`],
+    [/^(.+) \((\d+)\/(\d+)\)$/, (m, a, x, y) => { const t = tr(a); return t === a ? m : `${t} (${x}/${y})`; }],
+    [/^(.+): Bande\. Mehrere Figuren derselben Bande geben einen Set-Bonus\.$/, (m, a) => `${tr(a)}: gang. Several members of the same gang give a set bonus.`],
+    [/^(.+) \(Set-Bonus\)$/, (m, a) => `${tr(a)} (set bonus)`],
+    [/^· (\d+): (.+)$/, (m, n, t) => { const x = tr(t); return x === t ? m : `· ${n}: ${x}`; }],
+    [/^Ab (\d+): (.+)$/, (m, n, t) => { const x = tr(t); return x === t ? m : `From ${n}: ${x}`; }],
+    [/^(.+): (Kämpfer|Brecher|Helfer), Level (\d+), (\d+)\/(\d+) Leben(?:, (\d+) Statuspunkte offen)?$/, (m, a, r, l, h, mx, p) => `${NM(a)}: ${tr(r)}, level ${l}, ${h}/${mx} HP${p ? `, ${p} stat points open` : ''}`],
+    [/^Angriff (\d+)$/, 'Attack $1'], [/^Tempo (\d+)$/, 'Speed $1'], [/^HP (\d+)\/(\d+)$/, 'HP $1/$2'],
+    [/^(\d+) Leben$/, '$1 HP'], [/^(\d+) Angriff$/, '$1 attack'], [/^(\d+) Tempo$/, '$1 speed'],
+    [/^Leben (\d+), Angriff (\d+), Tempo (\d+)$/, 'HP $1, attack $2, speed $3'],
+    [/^(.+) · Lv (\d+)$/, (m, a, n) => `${tr(a)} · Lv ${n}`],
+    [/^Lv (\d+) · wähle ein Training(?: · danach noch (\d+) weitere?)?$/, (m, l, n) => `Lv ${l} · pick a training${n ? ` · then ${n} more` : ''}`],
+    [/^Auf (.+) soll (?:ein|eine) (.+) leben$/, (m, i, p) => `A ${tr(p)} is said to live on ${tr(i)}`],
+    [/^Schaltet frei: (.+)$/, (m, a) => `Unlocks: ${tr(a)}`],
+    [/^Kopfgeld-Ziel: (.+?) \((.+?)\): ([^:]+): (.+)$/, (m, a, b, n, t) => `Bounty target: ${NM(a)} (${b}): ${tr(n)}: ${tr(t)}`],
+    [/^Bösewicht der Insel: (.+?) \((.+?)\): ([^:]+): (.+)$/, (m, a, b, n, t) => `Island villain: ${NM(a)} (${b}): ${tr(n)}: ${tr(t)}`],
+    [/^Inselboss: (.+?): (.+?) kämpft mit (\S+), schwach gegen (\S+)\. ([^:]+): (.+)$/, (m, a, b, s1, s2, n, t) => `Island boss: ${NM(a)}: ${NM(b)} fights with ${tr(s1)}, weak against ${tr(s2)}. ${tr(n)}: ${tr(t)}`],
+    [/^Schatz gefunden: (.+) \((.+)\)$/, (m, a, r) => `Treasure found: ${tr(a)} (${tr(r)})`],
+    [/^(.+) wird wütend!$/, (m, a) => `${NM(a)} gets angry!`],
+    [/^(.+) setzt alles auf eine Karte!$/, (m, a) => `${NM(a)} goes all in!`],
+    [/^([^,:]+), ([^,:]+):$/, (m, a, b) => `${NM(a)}, ${tr(b)}:`],
     [/^Tauschen für (\d+) Gold$/, 'Swap for $1 gold'],
     [/^Zu wenig Gold \((\d+)\)$/, 'Not enough gold ($1)'],
     [/^Stärker als (.+)$/, 'Stronger than $1'], [/^Schwächer als (.+)$/, 'Weaker than $1'], [/^Etwa gleich stark wie (.+)$/, 'About as strong as $1'],
@@ -161,26 +215,26 @@ window.GL = window.GL || {};
     [/^(\d+) Kämpfe Seite an Seite$/, '$1 fights side by side'],
     [/^(\d+) Gegner umgehauen$/, '$1 enemies knocked out'],
     [/^Härtester Treffer: (\d+)$/, 'Hardest hit: $1'],
-    [/^Vertrautheit wächst, wenn (.+) in Runs, Duellen oder beim Landgang dabei ist\.$/, 'Bond grows when $1 joins runs, duels or shore leave.'],
-    [/^Nächstes Mal schaffen wir (.+)\.$/, 'Next time we’ll beat $1.'],
-    [/^(.+)\? Den hau ich beim nächsten Mal um!$/, '$1? I’ll knock him down next time!'],
-    [/^(.+)… das nächste Mal schneide ich ihn\.$/, '$1… next time I’ll cut him.'],
-    [/^(.+) schuldet mir jetzt was\. Viel\.$/, '$1 owes me now. A lot.'],
-    [/^(.+) hatte nur Glück\. Wirklich!$/, '$1 just got lucky. Really!'],
-    [/^(.+)… und das vor den Damen\. Unverzeihlich\.$/, '$1… in front of the ladies. Unforgivable.'],
-    [/^Wir haben viel über (.+) gelernt\.$/, 'We learned a lot about $1.'],
-    [/^Gegen (.+) brauchen wir einen besseren Plan\.$/, 'Against $1 we need a better plan.'],
-    [/^(.+) kriegt beim nächsten Mal eine Kopfnuss\.$/, '$1 gets a knuckle sandwich next time.'],
-    [/^Das verzeihe ich (.+) nie\.$/, 'I will never forgive $1.'],
-    [/^Beim nächsten Mal mach ich (.+) platt\.$/, 'Next time I flatten $1.'],
-    [/^(.+) hat hart zugeschlagen\. Ich halte mehr aus\.$/, '$1 hit hard. I can take more.'],
+    [/^Vertrautheit wächst, wenn (.+) in Runs, Duellen oder beim Landgang dabei ist\.$/, (m, a) => 'Bond grows when ' + NM(a) + ' joins runs, duels or shore leave.'],
+    [/^Nächstes Mal schaffen wir (.+)\.$/, (m, a) => 'Next time we’ll beat ' + NM(a) + '.'],
+    [/^(.+)\? Den hau ich beim nächsten Mal um!$/, (m, a) => NM(a) + '? I’ll knock him down next time!'],
+    [/^(.+)… das nächste Mal schneide ich ihn\.$/, (m, a) => NM(a) + '… next time I’ll cut him.'],
+    [/^(.+) schuldet mir jetzt was\. Viel\.$/, (m, a) => NM(a) + ' owes me now. A lot.'],
+    [/^(.+) hatte nur Glück\. Wirklich!$/, (m, a) => NM(a) + ' just got lucky. Really!'],
+    [/^(.+)… und das vor den Damen\. Unverzeihlich\.$/, (m, a) => NM(a) + '… in front of the ladies. Unforgivable.'],
+    [/^Wir haben viel über (.+) gelernt\.$/, (m, a) => 'We learned a lot about ' + NM(a) + '.'],
+    [/^Gegen (.+) brauchen wir einen besseren Plan\.$/, (m, a) => 'Against ' + NM(a) + ' we need a better plan.'],
+    [/^(.+) kriegt beim nächsten Mal eine Kopfnuss\.$/, (m, a) => NM(a) + ' gets a knuckle sandwich next time.'],
+    [/^Das verzeihe ich (.+) nie\.$/, (m, a) => 'I will never forgive ' + NM(a) + '.'],
+    [/^Beim nächsten Mal mach ich (.+) platt\.$/, (m, a) => 'Next time I flatten ' + NM(a) + '.'],
+    [/^(.+) hat hart zugeschlagen\. Ich halte mehr aus\.$/, (m, a) => NM(a) + ' hit hard. I can take more.'],
     [/^(\d+) Piraten? aus der Rangliste$/, '$1 pirates from the leaderboard'],
     [/^(\d+) Piraten? waren? schon dort\. Jetzt du!$/, '$1 pirates have been there. Your turn!'],
     [/^Schon dort: (.+)$/, 'Already there: $1'],
     [/^(\d+) Inseln$/, '$1 islands'],
     [/^(\d+)\. Meer$/, 'Sea $1'],
     [/^Sammelalbum · Stufe (\d+)$/, 'Collection album · Tier $1'],
-    [/^Lebt auf (.+)\. Besiege dort Bösewicht oder Boss, mit etwas Glück kommt das Tier an Bord\.$/, 'Lives on $1. Beat the villain or boss there and with a bit of luck it hops aboard.'],
+    [/^Lebt auf (.+)\. Besiege dort Bösewicht oder Boss, mit etwas Glück kommt das Tier an Bord\.$/, (m, a) => 'Lives on ' + tr(a) + '. Beat the villain or boss there and with a bit of luck it hops aboard.'],
     [/^Stufe (\d+): (\d+) Entdeckungen · Begleiter (.+)$/, 'Tier $1: $2 discoveries · Companion $3'],
     [/^Stufe (\d+): (\d+) Entdeckungen · (\d+) Berry$/, 'Tier $1: $2 discoveries · $3 Berry'],
     [/^\+(\d+) Berry fürs fleißige Entdecken\.$/, '+$1 Berry for all that exploring.'],
@@ -222,12 +276,63 @@ window.GL = window.GL || {};
         'Die Grand Line ruft.': 'The Grand Line is calling.', 'Perfektes Wetter zum Segeln.': 'Perfect sailing weather.', 'Das Schiff ist startklar.': 'The ship is ready.',
         'Noch eine Fahrt vorm Essen?': 'One more voyage before dinner?', 'Das Abendrot färbt das Meer.': 'The sunset paints the sea.', 'Die Laternen sind an.': 'The lanterns are lit.',
         'Eine Nachtfahrt geht immer.': 'There is always time for a night voyage.', 'Die Crew schnarcht schon.': 'The crew is already snoring.', 'Die Sterne zeigen den Weg.': 'The stars show the way.' };
-      return `${H[hi]}, ${n}${p} ${L[rest] || rest}`; }],
+      return `${H[hi]}, ${tr(n)}${p} ${L[rest] || rest}`; }],
     [/^(\d+) von (\d+) entdeckt\. (\d+) Runs? gespielt, (\d+) gewonnen\.$/, '$1 of $2 discovered. $3 runs played, $4 won.'],
     [/^🏅 Titel freigeschaltet:?$/, '🏅 Title unlocked:'],
-    [/^🏅 Bei Vertraut 10:?$/, '🏅 At bond 10:']
+    [/^🏅 Bei Vertraut 10:?$/, '🏅 At bond 10:'],
+    // ---- Allgemeine Rückfälle ganz am Ende (greifen nur, wenn wirklich etwas übersetzt wurde) ----
+    [/^🔒 (.+)$/, (m, a) => { const r = REQ(a); return r ? '🔒 ' + r : m; }],
+    [/^(\d+ .+|Rang \d+.*|Vertraut \d+ mit .+)$/, m => REQ(m) || m],
+    [/^✦ (.+)$/, (m, a) => '✦ ' + tr(a)],
+    [/^([^!]+)!$/, (m, a) => { const t = tr(a); return t === a ? m : t + '!'; }],
+    [/^(\d+) von (\d+) Sternen$/, '$1 of $2 stars'],
+    [/^(\d+) Schaden$/, '$1 damage'],
+    [/^(\d+) dabei$/, '$1 in crew'],
+    [/^([^:]+): (.+)$/, (m, a, b) => { const r = REQ(b); if (r) return `${tr(a)}: ${r}`; const ta = tr(a), tb = tr(b); return tb !== b && !/[äöüßÄÖÜ]/.test(ta) ? `${ta}: ${tb}` : m; }]
   ];
   const cache = new Map();
+  // Vorlagen mit Platzhaltern ({n}, {v}, {a} …) aus dem Wörterbuch: "Ganze Crew startet mit +{v} Leben." passt auf "+3"
+  let TPL = null, tplN = -1;
+  function fromTemplate(core) {
+    const X = (GL.data && GL.data.en) || {};
+    const keys = Object.keys(X);
+    if (!TPL || tplN !== keys.length) {
+      tplN = keys.length;
+      TPL = keys.concat(Object.keys(D)).filter(k => /\{[a-z]\}/.test(k)).map(k => {
+        const names = [];
+        const src = k.replace(/[.*+?^$()|[\]\\]/g, '\\$&').replace(/\\?\{([a-z])\\?\}/g, (m, n) => { names.push(n); return '([+\\-−]?[\\d.,…]+(?: %)?)'; });
+        try { return { re: new RegExp('^' + src + '$'), names, en: X[k] != null ? X[k] : D[k] }; } catch (e) { return null; }
+      }).filter(Boolean);
+    }
+    for (const t of TPL) {
+      const m = core.match(t.re);
+      if (m) { let o = t.en; t.names.forEach((n, i) => { o = o.split('{' + n + '}').join(m[i + 1]); }); return o; }
+    }
+    return null;
+  }
+  // Namen in Sätzen (Kampf-Log): "Hatchan und Riesenkrabbe" -> "Hatchan and Giant crab"
+  const NM = s => String(s).split(' und ').map(x => tr(x.trim())).join(' and ');
+  // Akteur mit Fähigkeit in Klammern: "Cabaji (Feuer-Akrobatik)"
+  const ACT = s => { const m = String(s).match(/^(.+) \((.+)\)$/); return m ? NM(m[1]) + ' (' + tr(m[2]) + ')' : NM(s); };
+  // Freischalt-Bedingungen (Kosmetik, Titel): "12 Inselbosse besiegt, 15 Runs"
+  const REQL = { 'Runs': 'runs', 'Siege': 'wins', 'K.o.s': 'K.O.s', 'Schaden mit einem Schlag': 'damage in one hit', 'Inselbosse besiegt': 'island bosses defeated',
+    'Kopfgeld-Ziele besiegt': 'bounty targets defeated', 'Raids gewonnen': 'raids won', 'Artefakte gefunden': 'artifacts found', 'Meer erreicht': 'sea reached',
+    'verschiedene Inseln besucht': 'different islands visited', 'Stammcrew-Duelle gewonnen': 'home crew duels won', 'Aufträge erledigt': 'quests done',
+    'Prestige-Stufe': 'prestige level', 'Freund eingeladen': 'friend(s) invited' };
+  function REQ(s) {
+    const out = String(s).split(', ').map(x => {
+      let m;
+      if (x === 'frei') return 'free';
+      if ((m = x.match(/^Rang (\d+)$/))) return 'Rank ' + m[1];
+      if ((m = x.match(/^Kopfgeld-Stufe (\d+)$/))) return 'Bounty tier ' + m[1];
+      if ((m = x.match(/^Vertraut (\d+) mit (.+)$/))) return 'Bond ' + m[1] + ' with ' + tr(m[2]);
+      if ((m = x.match(/^(\d+) Figuren mit Vertraut (\d+)$/))) return m[1] + ' members at bond ' + m[2];
+      if ((m = x.match(/^(.+) erreichen$/))) return 'reach ' + tr(m[1]);
+      if ((m = x.match(/^(\d+) (.+)$/)) && REQL[m[2]]) return m[1] + ' ' + REQL[m[2]];
+      return null;
+    });
+    return out.some(x => x == null) ? null : out.join(', ');
+  }
   function tr(text) {
     if (lang === 'de' || !text) return text;
     if (cache.has(text)) return cache.get(text);
@@ -236,7 +341,8 @@ window.GL = window.GL || {};
     const X = GL.data && GL.data.en;
     if (D[core] != null) out = D[core];
     else if (X && X[core] != null) out = X[core];
-    else for (const [re, rep] of P) { if (re.test(core)) { out = core.replace(re, rep); break; } }
+    else for (const [re, rep] of P) { if (re.test(core)) { const o = core.replace(re, rep); if (o !== core) { out = o; break; } } }
+    if (out == null) out = fromTemplate(core);
     if (out == null && core.includes(' · ')) { const parts = core.split(' · '); const t = parts.map(x => tr(x)); if (t.some((x, i) => x !== parts[i])) out = t.join(' · '); }
     const res = out == null ? text : lead + out + trail;
     if (cache.size < 5000) cache.set(text, res);

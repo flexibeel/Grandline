@@ -116,5 +116,22 @@ window.GL = window.GL || {};
   ['pointerdown', 'touchend', 'keydown'].forEach(e => window.addEventListener(e, unlock, { passive: true }));
   document.addEventListener('visibilitychange', () => { if (ctx) { if (document.hidden) ctx.suspend().catch(() => {}); else if (on) ctx.resume().catch(() => {}); } });
 
-  GL.sfx = { play, battle, toggle, isOn: () => on };
+  // Stimmen wie in Stardew: kurze, weiche Silben-Töne, jede Figur mit eigener Tonlage und Klangfarbe
+  const VOICES = {
+    self: [330, 'triangle'], ruffy: [392, 'square'], zorro: [196, 'triangle'], nami: [523, 'sine'], lysop: [440, 'square'],
+    sanji: [262, 'sine'], chopper: [659, 'triangle'], robin: [294, 'sine'], franky: [175, 'square'], brook: [247, 'sine'], kalle: [784, 'square']
+  };
+  let lastVoice = 0;
+  function voice(who, ch) {
+    const c = ready(); if (!c) return;
+    const now = c.currentTime;
+    if (now - lastVoice < 0.055) return;   // nicht bei jedem Buchstaben, sonst rattert es
+    lastVoice = now;
+    const v = VOICES[who] || VOICES.self;
+    const code = String(ch || 'a').toLowerCase().charCodeAt(0) || 97;
+    const steps = [0, 2, 4, 5, 7, 9];
+    const f = v[0] * Math.pow(2, steps[code % steps.length] / 12);
+    tone(f, f * 0.94, 0.07, v[1], v[1] === 'square' ? 0.05 : 0.09);
+  }
+  GL.sfx = { play, battle, toggle, voice, isOn: () => on };
 })();

@@ -94,9 +94,9 @@ alter table public.scores add constraint gl_scores_size check (pg_column_size(da
 -- 5) Entwickler-Stern (★ Entwickler) nur für Felix' Konto, alle anderen verlieren ihn beim Speichern
 create or replace function public.gl_scores_star() returns trigger language plpgsql security definer set search_path = public, auth as $$
 begin
-  if new.data ? 'cos' and coalesce((new.data->'cos'->>'star')::text, '') not in ('', 'false', 'null') then
+  if coalesce(new.data::jsonb->'cos'->>'star', '') not in ('', 'false', 'null') then
     if coalesce((select email from auth.users where id::text = new.id::text), '') !~* '^westerhol[dt]\.felix@gmail\.com$' then
-      new.data := jsonb_set(new.data, '{cos,star}', 'false'::jsonb);
+      new.data := jsonb_set(new.data::jsonb, '{cos,star}', 'false'::jsonb);
     end if;
   end if;
   return new;
@@ -104,8 +104,8 @@ end $$;
 drop trigger if exists gl_scores_star on public.scores;
 create trigger gl_scores_star before insert or update on public.scores for each row execute function public.gl_scores_star();
 -- Bestehende falsche Sterne entfernen
-update public.scores s set data = jsonb_set(s.data, '{cos,star}', 'false'::jsonb)
- where s.data ? 'cos' and coalesce(s.data->'cos'->>'star', '') not in ('', 'false', 'null')
+update public.scores s set data = jsonb_set(s.data::jsonb, '{cos,star}', 'false'::jsonb)
+ where coalesce(s.data::jsonb->'cos'->>'star', '') not in ('', 'false', 'null')
    and coalesce((select email from auth.users u where u.id::text = s.id::text), '') !~* '^westerhol[dt]\.felix@gmail\.com$';
 
 -- Kontrolle zum Schluss: alle Regeln auf einen Blick (diese Tabelle bitte an Claude schicken)

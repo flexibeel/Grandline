@@ -1,6 +1,14 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-19a', date: '18.10.', title: 'Story: Das Rezept vom Ende der Welt', items: [
+    'Neu: eine Story in 8 Kapiteln. Kleine Szenen mit deiner Crew, Sprechblasen und eigenen Stimmen für jede Figur (wie bei Stardew). Mit deinem Fortschritt kommt das nächste Kapitel, höchstens eins pro Besuch im Hafen',
+    'Im Kapitänsbuch unter „📖 Story“ siehst du alle Kapitel, kannst gesehene nochmal abspielen und siehst, wann das nächste kommt',
+    'Profil bearbeiten neu: großes Vorschaubild oben, Bereiche als Reiter (Aussehen, Kampf, Stil, Titel & Flagge, Schiff, Konto), Farben als runde Knöpfe, gesperrte Sachen mit Hinweis, wie man sie bekommt',
+    'Seekarte im Run als Schatzkarte auf Pergament, viel kompakter: schon gesegelte Etappen fallen weg, am Handy ohne Scrollen',
+    'Neue Reiseleiste oben: ein Tau mit Inseln und Flaggen, dein Schiff zeigt, wo du gerade bist',
+    'Kampf: Tempo jetzt als vier feste Stufen und „Überspringen“ immer am selben Platz. Nichts springt mehr herum',
+    'Sicherheit: Daten anderer Spieler (Rangliste, Duelle, Flaschenpost) werden jetzt geprüft, bevor sie angezeigt werden' ] },
   { v: '2026-10-18z', date: '18.10.', title: 'Feinschliff', items: [
     'Jedes Fenster hat jetzt oben rechts einen richtigen ✕-Knopf, der beim Scrollen mitwandert. Lange Fenster (z. B. Steckbrief) scrollen am Handy in sich, so kommst du immer schnell raus',
     'Englisch: viele Texte im Run, in Kämpfen und bei Belohnungen übersetzt' ] },
