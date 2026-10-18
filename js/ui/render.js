@@ -1136,6 +1136,9 @@ window.GL = window.GL || {};
     if (tw) out.push({ k: 'twist', icon: tw.icon, kick: en ? 'On this island' : 'Auf dieser Insel', name: en && tw.en ? tw.en[0] : tw.name, text: en && tw.en ? tw.en[1] : tw.text, raw: !!(en && tw.en) });
     const ep = run.epi && run.epi.part ? (GL.data.crewEpisodes || []).find(e => e.id === run.epi.id) : null;
     if (ep) out.push({ k: 'ep', icon: '📜', kick: en ? 'Episode' : 'Folge', name: (en ? ep.title[1] : ep.title[0]) + ' (' + Math.min(3, run.epi.part) + '/3)', text: en ? 'Your choices pay off before the villain.' : 'Deine Entscheidungen zahlen sich vor dem Bösewicht aus.', raw: true });
+    if (run.risk && GL.run.riskOf) { const R = GL.run.riskOf(run), P = v => Math.round(v * 100);
+      out.push({ k: 'risk', icon: run.risk >= 2 ? '🌶' : '🧭', kick: en ? 'Your course' : 'Dein Kurs', name: run.risk >= 2 ? (en ? 'Rough island' : 'Ungemütliche Insel') : (en ? 'Lively island' : 'Ordentlich was los'),
+        text: en ? `Foes +${P(R.foe)} %, gold and bounty +${P(R.gold)} %${R.drop ? ', the villain often drops an extra treasure' : ''}.` : `Gegner +${P(R.foe)} %, Gold und Kopfgeld +${P(R.gold)} %${R.drop ? ', der Bösewicht lässt oft einen Extra-Schatz fallen' : ''}.`, raw: true }); }
     (run.epTemp || []).forEach(x => out.push({ k: 'temp', icon: x.value > 0 ? '▲' : '▼', kick: en ? 'Until the end of the island' : 'Bis zum Ende der Insel', name: (x.value > 0 ? '+' : '') + x.value + ' ' + ({ atk: en ? 'attack' : 'Angriff', hp: en ? 'health' : 'Leben', spd: en ? 'speed' : 'Tempo' }[x.stat] || x.stat), text: en ? 'For the whole crew.' : 'Für die ganze Crew.', raw: true, bad: x.value < 0 }));
     return out;
   }
@@ -2025,7 +2028,7 @@ window.GL = window.GL || {};
           return `${e.wave === 2 && !(foes[i - 1] && foes[i - 1].wave === 2) ? '<span class="pv-wsep" aria-hidden="true">Welle 2</span>' : ''}<div class="pv-u foe${e.boss ? ' boss' : ''}${fk ? ' special' : ''}${e.wave === 2 ? ' w2' : ''}${e.elite2 ? ' elite2' : ''}${i === 0 ? ' is-front' : ''}" tabindex="0"
               data-tip="${esc(`${d.name}\n${e.hp} Leben · ${e.atk} Angriff${fk ? '\n' + fk.text : ''}${!fk && !e.boss && ability(e.id) ? '\n' + ability(e.id).name + ': ' + ability(e.id).text : ''}`)}">
             ${i === 0 ? '<i class="pv-front" aria-hidden="true"></i>' : ''}
-            ${boss && !e.boss && !e.mini && e.wave !== 2 && foes.indexOf(boss) > i ? `<i class="pv-guard" aria-hidden="true" title="Schützt den Anführer">${PX_GUARD}</i>` : ''}${(e.boss || e.mini) && i > 0 ? '<i class="pv-lead" aria-hidden="true">★</i>' : ''}
+            ${boss && !e.boss && !e.mini && e.wave !== 2 && foes.indexOf(boss) > i ? `<i class="pv-guard" aria-hidden="true" title="Schützt den Anführer">${PX_GUARD}</i>` : ''}${(e.boss || e.mini) && i > 0 ? '<i class="pv-lead" aria-hidden="true">★</i>' : ''}${GL.arena && GL.arena.intentHtml ? GL.arena.intentHtml(e, foes, {}, 'pv-int') : ''}
             <span class="pv-s">${GL.sprites.render(d)}</span>
             ${fk ? `<em class="pv-m fk fk-${fk.key}">${fk.tag}</em>` : !e.boss && !e.mini && ability(e.id) && d.art ? `<em class="pv-m fk">${esc(ability(e.id).name)}</em>` : ''}
             <i class="pv-hp"><b style="width:100%"></b></i>
@@ -2164,7 +2167,16 @@ window.GL = window.GL || {};
           const name = d ? esc(d.name) : 'ein Gegner';
           const txt = pct != null && pct <= 30 && pct > 0 ? `Beinahe: ${name} hatte nur noch ${pct} % Leben.`
             : pct != null && pct > 0 ? `${name} stand am Ende noch mit ${pct} % Leben da.` : `Endstation: ${name}.`;
-          return `<p class="ux-why"><span>Daran bist du gescheitert</span><b>${txt}</b></p>`;
+          // INT: Was hat die Gegner-KI getan? Das auffälligste Muster mit Symbol und kurzem Rat
+          const ev = b.events || [];
+          const heals = ev.filter(x => x.k === 'heal' && x.side === 'enemy' && x.by !== e.id && (x.list || []).some(y => y.to === k && y.amount > 0)).length;
+          const heavy = ev.filter(x => x.heavy && !x.miss && x.side === 'enemy').length;
+          const call = ev.some(x => x.ai === 'call');
+          const ico = key => GL.arena && GL.arena.intentIcon ? `<i class="int-i int-${key}">${GL.arena.intentIcon(key)}</i>` : '';
+          const lesson = heals >= 2 ? `${ico('heal')}Der Heiler hat ${name} ${heals}× geflickt. Nächstes Mal: Heiler zuerst.`
+            : heavy >= 2 ? `${ico('wind')}${heavy} schwere Schläge eingesteckt. Ausweichen und Rüstung helfen doppelt.`
+            : call ? `${ico('call')}${name} hat Verstärkung gepfiffen. Mehr Schaden, bevor er wütend wird.` : '';
+          return `<p class="ux-why"><span>Daran bist du gescheitert</span><b>${txt}</b>${lesson ? `<small class="int-lesson">${lesson}</small>` : ''}</p>`;
         })();
         const uxNext = (() => {
           if (bdE && bdE.next) { const n = Math.max(1, bdE.next.n - bdE.count); return `noch ${n} ${esc(bdE.label)}-${n === 1 ? 'Figur' : 'Figuren'} für ${esc(bdE.name)} ${'★'.repeat(bdE.tier + 1)}`; }
@@ -3182,6 +3194,20 @@ window.GL = window.GL || {};
         <span><small>Sammelalbum · Stufe ${st.reached + 1}</small><b>Noch ${st.left} ${st.left === 1 ? 'Entdeckung' : 'Entdeckungen'} bis ${rew}</b>
         <i class="hook-bar"><i style="width:${Math.round(100 * st.ac.have / Math.max(1, st.need))}%"></i></i></span></button>` : '';
     return rumor || book ? `<div class="hook-box pxf">${rumor}${book}</div>` : '';
+  }
+  // UX2: Logbuch und Hafengerücht in einem Rahmen. Erste Logbuch-Zeile sichtbar, der Rest klappt auf.
+  function harborNews(profile) {
+    const log = GL.social ? GL.social.logbook(profile) : '';
+    const hook = hookLines(profile);
+    if (!log) return hook;
+    const parts = log.split('<div class="soc-row">');
+    let head = parts[0], rows = parts.slice(1).map(r => '<div class="soc-row">' + r);
+    // letztes Stück enthält das schließende </div> des Logbuch-Rahmens
+    const last = rows.length ? rows[rows.length - 1] : '';
+    if (rows.length) rows[rows.length - 1] = last.replace(/<\/div>\s*$/, '');
+    const more = rows.length > 1 ? `<details class="soc-more"><summary>+${rows.length - 1}</summary>${rows.slice(1).join('')}</details>` : '';
+    const hookInner = hook ? hook.replace(/^<div class="hook-box pxf">/, '').replace(/<\/div>\s*$/, '') : '';
+    return `${head}${rows[0] || ''}${more}${hookInner ? `<div class="soc-hook">${hookInner}</div>` : ''}</div>`;
   }
   // Crew-Leben: ein Satz einer Figur (Hafen, Sieg, Niederlage). Wechselt alle 10 Minuten bzw. pro Run
   function lifeLine(profile, id, kind, vars) {
@@ -4442,10 +4468,12 @@ window.GL = window.GL || {};
     { id: 'profil', name: 'Kapitänsbuch', art: 'scroll', sub: () => 'Rang, Code, Konto' }
   ];
   const roomArt = a => a === 'ship' ? GL.sprites.ship() : featureArt(a);
+  // UX2: kurze Namen für die kleinen Handy-Kacheln
+  const HUB_SHORT = { gemeinschaft: 'Koop', gemuet: 'Skills', kammer: 'Kammer', profil: 'Kapitän', stammcrew: 'Crew' };
   function hubTiles(profile, tab) {
     const open = ROOMS.filter(r => GL.meta.featureOpen(profile, r.id));
     return `<nav class="hub" aria-label="Räume im Hauptquartier"><span class="hub-lbl">Im Hafen</span><div class="hub-grid">${open.map(r =>
-      `<button class="hub-tile" data-act="hq-tab" data-tab="${r.id}"><i class="hub-art">${roomArt(r.art)}</i><b>${r.name}</b>${r.sub(profile) ? `<small>${r.sub(profile)}</small>` : ''}${tabAlert(profile, r.id) ? '<i class="tab-dot" title="Hier gibt es etwas zu tun"></i>' : ''}</button>`).join('')}</div></nav>`;
+      `<button class="hub-tile" data-act="hq-tab" data-tab="${r.id}"><i class="hub-art">${roomArt(r.art)}</i><b class="ht-l">${r.name}</b><b class="ht-s">${HUB_SHORT[r.id] || r.name}</b>${r.sub(profile) ? `<small>${r.sub(profile)}</small>` : ''}${tabAlert(profile, r.id) ? '<i class="tab-dot" title="Hier gibt es etwas zu tun"></i>' : ''}</button>`).join('')}</div></nav>`;
   }
   // Räume, die zusammengehören: oben als Umschalter (wie Tabs in einer App)
   const ROOM_GROUPS = { crew: ['stammcrew', 'schmiede', 'lager', 'kammer'], hafen: ['werft', 'gemuet', 'haendler'] };
@@ -4621,20 +4649,19 @@ window.GL = window.GL || {};
           <div class="ss-dock"><span class="ss-lamp"></span>${crew.map(fig).join('')}${(() => { const a = cosOf(profile).pet; return a && petDef(a) ? `<i class="ss-mate ss-buddy">${petArt(a)}</i>` : ''; })()}</div>
           <span class="ss-title">${uiRef && uiRef.peek ? 'Dein Run läuft noch' : esc(greeting(profile, t))}</span>
         </div>`; })()}
-        ${atSeaBox()}${uiRef && uiRef.peek ? '' : (GL.season ? GL.season.banner(profile) : '')}
+        ${uiRef && uiRef.peek ? atSeaBox() : (GL.season ? GL.season.banner(profile) : '')}
         ${uiRef && uiRef.peek ? `<small class="sail-note">Oben links geht es zurück zum Run.</small>` : `
         <div class="sail-row">
           <button class="btn sail" data-act="sail">${pxIco('ship')}Leinen los! ${keyHint('Leertaste')}</button>
         </div>
         ${GL.worldmap ? GL.worldmap.goalCard(profile) : ''}${actionDock(profile)}
-        <div class="sail-meta">${heatBox}${board.length ? `<span class="sail-board"><span class="sb-lbl">An Bord</span>${board.join('')}</span>` : ''}${buddyChip(profile)}</div>`}
+        <div class="sail-meta">${atSeaBox()}${heatBox}${board.length ? `<span class="sail-board"><span class="sb-lbl">An Bord</span>${board.join('')}</span>` : ''}${buddyChip(profile)}</div>`}
       </div>`}
 
       ${room ? roomHead(profile, tab) : hubTiles(profile, tab)}
       ${room ? '' : featureNextLine(profile)}
       ${room || (uiRef && uiRef.peek) ? '' : goalList(profile, 2).replace('goal-box pxf', 'goal-box pxf hq-goals')}
-      ${room || (uiRef && uiRef.peek) || !GL.social ? '' : GL.social.logbook(profile)}
-      ${room || (uiRef && uiRef.peek) ? '' : hookLines(profile)}
+      ${room || (uiRef && uiRef.peek) ? '' : harborNews(profile)}
 
       ${!room ? '' : `
       ${tab === 'werft' ? `<section class="hq-sec">

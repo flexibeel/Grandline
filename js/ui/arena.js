@@ -15,6 +15,50 @@ window.GL = window.GL || {};
     return t ? `<em class="type t-${type}">${t.name}</em>` : '';
   }
 
+  // ---------- INT: Absichten der Gegner (Slay-the-Spire-Prinzip) ----------
+  // Rein aus Daten abgeleitet, was die Gegner-KI ohnehin tut. Kleine Pixel-Symbole, Erklärung beim Antippen.
+  const pxIco = (rows, pal) => `<svg viewBox="0 0 ${rows[0].length} ${rows.length}" shape-rendering="crispEdges" aria-hidden="true">${rows.map((r, y) => [...r].map((c, x) => pal[c] ? `<rect x="${x}" y="${y}" width="1" height="1" fill="${pal[c]}"/>` : '').join('')).join('')}</svg>`;
+  const INT_ICO = {
+    wind: pxIco(['..o.o..', '.oyyyo.', 'oyrrryo', '.yrwry.', 'oyrrryo', '.oyyyo.', '..o.o..'], { o: '#7a3412', y: '#f2a33a', r: '#d24a24', w: '#fff3c4' }),
+    heal: pxIco(['.kkkkk.', 'kggwggk', 'kgwwwgk', 'kwwwwwk', 'kgwwwgk', 'kggwggk', '.kkkkk.'], { k: '#2c5a2a', g: '#5fae4f', w: '#effae6' }),
+    aim: pxIco(['..rrr..', '.r...r.', 'r..k..r', 'r.kkk.r', 'r..k..r', '.r...r.', '..rrr..'], { r: '#c2412d', k: '#3a2a14' }),
+    call: pxIco(['......k', '....kyk', 'k.kyyyk', 'kkyyyyk', 'k.kyyyk', '....kyk', '......k'], { k: '#5a3a12', y: '#e8b84a' }),
+    taunt: pxIco(['.kkkkk.', 'kbbbbbk', 'kbwbbbk', 'kbbbbbk', '.kbbbk.', '..kbk..', '...k...'], { k: '#2a3a52', b: '#8fb0d6', w: '#eaf2fb' })
+  };
+  const INT_TXT = {
+    wind: ['Holt aus', 'Alle 3 Runden kündigt er einen schweren Schlag an. Ausweichen und Rüstung helfen dagegen doppelt.', 'Winds up', 'Every 3 rounds he announces a heavy blow. Dodge and armor count double against it.'],
+    call: ['Ruft Verstärkung', 'Wird er wütend, pfeift er einen gefallenen Gefolgsmann zurück. Schnell sein lohnt sich.', 'Calls for help', 'Once enraged, he whistles a fallen henchman back up. Speed pays off.'],
+    healBoss: ['Flickt den Boss', 'Heilt jede Runde, am liebsten den Anführer. Zuerst ausschalten.', 'Patches up the boss', 'Heals every round, the leader first. Take it out early.'],
+    heal: ['Heiler', 'Heilt jede Runde den Angeschlagensten seiner Truppe.', 'Healer', 'Heals the most battered ally every round.'],
+    aimLow: ['Zielt auf Angeschlagene', 'Schießt über die Köpfe auf die Figur mit dem wenigsten Leben.', 'Picks on the wounded', 'Shoots past the front line at your most battered fighter.'],
+    aimWeak: ['Scharfschütze', 'Nimmt immer die schwächste Figur ins Visier.', 'Sniper', 'Always targets your weakest fighter.'],
+    aimStrong: ['Rauflustig', 'Sucht sich deine stärkste Figur aus.', 'Bully', 'Goes after your strongest fighter.'],
+    taunt: ['Leibwache', 'Zieht alle Angriffe auf sich, bis sie fällt.', 'Bodyguard', 'Draws every attack until it falls.']
+  };
+  function intents(e, team, opts) {
+    if (!e || (opts && opts.pvp) || e.pvp || (e.ref && e.ref.pvp)) return [];
+    const C = GL.config, FM = Object.assign({ on: true, foeFocus: true, call: 0.35 }, C.formation || {}), BF = C.bossFight || {};
+    const lead = f => !!(f.boss || f.mini || f.raid);
+    const hasLead = (team || []).some(lead), hasGuard = (team || []).some(f => !lead(f));
+    const out = [];
+    if ((e.boss || e.raid) && BF.windup) out.push({ k: 'wind', t: 'wind' });
+    if ((e.boss || e.raid) && FM.on && FM.call > 0 && hasGuard) out.push({ k: 'call', t: 'call' });
+    if (e.ability === 'medic') out.push({ k: 'heal', t: FM.on && hasLead && !lead(e) ? 'healBoss' : 'heal' });
+    if (e.ability === 'taunt') out.push({ k: 'taunt', t: 'taunt' });
+    if (e.ability === 'sniper') out.push({ k: 'aim', t: 'aimWeak' });
+    else if (e.ability === 'bully') out.push({ k: 'aim', t: 'aimStrong' });
+    else if (FM.on && FM.foeFocus && !lead(e) && e.type === 'technik' && e.ability !== 'medic') out.push({ k: 'aim', t: 'aimLow' });
+    return out.slice(0, 2);
+  }
+  function intentText(t) {
+    const en = GL.i18n && GL.i18n.lang && GL.i18n.lang() === 'en', x = INT_TXT[t] || ['', ''];
+    return en ? [x[2], x[3]] : [x[0], x[1]];
+  }
+  function intentHtml(e, team, opts, cls) {
+    const list = intents(e, team, opts);
+    if (!list.length) return '';
+    return `<span class="int-row ${cls || ''}">${list.map(x => { const [n, d] = intentText(x.t); return `<i class="int-i int-${x.k}" tabindex="0" role="button" data-act="noop" data-int="${x.t}" title="${String(n).replace(/"/g, '&quot;')}" aria-label="${String(n + ': ' + d).replace(/"/g, '&quot;')}">${INT_ICO[x.k]}</i>`; }).join('')}</span>`;
+  }
   // Start-Energie wie im Kampfsystem (Crew und Bösewichte/Bosse haben eine Ulti, einfache Gegner nicht)
   let curRun = null;
   // Gegnerwellen: Welle 2 wartet unsichtbar am Rand, bis sie im Kampf aufgerufen wird
@@ -405,6 +449,7 @@ window.GL = window.GL || {};
       <div class="fu-aura"></div>
       <div class="fu-body" style="--d:${(i * 0.37 + (side === 'crew' ? 0 : 0.5)).toFixed(2)}s">${GL.sprites.renderShaded ? GL.sprites.renderShaded(entry) : GL.sprites.render(entry)}</div>
       <div class="fu-bar"><i style="width:${pct}%"></i></div>
+      ${side === 'enemy' && hp > 0 && curRun && curRun.battle ? intentHtml(unit, curRun.battle.enemies, { pvp: curRun.battle.kind === 'duel' }, 'fu-int') : ''}
     </div>`;
   }
   // Boss-Leiste oben im Feld: Name, Leben, Markierung bei halbem Leben (dort wird er wütend)
@@ -660,6 +705,7 @@ window.GL = window.GL || {};
   }
 
   GL.arena = {
+    intents, intentHtml, intentText, intentIcon: k => INT_ICO[k] || '',
     html(run, anim) {
       curRun = run;
       const b = run.battle;
@@ -795,7 +841,7 @@ window.GL = window.GL || {};
         if (GL.sfx && GL.sfx.sting) GL.sfx.sting('dramatic');
       } else if (ev.k === 'windup') {
         // Boss holt aus: lehnt sich zurück, kleines Warnzeichen, nächste Runde kommt der schwere Schlag
-        const b = fu('enemy', ev.to); if (b) b.classList.add('windup');
+        const b = fu('enemy', ev.to); if (b) { b.classList.add('windup'); b.dataset.wr = String(window.__glRound || 0); }
         tagAt('enemy', ev.to, 'holt aus …', 'debuff', 64);
       } else if (ev.k === 'counter') {
         fieldFloat('enemy', ev.from, 'Konter!', 'debuff');
@@ -836,6 +882,9 @@ window.GL = window.GL || {};
       } else if (ev.k === 'round') {
         const rb = $('#f-round');
         if (rb) { rb.textContent = 'Runde ' + ev.n; pulse(rb, 'pop'); }
+        // Ausholen erlischt spätestens nach einer vollen Runde (falls der Schlag ausfiel, z. B. betäubt)
+        window.__glRound = ev.n;
+        document.querySelectorAll('.fu.windup').forEach(b => { if (ev.n - Number(b.dataset.wr || 0) >= 2) b.classList.remove('windup'); });
         // Zustände laufen am Ende jeder Runde ab, also beim Start der nächsten herunterzählen
         if (ev.n > 1) Object.keys(live).forEach(id => {
           const [side, i] = id.split(':');

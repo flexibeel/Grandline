@@ -8854,3 +8854,104 @@ em.type.t-technik { background: #5b86b3 !important; }
 .co-riskfx .rf-gold { background: #fbf0c8; border-color: #dcc27a; color: #7a5a12; }
 .co-riskfx .rf-loot { background: #e9f1dc; border-color: #a9c48a; }
 .co-riskfx.calm i { background: transparent; border-color: transparent; color: #8a7458; font-weight: 600; padding-left: 0; }
+
+/* Handy: Hinweise lassen oben rechts Platz für ☰ */
+@media (max-width: 560px) {
+  body.in-run .toasts { left: 8px !important; right: auto !important; transform: none !important; width: calc(100% - 62px) !important; }
+}
+
+/* ===== UX2: Hafen kompakt (Handy) ===== */
+@media (max-width: 560px) {
+  body:not(.in-run) .hq .hq-bar { margin-bottom: 8px !important; }
+  body:not(.in-run) .hq .hq-bar .berry { padding: 4px 10px !important; font-size: 1.1rem !important; }
+  body:not(.in-run) .hq .hq-sail.game { gap: 8px !important; padding: 8px !important; }
+  body:not(.in-run) .hq .sail-stage { height: 132px !important; }
+  body:not(.in-run) .hq .sail-row .btn.sail { min-height: 52px; padding-top: 8px !important; padding-bottom: 8px !important; }
+  body:not(.in-run) .hq .sail-row .btn.sail .key { display: none; }
+  /* Nächstes Ziel: Kopfzeile und Weltkarte in einer Zeile, Ziel als schlanke Leiste */
+  body:not(.in-run) .hq .wg-card { padding: 7px 8px !important; gap: 5px !important; }
+  body:not(.in-run) .hq .wg-head { display: flex !important; align-items: center; justify-content: space-between; margin: 0 !important; }
+  body:not(.in-run) .hq .wg-map { padding: 2px 8px !important; min-height: 0 !important; font-size: .74rem !important; }
+  body:not(.in-run) .hq .wg-map svg, body:not(.in-run) .hq .wg-map img { width: 18px !important; height: 18px !important; }
+  body:not(.in-run) .hq .wg-goal { padding: 6px 8px !important; gap: 8px !important; min-height: 0 !important; }
+  body:not(.in-run) .hq .wg-goal .wg-ico { width: 30px !important; height: 30px !important; font-size: 1.1rem; }
+  body:not(.in-run) .hq .wg-goal .wg-ico svg, body:not(.in-run) .hq .wg-goal .wg-ico canvas { max-width: 30px; max-height: 30px; }
+  body:not(.in-run) .hq .wg-goal b { font-size: .86rem !important; }
+  body:not(.in-run) .hq .wg-goal small { font-size: .7rem !important; line-height: 1.25; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
+  /* Modi: eine Reihe Symbol-Kacheln */
+  body:not(.in-run) .hq .action-dock { display: grid !important; grid-template-columns: repeat(4, minmax(0, 1fr)) !important; grid-auto-flow: row !important; gap: 6px !important; margin-top: 0 !important; }
+  body:not(.in-run) .hq .ad-tile { display: grid !important; grid-template-columns: 1fr !important; justify-items: center; text-align: center; gap: 1px !important; padding: 6px 2px 5px !important; min-height: 0 !important; }
+  body:not(.in-run) .hq .ad-tile .ad-ico { width: 24px !important; height: 24px !important; font-size: 1.05rem !important; display: grid; place-items: center; margin: 0 !important; }
+  body:not(.in-run) .hq .ad-tile .ad-ico svg, body:not(.in-run) .hq .ad-tile .ad-ico canvas { max-width: 24px; max-height: 24px; }
+  body:not(.in-run) .hq .ad-tile b { font-size: .72rem !important; line-height: 1.1; }
+  body:not(.in-run) .hq .ad-tile small { font-size: .58rem !important; line-height: 1.1; }
+  /* Kopfgeld-Stufe, An Bord, Vertrauter: eine Zeile */
+  body:not(.in-run) .hq .sail-meta { flex-wrap: nowrap !important; gap: 6px !important; margin-top: 0 !important; overflow-x: auto; scrollbar-width: none; }
+  body:not(.in-run) .hq .sail-meta::-webkit-scrollbar { display: none; }
+  body:not(.in-run) .hq .sail-meta > * { flex: none; min-height: 0 !important; padding-top: 3px !important; padding-bottom: 3px !important; font-size: .74rem !important; }
+  body:not(.in-run) .hq .sail-meta .sb-lbl { font-size: .62rem !important; }
+  /* Räume: 4 kleine Kacheln pro Reihe */
+  body:not(.in-run) .hq .hub { margin-top: 10px !important; }
+  body:not(.in-run) .hq .hub-lbl { margin-bottom: 4px !important; }
+  body:not(.in-run) .hq .hub-grid { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; gap: 6px !important; }
+  body:not(.in-run) .hq .hub-tile { padding: 6px 2px 5px !important; gap: 1px !important; min-height: 0 !important; border-radius: 11px !important; }
+  body:not(.in-run) .hq .hub-tile .hub-art { width: 26px !important; height: 26px !important; margin: 0 !important; }
+  body:not(.in-run) .hq .hub-tile .hub-art svg, body:not(.in-run) .hq .hub-tile .hub-art canvas, body:not(.in-run) .hq .hub-tile .hub-art img { width: 26px !important; height: 26px !important; }
+  body:not(.in-run) .hq .hub-tile b { font-size: .66rem !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+  body:not(.in-run) .hq .hub-tile small { font-size: .56rem !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+  /* Gerücht und Logbuch schlanker */
+  body:not(.in-run) .hq .hook-box { margin-top: 8px !important; padding: 2px 4px !important; gap: 2px !important; }
+  body:not(.in-run) .hq .hook-row { padding: 5px 6px !important; gap: 8px !important; min-height: 0 !important; }
+  body:not(.in-run) .hq .hook-row .hook-ico { width: 30px !important; height: 30px !important; }
+  body:not(.in-run) .hq .hook-row b { font-size: .8rem !important; line-height: 1.2; }
+  body:not(.in-run) .hq .hook-row small { font-size: .6rem !important; }
+  body:not(.in-run) .hq .hq-sail .sail-meta { display: flex !important; }
+  body:not(.in-run) .hq .ad-tile b { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+  body:not(.in-run) .hq .hq-bar .pf-chip { padding-top: 2px !important; padding-bottom: 2px !important; }
+  body:not(.in-run) .hq .hq-bar .pf-chip .pf-ava, body:not(.in-run) .hq .hq-bar .pf-chip > i:first-child { transform: scale(.88); }
+}
+
+/* ===== INT: Absichten ===== */
+.int-row { display: inline-flex; gap: 2px; pointer-events: auto; }
+.int-i { display: inline-grid; place-items: center; width: 15px; height: 15px; padding: 1px; font-style: normal; cursor: help;
+  background: #fff8e6; border: 1px solid #8a6a3a; border-radius: 3px; box-shadow: 0 1px 0 rgba(58,42,20,.45); }
+.int-i svg { width: 11px; height: 11px; display: block; }
+.int-i:focus-visible { outline: 2px solid #f2c94c; outline-offset: 1px; }
+.pv-int { position: absolute; top: 12px; left: -6px; flex-direction: column; z-index: 3; }
+.pv-u .pv-int .int-i { width: 14px; height: 14px; }
+.pv-u .pv-int .int-i svg { width: 10px; height: 10px; }
+.fu-int { position: absolute; top: 100%; left: 50%; margin-top: 2px; transform: translateX(-50%) scale(calc(1 / var(--s, 1))); transform-origin: 50% 0; z-index: 4; opacity: .95; }
+.fu.ko .fu-int, .fu.w2-wait .fu-int { display: none; }
+/* Holt aus: das Symbol leuchtet, solange der schwere Schlag in der Luft hängt */
+.fu.windup .int-wind { background: #ffe1b8; border-color: #b4553a; animation: intWind .7s ease-in-out infinite alternate; }
+@keyframes intWind { from { transform: translateY(0); box-shadow: 0 1px 0 rgba(58,42,20,.45), 0 0 0 0 rgba(242,163,58,0); } to { transform: translateY(-2px); box-shadow: 0 3px 0 rgba(58,42,20,.35), 0 0 0 3px rgba(242,163,58,.35); } }
+@media (prefers-reduced-motion: reduce) { .fu.windup .int-wind { animation: none; } }
+@media (max-width: 520px) { .fu-int .int-i { width: 13px; height: 13px; } .fu-int .int-i svg { width: 9px; height: 9px; } }
+
+/* UX2: Logbuch + Gerücht in einem Rahmen (alle Breiten) */
+.soc-more { display: grid; gap: 5px; }
+.soc-log { position: relative; }
+.soc-more > summary { position: absolute; top: 3px; right: 8px; list-style: none; cursor: pointer; font-size: .68rem; font-weight: 800; color: #8a6d48;
+  padding: 1px 8px; border-radius: 999px; background: #f3ead6; border: 1px solid #d8c39a; }
+.soc-more > summary::-webkit-details-marker { display: none; }
+.soc-more[open] > summary { display: none; }
+.soc-hook { border-top: 1px dashed #d8bf8e; padding-top: 5px; margin-top: 2px; }
+.soc-hook .hook-row { width: 100%; }
+@media (max-width: 560px) {
+  body:not(.in-run) .hq .soc-log { margin-top: 8px !important; padding: 6px 8px !important; gap: 4px !important; }
+  body:not(.in-run) .hq .soc-row { font-size: .74rem !important; line-height: 1.25 !important; }
+  body:not(.in-run) .hq .soc-log-h { font-size: .6rem !important; }
+  body:not(.in-run) .hq .soc-hook .hook-row { padding: 3px 0 !important; }
+  body:not(.in-run) .hq .sail-meta .atsea { font-size: .7rem !important; padding: 3px 8px !important; }
+  body:not(.in-run) .hq .hub-lbl { display: none !important; }
+  body:not(.in-run) .hq .hub { margin-top: 8px !important; }
+}
+.ux-why .int-lesson { display: flex; align-items: center; gap: 6px; margin-top: 3px; font-size: 12.5px; line-height: 1.35; opacity: .9; }
+.ux-why .int-lesson .int-i { flex: none; cursor: default; }
+.hub-tile .ht-s { display: none; }
+@media (max-width: 560px) {
+  body:not(.in-run) .hq .hub-tile .ht-l { display: none !important; }
+  body:not(.in-run) .hq .hub-tile .ht-s { display: block !important; font-size: .7rem !important; }
+  body:not(.in-run) .hq .ad-tile b { font-size: .62rem !important; letter-spacing: -.02em; }
+  body:not(.in-run) .hq .ad-tile { padding-left: 0 !important; padding-right: 0 !important; }
+}

@@ -291,6 +291,14 @@
     const txt = String(q.dataset.tip || '').split('\n').map(s => esc2(s)).join('<br>');
     if (txt) toast(`<span><b>${GL.i18n && GL.i18n.lang() === 'en' ? 'What does that mean?' : 'Was heißt das?'}</b>${txt}</span>`);
   }, true);
+  // INT: Absichts-Symbole der Gegner antippen → kurze Erklärung als Hinweis (statt Tooltip, der am Rand abgeschnitten würde)
+  document.addEventListener('click', e => {
+    const q = e.target.closest && e.target.closest('.int-i');
+    if (!q || !GL.arena || !GL.arena.intentText) return;
+    e.preventDefault(); e.stopPropagation();
+    const [n, d] = GL.arena.intentText(q.dataset.int);
+    toast(`<span><b>${esc2(n)}</b>${esc2(d)}</span>`);
+  }, true);
   // Jedes Fenster bekommt oben rechts einen schönen Schließen-Knopf (Handy: schnell raus)
   (function popCloser() {
     const add = () => {
