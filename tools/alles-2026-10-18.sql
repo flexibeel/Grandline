@@ -100,14 +100,19 @@ grant execute on function public.code_save(text, text, jsonb) to anon, authentic
 -- Alte Fehlversuche aufräumen
 delete from public.code_fails where at < now() - interval '1 day';
 
--- Kontrolle: Tabellen ohne Row Level Security (sollte leer sein)
-select tablename from pg_tables where schemaname = 'public' and not rowsecurity;
--- Kontrolle: alle Regeln (Policies) auf einen Blick
-select tablename, policyname, cmd, roles, qual, with_check from pg_policies where schemaname = 'public' order by tablename;
 
 -- 4) Rangliste und Spielstände: jeder darf nur seine eigene Zeile schreiben
 alter table public.scores enable row level security;
 alter table public.saves  enable row level security;
+
+-- Alte Regeln auf scores/saves entfernen (sonst gelten sie zusätzlich), danach nur noch die sicheren
+do $$
+declare r record;
+begin
+  for r in select tablename, policyname from pg_policies where schemaname = 'public' and tablename in ('scores', 'saves') loop
+    execute format('drop policy if exists %I on public.%I', r.policyname, r.tablename);
+  end loop;
+end $$;
 
 drop policy if exists gl_scores_read  on public.scores;
 drop policy if exists gl_scores_write on public.scores;
@@ -129,6 +134,7 @@ create policy gl_saves_edit  on public.saves for update to anon, authenticated u
 alter table public.scores drop constraint if exists gl_scores_size;
 alter table public.scores add constraint gl_scores_size check (pg_column_size(data) < 60000 and char_length(name) <= 24) not valid;
 
--- WICHTIG: Ältere Regeln mit anderen Namen gelten zusätzlich (Regeln werden ODER-verknüpft).
--- Die Kontroll-Abfrage oben zeigt alle Regeln. Steht dort bei scores/saves eine Regel mit
--- "true" bei insert/update/delete oder bei saves/select, bitte Claude die Ausgabe schicken.
+-- Kontrolle zum Schluss: alle Regeln auf einen Blick (diese Tabelle bitte an Claude schicken)
+select tablename, policyname, cmd, roles, qual, with_check,
+       (select string_agg(t.tablename, ', ') from pg_tables t where t.schemaname = 'public' and not t.rowsecurity) as tabellen_ohne_schutz
+from pg_policies where schemaname = 'public' order by tablename;
