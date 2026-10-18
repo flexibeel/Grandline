@@ -89,6 +89,9 @@ window.GL = window.GL || {};
     'Inoffizielles Fanprojekt, kostenlos und ohne kommerzielle Absicht. One Piece gehört seinen Rechteinhabern.': 'Unofficial fan project, free and non-commercial. One Piece belongs to its rights holders.',
     'Willkommen zurück': 'Welcome back', 'Neu anfangen': 'Start over', 'Alle Neuigkeiten': 'All news', '★ Spiel bewerten': '★ Rate the game', 'Update verfügbar': 'Update available'
   };
+  // Ausrüstungsnamen (Stammcrew): Eigenschaft + Grundteil
+  const GEAR_ADJ = { Wuchtig: 'Mighty', Zäh: 'Sturdy', Flink: 'Swift', Scharf: 'Keen', Schattig: 'Shadowy', Gehärtet: 'Hardened', Wild: 'Wild' };
+  const GEAR_BASE = { Säbel: 'Sabre', Entermesser: 'Cutlass', Muskete: 'Musket', Dreizack: 'Trident', Kapitänsmantel: 'Captain’s Coat', Lederweste: 'Leather Vest', Kopftuch: 'Bandana', Goldring: 'Gold Ring', Kompass: 'Compass', Amulett: 'Amulet' };
   // Muster mit Zahlen
   const P = [
     [/^Anheuern für (\d+) Gold$/, 'Hire for $1 gold'],
@@ -100,6 +103,9 @@ window.GL = window.GL || {};
     [/^Krit (\d+) %$/, 'Crit $1 %'], [/^Ausweichen (\d+) %$/, 'Dodge $1 %'], [/^Rüstung (\d+)$/, 'Armor $1'], [/^Schaden \+(\d+) %$/, 'Damage +$1 %'],
     [/^🔹 Neu würfeln \((\d+)\)$/, '🔹 Reroll ($1)'], [/^(\d+) neu$/, '$1 new'],
     [/^Zerlegen \(\+(\d+) Berry(, \+(\d+) 🔹)?(, \+(\d+) 🍙)?\)$/, (m, b, x, sh, y, sn) => `Scrap (+${b} Berry${sh ? `, +${sh} 🔹` : ''}${sn ? `, +${sn} 🍙` : ''})`],
+    [/^(Wuchtig|Zäh|Flink|Scharf|Schattig|Gehärtet|Wild)(?:er|e|es) (Säbel|Entermesser|Muskete|Dreizack|Kapitänsmantel|Lederweste|Kopftuch|Goldring|Kompass|Amulett)( \+\d+)?$/, (m, a, b, n) => `${GEAR_ADJ[a]} ${GEAR_BASE[b]}${n || ''}`],
+    [/^(Säbel|Entermesser|Muskete|Dreizack|Kapitänsmantel|Lederweste|Kopftuch|Goldring|Kompass|Amulett)( \+\d+)?$/, (m, b, n) => `${GEAR_BASE[b]}${n || ''}`],
+    [/^(Säbel|Entermesser|Muskete|Dreizack|Kapitänsmantel|Lederweste|Kopftuch|Goldring|Kompass|Amulett) von (.+)$/, (m, b, w) => `${GEAR_BASE[b]} of ${w}`],
     [/^Tauschen für (\d+) Gold$/, 'Swap for $1 gold'],
     [/^Zu wenig Gold \((\d+)\)$/, 'Not enough gold ($1)'],
     [/^Stärker als (.+)$/, 'Stronger than $1'], [/^Schwächer als (.+)$/, 'Weaker than $1'], [/^Etwa gleich stark wie (.+)$/, 'About as strong as $1'],

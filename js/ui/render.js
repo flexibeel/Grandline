@@ -3428,7 +3428,7 @@ window.GL = window.GL || {};
           sub = `Gesperrt: ${u.text}${pr.need > 1 ? ` (${pr.have}/${pr.need})` : ''}`;
         }
         if (known && !(u && !profile.unlocked.includes(d.id))) {
-          return { known, html: `<div class="acard-card"><span class="no">#${String(idx + 1).padStart(3, '0')}</span>${crewCardFace(d, { atk: d.atk, max: d.hp, spd: d.spd }, { gold: d.locked })}</div>` };
+          return { known, html: `<div class="acard-card"><span class="no">#${String(idx + 1).padStart(3, '0')}</span>${crewCardFace(d, { atk: d.atk, max: d.hp, spd: d.spd }, { gold: d.locked, style: true })}</div>` };
         }
         return { known, html: albumCard(known, GL.sprites.render(d), d.name, sub, d.locked ? 'gold' : '', idx + 1) };
       }),
