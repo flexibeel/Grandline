@@ -522,6 +522,32 @@ window.GL = window.GL || {};
     </span>`;
   }
 
+  // Schatz-Karten: Beute schwebt über einem Pixel-Podest mit Lichtstrahlen in der Seltenheitsfarbe,
+  // Name auf einem Holzschild, Effekt auf Pergament und ein 3D-„Nehmen“-Schild. Gleiche Auswahl-Logik wie vorher.
+  const TC_COL = { common: ['#a8753c', '#6b4424', '#d9b36a'], rare: ['#3f86b8', '#24557a', '#9fd3f0'], epic: ['#8a55c8', '#55307f', '#d4b4f5'], legendary: ['#e0a030', '#9a6a14', '#ffe08a'], awakened: ['#d9483a', '#8a2a20', '#ffb39a'], unique: ['#2f9a8a', '#1d6158', '#a8ece0'] };
+  function tcPedestal(rid) {
+    const [band, dark, hi] = TC_COL[rid] || TC_COL.common;
+    const r = (x, y, w, h, c) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${c}"/>`;
+    return `<svg class="tc-chest tc-ped" viewBox="0 0 20 16" shape-rendering="crispEdges" aria-hidden="true">${
+      r(2, 6, 16, 2, hi) + r(1, 7, 18, 2, band) + r(1, 9, 18, 1, dark) + r(5, 10, 10, 3, '#b07a44') + r(5, 10, 10, 1, '#d9a868') + r(5, 12, 10, 1, '#5e3b1d') + r(3, 13, 14, 3, '#8a5a30') + r(3, 13, 14, 1, '#b07a44') + r(3, 15, 14, 1, '#5e3b1d')}</svg>`;
+  }
+  function treasureFace(item, kind, ben) {
+    const rid = item.awakened ? 'awakened' : item.rarity >= 0 ? GL.config.rarities[item.rarity].id : 'unique';
+    const label = item.awakened ? 'Erwacht' : item.rarity >= 0 ? GL.loot.rarityName(item.rarity) : 'Einzigartig';
+    return `<span class="tc-face tc-${rid}">
+      <span class="tc-stage"><i class="tc-rays"></i><i class="tc-glow"></i>${tcPedestal(rid)}
+        <span class="tc-item">${GL.sprites.icon(kind, item.id, item.awakened)}</span>
+        <i class="tc-sp a">✦</i><i class="tc-sp b">✦</i><i class="tc-sp c">✧</i></span>
+      <span class="tc-info">
+        <span class="tc-rib">${label} · ${kind === 'fruit' ? 'Teufelsfrucht' : 'Schatz'}</span>
+        <span class="tc-sign">${item.name}</span>
+        <span class="tc-text">${item.text}</span>
+        ${ben ? `<span class="card-ben tc-ben${ben.meh ? ' meh' : ben.good ? ' good' : ''}">${ben.meh ? '◦' : '▲'} ${esc(ben.t)}</span>` : ''}
+        <span class="tc-take"><span class="tc-take-a">Antippen</span><span class="tc-take-b">✓ Gewählt</span></span>
+      </span>
+    </span>`;
+  }
+
   function cardButton(i, face, cls, tip) {
     const isTip = tip && tip.index === i;
     const r = window.__glRunRef;
@@ -1354,7 +1380,7 @@ window.GL = window.GL || {};
           <p class="hint">Je seltener die Frucht, desto stärker ihr Effekt.</p>
           <div class="cards loot">${items.map((f, i) => {
           const rid = f.awakened ? 'awakened' : f.rarity >= 0 ? GL.config.rarities[f.rarity].id : 'unique';
-          return cardButton(i, lootCardFace(f, 'fruit', lootBenefit(run, f)), `loot-opt lr-${rid}`, tip);
+          return cardButton(i, treasureFace(f, 'fruit', lootBenefit(run, f)), `loot-opt tc-opt lr-${rid}`, tip);
         }).join('')}</div>${tipLine(tip)}${pickDock(run, items)}`;
       }
 
@@ -1365,7 +1391,7 @@ window.GL = window.GL || {};
           <p class="hint">Schätze wirken bis zum Ende des Runs. Je seltener, desto stärker.</p>
           <div class="cards loot">${items.map((r, i) => {
             const rid = r.rarity >= 0 ? GL.config.rarities[r.rarity].id : 'unique';
-            return cardButton(i, lootCardFace(r, 'relic'), `loot-opt lr-${rid}`, tip);
+            return cardButton(i, treasureFace(r, 'relic'), `loot-opt tc-opt lr-${rid}`, tip);
           }).join('')}</div>${tipLine(tip)}${pickDock(run, items)}`;
       }
 
@@ -1817,7 +1843,7 @@ window.GL = window.GL || {};
       ${pick ? `<div class="sq-pickbar"><i>${GL.sprites.render(pd)}</i><span><b>${esc(pd.name)}</b> einsetzen: tipp oben auf einen Platz</span><button class="btn mini ghost" data-act="sq-pick" data-id="${esc(pick)}">Abbrechen</button></div>`
         : `<p class="sq-tip">Karte antippen zum Ankleiden. Aus der Sammlung eine Karte auf einen Platz ziehen oder antippen. <b>Vorne</b> steht, wer zuerst getroffen wird.</p>`}
       <button class="btn squad-match" data-act="squad-match">${pxIco('swords')}Gegner suchen <small>ähnliche Stärke</small></button>
-      ${GL.cgear && GL.cgear.upgrades && refs.some(x => Object.keys(GL.cgear.upgrades(profile, x.id)).length) ? `<button class="btn sq-best-all" data-act="dr-best-all">${PX_UPG}Alle mit dem Besten ausrüsten <small>${refs.reduce((n, x) => n + Object.keys(GL.cgear.upgrades(profile, x.id)).length, 0)} Verbesserungen in der Truhe</small></button>` : ''}
+      ${GL.cgear && GL.cgear.upgrades && refs.some(x => Object.keys(GL.cgear.upgrades(profile, x.id)).length) ? `<div class="sq-best-hint">${PX_UPG}<b>${refs.reduce((n, x) => n + Object.keys(GL.cgear.upgrades(profile, x.id)).length, 0)} Verbesserungen in der Truhe</b><small>Grüne Pfeile zeigen, wer etwas Besseres tragen kann. Antippen zum Ankleiden.</small></div>` : ''}
       ${GL.cgear ? `<button class="sq-chest" data-act="dress" data-id="${esc((refs[0] || {}).id || 'self')}"><i class="sq-chest-ico">${pxIco('chest')}</i><span><b>Truhe & Ankleiden</b><small>${bag.length}/${GL.data.crewGear.bagMax} Teile · 🔹 ${profile.shards || 0}${(profile.gearNew || []).length ? ` · <em class="sq-new">${profile.gearNew.length} neu</em>` : ''}</small></span><span class="sq-chest-go">›</span></button>` : ''}
       <div class="sqc-head"><b>Deine Karten</b><small>${cards.length} Figuren · ${ids.length}/${N} dabei</small></div>
       ${filt}
@@ -1914,7 +1940,7 @@ window.GL = window.GL || {};
         : `<p class="dr-empty">${curOf(slotSel) ? 'Hier trägt die Figur schon das Beste, was frei in der Truhe liegt.' : `Noch nichts auf „${esc((SL.find(x => x.id === slotSel) || {}).name || '')}“. Bosse und Raids lassen passende Teile fallen.`}</p>`;
     } else {
       detail = upN
-        ? `<div class="dr-hintbar up"><span>${PX_UPG}<b>${upN} ${upN === 1 ? 'Platz' : 'Plätze'}</b> mit besserer Ausrüstung: ${SL.filter(s => UP[s.id]).map(s => esc(s.name)).join(', ')}</span><button class="btn mini" data-act="dr-best" data-id="${esc(id)}">${PX_UPG}Bestes anlegen</button></div>`
+        ? `<div class="dr-hintbar up"><span>${PX_UPG}<b>${upN} ${upN === 1 ? 'Platz' : 'Plätze'}</b> mit besserer Ausrüstung: ${SL.filter(s => UP[s.id]).map(s => esc(s.name)).join(', ')}</span><small class="dr-hint-tip">Tippe einen grünen Platz an</small></div>`
         : `<p class="dr-empty">Alles bestens: ${esc(d.name)} trägt das Stärkste aus der Truhe. Tipp einen Platz oder ein Teil an, um zu vergleichen.</p>`;
     }
     const bestUid = slotSel && UP[slotSel] ? UP[slotSel].it.uid : null;
@@ -2121,9 +2147,9 @@ window.GL = window.GL || {};
     dailyCodeShown = GL.daily.code(ui.dailyDay === 'y' ? yesterday() : GL.daily.today());
     let rows = (st.rows || []).slice().sort((a, b) => (Number(cat.get(b)) || 0) - (Number(cat.get(a)) || 0));
     if (isDaily) rows = rows.filter(x => x.duels && x.duels[dailyCodeShown]);
-    // Saison 1: wer seit dem Start noch nicht gesegelt ist, taucht bei Fahrt-Wertungen erst nach der ersten Fahrt auf
+    // Rangliste ab dem Live-Start: wer seit dem Start noch nicht gesegelt ist, taucht bei Fahrt-Wertungen erst nach der ersten Fahrt auf
     rows = rows.filter(x => !x.preSeason || (Number(cat.get(x)) || 0) > 0);
-    if (GL.season && GL.season.started()) info = '⛵ Saison 1: Bestwerte und Zähler starten bei null, es zählen nur Fahrten ab dem 18.10., 18 Uhr. ' + info;
+    if (GL.season && GL.season.started()) info = '⛵ Seit dem Live-Start: Bestwerte und Zähler starten bei null, es zählen nur Fahrten ab dem 18.10., 18 Uhr. ' + info;
     const MAIN = ['score', 'daily', 'endless', 'squadRating', 'rankXp', 'topBounty'];
     const chip = c => `<button class="lb-cat${c.id === cat.id ? ' on' : ''}" data-act="lb-cat" data-id="${c.id}">${c.name}</button>`;
     const more = LB_CATS.filter(c => !MAIN.includes(c.id));

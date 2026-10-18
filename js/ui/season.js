@@ -1,4 +1,4 @@
-// Saison 1 (18.10.2026, 18 Uhr): Countdown, Live-Event, Einladung, Saison-Rangliste und freiwilliger Neustart.
+// Live-Start des großen Updates (18.10.2026, 18 Uhr): Countdown, Live-Event, Einladung, Rangliste ab null und freiwilliger Neustart.
 // Zeitpunkt in GL.config.season. Zum Testen: localStorage 'gl.seasonAt' = Startzeit in ms.
 window.GL = window.GL || {};
 
@@ -54,19 +54,19 @@ window.GL = window.GL || {};
     const f = x => x.toISOString().replace(/[-:]/g, '').replace(/\.\d+/, '');
     const url = location.origin + location.pathname;
     const txt = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Grand Line//DE', 'BEGIN:VEVENT', 'UID:grandline-s1@flexibeel', 'DTSTAMP:' + f(new Date()),
-      'DTSTART:' + f(d), 'DTEND:' + f(e), 'SUMMARY:Grand Line: Saison 1 startet ⛵', 'DESCRIPTION:Skillbaum, neue Routen, Rangliste ab null. Leinen los! ' + url, 'URL:' + url,
+      'DTSTART:' + f(d), 'DTEND:' + f(e), 'SUMMARY:Grand Line: Live-Start ⛵', 'DESCRIPTION:Skillbaum, neue Routen, Rangliste ab null. Leinen los! ' + url, 'URL:' + url,
       'BEGIN:VALARM', 'TRIGGER:-PT10M', 'ACTION:DISPLAY', 'DESCRIPTION:Grand Line startet gleich!', 'END:VALARM', 'END:VEVENT', 'END:VCALENDAR'].join('\r\n');
     return 'data:text/calendar;charset=utf-8,' + encodeURIComponent(txt);
   }
   function gcal() {
     const f = x => new Date(x).toISOString().replace(/[-:]/g, '').replace(/\.\d+/, '');
-    return 'https://calendar.google.com/calendar/render?action=TEMPLATE&text=' + encodeURIComponent('Grand Line: Saison 1 startet ⛵') +
+    return 'https://calendar.google.com/calendar/render?action=TEMPLATE&text=' + encodeURIComponent('Grand Line: Live-Start ⛵') +
       '&dates=' + f(startAt()) + '/' + f(startAt() + 3600000) + '&details=' + encodeURIComponent('Skillbaum, neue Routen, Rangliste ab null. Leinen los! ' + location.origin + location.pathname);
   }
   function shareText() {
     return en()
-      ? 'Grand Line Season 1 starts ' + when() + '! Skill tree, new routes, leaderboard from zero. Sail with me and grab the best loot first ⛵'
-      : 'Grand Line Saison 1 startet ' + when() + '! Skillbaum, neue Routen, Rangliste ab null. Segel mit mir los und schnapp dir zuerst die beste Beute ⛵';
+      ? 'Grand Line goes live ' + when() + ' with a big update! Skill tree, new routes, leaderboard from zero. Sail with me and grab the best loot first ⛵'
+      : 'Grand Line startet ' + when() + ' live mit einem großen Update! Skillbaum, neue Routen, Rangliste ab null. Segel mit mir los und schnapp dir zuerst die beste Beute ⛵';
   }
 
   // Kleine Pixel-Bühne: Schiff auf Wellen, Möwen, Sterne
@@ -86,7 +86,7 @@ window.GL = window.GL || {};
     if (!S().id || started()) return '';
     return `<button class="sz-banner" data-act="season-open">
       <span class="sz-live"><i></i>LIVE</span>
-      <span class="sz-bt"><b>${en() ? 'Season 1 · ' + when() : 'Saison 1 · ' + when()}</b><small>${en() ? 'Skill tree, new routes, leaderboard from zero' : 'Skillbaum, neue Routen, Rangliste ab null'}</small></span>
+      <span class="sz-bt"><b>${en() ? 'Live start · ' + when() : 'Live-Start · ' + when()}</b><small>${en() ? 'Skill tree, new routes, leaderboard from zero' : 'Skillbaum, neue Routen, Rangliste ab null'}</small></span>
       ${timerHtml(false)}</button>`;
   }
 
@@ -96,11 +96,11 @@ window.GL = window.GL || {};
     const head = invitedBy
       ? (en() ? `<b>${invitedBy}</b> invites you aboard!` : `<b>${invitedBy}</b> lädt dich an Bord ein!`)
       : (en() ? 'Live event' : 'Live-Event');
-    const title = live ? (en() ? 'Season 1 has begun!' : 'Saison 1 hat begonnen!') : (en() ? 'Season 1 starts ' + when() : 'Saison 1 startet ' + when());
+    const title = live ? (en() ? 'The big update is live!' : 'Das große Update ist live!') : (en() ? 'Live start ' + when() : 'Live-Start ' + when());
     const text = live
-      ? (en() ? 'Season 1 is live! The leaderboard starts at zero, everyone at the same line. Set sail now and be the first with the best gear!' : 'Saison 1 läuft! Die Rangliste startet bei null, alle an derselben Startlinie. Segel jetzt los und sei der Erste mit der tollsten Ausrüstung!')
-      : (en() ? 'At 6 pm Season 1 begins: skill tree, new routes, new enemies, new items, a new game system. The leaderboard starts at zero. Be there live, set sail with your buddies and be the first with the best gear!'
-        : 'Um 18 Uhr beginnt Saison 1: Skillbaum, neue Routen, neue Gegner, neue Items, ein neues Spielsystem. Die Rangliste startet bei null. Sei live dabei, segel mit deinen Kumpanen los und sei der Erste mit der tollsten Ausrüstung!');
+      ? (en() ? 'It is live! The leaderboard starts at zero, everyone at the same line. Set sail now and be the first with the best gear!' : 'Es ist so weit! Die Rangliste startet bei null, alle an derselben Startlinie. Segel jetzt los und sei der Erste mit der tollsten Ausrüstung!')
+      : (en() ? 'At 6 pm the big update goes live: skill tree, new routes, new enemies, new items, a new game system. The leaderboard starts at zero. Be there live, set sail with your buddies and be the first with the best gear!'
+        : 'Um 18 Uhr geht das große Update live: Skillbaum, neue Routen, neue Gegner, neue Items, ein neues Spielsystem. Die Rangliste startet bei null. Sei live dabei, segel mit deinen Kumpanen los und sei der Erste mit der tollsten Ausrüstung!');
     const keep = en() ? 'Your progress stays. The leaderboard starts at zero: only voyages from 6 pm count. Fancy a fresh start? You can choose it then, with a reward for testers.' : 'Dein Fortschritt bleibt. Die Rangliste startet bei null: Es zählen nur Fahrten ab 18 Uhr. Lust auf einen Neuanfang? Kannst du dann freiwillig wählen, mit Belohnung für Tester.';
     const canInvite = profile && profile.nickname && GL.friends && GL.online && GL.online.state && GL.online.state().uid;
     return `<div class="fpop-card sz-pop">

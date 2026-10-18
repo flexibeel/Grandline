@@ -2176,7 +2176,7 @@
         delete profile.seasonWipe;
         const keep = { nickname: profile.nickname, char: profile.char, cos: profile.cos };
         Promise.resolve(st.uid && GL.online.wipe ? GL.online.wipe(false, keep) : null).catch(() => {}).then(() => saveProfile());
-        toast('<span><b>⛵ Frischer Start</b>Neue Saison, neues Glück. Dein alter Stand ist auf diesem Gerät gesichert.</span>');
+        toast('<span><b>⛵ Frischer Start</b>Neuer Anlauf, neues Glück. Dein alter Stand ist auf diesem Gerät gesichert.</span>');
         if (profile.vetGift) { delete profile.vetGift; saveProfile(); setTimeout(() => toast('<span><b>🎁 Dankeschön für die Testfahrt</b>Du bist weit gekommen: 2 epische Ausrüstungsteile liegen für deine Crew in der Truhe.</span>'), 2500); }
       };
       setTimeout(() => doWipe(0), 2500);

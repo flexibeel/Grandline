@@ -225,3 +225,8 @@ GL.data.en = Object.assign(GL.data.en || {}, {
   'Ganze Crew heilt sich am Ende jeder Runde um 1.': 'The whole crew heals 1 at the end of every round.', 'Ganze Crew heilt sich am Ende jeder Runde um 2.': 'The whole crew heals 2 at the end of every round.',
   'Zu Kampfbeginn erleiden alle Gegner {a} Schaden, ganze Crew +{b} Tempo.': 'At battle start all enemies take {a} damage, whole crew +{b} speed.'
 });
+// Schatz-Karten (Fork I)
+Object.assign(GL.data.en, { 'Antippen': 'Tap', '✓ Gewählt': '✓ Chosen' });
+GL.i18nExtraP = (GL.i18nExtraP || []).concat([
+  [/^(Gewöhnlich|Selten|Episch|Legendär|Erwacht|Einzigartig) · (Schatz|Teufelsfrucht)$/, (m, r, k) => ({ 'Gewöhnlich': 'Common', 'Selten': 'Rare', 'Episch': 'Epic', 'Legendär': 'Legendary', 'Erwacht': 'Awakened', 'Einzigartig': 'Unique' }[r] + ' · ' + (k === 'Schatz' ? 'Treasure' : 'Devil fruit'))]
+]);

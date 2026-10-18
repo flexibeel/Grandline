@@ -1,8 +1,12 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
-  { v: '2026-10-20a', date: '18.10.', title: 'Saison 1: ein neues Spielsystem', items: [
-    '⛵ Saison 1 startet am 18.10. um 18 Uhr: Countdown im Titelbild und im Hafen, Live-Fenster mit „In den Kalender“, Einspieler „Leinen los auf der Grand Line“. Die Rangliste beginnt bei null (nur Fahrten ab 18 Uhr), dein Fortschritt bleibt',
+  { v: '2026-10-20b', date: '18.10.', title: 'Schatz-Look und selbst ausrüsten', items: [
+    'Schätze und Früchte wählst du jetzt wie einen echten Fund: Podest mit Lichtstrahlen in der Seltenheitsfarbe, Namensschild und Effekt auf Pergament',
+    'Kein Alles-auf-einen-Klick beim Ausrüsten: grüne Pfeile zeigen bessere Teile, anlegen machst du selbst',
+    'Aus „Saison 1“ wird „Großes Update“: Live-Start heute 18 Uhr, die Rangliste zählt ab dann bei null' ] },
+  { v: '2026-10-20a', date: '18.10.', title: 'Großes Update: ein neues Spielsystem', items: [
+    '⛵ Live-Start am 18.10. um 18 Uhr: Countdown im Titelbild und im Hafen, Live-Fenster mit „In den Kalender“, Einspieler „Leinen los auf der Grand Line“. Die Rangliste beginnt bei null (nur Fahrten ab 18 Uhr), dein Fortschritt bleibt',
     'Freiwillig frisch starten mit Belohnung: Titel „Veteran der Testfahrt“, wer weit kam, bekommt 2 epische Ausrüstungsteile. Am Startabend gesegelt? Flagge „Erste Fahrt“ und Titel „Erstsegler“',
     '💌 Kumpels einladen: Link mit QR-Code, schönes Willkommensfenster beim Öffnen, automatisch Segelkumpan, 150 Berry Geschenk',
     '✦ Skillbaum „Gemütlichkeit“ (ab 18 Uhr): Punkte kommen nebenbei, Schiff ausbauen (Hängematten, Herd, Krähennest, Bordkanone, Galionsfigur), Zusammenhalt, Abenteuer und Talente für jeden Strohhut. Umskillen kostenlos',
@@ -12,7 +16,7 @@ GL.patchNotes = [
     'Neue Items: Fleischkeule am Knochen, Rumble-Ball-Dose, Strohsandalen, Kochschürze, Mandarinen-Kiste, Sunny-Löwenkopf, Kochmesser, Perlenkette',
     'Dein eigener Pirat: Teufelsfrucht reinziehen (Profil → Kampf) und eigene Bande taufen, sichtbar auf deiner Karte und in der Rangliste',
     'Große Daumen-Karten: Route, Training, Schätze und Früchte am Handy viel leichter zu treffen. Kampf: feste Daumen-Leiste unten, nichts springt mehr',
-    'Stammcrew: grüne Pfeile zeigen bessere Ausrüstung, „Bestes anlegen“ und „Alle ausrüsten“ mit einem Tipp',
+    'Stammcrew: grüne Pfeile zeigen, wo bessere Ausrüstung in der Truhe liegt, das stärkste Teil steht beim Platz ganz oben',
     '⏸ Pause im Run. Dein Run reist jetzt auch online mit: am PC aufhören, am Handy genau dort weitermachen. Gespeichert wird sofort, wenn das Spiel in den Hintergrund geht',
     'Feinschliff: jede Crew-Karte mit eigener Kulisse (Windmühle, Dojo, Mandarinenhain, Baratie, Drumm …), Händler-Waren mit eigenen Bildern, Album, Aufträge, Kapitänsbuch und Wiki aufgeräumt und kompakter' ] },
   { v: '2026-10-19d', date: '18.10.', title: 'Segelkumpane, Pinnwand, lebendige Karten', items: [

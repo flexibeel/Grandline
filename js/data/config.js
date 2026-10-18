@@ -133,6 +133,6 @@ GL.config = {
   ]
 };
 
-// Großer Neustart (Saison): ab diesem Moment starten alle frisch, Rangliste beginnt bei null.
+// Live-Start des großen Updates: ab diesem Moment zählt die Rangliste bei null (Fortschritt bleibt, frisch starten ist freiwillig).
 //   start = 18.10.2026, 18:00 Uhr deutscher Zeit (16:00 UTC). Startabend bis 19.10. 23:59 → Flagge „Erste Fahrt“.
 GL.config.season = { id: 's1', start: Date.UTC(2026, 9, 18, 16, 0, 0), launchEnd: Date.UTC(2026, 9, 19, 22, 0, 0) };

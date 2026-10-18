@@ -7332,3 +7332,77 @@ button.stb-row { cursor: pointer; } button.stb-row:active { transform: translate
 .pause-pop .pz-ico { font-size: 2.4rem; width: 70px; height: 70px; margin: 4px auto 6px; display: grid; place-items: center; border-radius: 50%; background: #fff3c4; box-shadow: inset 0 -4px 0 #e2c27a, 0 3px 0 #b88a3a; }
 .pause-pop p { line-height: 1.45; }
 .pause-btn { font-weight: 700; }
+/* Hinweis statt Alles-auf-einen-Klick (Felix: selbst ausrüsten soll Spaß machen) */
+.sq-best-hint { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; margin: 10px 0 4px; padding: 9px 12px; border-radius: 12px; background: #e9f6e2; border: 2px solid #9fd08a; color: #2f5a22; }
+.sq-best-hint svg { width: 18px; height: 18px; }
+.sq-best-hint b { font: 600 .92rem Fredoka, sans-serif; }
+.sq-best-hint small { flex-basis: 100%; font-size: .78rem; color: #4d6e40; }
+.dr-hint-tip { font-size: .78rem; color: #3f6a2e; font-weight: 600; white-space: nowrap; }
+
+/* ===== Fork I: Schatz-Karten ===== */
+#stage .cards.loot .opt.card.tc-opt { padding: 0 !important; background: transparent !important; border: 0 !important; box-shadow: none !important; overflow: visible; border-radius: 16px; min-height: 0; animation: tc-pop .45s cubic-bezier(.2, 1.4, .4, 1) backwards; }
+#stage .cards.loot .opt.card.tc-opt:nth-child(2) { animation-delay: .09s; }
+#stage .cards.loot .opt.card.tc-opt:nth-child(3) { animation-delay: .18s; }
+#stage .cards.loot .opt.card.tc-opt:nth-child(4) { animation-delay: .27s; }
+@keyframes tc-pop { from { opacity: 0; transform: translateY(14px) scale(.9); } }
+.tc-face { --c: #a8753c; --cd: #6b4424; --ch: #d9b36a; display: flex; flex-direction: column; align-items: stretch; height: 100%; text-align: center;
+  background: linear-gradient(180deg, #fff9ea, #f6e8c8); border: 3px solid var(--cd); border-radius: 16px; box-shadow: 0 4px 0 var(--cd), 0 8px 16px rgba(70, 40, 15, .16); overflow: hidden; position: relative; }
+.tc-rare { --c: #3f86b8; --cd: #24557a; --ch: #9fd3f0; }
+.tc-epic { --c: #8a55c8; --cd: #55307f; --ch: #d4b4f5; }
+.tc-legendary { --c: #e0a030; --cd: #9a6a14; --ch: #ffe08a; }
+.tc-awakened { --c: #d9483a; --cd: #8a2a20; --ch: #ffb39a; }
+.tc-unique { --c: #2f9a8a; --cd: #1d6158; --ch: #a8ece0; }
+/* Bühne: Lichtstrahlen, Truhe, schwebendes Item, Funkeln */
+.tc-stage { position: relative; display: block; height: 128px; overflow: hidden; background: radial-gradient(circle at 50% 62%, var(--ch) 0, transparent 62%), linear-gradient(180deg, #3b2a4a 0%, #5a3d52 55%, #7a5238 100%); border-bottom: 3px solid var(--cd); }
+.tc-rays { position: absolute; left: 50%; top: 62%; width: 260px; height: 260px; margin: -130px 0 0 -130px; border-radius: 50%; opacity: .55;
+  background: repeating-conic-gradient(from 0deg, var(--ch) 0 9deg, transparent 9deg 24deg); animation: tc-spin 14s linear infinite; -webkit-mask: radial-gradient(circle, #000 18%, transparent 68%); mask: radial-gradient(circle, #000 18%, transparent 68%); }
+@keyframes tc-spin { to { transform: rotate(360deg); } }
+.tc-glow { position: absolute; left: 50%; top: 58%; width: 90px; height: 50px; margin: -25px 0 0 -45px; border-radius: 50%; background: var(--ch); filter: blur(14px); opacity: .8; }
+.tc-chest { position: absolute; left: 50%; bottom: 8px; width: 92px; height: auto; margin-left: -46px; image-rendering: pixelated; filter: drop-shadow(0 3px 0 rgba(0,0,0,.35)); }
+.tc-item { position: absolute; left: 50%; bottom: 46px; width: 58px; height: 58px; margin-left: -29px; display: grid; place-items: center; animation: tc-bob 2.4s ease-in-out infinite; filter: drop-shadow(0 0 6px var(--ch)) drop-shadow(0 3px 0 rgba(0,0,0,.3)); z-index: 2; }
+.tc-item svg { width: 100%; height: 100%; }
+.tc-ped ~ .tc-item { bottom: 38px; }
+@keyframes tc-bob { 50% { transform: translateY(-6px); } }
+.tc-sp { position: absolute; color: #fff6c8; font-style: normal; font-size: 13px; text-shadow: 0 0 6px var(--ch); animation: tc-tw 2.2s ease-in-out infinite; z-index: 3; }
+.tc-sp.a { left: 24%; top: 22%; } .tc-sp.b { right: 22%; top: 34%; animation-delay: .7s; font-size: 10px; } .tc-sp.c { left: 34%; top: 58%; animation-delay: 1.4s; font-size: 11px; }
+@keyframes tc-tw { 0%, 100% { opacity: 0; transform: scale(.5); } 50% { opacity: 1; transform: scale(1.1); } }
+/* Info: Schleife, Holzschild, Pergament, Nehmen-Schild */
+.tc-info { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 8px 10px 10px; flex: 1; }
+.tc-rib { font: 600 .7rem/1 'Pixelify Sans', 'Fredoka', sans-serif; letter-spacing: .03em; color: #fff; background: var(--c); padding: 4px 9px; border-radius: 6px; box-shadow: 0 2px 0 var(--cd); margin-top: -20px; position: relative; z-index: 4; white-space: nowrap; }
+.tc-sign { font: 600 1.02rem/1.15 'Fredoka', sans-serif; color: #fff7e4; padding: 6px 12px; border-radius: 8px; max-width: 100%; overflow-wrap: anywhere;
+  background: repeating-linear-gradient(180deg, #9a6838 0 6px, #8c5d31 6px 12px); border: 2px solid #5e3b1d; box-shadow: inset 0 1px 0 rgba(255,255,255,.2), 0 3px 0 #5e3b1d; text-shadow: 0 1px 0 #4a2d16; }
+.tc-text { font-size: .84rem; line-height: 1.35; color: #4a3826; padding: 6px 8px; background: #fbf1d6; border-radius: 6px; border: 1px dashed #d6bd8a; width: 100%; box-sizing: border-box; }
+.tc-ben { margin: 0 !important; }
+.tc-take { margin-top: auto; display: inline-flex; align-items: center; justify-content: center; min-height: 40px; min-width: 120px; padding: 0 16px; border-radius: 10px;
+  font: 600 .9rem 'Fredoka', sans-serif; color: #fffdf6; background: var(--c); box-shadow: 0 4px 0 var(--cd); transition: transform .1s; }
+.tc-take-b { display: none; }
+.opt.card.tc-opt.picked .tc-take { background: #4f9a5a; box-shadow: 0 4px 0 #2f6a38; }
+.opt.card.tc-opt.picked .tc-take-a { display: none; } .opt.card.tc-opt.picked .tc-take-b { display: inline; }
+.opt.card.tc-opt:active .tc-take { transform: translateY(3px); box-shadow: 0 1px 0 var(--cd); }
+.opt.card.tc-opt.picked { outline: none !important; transform: translateY(-4px) !important; }
+.opt.card.tc-opt.picked .tc-face { border-color: #4f9a5a; box-shadow: 0 4px 0 #2f6a38, 0 0 0 3px rgba(79,154,90,.35), 0 10px 20px rgba(40,90,40,.25); }
+.opt.card.tc-opt.unpicked { opacity: .7; }
+.tc-legendary .tc-face, .tc-face.tc-legendary { box-shadow: 0 4px 0 var(--cd), 0 0 18px rgba(224,160,48,.55); }
+.tc-face.tc-epic { box-shadow: 0 4px 0 var(--cd), 0 0 14px rgba(138,85,200,.4); }
+.opt.card.tc-opt > .key { z-index: 5; }
+.opt.card.tc-opt.is-tip > .tip-badge { z-index: 6; }
+.opt.loot-opt.tc-opt.lr-epic, .opt.loot-opt.tc-opt.lr-legendary { box-shadow: none !important; }
+.opt.loot-opt.tc-opt.lr-legendary::after { display: none; }
+/* Handy: Truhe links, Infos rechts — kompakt und mit dem Daumen gut zu treffen */
+@media (max-width: 560px) {
+  #stage .cards.loot { grid-template-columns: 1fr !important; gap: 12px !important; }
+  .tc-face { flex-direction: row; text-align: left; }
+  .tc-stage { width: 112px; height: auto; min-height: 120px; flex: none; border-bottom: 0; border-right: 3px solid var(--cd); }
+  .tc-chest { width: 80px; margin-left: -40px; }
+  .tc-item { width: 50px; height: 50px; margin-left: -25px; bottom: 42px; }
+  .tc-info { align-items: flex-start; padding: 8px 10px 10px; gap: 5px; }
+  .tc-rib { margin-top: 0; }
+  .tc-sign { font-size: .98rem; padding: 4px 10px; }
+  .tc-text { font-size: .82rem; padding: 4px 7px; }
+  .tc-take { align-self: stretch; min-height: 42px; }
+}
+@media (prefers-reduced-motion: reduce) { .tc-rays, .tc-item, .tc-sp, #stage .cards.loot .opt.card.tc-opt { animation: none !important; } }
+/* Fork I: Beute größer über dem Podest */
+.tc-item { width: 72px; height: 72px; margin-left: -36px; bottom: 40px; }
+.tc-ped ~ .tc-item { bottom: 40px; }
+@media (max-width: 560px) { .tc-item, .tc-ped ~ .tc-item { width: 62px; height: 62px; margin-left: -31px; bottom: 36px; } .tc-chest { width: 76px; margin-left: -38px; } }

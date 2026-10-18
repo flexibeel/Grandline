@@ -23,3 +23,8 @@ GL.i18nExtraP = (GL.i18nExtraP || []).concat([
   [/^(\d+) (Platz|Plätze) mit besserer Ausrüstung in der Truhe$/, (m, n) => n + (n === '1' ? ' slot' : ' slots') + ' with better gear in the chest'],
   [/^Besser in der Truhe: (.+) \(\+(\d+) ⚔\)$/, 'Better in the chest: $1 (+$2 ⚔)']
 ]);
+Object.assign(GL.data.en, {
+  'Grüne Pfeile zeigen, wer etwas Besseres tragen kann. Antippen zum Ankleiden.': 'Green arrows show who can wear something better. Tap to dress up.',
+  'Tippe einen grünen Platz an': 'Tap a green slot'
+});
+GL.i18nExtraP = (GL.i18nExtraP || []).concat([[/^(\d+) Verbesserungen in der Truhe$/, '$1 upgrades in the chest']]);
