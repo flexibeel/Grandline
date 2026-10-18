@@ -186,6 +186,18 @@
     document.body.appendChild(el);
     requestAnimationFrame(() => el.classList.add('in'));
   }
+  // Jedes Fenster bekommt oben rechts einen schönen Schließen-Knopf (Handy: schnell raus)
+  (function popCloser() {
+    const add = () => {
+      const card = document.querySelector('#fpop .fpop-card');
+      if (!card || card.querySelector('.pop-x, .tv-sheet-x') || card.dataset.noclose) return;
+      const old = card.querySelector('.dr-x'); if (old) old.remove();
+      const b = document.createElement('button');
+      b.className = 'pop-x'; b.dataset.act = 'pop-close'; b.setAttribute('aria-label', 'Schließen'); b.innerHTML = '<span>✕</span>';
+      card.prepend(b);
+    };
+    new MutationObserver(add).observe(document.body, { childList: true, subtree: true });
+  })();
   // Ankleidemenü öffnen bzw. ohne Flackern neu zeichnen
   function showDress(patch) {
     ui.dress = Object.assign({}, ui.dress || {}, patch || {});

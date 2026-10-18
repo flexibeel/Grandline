@@ -1,6 +1,9 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-18z', date: '18.10.', title: 'Feinschliff', items: [
+    'Jedes Fenster hat jetzt oben rechts einen richtigen ✕-Knopf, der beim Scrollen mitwandert. Lange Fenster (z. B. Steckbrief) scrollen am Handy in sich, so kommst du immer schnell raus',
+    'Englisch: viele Texte im Run, in Kämpfen und bei Belohnungen übersetzt' ] },
   { v: '2026-10-18y', date: '18.10.', title: 'Team-Balken, Schnell-Kampf, Flaschenpost', items: [
     'Team-Balken: Ist eine Bande voll (z. B. 4 CP9), erscheint im Kampf ein kleiner Balken. Jede Ulti deiner Crew füllt ein Stück, er bleibt über die Kämpfe eines Runs erhalten. Nach 3 Ultis zündet die Team-Fähigkeit der Bande, z. B. „Rokuogan“, „Buster Call“ oder „Strohhut-Sturm“. Alle 12 stehen im Wiki unter Boni',
     'Schnell-Kampf: Normale Kämpfe, die du klar gewinnst, kannst du ab dem zweiten Kampf mit ⏩ überspringen. Bosse und Raids laufen immer ganz',

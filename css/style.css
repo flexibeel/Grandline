@@ -5903,3 +5903,14 @@ h1, h2, h3, .hq-sec h3, .rank-name, .my-name, .duel-head b, .poster h3, .card-na
 }
 .vk-slots { grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); }
 @media (max-width: 699px) { .vk-slot.full .vk-t small { display: none; } .vk-slot { min-height: 38px; padding: 4px 6px; } }
+/* Schließen-Knopf für alle Fenster */
+.fpop-card { position: relative; }
+.pop-x { position: absolute; top: 8px; right: 8px; z-index: 5; width: 36px; height: 36px; display: grid; place-items: center; padding: 0; cursor: pointer;
+  background: linear-gradient(#fff6e0, #f0dcb0); border: 2px solid #8a5a2a; border-radius: 8px; box-shadow: 0 3px 0 #6b4422, inset 0 -2px 0 rgba(160,110,50,.2); color: #6b4422; font-weight: 900; font-size: 15px; line-height: 1; }
+.pop-x:hover { background: linear-gradient(#fffaf0, #f6e4c0); }
+.pop-x:active { transform: translateY(2px); box-shadow: 0 1px 0 #6b4422; }
+.fpop-card .fpop-kicker:first-of-type { padding-right: 40px; }
+.dress-pop .dr-x { display: none; }
+.pop-x { position: sticky; top: 8px; float: right; margin: -4px -4px -36px 8px; right: auto; }
+.fpop-card { max-height: calc(100dvh - 32px); overflow-y: auto; overscroll-behavior: contain; }
+.pop-x { float: none; margin: -6px -6px -30px auto; }

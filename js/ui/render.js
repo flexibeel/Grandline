@@ -380,6 +380,7 @@ window.GL = window.GL || {};
   // Figurenkarte: Rahmen in der Farbe der Bande, oben das Banden-Band, unten klare Werte-Leiste
   // Erster Satz, ohne Klammern, höchstens ~56 Zeichen
   function shortText(t) {
+    if (GL.i18n && GL.i18n.lang && GL.i18n.lang() === 'en') t = GL.i18n.t(String(t || ''));
     let s = String(t || '').replace(/\s*\([^)]*\)/g, '').split(/(?<=[.!])\s/)[0].replace(/[.!]$/, '');
     return s.length > 74 ? s.slice(0, 72).replace(/\s+\S*$/, '') + '…' : s;
   }
