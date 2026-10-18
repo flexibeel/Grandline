@@ -178,6 +178,17 @@ GL.data.abilities = {
                 status: { key: 'fear', rounds: 1, when: 'hit', target: 'target', chance: 0.3 } },
   seaking:    { name: 'Schwanzschlag', kind: 'burn', value: 0.25, text: 'Sein Schwanz trifft auch alle anderen (25 % Schaden).' },
   bat:        { name: 'Blutsauger',   kind: 'lifesteal', value: 0.35, text: 'Heilt sich um 35 % seines Schadens.' },
+  // ART3: Inselbewohner
+  'mo-skorpion':   { name: 'Giftstachel',  text: 'Sticht giftig: Treffer lassen manchmal bluten (2 Schaden pro Runde, 2 Runden). Freundlich ist er nur zu Sand.',
+                     status: { key: 'bleed', rounds: 2, when: 'hit', target: 'target', value: 2, chance: 0.3 } },
+  'mo-schneewolf': { name: 'Eisheulen',    text: 'Heult so kalt, dass Treffer manchmal Furcht auslösen. Chopper kennt ihn. Chopper ist nicht begeistert.',
+                     status: { key: 'fear', rounds: 1, when: 'hit', target: 'target', chance: 0.25 } },
+  'mo-sumpfaffe':  { name: 'Affenwut',     kind: 'ramp', value: 1, text: 'Wird mit jedem Treffer wütender: +1 Angriff pro Treffer. Hat Gründe. Sagt sie nicht.' },
+  'mo-wolke':      { name: 'Wolkenspeer',  kind: 'sniper', text: 'Zielt von oben auf dein Crewmitglied mit den wenigsten Leben. Höflich, aber gnadenlos.' },
+  'mo-qualle':     { name: 'Nesseln',      kind: 'thorns', value: 1, text: 'Wer sie anfasst, bereut es: 1 Schaden zurück. Sieht trotzdem hübsch aus.' },
+  'mo-fischmensch':{ name: 'Fischmenschen-Karate', kind: 'ramp', value: 1, text: 'Jeder Treffer macht ihn schneller warm: +1 Angriff pro Treffer.' },
+  'mo-zombie':     { name: 'Schon tot',    kind: 'lifesteal', value: 0.2, text: 'Heilt sich um 20 % seines Schadens. Er hat Schlimmeres überlebt. Technisch gesehen nicht.' },
+  'mo-roboter':    { name: 'Panzerplatten', kind: 'thorns', value: 1, text: 'Wer ihn trifft, erleidet 1 Schaden. Quietscht dabei beleidigt.' },
 
   // ---- Inhalts-Update: neue Crewmitglieder ----
   alvida:  { name: 'Sube-Sube-Frucht', text: 'Glatte Haut: erleidet 2 weniger Schaden und weicht 10 % aus.', mods: [{ scope: 'char:alvida', armor: 2, dodge: 0.1 }] },

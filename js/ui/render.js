@@ -1711,6 +1711,13 @@ window.GL = window.GL || {};
 
   // Zwischen-Event mit der Crew: kleine Bühne, 2–3 Sprechzeilen, dann große Wahlkarten
   const CE_ICON = { fruit: () => GL.sprites.icon('node', 'fruit'), rest: () => GL.sprites.icon('node', 'rest'), elite: () => GL.sprites.icon('node', 'elite'), map: () => pxIco('ship'), battle: () => GL.sprites.icon('node', 'battle'), chest: () => pxIco('chest'), recruit: () => GL.sprites.icon('node', 'recruit') };
+  // ART3: neue Kulissen aus art.js als Bühnenbild (sonst bleibt der CSS-Verlauf)
+  const CE_SCENES = ['markt_nacht', 'grotte', 'vulkan', 'kirschhafen', 'geisterschiff', 'wrackfriedhof'];
+  function ceSceneArt(bg) {
+    if (!CE_SCENES.includes(bg) || !GL.art || !GL.art.scene) return '';
+    try { const t = bg === 'markt_nacht' || bg === 'geisterschiff' ? 'night' : bg === 'vulkan' ? 'dusk' : 'day';
+      return `<i class="ce-art" aria-hidden="true">${GL.art.scene(bg, { time: t, ship: false }).replace('<svg ', '<svg preserveAspectRatio="xMidYMid slice" ')}</i>`; } catch (e) { return ''; }
+  }
   function crewEventStage(run) {
     const ev = byId(GL.data.crewEvents || [], run.event.id);
     if (!ev) return '';
@@ -1721,6 +1728,8 @@ window.GL = window.GL || {};
     const fig = key => {
       if (key === 'B' && bId === 'kalle') key = 'kalle';
       if (key === 'kalle') return { name: en ? 'Kalle the News Coo' : 'Kalle, die Zeitungsmöwe', spr: gull ? GL.sprites.render({ id: 'pet-moewe', art: gull.art }) : '' };
+      if (String(key).indexOf('npc:') === 0) { const nid = key.slice(4), nn = (GL.data.npcNames || {})[nid];
+        return { name: nn ? nn[en ? 1 : 0] : nid, spr: GL.art && GL.art.npc ? `<span class="npc-face">${GL.art.npc(nid)}</span>` : '' }; }
       const d = crewData(key === 'A' ? aId : key === 'B' ? bId : key) || {};   // auch feste Sprecher wie 'zorro' (events3.js)
       return { name: d.name || '?', spr: d.id ? GL.sprites.render(d) : '' };
     };
@@ -1736,7 +1745,7 @@ window.GL = window.GL || {};
         <span class="ce-opt-b"><b>${esc(L2(c.label))}</b><small>${esc(L2(c.hint))}</small>${(pv => pv ? `<span class="ev-chips sm">${pv}</span>` : '')(outcomePreview(c.outcome, en))}</span><i class="ce-go" aria-hidden="true">›</i></button>`).join('');
     return `<div class="event ce-event">
       <div class="ce-head"><i class="ce-ico">${ico}</i><span><small>${ev.ep ? `<span class="ev-ep">📜 ${en ? 'Episode' : 'Folge'}<i class="ev-ep-dots">${[1, 2, 3].map(k => `<i class="${k <= ev.part ? 'on' : ''}"></i>`).join('')}</i>${ev.part}/3</span>` : (en ? 'On the way' : 'Unterwegs')}</small><h2>${esc(L2(ev.title))}</h2></span></div>
-      <div class="ce-stage bg-${ev.bg || 'insel'}"><span class="ce-cast">${cast.map(k => `<i class="ce-who">${fig(k).spr}</i>`).join('')}</span></div>
+      <div class="ce-stage bg-${ev.bg || 'insel'}">${ceSceneArt(ev.bg)}<span class="ce-cast">${cast.map(k => `<i class="ce-who">${fig(k).spr}</i>`).join('')}</span></div>
       <div class="ce-lines">${lines}</div>
       <div class="ce-opts">${opts}</div>
     </div>`;
@@ -1965,7 +1974,7 @@ window.GL = window.GL || {};
             <b>${run.loop ? 'Kurz durchatmen, dann wird es härter.' : 'Stell deine Crew zusammen, dann legst du ab.'}</b>
             <small>Aufstellung passiert automatisch: Brecher vorne, Helfer hinten.</small></div>` : '';
         return `${harbor}<div class="tavern">
-            <div class="tv-head"><h2>${run.harbor ? 'Hafentaverne' : 'Taverne'}</h2><span class="gold">${GL.sprites.coin()} <b>${gold}</b></span></div>
+            <div class="tv-head">${GL.art && GL.art.npc ? `<i class="npc-por sm" data-tip="${['Wirtin Rosi: Was darf es sein? Mut ist heute im Angebot.', 'Wirtin Rosi: Anheuern geht schneller als Abheuern.', 'Wirtin Rosi: Wer hier sitzt, will mit. Meistens.'][(run.step || 0) % 3]}">${GL.art.npc('hafenwirtin')}</i>` : ''}<h2>${run.harbor ? 'Hafentaverne' : 'Taverne'}</h2><span class="gold">${GL.sprites.coin()} <b>${gold}</b></span></div>
             ${run.shopFree ? '<p class="tv-free">Der erste Kauf ist gratis.</p>' : ''}
             <div class="tv-syn">${synBar(run, sel != null && run.pool[sel] && !run.pool[sel].sold ? crewData(run.pool[sel].id) : null)}</div>
             <div class="tv-grid">${tiles}</div>
@@ -2030,7 +2039,7 @@ window.GL = window.GL || {};
             ${i === 0 ? '<i class="pv-front" aria-hidden="true"></i>' : ''}
             ${boss && !e.boss && !e.mini && e.wave !== 2 && foes.indexOf(boss) > i ? `<i class="pv-guard" aria-hidden="true" title="Schützt den Anführer">${PX_GUARD}</i>` : ''}${(e.boss || e.mini) && i > 0 ? '<i class="pv-lead" aria-hidden="true">★</i>' : ''}${GL.arena && GL.arena.intentHtml ? GL.arena.intentHtml(e, foes, {}, 'pv-int') : ''}
             <span class="pv-s">${GL.sprites.render(d)}</span>
-            ${fk ? `<em class="pv-m fk fk-${fk.key}">${fk.tag}</em>` : !e.boss && !e.mini && ability(e.id) && d.art ? `<em class="pv-m fk">${esc(ability(e.id).name)}</em>` : ''}
+            ${fk ? `<em class="pv-m fk fk-${fk.key}">${fk.tag}</em>` : !e.boss && !e.mini && ability(e.id) && (d.art || d.monster) ? `<em class="pv-m fk">${esc(ability(e.id).name)}</em>` : ''}
             <i class="pv-hp"><b style="width:100%"></b></i>
             <small>${e.hp} ♥</small>
           </div>`;
@@ -2399,6 +2408,23 @@ window.GL = window.GL || {};
       <div class="fpop-btns"><button class="btn ghost" data-act="pop-close">Schließen</button></div></div>`;
   }
   // Gegner-Vorschau vor einem Duell: wer, welche Crew, Stärke und Chance
+  // Duell-Taktik: drei kleine Holzkarten, ein Tipp. Gegnertaktik steht daneben, falls bekannt.
+  const TAC_TXT = {
+    sturm: ['Sturm', 'Mehr Angriff, dünnere Haut. Überrennt Listige, bevor sie ausweichen.'],
+    mauer: ['Mauer', 'Mehr Leben, Brecher ganz besonders. Stürmer laufen sich daran die Nase platt.'],
+    list: ['List', 'Ausweichen und Krit, dafür weniger Leben. Mauern sind langsam, Listige nicht.']
+  };
+  function tacRow(profile, row) {
+    if (!GL.squad || !GL.squad.TACTICS) return '';
+    const T = GL.squad.TACTICS, me = GL.squad.tacOf(profile.squadTactic), foe = GL.squad.tacOf(row.squadTactic);
+    const card = k => { const beat = foe && T[k].beats === foe, lose = foe && T[foe].beats === k;
+      return `<button class="sq-tc${me === k ? ' on' : ''}${beat ? ' good' : lose ? ' bad' : ''}" data-act="sq-tac" data-v="${k}" aria-pressed="${me === k}" data-tip="${esc(TAC_TXT[k][0] + ': ' + TAC_TXT[k][1])}"><i>${T[k].icon}</i><b>${TAC_TXT[k][0]}</b><small>${beat ? '▲ kontert' : lose ? '▽ gekontert' : '› ' + T[T[k].beats].icon}</small></button>`; };
+    const hint = me ? TAC_TXT[me][1] : 'Ausgewogen: ein bisschen von allem, nichts davon auffällig. Tippen zum Wählen.';
+    return `<div class="sq-tac">
+      <div class="sq-th"><span>Taktik</span>${foe ? `<em class="sq-foe" title="Taktik des Gegners">${esc(String(row.name || 'Gegner').split(' ')[0].slice(0, 12))}: ${T[foe].icon} ${TAC_TXT[foe][0]}</em>` : '<em class="sq-foe unk">Gegner: ausgewogen</em>'}</div>
+      <div class="sq-tcs">${['sturm', 'mauer', 'list'].map(card).join('')}</div>
+      <small class="sq-hint">${esc(hint)}</small></div>`;
+  }
   function matchPop(row, profile, chance) {
     const mineR = GL.meta.squadRefs(profile), foeR = row.squad || [];
     const mine = GL.meta.squadPower(mineR), theirs = row.squadPower || GL.meta.squadPower(foeR);
@@ -2420,6 +2446,7 @@ window.GL = window.GL || {};
         <span class="mp-lbl">Du <b>⚔ ${mine}</b></span><div class="mp-row">${idx.map(i => tile(mineR[i], foeR[i], false)).join('')}</div>
         <span class="mp-lbl foe">${esc(String(row.name || 'Gegner').slice(0, 14))} <b>⚔ ${theirs}</b></span><div class="mp-row">${idx.map(i => tile(foeR[i], null, true)).join('')}</div>
       </div>
+      ${tacRow(profile, row)}
       <div class="mp-chance ch-${ch}"><span>Siegchance</span><b>${chance} %</b><i style="width:${chance}%"></i></div>
       <div class="mp-btns"><button class="btn" data-act="squad-attack">⚔ Angreifen</button><button class="btn ghost" data-act="squad-match">Anderer</button><button class="btn ghost mp-x" data-act="pop-close" aria-label="Abbrechen">✕</button></div>
     </div>`;
@@ -2463,7 +2490,7 @@ window.GL = window.GL || {};
           <span class="sqd-gear">${slots}</span>
           ${pick ? `<span class="sqd-swap">Tauschen</span>` : `<span class="sqd-dress">${pxIco('anchor')}Ankleiden</span>`}
         </button>
-        ${bond ? `<button class="sqd-bond" data-act="crew-card" data-id="${esc(r.id)}" title="Steckbrief">♥${bond}</button>` : ''}
+        ${bond ? `<button class="sqd-bond" data-act="crew-card" data-id="${esc(r.id)}" title="Steckbrief">♥${bond}${(tr => tr ? ` <i class="sq-trait" title="${esc(traitTxt(tr))}">${tr.icon}<sup>${'I'.repeat(tr.tier)}</sup></i>` : '')(GL.squad && GL.squad.traitOf ? GL.squad.traitOf(r.role, bond) : null)}</button>` : ''}
         ${refs.length > 1 && !pick ? `<button class="sqd-x" data-act="squad-toggle" data-id="${esc(r.id)}" aria-label="Aus der Stammcrew nehmen">✕</button>` : ''}
       </div>`;
     }).join('');
@@ -3220,6 +3247,19 @@ window.GL = window.GL || {};
     Object.keys(vars || {}).forEach(x => { t = t.replace('{' + x + '}', vars[x]); });
     return t.replace(/\{[a-z]+\}/g, 'ihn');
   }
+  // Zusammenhalt-Eigenschaften (Vertraut 6/8/10), nur im Stammcrew-Duell
+  const TRAIT_TXT = {
+    brecher: ['Dickes Fell', n => `+${n} Rüstung im Duell. Hat schon Schlimmeres eingesteckt, meistens von Freunden.`],
+    kaempfer: ['Eingespielt', n => `+${Math.round(n * 100)} % Krit im Duell. Weiß, wann die anderen zuschlagen, und schlägt einfach mit.`],
+    helfer: ['Erste Hilfe', n => `Flickt im Duell ${n} Leben pro Runde. Pflaster aus der eigenen Tasche, Rechnung folgt nie.`]
+  };
+  function traitTxt(tr) { const T = TRAIT_TXT[tr.role]; return T ? `${T[0]} ${'I'.repeat(tr.tier)}: ${T[1](tr.v)}` : ''; }
+  function traitLine(role, lv) {
+    if (!GL.squad || !GL.squad.traitOf || !TRAIT_TXT[role]) return '';
+    const tr = GL.squad.traitOf(role, lv), next = lv < 6 ? 6 : lv < 8 ? 8 : lv < 10 ? 10 : 0, nt = next ? GL.squad.traitOf(role, next) : null;
+    if (tr) return `<p class="cc-trait"><i class="sq-trait">${tr.icon}<sup>${'I'.repeat(tr.tier)}</sup></i> <span><b>${TRAIT_TXT[role][0]} ${'I'.repeat(tr.tier)}</b> ${esc(TRAIT_TXT[role][1](tr.v))}${nt ? ` <small>Ab Vertraut ${next}: Stufe ${'I'.repeat(nt.tier)}.</small>` : ''}</span></p>`;
+    return `<p class="cc-trait locked"><i class="sq-trait">${GL.squad.traitOf(role, 6).icon}</i> <span><b>Ab Vertraut 6:</b> ${TRAIT_TXT[role][0]}. ${esc(TRAIT_TXT[role][1](GL.squad.traitOf(role, 6).v))}</span></p>`;
+  }
   // Steckbrief einer Figur: Vertrautheit, Lieblingsessen, Spielweise, gemeinsame Erinnerungen, Ausrüstung
   function crewCard(profile, id) {
     const d = id === 'self' ? avatarOf(profile) : crewData(id);
@@ -3245,6 +3285,7 @@ window.GL = window.GL || {};
         <span><h3>${esc(d.name)}${(profile.crewNick || {})[id] ? ` <small class="cc-nickshow">„${esc(profile.crewNick[id])}“</small>` : ''}</h3>
           <span class="cc-bond">${'♥'.repeat(Math.min(5, Math.ceil(lv / 2)))}${'♡'.repeat(Math.max(0, 5 - Math.ceil(lv / 2)))} <small>Vertraut ${lv}${nx ? ` · noch ${nx.need - nx.have} bis ${lv + 1}` : ' · ganz eng'}</small></span>
           ${inSquad ? '<em class="cc-tag">In deiner Stammcrew</em>' : ''}</span></div>
+      ${traitLine(role, lv)}
       ${say ? `<p class="cc-say">„${esc(say)}“</p>` : ''}
       <dl class="cc-facts"><dt>Lieblingsessen</dt><dd>${esc(L.food || 'Alles, was es gibt')}</dd>${style ? `<dt>Spielweise</dt><dd>${esc(style)}</dd>` : ''}</dl>
       <div class="cc-mem"><span class="cc-k">Eure Erinnerungen</span>${mem.length ? `<ul>${mem.join('')}</ul>` : '<p class="cc-none">Noch keine gemeinsamen Fahrten. Nimm sie mal mit!</p>'}</div>
@@ -4696,7 +4737,7 @@ window.GL = window.GL || {};
       ${tab === 'lager' ? lagerSection(profile, slots) : ''}
 
       ${tab === 'haendler' ? `<section class="hq-sec">
-        <p class="hint">Kleine Helfer für den nächsten Run. Was du kaufst, wartet im Lager auf dich.</p>
+        ${GL.art && GL.art.npc ? `<div class="npc-say"><i class="npc-por">${GL.art.npc('haendler')}</i><p><b>Händler Ottokar</b>Kleine Helfer für den nächsten Run. Was du kaufst, wartet im Lager. Umtausch nur gegen Gold.</p></div>` : '<p class="hint">Kleine Helfer für den nächsten Run. Was du kaufst, wartet im Lager auf dich.</p>'}
         <div class="wf-grid">${shop}</div></section>` : ''}
       ${roomFoot()}`}
     </div>`;

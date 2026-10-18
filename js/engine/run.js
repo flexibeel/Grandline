@@ -417,6 +417,13 @@ window.GL = window.GL || {};
       return e;
     });
   }
+  // Normale Gegner des Meeres, dazu Inselbewohner (isles) der aktuellen Insel
+  function gruntPool(run, sea) {
+    const isl = (chapterIsland(run) || {}).id;
+    const base = GL.data.grunts.filter(x => !x.isles && (!x.seas || x.seas.includes(Math.min(sea, 2))));
+    const local = GL.data.grunts.filter(x => x.isles && x.isles.includes(isl));
+    return base.concat(local);
+  }
   function makeEnemies(run, kind, who, gate) {
     const C = GL.config;
     const g = C.grunt;
@@ -440,8 +447,8 @@ window.GL = window.GL || {};
     const enemies = [];
     for (let i = 0; i < count; i++) {
       const sea = islandIndex(run);
-      let gp = GL.data.grunts.filter(x => !x.seas || x.seas.includes(Math.min(sea, 2)));
-      if (run.mood === 'tierzeit') gp = gp.concat(gp.filter(x => x.art), gp.filter(x => x.art));
+      let gp = gruntPool(run, sea);
+      if (run.mood === 'tierzeit') gp = gp.concat(gp.filter(x => x.art || x.monster), gp.filter(x => x.art || x.monster));
       const type = gp[R.int(run, 0, gp.length - 1)];
       const moodHp = run.mood === 'goldrausch' ? 1.08 : run.mood === 'tierzeit' && type.art ? 0.9 : run.mood === 'kopfgeld' && kind === 'elite' ? 1.1 : 1;
       const max = Math.round((g.hpBase + level * g.hpPerLevel) * mult * (1 + H.enemyHp) * moodHp * (1 + ((twistOf(run) || {}).foeHp || 0)));
@@ -480,7 +487,7 @@ window.GL = window.GL || {};
       const sea = islandIndex(run);
       const n2 = kind === 'raid' ? (W.raidExtra || 2) : (W.extra || 2);
       if (kind === 'raid') enemies.forEach(e => { if (e.boss) { e.max = e.hp = Math.round(e.max * (W.raidHp || 1)); } });
-      let gp = GL.data.grunts.filter(x => !x.seas || x.seas.includes(Math.min(sea, 2)));
+      let gp = gruntPool(run, sea);
       for (let i = 0; i < n2; i++) {
         const type = gp[R.int(run, 0, gp.length - 1)];
         const elite = i === 0 && (sea >= (W.eliteFromSea || 1) || kind === 'elite' || kind === 'raid');

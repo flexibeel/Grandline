@@ -296,8 +296,27 @@ GL.i18nExtraP = (GL.i18nExtraP || []).concat([
   [/^Der Heiler hat (.+) (\d+)× geflickt\. Nächstes Mal: Heiler zuerst\.$/, 'The healer patched up $1 $2×. Next time: healer first.'],
   [/^(\d+) schwere Schläge eingesteckt\. Ausweichen und Rüstung helfen doppelt\.$/, 'Took $1 heavy blows. Dodge and armor count double.'],
   [/^(.+) hat Verstärkung gepfiffen\. Mehr Schaden, bevor er wütend wird\.$/, '$1 whistled for backup. More damage before he gets angry.'],
-  [/^noch (\d+) (.+)-(?:Figur|Figuren) für (.+)$/, '$1 more $2 member(s) for $3'],
+  [/^noch (\d+) (.+)-(?:Figur|Figuren) für (.+)$/, (m, n, r, b) => { const T = t => (GL.i18n && GL.i18n.t ? GL.i18n.t(t) : t); const bb = b.replace(/^(.+?)( ★+)?$/, (x, nm, st) => T(nm) + (st || '')); return `${n} more ${T(r)} ${+n === 1 ? 'member' : 'members'} for ${bb}`; }],
   [/^noch (\d+) Rang-EP bis (.+)$/, '$1 more rank XP until $2'],
   [/^(.+) hat dir etwas geschickt$/, '$1 sent you something'],
   [/^(\d+) Flaschen angespült$/, '$1 bottles washed ashore']
+]);
+// Fork SQD: Duell-Taktik und Zusammenhalt-Eigenschaften
+Object.assign(GL.data.en, {
+  'Taktik': 'Tactic', 'Sturm': 'Storm', 'Mauer': 'Wall', 'List': 'Cunning', '▲ kontert': '▲ counters', '▽ gekontert': '▽ countered',
+  'Gegner: ausgewogen': 'Foe: balanced',
+  'Mehr Angriff, dünnere Haut. Überrennt Listige, bevor sie ausweichen.': 'More attack, thinner skin. Runs over the cunning before they can dodge.',
+  'Mehr Leben, Brecher ganz besonders. Stürmer laufen sich daran die Nase platt.': 'More health, breakers most of all. Stormers flatten their noses on it.',
+  'Ausweichen und Krit, dafür weniger Leben. Mauern sind langsam, Listige nicht.': 'Dodge and crit, less health. Walls are slow, the cunning are not.',
+  'Ausgewogen: ein bisschen von allem, nichts davon auffällig. Tippen zum Wählen.': 'Balanced: a bit of everything, none of it remarkable. Tap to choose.',
+  'Ab Vertraut 6:': 'From bond 6:'
+});
+GL.i18nExtraP = (GL.i18nExtraP || []).concat([
+  [/^(.{1,12}): (⚔|🛡|🎭) (Sturm|Mauer|List)$/, (m, n, i, t) => `${n}: ${i} ${({ Sturm: 'Storm', Mauer: 'Wall', List: 'Cunning' })[t]}`],
+  [/^(Dickes Fell|Eingespielt|Erste Hilfe)( I{1,3})?$/, (m, t, r) => ({ 'Dickes Fell': 'Thick skin', 'Eingespielt': 'In sync', 'Erste Hilfe': 'First aid' })[t] + (r || '')],
+  [/^(Dickes Fell|Eingespielt|Erste Hilfe)\.$/, (m, t) => ({ 'Dickes Fell': 'Thick skin', 'Eingespielt': 'In sync', 'Erste Hilfe': 'First aid' })[t] + '.'],
+  [/^\+(\d+) Rüstung im Duell\. Hat schon Schlimmeres eingesteckt, meistens von Freunden\.$/, '+$1 armor in duels. Has taken worse, mostly from friends.'],
+  [/^\+(\d+) % Krit im Duell\. Weiß, wann die anderen zuschlagen, und schlägt einfach mit\.$/, '+$1 % crit in duels. Knows when the others strike and simply joins in.'],
+  [/^Flickt im Duell (\d+) Leben pro Runde\. Pflaster aus der eigenen Tasche, Rechnung folgt nie\.$/, 'Patches $1 health per round in duels. Plasters from their own pocket, the bill never comes.'],
+  [/^Ab Vertraut (\d+): Stufe (I{1,3})\.$/, 'From bond $1: tier $2.']
 ]);

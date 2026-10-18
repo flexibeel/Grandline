@@ -673,8 +673,28 @@ window.GL = window.GL || {};
     tension();
     const was = !u.classList.contains('ko');
     u.classList.toggle('ko', hp <= 0);
+    if (was && hp <= 0 && side === 'crew' && GL.quips) { try { GL.quips.ko(i); } catch (e) { /* nur Deko */ } }
     if (was && hp <= 0) { const p = center(u); fx('fx-ko', p, 900); if (GL.arenaFx) GL.arenaFx.ko(u, p); else { const t = fx('ptag ko', { x: p.x, y: p.y - 30 }, 1100); if (t) t.textContent = 'K.O.'; } }
     if (!(hp <= 0)) { const k = u.querySelector('.fu-ko.kx'); if (k) k.remove(); }
+  }
+  // JUICE: kleine Sprechblase über dem Kopf einer Figur (selten, siehe crewquips.js)
+  function say(side, i, text, ms) {
+    const u = fu(side, i), f = $('#field'), box = $('#field .f-fx');
+    if (!u || !f || !box || !text || u.classList.contains('ko')) return false;
+    box.querySelectorAll('.cq-bubble').forEach(x => x.remove());
+    const a = f.getBoundingClientRect(), r = u.querySelector('.fu-body').getBoundingClientRect();
+    const n = document.createElement('span');
+    n.className = 'cq-bubble' + (side === 'enemy' ? ' them' : '');
+    n.textContent = text;
+    box.appendChild(n);
+    const w = n.offsetWidth || 120, cx = r.left + r.width / 2 - a.left;
+    const x = Math.max(w / 2 + 4, Math.min(a.width - w / 2 - 4, cx));
+    n.style.left = x + 'px';
+    n.style.top = Math.max(4, r.top - a.top - 6) + 'px';
+    n.style.setProperty('--tail', Math.max(10, Math.min(w - 10, w / 2 + (cx - x))) + 'px');
+    requestAnimationFrame(() => n.classList.add('in'));
+    setTimeout(() => { n.classList.add('out'); setTimeout(() => n.remove(), 300); }, ms || 2300);
+    return true;
   }
   function fieldAura(side, i) {
     const u = fu(side, i);
@@ -705,6 +725,7 @@ window.GL = window.GL || {};
   }
 
   GL.arena = {
+    say,
     intents, intentHtml, intentText, intentIcon: k => INT_ICO[k] || '',
     html(run, anim) {
       curRun = run;

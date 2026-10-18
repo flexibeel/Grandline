@@ -154,5 +154,39 @@ window.GL = window.GL || {};
     const have = new Set(ids || []);
     return (GL.data.crewClips || []).find(c => !seen.includes(c.id) && have.has(c.home) && c.lines.every(l => l[0] === 'self' || l[0] === 'kalle' || have.has(l[0]) || ['ruffy', 'nami', 'zorro', 'lysop', 'sanji', 'chopper', 'robin', 'franky', 'brook'].includes(l[0]))) || null;
   }
-  GL.story = { next, play, clip, active: () => !!cur };
+  // JUICE: Erster Meeres-Boss im Leben. Kurze Feier an Deck (3–5 s), Tippen überspringt.
+  function party(profile, run, onDone, tries) {
+    const done = () => { if (onDone) onDone(); };
+    if (document.getElementById('bparty')) return done();
+    if (cur || document.getElementById('story') || document.getElementById('fpop')) {
+      if ((tries || 0) < 5) { setTimeout(() => party(profile, run, onDone, (tries || 0) + 1), 800); return; }
+      return done();
+    }
+    const crew = (run.crew || []).slice(0, 5);
+    const mateU = crew.find(u => u.id === run.mate && u.id !== 'self') || crew.find(u => u.id !== 'self') || crew[0];
+    const mateD = mateU && GL.data.crew.find(c => c.id === mateU.id);
+    const line = mateU && GL.quips ? GL.quips.line(mateU.id, (mateD && mateD.role) || 'kaempfer', 'party') : '';
+    const bossId = run.lastBounty && run.lastBounty.id;
+    const bd = bossId && ((GL.data.bosses || []).find(b => b.id === bossId) || GL.data.crew.find(c => c.id === bossId));
+    const sky = GL.art && GL.art.scene ? GL.art.scene('see', { time: 'dusk', ship: true }).replace('<svg ', '<svg preserveAspectRatio="xMidYMid slice" ') : '';
+    const spr = u => u.id === 'self' ? who(profile, 'self').spr : who(profile, u.id).spr;
+    const COLS = ['#e8b04a', '#d8664a', '#5fa86a', '#5a8fd0', '#f2e6c8'];
+    const conf = Array.from({ length: 16 }, (_, k) => `<i style="left:${(6 + k * 5.8 + (k % 3) * 2).toFixed(1)}%;--d:${(k % 5) * 0.13 + (k % 2) * 0.07}s;--c:${COLS[k % COLS.length]};--r:${(k % 4) * 45}deg;--x:${((k % 3) - 1) * 14}px"></i>`).join('');
+    const el = document.createElement('div');
+    el.id = 'bparty'; el.className = 'bparty'; el.setAttribute('role', 'dialog');
+    el.innerHTML = `<div class="bpt-card"><div class="bpt-head"><small>${en() ? 'First Sea Boss' : 'Erster Meeres-Boss'}</small><b>${esc(bd ? bd.name : '')}${bd ? (en() ? ' is down!' : ' ist erledigt!') : (en() ? 'Boss down!' : 'Boss erledigt!')}</b></div>
+      <div class="bpt-stage"><div class="bpt-sky">${sky}</div><i class="bpt-plank"></i>
+      <div class="bpt-deck">${crew.map((u, k) => `<span class="bpt-who" style="--k:${k}">${spr(u)}</span>`).join('')}</div></div>
+      ${line ? `<div class="bpt-say"><span class="bpt-face">${spr(mateU)}</span><span><b>${esc(mateD ? mateD.name : '')}</b><p>${esc(line)}</p></span></div>` : ''}</div>
+      <div class="bpt-conf" aria-hidden="true">${conf}</div>
+      <small class="bpt-tap">${en() ? 'Tap to continue' : 'Tippen zum Weiter'}</small>`;
+    document.body.appendChild(el);
+    requestAnimationFrame(() => el.classList.add('in'));
+    if (GL.sfx) { if (GL.sfx.sting) GL.sfx.sting('jump'); GL.sfx.play('level'); }
+    let closed = false;
+    const close = () => { if (closed) return; closed = true; clearTimeout(t); el.classList.add('out'); setTimeout(() => el.remove(), 400); done(); };
+    const t = setTimeout(close, 4600);
+    el.addEventListener('click', close);
+  }
+  GL.story = { next, play, clip, party, active: () => !!cur || !!document.getElementById('bparty') };
 })();

@@ -1,6 +1,13 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-20o', date: '19.10.', title: 'Taktik, Monster und ein Geisterschiff', items: [
+    '⚔🛡🎭 Stammcrew-Duell: Vor dem Kampf eine Taktik wählen (Sturm schlägt List, List schlägt Mauer, Mauer schlägt Sturm). Wer nicht wählt, segelt ausgewogen und verliert nichts',
+    'Zusammenhalt lohnt sich wieder: Ab Vertraut 6/8/10 bekommt jede Figur eine kleine Eigenschaft (Dickes Fell, Eingespielt, Erste Hilfe)',
+    '🦂 8 neue Inselbewohner: Wüstenskorpion, Schneewolf, Sumpfaffe, Wolkenwächter, Giftqualle, Fischmensch, Zombie-Matrose und ein Labor-Roboter, der seine Gebrauchsanweisung nicht gelesen hat',
+    '👻 Neue Folge „Das Geisterschiff“ und 4 Ereignisse mit neuen Kulissen: Markt bei Nacht, Blaue Grotte, Vulkan, Kirschblüten. Händler Ottokar und Wirtin Rosi haben jetzt Gesichter',
+    '🎉 Dein erster Meeres-Boss wird gefeiert. Einmal. Danach erwartet die Crew das einfach von dir',
+    '💬 Ganz selten sagt jemand aus der Crew im Kampf etwas. Meistens etwas Unnötiges' ] },
   { v: '2026-10-20n', date: '18.10.', title: 'Gegner verraten sich, Hafen auf einen Blick', items: [
     '🎯 Gegnerabsichten: Kleine Symbole zeigen, was Gegner vorhaben. 💥 holt aus, ✚ flickt den Boss, 🎯 zielt auf Angeschlagene, 🛡 Leibwache, 📯 ruft Verstärkung. Antippen erklärt es in einem Satz',
     'Verloren? „Daran bist du gescheitert“ nennt jetzt auch den Grund aus dem Kampf, etwa wer den Boss dauernd geflickt hat',

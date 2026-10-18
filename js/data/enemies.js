@@ -40,7 +40,16 @@ GL.data.grunts = [
       rows: ['................', '.....PPPP.......', '...PPPPPPPP.....', '..PPEPPPPPPP....', '.PPPPPPPPPPPp...', 'TPTPTPPPPPPPp...', '.......PPPPPp...', 'TPTPTPPPPPPPp...', '.PPPPPPPPPPpp...', '....bPPPPPpp....', '....bPPPPpp.....', '....bPPPpp......', 'WWWWWbPPPpWWWWWW', 'wWWWWWWWWWWWWWWw'] } },
   { id: 'bat', name: 'Riesenfledermaus', type: 'technik', seas: [2],
     art: { c: { K: '#3a2a4a', k: '#5a4a6a', R: '#e0483b' },
-      rows: ['................', '................', 'K..............K', 'KK....K..K....KK', 'KKK...KKKK...KKK', 'KKKKkKRKKRKkKKKK', '.KKKKKKKKKKKKKK.', '..KKKKKKKKKKKK..', '...KK.KKKK.KK...', '.......KK.......', '................', '................', '................', '................'] } }
+      rows: ['................', '................', 'K..............K', 'KK....K..K....KK', 'KKK...KKKK...KKK', 'KKKKkKRKKRKkKKKK', '.KKKKKKKKKKKKKK.', '..KKKKKKKKKKKK..', '...KK.KKKK.KK...', '.......KK.......', '................', '................', '................', '................'] } },
+  // ART3: Inselbewohner mit eigenem Pixelbild aus GL.art.monster. isles = nur auf diesen Inseln
+  { id: 'mo-skorpion', name: 'Wüstenskorpion', type: 'technik', seas: [1], isles: ['alabasta'], monster: 'skorpion' },
+  { id: 'mo-schneewolf', name: 'Schneewolf', type: 'klinge', seas: [1], isles: ['drumm'], monster: 'schneewolf' },
+  { id: 'mo-sumpfaffe', name: 'Sumpfaffe', type: 'kraft', seas: [1], isles: ['jaya'], monster: 'sumpfaffe' },
+  { id: 'mo-wolke', name: 'Wolkenwächter', type: 'technik', seas: [1], isles: ['skypiea'], monster: 'wolkenwaechter' },
+  { id: 'mo-qualle', name: 'Giftqualle', type: 'technik', seas: [1], isles: ['tiefsee', 'korallenhuegel', 'meerwald'], monster: 'giftqualle' },
+  { id: 'mo-fischmensch', name: 'Fischmensch', type: 'kraft', seas: [0, 1], isles: ['arlong-park', 'fischmenschen-viertel'], monster: 'fischmensch' },
+  { id: 'mo-zombie', name: 'Zombie-Matrose', type: 'klinge', seas: [2], isles: ['florian', 'grusel-garten', 'mangroven'], monster: 'zombiematrose' },
+  { id: 'mo-roboter', name: 'Labor-Roboter', type: 'kraft', seas: [2], isles: ['hogback-labor', 'water-7'], monster: 'roboter' }
 ];
 
 // Besondere Gegner: tauchen je Meer häufiger auf (Chance in config.foeKinds).

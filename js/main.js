@@ -548,6 +548,7 @@
 
   function act(action) {
     if (!run) return;
+    const bossesBefore = run.bounties || 0;
     const wasFinished = GL.run.isFinished(run);
     const bountyBefore = run.bountyM || 0;
     const trophiesBefore = (run.trophies || []).length;
@@ -590,7 +591,12 @@
       setTimeout(() => GL.ui.trophyPop(id, lvl, isNew, up, (profile.vault[id] || 0)), later);
     }
     // Boss oder Kopfgeld-Ziel besiegt: Steckbrief mit neuem Kopfgeld fliegt ins Bild
-    if ((run.bountyM || 0) > bountyBefore) { const r = run; setTimeout(() => GL.ui.bountyPoster(r), 250); }
+    // Allererster Meeres-Boss im Leben: kurze Feier an Deck, danach der Steckbrief (JUICE)
+    const firstBoss = (run.bounties || 0) > bossesBefore && !profile.firstBossParty && !((profile.seen && profile.seen.bosses) || []).some(id => GL.data.bosses.some(b => b.id === id)) && !GL.sandbox.on() && GL.story && GL.story.party;
+    if (firstBoss) {
+      profile.firstBossParty = Date.now(); saveProfile();
+      const r = run; setTimeout(() => GL.story.party(profile, r, () => { if ((r.bountyM || 0) > bountyBefore) GL.ui.bountyPoster(r); }), 250);
+    } else if ((run.bountyM || 0) > bountyBefore) { const r = run; setTimeout(() => GL.ui.bountyPoster(r), 250); }
     if (action.type === 'fight') {
       startAnim();
       // Beim allerersten Level-up kurz erklären, wie man Punkte verteilt
@@ -793,10 +799,11 @@
     document.body.classList.toggle('fast', anim.speed >= 3);
     anim.rn = 0;
     setTimeout(showSpeed, 50);
+    if (GL.quips) GL.quips.start(run, anim.speed);
     anim.timer = setTimeout(stepAnim, SPEED.normal * SPEEDF[anim.speed]);
   }
   function setSpeed(v) {
-    anim.speed = Math.max(1, Math.min(4, v)); showSpeed();
+    anim.speed = Math.max(1, Math.min(4, v)); showSpeed(); if (GL.quips && GL.quips.speed) GL.quips.speed(anim.speed);
     profile.settings = Object.assign({}, profile.settings, { speed: anim.speed }); saveProfile();
     document.body.classList.toggle('fast', anim.speed >= 3);
     document.querySelectorAll('.fbar-sp').forEach(b => b.classList.toggle('on', Number(b.dataset.v) === anim.speed));
@@ -815,7 +822,7 @@
   function stepAnim() {
     if (!anim || anim.done) return;
     const ev = run.battle.events[anim.i++];
-    if (!ev) { anim.done = true; if (GL.sfx) GL.sfx.play(run.battle.win ? 'win' : 'lose'); draw(); return; }
+    if (!ev) { anim.done = true; if (GL.sfx) GL.sfx.play(run.battle.win ? 'win' : 'lose'); draw(); if (GL.quips) { const r = run, hp = anim.crewHp.slice(); setTimeout(() => { if (run === r) GL.quips.end(r, hp); }, 120); } return; }
     const setHp = (side, to, hp) => { (side === 'crew' ? anim.crewHp : anim.enemyHp)[to] = hp; };
     if (ev.k === 'hit') setHp(ev.side === 'crew' ? 'enemy' : 'crew', ev.to, ev.hp);
     else if (ev.list) ev.list.forEach(x => { if (x.hp !== undefined) setHp(ev.side, x.to, x.hp); });
@@ -835,10 +842,16 @@
     anim.timer = setTimeout(stepAnim, wait);
   }
 
+  // Siegchance in der Vorschau (gleiche Würfel wie immer, mit beiden Taktiken)
+  function matchChance(row) {
+    const mineRefs = GL.meta.squadRefs(profile), opt = { me: profile.squadTactic, foe: row.squadTactic };
+    let w = 0; for (let k = 0; k < 24; k++) if (GL.squad.fight(mineRefs, row.squad, (k * 7919 + 13) >>> 0, opt).win) w++;
+    return Math.round(100 * w / 24);
+  }
   function startSquadDuel(row) {
     if (!GL.meta.squadUnlocked(profile)) { toast('<span><b>Noch gesperrt</b>Die Stammcrew gibt es nach deinem ersten gewonnenen Run oder ab Rang 5.</span>'); return; }
     if (ui.squadFight && ui.squadFight.timer) clearTimeout(ui.squadFight.timer);
-    const res = GL.squad.fight(GL.meta.squadRefs(profile), row.squad, (Date.now() ^ (Math.random() * 1e9)) >>> 0);
+    const res = GL.squad.fight(GL.meta.squadRefs(profile), row.squad, (Date.now() ^ (Math.random() * 1e9)) >>> 0, { me: profile.squadTactic, foe: row.squadTactic });
     if (res.win) profile.squadW = (profile.squadW || 0) + 1; else profile.squadL = (profile.squadL || 0) + 1;
     const myRating = profile.squadRating == null ? 1000 : profile.squadRating;
     // Gegen die Übungscrew zählen Punkte nur bis 1100, darüber muss man echte Banden schlagen
@@ -1472,13 +1485,21 @@
           const base = squad.reduce((t, r) => t + r.max * 0.5 + r.atk * 4, 0), spdP = squad.reduce((t, r) => t + r.spd * 2, 0);
           const f = base > 0 ? (mine * 0.9 - spdP) / base : 1;
           if (f > 1) squad.forEach(r => { r.max = r.hp = Math.round(r.max * f); r.atk = Math.round(r.atk * f); });
-          row = ui.npcRow = { id: 'npc-marine', name: 'Übungscrew der Marine', rank: 'Marine-Ausbilder', squad, squadPower: GL.meta.squadPower(squad), npc: true };
+          // Die Marine hat auch eine Taktik (meistens). Sie steht in der Vorschau, damit man kontern kann.
+          squad.tactic = ['sturm', 'mauer', 'list', null][Math.floor(Math.random() * 4)];
+          row = ui.npcRow = { id: 'npc-marine', squadTactic: squad.tactic, name: 'Übungscrew der Marine', rank: 'Marine-Ausbilder', squad, squadPower: GL.meta.squadPower(squad), npc: true };
         }
         // Erst zeigen, wer es ist und wie die Chancen stehen, dann angreifen oder weitersuchen
         ui.matchRow = row;
-        const mineRefs = GL.meta.squadRefs(profile);
-        let w = 0; for (let k = 0; k < 24; k++) if (GL.squad.fight(mineRefs, row.squad, (k * 7919 + 13) >>> 0).win) w++;
-        openGearPop(GL.ui.matchPop(row, profile, Math.round(100 * w / 24)));
+        openGearPop(GL.ui.matchPop(row, profile, matchChance(row)));
+        break;
+      }
+      // Duell-Taktik: ein Tipp, gemerkt im Profil. Nochmal tippen = wieder ausgewogen.
+      case 'sq-tac': {
+        const v = GL.squad.tacOf(el.dataset.v);
+        profile.squadTactic = profile.squadTactic === v ? null : v;
+        saveProfile();
+        if (ui.matchRow) openGearPop(GL.ui.matchPop(ui.matchRow, profile, matchChance(ui.matchRow)));
         break;
       }
       case 'squad-attack': {

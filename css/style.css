@@ -8955,3 +8955,83 @@ em.type.t-technik { background: #5b86b3 !important; }
   body:not(.in-run) .hq .ad-tile b { font-size: .62rem !important; letter-spacing: -.02em; }
   body:not(.in-run) .hq .ad-tile { padding-left: 0 !important; padding-right: 0 !important; }
 }
+
+/* ===== SQD: Duell-Taktik & Zusammenhalt-Eigenschaften ===== */
+.sq-tac { margin: 8px 0 6px; padding: 8px; border-radius: 10px; background: #f6ecd6; border: 1px solid #dcc59a; }
+.sq-th { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 6px; font-size: .74rem; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; color: #7a6248; }
+.sq-foe { font-style: normal; text-transform: none; letter-spacing: 0; font-weight: 800; color: #6a3a22; background: #fbe7dc; border: 1px solid #ddb39a; border-radius: 999px; padding: 1px 8px; white-space: nowrap; }
+.sq-foe.unk { color: #8a7458; background: transparent; border-color: transparent; font-weight: 600; }
+.sq-tcs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.sq-tc { display: flex; flex-direction: column; align-items: center; gap: 1px; padding: 6px 4px 5px; cursor: pointer; font: inherit; color: #3a2a18;
+  background: #fff8e6; border: 2px solid #c9a46a; border-radius: 9px; box-shadow: 0 3px 0 #b88a3a; }
+.sq-tc:active { transform: translateY(2px); box-shadow: 0 1px 0 #b88a3a; }
+.sq-tc > i { font-style: normal; font-size: 1.15rem; line-height: 1.2; }
+.sq-tc b { font-size: .84rem; }
+.sq-tc small { font-size: .66rem; color: #8a7458; font-weight: 700; }
+.sq-tc.on { background: #fff1c2; border-color: #a8751f; box-shadow: 0 3px 0 #8a5a12, 0 0 0 2px rgba(224,169,42,.35); }
+.sq-tc.good small { color: #3f7a2e; }
+.sq-tc.bad small { color: #a4442a; }
+.sq-hint { display: block; margin-top: 6px; font-size: .74rem; line-height: 1.35; color: #6a5238; text-align: center; }
+.sq-trait { display: inline-flex; align-items: center; justify-content: center; min-width: 18px; height: 18px; padding: 0 3px; border-radius: 6px; font-size: .7rem; font-style: normal;
+  background: #fff3c4; border: 1px solid #d8b56a; box-shadow: 0 1px 0 #b88a3a; line-height: 1; }
+.sq-trait sup { font-size: .55rem; font-weight: 900; margin-left: 1px; color: #7a5a12; }
+.cc-trait { display: flex; gap: 8px; align-items: flex-start; margin: 6px 0; padding: 6px 8px; border-radius: 9px; background: #fbf3dc; border: 1px dashed #d8bf8e; font-size: .8rem; line-height: 1.35; }
+.cc-trait .sq-trait { flex: none; margin-top: 1px; }
+.cc-trait small { display: block; color: #8a7458; }
+.cc-trait.locked { opacity: .75; }
+.sqd-bond .sq-trait { margin-left: 2px; height: 15px; min-width: 15px; font-size: .62rem; }
+
+/* ===== ART3: Kulissen und Nebenfiguren in Szenen ===== */
+.ce-stage .ce-art { position: absolute; inset: 0; display: block; pointer-events: none; }
+.ce-stage .ce-art svg { width: 100%; height: 100%; display: block; image-rendering: pixelated; }
+.ce-stage:has(.ce-art)::before, .ce-stage:has(.ce-art)::after { display: none; }
+.ce-stage .ce-cast { position: relative; z-index: 1; }
+.npc-face { display: inline-block; width: 100%; height: 100%; }
+.npc-face svg { width: 100%; height: 100%; display: block; image-rendering: pixelated; }
+.ce-who .npc-face { filter: drop-shadow(0 2px 0 rgba(40, 25, 10, .25)); }
+.npc-por { display: inline-block; width: 44px; height: 50px; flex: none; padding: 3px; background: #f3e4c4; border: 2px solid #c9a46a; border-radius: 8px; box-shadow: 0 2px 0 #b88a3a; }
+.npc-por svg { width: 100%; height: 100%; display: block; image-rendering: pixelated; }
+.npc-por.sm { width: 30px; height: 34px; padding: 2px; border-width: 1px; border-radius: 6px; box-shadow: 0 1px 0 #b88a3a; margin-right: 8px; vertical-align: middle; cursor: help; }
+.tv-head:has(.npc-por) { display: flex; align-items: center; }
+.tv-head:has(.npc-por) h2 { margin-right: auto; }
+.npc-say { display: flex; align-items: center; gap: 10px; margin: 2px 0 10px; }
+.npc-say p { margin: 0; padding: 7px 11px; background: #fffaf0; border: 1px solid #d8c39a; border-radius: 10px; font-size: .86rem; line-height: 1.35; position: relative; }
+.npc-say p::before { content: ''; position: absolute; left: -6px; top: 50%; width: 10px; height: 10px; background: #fffaf0; border-left: 1px solid #d8c39a; border-bottom: 1px solid #d8c39a; transform: translateY(-50%) rotate(45deg); }
+.npc-say p b { display: block; font-size: .74rem; color: #8a6a44; margin-bottom: 1px; }
+
+/* ===== JUICE: Crew-Sprüche und Erster-Boss-Feier ===== */
+.cq-bubble { position: absolute; transform: translate(-50%, -100%) scale(.85); opacity: 0; z-index: 30; pointer-events: none;
+  max-width: 150px; width: max-content; padding: 4px 8px; font-size: .7rem; line-height: 1.25; font-weight: 700; color: #3a2a18; text-align: center;
+  background: #fffaf0; border: 2px solid #6b4a2a; border-radius: 8px; box-shadow: 0 2px 0 rgba(60,40,15,.35); transition: opacity .2s ease, transform .2s ease; }
+.cq-bubble::after { content: ''; position: absolute; left: var(--tail, 50%); bottom: -7px; width: 8px; height: 8px; margin-left: -5px;
+  background: #fffaf0; border-right: 2px solid #6b4a2a; border-bottom: 2px solid #6b4a2a; transform: rotate(45deg); }
+.cq-bubble.in { opacity: 1; transform: translate(-50%, -100%) scale(1); }
+.cq-bubble.out { opacity: 0; transform: translate(-50%, -110%) scale(.95); }
+@media (max-width: 560px) { .cq-bubble { max-width: 128px; font-size: .66rem; padding: 3px 7px; } }
+
+.bparty { position: fixed; inset: 0; z-index: 1200; display: grid; place-items: center; overflow: hidden; cursor: pointer;
+  background: rgba(30, 20, 10, .55); opacity: 0; transition: opacity .3s ease; }
+.bparty.in { opacity: 1; }
+.bparty.out { opacity: 0; }
+.bpt-card { position: relative; width: min(540px, 92vw); display: flex; flex-direction: column; align-items: stretch; gap: 10px; transform: translateY(8px) scale(.97); transition: transform .35s cubic-bezier(.3,.7,.4,1.2); }
+.bparty.in .bpt-card { transform: none; }
+.bpt-head { text-align: center; color: #fff6dc; text-shadow: 0 2px 0 #3a2410, 0 0 6px rgba(0,0,0,.4); }
+.bpt-head small { display: block; font-size: .72rem; letter-spacing: .14em; text-transform: uppercase; color: #ffd98a; }
+.bpt-head b { font-size: 1.25rem; }
+.bpt-stage { position: relative; aspect-ratio: 16 / 9; border: 4px solid #6b4a2a; border-radius: 10px; overflow: hidden; box-shadow: 0 0 0 3px #e8cf9a, 0 18px 40px -12px rgba(0,0,0,.6); }
+.bpt-sky, .bpt-sky svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; image-rendering: pixelated; }
+.bpt-plank { position: absolute; left: 0; right: 0; bottom: 0; height: 22%; background: repeating-linear-gradient(90deg, #a8743e 0 46px, #8e5f30 46px 48px); border-top: 3px solid #6b4a2a; box-shadow: inset 0 4px 0 rgba(255,255,255,.12); }
+.bpt-deck { position: absolute; left: 0; right: 0; bottom: 12%; display: flex; justify-content: center; gap: 2px; }
+.bpt-who { width: 52px; height: 60px; display: grid; place-items: end center; animation: bptJump .62s cubic-bezier(.3,.7,.4,1) calc(var(--k) * .09s) 5 alternate; }
+.bpt-who svg { width: 100%; height: 100%; image-rendering: pixelated; }
+@keyframes bptJump { from { transform: translateY(0); } to { transform: translateY(-14px); } }
+.bpt-conf i { position: absolute; top: -12px; width: 6px; height: 6px; background: var(--c); transform: rotate(var(--r));
+  animation: bptFall 2.6s linear var(--d) 1 forwards; opacity: .9; }
+@keyframes bptFall { to { transform: translate(var(--x), 105vh) rotate(calc(var(--r) + 300deg)); } }
+.bpt-say { display: flex; gap: 10px; align-items: center; padding: 8px 12px; background: #fffaf0; border: 3px solid #6b4a2a; border-radius: 10px; box-shadow: 0 3px 0 #b88a3a; color: #3a2a18; }
+.bpt-face { flex: 0 0 38px; height: 44px; display: grid; place-items: end center; }
+.bpt-face svg { width: 100%; height: 100%; }
+.bpt-say b { display: block; font-size: .8rem; color: #8a5a2a; }
+.bpt-say p { margin: 2px 0 0; font-size: .9rem; line-height: 1.3; }
+.bpt-tap { position: absolute; bottom: calc(14px + env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%); color: #f2e6c8; font-size: .75rem; opacity: .8; }
+@media (prefers-reduced-motion: reduce) { .bpt-who, .bpt-conf i { animation: none; } .bpt-conf { display: none; } }

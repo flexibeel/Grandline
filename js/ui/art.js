@@ -499,6 +499,13 @@ window.GL = window.GL || {};
       if (!m) return '';
       return (cache[key] = svg(14, 16, grid(m.rows, 14, m.pal), 'ga-monster'));
     },
+    // Monster als {c, rows} für GL.sprites (bekommt dort Umriss und Schattierung wie die Tiere)
+    monsterArt(id) {
+      const m = MONSTERS[id];
+      if (!m) return null;
+      const c = Object.assign({}, P, m.pal || {}); delete c.k; delete c['.'];
+      return { c, rows: m.rows };
+    },
     npc(id) {
       const key = 'np:' + id;
       if (cache[key]) return cache[key];
