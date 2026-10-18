@@ -141,44 +141,78 @@ window.GL = window.GL || {};
       const bonus = tier === 'bonus' ? (hasStrike ? ULT_BONUS[u.type] || ULT_BONUS.technik : ULT_BONUS.heal) : null;
       const P = tier === 'perfect';
       events.push({ k: 'ult', side: u.side, from: idx(u), by: u.id, name: ult.name, spark: !!spark, tier, bonus: bonus ? bonus.label : '', combo: u.ultCount });
-      let hitList = [];
-      (bonus ? ult.fx.concat([bonus]) : ult.fx).forEach(f0 => {
-        const f = !P ? f0 : Object.assign({}, f0, {
-          rounds: f0.rounds ? f0.rounds + 1 : f0.rounds,
-          pct: f0.pct ? f0.pct * 1.5 : f0.pct,
-          value: f0.do === 'atk' || f0.do === 'armor' ? f0.value + 1 : f0.value });
-        const foes = foesOf(u), al = allies(u);
-        if (f.do === 'strike') {
-          const living = alive(foes);
-          if (!living.length) return;
-          const mult0 = f.mult * (P ? UV.perfectMult : 1) * (1 + UV.ramp * (u.ultCount - 1));
-          const crit = !P && R.float(run) < (u.crit || 0) + (C.baseCrit || 0);
-          const targets = f.target === 'all' ? living
-            : f.target === 'weakest' ? [living.reduce((a, b) => (b.hp < a.hp ? b : a))] : [living[0]];
-          const list = targets.map(t => { const d = ultStrike(u, t, mult0 * (1 + (R.float(run) * 2 - 1) * UV.spread) * (crit ? (u.critMult || 1.5) : 1), f.pierce); return { to: foes.indexOf(t), dmg: Math.min(t.hp, d), hp: damage(t, d) }; });
-          hitList = targets;
-          events.push({ k: 'dmg', side: targets[0].side, list, by: u.id, ult: true, crit });
-          checkRevives();
-        } else if (f.do === 'status') {
-          const list = f.target === 'all' ? alive(foes) : f.target === 'front' ? alive(foes).slice(0, 1)
-            : f.target === 'hit' ? hitList.filter(t => t.hp > 0) : f.target === 'allies' ? alive(al) : [u];
-          const got = list.map(t => addStatus(t, f.key, f.rounds, f.value)).filter(Boolean);
-          if (got.length) events.push({ k: 'status', side: list[0].side, list: got, by: u.id, ult: true });
-        } else if (f.do === 'heal') {
-          const pool = f.target === 'all' ? alive(al) : f.target === 'lowest' ? alive(al).sort((a, b) => a.hp / a.max - b.hp / b.max).slice(0, 1) : [u];
-          const hm = u.side === 'crew' ? flags.healMult : 1;
-          const list = pool.map(t => ({ to: idx(t), amount: heal(t, Math.max(1, Math.round(t.max * f.pct * hm))), hp: t.hp })).filter(x => x.amount > 0);
-          if (list.length) events.push({ k: 'heal', side: u.side, list, by: u.id, ult: true });
-        } else if (f.do === 'atk' || f.do === 'armor') {
-          (f.target === 'allies' ? alive(al) : [u]).forEach(t => { t[f.do] = (t[f.do] || 0) + f.value; });
-          events.push({ k: 'note', by: u.id, side: u.side, ult: true,
-            text: `${nameOf(u)}: ${f.target === 'allies' ? 'alle' : 'selbst'} +${f.value} ${f.do === 'atk' ? 'Angriff' : 'Rüstung'}.` });
-        } else if (f.do === 'cleanse') {
-          alive(al).forEach(t => DEBUFF_ORDER.forEach(k => {
-            if (t.status[k]) { delete t.status[k]; events.push({ k: 'cleanse', side: t.side, to: idx(t), key: k, by: u.id }); }
-          }));
-        }
-      });
+      const st = { hit: [] };
+      (bonus ? ult.fx.concat([bonus]) : ult.fx).forEach(f0 => fxStep(u, f0, P, st));
+      teamCharge(u);
+    }
+    // Ein Effekt einer Ulti oder Team-Fähigkeit
+    function fxStep(u, f0, P, st) {
+      const f = !P ? f0 : Object.assign({}, f0, {
+        rounds: f0.rounds ? f0.rounds + 1 : f0.rounds,
+        pct: f0.pct ? f0.pct * 1.5 : f0.pct,
+        value: f0.do === 'atk' || f0.do === 'armor' ? f0.value + 1 : f0.value });
+      const foes = foesOf(u), al = allies(u);
+      if (f.do === 'strike') {
+        const living = alive(foes);
+        if (!living.length) return;
+        const mult0 = f.mult * (P ? UV.perfectMult : 1) * (st.team ? 1 : (1 + UV.ramp * (u.ultCount - 1)));
+        const crit = !P && R.float(run) < (u.crit || 0) + (C.baseCrit || 0);
+        const targets = f.target === 'all' ? living
+          : f.target === 'weakest' ? [living.reduce((a, b) => (b.hp < a.hp ? b : a))] : [living[0]];
+        const list = targets.map(t => { const d = ultStrike(u, t, mult0 * (1 + (R.float(run) * 2 - 1) * UV.spread) * (crit ? (u.critMult || 1.5) : 1), f.pierce); return { to: foes.indexOf(t), dmg: Math.min(t.hp, d), hp: damage(t, d) }; });
+        st.hit = targets;
+        events.push({ k: 'dmg', side: targets[0].side, list, by: u.id, ult: true, team: st.team || undefined, crit });
+        checkRevives();
+      } else if (f.do === 'status') {
+        const list = f.target === 'all' ? alive(foes) : f.target === 'front' ? alive(foes).slice(0, 1)
+          : f.target === 'hit' ? st.hit.filter(t => t.hp > 0) : f.target === 'allies' ? alive(al) : [u];
+        const got = list.map(t => addStatus(t, f.key, f.rounds, f.value)).filter(Boolean);
+        if (got.length) events.push({ k: 'status', side: list[0].side, list: got, by: u.id, ult: true, team: st.team || undefined });
+      } else if (f.do === 'heal') {
+        const pool = f.target === 'all' ? alive(al) : f.target === 'lowest' ? alive(al).sort((a, b) => a.hp / a.max - b.hp / b.max).slice(0, 1) : [u];
+        const hm = u.side === 'crew' ? flags.healMult : 1;
+        const list = pool.map(t => ({ to: idx(t), amount: heal(t, Math.max(1, Math.round(t.max * f.pct * hm))), hp: t.hp })).filter(x => x.amount > 0);
+        if (list.length) events.push({ k: 'heal', side: u.side, list, by: u.id, ult: true, team: st.team || undefined });
+      } else if (f.do === 'atk' || f.do === 'armor') {
+        (f.target === 'allies' ? alive(al) : [u]).forEach(t => { t[f.do] = (t[f.do] || 0) + f.value; });
+        events.push({ k: 'note', by: u.id, side: u.side, ult: true,
+          text: `${nameOf(u)}: ${f.target === 'allies' ? 'alle' : 'selbst'} +${f.value} ${f.do === 'atk' ? 'Angriff' : 'Rüstung'}.` });
+      } else if (f.do === 'cleanse') {
+        alive(al).forEach(t => DEBUFF_ORDER.forEach(k => {
+          if (t.status[k]) { delete t.status[k]; events.push({ k: 'cleanse', side: t.side, to: idx(t), key: k, by: u.id }); }
+        }));
+      }
+    }
+    // ---------- Team-Fähigkeit: volle Bande lädt mit jeder Ulti einen Balken ----------
+    const TM = GL.data.teamMoves || {}, TNEED = GL.data.teamNeed || 3;
+    const factionOf = u => u.faction || ((u.ref && u.ref.faction) || (GL.data.crew.find(c => c.id === u.id) || {}).faction || null);
+    const team = { crew: null, enemy: null };
+    ['crew', 'enemy'].forEach(side => {
+      const list = sideOf(side).filter(u => u.hp > 0), cnt = {};
+      list.forEach(u => { const f = factionOf(u); if (f) cnt[f] = (cnt[f] || 0) + 1; });
+      const full = Object.keys(cnt).filter(f => TM[f] && GL.data.factions[f] && cnt[f] >= GL.data.factions[f].tiers[GL.data.factions[f].tiers.length - 1].n);
+      if (full.length) {
+        const f = full.sort((a, b) => cnt[b] - cnt[a])[0];
+        // Der Balken der Crew bleibt über die Kämpfe eines Runs erhalten
+        const keep = side === 'crew' && run.teamBar && run.teamBar.f === f ? run.teamBar.n : 0;
+        team[side] = { faction: f, n: keep, start: keep, need: TNEED, name: TM[f].name };
+      }
+    });
+    function teamCharge(u) {
+      const t = team[u.side];
+      if (!t || u.teamMove) return;
+      t.n++;
+      events.push({ k: 'teamCharge', side: u.side, n: Math.min(t.n, t.need), need: t.need, faction: t.faction });
+      if (t.n < t.need) return;
+      t.n = 0;
+      const mates = alive(allies(u)).filter(x => factionOf(x) === t.faction);
+      const lead = (mates.length ? mates : alive(allies(u))).slice().sort((a, b) => b.atk - a.atk)[0];
+      if (!lead) return;
+      const mv = TM[t.faction];
+      events.push({ k: 'team', side: u.side, by: lead.id, from: idx(lead), name: mv.name, faction: t.faction, text: mv.text });
+      const s2 = { hit: [], team: true };
+      mv.fx.forEach(f => fxStep(lead, f, false, s2));
+      t.fired = (t.fired || 0) + 1;
     }
 
     // ---------- Kampfbeginn ----------
@@ -482,7 +516,8 @@ window.GL = window.GL || {};
       const e = events[i];
       if ((e.k === 'hit' && e.side === 'crew' && e.hp === 0) || (e.k === 'dmg' && e.side === 'enemy' && e.list.some(x => x.hp === 0))) { e.final = true; break; }
     }
-    return { events, win };
+    if (team.crew && kind !== 'duel') run.teamBar = { f: team.crew.faction, n: team.crew.n };
+    return { events, win, team: { crew: team.crew, enemy: team.enemy } };
   }
 
   GL.battle = { typeMult, simulate };

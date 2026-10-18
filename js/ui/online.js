@@ -401,6 +401,25 @@ window.GL = window.GL || {};
     } catch (e) { return []; }
   }
 
+  // ---------- Flaschenpost (Tabelle bottle_post, siehe tools/flaschenpost.sql) ----------
+  async function bottleSend(toId, item, name, note) {
+    if (!client || !state.uid || (GL.sandbox && GL.sandbox.on())) return { ok: false, why: 'offline' };
+    if (!/^[0-9a-f-]{36}$/i.test(String(toId || '')) || toId === state.uid) return { ok: false, why: 'ziel' };
+    try {
+      const { error } = await client.from('bottle_post').insert({ to_id: toId, from_name: String(name || 'Pirat').slice(0, 24), item, note: note ? String(note).slice(0, 60) : null });
+      return error ? { ok: false, why: /row-level|policy/i.test(error.message || '') ? 'limit' : 'fehler' } : { ok: true };
+    } catch (e) { return { ok: false, why: 'fehler' }; }
+  }
+  async function bottleInbox() {
+    if (!client || !state.uid || (GL.sandbox && GL.sandbox.on())) return [];
+    try {
+      const { data, error } = await client.from('bottle_post').select('id,from_name,item,note,created_at').eq('to_id', state.uid).order('created_at', { ascending: true }).limit(20);
+      if (error || !data || !data.length) return [];
+      try { await client.from('bottle_post').delete().in('id', data.map(x => x.id)); } catch (e) { /* egal */ }
+      return data;
+    } catch (e) { return []; }
+  }
+
   // Profil eintragen, ohne einen Run zu spielen
   async function register(profile) {
     if (GL.sandbox && GL.sandbox.on()) return false;
@@ -451,6 +470,6 @@ window.GL = window.GL || {};
     try { await pullSave(); await codeSync(); if (store && store.refresh) await store.refresh(); } catch (e) { /* egal */ }
   }
   const refresh = () => (store && store.refresh ? store.refresh().catch(() => {}) : Promise.resolve());
-  GL.online = { refresh, init, submit, rename, register, pushSave, resync, duelReport, duelInbox, sendFeedback, linkEmail, loginEmail, verifyCode, logout, wipe, liveFields, codeLoad, codeSave, codeClaim,
+  GL.online = { refresh, init, submit, rename, register, pushSave, resync, duelReport, duelInbox, bottleSend, bottleInbox, sendFeedback, linkEmail, loginEmail, verifyCode, logout, wipe, liveFields, codeLoad, codeSave, codeClaim,
     onRemoteProfile(fn) { onRemote = fn; }, state: () => state, onChange(fn) { listeners.push(fn); } };
 })();

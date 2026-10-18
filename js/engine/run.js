@@ -933,6 +933,7 @@ window.GL = window.GL || {};
             crewStart,
             events: res.events,
             win: res.win,
+            team: res.team && res.team.crew ? { f: res.team.crew.faction, name: res.team.crew.name, need: res.team.crew.need, start: res.team.crew.start || 0 } : null,
             before,
             // Erfahrung gibt es direkt nach dem Sieg, damit die Auswertung sie zeigen kann
             xp: res.win ? grantXp(run, run.pending.kind, run.crew.map(u => u.hp > 0)) : null

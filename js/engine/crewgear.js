@@ -58,6 +58,21 @@ window.GL = window.GL || {};
     return { uid: 't' + Date.now().toString(36) + Math.floor(Math.random() * 1e6).toString(36), t: lootId, r, a,
       f: { boss: l.raid, name: raid.name || null, sea: src && src.seaName || null, at: src && src.at || new Date().toISOString(), loop: src && src.loop || 0, raid: true } };
   }
+  // Flaschenpost: nur bekannte Felder übernehmen, Werte begrenzen, neue uid
+  function clean(raw, fromName) {
+    if (!raw || typeof raw !== 'object') return null;
+    const C = D(), r = Math.max(0, Math.min(3, Math.round(+raw.r || 0)));
+    const isT = raw.t && C.trophyPerks && C.trophyPerks[raw.t];
+    const b = !isT && base(raw.b);
+    if (!isT && !b) return null;
+    const a = {};
+    Object.keys(raw.a || {}).slice(0, 5).forEach(k => { const F = C.affixes[k]; if (!F) return; const v = +raw.a[k]; if (!isFinite(v) || v <= 0) return; a[k] = Math.min(v, F.max * 6); });
+    if (!Object.keys(a).length && !isT) return null;
+    const it = { uid: 'p' + Date.now().toString(36) + Math.floor(Math.random() * 1e6).toString(36), r, a,
+      f: { boss: null, name: (raw.f && raw.f.name) ? String(raw.f.name).slice(0, 24) : null, sea: null, at: new Date().toISOString(), loop: 0, raid: !!isT, gift: String(fromName || 'Pirat').slice(0, 24) } };
+    if (isT) it.t = raw.t; else { it.b = b.id; it.m = C.affixes[raw.m] ? raw.m : b.main; }
+    return it;
+  }
   function perk(it) { return it && it.t ? D().trophyPerks[it.t] || null : null; }
   function name(it) {
     if (it.t) { const l = (GL.data.huntLoot || []).find(x => x.id === it.t); return l ? l.name : 'Trophäe'; }
@@ -87,7 +102,7 @@ window.GL = window.GL || {};
     const f = it.f || {};
     const d = f.at ? new Date(f.at) : null;
     const when = d ? `${d.getDate()}.${d.getMonth() + 1}.${String(d.getFullYear()).slice(2)}, ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')} Uhr` : '';
-    return { who: f.name ? `${f.raid ? 'Raid' : 'Boss'}: ${f.name}` : 'Unbekannt', where: f.sea || '', when, loop: f.loop || 0 };
+    return { who: f.gift ? `Flaschenpost von ${f.gift}` : f.name ? `${f.raid ? 'Raid' : 'Boss'}: ${f.name}` : 'Unbekannt', where: f.sea || '', when, loop: f.loop || 0 };
   }
 
   // ---------- Profil: Tasche und angelegte Teile ----------
@@ -190,5 +205,5 @@ window.GL = window.GL || {};
     return got;
   }
 
-  GL.cgear = { reroll, trophy, perk, migrate, roll, name, lines, power, slotOf, from, base, bag, worn, wornBy, equip, unequip, scrap, totals, wornList, drops, RNAME, RID };
+  GL.cgear = { clean, reroll, trophy, perk, migrate, roll, name, lines, power, slotOf, from, base, bag, worn, wornBy, equip, unequip, scrap, totals, wornList, drops, RNAME, RID };
 })();

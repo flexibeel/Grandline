@@ -566,6 +566,26 @@ window.GL = window.GL || {};
     u.dataset.st = keys.length ? keys[keys.length - 1] : '';
   }
 
+  // Team-Balken: volle Bande lädt mit jeder Ulti, voll = Team-Fähigkeit
+  function teamBarHtml(run, done) {
+    const t = run.battle && run.battle.team;
+    if (!t) return '';
+    const F = GL.data.factions[t.f] || {};
+    let n = t.start || 0;
+    if (done) (run.battle.events || []).forEach(e => { if (e.side === 'crew' && e.k === 'teamCharge') n = e.n >= e.need ? 0 : e.n; });
+    const segs = Array.from({ length: t.need }, (_, k) => `<i class="tb-seg${k < n ? ' on' : ''}"></i>`).join('');
+    return `<div class="team-bar" id="team-bar" data-n="${n}" data-need="${t.need}">
+      <span class="tb-ico">${GL.ui && GL.ui.pxIcon ? GL.ui.pxIcon(t.f) : ''}</span>
+      <span class="tb-txt"><small>${String(F.name || '').replace(/[<>&"]/g, '')}</small><b>${String(t.name).replace(/[<>&"]/g, '')}</b></span>
+      <span class="tb-segs">${segs}</span></div>`;
+  }
+  function teamBarSet(n, full) {
+    const bar = $('#team-bar'); if (!bar) return;
+    bar.querySelectorAll('.tb-seg').forEach((s, k) => s.classList.toggle('on', k < n));
+    if (full) { bar.classList.add('full'); setTimeout(() => { bar.classList.remove('full'); bar.querySelectorAll('.tb-seg').forEach(s => s.classList.remove('on')); }, 1400); }
+    else { bar.classList.remove('tick'); void bar.offsetWidth; bar.classList.add('tick'); }
+  }
+
   GL.arena = {
     html(run, anim) {
       curRun = run;
@@ -579,7 +599,7 @@ window.GL = window.GL || {};
         <div class="arena-sky" aria-hidden="true"></div>
         <div class="side side-crew">${crew}</div>
         <div class="side side-enemy">${foes}</div>
-      </div></div>`;
+      </div>${teamBarHtml(run, done)}</div>`;
     },
 
     // Nach dem Einfügen ins DOM: Max-Werte merken, vorderste markieren
@@ -635,6 +655,14 @@ window.GL = window.GL || {};
         setEn(tside, ev.to, ev.et);
       } else if (ev.k === 'ult') {
         ultFx(ev);
+      } else if (ev.k === 'teamCharge') {
+        if (ev.side === 'crew') teamBarSet(ev.n, ev.n >= ev.need);
+      } else if (ev.k === 'team') {
+        const F = GL.data.factions[ev.faction] || {};
+        banner('team' + (ev.side === 'crew' ? '' : ' them'), `<small>Team-Fähigkeit · ${String(F.name || '').replace(/[<>&"]/g, '')}</small><b>${String(ev.name).replace(/[<>&"]/g, '')}</b><em>${String(ev.text || '').replace(/[<>&"]/g, '')}</em>`, 2000);
+        const field = $('#field'); if (field) { pulse(field, 'finale'); fx('fx-flash', { x: 0, y: 0 }, 450); }
+        pulse(el(ev.side, ev.from), 'lunge');
+        if (GL.sfx) GL.sfx.play('level');
       } else if (ev.k === 'dmg') {
         // Schaden durch eine Fähigkeit: Name über dem Auslöser einblenden
         if (GL.data.abilities[ev.by] && !ev.ult) callout(ev.by, ev.side === 'crew' ? 'enemy' : 'crew');

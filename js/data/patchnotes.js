@@ -1,6 +1,16 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-18y', date: '18.10.', title: 'Team-Balken, Schnell-Kampf, Flaschenpost', items: [
+    'Team-Balken: Ist eine Bande voll (z. B. 4 CP9), erscheint im Kampf ein kleiner Balken. Jede Ulti deiner Crew füllt ein Stück, er bleibt über die Kämpfe eines Runs erhalten. Nach 3 Ultis zündet die Team-Fähigkeit der Bande, z. B. „Rokuogan“, „Buster Call“ oder „Strohhut-Sturm“. Alle 12 stehen im Wiki unter Boni',
+    'Schnell-Kampf: Normale Kämpfe, die du klar gewinnst, kannst du ab dem zweiten Kampf mit ⏩ überspringen. Bosse und Raids laufen immer ganz',
+    'Flaschenpost 🍾: Teile aus der Truhe der Stammcrew kannst du Freunden schicken. Sie kommen beim nächsten Öffnen an. Bis zu 5 am Tag',
+    'Ausrüstung vergleichen: Am PC zeigt Darüberfahren den Vergleich Wert für Wert mit dem angelegten Teil (▲/▼). Am Handy steht er beim Antippen im Ankleidemenü',
+    'Steckbrief: „Trägt“ zeigt die Ausrüstung jetzt als Bilder-Kacheln mit Werten, ein Tipp öffnet das Ankleidemenü',
+    'Album: Goldene Begleiter-Karten werden wieder richtig angezeigt',
+    'Schmiede kompakt: kleine Kacheln, Filter nach Seltenheit, Mitnehmen/Schmieden/Einschmelzen erst nach Antippen. Amboss klappt auf, wenn etwas bereit ist. Viel weniger Scrollen',
+    'Lager und Kammer als Kacheln im Pixel-Stil, aktive Plätze oben',
+    'Die verspielte Überschriften-Schrift ist jetzt sauber fett und besser lesbar' ] },
   { v: '2026-10-18x', date: '18.10.', title: 'Kleinigkeiten', items: [
     'Album: Jede Figurenkarte zeigt jetzt ihre Spielweise in einem Satz',
     'Englisch: Ausrüstungsnamen (z. B. „Swift Musket“, „Captain’s Coat of Arlong“) und Zerlegen-Knopf übersetzt' ] },

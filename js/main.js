@@ -774,6 +774,29 @@
     document.addEventListener('pointercancel', e => { if (drag && drag.ghost) drag.ghost.remove(); document.body.classList.remove('cg-dragging'); document.querySelectorAll('.drop-ok, .drop-hover').forEach(x => x.classList.remove('drop-ok', 'drop-hover')); drag = null; });
   })();
 
+  // ---------- Ausrüstung: Vergleich beim Darüberfahren (Maus) ----------
+  (function gearHover() {
+    let tip = null, cur = null;
+    const hide = () => { if (tip) tip.remove(); tip = null; cur = null; };
+    document.addEventListener('pointerover', e => {
+      if (e.pointerType !== 'mouse') return;
+      const chip = e.target.closest('.cg-bagit .cg-chip[data-uid]');
+      if (!chip) { if (tip && !e.target.closest('.gtip-float')) hide(); return; }
+      if (cur === chip.dataset.uid) return;
+      hide(); cur = chip.dataset.uid;
+      const crewId = (document.querySelector('.dress-pop') && ui.dress && ui.dress.id) || null;
+      const html = GL.ui.gearTip(profile, cur, crewId); if (!html) return;
+      tip = document.createElement('div'); tip.className = 'gtip-float'; tip.innerHTML = html; document.body.appendChild(tip);
+      const r = chip.getBoundingClientRect(), tw = tip.offsetWidth, th = tip.offsetHeight;
+      let x = r.right + 10, y = r.top - 4;
+      if (x + tw > innerWidth - 8) x = r.left - tw - 10;
+      if (x < 8) x = Math.min(innerWidth - tw - 8, Math.max(8, r.left));
+      if (y + th > innerHeight - 8) y = innerHeight - th - 8;
+      tip.style.left = x + 'px'; tip.style.top = Math.max(8, y) + 'px';
+    });
+    ['pointerdown', 'scroll', 'keydown'].forEach(t => document.addEventListener(t, hide, true));
+  })();
+
   // ---------- Stammcrew: Karten auf einen Platz ziehen (Maus sofort, Finger nach kurzem Halten) ----------
   (function squadDrag() {
     let dr = null;
@@ -1234,6 +1257,26 @@
         showDress({ uid: null, slot: it ? GL.cgear.slotOf(it) : null }); ui.lastStage = null; draw(); break;
       }
       case 'dr-off': GL.cgear.unequip(profile, el.dataset.id, el.dataset.slot); saveProfile(); showDress({ uid: null }); ui.lastStage = null; draw(); break;
+      case 'bottle': showDress({ send: el.dataset.uid || null }); break;
+      case 'bottle-to': {
+        const B = GL.cgear.bag(profile), k = B.findIndex(x => x.uid === el.dataset.uid);
+        if (k < 0 || GL.cgear.wornBy(profile, el.dataset.uid) || !GL.online.bottleSend) break;
+        const it = B[k], to = el.dataset.to, nm = el.dataset.name;
+        el.disabled = true;
+        GL.online.bottleSend(to, JSON.parse(JSON.stringify(it)), profile.nickname || 'Pirat').then(res => {
+          if (res.ok) {
+            const j = B.findIndex(x => x.uid === it.uid); if (j >= 0) B.splice(j, 1);
+            GL.meta.gone(profile, it.uid); saveProfile();
+            if (GL.sfx) GL.sfx.play('found');
+            toast(`<span><b>🍾 Flaschenpost unterwegs</b>${esc2(GL.cgear.name(it))} schwimmt zu ${esc2(nm)}.</span>`);
+            showDress({ uid: null, send: null }); ui.lastStage = null; draw();
+          } else {
+            toast(`<span><b>Flaschenpost klappt gerade nicht</b>${res.why === 'limit' ? 'Heute sind schon 5 Flaschen unterwegs. Morgen wieder!' : res.why === 'offline' ? 'Dafür musst du online sein.' : 'Bitte später nochmal versuchen.'} Das Teil bleibt in deiner Truhe.</span>`);
+            showDress({ send: null });
+          }
+        });
+        break;
+      }
       case 'sq-filter': ui.sqFilter = el.dataset.v; ui.lastStage = null; draw(); break;
       case 'sq-all': ui.sqAll = true; ui.lastStage = null; draw(); break;
       case 'sq-pick': {
@@ -1313,9 +1356,11 @@
       case 'again': toHq(); sail(); break;   // direkt den nächsten Run starten
       case 'equip': act({ type: 'equip', index: i, uid: el.dataset.uid || null }); break;
       case 'toggle-item': if (GL.meta.toggleItem(profile, el.dataset.id)) { saveProfile(); draw(); } break;
+      case 'forge-sel': ui.forgeSel = el.dataset.id && ui.forgeSel !== el.dataset.id ? el.dataset.id : null; ui.scrapArmed = null; ui.lastStage = null; draw(); break;
+      case 'forge-flt': ui.forgeFlt = el.dataset.v; ui.lastStage = null; draw(); break;
       case 'forge': if (GL.meta.forge(profile, el.dataset.id)) { saveProfile(); toast('<span><b>Geschmiedet!</b>Der Gegenstand ist eine Stufe stärker.</span>'); draw(); } break;
       case 'scrap': {
-        if (ui.scrapArmed !== el.dataset.id) { ui.scrapArmed = el.dataset.id; toast('<span><b>Einschmelzen?</b>Zum Bestätigen nochmal klicken.</span>'); break; }
+        if (ui.scrapArmed !== el.dataset.id) { ui.scrapArmed = el.dataset.id; toast('<span><b>Einschmelzen?</b>Zum Bestätigen nochmal klicken.</span>'); ui.lastStage = null; draw(); break; }
         const val = GL.meta.scrap(profile, el.dataset.id);
         ui.scrapArmed = null; saveProfile(); toast(`<span><b>Eingeschmolzen</b>+${val} Berry</span>`); draw();
         break;
@@ -1861,6 +1906,26 @@
       });
     };
     setTimeout(checkDefense, 6000);
+    // Flaschenpost von Freunden abholen
+    const checkBottles = () => {
+      if (!profile.nickname || !GL.cgear || !GL.online.bottleInbox) return;
+      GL.online.bottleInbox().then(list => {
+        const got = list.map(x => ({ it: GL.cgear.clean(x.item, GL.safeName ? GL.safeName(x.from_name || 'Pirat') : x.from_name), from: x.from_name })).filter(x => x.it);
+        if (!got.length) return;
+        got.forEach(x => { GL.cgear.bag(profile).push(x.it); profile.gearNew = (profile.gearNew || []).concat([x.it.uid]); });
+        saveProfile();
+        const x = got[0], who = esc2(GL.safeName ? GL.safeName(x.from || 'Pirat') : (x.from || 'Pirat'));
+        if (GL.sfx) GL.sfx.play('found');
+        openGearPop(`<div class="fpop-card bottle-pop" role="dialog"><span class="fpop-kicker">Flaschenpost</span><div class="bottle-art">🍾</div>
+          <h3 id="fpop-t">${got.length === 1 ? `${who} hat dir etwas geschickt!` : `${got.length} Flaschen sind angespült!`}</h3>
+          <div class="bottle-items">${got.map(g => `<span class="bottle-it cr-${GL.cgear.RID[g.it.r]}">${GL.ui.cgArtOf(g.it)}<b>${esc2(GL.cgear.name(g.it))}</b><small>von ${esc2(g.from || 'Pirat')}</small></span>`).join('')}</div>
+          <p class="hint">Liegt jetzt in deiner Truhe bei der Stammcrew.</p>
+          <div class="fpop-btns"><button class="btn" data-act="dress" data-id="${esc2((GL.meta.squadIds(profile)[0]) || 'self')}">Ansehen</button><button class="btn ghost" data-act="pop-close">Später</button></div></div>`);
+        ui.lastStage = null; draw();
+      });
+    };
+    setTimeout(checkBottles, 8000);
+    setInterval(checkBottles, 300000);
     // App wieder vorne: neuere Version laden bzw. Spielstand vom anderen Gerät holen
     let lastSync = Date.now();
     const backToApp = () => {
