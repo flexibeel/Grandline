@@ -1,6 +1,8 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-18s', date: '18.10.', title: 'Landgang-Fix', items: [
+    'Landgang-Bosskampf: Die Crew startet jetzt mit vollem Leben. Vorher zeigte der Anfang schon den Endstand, deshalb sah es aus, als stünden Besiegte plötzlich wieder auf' ] },
   { v: '2026-10-18r', date: '18.10.', title: 'Schöner auswählen', items: [
     'Frucht und Schatz: Oben siehst du jetzt das Leben deiner Crew. Heil-Früchte zeigen, wie viel sie gerade bringen (z. B. „+43 Leben für 2 Verletzte“ oder „Deine Crew ist gerade gesund“)',
     'Hinweis und „Überspringen“ unter der Auswahl als saubere Knöpfe statt Text',

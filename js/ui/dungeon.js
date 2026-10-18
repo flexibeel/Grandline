@@ -209,12 +209,14 @@ window.GL = window.GL || {};
       spd: Math.round(me.reduce((s, r) => s + r.spd, 0) / me.length) };
     const seed = (Date.now() ^ Math.floor(Math.random() * 1e9)) >>> 0;
     const run = { rng: seed || 1, crew: me, relics: [], arts: [], items: [], crit: 0, bounties: 0, captain: me[0].id, mod: { atk: 0, hp: 0, spd: 0 } };
-    const res = GL.battle.simulate(run, me, [boss], 'boss', {});
+    // Startwerte merken, bevor die Simulation die Leben verändert (sonst startet die Anzeige mit dem Endstand)
+    const startHp = me.map(r => r.hp), bossMax = boss.max;
+    const res = GL.battle.simulate(run, me.map(r => Object.assign({}, r)), [Object.assign({}, boss)], 'boss', {});
     const per = GL.config.stepsPerIsland || 8;
     const dRun = { step: sea * per, seed: 1, alt: d.alt ? { [sea]: true } : {}, captain: me[0].id,
       crew: me.map(r => Object.assign({}, r, { def: r.id === 'self' ? { id: 'self', name: r.name, look: r.look, type: r.type } : null })),
       battle: { kind: 'boss', events: res.events, shown: false, enemies: [Object.assign({}, boss, { def })], enemyEnd: [0] } };
-    return { res, dRun, me, boss, i: 0, fast: false, timer: null, startHp: me.map(r => r.hp) };
+    return { res, dRun, me, boss: Object.assign({}, boss, { hp: bossMax, max: bossMax }), i: 0, fast: false, timer: null, startHp };
   }
   function fightHtml() {
     const f = cur.fight, d = cur.d;
