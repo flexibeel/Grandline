@@ -62,7 +62,7 @@ window.GL = window.GL || {};
     // "self" der eigenen Crew nutzt die eingetragene Figur (Name/Aussehen stimmen schon)
     const run = { rng: (seed >>> 0) || 1, crew: me, relics: [], arts: [], items: [], crit: 0, bounties: 0,
       captain: me[0] && me[0].id, mod: { atk: 0, hp: 0, spd: 0 } };
-    const res = GL.battle.simulate(run, me, foe, 'duel', {});
+    const res = GL.battle.simulate(run, me, foe, 'duel', { duel: true, cmds: opt && Array.isArray(opt.cmds) ? opt.cmds.filter(c => c && ['cheer', 'food', 'dice'].includes(c.cmd) && Number.isInteger(c.at)).slice(0, 30) : [] });
     // Schaden pro Figur zählen (für MVP und Bericht)
     const dealt = { crew: me.map(() => 0), enemy: foe.map(() => 0) };
     res.events.forEach(e => {

@@ -41,7 +41,7 @@ window.GL = window.GL || {};
       const on = online(r), w = where(r);
       const label = `${n}${cn ? ' · ' + cn : ''} · ${w}`;
       return `<button class="soc-ship s${k}${on ? ' on' : ''}" data-act="lb-view" data-id="${esc(r.id)}" aria-label="${esc(label)}" title="${esc(label)}">
-        <span class="soc-hull">${GL.sprites.ship(r.ship && typeof r.ship === 'object' ? r.ship : {})}</span>
+        <span class="soc-hull">${GL.sprites.ship(r.ship && typeof r.ship === 'object' ? r.ship : { std: 1 })}</span>
         <span class="soc-tag"><b>${on ? '<i class="on-dot"></i>' : ''}${esc(n.length > 10 ? n.slice(0, 9) + '…' : n)}</b><small>${esc(w)}</small></span></button>`;
     }).join('')}</div>`;
   }

@@ -608,6 +608,20 @@ window.GL = window.GL || {};
     return max && dmg >= max * 0.3 ? ' huge' : max && dmg >= max * 0.15 ? ' big' : '';
   }
 
+  // BUFF: Stil-Signaturen. Der eigene aktive Stil bekommt ein wiedererkennbares Zeichen, wenn er wirkt.
+  const SIG = { b: null, key: null, at: {} };
+  function sigKey() {
+    const run = window.__glRun;
+    const b = run && run.battle;
+    if (!b || b.kind === 'duel') return null;
+    if (SIG.b !== b) { SIG.b = b; SIG.at = {}; const bd = GL.effects && GL.effects.build ? GL.effects.build(run.crew || []) : null; SIG.key = bd ? bd.key : null; }
+    return SIG.key;
+  }
+  function sigCalm(id, ms) { const now = Date.now(); if (now - (SIG.at[id] || 0) < ms) return false; SIG.at[id] = now; return true; }
+  function crewRole(i) { const run = window.__glRun; const u = run && run.crew && run.crew[i]; return u ? u.role : ''; }
+  const SIG_TXT = { dodge: ['💨 Ausgewichen!', '💨 Dodged!'] };
+  const sigT = k => (GL.i18n && GL.i18n.lang && GL.i18n.lang() === 'en' ? SIG_TXT[k][1] : SIG_TXT[k][0]);
+
   function fieldHit(ev) {
     const tside = ev.side === 'crew' ? 'enemy' : 'crew';
     const att = fu(ev.side, ev.from), tgt = fu(tside, ev.to);
@@ -622,7 +636,14 @@ window.GL = window.GL || {};
     const fast = document.body.classList.contains('fast');
     const impact = () => {
       if (ev.heavy) { const b = fu('enemy', ev.from); if (b) b.classList.remove('windup'); }
+      const sk = sigKey();
       if (ev.miss) {
+        // Tempo-Stil: deine Figur wischt sichtbar zur Seite, mit Stil-Zeichen
+        if (tside === 'crew' && sk === 'technik') {
+          pulse(tgt, 'sig-swipe'); if (!fast) fx('sig-wind', T, 520);
+          fieldFloat(tside, ev.to, ev.heavy ? '💨 Knapp vorbei!' : sigT('dodge'), 'miss sig sig-tempo');
+          return;
+        }
         // Ausweichen: kurzes Nachbild, bei schwerem Schlag ein extra Lob
         pulse(tgt, 'dodge'); if (!fast) pulse(tgt, 'kghost');
         fieldFloat(tside, ev.to, ev.heavy ? 'Knapp vorbei!' : 'Daneben!', 'miss');
@@ -640,7 +661,14 @@ window.GL = window.GL || {};
       if (ev.eff === 'strong') fx('fx-ring', T, 700);
       pulse(tgt, ev.crit ? 'hurt-crit' : 'hurt');
       if (GL.arenaFx) try { GL.arenaFx.hit(ev, A, T, type, fast); } catch (e) { /* nur Deko */ }
-      if (ev.crit) tagAt(tside, ev.to, 'KRIT!', 'crit', 56);
+      // Bollwerk: Rüstung schluckt sichtbar etwas weg
+      if (tside === 'crew' && sk === 'brecher' && (ev.ab || 0) >= 2 && sigCalm('w' + ev.to, 900)) { fx('sig-shield', T, 650); tagAt(tside, ev.to, '🛡 −' + ev.ab, 'sig sig-wall', 64); }
+      // Wucht: große Kraft-Treffer rumsen
+      if (ev.side === 'crew' && sk === 'kraft' && type === 'kraft' && big && sigCalm('k', 700)) { if (big !== ' huge' && !fast) pulse($('#field'), 'knudge'); tagAt(tside, ev.to, '💥', 'sig sig-smash', 66); }
+      // Sturmtrupp: Kämpfer schlagen mit Glut zu
+      if (ev.side === 'crew' && sk === 'kaempfer' && crewRole(ev.from) === 'kaempfer' && !fast && sigCalm('f' + ev.from, 1400)) fx('sig-ember', T, 620);
+      if (ev.crit && ev.side === 'crew' && sk === 'klinge' && type === 'klinge') { if (!fast) fx('sig-cut', T, 520); tagAt(tside, ev.to, '⚔ KRIT!', 'crit sig-blade', 56); }
+      else if (ev.crit) tagAt(tside, ev.to, 'KRIT!', 'crit', 56);
       fieldFloat(tside, ev.to, '-' + ev.dmg, (ev.crit ? 'crit' : ev.eff === 'strong' ? 'strong' : ev.eff === 'weak' ? 'weak' : '') + bigNum(tside, ev.to, ev.dmg));
       if (ev.crit) { pulse($('#field'), 'zoom'); fx('fx-flash', { x: 0, y: 0 }, 300); }
       if (ev.final) finale(tside, ev.to);
@@ -795,6 +823,21 @@ window.GL = window.GL || {};
         setHp(tside, ev.to, ev.hp);
         setEn(ev.side, ev.from, ev.ea);
         setEn(tside, ev.to, ev.et);
+      } else if (ev.k === 'cmd') {
+        // Duell-Kommando (Stammcrew): kurzes Banner, Wirkung an den Figuren
+        const en = GL.i18n && GL.i18n.lang() === 'en';
+        const T = {
+          cheer: ['📣', en ? 'Cheer!' : 'Anfeuern!', en ? 'Everyone hits a bit harder. For a moment.' : 'Alle hauen etwas fester zu. Für einen Moment.'],
+          food: ['🍖', en ? 'Provisions!' : 'Proviant!', en ? 'Food helps. It usually does.' : 'Essen hilft. Meistens.'],
+          salvo: ['🎲', en ? 'Lucky shot!' : 'Glückswurf: Volltreffer!', en ? 'Nobody aimed. Everybody hit.' : 'Keiner hat gezielt. Alle haben getroffen.'],
+          trip: ['🎲', en ? 'Lucky roll: they trip!' : 'Glückswurf: Stolperfalle!', en ? 'Their strongest trips over a rope. Classic.' : 'Ihr Stärkster stolpert über ein Tau. Klassiker.'],
+          flop: ['🎲', en ? 'Lucky roll: nothing.' : 'Glückswurf: nichts.', en ? 'The die rolls overboard. Brave little die.' : 'Der Würfel ist über Bord gerollt. Tapferer kleiner Würfel.']
+        }[ev.cmd === 'dice' ? ev.res : ev.cmd] || ['✦', '', ''];
+        banner('team dx-ban', `<small>${en ? 'Command' : 'Kommando'}</small><b>${T[0]} ${T[1]}</b><em>${T[2]}</em>`, 1300);
+        if (ev.cmd === 'cheer') (ev.list || []).forEach(i => { pulse(fu('crew', i), 'healed'); fieldFloat('crew', i, '⚔ +', 'buff'); });
+        if (ev.cmd === 'dice' && ev.res === 'trip' && ev.to != null) { pulse(fu('enemy', ev.to), 'hurt'); fieldFloat('enemy', ev.to, en ? 'trips' : 'stolpert', 'debuff'); }
+        if (ev.cmd === 'dice' && ev.res === 'salvo') pulse(root, 'shake');
+        if (GL.sfx) GL.sfx.play(ev.res === 'flop' ? 'miss' : 'level');
       } else if (ev.k === 'ult') {
         ultFx(ev);
         if (GL.arenaFx) try { GL.arenaFx.ult(ev); } catch (e) { /* nur Deko */ }
@@ -824,6 +867,8 @@ window.GL = window.GL || {};
           pulse(el(ev.side, x.to), 'healed'); float(ev.side, x.to, '+' + x.amount, 'heal'); setHp(ev.side, x.to, x.hp);
           fx('fx-heal', center(fu(ev.side, x.to)), 900); fieldFloat(ev.side, x.to, '+' + x.amount, 'heal');
           if (ev.side === 'crew' && !document.body.classList.contains('fast')) { const c = center(fu(ev.side, x.to)); if (c) fx('kfx-plus', { x: c.x, y: c.y - 6 }, 900); }
+          // Lazarett: grüne Pixel steigen auf, damit man die Rundenheilung wirklich sieht
+          if (ev.side === 'crew' && ev.by === 'helfer' && sigKey() === 'helfer' && !document.body.classList.contains('fast')) { const c = center(fu(ev.side, x.to)); if (c) fx('sig-sparkle', c, 950); }
         });
       } else if (ev.k === 'revive') {
         if (GL.data.abilities[ev.by]) callout(ev.by, ev.side);

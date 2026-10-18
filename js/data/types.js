@@ -29,8 +29,8 @@ GL.data.types = {
     name: 'Kraft', strong: 'technik', build: 'Wucht', icon: '💥',
     pitch: 'Große Treffer, knackt Bosse',
     tiers: [
-      { n: 2, text: 'Kraft-Figuren +2 Angriff', mods: [{ scope: 'type:kraft', atk: 2 }] },
-      { n: 4, text: 'Kraft-Figuren +5 Angriff und +20 % gegen Bosse', mods: [{ scope: 'type:kraft', atk: 5, bossPct: 0.2 }] },
+      { n: 2, text: 'Kraft-Figuren +3 Angriff und +10 % gegen Bosse', mods: [{ scope: 'type:kraft', atk: 3, bossPct: 0.1 }] },
+      { n: 4, text: 'Kraft-Figuren +6 Angriff und +25 % gegen Bosse', mods: [{ scope: 'type:kraft', atk: 6, bossPct: 0.25 }] },
       { n: 6, text: 'Wucht-Bande: Kraft-Figuren +9 Angriff und +40 % gegen Bosse', mods: [{ scope: 'type:kraft', atk: 9, bossPct: 0.4 }] }
     ]
   },
@@ -39,7 +39,7 @@ GL.data.types = {
     name: 'Klinge', strong: 'kraft', build: 'Schwertkunst', icon: '⚔',
     pitch: 'Viele kritische Treffer',
     tiers: [
-      { n: 2, text: 'Klinge-Figuren +20 % Krit-Chance', mods: [{ scope: 'type:klinge', crit: 0.2 }] },
+      { n: 2, text: 'Klinge-Figuren +25 % Krit-Chance und etwas härtere Krits', mods: [{ scope: 'type:klinge', crit: 0.25, critMult: 0.2 }] },
       { n: 4, text: 'Klinge-Figuren +40 % Krit-Chance und härtere Krits', mods: [{ scope: 'type:klinge', crit: 0.4, critMult: 0.5 }] },
       { n: 6, text: 'Schwertkunst: Klinge-Figuren +55 % Krit-Chance, Krits doppelt so hart', mods: [{ scope: 'type:klinge', crit: 0.55, critMult: 1.0 }] }
     ]

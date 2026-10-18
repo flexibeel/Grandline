@@ -1465,7 +1465,38 @@ window.GL = window.GL || {};
       helfer: 'Pflaster sind auch eine Waffe.', brecher: 'Steht im Weg. Absichtlich.', kaempfer: 'Viel Lärm, viel Schaden, wenig Plan.' };
     // Eine schmale Zeile: Gold + Kampfbilanz als Symbole mit Zahl, Erklärung im Tooltip
     const chip = (on, ico, n, tip) => `<span class="bs-chip tally${on ? ' on' : ''}" title="${esc(tip)}"><i>${ico}</i><b>${n}</b></span>`;
-    const tally = b.win ? [
+    // BUFF: Was dein Stil konkret geleistet hat, in einer Zeile (Stil-eigene Werte zuerst)
+    const enS = GL.i18n && GL.i18n.lang && GL.i18n.lang() === 'en';
+    let absorbed = 0, regen = 0, styleCrits = 0, kBonus = 0, bigHits = 0;
+    const tierMods = bd ? (((bd.kind === 'type' ? GL.data.types : GL.data.roles)[bd.key] || {}).tiers || [])[bd.tier - 1] : null;
+    const kPct = tierMods ? (tierMods.mods || []).reduce((a, m) => a + (m.dmgPct || 0), 0) : 0;
+    b.events.forEach(ev => {
+      if (ev.k === 'hit' && ev.side === 'enemy') absorbed += (ev.ab || 0);
+      if (ev.k === 'heal' && ev.side === 'crew' && ev.by === 'helfer') regen += (ev.list || []).reduce((a, x) => a + (x.amount || 0), 0);
+      if (ev.k === 'hit' && ev.side === 'crew' && run.crew[ev.from]) {
+        const u = run.crew[ev.from];
+        if (ev.crit && u.type === 'klinge') styleCrits++;
+        if (u.role === 'kaempfer' && kPct > 0) kBonus += ev.dmg * kPct / (1 + kPct);
+        if (u.type === 'kraft' && ev.dmg >= (u.atk || 10) * 1.4) bigHits++;
+      }
+    });
+    const SL = [];
+    const P = (ico, de, en) => `<b>${ico} ${enS ? en : de}</b>`;
+    if (bd) {
+      if (bd.key === 'technik' && dodges) SL.push(P('💨', `${dodges}× ausgewichen`, `${dodges}× dodged`));
+      if (bd.key === 'brecher' && absorbed) SL.push(P('🛡', `${absorbed} geblockt`, `${absorbed} blocked`));
+      if (bd.key === 'helfer' && regen) SL.push(P('💚', `${regen} geheilt`, `${regen} healed`));
+      if (bd.key === 'klinge' && styleCrits) SL.push(P('⚔', `${styleCrits} ${styleCrits === 1 ? 'Krit' : 'Krits'}`, `${styleCrits} ${styleCrits === 1 ? 'crit' : 'crits'}`));
+      if (bd.key === 'kaempfer' && kBonus >= 1) SL.push(P('🔥', `+${Math.round(kBonus)} Bonusschaden`, `+${Math.round(kBonus)} bonus damage`));
+      if (bd.key === 'kraft' && styleDmg) SL.push(P('💥', `${styleDmg} Wucht-Schaden${bigHits ? ` · ${bigHits} dicke Treffer` : ''}`, `${styleDmg} smash damage${bigHits ? ` · ${bigHits} big hits` : ''}`));
+    }
+    // Nebenbei: was sonst noch half (höchstens bis 3 Werte insgesamt)
+    if (!bd || bd.key !== 'technik') { if (dodges >= 2) SL.push(P('💨', `${dodges}× ausgewichen`, `${dodges}× dodged`)); }
+    if (!bd || bd.key !== 'brecher') { if (absorbed >= 10) SL.push(P('🛡', `${absorbed} geblockt`, `${absorbed} blocked`)); }
+    if (!bd || bd.key !== 'helfer') { if (healed >= 8) SL.push(P('💚', `${healed} geheilt`, `${healed} healed`)); }
+    const styleLine = bd && SL.length ? `<div class="bs-style b-${bd.key}"><i>${bd.icon}</i><span>${enS ? 'Your style delivered:' : 'Dein Stil hat geleistet:'}</span>${SL.slice(0, 3).join('<em>·</em>')}</div>`
+      : SL.length ? `<div class="bs-style"><i>✦</i><span>${enS ? 'This fight:' : 'Dieser Kampf:'}</span>${SL.slice(0, 3).join('<em>·</em>')}</div>` : '';
+    const tally = b.win && !styleLine ? [
       chip(bd && (bd.key === 'kraft' || bd.key === 'kaempfer'), '💥', styleDmg || dealt.reduce((a, x) => a + x, 0), `${styleDmg || dealt.reduce((a, x) => a + x, 0)} ${bd && styleDmg ? 'Stil-Schaden' : 'Schaden'}`),
       crits ? chip(bd && bd.key === 'klinge', '⚔', crits, `${crits} ${crits === 1 ? 'Krit' : 'Krits'}`) : '',
       dodges ? chip(bd && bd.key === 'technik', '💨', dodges, `${dodges}× ausgewichen${heavyDodged ? ' (auch dem großen Schlag!)' : ''}`) : '',
@@ -1482,7 +1513,7 @@ window.GL = window.GL || {};
     const down = b.win ? run.crew.filter(u => u.hp <= 0) : [];
     const rvP = Math.max(GL.config.reviveAfterWin || 0, (GL.effects.flags(run).reviveWin || 0));
     const revLine = down.length && rvP > 0 ? `<div class="sum-revive"><i>✚</i><span>${down.map(u => esc(unitName(u))).join(', ')} ${down.length === 1 ? 'rappelt sich' : 'rappeln sich'} mit ${Math.round(rvP * 100)} % Leben wieder auf.</span></div>` : '';
-    return `<div class="bs-wrap"><div class="bs-line">${bl}${comboLine}${g}${tally}</div>${revLine}
+    return `<div class="bs-wrap"><div class="bs-line">${bl}${comboLine}${g}${tally}</div>${styleLine}${revLine}
       <div class="summary bs-grid"><div class="bs-train"><i>▲</i><span>Training wartet</span></div>${rows}</div></div>`;
   }
   // Tooltip-Zeilen für aktive und fast erreichte Stil-Kombos
@@ -2655,6 +2686,7 @@ window.GL = window.GL || {};
     res.events.forEach(e => {
       if (lines.length >= 8) return;
       if (e.k === 'ult') lines.push(`<li class="${e.side === 'crew' ? 'us' : 'them'}">⚡ ${esc(nm(e.side, e.from))}: <b>${esc(e.name)}</b></li>`);
+      if (e.k === 'cmd') lines.push(`<li class="us">${{ cheer: '📣 Kommando: <b>Anfeuern</b>', food: '🍖 Kommando: <b>Proviant</b>', dice: { salvo: '🎲 Glückswurf: <b>Volltreffer</b>', trip: '🎲 Glückswurf: <b>Stolperfalle</b>', flop: '🎲 Glückswurf: <b>nichts</b>' }[e.res] }[e.cmd] || ''}</li>`);
       if (e.k === 'hit' && e.hp <= 0) lines.push(`<li class="${e.side === 'crew' ? 'us' : 'them'}">✖ ${esc(nm(e.side === 'crew' ? 'enemy' : 'crew', e.to))} ist k.o.</li>`);
       if (e.k === 'dmg' && e.list) e.list.filter(x => x.hp <= 0).forEach(x => lines.push(`<li class="${e.side === 'crew' ? 'them' : 'us'}">✖ ${esc(nm(e.side, x.to))} ist k.o.</li>`));
     });
@@ -2708,6 +2740,11 @@ window.GL = window.GL || {};
     return `<div class="gtip cr-${GL.cgear.RID[it.r] || ''}"><b>${esc(GL.cgear.name(it))}</b><small>${GL.cgear.RNAME[it.r] || ''} · ⚔ ${GL.cgear.power(it)}</small>
       <div class="gc">${lines.map(l => `<span class="gc-row${l.main ? ' up' : ''}"><span>${esc(l.text)}</span></span>`).join('')}</div></div>`;
   }
+  // Duell-Kommandos: drei Holzknöpfe, die sich mit jedem Zug aufladen
+  function dxBar() {
+    const B = [['cheer', '📣', 'Anfeuern', 'Alle +Angriff für ein paar Züge'], ['food', '🍖', 'Proviant', 'Heilt deine Angeschlagenste'], ['dice', '🎲', 'Glückswurf', 'Volltreffer, Stolperfalle … oder nichts']];
+    return `<div class="dx-bar" role="group" aria-label="Kommandos">${B.map(([c, i, t, d]) => `<button class="dx-btn" data-act="dx-cmd" data-c="${c}" disabled title="${d}" style="--p:0"><i class="dx-ico">${i}</i><b>${t}</b><span class="dx-fill" aria-hidden="true"></span></button>`).join('')}</div>`;
+  }
   function playerCard(x, isMe, ui) {
     const sf = ui && ui.squadFight && ui.squadFight.id === x.id ? ui.squadFight : null;
     const res = sf ? sf.res : null;
@@ -2717,6 +2754,7 @@ window.GL = window.GL || {};
           <div class="duel-vs"><b>Du</b><span>VS</span><b>${esc(x.name || 'Gegner')}</b></div>
           ${GL.arena.html(sf.dRun, { crewHp: sf.dRun.crew.map(u => u.max), enemyHp: sf.dRun.battle.enemies.map(u => u.max), done: false })}
           <div class="duel-bar"><span id="duel-log">Der Kampf beginnt!</span><button class="btn mini ghost" data-act="duel-skip">Schneller</button></div>
+          ${dxBar()}
         </div></div>`;
       return sf.html;
     }
@@ -4686,7 +4724,7 @@ window.GL = window.GL || {};
             const deck = (profile.pets || []).filter(id => id !== act && petDef(id)).slice(-4);
             return deck.length ? `<span class="ss-deck">${deck.map((id, k) => `<i class="ss-pet d${k}">${petArt(id)}</i>`).join('')}</span>` : '';
           })()}</div>
-          ${GL.social ? GL.social.ships(profile) : ''}
+          ${GL.social ? GL.social.ships(profile) : ''}${GL.livemap && !(uiRef && uiRef.peek) ? GL.livemap.hint() : ''}
           <div class="ss-dock"><span class="ss-lamp"></span>${crew.map(fig).join('')}${(() => { const a = cosOf(profile).pet; return a && petDef(a) ? `<i class="ss-mate ss-buddy">${petArt(a)}</i>` : ''; })()}</div>
           <span class="ss-title">${uiRef && uiRef.peek ? 'Dein Run läuft noch' : esc(greeting(profile, t))}</span>
         </div>`; })()}

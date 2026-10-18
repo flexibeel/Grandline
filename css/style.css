@@ -9036,6 +9036,41 @@ em.type.t-technik { background: #5b86b3 !important; }
 .bpt-tap { position: absolute; bottom: calc(14px + env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%); color: #f2e6c8; font-size: .75rem; opacity: .8; }
 @media (prefers-reduced-motion: reduce) { .bpt-who, .bpt-conf i { animation: none; } .bpt-conf { display: none; } }
 
+/* ===== MAP: Live-Seekarte ===== */
+.lm-hint { position: absolute; right: 6px; bottom: 6px; z-index: 6; pointer-events: auto; cursor: pointer;
+  padding: 2px 7px 3px; font: 800 .66rem/1.3 inherit; font-family: inherit; color: #4a3520; letter-spacing: .01em;
+  background: rgba(255, 248, 230, .88); border: 1.5px solid #8a6a42; border-radius: 6px; box-shadow: 0 2px 0 rgba(107, 74, 42, .55); }
+.lm-hint:active { transform: translateY(1px); box-shadow: 0 1px 0 rgba(107, 74, 42, .55); }
+.sail-stage.tod-night .lm-hint { background: rgba(40, 34, 52, .78); color: #f4ead0; border-color: #a99a7a; }
+.lm-pop { max-width: 420px; width: calc(100vw - 24px); padding: 14px 12px 12px; }
+.lm-pop h3 { margin: 2px 0 8px; }
+.lm-map { position: relative; width: 100%; aspect-ratio: 360 / 250; border-radius: 6px; overflow: hidden; box-shadow: 0 3px 0 #b88a3a; }
+.lm-svg { display: block; width: 100%; height: 100%; image-rendering: pixelated; }
+.lm-svg text { font-family: var(--px, inherit); }
+.lm-svg .lm-sea { font-size: 10px; font-weight: 800; fill: #5a4328; letter-spacing: .04em; }
+.lm-svg .lm-n { font-size: 7px; font-weight: 800; fill: #6b4a2a; }
+.lm-svg .lm-reg.on { stroke: #d08a3a; stroke-width: 1.5; stroke-dasharray: 3 2; fill: rgba(255, 240, 200, .18); }
+.lm-ship { position: absolute; transform: translate(-50%, -60%); width: 34px; padding: 0; border: 0; background: none; cursor: pointer;
+  display: grid; justify-items: center; color: inherit; font: inherit; z-index: 2; }
+.lm-ship.me { cursor: default; z-index: 3; }
+.lm-hull { width: 26px; height: 22px; display: block; }
+.lm-hull svg { width: 100%; height: 100%; display: block; }
+.lm-ship.anchor .lm-hull { opacity: .78; filter: saturate(.75); }
+.lm-ship.on .lm-hull { animation: lmRock 2.6s ease-in-out infinite; transform-origin: 50% 90%; }
+.lm-ship.d1.on .lm-hull { animation-delay: -.9s; } .lm-ship.d2.on .lm-hull { animation-delay: -1.7s; }
+@keyframes lmRock { 0%, 100% { transform: rotate(-4deg) translateY(0); } 50% { transform: rotate(4deg) translateY(-1px); } }
+.lm-tag { margin-top: -1px; max-width: 64px; padding: 0 4px; font-size: .58rem; font-weight: 800; line-height: 1.35; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  background: rgba(255, 250, 238, .92); border: 1px solid #a7825a; border-radius: 4px; color: #3a2a18; display: flex; align-items: center; gap: 2px; }
+.lm-tag .on-dot { width: 5px; height: 5px; margin: 0; }
+.lm-tag .lm-anc { font-style: normal; font-size: .55rem; }
+.lm-ship.me .lm-tag { background: #fff1c4; border-color: #b4553a; color: #8e2f1c; }
+.lm-count, .lm-empty { margin: 8px 2px 2px; font-size: .82rem; text-align: center; color: #5a4328; }
+.lm-empty { font-style: italic; color: #7a6248; }
+.lm-legend { display: flex; justify-content: center; flex-wrap: wrap; gap: 4px 12px; margin: 4px 0 2px; font-size: .72rem; color: #7a6248; }
+.lm-legend span { display: inline-flex; align-items: center; gap: 4px; }
+.lm-legend .on-dot { width: 6px; height: 6px; margin: 0; }
+.lm-me-key::before { content: ''; width: 10px; height: 7px; border: 1px solid #b4553a; background: #fff1c4; border-radius: 2px; }
+@media (prefers-reduced-motion: reduce) { .lm-ship.on .lm-hull { animation: none; } }
 
 /* Touch-Geräte: keine CSS-Tooltips (iOS behält :hover nach dem Tippen, der Tooltip ragte aus der Seite).
    Stattdessen eine feste Blase im Bildschirm. Und nie seitlich verrutschen. */
@@ -9044,3 +9079,74 @@ em.type.t-technik { background: #5b86b3 !important; }
 }
 .tap-tip { position: fixed; z-index: 1200; pointer-events: none; }
 @supports (overflow: clip) { html, body { overflow-x: clip; } }
+.lm-hint { right: 6px; top: 6px; bottom: auto; }
+.lm-ship.anchor .lm-tag { max-width: 48px; }
+.lm-svg .lm-port { font-size: 7px; fill: #6b4a2a; }
+.lm-docks { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 4px; margin: 6px 0 0; }
+.lm-dl { font-size: .72rem; font-weight: 800; color: #6b4a2a; margin-right: 2px; }
+.lm-dock { padding: 1px 7px; font: inherit; font-size: .72rem; font-weight: 700; color: #3a2a18; cursor: pointer;
+  background: #fff8e6; border: 1px solid #c9a46a; border-radius: 6px; box-shadow: 0 2px 0 #c9a46a; }
+.lm-dock:active { transform: translateY(1px); box-shadow: 0 1px 0 #c9a46a; }
+.lm-docks em { font-style: normal; font-size: .72rem; color: #7a6248; }
+
+/* ===== DUELX: Kommando-Knöpfe im Stammcrew-Duell ===== */
+.dx-bar { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
+.dx-btn { position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; min-height: 58px; padding: 6px 4px 9px;
+  background: #f3e3c2; border: 2px solid #8a6238; border-radius: 9px; box-shadow: 0 3px 0 #6b4a2a; color: #4a3520; font: inherit; cursor: pointer; transition: transform .1s, filter .2s; }
+.dx-btn .dx-ico { font-style: normal; font-size: 1.25rem; line-height: 1; filter: grayscale(.7); opacity: .7; transition: filter .3s, opacity .3s; }
+.dx-btn b { font-size: .74rem; font-weight: 800; }
+.dx-btn .dx-fill { position: absolute; left: 4px; right: 4px; bottom: 3px; height: 4px; border-radius: 3px; background: rgba(107,74,42,.18); }
+.dx-btn .dx-fill::after { content: ''; position: absolute; inset: 0; width: calc(var(--p, 0) * 100%); border-radius: 3px; background: #c99a3a; transition: width .25s linear; }
+.dx-btn:disabled { cursor: default; color: #8a7458; }
+.dx-btn.full { background: #fff4d4; border-color: #b4822a; box-shadow: 0 3px 0 #8a5a1a, 0 0 0 2px rgba(240,190,80,.35); animation: dxGlow 1.6s ease-in-out infinite alternate; }
+.dx-btn.full .dx-ico { filter: none; opacity: 1; }
+.dx-btn.full .dx-fill::after { background: #e0a92a; }
+.dx-btn.full:active { transform: translateY(2px); box-shadow: 0 1px 0 #8a5a1a; }
+.dx-btn.used { animation: dxUsed .45s ease; }
+@keyframes dxGlow { from { box-shadow: 0 3px 0 #8a5a1a, 0 0 0 2px rgba(240,190,80,.25); } to { box-shadow: 0 3px 0 #8a5a1a, 0 0 0 3px rgba(240,190,80,.55); } }
+@keyframes dxUsed { 0% { transform: scale(1); } 40% { transform: scale(.94); } 100% { transform: scale(1); } }
+@media (prefers-reduced-motion: reduce) { .dx-btn.full, .dx-btn.used { animation: none; } }
+
+/* ===== BUFF: Stil-Signaturen im Kampf ===== */
+/* Tempo: zur Seite wischen */
+.fu.sig-swipe .fu-body { animation: sigSwipe .42s steps(6) both; }
+@keyframes sigSwipe { 0% { transform: translateX(0); } 35% { transform: translateX(-14px) skewX(-6deg); opacity: .55; } 70% { transform: translateX(-6px); opacity: .85; } 100% { transform: translateX(0); opacity: 1; } }
+.fx3.sig-wind { width: 34px; height: 14px; margin: -7px 0 0 -40px; pointer-events: none;
+  background: repeating-linear-gradient(180deg, rgba(150,210,235,.0) 0 3px, rgba(150,210,235,.85) 3px 5px); animation: sigWind .52s ease-out forwards; }
+@keyframes sigWind { from { opacity: .9; transform: translateX(10px) scaleX(.6); } to { opacity: 0; transform: translateX(-16px) scaleX(1.2); } }
+/* Bollwerk: Schild blitzt */
+.fx3.sig-shield { width: 30px; height: 34px; margin: -17px 0 0 -15px; pointer-events: none;
+  background: linear-gradient(#fff6d8, #e9c46a); border: 3px solid #6b4a2a; border-radius: 4px 4px 14px 14px; box-shadow: 0 0 0 2px rgba(255,248,220,.6);
+  animation: sigShield .65s ease-out forwards; image-rendering: pixelated; }
+@keyframes sigShield { 0% { opacity: 0; transform: scale(.6); } 25% { opacity: .95; transform: scale(1.05); } 100% { opacity: 0; transform: scale(1.25); } }
+/* Lazarett: grüne Pixel steigen auf */
+.fx3.sig-sparkle { width: 4px; height: 4px; margin: 0; pointer-events: none; background: transparent;
+  box-shadow: -12px 0 0 #6fcf72, 10px -6px 0 #9be39a, -4px -10px 0 #4fb35a, 14px 6px 0 #6fcf72, 2px 8px 0 #9be39a;
+  animation: sigSpark .95s steps(8) forwards; }
+@keyframes sigSpark { from { opacity: 1; transform: translateY(6px); } to { opacity: 0; transform: translateY(-26px); } }
+/* Schwertkunst: goldene Schnittlinie */
+.fx3.sig-cut { width: 54px; height: 3px; margin: -2px 0 0 -27px; pointer-events: none; background: linear-gradient(90deg, transparent, #ffe28a 20%, #fff 50%, #ffe28a 80%, transparent);
+  transform: rotate(-28deg); animation: sigCut .52s ease-out forwards; box-shadow: 0 0 0 1px rgba(120,80,20,.35); }
+@keyframes sigCut { from { opacity: 0; clip-path: inset(0 100% 0 0); } 30% { opacity: 1; clip-path: inset(0 0 0 0); } to { opacity: 0; } }
+/* Sturmtrupp: kleine Glut */
+.fx3.sig-ember { width: 4px; height: 4px; margin: 0; pointer-events: none; background: transparent;
+  box-shadow: -6px 2px 0 #f2a33a, 5px -3px 0 #e8623a, 0 -8px 0 #ffd36a; animation: sigSpark .62s steps(5) forwards; }
+/* Stil-Abzeichen im Feld */
+.ptag.sig { font-weight: 800; }
+.ptag.sig-tempo { background: #e3f3f8 !important; color: #23607a !important; border-color: #5aa0bd !important; }
+.ptag.sig-wall { background: #fbf0c8 !important; color: #6b4a12 !important; border-color: #b48a3a !important; }
+.ptag.sig-smash { background: #f8e2da !important; color: #8a3a22 !important; border-color: #c97a5a !important; padding: 0 4px !important; }
+.ptag.sig-blade { background: #fff3c2 !important; color: #7a5a12 !important; border-color: #d1a83a !important; }
+@media (prefers-reduced-motion: reduce) { .fu.sig-swipe .fu-body, .fx3.sig-wind, .fx3.sig-shield, .fx3.sig-sparkle, .fx3.sig-cut, .fx3.sig-ember { animation-duration: .01s; } }
+/* Kampfende: was der Stil geleistet hat */
+.bs-style { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; margin: 6px 0 2px; padding: 5px 9px; border-radius: 9px;
+  background: #fbf3df; border: 1px solid #dcc59a; font-size: .78rem; color: #5a4328; line-height: 1.3; }
+.bs-style > i { font-style: normal; font-size: .95rem; }
+.bs-style > span { font-weight: 600; opacity: .8; }
+.bs-style b { font-weight: 800; color: #3a2a18; white-space: nowrap; }
+.bs-style em { font-style: normal; opacity: .45; }
+.bs-style.b-technik { background: #eaf5f8; border-color: #a9d0de; }
+.bs-style.b-brecher { background: #fbf0d0; border-color: #dcc27a; }
+.bs-style.b-helfer { background: #ecf6e6; border-color: #a9cf96; }
+.bs-style.b-klinge { background: #fdf5d8; border-color: #e0c56a; }
+.bs-style.b-kraft, .bs-style.b-kaempfer { background: #fbe9e2; border-color: #deb09a; }

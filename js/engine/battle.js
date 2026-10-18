@@ -3,7 +3,7 @@
 // Kein Zugriff auf die Seite (DOM): läuft auch ohne Browser, z. B. auf einem Server.
 //
 // Ereignisse (k = Art):
-//   hit     { side, from, to, dmg, crit, eff, blocked, miss, hp }  side = Angreifer
+//   hit     { side, from, to, dmg, crit, eff, blocked, miss, hp, ab }  side = Angreifer, ab = von Rüstung/Schutz geschluckt
 //   dmg     { side, list: [{ to, dmg, hp }], by }            side = wer Schaden nimmt
 //   heal    { side, list: [{ to, amount, hp }], by }         side = wer geheilt wird
 //   revive  { side, list: [{ to, hp }], by }
@@ -404,6 +404,41 @@ window.GL = window.GL || {};
     // Schutz: Schüsse über das Gefolge hinweg verlieren etwas Wucht
     const behindGuards = (u, target) => !pvp && FM.on && u.side === 'crew' && isLead(target) && alive(enemies).some(f => !isLead(f));
     let rounds = 0;
+    // Duell-Kommandos (nur Stammcrew-Duell, nur mit o.duel): vor jedem Zug steht eine Zug-Marke im Protokoll.
+    // Ein Kommando wirkt vor dem genannten Zug. Alles davor bleibt Ereignis für Ereignis gleich,
+    // deshalb kann die Wiedergabe nach einem Tipp nahtlos mit dem neu gerechneten Verlauf weiterlaufen.
+    const DUEL = !!o.duel, CMDS = DUEL && Array.isArray(o.cmds) ? o.cmds : [];
+    const DK = C.duelCmds || {};
+    const cmdBuff = [];
+    let turnNo = 0;
+    function cmdTurn() {
+      for (let k = cmdBuff.length - 1; k >= 0; k--) if (cmdBuff[k].until < turnNo) { const b = cmdBuff[k]; b.u.atk = Math.max(1, b.u.atk - b.add); cmdBuff.splice(k, 1); }
+      CMDS.forEach(c => {
+        if (!c || c.at !== turnNo) return;
+        const team = alive(crew), foes = alive(enemies);
+        if (!team.length || !foes.length) return;
+        if (c.cmd === 'cheer') {
+          team.forEach(u => { const add = Math.max(1, Math.round(u.atk * (DK.cheerAtk || 0.12))); u.atk += add; cmdBuff.push({ u, add, until: turnNo + (DK.cheerTurns || 5) }); });
+          events.push({ k: 'cmd', cmd: 'cheer', side: 'crew', list: team.map(u => idx(u)) });
+        } else if (c.cmd === 'food') {
+          const t = team.reduce((x, y) => (y.hp / y.max < x.hp / x.max ? y : x));
+          const amount = heal(t, Math.round(t.max * (DK.food || 0.25)));
+          events.push({ k: 'cmd', cmd: 'food', side: 'crew', to: idx(t) });
+          if (amount > 0) events.push({ k: 'heal', side: 'crew', list: [{ to: idx(t), amount, hp: t.hp }], by: 'proviant' });
+        } else if (c.cmd === 'dice') {
+          const r = R.float(run);
+          if (r < (DK.salvoP || 0.4)) {
+            const avg = team.reduce((x, u) => x + u.atk, 0) / team.length;
+            const list = foes.map(f => { const d = Math.max(1, Math.round(avg * (DK.salvo || 0.5) * (0.7 + R.float(run) * 0.6))); return { to: idx(f), dmg: Math.min(f.hp, d), hp: damage(f, d) }; });
+            events.push({ k: 'cmd', cmd: 'dice', res: 'salvo', side: 'crew' });
+            events.push({ k: 'dmg', side: 'enemy', list, by: 'gluecksschuss' });
+          } else if (r < (DK.salvoP || 0.4) + (DK.tripP || 0.3)) {
+            const big = foes.reduce((x, y) => (y.atk > x.atk ? y : x)); big.status.stun = true;   // der Stärkste stolpert
+            events.push({ k: 'cmd', cmd: 'dice', res: 'trip', side: 'crew', to: idx(big) });
+          } else events.push({ k: 'cmd', cmd: 'dice', res: 'flop', side: 'crew' });
+        }
+      });
+    }
 
     // ---------- Runden ----------
     while (alive(crew).length && rounds < C.battleRoundsMax && (alive(enemies).length || callWave())) {
@@ -430,6 +465,7 @@ window.GL = window.GL || {};
 
       for (const u of queue) {
         if (!alive(enemies).length || !alive(crew).length) break;   // Kampf schon entschieden
+        if (DUEL) { turnNo++; events.push({ k: 'turn', t: turnNo }); if (CMDS.length) { cmdTurn(); if (!alive(enemies).length) break; } }
         drama();
         if (u.hp <= 0) continue;
         if (u.status.stun) {
@@ -477,7 +513,9 @@ window.GL = window.GL || {};
           if (behindGuards(u, target)) dmg *= FM.ranged;
           const heavy = u.wind === 2 && u.side === 'enemy';
           if (heavy) { dmg *= BF.windup; u.wind = 0; }
+          const rawDmg = Math.max(1, Math.round(dmg));
           dmg = Math.max(1, Math.round(dmg * (1 - target.guard)) - target.armor * (heavy ? 2 : 1));
+          const absorbed = rawDmg - dmg;   // nur Anzeige: was Rüstung/Schutz geschluckt hat
 
           let blocked = false;
           let miss = false;
@@ -492,7 +530,7 @@ window.GL = window.GL || {};
           if (dmg > 0) charge(target, U.gainHurt);
           const eff = mult > 1 ? 'strong' : mult < 1 ? 'weak' : '';
           events.push({ k: 'hit', side: u.side, from: idx(u), to, dmg, crit: crit && dmg > 0, lucky, eff, blocked, miss, hp: target.hp, heavy: heavy || undefined,
-            ea: u.ult ? u.energy : null, et: target.ult ? target.energy : null });
+            ea: u.ult ? u.energy : null, et: target.ult ? target.energy : null, ab: !miss && !blocked && absorbed > 0 ? absorbed : undefined });
 
           // „Für den Boss!“: Trifft die Crew den Anführer, wird sein Gefolge einmal pro Kampf wütend
           if (!pvp && FM.on && !rallied && dmg > 0 && u.side === 'crew' && isLead(target)) {

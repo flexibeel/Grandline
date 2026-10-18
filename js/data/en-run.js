@@ -320,3 +320,10 @@ GL.i18nExtraP = (GL.i18nExtraP || []).concat([
   [/^Flickt im Duell (\d+) Leben pro Runde\. Pflaster aus der eigenen Tasche, Rechnung folgt nie\.$/, 'Patches $1 health per round in duels. Plasters from their own pocket, the bill never comes.'],
   [/^Ab Vertraut (\d+): Stufe (I{1,3})\.$/, 'From bond $1: tier $2.']
 ]);
+// DUELX: Kommando-Knöpfe im Stammcrew-Duell
+Object.assign(GL.data.en, {
+  'Anfeuern': 'Cheer', 'Proviant': 'Provisions', 'Glückswurf': 'Lucky roll', 'Kommandos': 'Commands',
+  'Alle +Angriff für ein paar Züge': 'Everyone +attack for a few turns', 'Heilt deine Angeschlagenste': 'Heals your most battered one',
+  'Volltreffer, Stolperfalle … oder nichts': 'Bullseye, tripwire … or nothing',
+  '📣 Kommando:': '📣 Command:', '🍖 Kommando:': '🍖 Command:', '🎲 Glückswurf:': '🎲 Lucky roll:', 'Volltreffer': 'Bullseye', 'Stolperfalle': 'Tripwire', 'nichts': 'nothing'
+});

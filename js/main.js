@@ -851,23 +851,69 @@
   function startSquadDuel(row) {
     if (!GL.meta.squadUnlocked(profile)) { toast('<span><b>Noch gesperrt</b>Die Stammcrew gibt es nach deinem ersten gewonnenen Run oder ab Rang 5.</span>'); return; }
     if (ui.squadFight && ui.squadFight.timer) clearTimeout(ui.squadFight.timer);
-    const res = GL.squad.fight(GL.meta.squadRefs(profile), row.squad, (Date.now() ^ (Math.random() * 1e9)) >>> 0, { me: profile.squadTactic, foe: row.squadTactic });
-    if (res.win) profile.squadW = (profile.squadW || 0) + 1; else profile.squadL = (profile.squadL || 0) + 1;
-    const myRating = profile.squadRating == null ? 1000 : profile.squadRating;
-    // Gegen die Übungscrew zählen Punkte nur bis 1100, darüber muss man echte Banden schlagen
-    const ratingDelta = row.npc && myRating >= 1100 ? null : GL.meta.squadRate(profile, row.npc ? myRating - 80 : row.squadRating, res.win);
-    const xp = GL.meta.squadGainXp ? GL.meta.squadGainXp(profile, res.me.map(r => r.id), res.win, row.npc) : null;
+    finishDuel(ui.squadFight);
+    const seed = (Date.now() ^ (Math.random() * 1e9)) >>> 0;
+    const refs = GL.meta.squadRefs(profile), tac = { me: profile.squadTactic, foe: row.squadTactic };
+    const res = GL.squad.fight(refs, row.squad, seed, tac);
+    // Vorläufig gleich verbuchen (Neu laden mitten im Duell ändert nichts). Ändern Kommandos den Ausgang,
+    // wird am Ende mit dem echten Ergebnis neu gerechnet.
+    const snap = JSON.stringify({ r: profile.squadRating, b: profile.squadBest, w: profile.squadW, l: profile.squadL, x: profile.squadXp || null, p: profile.pairXp || null });
+    const book = win => {
+      if (win) profile.squadW = (profile.squadW || 0) + 1; else profile.squadL = (profile.squadL || 0) + 1;
+      const myRating = profile.squadRating == null ? 1000 : profile.squadRating;
+      // Gegen die Übungscrew zählen Punkte nur bis 1100, darüber muss man echte Banden schlagen
+      const ratingDelta = row.npc && myRating >= 1100 ? null : GL.meta.squadRate(profile, row.npc ? myRating - 80 : row.squadRating, win);
+      const xp = GL.meta.squadGainXp ? GL.meta.squadGainXp(profile, res.me.map(r => r.id), win, row.npc) : null;
+      return { ratingDelta, xp };
+    };
+    const first = book(res.win);
     // Darstellung im Kampffeld: Figuren in Startzustand, fremder Pirat mit eigenem Aussehen
     const dRun = { step: 0, seed: 1, captain: res.me[0] && res.me[0].id,
       crew: res.me.map(r => Object.assign({}, r, { hp: r.max, def: r.id === 'self' ? { id: 'self', name: r.name, look: r.look, type: r.type } : null })),
       battle: { kind: 'duel', events: res.events, shown: false,
         enemies: res.foe.map(r => Object.assign({}, r, { hp: r.max, def: r.id === 'rival' ? { id: 'self', name: r.name, look: r.look, type: r.type } : null })) } };
-    ui.squadFight = { id: row.id, res, xp, ratingDelta, practice: !!row.npc, playing: true, i: 0, dRun, theirName: row.name };
-    if (!row.npc && GL.online.duelReport) GL.online.duelReport(row.id, res.win, Math.abs(ratingDelta || 0), profile.nickname);
+    ui.squadFight = { id: row.id, res, xp: first.xp, ratingDelta: first.ratingDelta, practice: !!row.npc, playing: true, i: 0, dRun, theirName: row.name,
+      seed, refs, foeSquad: row.squad, tac, cmds: [], turn: 0, charge: { cheer: 0, food: 0, dice: 0 }, provWin: res.win, snap, book, row, done: false };
     saveProfile(); draw();
     GL.arena.mounted(dRun);
     ui.squadFight.timer = setTimeout(playDuel, 900);
+  }
+  // Duell abschließen: Ergebnis (mit Kommandos) festschreiben, Gegner benachrichtigen
+  function finishDuel(f) {
+    if (!f || f.done || !f.book) return;
+    f.done = true;
+    if (f.res.win !== f.provWin) {
+      try { const o = JSON.parse(f.snap); profile.squadRating = o.r; profile.squadBest = o.b; profile.squadW = o.w; profile.squadL = o.l;
+        if (o.x) profile.squadXp = o.x; else delete profile.squadXp; if (o.p) profile.pairXp = o.p; else delete profile.pairXp; } catch (e) { /* bleibt vorläufig */ }
+      const b = f.book(f.res.win); f.ratingDelta = b.ratingDelta; f.xp = b.xp;
+    }
+    if (!f.row.npc && GL.online.duelReport) GL.online.duelReport(f.row.id, f.res.win, Math.abs(f.ratingDelta || 0), profile.nickname);
+    saveProfile();
     if (GL.online && GL.online.register) GL.online.register(profile);
+  }
+  // Kommando-Knöpfe: laden pro Zug, wirken ab dem nächsten Zug (Kampf wird ab dort neu gerechnet)
+  const DUEL_CMDS = ['cheer', 'food', 'dice'];
+  function duelCharge(f) {
+    const C = (GL.config.duelCmds || {}).charge || { cheer: 10, food: 13, dice: 16 };
+    DUEL_CMDS.forEach(k => {
+      const b = document.querySelector(`.dx-btn[data-c="${k}"]`); if (!b) return;
+      const p = Math.min(1, (f.charge[k] || 0) / (C[k] || 10));
+      b.style.setProperty('--p', p.toFixed(3));
+      b.classList.toggle('full', p >= 1 && f.playing);
+      b.disabled = !(p >= 1 && f.playing);
+    });
+  }
+  function duelCmd(k) {
+    const f = ui.squadFight;
+    if (!f || !f.playing || f.done || !DUEL_CMDS.includes(k)) return;
+    const C = (GL.config.duelCmds || {}).charge || {};
+    if ((f.charge[k] || 0) < (C[k] || 10)) return;
+    f.cmds.push({ at: f.turn + 1, cmd: k });
+    f.charge[k] = 0;
+    const res = GL.squad.fight(f.refs, f.foeSquad, f.seed, Object.assign({}, f.tac, { cmds: f.cmds.slice() }));
+    f.res = res; f.dRun.battle.events = res.events;
+    duelCharge(f);
+    const b = document.querySelector(`.dx-btn[data-c="${k}"]`); if (b) { b.classList.add('used'); setTimeout(() => b.classList.remove('used'), 500); }
   }
 
   // Stammcrew-Duell im Kampffeld abspielen (eigene kleine Schleife, unabhängig vom Run)
@@ -875,12 +921,13 @@
     const f = ui.squadFight;
     if (!f || !f.playing) return;
     const ev = f.res.events[f.i++];
-    if (!ev) { if (GL.sfx) GL.sfx.play(f.res.win ? 'win' : 'lose'); f.timer = setTimeout(() => { f.playing = false; draw(); }, 900); return; }
+    if (!ev) { finishDuel(f); document.querySelectorAll('.dx-btn').forEach(b => { b.disabled = true; b.classList.remove('full'); }); if (GL.sfx) GL.sfx.play(f.res.win ? 'win' : 'lose'); f.timer = setTimeout(() => { f.playing = false; draw(); }, 900); return; }
+    if (ev.k === 'turn') { f.turn = ev.t; DUEL_CMDS.forEach(k => { f.charge[k] = (f.charge[k] || 0) + 1; }); duelCharge(f); f.timer = setTimeout(playDuel, 0); return; }
     GL.arena.play(ev);
     if (GL.sfx) GL.sfx.battle(ev, f.fast ? 3 : 1);
     const rb = document.getElementById('duel-log');
     if (rb && ev.k === 'ult') rb.textContent = `⚡ ${ev.name}!`;
-    const wait = (ev.k === 'round' ? 80 : ev.k === 'ult' ? 850 : ev.k === 'hit' ? 380 : 620) * (f.fast ? 0.4 : 1);
+    const wait = (ev.k === 'round' ? 80 : ev.k === 'ult' ? 850 : ev.k === 'cmd' ? 900 : ev.k === 'hit' ? 380 : 620) * (f.fast ? 0.4 : 1);
     f.timer = setTimeout(playDuel, wait);
   }
 
@@ -1533,7 +1580,8 @@
         if (ui.squadFight) { ui.squadFight.fast = !ui.squadFight.fast; el.textContent = ui.squadFight.fast ? 'Normal' : 'Schneller'; }
         break;
       }
-      case 'squad-back': if (ui.squadFight) clearTimeout(ui.squadFight.timer); ui.squadFight = null; draw(); break;
+      case 'squad-back': if (ui.squadFight) { clearTimeout(ui.squadFight.timer); finishDuel(ui.squadFight); } ui.squadFight = null; draw(); break;
+      case 'dx-cmd': duelCmd(el.dataset.c); break;
       case 'lb-view': ui.viewPlayer = el.dataset.id; draw(); break;
       case 'kumpan-add': {
         // Segelkumpan anheuern: Freundescode aus der Online-ID, in die Liste, Bescheid geben, kleines Fest
@@ -1561,7 +1609,7 @@
         }
         break;
       }
-      case 'lb-view-close': if (ui.squadFight) clearTimeout(ui.squadFight.timer); ui.viewPlayer = null; ui.squadFight = null; draw(); break;
+      case 'lb-view-close': if (ui.squadFight) { clearTimeout(ui.squadFight.timer); finishDuel(ui.squadFight); } ui.viewPlayer = null; ui.squadFight = null; draw(); break;
       case 'noop': break;
       case 'char-part': ui.draft.char.look[el.dataset.part] = el.dataset.v; draw(); break;
       case 'char-hat': ui.draft.char.look.hat = el.dataset.v; draw(); break;
@@ -1648,6 +1696,8 @@
         box.innerHTML = `<b>${esc2(T(el.dataset.n))}</b>${el.dataset.k ? `<em>${esc2(T(el.dataset.k))}</em>` : ''}${el.dataset.a ? `<span class="tm-a">${esc2(T(el.dataset.a))}</span>` : ''}${el.dataset.b ? `<span class="tm-b">${esc2(T(el.dataset.b))}</span>` : ''}`;
         break;
       }
+      case 'livemap': if (GL.livemap) { openGearPop(GL.livemap.html(profile)); if (GL.sfx) GL.sfx.play('tap'); } break;
+      case 'lm-view': closePop(); ui.viewPlayer = el.dataset.id; draw(); break;
       case 'worldmap': if (GL.worldmap) { openGearPop(GL.worldmap.html(profile)); if (GL.sfx) GL.sfx.play('tap'); } break;
       case 'lage': if (run) { openGearPop(GL.ui.lagePop(run)); const p = document.getElementById('fpop'); if (p) p.dataset.id = 'lage'; } break;
       case 'post-check': { el.disabled = true; el.textContent = '🍾 Schaue nach …'; if (GL.checkBottles) GL.checkBottles(); setTimeout(() => { if (!document.querySelector('.bottle-pop')) { el.textContent = 'Keine neue Post. Das Meer ist ruhig.'; } }, 2500); break; }
@@ -2154,7 +2204,7 @@
     if (e.key === 'Escape') {
       const pop = document.getElementById('fpop');
       if (pop) { closePop(); return; }
-      if (ui.viewPlayer) { ui.viewPlayer = null; ui.squadFight = null; draw(); return; }
+      if (ui.viewPlayer) { if (ui.squadFight) { clearTimeout(ui.squadFight.timer); finishDuel(ui.squadFight); } ui.viewPlayer = null; ui.squadFight = null; draw(); return; }
       if (ui.peek) { ui.peek = false; draw(); return; }
     }
     if (e.key === 'Escape' && (ui.album || ui.sheet != null)) { ui.album = null; ui.sheet = null; draw(); return; }

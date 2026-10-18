@@ -92,6 +92,8 @@ GL.config = {
     { foe: 0.06, gold: 0.15, bounty: 0.15 },
     { foe: 0.12, gold: 0.3, bounty: 0.3, drop: 0.6 }
   ],
+  // Stammcrew-Duell: Kommando-Knöpfe (laden pro Zug, wirken ab dem nächsten Zug). charge = Züge bis voll
+  duelCmds: { charge: { cheer: 10, food: 13, dice: 18 }, cheerAtk: 0.08, cheerTurns: 5, food: 0.2, salvoP: 0.3, salvo: 0.22, tripP: 0.28 },
   enemyScale: 0.975,         // wie schnell normale Gegner pro Etappe stärker werden (längere Insel-Kapitel -> langsamer hochskalieren)
   eliteMult: 1.3,         // Kopfgeldjäger sind um diesen Faktor stärker
   // Mehr Leben, etwas weniger Angriff: Kämpfe dauern etwas länger, ohne insgesamt härter zu werden

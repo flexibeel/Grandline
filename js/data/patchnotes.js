@@ -1,6 +1,12 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-20q', date: '19.10.', title: 'Live-Seekarte, Duell-Kommandos, spürbare Stile', items: [
+    '🗺 Live-Seekarte: Tipp auf die Hafen-Szene zeigt, wer gerade wo segelt. Mit Kompassrose und einem Seeungeheuer, das sich nicht für dich interessiert',
+    '📣🍖🎲 Stammcrew-Duell: Drei Kommandos laden sich während des Kampfes auf. Anfeuern, Proviant oder Glückswurf, das manchmal auch einfach nichts tut. Die Liga zählt das Ergebnis am Kampfende',
+    '💨🛡⚔💥 Dein Stil ist im Kampf zu sehen: Ausweichen wischt weg, Bollwerk blockt sichtbar, Schwertkunst schneidet golden, Wucht lässt das Feld wackeln. Am Kampfende steht, was dein Stil geleistet hat',
+    'Schwächere Stil-Stufen verstärkt: Wucht ★/★★, Schwertkunst ★, Bollwerk und Lazarett auf allen Stufen',
+    'Fremde Schiffe im Hafen tragen nicht mehr heimlich dein Design' ] },
   { v: '2026-10-20p', date: '19.10.', title: 'Hotfix: Handy-Hafen verrutscht nicht mehr', items: [
     'Am Handy ragten Info-Blasen (z. B. bei der Kopfgeld-Stufe) aus der Seite. Dadurch rutschte die untere Leiste in die Bildschirmmitte. Infos erscheinen jetzt als feste Blase im Bild und verschwinden von selbst' ] },
   { v: '2026-10-20o', date: '19.10.', title: 'Taktik, Monster und ein Geisterschiff', items: [
