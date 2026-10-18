@@ -1063,7 +1063,7 @@ window.GL = window.GL || {};
         const seaBanner = freshSea ? `<div class="new-sea"><i class="ns-star">★</i><span><small>Neues Meer entdeckt</small><b>${esc(twoRoutes ? baseSea.name + ' oder ' + baseSea.alt.name : baseSea.name)}</b><em>${esc(baseSea.tagline || '')}</em></span><i class="ns-star">★</i></div>` : '';
         return `${noticeBox(run)}${seaBanner}<span class="event-kicker">${twoRoutes ? (GL.run.islandIndex(run) === 1 ? 'Zweites Meer' : 'Drittes Meer') + ' · Zwei Routen' : sea.name + ' · ' + (ch === 0 ? 'Erste Insel' : 'Zweite Insel')}</span>
           <h2>${ch === 0 ? 'Welche Insel steuerst du an?' : 'Kurs auf den Boss des Meeres'}</h2>
-          <p class="hint">${ch === 0 ? 'Jede Insel hat ihre eigenen Orte. Am Ende wartet ihr Bösewicht: Sieg bringt Kopfgeld, einen Schatz und eine Verschnaufpause.'
+          <p class="hint course-hint">${ch === 0 ? 'Jede Insel hat ihre eigenen Orte. Am Ende wartet ihr Bösewicht: Sieg bringt Kopfgeld, einen Schatz und eine Verschnaufpause.'
             : 'Auf der großen Insel wartet der Boss dieses Meeres. Wähle den Gegner, gegen den deine Crew die besseren Karten hat.'}</p>
           <div class="course-grid">${cards}</div>`;
       }
@@ -2706,6 +2706,8 @@ window.GL = window.GL || {};
   function tabAlert(profile, id) {
     if (id === 'werft') return GL.data.upgrades.some(u => { const c = GL.meta.upgradeCost(profile, u.id); return c != null && profile.berry >= c; });
     if (id === 'stammcrew') return !!(GL.cgear && (profile.gearNew || []).length);
+    if (id === 'schmiede') return GL.config.rarities.slice(0, -1).some((x, r) => GL.meta.fusable(profile, r).length >= 3 && profile.berry >= GL.meta.fuseCost(r));
+    if (id === 'crew') return ROOM_GROUPS.crew.some(x => GL.meta.featureOpen(profile, x) && tabAlert(profile, x));
     if (id === 'auftraege') return GL.meta.featureOpen(profile, 'quests') && GL.meta.questsEnsure(profile).some(q => GL.meta.questProgress(profile, q).done);
     return false;
   }
@@ -2913,11 +2915,22 @@ window.GL = window.GL || {};
     return `<nav class="hub" aria-label="Räume im Hauptquartier"><span class="hub-lbl">Im Hafen</span><div class="hub-grid">${open.map(r =>
       `<button class="hub-tile" data-act="hq-tab" data-tab="${r.id}"><i class="hub-art">${roomArt(r.art)}</i><b>${r.name}</b>${r.sub(profile) ? `<small>${r.sub(profile)}</small>` : ''}${tabAlert(profile, r.id) ? '<i class="tab-dot" title="Hier gibt es etwas zu tun"></i>' : ''}</button>`).join('')}</div></nav>`;
   }
+  // Räume, die zusammengehören: oben als Umschalter (wie Tabs in einer App)
+  const ROOM_GROUPS = { crew: ['stammcrew', 'schmiede', 'lager', 'kammer'], hafen: ['werft', 'haendler'] };
+  const SEG_NAME = { stammcrew: 'Crew', schmiede: 'Schmiede', lager: 'Lager', kammer: 'Kammer', werft: 'Werft', haendler: 'Händler' };
+  const groupOf = id => Object.keys(ROOM_GROUPS).find(g => ROOM_GROUPS[g].includes(id)) || null;
+  // Erster offener Raum der Crew-Gruppe (für den Crew-Knopf unten)
+  function crewRoom(profile, last) {
+    const open = ROOM_GROUPS.crew.filter(x => GL.meta.featureOpen(profile, x));
+    return open.includes(last) ? last : open[0] || null;
+  }
   function roomHead(profile, tab) {
     const r = ROOMS.find(x => x.id === tab) || ROOMS[ROOMS.length - 1];
-    const others = ROOMS.filter(x => x.id !== tab && GL.meta.featureOpen(profile, x.id));
-    return `<div class="room-head"><button class="room-back" data-act="hq-home">‹ Hafen</button><span class="room-title"><i class="hub-art sm">${roomArt(r.art)}</i>${r.name}</span><button class="room-x" data-act="hq-home" aria-label="Schließen" title="Schließen (Esc)">✕</button></div>
-      <div class="room-hop">${others.map(x => `<button class="room-chip" data-act="hq-tab" data-tab="${x.id}">${x.name}${tabAlert(profile, x.id) ? '<i class="tab-dot"></i>' : ''}</button>`).join('')}</div>`;
+    const g = groupOf(r.id);
+    const seg = g ? ROOM_GROUPS[g].filter(x => GL.meta.featureOpen(profile, x)).map(x => ROOMS.find(y => y.id === x)).filter(Boolean) : [];
+    const segHtml = seg.length > 1 ? `<div class="room-seg seg-${seg.length}" role="tablist">${seg.map(x => `<button class="seg-btn${x.id === r.id ? ' on' : ''}" data-act="hq-tab" data-tab="${x.id}" role="tab" aria-selected="${x.id === r.id}"><i class="seg-ico">${roomArt(x.art)}</i><span>${SEG_NAME[x.id] || x.name}</span>${tabAlert(profile, x.id) ? '<i class="tab-dot"></i>' : ''}</button>`).join('')}</div>` : '';
+    return `<div class="room-head app-bar"><button class="room-back" data-act="hq-home" aria-label="Zurück zum Hafen">‹ <span>Hafen</span></button><span class="room-title"><i class="hub-art sm">${roomArt(r.art)}</i>${r.name}</span><span class="room-berry" title="Berry">${GL.sprites.coin()}<b>${Number(profile.berry || 0).toLocaleString('de-DE')}</b></span><button class="room-x" data-act="hq-home" aria-label="Schließen" title="Schließen (Esc)">✕</button></div>
+      ${segHtml}`;
   }
   function roomFoot() { return `<div class="room-foot"><button class="btn ghost" data-act="hq-home">‹ Zurück zum Hafen</button></div>`; }
   function hq(profile, tab, uiRef) {
@@ -3353,6 +3366,7 @@ window.GL = window.GL || {};
       titleEl.hidden = !ui.screen;
       document.body.classList.toggle('on-title', !!ui.screen);
       seenRef = ui.profile && ui.profile.seen; profRef = ui.profile || null;
+      document.body.classList.toggle('in-room', !run && !ui.screen && !!ui.hqRoom && !!ui.profile && GL.meta.featureOpen(ui.profile, ui.hqRoom));
       // Feste Leiste unten (nur im Hauptquartier): Hafen, Aufträge, Stammcrew, Rangliste, Kapitänsbuch
       const tb = document.getElementById('tabbar');
       if (tb) {
@@ -3360,11 +3374,12 @@ window.GL = window.GL || {};
         tb.hidden = !showTb;
         document.body.classList.toggle('has-tabbar', !!showTb);
         if (showTb) {
-          const P = ui.profile, cur = ui.hqRoom || 'hafen';
-          const items = [['hafen', 'Hafen', 'flag'], ['auftraege', 'Aufträge', 'scroll'], ['stammcrew', 'Crew', 'flag2'], ['rangliste', 'Rangliste', 'podium'], ['profil', 'Kapitän', 'self']]
-            .filter(([id]) => id === 'hafen' || id === 'profil' || GL.meta.featureOpen(P, id));
+          const P = ui.profile, cur0 = ui.hqRoom || 'hafen', cur = groupOf(cur0) === 'crew' ? 'crew' : cur0;
+          const cr = crewRoom(P, ui.crewLast);
+          const items = [['hafen', 'Hafen', 'flag'], ['auftraege', 'Aufträge', 'scroll'], ['crew', 'Crew', 'flag2'], ['rangliste', 'Rangliste', 'podium'], ['profil', 'Kapitän', 'self']]
+            .filter(([id]) => id === 'hafen' || id === 'profil' || (id === 'crew' ? !!cr : GL.meta.featureOpen(P, id)));
           const ico = a => a === 'self' ? GL.sprites.render({ id: 'self', look: lookOf(P) }) : a === 'flag' ? GL.sprites.ship() : featureArt(a === 'flag2' ? 'flag' : a);
-          const html = items.map(([id, name, art]) => `<button class="tb-btn${cur === id ? ' on' : ''}" data-act="${id === 'hafen' ? 'hq-home' : 'hq-tab'}" data-tab="${id}"><i class="tb-ico">${ico(art)}</i><span>${name}</span>${id !== 'hafen' && tabAlert(P, id) ? '<i class="tab-dot"></i>' : ''}</button>`).join('');
+          const html = items.map(([id, name, art]) => `<button class="tb-btn${cur === id ? ' on' : ''}" data-act="${id === 'hafen' ? 'hq-home' : 'hq-tab'}" data-tab="${id === 'crew' ? cr : id}"><i class="tb-ico">${ico(art)}</i><span>${name}</span>${id !== 'hafen' && tabAlert(P, id) ? '<i class="tab-dot"></i>' : ''}</button>`).join('');
           if (tb.dataset.last !== html) { tb.innerHTML = html; tb.dataset.last = html; }
         }
       }

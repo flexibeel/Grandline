@@ -1,6 +1,10 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-18l', date: '18.10.', title: 'Hafen wie eine App', items: [
+    'Räume öffnen sich am Handy als eigene Seite mit fester Kopfleiste. Crew, Schmiede, Lager und Kammer liegen zusammen unter „Crew“ unten und lassen sich oben umschalten. Ein Punkt zeigt, wo etwas wartet',
+    'Kurs setzen am Handy: beide Inseln passen ohne Scrollen auf den Bildschirm',
+    'Kopfgeld-Stufe im Run wieder gut lesbar, Kopfzeile mit Wiki, Musik und Ton sauber in einer Reihe' ] },
   { v: '2026-10-18k', date: '18.10.', title: 'Eine Crew, nicht zwei', items: [
     'Deine Stammcrew wächst jetzt beim normalen Spielen mit: Wer in einem Run, Duell oder Landgang dabei ist, wird vertrauter (♥) und bekommt Extra-Level. Am Ende jedes Runs siehst du, wer zusammengewachsen ist',
     'In der Taverne zeigt ♥, welche Figuren deine Crew schon kennen',
