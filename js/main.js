@@ -13,6 +13,8 @@
   // Willkommen zurück: nach mehr als drei Tagen Pause einmal kurz zeigen, was neu ist
   if (profile.nickname && (profile.rankXp || 0) > 0 && profile.lastVisit && Date.now() - profile.lastVisit > 3 * 864e5) ui.welcomeDue = true;
   ui.welcomeFrom = profile.lastVersion || null;
+  // Großes Update (Landgang, Begleiter, Sounds): einmal die Neuigkeiten zeigen
+  if (profile.nickname && (profile.rankXp || 0) > 0 && profile.lastVersion && profile.lastVersion < '2026-10-18j') ui.welcomeDue = true;
   profile.lastVisit = Date.now(); profile.lastVersion = GL.version;
 
   // Eigener Pirat: beim Laden eintragen, damit Avatar und Name überall stimmen
@@ -135,6 +137,7 @@
     const el = document.createElement('div');
     el.id = 'fpop'; el.className = 'fpop'; el.dataset.id = f.id;
     el.innerHTML = GL.ui.featurePop(f, list.slice(1));
+    if (GL.sfx) GL.sfx.play(el.querySelector('.fpop-wow') ? 'found' : 'level');
     el.addEventListener('click', e => { if (e.target === el) closeFeature(f.id, false); });
     document.body.appendChild(el);
     requestAnimationFrame(() => el.classList.add('in'));
@@ -281,6 +284,7 @@
     if (!ui.petQueue || !ui.petQueue.length || document.getElementById('fpop') || (anim && !anim.done)) return;
     const id = ui.petQueue.shift();
     openGearPop(GL.ui.petPop(id, profile));
+    if (GL.sfx) GL.sfx.play('found');
   }
 
   function syncProfile() {
@@ -389,7 +393,16 @@
         const bonus = 60 + 10 * Math.min(7, profile.dailyStreak || 1), xpB = 25;
         profile.berry += bonus; GL.meta.addRankXp(profile, xpB);
         ui.lastBerry = (ui.lastBerry || 0) + bonus;
-        setTimeout(() => toast(`<span><b>Tageskarte geschafft</b>${sc.toLocaleString('de-DE')} Punkte. Bonus: +${bonus} Berry, +${xpB} Rang-EP${(profile.dailyStreak || 1) > 1 ? ` · ${profile.dailyStreak} Tage in Folge` : ''}.</span>`), 1200);
+        // Tagesbeute: ein Ausrüstungsstück für die Crew. Sieg = sicher episch (mit Glück legendär), sonst 30 % episch
+        let loot = null;
+        if (GL.cgear) {
+          const won = run.phase === 'win', x = Math.random();
+          const r = won ? (x < 0.12 ? 3 : 2) : (x < 0.3 ? 2 : 1);
+          loot = GL.cgear.roll({ r, name: 'Tageskarte', seaName: 'Tagesbeute', sea: Math.min(2, GL.run.islandIndex(run)) });
+          GL.cgear.bag(profile).push(loot);
+        }
+        const lootTxt = loot ? ` Tagesbeute: ${GL.cgear.name ? GL.cgear.name(loot) : 'Ausrüstung'} (${['Gewöhnlich', 'Selten', 'Episch', 'Legendär'][loot.r] || ''}).` : '';
+        setTimeout(() => toast(`<span><b>Tageskarte geschafft</b>${sc.toLocaleString('de-DE')} Punkte. Bonus: +${bonus} Berry, +${xpB} Rang-EP${(profile.dailyStreak || 1) > 1 ? ` · ${profile.dailyStreak} Tage in Folge` : ''}.${lootTxt}</span>`), 1200);
       }
       // Online-Rangliste (nur in der geteilten Version)
       if (GL.online) GL.online.submit(profile, run).then(res => {
@@ -547,7 +560,7 @@
   function stepAnim() {
     if (!anim || anim.done) return;
     const ev = run.battle.events[anim.i++];
-    if (!ev) { anim.done = true; draw(); return; }
+    if (!ev) { anim.done = true; if (GL.sfx) GL.sfx.play(run.battle.win ? 'win' : 'lose'); draw(); return; }
     const setHp = (side, to, hp) => { (side === 'crew' ? anim.crewHp : anim.enemyHp)[to] = hp; };
     if (ev.k === 'hit') setHp(ev.side === 'crew' ? 'enemy' : 'crew', ev.to, ev.hp);
     else if (ev.list) ev.list.forEach(x => { if (x.hp !== undefined) setHp(ev.side, x.to, x.hp); });
@@ -555,6 +568,7 @@
     anim.log = GL.ui.battleText(run, ev) || anim.log;
     // Arena direkt verändern statt neu zu zeichnen, damit Animationen laufen
     GL.arena.play(ev);
+    if (GL.sfx) GL.sfx.battle(ev, anim.speed);
     const log = document.getElementById('log');
     if (log) log.textContent = anim.log;
     // Fähigkeiten-Hinweise etwas länger stehen lassen, damit man sie lesen kann
@@ -591,8 +605,9 @@
     const f = ui.squadFight;
     if (!f || !f.playing) return;
     const ev = f.res.events[f.i++];
-    if (!ev) { f.timer = setTimeout(() => { f.playing = false; draw(); }, 900); return; }
+    if (!ev) { if (GL.sfx) GL.sfx.play(f.res.win ? 'win' : 'lose'); f.timer = setTimeout(() => { f.playing = false; draw(); }, 900); return; }
     GL.arena.play(ev);
+    if (GL.sfx) GL.sfx.battle(ev, f.fast ? 3 : 1);
     const rb = document.getElementById('duel-log');
     if (rb && ev.k === 'ult') rb.textContent = `⚡ ${ev.name}!`;
     const wait = (ev.k === 'round' ? 80 : ev.k === 'ult' ? 850 : ev.k === 'hit' ? 380 : 620) * (f.fast ? 0.4 : 1);
@@ -719,6 +734,8 @@
     if (!keyPick && ['pick', 'node', 'fight', 'leave', 'continue', 'sail', 'again', 'train', 'squad-fight', 'squad-match'].includes(type)
         && performance.now() - (window.__glStageAt || 0) < 350) return;
 
+    // Leises Klick-Geräusch bei jedem Knopf (Hintergrund-Klicks auf 'noop' nicht)
+    if (GL.sfx && type !== 'noop' && type !== 'sfx') GL.sfx.play(type === 'pick' && run && run.phase === 'recruit' ? 'coin' : 'tap');
     if (type !== 'restart') ui.restartArmed = false;
     if (type !== 'acc-reset' && type !== 'acc-delete') ui.accArmed = null;
     if (type !== 'logout') ui.logoutArmed = false;
@@ -775,6 +792,21 @@
       case 'endless-start': closePop(); sail(Number(el.dataset.i)); break;
       case 'endless-open': openGearPop(GL.ui.endlessPop(profile)); break;
       case 'hunt-open': openGearPop(GL.ui.huntPop(profile)); break;
+      // Landgang: kleine Abenteuer im Fenster (js/ui/dungeon.js)
+      case 'dg-open': case 'dg-list': case 'dg-start': case 'dg-go': case 'dg-pick': case 'dg-next': case 'dg-fast': {
+        // Landgang mit Bosskampf der Stammcrew: Beute wird beim Kampfende gespeichert (onSave)
+        GL.dungeon.onSave = () => { saveProfile(); ui.lastStage = null; draw(); };
+        const h = GL.dungeon.act(type, el.dataset, profile);
+        if (type === 'dg-fast') { el.classList.toggle('on'); break; }
+        if (GL.dungeon.dirty) { saveProfile(); ui.lastStage = null; draw(); }
+        if (h == null) { if (type !== 'dg-open' && type !== 'dg-list') closePop(); break; }
+        const box = document.getElementById('fpop');
+        // Fenster-Art bleibt 'gear' (featureCheck lässt es offen), Landgang wird extra markiert
+        if (box && box.dataset.dg) { box.innerHTML = h; box.scrollTop = 0; }
+        else { openGearPop(h); const b2 = document.getElementById('fpop'); if (b2) b2.dataset.dg = '1'; }
+        GL.dungeon.after();
+        break;
+      }
       case 'daily-info': openGearPop(GL.ui.dailyPop(profile)); break;
       case 'hq': toHq(); break;
       case 'peek': ui.peek = true; draw(); break;
@@ -896,6 +928,12 @@
         break;
       }
       case 'lang': if (GL.i18n) GL.i18n.set(GL.i18n.lang() === 'en' ? 'de' : 'en'); break;
+      case 'sfx': {
+        const onNow = GL.sfx && GL.sfx.toggle();
+        toast(onNow ? '<span><b>Geräusche an</b>Leise Klänge für Kämpfe und Knöpfe.</span>' : '<span><b>Geräusche aus</b>Mit dem Lautsprecher jederzeit wieder an.</span>');
+        ui.lastStage = null; const t0s = document.getElementById('title'); if (t0s) t0s.dataset.last = ''; draw();
+        break;
+      }
       case 'music': {
         const onNow = GL.music && GL.music.toggle();
         toast(onNow ? '<span><b>Musik an</b>Leise, gemütlich, selbst komponiert.</span>' : '<span><b>Musik aus</b>Mit ♪ jederzeit wieder an.</span>');
@@ -1612,6 +1650,9 @@
       if (GL.friends && profile.nickname) {
         const got = GL.friends.checkInvites(profile);
         if (got.length) { saveProfile(); openGearPop(GL.ui.invitePop(got, profile)); }
+        // Freund kommt online: kleiner Hinweis (höchstens zwei auf einmal, nicht während eines Kampfes)
+        const on = GL.friends.cameOnline ? GL.friends.cameOnline(profile) : [];
+        if (on.length && !(anim && !anim.done)) on.slice(0, 2).forEach(n => toast(`<span><b><i class="on-dot"></i> ${esc2(n)} ist online</b>Ahoi! Vielleicht Lust auf ein Crew-Duell?</span>`));
       }
     });
     GL.online.onChange(() => { checkDailyPay(); if ((!run || ui.screen) && document.activeElement && document.activeElement.id !== 'nick') draw(); });

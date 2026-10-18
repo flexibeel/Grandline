@@ -312,6 +312,8 @@ window.GL = window.GL || {};
       showcase: (profile.showcase || []).slice(0, 3),
       bestStep: profile.bestStep || 0,
       bestPlace: profile.bestPlace || null,
+      isles: ((profile.seen && profile.seen.islands) || []).slice(0, 80),   // besuchte Inseln: „Dein Kumpel war schon auf …“
+      pets: (profile.pets || []).length,
       endlessBest: profile.endlessBest || 0,
       endlessLoops: profile.endlessLoops || 0,
       endlessRec: profile.endlessRec || null,

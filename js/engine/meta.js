@@ -148,6 +148,13 @@ window.GL = window.GL || {};
       if (other.seen) { p.seen = p.seen || {}; Object.keys(other.seen).forEach(k => { p.seen[k] = union(p.seen[k], other.seen[k]); }); }
       ['rankXp', 'heatMax', 'bestStep', 'endlessBest', 'endlessLoops', 'squadW', 'shards', 'albumClaimed'].forEach(k => { if (other[k] != null) p[k] = Math.max(p[k] || 0, other[k] || 0); });
       if (other.stats) { p.stats = p.stats || {}; ['runs', 'wins', 'berryTotal'].forEach(k => { p.stats[k] = Math.max(p.stats[k] || 0, other.stats[k] || 0); }); }
+      // Landgang: Fundstücke vereinen, pro Ort die meisten Erkundungen und den spätesten Tag behalten
+      if (other.dgFinds) p.dgFinds = union(p.dgFinds, other.dgFinds);
+      if (other.dungeons) {
+        p.dungeons = Object.assign({}, other.dungeons, p.dungeons || {});
+        Object.keys(other.dungeons).forEach(id => { const a = p.dungeons[id] || {}, b = other.dungeons[id] || {};
+          p.dungeons[id] = { clears: Math.max(a.clears || 0, b.clears || 0), day: [a.day, b.day].filter(Boolean).sort().pop() || null }; });
+      }
       return p;
     },
     // ---------- Ausrüstung: Truhe und Schmiede ----------

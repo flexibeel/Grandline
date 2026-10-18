@@ -1,6 +1,15 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-18j', date: '18.10.', title: 'Landgang, Geräusche und neue Routen-Momente', items: [
+    'Neu: Landgang. Kurze Abenteuer auf Inseln, die du kennst, von Buggys Zirkuszelt bis in den Keller von Impel Down. Erst ein paar schnelle Entscheidungen, die deine Crew mitkommentiert, dann ein echter Bosskampf mit deiner Stammcrew. Gute Entscheidungen schwächen den Boss, Pech macht es knapp. Die erste Erkundung pro Tag bringt volle Beute und mit Glück ein seltenes Fundstück',
+    'Leise Geräusche für Kämpfe, Knöpfe und Funde, immer im Takt, auch bei hohem Tempo. Der Lautsprecher-Knopf schaltet sie aus',
+    'Neue Route freigeschaltet? Jetzt ein großer Moment mit Bossen, Begleitern und wer schon dort war. Neues Meer erreicht: goldenes Schild beim Kurs setzen',
+    'Wiki → Routen: alle Meere mit Inseln, Bossen, Begleitern, Landgängen und welche Freunde schon dort waren',
+    'Tageskarte: Tagesbeute für deine Crew, bei einem Sieg sicher episch',
+    'Taverne am Handy: Infos zur Figur kommen als Blatt von unten, alles passt auf einen Bildschirm',
+    'Freunde: kurzer Hinweis, wenn jemand online kommt. Flagge im Profil sitzt jetzt klein unten links',
+    'Stammcrew-Kampf auf dem Handy nicht mehr unten abgeschnitten' ] },
   { v: '2026-10-18i', date: '18.10.', title: 'Klarere Kampfmomente', items: [
     'Rettet die Vivre Card deine Crew, steht jetzt groß im Kampf, warum alle wieder aufstehen und mit wie viel Leben',
     'Steht nur noch eine Figur, erscheint kurz „Letzte Hoffnung“. Wiederbelebte verlieren sofort ihren K.O.-Stempel' ] },

@@ -1,0 +1,372 @@
+// Landgang: kleine Abenteuer zum Durchklicken, am Ende ein echter Bosskampf mit der Stammcrew.
+// Läuft komplett außerhalb der Runs (Math.random, eigener Seed für den Kampf, kein Run-RNG).
+// Ablauf: Liste -> Einleitung -> 3 Szenen -> Anlauf auf den Boss -> Bosskampf (Kampffeld wie im Duell) -> Beute.
+// Jede Szene bringt Beute und einen Vorteil oder einen Nachteil für den Bosskampf.
+// GL.dungeon.act(name, data, profile) gibt das HTML für das Fenster zurück (null = schließen),
+// GL.dungeon.after() startet nach dem Einfügen die Kampf-Animation.
+window.GL = window.GL || {};
+
+(function () {
+  const STEPS = 3;            // Szenen vor dem Anlauf
+  let cur = null;             // laufende Erkundung
+  const T = s => (GL.i18n && GL.i18n.t ? GL.i18n.t(s) : s);
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+  const pick = a => a[Math.floor(Math.random() * a.length)];
+  const D = () => GL.data;
+  const today = () => (GL.meta.dayKey ? GL.meta.dayKey() : new Date().toISOString().slice(0, 10));
+  // Bosskampf: Leben = Angriff der Crew x Runden, Angriff = Leben der Crew / (Runden x K). Ergibt ca. 9 Runden.
+  const BOSS = { rounds: 14, k: 1.55, perSea: 0.08, atkPerSea: 0.05 };
+  // Vorteile/Nachteile aus den Szenen
+  const FX = {
+    bossHp:  { good: true, v: -0.07, txt: 'Boss startet geschwächt' },
+    bossHp2: { good: true, v: -0.14, txt: 'Boss stark geschwächt' },
+    atk:     { good: true, v: 0.1, txt: 'Crew motiviert: mehr Angriff' },
+    heal:    { good: true, v: 0.1, txt: 'Crew gestärkt: mehr Leben' },
+    hurt:    { good: false, v: -0.12, txt: 'Crew startet angeschlagen' },
+    bossAtk: { good: false, v: 0.08, txt: 'Boss ist gewarnt: mehr Angriff' },
+    bossAtk2:{ good: false, v: 0.12, txt: 'Boss ist wütend: mehr Angriff' }
+  };
+  const goodFx = { b: 'bossHp', s: 'atk', g: 'bossHp', h: 'heal' };
+
+  // ---------- Profil ----------
+  const state = (profile, id) => { profile.dungeons = profile.dungeons || {}; return (profile.dungeons[id] = profile.dungeons[id] || { clears: 0, day: null }); };
+  const peek = (profile, id) => (profile.dungeons && profile.dungeons[id]) || { clears: 0, day: null };
+  const fresh = (profile, id) => peek(profile, id).day !== today();
+  function unlocked(profile, d) {
+    const n = d.need || {};
+    if (n.wins) return ((profile.stats && profile.stats.wins) || 0) >= n.wins;
+    const seen = (profile.seen && profile.seen.islands) || [];
+    return (n.isl || []).some(id => seen.includes(id));
+  }
+  GL.dungeonOpen = profile => (D().dungeons || []).some(d => unlocked(profile, d));
+  GL.dungeonCount = profile => (D().dungeons || []).filter(d => unlocked(profile, d)).length;
+
+  // ---------- Crew ----------
+  function members(profile) {
+    const ids = GL.meta.squadIds ? GL.meta.squadIds(profile) : ['ruffy', 'zorro', 'nami'];
+    const list = ids.map(id => {
+      if (id === 'self') {
+        const s = GL.meta.selfDef ? GL.meta.selfDef(profile) : null;
+        return s ? Object.assign({}, s, { id: 'self', name: profile.nickname || s.name || 'Kapitän' }) : null;
+      }
+      return D().crew.find(c => c.id === id) || null;
+    }).filter(Boolean);
+    return list.length ? list : ['ruffy', 'zorro', 'nami'].map(x => D().crew.find(c => c.id === x));
+  }
+  const fits = (m, k) => !!m && (m.type === k || m.role === k || m.faction === k);
+  const sprite = m => (m ? `<i class="dg-spr">${GL.sprites.render(m)}</i>` : '');
+  const nameOf = m => (m.id === 'self' ? m.name : T(m.name));
+  function line(m, ctx) {
+    const L = D().dungeonLines[m.id] || D().dungeonLinesRole[m.role] || D().dungeonLinesRole.kaempfer;
+    const arr = L[ctx] || (D().dungeonLinesRole[m.role] || {})[ctx] || ['…'];
+    return T(pick(arr));
+  }
+  function bubble(m, txt, cls) {
+    if (!m) return '';
+    return `<div class="dg-say${cls ? ' ' + cls : ''}">${sprite(m)}<span><b>${esc(nameOf(m))}</b>${esc(txt)}</span></div>`;
+  }
+  // Wer macht es? Die passende Figur, sonst irgendwer. Chance steigt mit passender Crew.
+  function plan(c, crew) {
+    const match = crew.filter(m => fits(m, c.k));
+    const doer = match.length ? pick(match) : pick(crew);
+    const chance = Math.min(0.9, c.p + (match.length ? 0.2 : 0) + 0.05 * Math.min(2, Math.max(0, match.length - 1)));
+    return { doer: doer.id, chance };
+  }
+  const memberById = id => cur.crew.find(m => m.id === id) || cur.crew[0];
+
+  // ---------- Kopfgrafik ----------
+  function pix(art, pal) {
+    let r = '';
+    const rows = art.rows || art, c = art.c || pal;
+    const w = Math.max(...rows.map(x => x.length));
+    rows.forEach((row, y) => row.split('').forEach((ch, x) => { if (c[ch]) r += `<rect x="${x}" y="${y}" width="1.02" height="1.02" fill="${c[ch]}"/>`; }));
+    return `<svg viewBox="0 0 ${w} ${rows.length}" shape-rendering="crispEdges" aria-hidden="true">${r}</svg>`;
+  }
+  const findArt = f => pix(f.art, D().huntPal);
+  function bossOf(d) {
+    const X = D();
+    return [].concat(X.hunted || [], X.bosses || [], X.crew || [], X.grunts || []).find(x => x.id === d.boss);
+  }
+  function fxChips() {
+    if (!cur || !cur.fx.length) return '';
+    return `<span class="dg-fx">${cur.fx.map(k => `<i class="${FX[k].good ? 'up' : 'down'}" title="${esc(T(FX[k].txt))}">${FX[k].good ? '▲' : '▼'}</i>`).join('')}</span>`;
+  }
+  function scene(d, opts) {
+    const o = opts || {};
+    const crew = (cur ? cur.crew : []).slice(0, 5).map((m, i) => `<i class="dg-mate m${i}">${GL.sprites.render(m)}</i>`).join('');
+    const boss = o.boss ? `<i class="dg-boss">${GL.sprites.render(bossOf(d))}</i>` : '';
+    return `<div class="dg-scene${o.boss ? ' boss' : ''}" style="--sky:${d.scene.sky};--ground:${d.scene.ground}">
+      <span class="dg-deco">${pix(d.scene.deco)}</span>${boss}
+      <span class="dg-crew">${crew}</span>${fxChips()}
+    </div>`;
+  }
+  function dots() {
+    const n = STEPS + 2;   // Szenen, Anlauf, Kampf
+    return `<span class="dg-dots">${Array.from({ length: n }, (_, i) => `<i class="${i < cur.i ? 'done' : i === cur.i ? 'now' : ''}${i >= n - 2 ? ' boss' : ''}"></i>`).join('')}</span>`;
+  }
+  const card = (inner, cls) => `<div class="fpop-card dg-card${cls ? ' ' + cls : ''}" role="dialog">${inner}</div>`;
+
+  // ---------- Beute ----------
+  function give(kind, big) {
+    const d = cur.d, s = d.sea || 0, L = cur.loot, full = cur.fresh;
+    const berry = n => { const v = Math.max(5, Math.round(n * (full ? 1 : 0.2))); L.berry += v; return `+${v} Berry`; };
+    if (kind === 'b') return berry((big ? 90 : 22) + (big ? 55 : 14) * s + Math.floor(Math.random() * 12));
+    if (kind === 's') { if (!full) return berry(15 + 8 * s); L.shards += 1; return T('+1 Meersplitter'); }
+    if (kind === 'h') { L.berry += 5; return '+5 Berry'; }
+    if (kind === 'g') {
+      if (!full || !GL.cgear) return berry(30 + 15 * s);
+      if (!big && Math.random() > 0.45) return berry(30 + 15 * s);
+      const it = GL.cgear.roll({ r: Math.random() < (big ? 0.22 : 0.08) ? 2 : 1, name: d.name, seaName: d.name, sea: s });
+      L.gear.push(it);
+      return T('Ausrüstung gefunden!');
+    }
+    return '';
+  }
+
+  // ---------- Bildschirme ----------
+  function listHtml(profile) {
+    const crew = members(profile);
+    const rows = (D().dungeons || []).map(d => {
+      const open = unlocked(profile, d), st = peek(profile, d.id), fr = fresh(profile, d.id);
+      const has = (profile.dgFinds || []).includes(d.find.id);
+      const status = !open ? `🔒 ${esc(T(d.needText))}` : fr ? `<em class="dg-fresh">${esc(T('Heute volle Beute'))}</em>` : esc(T('Schon erkundet: kleine Beute'));
+      return `<button class="dg-row${open ? '' : ' locked'}" ${open ? `data-act="dg-start" data-v="${d.id}"` : 'disabled'}>
+        <span class="dg-mini" style="--sky:${d.scene.sky};--ground:${d.scene.ground}">${pix(d.scene.deco)}</span>
+        <span class="dg-rt"><b>${esc(T(d.name))}</b><small>${status}</small></span>
+        <span class="dg-find${has ? '' : ' sil'}" title="${esc(has ? T(d.find.name) : T('Fundstück noch nicht gefunden'))}">${findArt(d.find)}</span>
+        ${st.clears ? `<span class="dg-clears">${st.clears}×</span>` : ''}
+      </button>`;
+    }).join('');
+    const nf = (profile.dgFinds || []).length;
+    return card(`<span class="fpop-kicker">${esc(T('Landgang'))}</span>
+      <h3>${esc(T('Wohin geht es heute?'))}</h3>
+      <p class="dg-sub">${esc(T('Kurz erkunden, dann gegen den Boss des Ortes kämpfen. Deine Stammcrew kämpft mit. Die erste Erkundung pro Tag bringt die volle Beute.'))}</p>
+      <div class="dg-with"><small>${esc(T('Mit dabei'))}</small>${crew.slice(0, 6).map(sprite).join('')}</div>
+      <div class="dg-list">${rows}</div>
+      <p class="dg-sub small">${esc(T('Fundstücke'))}: ${nf}/${(D().dungeons || []).length}</p>
+      <div class="fpop-btns"><button class="btn ghost" data-act="pop-close">${esc(T('Schließen'))}</button></div>`, 'dg-listcard');
+  }
+  function introHtml() {
+    const d = cur.d, m = pick(cur.crew);
+    return card(`${scene(d)}
+      <span class="fpop-kicker">${esc(T('Landgang'))}${cur.fresh ? '' : ' · ' + esc(T('kleine Beute'))}</span>
+      <h3>${esc(T(d.name))}</h3>
+      <p class="dg-text">${esc(T(d.intro))}</p>
+      ${bubble(m, line(m, 'go'))}
+      <div class="fpop-btns"><button class="btn" data-act="dg-go">${esc(T('Los geht’s'))}</button><button class="btn ghost" data-act="dg-list">${esc(T('Zurück'))}</button></div>`);
+  }
+  function choiceBtn(c, i) {
+    const p = cur.plans[i], m = memberById(p.doer), f = fits(m, c.k);
+    const hint = p.chance >= 0.65 ? ['good', T('gute Chance')] : p.chance >= 0.48 ? ['mid', T('könnte klappen')] : ['risk', T('riskant')];
+    return `<button class="dg-choice" data-act="dg-pick" data-i="${i}">
+      ${sprite(m)}<span><b>${esc(T(c.l))}</b><small>${esc(nameOf(m))}${f ? ' ★' : ''}</small></span>
+      <em class="dg-odds ${hint[0]}">${esc(hint[1])}</em></button>`;
+  }
+  // Szene oder Anlauf auf den Boss (cur.i === STEPS)
+  function stepHtml() {
+    const d = cur.d, boss = cur.i >= STEPS;
+    const st = boss ? { t: d.bossText, c: d.bossC } : cur.steps[cur.i];
+    if (!cur.plans) cur.plans = st.c.map(c => plan(c, cur.crew));
+    const m = boss ? pick(cur.crew) : null;
+    return card(`${scene(d, { boss })}
+      <div class="dg-head"><span class="fpop-kicker">${boss ? esc(T('Anlauf auf den Boss')) : esc(T(d.name))}</span>${dots()}</div>
+      <p class="dg-text">${esc(T(st.t))}</p>
+      ${boss ? bubble(m, line(m, 'boss')) : ''}
+      <div class="dg-choices">${st.c.map(choiceBtn).join('')}</div>`, boss ? 'is-boss' : '');
+  }
+  function outcomeHtml() {
+    const o = cur.last, m = memberById(o.doer);
+    const txt = T(o.ok ? o.c.ok : o.c.no).replace(/\{who\}/g, nameOf(m));
+    const fx = FX[o.fx];
+    return card(`${scene(cur.d, { boss: o.boss })}
+      <div class="dg-head"><span class="fpop-kicker">${o.ok ? esc(T('Geschafft!')) : esc(T('Pech gehabt'))}</span>${dots()}</div>
+      <p class="dg-text dg-res ${o.ok ? 'ok' : 'no'}"><i class="dg-badge">${o.ok ? '✓' : '✗'}</i>${esc(txt)}</p>
+      <p class="dg-gain">${o.gain ? esc(o.gain) + ' · ' : ''}<span class="${fx.good ? 'up' : 'down'}">${fx.good ? '▲' : '▼'} ${esc(T(fx.txt))}</span></p>
+      ${bubble(m, line(m, o.ok ? 'ok' : 'no'))}
+      <div class="fpop-btns"><button class="btn" data-act="dg-next">${o.boss ? '⚔ ' + esc(T('Zum Kampf')) : esc(T('Weiter'))}</button></div>`);
+  }
+
+  // ---------- Bosskampf ----------
+  function buildFight(profile) {
+    const d = cur.d, sea = d.sea || 0;
+    const has = k => cur.fx.filter(x => x === k).length;
+    const me = GL.meta.squadRefs(profile).map(r => {
+      const x = Object.assign({}, r);
+      if (x.id === 'self') { x.ability = 'rally'; x.power = r.rally || 1; }
+      x.max = Math.round(x.max * (1 + FX.heal.v * has('heal')));
+      x.atk = Math.round(x.atk * (1 + FX.atk.v * has('atk')));
+      x.hp = Math.max(1, Math.round(x.max * (1 + FX.hurt.v * has('hurt'))));
+      return x;
+    });
+    if (!me.length) return null;
+    const def = bossOf(d);
+    const sumAtk = me.reduce((s, r) => s + r.atk, 0), sumHp = me.reduce((s, r) => s + r.max, 0);
+    const hpCut = 1 + FX.bossHp.v * has('bossHp') + FX.bossHp2.v * has('bossHp2');
+    const atkUp = 1 + FX.bossAtk.v * has('bossAtk') + FX.bossAtk2.v * has('bossAtk2');
+    const max = Math.round(sumAtk / (1 + FX.atk.v * has('atk')) * BOSS.rounds * (1 + BOSS.perSea * sea) * hpCut);
+    const boss = { id: def.id, name: def.name, type: def.type, boss: true, hp: max, max,
+      atk: Math.max(3, Math.round(sumHp / (BOSS.rounds * BOSS.k) * (1 + BOSS.atkPerSea * sea) * atkUp)),
+      spd: Math.round(me.reduce((s, r) => s + r.spd, 0) / me.length) };
+    const seed = (Date.now() ^ Math.floor(Math.random() * 1e9)) >>> 0;
+    const run = { rng: seed || 1, crew: me, relics: [], arts: [], items: [], crit: 0, bounties: 0, captain: me[0].id, mod: { atk: 0, hp: 0, spd: 0 } };
+    const res = GL.battle.simulate(run, me, [boss], 'boss', {});
+    const per = GL.config.stepsPerIsland || 8;
+    const dRun = { step: sea * per, seed: 1, alt: d.alt ? { [sea]: true } : {}, captain: me[0].id,
+      crew: me.map(r => Object.assign({}, r, { def: r.id === 'self' ? { id: 'self', name: r.name, look: r.look, type: r.type } : null })),
+      battle: { kind: 'boss', events: res.events, shown: false, enemies: [Object.assign({}, boss, { def })], enemyEnd: [0] } };
+    return { res, dRun, me, boss, i: 0, fast: false, timer: null, startHp: me.map(r => r.hp) };
+  }
+  function fightHtml() {
+    const f = cur.fight, d = cur.d;
+    return card(`<div class="dg-head"><span class="fpop-kicker">⚔ ${esc(T('Bosskampf'))} · ${esc(T(d.name))}</span>${fxChips()}</div>
+      <div class="dg-arena">${GL.arena.html(f.dRun, { crewHp: f.startHp, enemyHp: [f.boss.max], done: false })}</div>
+      <div class="dg-live"><span id="dg-log">${esc(T('Der Kampf beginnt!'))}</span><button class="btn mini ghost" data-act="dg-fast">${esc(T('Schneller'))}</button></div>`, 'dg-fightcard');
+  }
+  function say(m, txt) {
+    const box = document.getElementById('dg-log');
+    if (!box) return;
+    box.innerHTML = m ? `${sprite(m)}<span><b>${esc(nameOf(m))}</b> ${esc(txt)}</span>` : esc(txt);
+    box.classList.remove('pop'); void box.offsetWidth; box.classList.add('pop');
+  }
+  // Kurze Sätze an Wendepunkten: Wut, letzter Akt, K.o., Ulti
+  const DRAMA = {
+    rage: ['Oh nein, er wird wütend!', 'Jetzt wird es ernst!', 'Vorsicht, er dreht auf!'],
+    final: ['Gleich haben wir ihn!', 'Nicht nachlassen!', 'Letzter Akt! Durchhalten!'],
+    ko: ['Nein! Steh auf!', 'Das war knapp…', 'Wir schaffen das auch so!'],
+    low: ['Das wird knapp!', 'Oh nee… knapp!', 'Halte durch!']
+  };
+  function playStep() {
+    const f = cur && cur.fight;
+    if (!f || f.done) return;
+    if (!document.getElementById('dg-log')) { f.done = true; endFight(true); return; }   // Fenster geschlossen: still auflösen
+    const ev = f.res.events[f.i++];
+    if (!ev) { f.done = true; f.timer = setTimeout(() => endFight(false), 1100); return; }
+    try { GL.arena.play(ev); } catch (e) { /* nur Anzeige */ }
+    const crewM = () => pick(cur.crew);
+    if (ev.k === 'rage' && ev.side === 'enemy') say(crewM(), T(pick(ev.phase === 3 ? DRAMA.final : DRAMA.rage)));
+    else if (ev.k === 'ult') say(null, `⚡ ${T(ev.name || '')}!`);
+    else if (ev.k === 'hit' && ev.side === 'enemy' && ev.hp === 0) {
+      const down = f.me[ev.to]; const left = f.dRun.crew.length;
+      f.downs = (f.downs || 0) + 1;
+      say(crewM(), T(pick(f.downs >= left - 1 ? DRAMA.low : DRAMA.ko)) + (down ? ` (${down.id === 'self' ? down.name : T(down.name)} k.o.)` : ''));
+    }
+    const base = ev.k === 'round' ? 120 : ev.k === 'ult' ? 1100 : ev.k === 'rage' ? 1500 : ev.k === 'hit' ? 520 : 760;
+    f.timer = setTimeout(playStep, base * (f.fast ? 0.35 : 1));
+  }
+  function endFight(silent) {
+    const f = cur.fight, win = f.res.win;
+    cur.won = win;
+    const profile = cur.profile;
+    if (win) { give('b', true); give('g', true); }
+    else { const s = cur.d.sea || 0; cur.loot.berry = Math.round(cur.loot.berry * 0.5) + Math.round((10 + 5 * s) * (cur.fresh ? 1 : 0.2)); cur.loot.gear = []; }
+    const html = finish(profile);
+    const box = document.getElementById('fpop');
+    if (!silent && box && box.dataset.dg) { box.innerHTML = html; box.scrollTop = 0; }
+    if (GL.dungeon.onSave) GL.dungeon.onSave();
+  }
+
+  function endHtml() {
+    const L = cur.loot, d = cur.d, m = pick(cur.crew);
+    const items = [];
+    if (L.berry) items.push(`<li>${GL.sprites.coin()}<b>+${L.berry}</b> Berry</li>`);
+    if (L.shards) items.push(`<li><i class="dg-shard">🔹</i><b>+${L.shards}</b> ${esc(T('Meersplitter'))}</li>`);
+    L.gear.forEach(it => items.push(`<li><i class="dg-gear r${it.r}">⚙</i><b>${esc(GL.cgear && GL.cgear.name ? GL.cgear.name(it) : T('Ausrüstung'))}</b></li>`));
+    if (L.find) items.push(`<li class="dg-findrow"><span class="dg-find big">${findArt(d.find)}</span><span><b>${esc(T(d.find.name))}</b><small>${esc(T(d.find.text))}</small></span></li>`);
+    const def = bossOf(d);
+    return card(`${scene(d, { boss: !cur.won })}
+      <span class="fpop-kicker">${cur.won ? esc(T('Sieg! Zurück an Bord')) : esc(T('Knapp verloren'))}</span>
+      <h3>${cur.won ? esc(T(def.name)) + ' ' + esc(T('besiegt')) : esc(T('Rückzug zum Schiff'))}</h3>
+      <ul class="dg-loot">${items.join('') || `<li>${esc(T('Diesmal nur schöne Erinnerungen.'))}</li>`}</ul>
+      ${L.find ? `<p class="dg-gain">${esc(T('Neues Fundstück für deine Sammlung!'))}</p>` : ''}
+      ${bubble(m, cur.won ? line(m, 'end') : line(m, 'no'))}
+      ${cur.won ? '' : `<p class="dg-text small">${esc(T('Tipp: Gute Entscheidungen vorher schwächen den Boss. Passende Figuren haben bessere Chancen.'))}</p>`}
+      <div class="fpop-btns"><button class="btn" data-act="dg-start" data-v="${d.id}">${esc(T('Nochmal'))}</button><button class="btn ghost" data-act="dg-list">${esc(T('Andere Orte'))}</button></div>`);
+  }
+
+  // ---------- Ablauf ----------
+  function start(profile, id) {
+    const d = (D().dungeons || []).find(x => x.id === id);
+    if (!d || !unlocked(profile, d)) return null;
+    stop();
+    const pool = (d.steps || []).concat(D().dungeonSteps || []);
+    const steps = [];
+    const own = (d.steps || []).slice();
+    if (own.length) steps.push(own.splice(Math.floor(Math.random() * own.length), 1)[0]);
+    const rest = pool.filter(s => !steps.includes(s));
+    while (steps.length < STEPS && rest.length) steps.push(rest.splice(Math.floor(Math.random() * rest.length), 1)[0]);
+    cur = { d, steps, i: 0, crew: members(profile), fresh: fresh(profile, d.id), loot: { berry: 0, shards: 0, gear: [], find: null }, fx: [], plans: null, last: null, won: false, profile };
+    return introHtml();
+  }
+  function choose(i) {
+    const boss = cur.i >= STEPS;
+    const st = boss ? { c: cur.d.bossC } : cur.steps[cur.i];
+    const c = st.c[i], p = cur.plans && cur.plans[i];
+    if (!c || !p || cur.last && cur.last.step === cur.i) return stepHtml();
+    const ok = Math.random() < p.chance;
+    let gain = '', fx;
+    if (ok) { gain = boss ? '' : give(c.r, false); fx = boss ? 'bossHp2' : goodFx[c.r] || 'bossHp'; }
+    else fx = boss ? 'bossAtk2' : pick(['hurt', 'bossAtk']);
+    cur.fx.push(fx);
+    cur.last = { c, ok, doer: p.doer, gain, boss, fx, step: cur.i };
+    return outcomeHtml();
+  }
+  function finish(profile) {
+    const d = cur.d, L = cur.loot, st = state(profile, d.id);
+    profile.dgFinds = profile.dgFinds || [];
+    if (cur.won && cur.fresh && !profile.dgFinds.includes(d.find.id) && Math.random() < 0.3 + 0.1 * Math.min(4, st.clears || 0)) {
+      profile.dgFinds.push(d.find.id); L.find = d.find.id;
+    }
+    profile.berry = (profile.berry || 0) + L.berry;
+    profile.shards = (profile.shards || 0) + L.shards;
+    if (L.gear.length && GL.cgear) { const B = GL.cgear.bag(profile); L.gear.forEach(it => B.push(it)); profile.gearNew = (profile.gearNew || []).concat(L.gear.map(x => x.uid)); }
+    if (cur.won) st.clears += 1;
+    if (cur.won && cur.fresh) st.day = today();
+    profile.counts = profile.counts || {};
+    profile.counts.landgang = (profile.counts.landgang || 0) + 1;
+    cur.done = true;
+    return endHtml();
+  }
+  function stop() { if (cur && cur.fight && cur.fight.timer) clearTimeout(cur.fight.timer); }
+
+  GL.dungeon = {
+    dirty: false,
+    onSave: null,
+    // name = data-act, data = dataset
+    act(name, data, profile) {
+      this.dirty = false;
+      this.pending = null;
+      if (name === 'dg-open' || name === 'dg-list') { if (cur && cur.fight && !cur.fight.done) return null; stop(); cur = null; return listHtml(profile); }
+      if (name === 'dg-start') return start(profile, data.v) || listHtml(profile);
+      if (!cur) return listHtml(profile);
+      cur.profile = profile;
+      if (name === 'dg-go') { cur.i = 0; cur.plans = null; return stepHtml(); }
+      if (name === 'dg-pick') return choose(Number(data.i));
+      if (name === 'dg-fast') { if (cur.fight) { cur.fight.fast = !cur.fight.fast; } return undefined; }
+      if (name === 'dg-next') {
+        if (cur.done) return listHtml(profile);
+        if (cur.last && cur.last.boss) {
+          cur.fight = buildFight(profile);
+          if (!cur.fight) return listHtml(profile);
+          cur.i = STEPS + 1;
+          this.pending = 'fight';
+          return fightHtml();
+        }
+        cur.i += 1; cur.plans = null; return stepHtml();
+      }
+      return null;
+    },
+    // Nach dem Einfügen ins Fenster: Kampf starten
+    after() {
+      if (this.pending !== 'fight' || !cur || !cur.fight) return;
+      this.pending = null;
+      GL.arena.mounted(cur.fight.dRun);
+      cur.fight.timer = setTimeout(playStep, 900);
+    },
+    // Popup wurde geschlossen (z. B. Esc): laufenden Kampf still beenden
+    closed() { if (cur && cur.fight && !cur.fight.done) { stop(); cur.fight.done = true; endFight(true); } },
+    open: GL.dungeonOpen,
+    list: listHtml,
+    _cfg: BOSS,
+    _cur: () => cur
+  };
+})();

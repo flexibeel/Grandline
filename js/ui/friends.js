@@ -74,6 +74,15 @@ window.GL = window.GL || {};
     });
     return fresh;
   }
+  // Freunde, die gerade online gekommen sind (Lebenszeichen der letzten 4 Minuten). Beim ersten Aufruf nur merken
+  let onSeen = null;
+  function cameOnline(profile) {
+    const on = new Set();
+    (profile.friends || []).forEach(c => { const r = rowOf(c); const t = r && Date.parse(r.updated); if (r && isFinite(t) && Date.now() - t < 240000) on.add(c + '|' + (r.name || 'Ein Freund')); });
+    const fresh = onSeen ? [...on].filter(x => !onSeen.has(x)).map(x => x.split('|').slice(1).join('|')) : [];
+    onSeen = on;
+    return fresh;
+  }
   // QR-Code: Bibliothek erst laden, wenn das Fenster aufgeht
   let qrLib = null;
   function qr(text) {
@@ -97,6 +106,6 @@ window.GL = window.GL || {};
       return `<svg viewBox="-2 -2 ${n + 4} ${n + 4}" shape-rendering="crispEdges" aria-label="QR-Code"><rect x="-2" y="-2" width="${n + 4}" height="${n + 4}" fill="#fff"/><path d="${r}" fill="#2a1a10"/></svg>`;
     });
   }
-  GL.friends = { code, mine, link, rowOf, captureRef, applyRef, add, remove, checkInvites, qr, norm, fmt };
+  GL.friends = { code, mine, link, rowOf, captureRef, applyRef, add, remove, checkInvites, cameOnline, qr, norm, fmt };
   captureRef();
 })();

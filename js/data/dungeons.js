@@ -179,7 +179,7 @@ GL.data.dungeons = [
     find: { id: 'cola-flasche', name: 'Leere Colaflasche', text: 'Eine von Frankys Lieblingsflaschen. Super!',
       art: ['....kkkk....', '....bBBb....', '....bBBb....', '...bBBBBb...', '..bBxBBBBb..', '..bBxBBBBb..', '..brrrrrrb..', '..brxxxxrb..', '..brrrrrrb..', '..bBBBBBBb..', '..bbbbbbbb..', '............'] } },
 
-  { id: 'gruft', name: 'Gruft von Thriller Bark', sea: 2, need: { isl: ['florian', 'grusel-garten', 'hogback-labor', 'mangroven', 'thriller-schloss'] }, needText: 'Besuche eine Insel von Thriller Bark.',
+  { id: 'gruft', name: 'Gruft von Thriller Bark', sea: 2, alt: true, need: { isl: ['florian', 'grusel-garten', 'hogback-labor', 'mangroven', 'thriller-schloss'] }, needText: 'Besuche eine Insel von Thriller Bark.',
     scene: { sky: '#3a2c4a', ground: '#5a4a6a', deco: DG_DECO.gruft }, boss: 'absalom',
     intro: 'Nebel kriecht über den Friedhof. Ein Grabstein steht offen, darunter führt eine Treppe nach unten.',
     steps: [
@@ -197,7 +197,7 @@ GL.data.dungeons = [
     find: { id: 'schattenglas', name: 'Schatten im Glas', text: 'Er zappelt, wenn man das Glas schüttelt.',
       art: ['...ssss.....', '...SSSS.....', '..SllllS....', '..SlkklS....', '..SkkkkS....', '..SlkklS....', '..SkllkS....', '..SllllS....', '..SSSSSS....', '............', '............', '............'] } },
 
-  { id: 'koralle', name: 'Korallenhöhle', sea: 1, need: { isl: ['tiefsee', 'korallenhuegel', 'fischmenschen-viertel', 'meerwald', 'gyoncorde', 'ryugu'] }, needText: 'Besuche die Fischmenscheninsel.',
+  { id: 'koralle', name: 'Korallenhöhle', sea: 1, alt: true, need: { isl: ['tiefsee', 'korallenhuegel', 'fischmenschen-viertel', 'meerwald', 'gyoncorde', 'ryugu'] }, needText: 'Besuche die Fischmenscheninsel.',
     scene: { sky: '#3a7ab0', ground: '#2a5a8a', deco: DG_DECO.koralle }, boss: 'hyouzou',
     intro: 'Tief unter dem Meer leuchten die Korallen in allen Farben. Eine Blase hält die Luft für euch fest.',
     steps: [

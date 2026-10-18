@@ -1057,7 +1057,11 @@ window.GL = window.GL || {};
               <small>schwach gegen ${badge(info.counter)}${bounty ? ` · Kopfgeld ${bounty}` : ''}</small></span></span>
           </button>`;
         }).join('');
-        return `${noticeBox(run)}<span class="event-kicker">${twoRoutes ? (GL.run.islandIndex(run) === 1 ? 'Zweites Meer' : 'Drittes Meer') + ' · Zwei Routen' : sea.name + ' · ' + (ch === 0 ? 'Erste Insel' : 'Zweite Insel')}</span>
+        // Zum ersten Mal in diesem Meer: kleiner Freudenmoment
+        const seaIds = baseSea.small.concat(baseSea.big, baseSea.alt ? baseSea.alt.small.concat(baseSea.alt.big) : []).map(x => x.id);
+        const freshSea = ch === 0 && GL.run.islandIndex(run) > 0 && seenRef && !seaIds.some(x => (seenRef.islands || []).includes(x));
+        const seaBanner = freshSea ? `<div class="new-sea"><i class="ns-star">★</i><span><small>Neues Meer entdeckt</small><b>${esc(twoRoutes ? baseSea.name + ' oder ' + baseSea.alt.name : baseSea.name)}</b><em>${esc(baseSea.tagline || '')}</em></span><i class="ns-star">★</i></div>` : '';
+        return `${noticeBox(run)}${seaBanner}<span class="event-kicker">${twoRoutes ? (GL.run.islandIndex(run) === 1 ? 'Zweites Meer' : 'Drittes Meer') + ' · Zwei Routen' : sea.name + ' · ' + (ch === 0 ? 'Erste Insel' : 'Zweite Insel')}</span>
           <h2>${ch === 0 ? 'Welche Insel steuerst du an?' : 'Kurs auf den Boss des Meeres'}</h2>
           <p class="hint">${ch === 0 ? 'Jede Insel hat ihre eigenen Orte. Am Ende wartet ihr Bösewicht: Sieg bringt Kopfgeld, einen Schatz und eine Verschnaufpause.'
             : 'Auf der großen Insel wartet der Boss dieses Meeres. Wähle den Gegner, gegen den deine Crew die besseren Karten hat.'}</p>
@@ -1083,7 +1087,9 @@ window.GL = window.GL || {};
         const full = run.crew.length >= lim;
         const gold = run.gold || 0;
         const tip = GL.advice.recruit(run);
-        const sel = ui.tvSel != null && run.pool[ui.tvSel] ? ui.tvSel : (tip ? tip.index : null);
+        // Handy: Details erst nach Antippen, als Blatt von unten (kein langes Scrollen). PC: wie gehabt mit Tipp vorausgewählt
+        const phone = typeof window !== 'undefined' && window.innerWidth < 700;
+        const sel = ui.tvSel != null && ui.tvSel >= 0 && run.pool[ui.tvSel] ? ui.tvSel : (phone || ui.tvSel === -1 ? null : (tip ? tip.index : null));
         const pw = u => u.max * 0.5 + u.atk * 4 + u.spd * 2;
         const others = run.crew.filter(u => u.id !== run.captain);
         // Besiegte zuerst ersetzen, sonst die schwächste Figur
@@ -1113,7 +1119,7 @@ window.GL = window.GL || {};
           const price = GL.run.offerPrice(run, o), can = !o.sold && !full && gold >= price;
           const a = ability(d.id), t = o.trait ? trait(o.trait) : null, u = ultiOf(d.id, d.role);
           const row = (lbl, ico, v, w) => `<span class="tv-st"><i>${ico}</i>${lbl} <b>${v}</b>${w != null && full ? arrow(cmp(v, w)) : ''}</span>`;
-          detail = `<div class="tv-detail pxf">
+          detail = `${phone ? '<div class="tv-sheet-bg" data-act="tv-sel" data-i="-1"></div>' : ''}<div class="tv-detail pxf${phone ? ' tv-sheet' : ''}">${phone ? '<button class="tv-sheet-x" data-act="tv-sel" data-i="-1" aria-label="Schließen">✕</button>' : ''}
             <div class="tv-d-head"><b>${esc(d.name)}</b>${d.faction ? `<span class="tv-fac">${pxIcon(d.faction)}${esc(GL.data.factions[d.faction].name)}</span>` : ''}<span class="tv-fac">${pxIcon(d.type)}${esc(GL.data.types[d.type].name)}</span><span class="tv-fac">${pxIcon(d.role)}${esc((GL.data.roles[d.role] || {}).name || '')}</span>
               <small>${weak && full ? `Pfeile: Vergleich mit deiner schwächsten Figur (${esc(crewData(weak.id).name)})` : `Noch ${lim - run.crew.length} ${lim - run.crew.length === 1 ? 'Platz' : 'Plätze'} frei: jede Figur macht deine Crew stärker`}</small></div>
             <div class="tv-stats">${row('Leben', '♥', m.max, weak && weak.max)}${row('Angriff', '⚔', m.atk, weak && weak.atk)}${row('Tempo', '➤', m.spd, weak && weak.spd)}</div>
@@ -1237,7 +1243,7 @@ window.GL = window.GL || {};
           controls = `<button class="btn" data-act="continue">Weiter ${keyHint('Leertaste')}</button>`;
         } else {
           log = anim.log;
-          controls = `<div class="fight-ctrl"><button class="speed-btn px-btn" data-act="fast" aria-label="Tempo ändern">${speedLabel(anim.speed || 2)}</button></div>`;
+          controls = `<div class="fight-ctrl"><button class="speed-btn px-btn" data-act="fast" aria-label="Tempo ändern">${speedLabel(anim.speed || 2)}</button>${sfxBtn('fc-sfx')}</div>`;
         }
         const title = b.kind === 'raid' ? 'Raid' : b.kind === 'boss' ? 'Bosskampf' : run.pending && run.pending.rival ? 'Begegnung: ' + esc(run.pending.rival.name) : 'Kampf';
         return `<div class="battle-head"><h2>${title}</h2>${done ? `<span class="result ${b.win ? 'win' : 'lose'}">${b.win ? 'Sieg' : 'Niederlage'}</span>` : ''}</div>
@@ -2018,7 +2024,46 @@ window.GL = window.GL || {};
   }
 
   // ---------- Wiki: einfach erklärt, mit kleinen Bildern. Plus Meta-Liste (was ist gerade stark) ----------
-  const WIKI_TABS = [['basis', 'Grundlagen'], ['boni', 'Boni'], ['bosse', 'Bosse'], ['meta', 'Meta']];
+  const WIKI_TABS = [['basis', 'Grundlagen'], ['boni', 'Boni'], ['bosse', 'Bosse'], ['routen', 'Routen'], ['meta', 'Meta']];
+  // Wer war schon auf dieser Route? Freunde zuerst (mit Bild), dazu die Zahl aller Piraten in der Rangliste
+  function routeVisitors(profile, ids) {
+    const st = GL.online ? GL.online.state() : { rows: [] };
+    const rows = (st.rows || []).filter(r => r.id !== st.uid && (r.isles || []).some(x => ids.includes(x)));
+    const fr = new Set((profile && profile.friends) || []);
+    const friends = GL.friends ? rows.filter(r => fr.has(GL.friends.norm(GL.friends.code(r.id)))) : [];
+    return { n: rows.length, friends: friends.slice(0, 4) };
+  }
+  // Wiki: alle Meere und Routen mit Inseln, Bösewichten, Bossen, Begleitern und Landgängen
+  function routesWiki(profile) {
+    const seen = (profile && profile.seen && profile.seen.islands) || [];
+    const pets = (profile && profile.pets) || [];
+    const DG = GL.data.dungeons || [];
+    const sec = (S, i, alt) => {
+      const isl = S.small.concat(S.big), ids = isl.map(x => x.id);
+      const been = ids.some(x => seen.includes(x));
+      const feat = alt ? (GL.data.features || []).find(f => f.id === (S.feature || (i === 2 ? 'route' : 'route2'))) : null;
+      const open = !alt || (profile && feat && GL.meta.featureOpen(profile, feat.id));
+      const foes = isl.map(x => x.villain || x.boss).filter(Boolean).map(id => enemyData(id)).filter(Boolean);
+      const pts = (GL.data.pets || []).filter(p => ids.includes(p.isl));
+      const dgs = DG.filter(d => d.need && (d.need.isl || []).some(x => ids.includes(x)));
+      const v = routeVisitors(profile, ids);
+      return `<div class="wk-route${been ? ' been' : ''}${open ? '' : ' locked'}">
+        <div class="wr-head"><b>${esc(S.name)}</b>${alt ? '<em class="wr-alt">Zweite Route</em>' : `<em class="wr-sea">${i + 1}. Meer</em>`}${been ? '<em class="wr-been">✓ befahren</em>' : ''}</div>
+        <small class="wr-tag">${esc(S.tagline || '')}${alt && feat ? ` · ${open ? 'offen' : `ab Rang ${feat.lvl}`}` : ''}</small>
+        <div class="wr-isl">${isl.map(x => `<span class="wr-chip${seen.includes(x.id) ? ' on' : ''}">${esc(x.name)}</span>`).join('')}</div>
+        <div class="wr-foes">${foes.map(f => `<i class="wk-spr" data-tip="${esc(f.name)}">${GL.sprites.render(f)}</i>`).join('')}</div>
+        ${pts.length ? `<div class="wr-line"><span class="wr-k">Begleiter</span>${pts.map(p => `<i class="wr-pet${pets.includes(p.id) ? '' : ' pet-sil'}" data-tip="${esc(pets.includes(p.id) ? p.name : '??? · ' + p.hint)}">${petArt(p.id)}</i>`).join('')}</div>` : ''}
+        ${dgs.length ? `<div class="wr-line"><span class="wr-k">Landgang</span>${dgs.map(d => `<span class="wr-chip">${esc(d.name)}</span>`).join('')}</div>` : ''}
+        ${v.n ? `<div class="wr-line wr-who"><span class="wr-k">Schon hier</span>${v.friends.map(r => `<span class="wr-fr"><i class="fr-av">${portrait(r.look || {}, r.cos || {}, 'xs')}</i>${esc(r.name)}</span>`).join('')}<small>${v.n} ${v.n === 1 ? 'Pirat' : 'Piraten'} aus der Rangliste</small></div>` : ''}
+      </div>`;
+    };
+    return `<section class="wk-sec"><h3>Routen der Grand Line</h3><p>Jedes Meer hat seine Inseln, Bösewichte und Bosse. Manche Meere haben eine zweite Route, die du mit dem Piratenrang freischaltest. Auf vielen Inseln wartet ein Begleiter und ein Landgang.</p>
+      ${GL.data.islands.map((S, i) => sec(S, i, false) + (S.alt ? sec(S.alt, i, true) : '')).join('')}</section>
+      <section class="wk-sec"><h3>Landgang</h3><p>Kurze Abenteuer auf Inseln, die du schon kennst (im Hafen unter „Landgang“). Erst ein paar schnelle Entscheidungen, deine Stammcrew redet mit. Passt eine Figur zur Aufgabe (★), klappt es öfter. Gute Entscheidungen schwächen den Boss, Pech macht es knapp. Am Ende kämpft deine Stammcrew gegen den Boss des Ortes.</p>
+        <p>Jederzeit wiederholbar. Die erste Erkundung pro Ort und Tag bringt volle Beute: Berry, Meersplitter, Ausrüstung (mit Glück episch) und ein seltenes Fundstück.</p>
+        <div class="wr-line">${DG.map(d => `<span class="wr-chip${profile && profile.dungeons && profile.dungeons[d.id] ? ' on' : ''}">${esc(d.name)}</span>`).join('')}</div></section>
+      <section class="wk-sec"><h3>Tageskarte</h3><p>Einmal am Tag: Alle starten mit derselben Karte, egal welcher Rang. Dafür gibt es Berry, Rang-EP und eine Tagesbeute für deine Crew. Bei einem Sieg ist sie sicher episch, mit Glück legendär.</p></section>`;
+  }
   const STRAT_NAME = { kraft: 'Kraft-Team', klinge: 'Klingen-Team', technik: 'Technik-Team', mix: 'Bunte Mischung', brecher: 'Viele Brecher', kaempfer: 'Viele Kämpfer', helfer: 'Viele Helfer', greedy: 'Boni sammeln', strohhut: 'Strohhutbande', marine: 'Marine', cp9: 'CP9', baroque: 'Baroque Works' };
   const stratName = id => id.startsWith('f_') ? (GL.data.factions[id.slice(2)] || {}).name || id : STRAT_NAME[id] || id;
   function wikiPop(tab, profile) {
@@ -2059,6 +2104,8 @@ window.GL = window.GL || {};
             <span class="wk-bb"><b>${esc(b.name)}</b> ${badge(b.type)}${b.raid ? ' <em class="wk-raid">Raid</em>' : ''}
             <small>Schwach gegen ${pxIcon(info.counter)} <b>${esc(T[info.counter].name)}</b>${beat ? ` · ${beat}-mal besiegt` : ''}</small>
             ${ab ? `<small>${esc(ab.name)}: ${esc(ab.text)}</small>` : ''}</span></div>`; }).join('')}</div></section>`;
+    } else if (t === 'routen') {
+      body = routesWiki(profile);
     } else {
       // Live: was nutzen die besten Spieler gerade?
       const st = GL.online ? GL.online.state() : { rows: [] };
@@ -2211,6 +2258,12 @@ window.GL = window.GL || {};
     const note = `<svg viewBox="0 0 8 9" shape-rendering="crispEdges" aria-hidden="true"><path d="M3 0h5v2h-4v4h-1v1h-2v-1h-1v-1h1v-1h2zM7 2h1v4h-1v1h-2v-1h-1v-1h1v-1h2z"/></svg>`;
     return `<button class="mu-btn${on ? ' on' : ''}${cls ? ' ' + cls : ''}" data-act="music" aria-label="Musik ${on ? 'aus' : 'an'}schalten" title="Musik ${on ? 'aus' : 'an'}">${note}${on ? '' : '<i class="mu-off"></i>'}</button>`;
   }
+  // Geräusche an/aus (Lautsprecher), neben der Musik
+  function sfxBtn(cls) {
+    const on = GL.sfx && GL.sfx.isOn();
+    const spk = `<svg viewBox="0 0 9 8" shape-rendering="crispEdges" aria-hidden="true"><path d="M0 2h2l2-2h1v8h-1l-2-2h-2z"/>${on ? '<path d="M6 2h1v1h-1zM7 3h1v2h-1zM6 5h1v1h-1z"/>' : ''}</svg>`;
+    return `<button class="mu-btn sfx-btn${on ? ' on' : ''}${cls ? ' ' + cls : ''}" data-act="sfx" aria-label="Geräusche ${on ? 'aus' : 'an'}schalten" title="Geräusche ${on ? 'aus' : 'an'}">${spk}${on ? '' : '<i class="mu-off"></i>'}</button>`;
+  }
   function isAdmin() {
     const st = GL.online ? GL.online.state() : {};
     return !!(st.email && /^westerholt\.felix/i.test(st.email));
@@ -2268,7 +2321,7 @@ window.GL = window.GL || {};
     const pulse = day ? `<div class="ts-pulse" title="Spieler, die gerade spielen und in den letzten 24 Stunden aktiv waren"><i class="tp-dot"></i><b>${live}</b> gerade auf See <span>·</span> <b>${day}</b> heute an Bord</div>`
       : st.status === 'connecting' ? `<div class="ts-pulse wait"><i class="tp-dot"></i>Funk zur Flotte <span class="tp-dots"><i></i><i></i><i></i></span></div>` : '';
     return `<div class="ts-inner">
-      <div class="ts-top">${profile.nickname ? profileChip(profile) : '<span></span>'}<span class="ts-tbtn"><button class="mu-btn lang-btn" data-act="lang" aria-label="Sprache wechseln" title="Deutsch / English">${GL.i18n && GL.i18n.lang() === 'en' ? 'DE' : 'EN'}</button><button class="mu-btn wk-btn${profile.wikiSeen ? '' : ' fresh'}" data-act="wiki-open" aria-label="Wiki" title="Wiki: Nachschlagen und Meta">${GL.ui.wikiIcon}</button>${musicBtn()}</span></div>
+      <div class="ts-top">${profile.nickname ? profileChip(profile) : '<span></span>'}<span class="ts-tbtn"><button class="mu-btn lang-btn" data-act="lang" aria-label="Sprache wechseln" title="Deutsch / English">${GL.i18n && GL.i18n.lang() === 'en' ? 'DE' : 'EN'}</button><button class="mu-btn wk-btn${profile.wikiSeen ? '' : ' fresh'}" data-act="wiki-open" aria-label="Wiki" title="Wiki: Nachschlagen und Meta">${GL.ui.wikiIcon}</button>${musicBtn()}${sfxBtn()}</span></div>
       <div class="ts-logo"><b>${esc(W)}</b><small>Ein Piraten-Roguelike</small></div>
       <div class="ts-scene" aria-hidden="true">
         <div class="ts-sun"></div>
@@ -2618,6 +2671,10 @@ window.GL = window.GL || {};
       const dd = GL.daily.done(profile);
       tiles.push(`<button class="ad-tile${dd ? ' done' : ' hot'}" data-act="${dd ? 'daily-info' : 'daily-start'}"><i class="ad-ico">${featureArt('scroll')}</i><b>Tageskarte</b><small>${dd ? '✓ gespielt' : 'Heute offen'}</small></button>`);
     }
+    if (GL.meta.featureOpen(profile, 'landgang')) {
+      const nOpen = GL.dungeonCount ? GL.dungeonCount(profile) : 0;
+      tiles.push(`<button class="ad-tile" data-act="dg-open"><i class="ad-ico">${featureArt('compass')}</i><b>Landgang</b><small>${nOpen} ${nOpen === 1 ? 'Ort' : 'Orte'}</small></button>`);
+    }
     if (GL.meta.featureOpen(profile, 'jagd')) {
       const t = profile.hunt && GL.data.raids.find(r => r.id === profile.hunt);
       tiles.push(`<button class="ad-tile" data-act="hunt-open"><i class="ad-ico">${t ? GL.sprites.render(t) : '🎯'}</i><b>Raid-Ziel</b><small>${t ? esc(t.name.replace(/^Admiral |^Rothaar /, '')) : 'keins'}</small></button>`);
@@ -2670,7 +2727,7 @@ window.GL = window.GL || {};
     const dScore = dd ? dd.score : null;
     return `<div class="daily-card${done ? ' done' : ''}">
       <span class="dc-ico" aria-hidden="true">${featureArt('scroll')}</span>
-      <span class="dc-txt"><b>Tageskarte${(profile.dailyStreak || 0) > 1 && profile.daily && (profile.daily.d === day || profile.daily.d === yesterday()) ? ` <em class="dc-streak">${profile.dailyStreak} Tage in Folge</em>` : ''}</b><small>${done ? (dScore != null ? `Heute: ${Number(dScore).toLocaleString('de-DE')} Punkte. Morgen gibt es eine neue.` : 'Heute schon gestartet. Morgen gibt es eine neue.') : '<i class="dc-open">Heute noch offen</i> Alle starten gleich, egal welcher Rang. Dann entscheiden deine Wahl und das Glück. Ein Versuch.'}</small></span>
+      <span class="dc-txt"><b>Tageskarte${(profile.dailyStreak || 0) > 1 && profile.daily && (profile.daily.d === day || profile.daily.d === yesterday()) ? ` <em class="dc-streak">${profile.dailyStreak} Tage in Folge</em>` : ''}</b><small>${done ? (dScore != null ? `Heute: ${Number(dScore).toLocaleString('de-DE')} Punkte. Morgen gibt es eine neue.` : 'Heute schon gestartet. Morgen gibt es eine neue.') : '<i class="dc-open">Heute noch offen</i> Alle starten gleich, egal welcher Rang. Ein Versuch. Tagesbeute: ein Ausrüstungsstück, bei einem Sieg sicher episch.'}</small></span>
       ${done ? '<em class="dc-done">✓</em>' : '<button class="btn mini" data-act="daily-start">Starten</button>'}
     </div>`;
   }
@@ -2697,6 +2754,7 @@ window.GL = window.GL || {};
     stall:  ['............', '.rrppRRpprr.', 'rRRppRRppRRr', 'kkkkkkkkkkkk', '.k........k.', '.k.gg..B..k.', '.k.gg.BBB.k.', '.kWWWWWWWWk.', '.kwwwwwwwwk.', '.k........k.', '.k........k.', '............'],
     chest:  ['............', '............', '..kkkkkkkk..', '.kWWWWWWWWk.', 'kWWWWWWWWWWk', 'kggggggggggk', 'kwwwwGGwwwwk', 'kWWWWgkWWWWk', 'kWWWWWWWWWWk', 'kwwwwwwwwwwk', '.kkkkkkkkkk.', '............'],
     podium: ['............', '.....GG.....', '....GggG....', '.....gg.....', '....kkkk....', '....kGGk....', '.kkkkggkkkk.', '.kllkggkddk.', '.kllkggkddk.', '.kllkggkddk.', 'kkkkkkkkkkkk', '............'],
+    compass: ['....kkkk....', '..kkWWWWkk..', '.kWWppppWWk.', '.kWpprrppWk.', 'kWppprrpppWk', 'kWpppkkpppWk', 'kWpppkkpppWk', 'kWpppbbpppWk', '.kWppbbppWk.', '.kWWppppWWk.', '..kkWWWWkk..', '....kkkk....'],
     scroll: ['............', '.kkkkkkkkk..', 'kpppppppppk.', '.kpllllllpk.', '.kpppppppkk.', '.kpllllpppk.', '.kpppppppkk.', '.kplllllppk.', '.kppppppppk.', 'kpppppppppk.', '.kkkkkkkkk..', '............'],
     flag:   ['............', '.k..........', '.kkkkkkkkk..', '.kkpkkkpkkk.', '.kkkpppkkk..', '.kkkkpkkkk..', '.kkpkkkpkk..', '.kkkkkkkk...', '.k..........', '.k..........', '.k..........', 'kkk.........']
   };
@@ -2781,11 +2839,26 @@ window.GL = window.GL || {};
     </div>`;
   }
   function featurePop(f, more) {
-    return `<div class="fpop-card" role="dialog" aria-labelledby="fpop-t">
-      <span class="fpop-kicker">${esc(f.kicker || 'Neu freigeschaltet')}</span>
+    // Neue Route: großer Moment mit Bossen, Begleitern und wer schon dort war
+    const R = GL.data.islands.map(x => x.alt).find(x => x && x.feature === f.id);
+    const prof = profRef || {};
+    const wow = R ? (() => {
+      const isl = R.small.concat(R.big), ids = isl.map(x => x.id);
+      const bosses = (R.bosses || []).map(id => enemyData(id)).filter(Boolean);
+      const pts = (GL.data.pets || []).filter(p => ids.includes(p.isl));
+      const v = routeVisitors(prof, ids);
+      return `<div class="wow-route">
+        <div class="wow-bosses">${bosses.map(b => `<span><i>${GL.sprites.render(b)}</i><small>${esc(b.name)}</small></span>`).join('')}</div>
+        <p class="wow-line">${isl.length} Inseln${pts.length ? ` · ${pts.length} Begleiter <span class="wow-pets">${pts.map(p => `<i class="pet-sil">${petArt(p.id)}</i>`).join('')}</span>` : ''}</p>
+        ${v.friends.length ? `<p class="wow-line">Schon dort: ${v.friends.map(r => `<b>${esc(r.name)}</b>`).join(', ')}</p>` : v.n ? `<p class="wow-line">${v.n} ${v.n === 1 ? 'Pirat war' : 'Piraten waren'} schon dort. Jetzt du!</p>` : `<p class="wow-line">Noch kaum jemand war dort. Sei unter den Ersten!</p>`}
+      </div>`;
+    })() : '';
+    return `<div class="fpop-card${R ? ' fpop-wow' : ''}" role="dialog" aria-labelledby="fpop-t">
+      ${R ? '<i class="wow-burst" aria-hidden="true"></i>' : ''}
+      <span class="fpop-kicker">${esc(R ? 'Neue Route entdeckt!' : (f.kicker || 'Neu freigeschaltet'))}</span>
       <div class="fpop-art">${featureArt(f.art)}</div>
       <h3 id="fpop-t">${esc(f.name)}</h3>
-      <p>${esc(f.text)}</p>
+      <p>${esc(f.text)}</p>${wow}
       ${f.steps && f.steps.length ? `<ol class="fpop-steps">${f.steps.map(s => `<li>${esc(s)}</li>`).join('')}</ol>` : ''}
       ${more && more.length ? `<p class="fpop-more">Auch neu: ${more.map(m => `<span>${featureArt(m.art)}${esc(m.name.replace(/^(Der|Die|Das|Deine) /, ''))}</span>`).join('')}</p>` : ''}
       <div class="fpop-btns">${f.tab ? `<button class="btn" data-act="fpop-go" data-id="${f.id}">Ansehen</button>` : ''}<button class="btn ghost" data-act="fpop-close" data-id="${f.id}">${f.tab ? 'Später' : 'Alles klar'}</button></div>
@@ -3331,6 +3404,7 @@ window.GL = window.GL || {};
         const html = hq(ui.profile, ui.hqTab || 'profil', ui);
         if (html !== ui.lastStage) {
           $('#stage').innerHTML = html; ui.lastStage = html;
+          const h0 = document.getElementById('sheet-host'); if (h0) h0.replaceChildren();
           // Belohnungsstraße: aktuellen Rang in die Mitte schieben
           const now = $('.road-step.now');
           if (now) now.parentElement.scrollLeft = now.offsetLeft - now.parentElement.clientWidth / 2 + now.clientWidth / 2;
@@ -3403,6 +3477,11 @@ window.GL = window.GL || {};
         $('#stage').innerHTML = html;
         ui.lastStage = html;
         window.__glStageAt = performance.now();
+        // Taverne am Handy: Detail-Blatt an den Seitenrand hängen (sonst hält es ein verschobener Rahmen fest)
+        let host = document.getElementById('sheet-host');
+        if (!host) { host = document.createElement('div'); host.id = 'sheet-host'; document.body.appendChild(host); }
+        const sh = $('#stage .tv-sheet'), shBg = $('#stage .tv-sheet-bg');
+        host.replaceChildren(...[shBg, sh].filter(Boolean));
         // Bei einem neuen Bildschirm zur Auswahl springen, falls sie nicht sichtbar ist
         if (ui.lastPhase !== run.phase) {
           ui.lastPhase = run.phase;
