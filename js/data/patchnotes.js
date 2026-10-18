@@ -1,6 +1,8 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-20p', date: '19.10.', title: 'Hotfix: Handy-Hafen verrutscht nicht mehr', items: [
+    'Am Handy ragten Info-Blasen (z. B. bei der Kopfgeld-Stufe) aus der Seite. Dadurch rutschte die untere Leiste in die Bildschirmmitte. Infos erscheinen jetzt als feste Blase im Bild und verschwinden von selbst' ] },
   { v: '2026-10-20o', date: '19.10.', title: 'Taktik, Monster und ein Geisterschiff', items: [
     '⚔🛡🎭 Stammcrew-Duell: Vor dem Kampf eine Taktik wählen (Sturm schlägt List, List schlägt Mauer, Mauer schlägt Sturm). Wer nicht wählt, segelt ausgewogen und verliert nichts',
     'Zusammenhalt lohnt sich wieder: Ab Vertraut 6/8/10 bekommt jede Figur eine kleine Eigenschaft (Dickes Fell, Eingespielt, Erste Hilfe)',

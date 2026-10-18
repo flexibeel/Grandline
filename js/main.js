@@ -894,7 +894,26 @@
     const tip = e.target.closest('[data-tip]');
     document.querySelectorAll('.tt-open').forEach(x => { if (x !== tip) x.classList.remove('tt-open'); });
     if (tip) tip.classList.toggle('tt-open');
+    // Touch: Info als feste Blase im Bildschirm statt CSS-Tooltip (der ragte am Handy aus der Seite und verschob die Leiste unten)
+    if (window.matchMedia && window.matchMedia('(hover: none)').matches) tapTip(tip && tip.classList.contains('tt-open') ? tip : null);
   });
+  let tapBubble = null, tapT = null;
+  function tapTip(el) {
+    clearTimeout(tapT);
+    if (!el) { if (tapBubble) tapBubble.hidden = true; return; }
+    const txt = el.getAttribute('data-tip') || '';
+    if (!txt) return;
+    if (!tapBubble) { tapBubble = document.createElement('div'); tapBubble.className = 'scrub-tip tap-tip'; document.body.appendChild(tapBubble); }
+    const e2 = t => t.replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[c]);
+    const lines = txt.split('\n');
+    tapBubble.innerHTML = `<b>${e2(lines[0])}</b>${lines.slice(1).map(l => `<span>${e2(l)}</span>`).join('')}`;
+    tapBubble.hidden = false;
+    const r = el.getBoundingClientRect(), w = tapBubble.offsetWidth, h = tapBubble.offsetHeight;
+    tapBubble.style.left = Math.max(8, Math.min(window.innerWidth - w - 8, r.left + r.width / 2 - w / 2)) + 'px';
+    tapBubble.style.top = (r.top - h - 8 > 8 ? r.top - h - 8 : Math.min(window.innerHeight - h - 8, r.bottom + 8)) + 'px';
+    tapT = setTimeout(() => { tapBubble.hidden = true; el.classList.remove('tt-open'); }, 4500);
+  }
+  window.addEventListener('scroll', () => { if (tapBubble && !tapBubble.hidden) { tapBubble.hidden = true; document.querySelectorAll('.tt-open').forEach(x => x.classList.remove('tt-open')); } }, { passive: true });
 
   // App-Gefühl: kein Zoomen per Zwei-Finger-Geste oder Doppeltipp (iOS ignoriert sonst user-scalable)
   ['gesturestart', 'gesturechange'].forEach(ev => document.addEventListener(ev, e => e.preventDefault(), { passive: false }));
