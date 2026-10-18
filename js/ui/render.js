@@ -1029,7 +1029,7 @@ window.GL = window.GL || {};
           <p class="hint">Mit ihm oder ihr beginnt deine Reise. Werte und Eigenschaft sind bei jedem Run neu ausgewürfelt.</p>
           ${filters}
           <div class="cards">${shown.map(x =>
-            offerButton(run, x.o, x.i, 'cap' + (x.d.locked ? ' unlocked-cap' : ''), false)).join('')}</div>${lockedHtml}`;
+            offerButton(run, x.o, x.i, 'cap' + (x.d.locked ? ' unlocked-cap' : '') + (run.buddy === x.o.id ? ' buddy-cap' : ''), false)).join('')}</div>${run.buddy && run.pool.some(o => o.id === run.buddy) ? `<p class="hint buddy-hint">♥ ${esc(crewData(run.buddy).name)} ist dein Vertrauter und steht extra zur Wahl.</p>` : ''}${lockedHtml}`;
       }
 
       case 'course': {
@@ -1103,7 +1103,7 @@ window.GL = window.GL || {};
           const can = !o.sold && !full && gold >= price;
           const overall = weak && full ? cmp(pw(m), pw(weak)) : null;
           return `<button class="tv-off pxf${o.sold ? ' sold' : can ? '' : ' cant'}${sel === i ? ' sel' : ''}${(o.stars || 1) >= 3 ? ' s3' : ''}${tip && tip.index === i && !o.sold ? ' rec' : ''}" data-act="tv-sel" data-i="${i}">
-            ${tip && tip.index === i && !o.sold ? '<span class="tv-rec">Tipp</span>' : ''}
+            ${run.buddy === o.id && !o.sold ? '<span class="tv-rec tv-buddy">♥ Vertrauter</span>' : tip && tip.index === i && !o.sold ? '<span class="tv-rec">Tipp</span>' : ''}
             <span class="tv-stars">${stars(o.stars || 1)}</span>
             <i class="tv-spr">${GL.sprites.renderShaded ? GL.sprites.renderShaded(d) : GL.sprites.render(d)}</i>
             <b class="tv-name">${esc(d.name)}</b>
@@ -2062,6 +2062,24 @@ window.GL = window.GL || {};
       <small class="cc-note">Vertrautheit wächst, wenn ${esc(d.name)} in Runs, Duellen oder beim Landgang dabei ist.</small>
       <div class="fpop-btns"><button class="btn ghost" data-act="pop-close">Schließen</button></div>
     </div>`;
+  }
+  // Vertrauter: ein Stammcrew-Mitglied, das im Run als Kapitän zur Wahl steht und in der ersten Taverne wartet
+  function buddyOk(profile) { return GL.meta.squadUnlocked(profile); }
+  function buddyChip(profile) {
+    if (!buddyOk(profile)) return '';
+    const id = profile.buddy && GL.meta.squadIds(profile).includes(profile.buddy) ? profile.buddy : null;
+    const d = id ? crewData(id) : null;
+    return `<button class="buddy-chip" data-act="buddy-open"><span class="sb-lbl">Vertrauter</span>${d ? `<i>${GL.sprites.render(d)}</i><b>${esc(d.name)}</b>` : '<b class="muted">keiner</b>'}<em>▾</em></button>`;
+  }
+  function buddyPop(profile) {
+    const ids = GL.meta.squadIds(profile).filter(id => id !== 'self' && crewData(id));
+    const cur = profile.buddy;
+    return `<div class="fpop-card buddy-pop" role="dialog"><span class="fpop-kicker">Vertrauter</span><h3>Wer kommt mit?</h3>
+      <p>Dein Vertrauter steht im Run extra als Kapitän zur Wahl und wartet in der ersten Taverne auf dich. Kämpfen tut er wie immer, aber er wird mit jeder Fahrt vertrauter.</p>
+      <div class="buddy-list">${ids.map(id => { const d = crewData(id), lv = GL.meta.bond(profile, id);
+        return `<button class="buddy-opt${cur === id ? ' on' : ''}" data-act="buddy-set" data-v="${id}"><i>${GL.sprites.render(d)}</i><b>${esc(d.name)}</b><small>♥ ${lv}</small></button>`; }).join('')}
+        <button class="buddy-opt${!cur ? ' on' : ''}" data-act="buddy-set" data-v=""><i class="buddy-none">✕</i><b>Keiner</b><small>wie bisher</small></button></div>
+      <div class="fpop-btns"><button class="btn ghost" data-act="pop-close">Fertig</button></div></div>`;
   }
   // Gemeinsamer Moment: kleine Szene mit Sprechblasen, nacheinander eingeblendet
   function momentPop(profile, id, k) {
@@ -3104,7 +3122,7 @@ window.GL = window.GL || {};
           <button class="btn sail" data-act="sail">⚓ Leinen los! ${keyHint('Leertaste')}</button>
         </div>
         ${actionDock(profile)}
-        <div class="sail-meta">${heatBox}${board.length ? `<span class="sail-board"><span class="sb-lbl">An Bord</span>${board.join('')}</span>` : ''}</div>`}
+        <div class="sail-meta">${heatBox}${board.length ? `<span class="sail-board"><span class="sb-lbl">An Bord</span>${board.join('')}</span>` : ''}${buddyChip(profile)}</div>`}
       </div>`}
 
       ${room ? roomHead(profile, tab) : hubTiles(profile, tab)}
@@ -3614,6 +3632,7 @@ window.GL = window.GL || {};
     petPop,
     crewCard,
     momentPop,
+    buddyPop,
     musicBtn,
     sfxBtn,
     endlessPop,

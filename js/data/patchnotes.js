@@ -1,6 +1,9 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-18q', date: '18.10.', title: 'Dein Vertrauter', items: [
+    'Neu im Hafen: Wähle einen Vertrauten aus deiner Stammcrew. Er steht im Run extra als Kapitän zur Wahl und wartet in der ersten Taverne auf dich (♥ Vertrauter)',
+    'Kämpfen tut er wie immer, aber er wird mit jeder Fahrt schneller vertraut. Tageskarte und Wettfahrt bleiben für alle gleich' ] },
   { v: '2026-10-18p', date: '18.10.', title: 'Freundschaften in der Crew', items: [
     'Wer zusammen segelt, wird befreundet: Im Steckbrief siehst du die besten Freunde jeder Figur, mit Herzen und dem passenden Duo',
     'Neue Titel für enge Freundschaften: Bei Vertraut 10 mit einem Strohhut, z. B. „Zorros Wegweiser“ oder „Namis Kassenwart“, und „Herz der Crew“ für vier enge Freunde' ] },

@@ -177,7 +177,13 @@ window.GL = window.GL || {};
     return out;
   }
   function openShop(run) {
-    run.pool = shopOffers(run).map(id => rollOffer(run, id));
+    const offers = shopOffers(run);
+    // Vertrauter: wartet in der ersten Taverne, falls er nicht schon an Bord ist
+    if (run.buddy && !run.buddyMet && byId(GL.data.crew, run.buddy) && (!byId(GL.data.crew, run.buddy).locked || run.unlocked.includes(run.buddy))) {
+      run.buddyMet = true;
+      if (!run.crew.some(u => u.id === run.buddy) && !offers.includes(run.buddy) && offers.length) offers[offers.length - 1] = run.buddy;
+    }
+    run.pool = offers.map(id => rollOffer(run, id));
     run.shopRolls = 0;
     run.phase = 'recruit';
   }
@@ -1032,6 +1038,7 @@ window.GL = window.GL || {};
         hunt: p.hunt || null,
         altOpen: !!p.altOpen,
         altOpen1: !!p.altOpen1,
+        buddy: typeof p.buddy === 'string' && p.buddy !== 'self' ? p.buddy : null,   // Vertrauter aus der Stammcrew
         endlessSea: Number.isInteger(p.endlessSea) && p.endlessSea >= 0 && p.endlessSea < GL.data.islands.length ? p.endlessSea : null,
         alt: {},
         loot: [],
@@ -1039,7 +1046,7 @@ window.GL = window.GL || {};
         // GL.run.replay(run.seed, run.actions, run.start)
         start: {
           unlocked: (p.unlocked || []).slice(), epics: (p.epics || []).slice(),
-          upgrades: Object.assign({}, up), gear: Array.isArray(p.gear) ? p.gear.slice() : [], heat: p.heat || 0, hunt: p.hunt || null, altOpen: !!p.altOpen, altOpen1: !!p.altOpen1,
+          upgrades: Object.assign({}, up), gear: Array.isArray(p.gear) ? p.gear.slice() : [], heat: p.heat || 0, hunt: p.hunt || null, altOpen: !!p.altOpen, altOpen1: !!p.altOpen1, buddy: typeof p.buddy === 'string' && p.buddy !== 'self' ? p.buddy : null,
           endlessSea: Number.isInteger(p.endlessSea) ? p.endlessSea : null,
           arts: (p.arts || []).map(a => ({ id: a.id, lvl: a.lvl })),
           items: (p.items || []).map(x => ({ uid: x.uid, id: x.id, r: x.r, lvl: x.lvl || 0 }))
@@ -1098,8 +1105,10 @@ window.GL = window.GL || {};
       if (p.self) { registerSelf(p.self); run.start.self = p.self; }
       // Nicht alle auf einmal: dein eigener Pirat plus eine kleine, zufällige Auswahl aus allen freigeschalteten Kapitänen
       const capPool = GL.config.starters.concat(run.unlocked.filter(id => byId(GL.data.crew, id) && !GL.config.starters.includes(id)));
-      run.pool = (p.self ? ['self'] : []).concat(R.sample(run, capPool, Math.min(capPool.length, GL.config.captainChoices || 3)))
-        .map(id => rollOffer(run, id));
+      const caps = (p.self ? ['self'] : []).concat(R.sample(run, capPool, Math.min(capPool.length, GL.config.captainChoices || 3)));
+      // Vertrauter: steht zusätzlich als Kapitän zur Wahl (nur wenn freigeschaltet)
+      if (run.buddy && capPool.includes(run.buddy) && !caps.includes(run.buddy)) caps.push(run.buddy);
+      run.pool = caps.map(id => rollOffer(run, id));
       return run;
     },
 

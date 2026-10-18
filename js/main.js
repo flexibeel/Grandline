@@ -516,6 +516,7 @@
       hunt: GL.meta.featureOpen(profile, 'jagd') ? (profile.hunt || null) : null,
       altOpen: GL.meta.featureOpen(profile, 'route'),
       altOpen1: GL.meta.featureOpen(profile, 'route2'),
+      buddy: GL.meta.squadUnlocked(profile) && profile.buddy && GL.meta.squadIds(profile).includes(profile.buddy) && profile.buddy !== 'self' ? profile.buddy : null,
       endlessSea: Number.isInteger(endlessSea) && GL.meta.seasCleared(profile).includes(endlessSea) ? endlessSea : undefined
     });
     ui.newBest = false;
@@ -1435,6 +1436,12 @@
         break;
       }
       case 'album': checkAlbum(); ui.album = el.dataset.tab || 'stats'; draw(); break;
+      case 'buddy-open': openGearPop(GL.ui.buddyPop(profile)); break;
+      case 'buddy-set': {
+        profile.buddy = el.dataset.v || null; saveProfile();
+        openGearPop(GL.ui.buddyPop(profile)); ui.lastStage = null; draw();
+        break;
+      }
       case 'crew-gift': {
         const id = el.dataset.id, r = GL.meta.giveSnack(profile, id);
         if (!r) break;

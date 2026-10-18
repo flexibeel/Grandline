@@ -106,6 +106,7 @@ window.GL = window.GL || {};
     [/^Vertraut (\d+) · ganz eng$/, 'Bond $1 · best friends'],
     [/^🔒 ab Vertraut (\d+)$/, '🔒 at bond $1'],
     [/^Duo: (.+)$/, (m, t) => 'Duo: ' + ((GL.data.en || {})[t] || t)],
+    [/^♥ (.+) ist dein Vertrauter und steht extra zur Wahl\.$/, '♥ $1 is your companion and an extra choice.'],
     [/^Vertraut (\d+) mit (.+)$/, 'Bond $1 with $2'],
     [/^(\d+) Figuren mit Vertraut 6$/, '$1 characters at bond 6'],
     [/^♥ (.+)$/, (m, t) => '♥ ' + ((GL.data.en || {})[t] || t)],

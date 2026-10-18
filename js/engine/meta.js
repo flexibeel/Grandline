@@ -428,7 +428,7 @@ window.GL = window.GL || {};
       ids.forEach((id, i) => {
         const u = run.crew[i];
         if (!u) return;
-        const gain = Math.round(base * (u.hp > 0 ? 1 : 0.6));
+        const gain = Math.round(base * (u.hp > 0 ? 1 : 0.6) * (run.buddy === id ? 1.5 : 1));   // Vertrauter wächst schneller
         if (gain <= 0) return;
         const before = GL.meta.squadBonus(profile.squadXp[id]);
         profile.squadXp[id] = (profile.squadXp[id] || 0) + gain;
