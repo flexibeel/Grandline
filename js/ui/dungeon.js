@@ -83,6 +83,9 @@ window.GL = window.GL || {};
     return `<svg viewBox="0 0 ${w} ${rows.length}" shape-rendering="crispEdges" aria-hidden="true">${r}</svg>`;
   }
   const findArt = f => pix(f.art, D().huntPal);
+  const hashStr = t => { let h = 0; for (const c of String(t)) h = (h * 31 + c.charCodeAt(0)) >>> 0; return h; };
+  // Stufe eines Ortes: steigt mit jedem gemeisterten Landgang (max 8)
+  function landgangLevel(profile, id) { return Math.min(8, (peek(profile, id).clears || 0)); }
   function bossOf(d) {
     const X = D();
     return [].concat(X.hunted || [], X.bosses || [], X.crew || [], X.grunts || []).find(x => x.id === d.boss);
@@ -134,7 +137,7 @@ window.GL = window.GL || {};
         <span class="dg-mini" style="--sky:${d.scene.sky};--ground:${d.scene.ground}">${pix(d.scene.deco)}</span>
         <span class="dg-rt"><b>${esc(T(d.name))}</b><small>${status}</small></span>
         <span class="dg-find${has ? '' : ' sil'}" title="${esc(has ? T(d.find.name) : T('Fundstück noch nicht gefunden'))}">${findArt(d.find)}</span>
-        ${st.clears ? `<span class="dg-clears">${st.clears}×</span>` : ''}
+        ${st.clears ? `<span class="dg-clears" title="${esc(T('Gemeistert'))}">${st.clears}× · ${esc(T('St.'))} ${Math.min(8, st.clears) + 1}</span>` : ''}
       </button>`;
     }).join('');
     const nf = (profile.dgFinds || []).length;
@@ -151,6 +154,7 @@ window.GL = window.GL || {};
     return card(`${scene(d)}
       <span class="fpop-kicker">${esc(T('Landgang'))}${cur.fresh ? '' : ' · ' + esc(T('kleine Beute'))}</span>
       <h3>${esc(T(d.name))}</h3>
+      ${(() => { const lv = landgangLevel(cur.profile, d.id); return lv ? `<p class="dg-lvl"><b>${esc(T('Stufe'))} ${lv + 1}</b> · ${esc(T('Gegner'))} +${lv * 7} %${lv >= 1 ? ` · ${esc(T('mit Gefolge'))}` : ''}</p>` : ''; })()}
       <p class="dg-text">${esc(T(d.intro))}</p>
       ${bubble(m, line(m, 'go'))}
       <div class="fpop-btns"><button class="btn" data-act="dg-go">${esc(T('Los geht’s'))}</button><button class="btn ghost" data-act="dg-list">${esc(T('Zurück'))}</button></div>`);
@@ -204,24 +208,34 @@ window.GL = window.GL || {};
     const hpCut = 1 + FX.bossHp.v * has('bossHp') + FX.bossHp2.v * has('bossHp2');
     const atkUp = 1 + FX.bossAtk.v * has('bossAtk') + FX.bossAtk2.v * has('bossAtk2');
     const max = Math.round(sumAtk / (1 + FX.atk.v * has('atk')) * BOSS.rounds * (1 + BOSS.perSea * sea) * hpCut);
-    const boss = { id: def.id, name: def.name, type: def.type, boss: true, hp: max, max,
-      atk: Math.max(3, Math.round(sumHp / (BOSS.rounds * BOSS.k) * (1 + BOSS.atkPerSea * sea) * atkUp)),
+    // Wiederholte Landgänge werden schwerer und abwechslungsreicher: Stufe pro Sieg, ab Stufe 1 Gefolge
+    const lvl = landgangLevel(profile, d.id), mult = 1 + 0.07 * lvl;
+    const nMin = lvl >= 4 ? 2 : lvl >= 1 ? 1 : 0;
+    const boss = { id: def.id, name: def.name, type: def.type, boss: true, hp: Math.round(max * mult * (1 - 0.12 * nMin)), max: Math.round(max * mult * (1 - 0.12 * nMin)),
+      atk: Math.max(3, Math.round(sumHp / (BOSS.rounds * BOSS.k) * (1 + BOSS.atkPerSea * sea) * atkUp * mult * (1 - 0.1 * nMin))),
       spd: Math.round(me.reduce((s, r) => s + r.spd, 0) / me.length) };
+    const X = D(), pool = [].concat((X.hunted || []).filter(h => d.alt && h.island === d.alt), X.grunts || []);
+    const minions = Array.from({ length: nMin }, (_, k) => {
+      const g = pool[(hashStr(d.id) + lvl * 3 + k * 5) % pool.length];
+      const mm = Math.round(boss.max * 0.26), ma = Math.max(2, Math.round(boss.atk * 0.45));
+      return { id: g.id, name: g.name, type: g.type, hp: mm, max: mm, atk: ma, spd: Math.max(1, boss.spd - 1), look: g.look };
+    });
     const seed = (Date.now() ^ Math.floor(Math.random() * 1e9)) >>> 0;
     const run = { rng: seed || 1, crew: me, relics: [], arts: [], items: [], crit: 0, bounties: 0, captain: me[0].id, mod: { atk: 0, hp: 0, spd: 0 } };
     // Startwerte merken, bevor die Simulation die Leben verändert (sonst startet die Anzeige mit dem Endstand)
     const startHp = me.map(r => r.hp), bossMax = boss.max;
-    const res = GL.battle.simulate(run, me.map(r => Object.assign({}, r)), [Object.assign({}, boss)], 'boss', {});
+    const foes = [boss].concat(minions);
+    const res = GL.battle.simulate(run, me.map(r => Object.assign({}, r)), foes.map(f => Object.assign({}, f)), 'boss', {});
     const per = GL.config.stepsPerIsland || 8;
     const dRun = { step: sea * per, seed: 1, alt: d.alt ? { [sea]: true } : {}, captain: me[0].id,
       crew: me.map(r => Object.assign({}, r, { def: r.id === 'self' ? { id: 'self', name: r.name, look: r.look, type: r.type } : null })),
-      battle: { kind: 'boss', events: res.events, shown: false, enemies: [Object.assign({}, boss, { def })], enemyEnd: [0] } };
-    return { res, dRun, me, boss: Object.assign({}, boss, { hp: bossMax, max: bossMax }), i: 0, fast: false, timer: null, startHp };
+      battle: { kind: 'boss', events: res.events, shown: false, enemies: [Object.assign({}, boss, { def })].concat(minions.map(m => Object.assign({}, m, { def: X.grunts.find(g => g.id === m.id) || (X.hunted || []).find(h => h.id === m.id) }))), enemyEnd: foes.map(() => 0) } };
+    return { res, dRun, me, boss: Object.assign({}, boss, { hp: bossMax, max: bossMax }), minions, lvl, i: 0, fast: false, timer: null, startHp };
   }
   function fightHtml() {
     const f = cur.fight, d = cur.d;
     return card(`<div class="dg-head"><span class="fpop-kicker">⚔ ${esc(T('Bosskampf'))} · ${esc(T(d.name))}</span>${fxChips()}</div>
-      <div class="dg-arena">${GL.arena.html(f.dRun, { crewHp: f.startHp, enemyHp: [f.boss.max], done: false })}</div>
+      <div class="dg-arena">${GL.arena.html(f.dRun, { crewHp: f.startHp, enemyHp: [f.boss.max].concat((f.minions || []).map(m => m.max)), done: false })}</div>
       <div class="dg-live"><span id="dg-log">${esc(T('Der Kampf beginnt!'))}</span><button class="btn mini ghost" data-act="dg-fast">${esc(T('Schneller'))}</button></div>`, 'dg-fightcard');
   }
   function say(m, txt) {
