@@ -1,6 +1,12 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-20h', date: '18.10.', title: 'Hotfix: lesbarer, kompakter, sicherer', items: [
+    'Schätze und Früchte am Handy als kompakte Zeilen: alles auf einen Blick, kein Scrollen mehr',
+    'Taverne und Erster Maat zeigen Boni-Wappen: was eine Figur aktiviert (▲) und was beim Tausch wegfällt (▼)',
+    'Kleine Schriften größer, mehr Kontrast, abgeschnittene Knöpfe im Run-Kopf behoben',
+    'Kalle redet nicht mehr doppelt, „Du bist hier“ auf der Weltkarte am richtigen Meer',
+    'Sicherheit: Spielstand-Codes und Flaschenpost-Namen werden gründlich bereinigt' ] },
   { v: '2026-10-20g', date: '18.10.', title: 'Klarer, schöner, mit Weltkarte', items: [
     '🗺 Weltkarte „Wie weit bin ich?“: alle Meere und Inseln, besucht, geschafft, gesperrt, wo du gerade bist, welche Modi frei sind. Im Hafen und über die Schiffs-Leiste',
     'Nächstes Ziel im Hafen: höchstens zwei klare Empfehlungen mit Grund, antippen und los',

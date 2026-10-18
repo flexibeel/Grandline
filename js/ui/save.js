@@ -81,8 +81,10 @@ GL.transfer = {
       const ds = new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'));
       bytes = new Uint8Array(await new Response(ds).arrayBuffer());
     }
-    const p = JSON.parse(new TextDecoder().decode(bytes));
-    if (!p || typeof p !== 'object' || !p.stats) throw new Error('Der Code ist unvollständig.');
+    let p = JSON.parse(new TextDecoder().decode(bytes));
+    if (!p || typeof p !== 'object' || Array.isArray(p) || !p.stats) throw new Error('Der Code ist unvollständig.');
+    // Fremder Code = fremde Daten: gefährliche Zeichen entfernen (wie bei Online-Spielständen)
+    if (GL.safeData) p = GL.safeData(p, 0, true);
     return p;
   }
 };

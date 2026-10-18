@@ -2288,7 +2288,7 @@
         if (!got.length) return;
         got.forEach(x => { GL.cgear.bag(profile).push(x.it); profile.gearNew = (profile.gearNew || []).concat([x.it.uid]); });
         // Postfach-Verlauf (für die Freundesliste): was kam von wem
-        profile.post = got.map(x => ({ d: 'in', who: String(x.from || 'Pirat').slice(0, 24), name: GL.cgear.name(x.it), r: x.it.r, at: Date.now() })).concat(profile.post || []).slice(0, 12);
+        profile.post = got.map(x => ({ d: 'in', who: String(x.from || 'Pirat').replace(/[<>"'`&]/g, '').slice(0, 24), name: GL.cgear.name(x.it), r: Math.max(0, Math.min(3, Math.round(+x.it.r || 0))), at: Date.now() })).concat(profile.post || []).slice(0, 12);
         saveProfile();
         const x = got[0], who = esc2(GL.safeName ? GL.safeName(x.from || 'Pirat') : (x.from || 'Pirat'));
         if (GL.sfx) GL.sfx.play('found');

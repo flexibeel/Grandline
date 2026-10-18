@@ -45,3 +45,9 @@ GL.i18nExtraP = (GL.i18nExtraP || []).concat([
   [/^(.+): wartet auf die nächste Fahrt$/, '$1: waits for the next voyage']
 ]);
 Object.assign(GL.data.en, { 'Antippen für Details': 'Tap for details', 'Bande': 'Crew', 'Stil': 'Style', 'Rolle': 'Role', 'Kombo': 'Combo', 'Bündnis': 'Alliance', 'Früchte': 'Fruits', 'Boni': 'Bonuses', 'aktiv': 'active', 'fast': 'almost', 'fehlt noch': 'still missing', 'Noch keine Boni.': 'No bonuses yet.' });
+Object.assign(GL.data.en, { 'Boni bleiben': 'Bonuses stay', 'Boni': 'Bonuses' });
+GL.i18nExtraP = (GL.i18nExtraP || []).concat([
+  [/^(.+?) (\d+)→(\d+): Stufe fällt weg$/, '$1 $2→$3: tier lost'],
+  [/^(Duo|Kombo) (.+?) \(fällt weg\): (.*)$/, (m, k, n, x) => (k === 'Kombo' ? 'Combo' : 'Duo') + ' ' + n + ' (lost): ' + x],
+  [/^Kombo (.+?): (.*)$/, 'Combo $1: $2']
+]);

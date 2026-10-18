@@ -406,6 +406,57 @@ window.GL = window.GL || {};
     return gains.length ? `<span class="gain">Schaltet frei: ${gains.join('; ')}</span>` : '';
   }
 
+  // ---------- Hotfix: Wappen bei Rekruten (welche Boni bringt die Figur, was fällt beim Tausch weg) ----------
+  function gainList(run, d, out) {
+    if (!(GL.effects && GL.effects.status) || !d) return [];
+    let crew = run.crew || [];
+    if (!crew.length && run.mateMode && crewData('self')) { const s = crewData('self'); crew = [{ id: 'self', type: s.type, role: s.role, faction: s.faction }]; }
+    const base = out ? crew.filter(u => u !== out) : crew;
+    const after = base.concat([{ id: d.id, type: d.type, role: d.role, faction: d.faction }]);
+    const B = GL.effects.status(crew), A = GL.effects.status(after);
+    const tiers = s => s.tiers.filter(x => s.count >= x.n).length;
+    const mine = s => (s.kind === 'faction' && s.key === d.faction) || (s.kind === 'type' && s.key === d.type) || (s.kind === 'role' && s.key === d.role);
+    const ord = { faction: 0, type: 1, role: 2 };
+    const res = [];
+    A.forEach((a, i) => {
+      const b = B[i] || { count: 0, tiers: a.tiers };
+      if (a.count === b.count && !(mine(a) && a.count > 0)) return;
+      const dt = tiers(a) - tiers(b);
+      const st = dt > 0 ? 'up' : dt < 0 ? 'down' : a.count > b.count ? 'plus' : a.count < b.count ? 'minus' : 'eq';
+      res.push({ s: a, from: b.count, to: a.count, st, mine: mine(a) });
+    });
+    res.sort((x, y) => (y.mine - x.mine) || ((ord[x.s.kind] || 3) - (ord[y.s.kind] || 3)) || ((x.st === 'down' || x.st === 'minus') - (y.st === 'down' || y.st === 'minus')));
+    const nm = l => new Set(l.map(c => c.name));
+    if (GL.effects.combos) {
+      const cb = nm(GL.effects.combos(crew)), ca = GL.effects.combos(after), caN = nm(ca);
+      ca.filter(c => !cb.has(c.name)).forEach(c => res.push({ x: 'combo', st: 'up', ico: c.icon, name: c.name, text: c.text }));
+      GL.effects.combos(crew).filter(c => !caN.has(c.name)).forEach(c => res.push({ x: 'combo', st: 'down', ico: c.icon, name: c.name, text: c.text }));
+    }
+    const db = nm(GL.effects.duos(crew)), da = GL.effects.duos(after), daN = nm(da);
+    da.filter(c => !db.has(c.name)).forEach(c => res.push({ x: 'duo', st: 'up', ico: '♥', name: c.name, text: c.text }));
+    GL.effects.duos(crew).filter(c => !daN.has(c.name)).forEach(c => res.push({ x: 'duo', st: 'down', ico: '♥', name: c.name, text: c.text }));
+    return res;
+  }
+  function gainTip(g) {
+    if (g.x) return `${g.x === 'duo' ? 'Duo' : 'Kombo'} ${g.name}${g.st === 'down' ? ' (fällt weg)' : ''}: ${g.text || ''}`;
+    const s = g.s;
+    if (g.st === 'up') return `${s.name} ${g.from}→${g.to}: ${s.active ? s.active.text : ''}`;
+    if (g.st === 'down') return `${s.name} ${g.from}→${g.to}: Stufe fällt weg`;
+    return `${s.name} ${g.to}${s.next ? '/' + s.next.n + ' · Ab ' + s.next.n + ': ' + s.next.text : ''}`;
+  }
+  function gainIco(g) {
+    if (g.x) return `<span class="ge-hex">${esc(g.ico || '✦')}</span>`;
+    return ICON_ART[g.s.key] ? pxIcon(g.s.key) : `<span class="ge-hex">${esc(g.s.name.slice(0, 2))}</span>`;
+  }
+  const GE_MARK = { up: '▲', down: '▼', plus: '+', minus: '−', eq: '' };
+  // mini: nur Symbole mit Zahl (für Kacheln). big: mit kurzem Namen (Detailblatt)
+  function gainRow(run, d, out, big) {
+    const L = gainList(run, d, out);
+    if (!L.length) return '';
+    const one = g => `<span class="ge ge-${g.st}${g.x ? ' ge-' + g.x : ''}${g.mine ? ' ge-mine' : ''}" title="${esc(gainTip(g))}" data-tip="${esc(gainTip(g))}"><i>${gainIco(g)}</i>${g.x ? '' : `<b>${big && g.from !== g.to ? g.from + '→' : ''}${g.to}</b>`}${big ? `<small>${esc(g.x ? g.name : g.s.name)}</small>` : ''}${GE_MARK[g.st] ? `<em>${GE_MARK[g.st]}</em>` : ''}</span>`;
+    return `<span class="ge-row${big ? ' big' : ''}">${(big ? L : L.slice(0, 5)).map(one).join('')}</span>`;
+  }
+
   // ---------- Karten im Sammelkarten-Stil ----------
   // Figurenkarte: Bild, Name, Fähigkeit, Angriff unten links, Leben unten rechts
   const FAC_SHORT = { strohhut: 'Strohhut', marine: 'Marine', cp9: 'CP9', baroque: 'Baroque', weissbart: 'Weißbart', samurai: 'Samurai', buggy: 'Buggy', fischmensch: 'Arlong', revolution: 'Revolution', rothaar: 'Rothaar', supernova: 'Supernova', thriller: 'Thriller Bark' };
@@ -669,7 +720,7 @@ window.GL = window.GL || {};
     const m = GL.run.previewMember(run, offer);
     return cardButton(i, crewCardFace(d, m, {
       lvl: m.lvl, stars: offer.stars, trait: offer.trait, gold: d.locked, style: /(^|\s)cap(\s|$)/.test(extraCls || ''),
-      extra: withPreview ? unlockPreview(run, d) : ''
+      extra: withPreview ? unlockPreview(run, d) : (/(^|\s)mate(\s|$)/.test(extraCls || '') ? gainRow(run, d, null, false) : '')
     }), extraCls, tip);
   }
 
@@ -1637,8 +1688,10 @@ window.GL = window.GL || {};
     };
     const A = fig('A'), B = fig('B');
     const fill = s => esc(s).replace(/\{A\}/g, esc(A.name)).replace(/\{B\}/g, esc(B.name));
-    const cast = [...new Set(ev.lines.map(l => l[0]))];
-    const lines = ev.lines.map((l, k) => { const f = fig(l[0]); const side = cast.indexOf(l[0]) % 2 ? 'r' : 'l';
+    // Sprecher normalisieren: ist B die Möwe, sind 'B' und 'kalle' dieselbe Figur (nicht zweimal Kalle zeigen)
+    const nk = k => (k === 'B' && bId === 'kalle') ? 'kalle' : k;
+    const cast = [...new Set(ev.lines.map(l => nk(l[0])))];
+    const lines = ev.lines.map((l, k) => { const f = fig(l[0]); const side = cast.indexOf(nk(l[0])) % 2 ? 'r' : 'l';
       return `<div class="ce-line ${side}" style="--k:${k}"><i class="ce-face">${f.spr}</i><span class="ce-bub"><b>${esc(f.name)}</b>${fill(en ? l[2] : l[1])}</span></div>`; }).join('');
     const ico = (CE_ICON[ev.icon] || CE_ICON.map)();
     const opts = ev.choices.map((c, i) => `<button class="opt ce-opt" data-act="pick" data-i="${i}">${i < 9 ? `<kbd class="key">${i + 1}</kbd>` : ''}
@@ -1810,9 +1863,9 @@ window.GL = window.GL || {};
             <span class="tv-stars">${stars(o.stars || 1)}</span>
             <i class="tv-spr">${GL.sprites.renderShaded ? GL.sprites.renderShaded(d) : GL.sprites.render(d)}</i>
             <b class="tv-name">${esc(d.name)}</b>
-            <span class="tv-tags">${d.faction ? pxIcon(d.faction) : ''}${pxIcon(d.type)}${pxIcon(d.role)}</span>
+            <span class="tv-tags">${gainRow(run, d, weak && full && !twin && weak.id !== run.captain ? weak : null, false) || `${d.faction ? pxIcon(d.faction) : ''}${pxIcon(d.type)}${pxIcon(d.role)}`}</span>
             <small class="tv-sub">${d.faction ? esc(FAC_SHORT[d.faction] || '') + ' · ' : ''}Lv ${m.lvl}${profRef && GL.meta.bond(profRef, d.id) ? ` <em class="tv-bond" title="Vertraut: kennt deine Crew aus früheren Fahrten">♥${GL.meta.bond(profRef, d.id)}</em>` : ''}</small>
-            <span class="tv-cmp">${overall ? arrow(overall) : ''}${fitTag(run, d)}</span>
+            <span class="tv-cmp">${overall ? arrow(overall) : ''}</span>
             <span class="tv-price${can || o.sold ? '' : ' no'}">${o.sold ? 'Gekauft' : `${GL.sprites.coin()} ${price}`}</span>
           </button>`;
         }).join('');
@@ -1826,6 +1879,7 @@ window.GL = window.GL || {};
           detail = `${phone ? '<div class="tv-sheet-bg" data-act="tv-sel" data-i="-1"></div>' : ''}<div class="tv-detail pxf${phone ? ' tv-sheet' : ''}">${phone ? '<button class="tv-sheet-x" data-act="tv-sel" data-i="-1" aria-label="Schließen">✕</button>' : ''}
             <div class="tv-d-head"><b>${esc(d.name)}</b>${d.faction ? `<span class="tv-fac">${pxIcon(d.faction)}${esc(GL.data.factions[d.faction].name)}</span>` : ''}<span class="tv-fac">${pxIcon(d.type)}${esc(GL.data.types[d.type].name)}</span><span class="tv-fac">${pxIcon(d.role)}${esc((GL.data.roles[d.role] || {}).name || '')}</span>
               <small>${weak && full ? (picked ? `Pfeile: Vergleich mit deinem Tauschziel (${esc(crewData(weak.id).name)})` : `Pfeile: Vergleich mit deiner schwächsten Figur (${esc(crewData(weak.id).name)})`) : `Noch ${lim - run.crew.length} ${lim - run.crew.length === 1 ? 'Platz' : 'Plätze'} frei: jede Figur macht deine Crew stärker`}</small></div>
+            ${o.sold ? '' : (gr => gr ? `<div class="ge-box"><span class="ge-k">${twin ? 'Boni bleiben' : 'Boni'}</span>${gr}</div>` : '')(twin ? '' : gainRow(run, d, full && weak && weak.id !== run.captain ? weak : null, true))}
             <div class="tv-stats">${row('Leben', '♥', m.max, weak && weak.max)}${row('Angriff', '⚔', m.atk, weak && weak.atk)}${row('Tempo', '➤', m.spd, weak && weak.spd)}</div>
             ${(() => { const why = o.sold ? [] : whyNow(run, d, m); return why.length ? `<div class="tv-why"><span class="why-k">Darum lohnt ${SHE.includes(d.id) ? 'sie' : 'er'} sich jetzt</span>${why.map(w => `<span class="why-row">${w.ico}<span>${esc(w.t)}</span></span>`).join('')}</div>` : ''; })()}
             ${abilityBlock(d)}
@@ -2042,7 +2096,7 @@ window.GL = window.GL || {};
         const bond = ui.lastBond && ui.lastBond.length ? `<div class="trophy-sum bond-sum"><span class="event-kicker">Deine Crew wächst zusammen</span>
           <span class="bond-row">${ui.lastBond.map(b => `<span class="bond-u${b.up ? ' up' : ''}" data-tip="${esc(b.name)}: +${b.gain} Vertrautheit${b.lvl ? ` · Vertraut ${b.lvl}` : ''}"><i>${GL.sprites.render(b.id === 'self' ? avatarOf(ui.profile) : crewData(b.id))}</i><small>+${b.gain}</small>${b.up ? `<em>♥ ${b.lvl}</em>` : ''}</span>`).join('')}</span>
           <small class="bond-note">Vertrautheit macht Figuren in Stammcrew, Duellen und Landgang stärker.${ui.profile.lastSnacks ? ` · <b>+${ui.profile.lastSnacks} 🍙 Proviant</b> zum Verschenken` : ''}</small>
-          ${(() => { const who = ui.lastBond[0]; const foe = run.battle && run.battle.enemies && run.battle.enemies[0]; const fd = foe ? (enemyData(foe.id) || crewData(foe.id)) : null;
+          ${(() => { const who = ui.lastBond[0]; const foe = run.battle && run.battle.enemies && (run.battle.enemies.find(e => e.boss || e.raid || e.mini) || run.battle.enemies[0]); const fd = foe ? (enemyData(foe.id) || crewData(foe.id)) : null;
             const t = lifeLine(ui.profile, who.id, run.phase === 'win' ? 'win' : 'lose', { boss: fd ? fd.name : 'den Boss' });
             const d = who.id === 'self' ? avatarOf(ui.profile) : crewData(who.id);
             return t && d ? `<p class="bond-say"><i>${GL.sprites.render(d)}</i><span><b>${esc(d.name)}</b>${esc(t)}</span></p>` : ''; })()}</div>` : '';

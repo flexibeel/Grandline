@@ -8382,3 +8382,153 @@ button.wg-goal:active { transform: translateY(2px); box-shadow: none; }
 .crewmini.is-front::after { content: '◀'; position: absolute; left: -9px; top: 50%; transform: translateY(-50%); font-size: 9px; color: #6b4226; text-shadow: 0 1px 0 #fff; }
 #crew.compact .chips:empty { display: none; }
 @media (max-width: 560px) { .tm-em { width: 46px; min-height: 54px; } .syn-pop .tm-em { width: 52px; } }
+
+/* ===== Hotfix-Runde 1 ===== */
+/* Boni-Fenster: Plaketten nicht unter dem ✕ und nicht oben abgeschnitten */
+.syn-pop .event-kicker { display: block; margin-right: 44px; }
+.syn-pop-list { padding: 10px 6px 4px; }
+/* Lesbarkeit: kleine Schrift auf mindestens ~11 px, Zahlen kräftig */
+.hub-tile small { font-size: .7rem; color: #7a5a30; }
+.tabbar span, .tabbar b { font-size: 11px; }
+.c3-tag, .c3-fac, .c3-style, .c3-ult { font-size: 11px; }
+.c3-card .no, span.no { font-size: 10.5px; font-variant-numeric: tabular-nums; }
+.emb-num { font-size: 10.5px; }
+.sqd-g.none { font-size: 10px; }
+em.sqc-d.up { font-size: 10px; }
+.ss-say { font-size: 11px; }
+.wr-k { font-size: 10.5px; }
+i.wk-new { font-size: 10px; }
+/* Kontrast */
+.wg-go { color: #8a6430; }
+.sk-node.lock small { color: #85744f; }
+.rank-bar-txt { color: #2b1d10; text-shadow: 0 1px 0 rgba(255,255,255,.65); }
+.mu-btn.head { color: #3a2814; }
+em.type.t-kraft { background: #c76a50 !important; }
+em.type.t-klinge { background: #5f8f6b !important; }
+em.type.t-technik { background: #5b86b3 !important; }
+/* Run-Kopf am Handy: Knöpfe dürfen in eine zweite Zeile statt rechts abgeschnitten zu werden */
+@media (max-width: 560px) {
+  body.in-run .head-actions { flex-wrap: wrap !important; overflow: visible !important; row-gap: 4px !important; }
+}
+/* Lage-Abzeichen: Symbol und Name nicht übereinander */
+.lage-chip i { flex: none; min-width: 18px; text-align: center; }
+.lage-chip b.lg-one { height: auto; line-height: 1.2; }
+.c3-fac { font-size: 10.5px !important; }
+.acard .no, .acard-card .no { font-size: 10.5px !important; }
+.medal.emb .emb-num { font-size: 10.5px !important; }
+.medal.emb.small .emb-num { font-size: 9.5px !important; }
+.new-chip { font-size: 10.5px !important; }
+
+/* ===== Hotfix: Wappen bei Rekruten ===== */
+.ge-row { display: inline-flex; flex-wrap: wrap; justify-content: center; gap: 3px; max-width: 100%; }
+.ge { position: relative; display: inline-flex; align-items: center; gap: 2px; height: 20px; padding: 0 4px 0 2px; border-radius: 6px;
+  background: var(--panel-2); border: 1px solid var(--line); box-shadow: 0 1px 0 var(--line); font: 700 .7rem/1 'Nunito', sans-serif; color: var(--ink); font-variant-numeric: tabular-nums; }
+.ge > i { width: 15px; height: 15px; display: grid; place-items: center; font-style: normal; }
+.ge > i svg { width: 15px; height: 15px; }
+.ge-hex { font-size: .7rem; line-height: 1; }
+.ge b { font-weight: 800; }
+.ge em { font-style: normal; font-size: .58rem; margin-left: 1px; }
+.ge-up { background: #e9f6e2; border-color: #8fca7a; box-shadow: 0 1px 0 #8fca7a, 0 0 0 1px rgba(143, 202, 122, .25); }
+.ge-up em { color: #3f8a2e; }
+.ge-plus em { color: #6b8a5e; }
+.ge-down { background: #fbe9e4; border-color: #e3a595; box-shadow: 0 1px 0 #e3a595; }
+.ge-down em, .ge-minus em { color: #b9533e; }
+.ge-minus { opacity: .75; }
+.ge-eq { opacity: .8; }
+.ge-duo > i, .ge-combo > i { color: #c0507a; }
+.ge-row.big { justify-content: flex-start; gap: 5px; }
+.ge-row.big .ge { height: 24px; padding: 0 7px 0 3px; font-size: .78rem; }
+.ge-row.big .ge small { font: 600 .74rem 'Fredoka', sans-serif; color: var(--mute); margin-left: 2px; white-space: nowrap; }
+.ge-box { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 6px 0 8px; }
+.ge-k { font: 600 .72rem 'Fredoka', sans-serif; color: var(--wood); text-transform: uppercase; letter-spacing: .04em; }
+.tv-off .tv-tags { display: flex; justify-content: center; min-height: 20px; }
+.tv-off .ge-row { flex-wrap: nowrap; overflow: hidden; }
+.mate .ge-row, .cap .ge-row { margin-top: 4px; }
+@media (max-width: 420px) { .tv-off .ge { padding: 0 3px 0 1px; } .tv-off .ge > i, .tv-off .ge > i svg { width: 13px; height: 13px; } .tv-off .ge-row .ge:nth-child(n+4) { display: none; } }
+
+/* ===== Hotfix: Schätze kompakt ===== */
+/* Handy: Schätze/Früchte als kompakte Zeilen, alle Angebote ohne Scrollen im Blick (Felix 18:41). PC bleibt wie er ist. */
+@media (max-width: 560px) {
+  #stage .cards.loot { gap: 8px !important; margin-top: 6px; }
+  #stage .cards.loot .opt.card.tc-opt { min-height: 0 !important; animation-duration: .3s; }
+  #stage .cards.loot .tc-face { flex-direction: row; align-items: stretch; min-height: 0; border-radius: 12px; }
+  #stage .cards.loot .tc-stage { width: 54px !important; min-height: 0 !important; height: auto !important; flex: none; border-right: 2px solid var(--line); border-bottom: 0; }
+  #stage .cards.loot .tc-chest { display: none !important; }
+  #stage .cards.loot .tc-item, #stage .cards.loot .tc-ped ~ .tc-item { width: 38px !important; height: 38px !important; left: 50% !important; top: 50% !important; bottom: auto !important;
+    margin: -19px 0 0 -19px !important; animation: none !important; }
+  #stage .cards.loot .tc-info { display: grid !important; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: 'name fam' 'text text' 'fit fit';
+    align-items: center; gap: 2px 6px; padding: 6px 10px 7px !important; text-align: left; min-width: 0; }
+  #stage .cards.loot .tc-rib, #stage .cards.loot .tc-take { display: none !important; }
+  #stage .cards.loot .tc-sign { grid-area: name; font-size: .95rem !important; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+  #stage .cards.loot .tc-sign::before { content: ''; display: inline-block; width: 7px; height: 7px; margin: 0 6px 2px 0; vertical-align: middle; background: var(--c); box-shadow: 0 1px 0 var(--cd); }
+  #stage .cards.loot .tc-face:not(.tc-rare):not(.tc-epic):not(.tc-legendary):not(.tc-awakened):not(.tc-unique) .tc-sign::before { background: #b89060; }
+  #stage .cards.loot .fr-fam { grid-area: fam; margin: 0 !important; font-size: .68rem; white-space: nowrap; }
+  #stage .cards.loot .fr-fam b { font-size: .68rem; }
+  #stage .cards.loot .tc-text { grid-area: text; font-size: .78rem !important; line-height: 1.3; color: var(--mute);
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  #stage .cards.loot .fit { grid-area: fit; flex-wrap: nowrap !important; margin: 1px 0 0 !important; padding: 0 !important; background: none !important; border: 0 !important; min-width: 0; overflow: hidden; font-size: .72rem; }
+  #stage .cards.loot .fit-g { flex: none; font-size: .64rem !important; padding: 2px 5px; }
+  #stage .cards.loot .fit-t { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #stage .cards.loot .fit-t svg { width: 14px !important; height: 16px !important; }
+  #stage .cards.loot .fit-q { flex: none; margin-left: auto; }
+  #stage .cards.loot .opt.card.tc-opt.picked { transform: none !important; }
+  #stage .cards.loot .opt.card.tc-opt > .key { display: none; }
+  /* Kopf über den Karten knapper */
+  #stage:has(.cards.loot) > h2 { font-size: 1.1rem !important; margin: 4px 0 0 !important; }
+  #stage:has(.cards.loot) > h2::after { margin-top: 4px !important; }
+  #stage:has(.cards.loot) > h2 + .hint { display: none; }
+  #stage:has(.cards.loot) .hp-strip { margin: 0 0 4px; padding: 3px 6px; }
+  #stage:has(.cards.loot) .tip-line { margin: 6px 2px 0; font-size: 12.5px; }
+  #stage:has(.cards.loot) .pick-hint { margin: 6px auto 0 !important; padding: 3px 10px; font-size: 11.5px; }
+  #stage:has(.cards.loot) .pick-skip-row { margin: 6px 0 0 !important; }
+  /* Training darüber: eine kompakte Reihe statt 2×2 */
+  #stage:has(.cards.loot) .train { padding: 8px 10px !important; margin-bottom: 8px !important; }
+  #stage:has(.cards.loot) .train-head { grid-template-columns: 28px 1fr auto !important; gap: 8px !important; margin-bottom: 6px !important; }
+  #stage:has(.cards.loot) .train-av svg { width: 24px !important; height: 28px !important; }
+  #stage:has(.cards.loot) .train-head b { font-size: .9rem; }
+  #stage:has(.cards.loot) .train-head small { font-size: .7rem; }
+  #stage:has(.cards.loot) .train-opts { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; gap: 6px !important; }
+  #stage:has(.cards.loot) .train-opt { min-height: 58px !important; padding: 7px 2px 5px !important; gap: 1px !important; }
+  #stage:has(.cards.loot) .train-opt .to-ico, #stage:has(.cards.loot) .train-opt .to-ico svg { width: 20px !important; height: 20px !important; font-size: 18px; }
+  #stage:has(.cards.loot) .train-opt b { font-size: .66rem !important; line-height: 1.15; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+  #stage:has(.cards.loot) .train-opt small { font-size: .6rem !important; line-height: 1.15; text-align: center; }
+  #stage:has(.cards.loot) .train-opt .tip-badge { transform: scale(.8); top: -9px !important; }
+  #stage:has(.cards.loot) .train-auto-row { margin-top: 6px !important; font-size: .74rem; }
+  #stage:has(.cards.loot) .train-auto-row label, #stage:has(.cards.loot) .train-auto-row .auto-chk { padding-top: 3px !important; padding-bottom: 3px !important; min-height: 0 !important; }
+}
+/* Kacheln: kompakter, höchstens 3 Wappen, nur ▲/▼ als Zeichen (Fortschritt über Farbe) */
+.tv-off .ge-row { gap: 2px; }
+.tv-off .ge { height: 18px; padding: 0 3px 0 1px; gap: 1px; font-size: .66rem; }
+.tv-off .ge > i, .tv-off .ge > i svg { width: 13px; height: 13px; }
+.tv-off .ge-plus em, .tv-off .ge-minus em { display: none; }
+.tv-off .ge-row .ge:nth-child(n+4) { display: none; }
+.tv-off .ge-combo, .tv-off .ge-duo { display: none; }
+@media (max-width: 420px) { .tv-off .ge { padding: 0 2px 0 1px; } .tv-off .ge em { font-size: .5rem; } }
+@media (max-width: 560px) {
+  /* ab 4 Angeboten: Effekt einzeilig, Schritt-Hinweis weg (Karten selbst sind antippbar) */
+  #stage .cards.loot:has(> .opt:nth-child(4)) .tc-text { -webkit-line-clamp: 1; }
+  #stage:has(.cards.loot > .opt:nth-child(4)) .pick-hint { display: none !important; }
+  #stage .cards.loot .tc-info { padding: 5px 10px 6px !important; }
+  #stage:has(.cards.loot) .tip-line { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
+  #stage:has(.cards.loot) .tip-line .tip-badge { display: inline-block; margin-right: 6px; transform: scale(.85); }
+  #stage:has(.cards.loot) .hp-strip { gap: 4px; }
+  #stage:has(.cards.loot) .hp-strip .hs-u { width: 32px; }
+  #stage:has(.cards.loot) .hp-strip .hs-u i svg { width: 18px !important; height: 21px !important; }
+  #stage:has(.cards.loot) .train-opt b { font-size: .62rem !important; letter-spacing: -.01em; }
+  #stage:has(.cards.loot) .train-opt small { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+  #stage:has(.cards.loot) .train-auto-row .auto-check { padding: 3px 10px 3px 6px !important; min-height: 28px !important; font-size: .78rem !important; }
+  #stage:has(.cards.loot) .train-auto-row .auto-check .ac-box { width: 16px !important; height: 16px !important; }
+  #stage:has(.cards.loot) .pick-skip-row .pick-skip { padding-top: 7px !important; padding-bottom: 7px !important; }
+}
+@media (max-width: 560px) and (max-height: 760px) {
+  #stage .cards.loot .tc-text { -webkit-line-clamp: 1; }
+  #stage:has(.cards.loot) .train-head small { display: none; }
+  #stage:has(.cards.loot) .train-opt { min-height: 52px !important; padding: 5px 2px 4px !important; }
+}
+@media (max-width: 560px) {
+  #stage .cards.loot .fit-q { width: 20px !important; height: 20px !important; min-width: 0 !important; min-height: 0 !important; font-size: .7rem !important; line-height: 20px !important; padding: 0 !important; box-shadow: 0 1px 0 var(--line) !important; }
+  #stage .cards.loot .fit-g { padding: 1px 5px !important; box-shadow: 0 1px 0 rgba(0,0,0,.15) !important; }
+  #stage .cards.loot .fr-fam { padding: 1px 6px !important; border-radius: 6px; }
+  #stage .cards.loot .fr-fam b { font-size: .62rem !important; letter-spacing: -.01em; }
+  #stage .cards.loot .tc-info { gap: 1px 6px; }
+}

@@ -91,7 +91,8 @@ window.GL = window.GL || {};
   function html(p) {
     const I = GL.data.islands || [];
     const C = counts(p);
-    const hereIdx = I.findIndex((s, i) => seaState(p, i) === 'now');
+    // „Du bist hier“: das am weitesten erreichte, noch offene Meer (nicht das erste)
+    let hereIdx = -1; I.forEach((s, i) => { if (seaState(p, i) === 'now') hereIdx = i; });
     const seas = I.map((s, i) => {
       const st = seaState(p, i), prog = GL.meta.chapterProgress(p, i);
       const isles = (s.small || []).concat(s.big || []).map(x => {
