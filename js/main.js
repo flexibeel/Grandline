@@ -1262,7 +1262,7 @@
       }
       case 'cg-scrap': {
         const b = GL.cgear.scrap(profile, el.dataset.uid);
-        if (b) { saveProfile(); if (document.querySelector('.dress-pop')) showDress({ uid: null }); else closePop(); ui.lastStage = null; draw(); toast(`<i>${GL.sprites.coin()}</i><span><b>Zerlegt</b>+${b} Berry</span>`); }
+        if (b) { saveProfile(); if (document.querySelector('.dress-pop')) showDress({ uid: null }); else closePop(); ui.lastStage = null; draw(); const ls = profile.lastScrap || {}; toast(`<i>${GL.sprites.coin()}</i><span><b>Zerlegt</b>+${b} Berry${ls.shards ? ` · +${ls.shards} 🔹` : ''}${ls.snacks ? ` · +${ls.snacks} 🍙 Proviant` : ''}</span>`); }
         break;
       }
       case 'cg-peek': {

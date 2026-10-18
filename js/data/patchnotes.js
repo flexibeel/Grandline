@@ -5,6 +5,8 @@ GL.patchNotes = [
     'Stammcrew: Deine vier stehen jetzt als große Karten auf dem Deck. Aus „Deine Karten“ ziehst du eine Figur einfach auf einen Platz (am Handy kurz halten, dann ziehen) oder tippst sie an. Sortiert nach Stärke, mit Filter nach Kampfstil. ▲/▼ zeigt klein, ob eine Karte stärker wäre',
     'Neues Ankleidemenü: Figur in der Mitte, Waffe, Kleidung, Schmuck und Trophäe drumherum, darunter die Truhe. Teil antippen zeigt den Vergleich, ▲ markiert bessere Teile, ein kleines Gesicht zeigt, wer es trägt. Ziehen geht auch',
     'Beim Ausrüsten freut sich die Figur und sagt etwas. Das erste Mal pro Teil gibt es ♥ +5 Vertrautheit',
+    'Zerlegen lohnt sich mehr: Epische Teile geben zusätzlich 🍙 Proviant, legendäre 2 🍙 und 3 🔹 Meersplitter',
+    'Vergleichspfeile in der Taverne kleiner und ruhiger',
     'Schmiede: Regal „Fürs nächste Abenteuer“ oben, Truhe als Karten nach Seltenheit, Amboss zum Verschmelzen mit 3→1-Anzeige. Viel weniger Scrollen' ] },
   { v: '2026-10-18u', date: '18.10.', title: 'Tauschen mit Durchblick', items: [
     'Tauschen bei voller Crew: klarer Vergleich (Leben, Angriff, Tempo mit +/−) und „Stärker als …“. Der Preis zieht jetzt sichtbar ab, was du für die alte Figur zurückbekommst',

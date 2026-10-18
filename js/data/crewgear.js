@@ -58,5 +58,6 @@ GL.data.crewGear = {
   // Meersplitter: aus der Endlos-Fahrt (pro geschaffte Runde Meer+1 Stück) und vom Zerlegen seltener Teile.
   // Damit lassen sich Zusatzwerte neu würfeln (Seltenheit, Teil und Hauptwert bleiben)
   shardScrap: [0, 0, 1, 3],
+  snackScrap: [0, 0, 1, 2],          // Proviant 🍙 beim Zerlegen (Episch/Legendär)
   rerollCost: [1, 2, 4, 7]
 };

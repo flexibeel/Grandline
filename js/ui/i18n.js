@@ -99,7 +99,7 @@ window.GL = window.GL || {};
     [/^Noch nichts auf „(.+)“\. Wähl unten ein Teil aus der Truhe oder zieh es auf den Platz\.$/, 'Nothing on “$1” yet. Pick an item from the chest below or drag it onto the slot.'],
     [/^Krit (\d+) %$/, 'Crit $1 %'], [/^Ausweichen (\d+) %$/, 'Dodge $1 %'], [/^Rüstung (\d+)$/, 'Armor $1'], [/^Schaden \+(\d+) %$/, 'Damage +$1 %'],
     [/^🔹 Neu würfeln \((\d+)\)$/, '🔹 Reroll ($1)'], [/^(\d+) neu$/, '$1 new'],
-    [/^Zerlegen \(\+(\d+) Berry(, \+(\d+) 🔹)?\)$/, (m, b, x, sh) => `Scrap (+${b} Berry${sh ? `, +${sh} 🔹` : ''})`],
+    [/^Zerlegen \(\+(\d+) Berry(, \+(\d+) 🔹)?(, \+(\d+) 🍙)?\)$/, (m, b, x, sh, y, sn) => `Scrap (+${b} Berry${sh ? `, +${sh} 🔹` : ''}${sn ? `, +${sn} 🍙` : ''})`],
     [/^Tauschen für (\d+) Gold$/, 'Swap for $1 gold'],
     [/^Zu wenig Gold \((\d+)\)$/, 'Not enough gold ($1)'],
     [/^Stärker als (.+)$/, 'Stronger than $1'], [/^Schwächer als (.+)$/, 'Weaker than $1'], [/^Etwa gleich stark wie (.+)$/, 'About as strong as $1'],

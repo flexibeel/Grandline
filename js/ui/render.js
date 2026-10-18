@@ -1594,7 +1594,7 @@ window.GL = window.GL || {};
     const extra = Object.keys(it.a || {}).filter(k => k !== it.m).length;
     const rr = own && extra ? `<button class="btn mini" data-act="cg-reroll" data-uid="${it.uid}"${sh < cost ? ' disabled' : ''}>🔹 Werte neu würfeln (${cost})</button>` : '';
     const foot = own ? `<div class="cg-foot">${rr}${by ? wornTag(profile, by)
-      : `<button class="btn mini ghost danger-btn" data-act="cg-scrap" data-uid="${it.uid}">Zerlegen (+${C.scrap[it.r]} Berry${C.shardScrap[it.r] ? `, +${C.shardScrap[it.r]} 🔹` : ''})</button>`}</div>
+      : `<button class="btn mini ghost danger-btn" data-act="cg-scrap" data-uid="${it.uid}">Zerlegen (+${C.scrap[it.r]} Berry${C.shardScrap[it.r] ? `, +${C.shardScrap[it.r]} 🔹` : ''}${(C.snackScrap || [])[it.r] ? `, +${C.snackScrap[it.r]} 🍙` : ''})</button>`}</div>
       <small class="cg-shards">🔹 ${sh} Meersplitter · gibt es in der Endlos-Fahrt und beim Zerlegen seltener Teile</small>` : '';
     return `<div class="fpop-card cg-pop" role="dialog"><span class="fpop-kicker">Ausrüstung</span>${cgCard(it, foot)}
       <div class="fpop-btns"><button class="btn ghost" data-act="pop-close">Schließen</button></div></div>`;
@@ -1729,7 +1729,7 @@ window.GL = window.GL || {};
         ? `<button class="btn mini ghost" data-act="dr-off" data-id="${esc(id)}" data-slot="${sid}">Abnehmen</button>`
         : `<button class="btn mini" data-act="dr-on" data-id="${esc(id)}" data-uid="${sel.uid}">${by ? `Von ${esc(w.name)} nehmen` : `${pxIco('anchor')}Anlegen`}</button>`;
       detail = `<div class="dr-detail">${cgCard(sel, `<div class="cg-optfoot">${wornTag(profile, by, mine)}${dp != null ? `<span class="cg-delta ${dp > 0 ? 'up' : dp < 0 ? 'dn' : 'eq'}">${dp > 0 ? '+' : ''}${dp} ⚔ zum jetzigen</span>` : ''}</div>
-        <div class="dr-btns">${btns}${canRe ? `<button class="btn mini ghost" data-act="cg-reroll" data-uid="${sel.uid}"${sh < cost ? ' disabled' : ''}>🔹 Neu würfeln (${cost})</button>` : ''}${by ? '' : `<button class="btn mini ghost danger-btn" data-act="cg-scrap" data-uid="${sel.uid}">Zerlegen (+${C.scrap[sel.r]} Berry${C.shardScrap[sel.r] ? `, +${C.shardScrap[sel.r]} 🔹` : ''})</button>`}</div>`)}</div>`;
+        <div class="dr-btns">${btns}${canRe ? `<button class="btn mini ghost" data-act="cg-reroll" data-uid="${sel.uid}"${sh < cost ? ' disabled' : ''}>🔹 Neu würfeln (${cost})</button>` : ''}${by ? '' : `<button class="btn mini ghost danger-btn" data-act="cg-scrap" data-uid="${sel.uid}">Zerlegen (+${C.scrap[sel.r]} Berry${C.shardScrap[sel.r] ? `, +${C.shardScrap[sel.r]} 🔹` : ''}${(C.snackScrap || [])[sel.r] ? `, +${C.snackScrap[sel.r]} 🍙` : ''})</button>`}</div>`)}</div>`;
     } else if (slotSel) {
       detail = `<p class="dr-empty">Noch nichts auf „${esc((SL.find(x => x.id === slotSel) || {}).name || '')}“. Wähl unten ein Teil aus der Truhe oder zieh es auf den Platz.</p>`;
     } else {

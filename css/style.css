@@ -5671,3 +5671,12 @@ body.sq-dragging { user-select: none; cursor: grabbing; }
 @media (max-width: 420px) { .sqd-lv { display: none; } }
 .dr-lv { font-size: .62rem; color: #8a6a3a; font-weight: 800; }
 .toast .toast-say { display: flex !important; flex-direction: row; align-items: center; gap: 10px; }
+/* Pfeile kleiner und ruhiger (Taverne, Vergleiche) */
+.pa { gap: 0; margin-left: 2px; vertical-align: 1px; }
+.pa svg { width: 7px !important; height: 4px !important; }
+.tv-cmp .pa { opacity: .8; }
+.tv-st .pa svg { width: 6px !important; height: 4px !important; }
+.tv-out-tag, .tv-mstars + .tv-out-tag { top: auto !important; bottom: -8px; }
+.weak-key { background: #d9a48e !important; border-color: #b07a62 !important; }
+.tv-mem.weak { border-color: #d9a48e !important; background: #fbefe8 !important; }
+.tv-mem.weak { border-image-source: var(--pxf) !important; outline: 2px dashed #d9a48e; outline-offset: 1px; }
