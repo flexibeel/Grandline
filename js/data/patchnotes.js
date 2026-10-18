@@ -1,6 +1,8 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-20r', date: '19.10.', title: 'Hotfix: Leiste bleibt unten (iPhone)', items: [
+    'iOS 26 hat einen Fehler, der feste Leisten unten verrutschen lässt, teils bis in die Bildschirmmitte. Auf dem iPhone heftet das Spiel die Leiste jetzt selbst an den sichtbaren unteren Rand' ] },
   { v: '2026-10-20q', date: '19.10.', title: 'Live-Seekarte, Duell-Kommandos, spürbare Stile', items: [
     '🗺 Live-Seekarte: Tipp auf die Hafen-Szene zeigt, wer gerade wo segelt. Mit Kompassrose und einem Seeungeheuer, das sich nicht für dich interessiert',
     '📣🍖🎲 Stammcrew-Duell: Drei Kommandos laden sich während des Kampfes auf. Anfeuern, Proviant oder Glückswurf, das manchmal auch einfach nichts tut. Die Liga zählt das Ergebnis am Kampfende',

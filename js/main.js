@@ -944,6 +944,30 @@
     // Touch: Info als feste Blase im Bildschirm statt CSS-Tooltip (der ragte am Handy aus der Seite und verschob die Leiste unten)
     if (window.matchMedia && window.matchMedia('(hover: none)').matches) tapTip(tip && tip.classList.contains('tt-open') ? tip : null);
   });
+  // iOS 26: feste Leisten unten verrutschen (WebKit-Fehler nach Tastatur/Toolbar-Wechsel, teils bis zur Bildschirmmitte).
+  // Umweg: die Leiste per JavaScript an den unteren Rand des SICHTBAREN Bereichs (visualViewport) heften.
+  (function pinTabbar() {
+    const isIOS = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    const vv = window.visualViewport;
+    if (!isIOS || !vv) return;
+    document.documentElement.classList.add('ios-pin');
+    let raf = 0;
+    const place = () => {
+      raf = 0;
+      const tb = document.getElementById('tabbar');
+      if (!tb || tb.hidden) return;
+      const h = tb.offsetHeight || 0;
+      tb.style.bottom = 'auto'; tb.style.top = Math.round(vv.offsetTop + vv.height - h) + 'px';
+    };
+    const q = () => { if (!raf) raf = requestAnimationFrame(place); };
+    vv.addEventListener('resize', q); vv.addEventListener('scroll', q);
+    window.addEventListener('scroll', q, { passive: true }); window.addEventListener('resize', q);
+    window.addEventListener('orientationchange', () => setTimeout(q, 300));
+    document.addEventListener('focusout', () => setTimeout(q, 350));
+    new MutationObserver(q).observe(document.getElementById('tabbar') || document.body, { attributes: true, childList: true });
+    setInterval(q, 1500);   // Sicherheitsnetz, falls iOS ein Ereignis verschluckt
+    q();
+  })();
   let tapBubble = null, tapT = null;
   function tapTip(el) {
     clearTimeout(tapT);
