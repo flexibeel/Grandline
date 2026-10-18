@@ -4814,3 +4814,7 @@ body { overscroll-behavior: none; -webkit-tap-highlight-color: transparent; }
 .ult-call.vivre b { font-size: 1.15em; }
 @keyframes vivre-in { 0% { opacity: 0; transform: translateX(-50%) scale(.6); } 12% { opacity: 1; transform: translateX(-50%) scale(1.08); } 20% { transform: translateX(-50%) scale(1); } 85% { opacity: 1; } 100% { opacity: 0; } }
 .ult-call.last { background: linear-gradient(180deg, #ffe0d6, #f08a6a); color: #3a1a10; }
+/* Spielerkarte und Stammcrew-Kampf: über der unteren Leiste, mit Platz für Notch und Home-Balken */
+.pcard-wrap { z-index: 950; }
+.pcard-bg { padding: calc(12px + env(safe-area-inset-top)) 12px calc(28px + env(safe-area-inset-bottom)); }
+.pcard { margin: 8px 0 24px; }
