@@ -789,6 +789,7 @@
       }
       case 'loot-skip': GL.pickSel = null; act({ type: 'skip' }); break;
       case 'tv-sel': ui.tvSel = i; ui.lastStage = null; draw(); break;
+      case 'tv-target': ui.tvTarget = { id: run.crew[i] && run.crew[i].id, key: run.seed + ':' + run.step }; ui.lastStage = null; draw(); break;
       case 'up':   act({ type: 'swap', a: i, b: i - 1 }); break;
       case 'down': act({ type: 'swap', a: i, b: i + 1 }); break;
       case 'fight': startFight(); break;
@@ -1233,7 +1234,7 @@
       case 'tv-swap': {
         // Ein Tipp: Besiegte bzw. schwächste Figur entlassen und das Angebot direkt anheuern
         const j = Number(el.dataset.j);
-        if (run && run.crew[j]) { act({ type: 'dismiss', index: j }); act({ type: 'pick', index: i }); ui.tvSel = null; }
+        if (run && run.crew[j]) { act({ type: 'dismiss', index: j }); act({ type: 'pick', index: i }); ui.tvSel = null; ui.tvTarget = null; }
         draw(); break;
       }
       case 'lb-cat': ui.lbCat = el.dataset.id; draw(); break;

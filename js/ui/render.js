@@ -1146,7 +1146,11 @@ window.GL = window.GL || {};
         const pw = u => u.max * 0.5 + u.atk * 4 + u.spd * 2;
         const others = run.crew.filter(u => u.id !== run.captain);
         // Besiegte zuerst ersetzen, sonst die schwächste Figur
-        const weak = (others.length ? others : run.crew).slice().sort((a, b) => ((a.hp <= 0) ? -1e6 : pw(a)) - ((b.hp <= 0) ? -1e6 : pw(b)))[0];
+        const autoWeak = (others.length ? others : run.crew).slice().sort((a, b) => ((a.hp <= 0) ? -1e6 : pw(a)) - ((b.hp <= 0) ? -1e6 : pw(b)))[0];
+        // Tauschziel: selbst gewählt (Figur unten antippen) oder automatisch die schwächste
+        const tt = ui.tvTarget && ui.tvTarget.key === run.seed + ':' + run.step ? run.crew.find(u => u.id === ui.tvTarget.id) : null;
+        const picked = tt && tt.id !== run.captain ? tt : null;
+        const weak = picked || autoWeak;
         const downN = run.crew.filter(u => u.hp <= 0).length;
         const cmp = (a, b) => { if (!b) return ''; const r = (a - b) / Math.max(1, b); return r >= 0.2 ? 'uu' : r >= 0.05 ? 'u' : r <= -0.2 ? 'dd' : r <= -0.05 ? 'd' : 'e'; };
         const arrow = k => k === 'e' || !k ? '<i class="pa pa-eq">=</i>' : `<i class="pa ${k[0] === 'u' ? 'pa-up' : 'pa-dn'}">${k.split('').map(() => k[0] === 'u' ? PX_UP : PX_DOWN).join('')}</i>`;
@@ -1176,7 +1180,7 @@ window.GL = window.GL || {};
           const row = (lbl, ico, v, w) => `<span class="tv-st"><i>${ico}</i>${lbl} <b>${v}</b>${w != null && full ? arrow(cmp(v, w)) : ''}</span>`;
           detail = `${phone ? '<div class="tv-sheet-bg" data-act="tv-sel" data-i="-1"></div>' : ''}<div class="tv-detail pxf${phone ? ' tv-sheet' : ''}">${phone ? '<button class="tv-sheet-x" data-act="tv-sel" data-i="-1" aria-label="Schließen">✕</button>' : ''}
             <div class="tv-d-head"><b>${esc(d.name)}</b>${d.faction ? `<span class="tv-fac">${pxIcon(d.faction)}${esc(GL.data.factions[d.faction].name)}</span>` : ''}<span class="tv-fac">${pxIcon(d.type)}${esc(GL.data.types[d.type].name)}</span><span class="tv-fac">${pxIcon(d.role)}${esc((GL.data.roles[d.role] || {}).name || '')}</span>
-              <small>${weak && full ? `Pfeile: Vergleich mit deiner schwächsten Figur (${esc(crewData(weak.id).name)})` : `Noch ${lim - run.crew.length} ${lim - run.crew.length === 1 ? 'Platz' : 'Plätze'} frei: jede Figur macht deine Crew stärker`}</small></div>
+              <small>${weak && full ? (picked ? `Pfeile: Vergleich mit deinem Tauschziel (${esc(crewData(weak.id).name)})` : `Pfeile: Vergleich mit deiner schwächsten Figur (${esc(crewData(weak.id).name)})`) : `Noch ${lim - run.crew.length} ${lim - run.crew.length === 1 ? 'Platz' : 'Plätze'} frei: jede Figur macht deine Crew stärker`}</small></div>
             <div class="tv-stats">${row('Leben', '♥', m.max, weak && weak.max)}${row('Angriff', '⚔', m.atk, weak && weak.atk)}${row('Tempo', '➤', m.spd, weak && weak.spd)}</div>
             ${(() => { const why = o.sold ? [] : whyNow(run, d, m); return why.length ? `<div class="tv-why"><span class="why-k">Darum lohnt ${SHE.includes(d.id) ? 'sie' : 'er'} sich jetzt</span>${why.map(w => `<span class="why-row">${w.ico}<span>${esc(w.t)}</span></span>`).join('')}</div>` : ''; })()}
             ${abilityBlock(d)}
@@ -1186,9 +1190,17 @@ window.GL = window.GL || {};
             ${twin && !o.sold
               ? `<button class="btn tv-buy tv-mergebtn" data-act="pick" data-i="${sel}"${can ? '' : ' disabled'}>${gold < price ? `Zu wenig Gold (${price})` : `${PX_STAR_UP}Zusammenlegen für ${price} Gold`}</button>`
               : full && !o.sold && weak && weak.id !== run.captain
-              ? `<button class="btn tv-buy tv-swap${weak.hp <= 0 ? ' down' : ''}" data-act="tv-swap" data-i="${sel}" data-j="${run.crew.indexOf(weak)}"${gold + GL.run.sellValue(weak) >= price ? '' : ' disabled'}>
-                  <span class="tv-swap-out">${GL.sprites.render(crewData(weak.id))}${weak.hp <= 0 ? PX_GRAVE : ''}</span><span class="tv-swap-arrow">➜</span><span class="tv-swap-in">${GL.sprites.render(d)}</span>
-                  <span>${gold + GL.run.sellValue(weak) >= price ? `Tauschen gegen ${esc(crewData(weak.id).name)}${weak.hp <= 0 ? ' (K.O.)' : ''} · ${price} Gold` : `Zu wenig Gold (${price})`}</span></button>`
+              ? (() => { const back = GL.run.sellValue(weak), net = Math.max(0, price - back), wn = esc(crewData(weak.id).name), ok = gold + back >= price;
+                  const dl = (lbl, ico, a, b) => { const df = b - a; return `<span class="sw-row"><i>${ico}</i><span class="sw-l">${lbl}</span><span class="sw-a">${weak.hp <= 0 && lbl === 'Leben' ? 0 : a}</span><span class="sw-ar">➜</span><b class="sw-b">${b}</b><em class="sw-d ${df > 0 ? 'up' : df < 0 ? 'dn' : 'eq'}">${df > 0 ? '+' : ''}${df === 0 ? '±0' : df}</em></span>`; };
+                  const better = weak.hp <= 0 || pw(m) >= pw(weak) * 1.05, worse = weak.hp > 0 && pw(m) < pw(weak) * 0.95;
+                  return `<div class="tv-swapbox pxf ${better ? 'good' : worse ? 'bad' : 'even'}">
+                    <div class="sw-head"><span class="tv-swap-out">${GL.sprites.render(crewData(weak.id))}${weak.hp <= 0 ? PX_GRAVE : ''}</span><span class="tv-swap-arrow">➜</span><span class="tv-swap-in">${GL.sprites.render(d)}</span>
+                      <span class="sw-verdict">${weak.hp <= 0 ? `${wn} ist K.O.: ein Tausch bringt wieder volle Kraft` : better ? `Stärker als ${wn}` : worse ? `Schwächer als ${wn}` : `Etwa gleich stark wie ${wn}`}</span></div>
+                    <div class="sw-rows">${dl('Leben', '♥', weak.max, m.max)}${dl('Angriff', '⚔', weak.atk, m.atk)}${dl('Tempo', '➤', weak.spd, m.spd)}</div>
+                    <small class="sw-hint">Andere Figur tauschen? Tipp sie unten in deiner Crew an.</small>
+                    <div class="sw-cost"><span>Preis ${price}</span><span>− ${back} für ${wn}</span><b>= ${net} Gold</b></div></div>
+                  <button class="btn tv-buy tv-swap${weak.hp <= 0 ? ' down' : ''}" data-act="tv-swap" data-i="${sel}" data-j="${run.crew.indexOf(weak)}"${ok ? '' : ' disabled'}>
+                  <span>${ok ? `${pxIco('coin')}Tauschen für ${net} Gold` : `Zu wenig Gold (${net})`}</span></button>`; })()
               : `<button class="btn tv-buy" data-act="pick" data-i="${sel}"${can ? '' : ' disabled'}>${o.sold ? 'Schon angeheuert' : full ? 'Schiff voll: erst jemanden entlassen' : gold < price ? `Zu wenig Gold (${price})` : `${pxIco('coin')}Anheuern für ${price} Gold`}</button>`}
           </div>`;
         }
@@ -1196,7 +1208,7 @@ window.GL = window.GL || {};
         const crewRow = run.crew.map((u, i) => {
           const d = crewData(u.id), cap = u.id === run.captain;
           const down = u.hp <= 0;
-          return `<span class="tv-mem pxf${weak && full && u === weak ? ' weak' : ''}${down ? ' down' : ''}${ui.mergeFx === u.id ? ' merged' : ''}"><i>${GL.sprites.render(d)}</i>${down ? `<span class="down-mark">${PX_GRAVE}<b>K.O.</b></span>` : ''}${(u.stars || 1) > 1 ? `<span class="tv-mstars">${'★'.repeat(u.stars)}</span>` : ''}<small>${esc(d.name)}</small><em>${down ? 'Besiegt' : 'Lv ' + u.lvl}</em>
+          return `<span class="tv-mem pxf${weak && full && u === weak ? ' weak' : ''}${down ? ' down' : ''}${ui.mergeFx === u.id ? ' merged' : ''}">${full && !cap ? `<button class="tv-pickt" data-act="tv-target" data-i="${i}" title="Als Tauschziel wählen">${GL.sprites.render(d)}</button>` : `<i>${GL.sprites.render(d)}</i>`}${full && weak === u ? '<span class="tv-out-tag">raus?</span>' : ''}${down ? `<span class="down-mark">${PX_GRAVE}<b>K.O.</b></span>` : ''}${(u.stars || 1) > 1 ? `<span class="tv-mstars">${'★'.repeat(u.stars)}</span>` : ''}<small>${esc(d.name)}</small><em>${down ? 'Besiegt' : 'Lv ' + u.lvl}</em>
             ${cap ? '<span class="tv-cap">Kapitän</span>' : askDismiss(i) ? `<button class="tv-x ask" data-act="dismiss" data-i="${i}">Wirklich? +${GL.run.sellValue(u)}</button>` : `<button class="tv-x${down ? ' hot' : ''}" data-act="dismiss" data-i="${i}" title="Entlassen (+${GL.run.sellValue(u)} Gold)">✕ ${GL.run.sellValue(u)}</button>`}</span>`;
         }).join('');
         const harbor = run.harbor ? `<div class="harbor-box pxf"><span class="event-kicker">${run.loop ? `Zwischenhafen · Runde ${run.loop + 1}` : 'Endlos-Fahrt · Hafen'}</span>
@@ -1208,7 +1220,7 @@ window.GL = window.GL || {};
             <div class="tv-syn">${synBar(run, sel != null && run.pool[sel] && !run.pool[sel].sold ? crewData(run.pool[sel].id) : null)}</div>
             <div class="tv-grid">${tiles}</div>
             ${detail}
-            <div class="tv-crew-head"><span>Deine Crew ${run.crew.length}/${lim}</span>${downN ? `<span class="down-chip">${PX_GRAVE} ${downN} besiegt: austauschen oder bei einer Rast heilen</span>` : weak && full ? '<small><span class="weak-key"></span> = schwächste Figur, Pfeile vergleichen mit ihr</small>' : ''}</div>
+            <div class="tv-crew-head"><span>Deine Crew ${run.crew.length}/${lim}</span>${downN ? `<span class="down-chip">${PX_GRAVE} ${downN} besiegt: austauschen oder bei einer Rast heilen</span>` : weak && full ? (picked ? '<small><span class="weak-key"></span> = dein Tauschziel. Andere Figur antippen zum Wechseln</small>' : '<small><span class="weak-key"></span> = schwächste Figur. Tipp eine andere an, um sie zu tauschen</small>') : ''}</div>
             <div class="tv-crew">${crewRow}</div>
             <div class="tv-actions">
               <button class="btn ghost" data-act="reroll"${gold < roll ? ' disabled' : ''}>${pxIco('dice')}Neu würfeln · ${roll} ${keyHint('R')}</button>

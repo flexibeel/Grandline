@@ -85,7 +85,7 @@ window.GL = window.GL || {};
     'Gastgeber der Grand Line': 'Host of the Grand Line', 'Herr der Flotte': 'Lord of the fleet', 'Schiffsjunge': 'Cabin boy',
     // Figurennamen wie im englischen Original
     'Ruffy': 'Luffy', 'Zorro': 'Zoro', 'Lysop': 'Usopp', 'Bon Clay': 'Bon Clay', 'Whitebeard': 'Whitebeard', 'Rob Lucci': 'Rob Lucci', 'Hancock': 'Hancock',
-    'Vollbild': 'Fullscreen', 'Weiterspielen': 'Continue', 'Rechtliches & Datenschutz': 'Legal & privacy',
+    'Vollbild': 'Fullscreen', '⛶ Vollbild': '⛶ Fullscreen', 'Vollbild beenden': 'Exit fullscreen', '🔒 Kopfgeld-Stufen': '🔒 Bounty tiers', 'Kopfgeld-Stufen': 'Bounty tiers', 'Weiterspielen': 'Continue', 'Rechtliches & Datenschutz': 'Legal & privacy',
     'Inoffizielles Fanprojekt, kostenlos und ohne kommerzielle Absicht. One Piece gehört seinen Rechteinhabern.': 'Unofficial fan project, free and non-commercial. One Piece belongs to its rights holders.',
     'Willkommen zurück': 'Welcome back', 'Neu anfangen': 'Start over', 'Alle Neuigkeiten': 'All news', '★ Spiel bewerten': '★ Rate the game', 'Update verfügbar': 'Update available'
   };
@@ -93,6 +93,13 @@ window.GL = window.GL || {};
   const P = [
     [/^Anheuern für (\d+) Gold$/, 'Hire for $1 gold'],
     [/^Tipp: Du hast noch freie Plätze\. Eine neue Figur bringt meist mehr, Zusammenlegen lohnt sich vor allem bei voller Crew\.$/, 'Tip: you still have free slots. A new member usually brings more; merging pays off most with a full crew.'],
+    [/^Pfeile: Vergleich mit deinem Tauschziel \((.+)\)$/, 'Arrows: compared with your swap target ($1)'],
+    [/^(\d+) Orte?$/, (m, n) => n + (n === '1' ? ' place' : ' places')],
+    [/^Tauschen für (\d+) Gold$/, 'Swap for $1 gold'],
+    [/^Zu wenig Gold \((\d+)\)$/, 'Not enough gold ($1)'],
+    [/^Stärker als (.+)$/, 'Stronger than $1'], [/^Schwächer als (.+)$/, 'Weaker than $1'], [/^Etwa gleich stark wie (.+)$/, 'About as strong as $1'],
+    [/^(.+) ist K\.O\.: ein Tausch bringt wieder volle Kraft$/, '$1 is K.O.: a swap brings back full strength'],
+    [/^Preis (\d+)$/, 'Price $1'], [/^− (\d+) für (.+)$/, '− $1 for $2'], [/^= (\d+) Gold$/, '= $1 gold'],
     [/^Zusammenlegen für (\d+) Gold$/, 'Merge for $1 gold'],
     [/^(.+) ist schon in deiner Crew\. Zwei gleiche werden zu einer stärkeren Figur mit (\d) Sternen: \+(\d+) Leben, \+(\d+) Angriff, volle Heilung\. Braucht keinen freien Platz\.$/, '$1 is already in your crew. Two of the same become one stronger $2-star member: +$3 HP, +$4 attack, fully healed. Needs no free slot.'],
     [/^(★+) (.+) zusammengelegt!$/, '$1 $2 merged!'],
@@ -185,7 +192,17 @@ window.GL = window.GL || {};
     [/^Höchster Angriff an Bord \((\d+)\)\.$/, 'Highest attack on board ($1).'],
     [/^alle (\d+) Runden$/, 'every $1 rounds'],
     [/^Wirklich\? \+(\d+)$/, 'Sure? +$1'],
-    [/^Entlassen \(\+(\d+) Gold\)$/, 'Dismiss (+$1 gold)']
+    [/^Entlassen \(\+(\d+) Gold\)$/, 'Dismiss (+$1 gold)'],
+    [/^(Guten Morgen|Ahoi|Guten Abend|Noch wach), (.+?)([!?]) (.+)$/, (m, hi, n, p, rest) => {
+      const H = { 'Guten Morgen': 'Good morning', 'Ahoi': 'Ahoy', 'Guten Abend': 'Good evening', 'Noch wach': 'Still up' };
+      const L = { 'Die Crew hat Kaffee gekocht.': 'The crew made coffee.', 'Frischer Wind in den Segeln.': 'Fresh wind in the sails.', 'Die Möwen sind schon wach.': 'The gulls are already up.',
+        'Die Grand Line ruft.': 'The Grand Line is calling.', 'Perfektes Wetter zum Segeln.': 'Perfect sailing weather.', 'Das Schiff ist startklar.': 'The ship is ready.',
+        'Noch eine Fahrt vorm Essen?': 'One more voyage before dinner?', 'Das Abendrot färbt das Meer.': 'The sunset paints the sea.', 'Die Laternen sind an.': 'The lanterns are lit.',
+        'Eine Nachtfahrt geht immer.': 'There is always time for a night voyage.', 'Die Crew schnarcht schon.': 'The crew is already snoring.', 'Die Sterne zeigen den Weg.': 'The stars show the way.' };
+      return `${H[hi]}, ${n}${p} ${L[rest] || rest}`; }],
+    [/^(\d+) von (\d+) entdeckt\. (\d+) Runs? gespielt, (\d+) gewonnen\.$/, '$1 of $2 discovered. $3 runs played, $4 won.'],
+    [/^🏅 Titel freigeschaltet:?$/, '🏅 Title unlocked:'],
+    [/^🏅 Bei Vertraut 10:?$/, '🏅 At bond 10:']
   ];
   const cache = new Map();
   function tr(text) {

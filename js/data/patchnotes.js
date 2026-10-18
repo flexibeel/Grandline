@@ -1,6 +1,10 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-18u', date: '18.10.', title: 'Tauschen mit Durchblick', items: [
+    'Tauschen bei voller Crew: klarer Vergleich (Leben, Angriff, Tempo mit +/−) und „Stärker als …“. Der Preis zieht jetzt sichtbar ab, was du für die alte Figur zurückbekommst',
+    'Du kannst unten in deiner Crew selbst antippen, wen du austauschen willst',
+    'Mehr Englisch: Begrüßung im Hafen, Erinnerungen im Steckbrief, Landgang-Orte' ] },
   { v: '2026-10-18t', date: '18.10.', title: 'Sterne zusammenlegen', items: [
     'Neu in der Taverne: Manchmal wartet dort ein Doppelgänger von jemandem aus deiner Crew (goldener Rahmen, „Aufwerten“). Zwei gleiche werden zu einer Figur mit ★★, zwei ★★ zu ★★★: mehr Leben, mehr Angriff, volle Heilung, und es braucht keinen freien Platz',
     'Kommt mit Absicht nicht oft: Eine ★★★-Crew braucht Geduld, gerade in der Endlos-Fahrt',

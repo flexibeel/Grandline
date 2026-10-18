@@ -5394,3 +5394,28 @@ button.ss-mate { background: none; border: 0; padding: 0; cursor: pointer; font:
 .tv-mstars { left: 50%; right: auto; top: -7px; transform: translateX(-50%); color: #e0a818; text-shadow: 0 1px 0 #7a5208; font-size: .7rem; letter-spacing: -1px; white-space: nowrap; }
 .toast .toast-merge { display: flex !important; flex-direction: row; align-items: center; gap: 10px; }
 .toast .toast-merge > i { flex: 0 0 34px; }
+
+/* Tauschen: klarer Vergleich und Netto-Preis */
+.tv-swapbox { margin: 6px 0 4px; padding: 6px 8px; background: #fbf4e4; border: 2px solid #d8c8a4; }
+.tv-swapbox.good { border-color: #9cc59a; background: #f1f7ea; }
+.tv-swapbox.bad { border-color: #dcc0b4; background: #faf1ec; }
+.sw-head { display: flex; align-items: center; gap: 6px; }
+.sw-verdict { font-weight: 800; font-size: .8rem; color: #4d4030; margin-left: 4px; }
+.tv-swapbox.good .sw-verdict { color: #3f7a4a; } .tv-swapbox.bad .sw-verdict { color: #9a6a5a; }
+.sw-rows { display: grid; gap: 2px; margin: 5px 0; }
+.sw-row { display: grid; grid-template-columns: 16px 64px 36px 18px 36px auto; align-items: center; font-size: .78rem; }
+.sw-row > i { font-style: normal; color: #8a7a62; }
+.sw-a { color: #9a8a72; text-align: right; } .sw-ar { color: #b0a088; text-align: center; font-size: .7rem; }
+.sw-b { text-align: right; color: #3a2a14; }
+.sw-d { font-style: normal; font-weight: 800; font-size: .7rem; padding: 0 5px; margin-left: 6px; justify-self: start; }
+.sw-d.up { color: #3f7a4a; background: #e3f0dc; } .sw-d.dn { color: #9a6a5a; background: #f4e6df; } .sw-d.eq { color: #8a7a62; background: #efe7d6; }
+.sw-cost { display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: baseline; font-size: .74rem; color: #7a6a52; border-top: 1px dashed #d8c8a4; padding-top: 4px; }
+.sw-cost b { color: #6b4a14; font-size: .85rem; margin-left: auto; }
+.sw-hint { display: block; font-size: .66rem; color: #8a7a62; font-style: italic; }
+.tv-pickt { all: unset; cursor: pointer; display: block; width: 100%; }
+.tv-pickt svg { display: block; margin: 0 auto; }
+.tv-mem.weak { outline: 2px dashed #c9a47a; outline-offset: 1px; }
+.tv-out-tag { position: absolute; top: -8px; left: 50%; transform: translateX(-50%); font-size: .55rem; font-weight: 800; background: #c9a47a; color: #fff; padding: 0 4px; white-space: nowrap; z-index: 2; }
+.tv-pickt svg { width: 28px; height: 33px; shape-rendering: crispEdges; }
+@media (max-width: 560px) { .tavern .tv-pickt svg { width: 26px; height: 30px; } }
+.tv-mstars + .tv-out-tag, .tv-out-tag { top: -9px; }
