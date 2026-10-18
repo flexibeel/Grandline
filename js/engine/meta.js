@@ -146,7 +146,7 @@ window.GL = window.GL || {};
       const maxMap = k => { p[k] = Object.assign({}, other[k] || {}, p[k] || {}); Object.keys(other[k] || {}).forEach(x => { p[k][x] = Math.max(p[k][x] || 0, other[k][x] || 0); }); };
       ['vault', 'loot', 'counts'].forEach(maxMap);
       if (other.seen) { p.seen = p.seen || {}; Object.keys(other.seen).forEach(k => { p.seen[k] = union(p.seen[k], other.seen[k]); }); }
-      ['rankXp', 'heatMax', 'bestStep', 'endlessBest', 'endlessLoops', 'squadW', 'shards', 'albumClaimed'].forEach(k => { if (other[k] != null) p[k] = Math.max(p[k] || 0, other[k] || 0); });
+      ['rankXp', 'heatMax', 'bestStep', 'endlessBest', 'endlessLoops', 'squadW', 'shards', 'albumClaimed', 'snacks'].forEach(k => { if (other[k] != null) p[k] = Math.max(p[k] || 0, other[k] || 0); });
       if (other.stats) { p.stats = p.stats || {}; ['runs', 'wins', 'berryTotal'].forEach(k => { p.stats[k] = Math.max(p.stats[k] || 0, other.stats[k] || 0); }); }
       // Landgang: Fundstücke vereinen, pro Ort die meisten Erkundungen und den spätesten Tag behalten
       if (other.dgFinds) p.dgFinds = union(p.dgFinds, other.dgFinds);
@@ -417,6 +417,8 @@ window.GL = window.GL || {};
       const base = 3 + 2 * ch + 5 * (run.bounties || 0) + (run.phase === 'win' ? 10 : 0);
       const ids = run.crew.map(u => u.id);
       const out = [];
+      profile.lastSnacks = 1 + (run.phase === 'win' ? 1 : 0);
+      profile.snacks = (profile.snacks || 0) + profile.lastSnacks;
       ids.forEach((id, i) => {
         const u = run.crew[i];
         if (!u) return;
@@ -429,6 +431,16 @@ window.GL = window.GL || {};
         out.push({ id, name: d ? d.name : id, gain, up: after > before, lvl: after });
       });
       return out;
+    },
+    // Kümmern: Proviant schenken (Lieblingsessen) bringt Vertrautheit. Proviant gibt es nach Runs und Landgängen
+    giveSnack(profile, id) {
+      if (!(profile.snacks > 0)) return null;
+      profile.snacks--;
+      profile.squadXp = profile.squadXp || {};
+      const before = GL.meta.squadBonus(profile.squadXp[id]);
+      profile.squadXp[id] = (profile.squadXp[id] || 0) + 15;
+      const lvl = GL.meta.squadBonus(profile.squadXp[id]);
+      return { up: lvl > before, lvl };
     },
     // Vertrautheit einer Figur (Extra-Level aus Runs und Duellen)
     bond(profile, id) { return GL.meta.squadBonus(((profile && profile.squadXp) || {})[id]); },

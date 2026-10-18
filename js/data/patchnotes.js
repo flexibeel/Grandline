@@ -1,6 +1,10 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-18o', date: '18.10.', title: 'Kümmer dich um deine Crew', items: [
+    'Proviant 🍙: nach jedem Run (Sieg doppelt) und jedem Landgang. Im Steckbrief schenkst du einer Figur ihr Lieblingsessen und sie wird vertrauter',
+    'Gemeinsame Momente: kleine Szenen mit Sprechblasen ab Vertraut 3, 6 und 10. Die Strohhüte haben eigene, alle anderen passend zu ihrer Rolle',
+    'Gib deinen Lieblingen einen Spitznamen. Er steht im Steckbrief und in euren Momenten' ] },
   { v: '2026-10-18n', date: '18.10.', title: 'Deine Crew lebt', items: [
     'Im Hafen sagt deine Crew jetzt etwas, alle paar Minuten jemand anderes. Tipp eine Figur am Steg an, dann öffnet sich ihr Steckbrief',
     'Steckbrief: Vertrautheit in Herzen, Lieblingsessen, Spielweise und eure gemeinsamen Erinnerungen (Fahrten, Siege, K.o.s, härtester Treffer)',

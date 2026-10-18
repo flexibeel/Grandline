@@ -376,6 +376,11 @@
       ui.newBest = GL.save.recordFinished(run);
       ui.lastBerry = GL.meta.finishRun(profile, run);
       ui.lastBond = GL.meta.runBond ? GL.meta.runBond(profile, run) : null;
+      (ui.lastBond || []).filter(b => b.up).forEach(b => {
+        const d = b.id === 'self' ? null : GL.data.crew.find(c => c.id === b.id);
+        const M = GL.data.momentsOf ? GL.data.momentsOf(b.id, d ? d.role : 'kaempfer') : [];
+        if (M.some(m => m.lvl === b.lvl)) setTimeout(() => toast(`<span><b>♥ Neuer Moment mit ${esc2(b.name)}</b>Tippe im Hafen auf die Figur und öffne den Steckbrief.</span>`), 1600);
+      });
       ui.firstDone = false;
       // Tester-Modus (nur Entwickler): nach jedem Run wieder ein Tipp-Fenster, jeder dritte Run fragt nach Bewertung
       if (profile.testerPops) {
@@ -1430,6 +1435,32 @@
         break;
       }
       case 'album': checkAlbum(); ui.album = el.dataset.tab || 'stats'; draw(); break;
+      case 'crew-gift': {
+        const id = el.dataset.id, r = GL.meta.giveSnack(profile, id);
+        if (!r) break;
+        saveProfile();
+        openGearPop(GL.ui.crewCard(profile, id));
+        const box = document.querySelector('#fpop .cc-spr'); if (box) { box.classList.add('gifted'); }
+        if (GL.sfx) GL.sfx.play(r.up ? 'level' : 'heal');
+        const d = id === 'self' ? { name: profile.nickname } : GL.data.crew.find(c => c.id === id);
+        const M = GL.data.momentsOf ? GL.data.momentsOf(id, d && d.role) : [];
+        toast(`<span><b>${esc2(d ? d.name : '')} freut sich ♥</b>${r.up ? `Vertraut ${r.lvl}!${M.some(m => m.lvl === r.lvl) ? ' Ein neuer gemeinsamer Moment wartet.' : ''}` : '+15 Vertrautheit.'}</span>`);
+        break;
+      }
+      case 'crew-nick': {
+        const id = el.dataset.id, inp = document.getElementById('cc-nick');
+        if (!inp) break;
+        profile.crewNick = Object.assign({}, profile.crewNick, { [id]: inp.value.replace(/[<>]/g, '').trim().slice(0, 16) });
+        if (!profile.crewNick[id]) delete profile.crewNick[id];
+        saveProfile(); openGearPop(GL.ui.crewCard(profile, id));
+        break;
+      }
+      case 'moment': {
+        const id = el.dataset.id;
+        profile.momSeen = Object.assign({}, profile.momSeen, { [id + ':' + i]: 1 }); saveProfile();
+        openGearPop(GL.ui.momentPop(profile, id, i)); if (GL.sfx) GL.sfx.play('found');
+        break;
+      }
       case 'crew-card': { const id = el.dataset.id; if (id) { openGearPop(GL.ui.crewCard(profile, id)); if (GL.sfx) GL.sfx.play('heal'); } break; }
       case 'pet-set': {
         // Begleiter mitnehmen (leer = absetzen). Sitzt im Profil auf der Schulter und steht im Hafen am Steg
@@ -1453,6 +1484,7 @@
     if (e.ctrlKey || e.metaKey || e.altKey) return;
     if (e.key === 'Enter' && e.target.id === 'pf-name') { e.preventDefault(); document.querySelector('[data-act=profile-save]')?.click(); return; }
     if (e.key === 'Enter' && e.target.id === 'code-in') { e.preventDefault(); document.querySelector('[data-act=code-login]')?.click(); return; }
+    if (e.key === 'Enter' && e.target.id === 'cc-nick') { e.preventDefault(); document.querySelector('[data-act=crew-nick]')?.click(); return; }
     if (e.key === 'Enter' && e.target.id === 'nick') { e.preventDefault(); document.querySelector('[data-act=set-nick]')?.click(); return; }
     const tag = (e.target.tagName || '').toLowerCase();
     if (tag === 'input' || tag === 'textarea') return;

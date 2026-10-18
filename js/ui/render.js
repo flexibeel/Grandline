@@ -1312,7 +1312,7 @@ window.GL = window.GL || {};
         // Verbindung zur Stammcrew: wer mitgesegelt ist, ist vertrauter geworden
         const bond = ui.lastBond && ui.lastBond.length ? `<div class="trophy-sum bond-sum"><span class="event-kicker">Deine Crew wächst zusammen</span>
           <span class="bond-row">${ui.lastBond.map(b => `<span class="bond-u${b.up ? ' up' : ''}" data-tip="${esc(b.name)}: +${b.gain} Vertrautheit${b.lvl ? ` · Vertraut ${b.lvl}` : ''}"><i>${GL.sprites.render(b.id === 'self' ? avatarOf(ui.profile) : crewData(b.id))}</i><small>+${b.gain}</small>${b.up ? `<em>♥ ${b.lvl}</em>` : ''}</span>`).join('')}</span>
-          <small class="bond-note">Vertrautheit macht Figuren in Stammcrew, Duellen und Landgang stärker.</small>
+          <small class="bond-note">Vertrautheit macht Figuren in Stammcrew, Duellen und Landgang stärker.${ui.profile.lastSnacks ? ` · <b>+${ui.profile.lastSnacks} 🍙 Proviant</b> zum Verschenken` : ''}</small>
           ${(() => { const who = ui.lastBond[0]; const foe = run.battle && run.battle.enemies && run.battle.enemies[0]; const fd = foe ? (enemyData(foe.id) || crewData(foe.id)) : null;
             const t = lifeLine(ui.profile, who.id, run.phase === 'win' ? 'win' : 'lose', { boss: fd ? fd.name : 'den Boss' });
             const d = who.id === 'self' ? avatarOf(ui.profile) : crewData(who.id);
@@ -2030,16 +2030,45 @@ window.GL = window.GL || {};
     return `<div class="fpop-card crew-card" role="dialog">
       <span class="fpop-kicker">Steckbrief</span>
       <div class="cc-top"><i class="cc-spr pet-hop">${GL.sprites.renderShaded ? GL.sprites.renderShaded(d) : GL.sprites.render(d)}</i>
-        <span><h3>${esc(d.name)}</h3>
+        <span><h3>${esc(d.name)}${(profile.crewNick || {})[id] ? ` <small class="cc-nickshow">„${esc(profile.crewNick[id])}“</small>` : ''}</h3>
           <span class="cc-bond">${'♥'.repeat(Math.min(5, Math.ceil(lv / 2)))}${'♡'.repeat(Math.max(0, 5 - Math.ceil(lv / 2)))} <small>Vertraut ${lv}${nx ? ` · noch ${nx.need - nx.have} bis ${lv + 1}` : ' · ganz eng'}</small></span>
           ${inSquad ? '<em class="cc-tag">In deiner Stammcrew</em>' : ''}</span></div>
       ${say ? `<p class="cc-say">„${esc(say)}“</p>` : ''}
       <dl class="cc-facts"><dt>Lieblingsessen</dt><dd>${esc(L.food || 'Alles, was es gibt')}</dd>${style ? `<dt>Spielweise</dt><dd>${esc(style)}</dd>` : ''}</dl>
       <div class="cc-mem"><span class="cc-k">Eure Erinnerungen</span>${mem.length ? `<ul>${mem.join('')}</ul>` : '<p class="cc-none">Noch keine gemeinsamen Fahrten. Nimm sie mal mit!</p>'}</div>
+      ${(() => {
+        const M = GL.data.momentsOf ? GL.data.momentsOf(id, role) : [];
+        const seen = profile.momSeen || {};
+        const care = `<div class="cc-care"><span class="cc-k">Kümmern</span>
+          <div class="cc-row"><span class="cc-snack">🍙 <b>${profile.snacks || 0}</b> Proviant</span>
+            <button class="btn mini" data-act="crew-gift" data-id="${id}"${profile.snacks > 0 ? '' : ' disabled'}>${esc(L.food ? 'Lieblingsessen schenken' : 'Essen schenken')}</button></div>
+          <small class="cc-hint">Proviant gibt es nach jedem Run (Sieg doppelt) und jedem Landgang. Ein Geschenk bringt Vertrautheit.</small>
+          <div class="cc-row cc-nickrow"><input class="cc-nick" id="cc-nick" maxlength="16" placeholder="Spitzname" value="${esc((profile.crewNick || {})[id] || '')}" aria-label="Spitzname"><button class="btn mini ghost" data-act="crew-nick" data-id="${id}">Speichern</button></div></div>`;
+        const mom = M.length ? `<div class="cc-mom"><span class="cc-k">Gemeinsame Momente</span>${M.map((m, k) => lv >= m.lvl
+            ? `<button class="cc-mbtn${seen[id + ':' + k] ? '' : ' fresh'}" data-act="moment" data-id="${id}" data-i="${k}">♥ ${esc(m.title)}</button>`
+            : `<span class="cc-mbtn locked">🔒 ab Vertraut ${m.lvl}</span>`).join('')}</div>` : '';
+        return care + mom;
+      })()}
       ${gear.length ? `<div class="cc-gear"><span class="cc-k">Trägt</span>${gear.map(it => `<span class="trophy-chip cr-${GL.cgear.RID[it.r]}">${esc(GL.cgear.name(it))}</span>`).join('')}</div>` : ''}
       <small class="cc-note">Vertrautheit wächst, wenn ${esc(d.name)} in Runs, Duellen oder beim Landgang dabei ist.</small>
       <div class="fpop-btns"><button class="btn ghost" data-act="pop-close">Schließen</button></div>
     </div>`;
+  }
+  // Gemeinsamer Moment: kleine Szene mit Sprechblasen, nacheinander eingeblendet
+  function momentPop(profile, id, k) {
+    const d = id === 'self' ? avatarOf(profile) : crewData(id);
+    const role = id === 'self' ? profile.char && profile.char.role : d && d.role;
+    const m = (GL.data.momentsOf ? GL.data.momentsOf(id, role) : [])[k];
+    if (!d || !m) return '';
+    const me = avatarOf(profile);
+    const nick = (profile.crewNick || {})[id];
+    const lines = m.lines.map(([who, t], i) => {
+      const it = who === 'it', sp = it ? d : me;
+      return `<div class="mo-line ${it ? 'left' : 'right'}" style="animation-delay:${0.25 + i * 0.9}s"><i class="mo-spr">${GL.sprites.render(sp)}</i><span><b>${esc(it ? (nick || d.name) : (profile.nickname || 'Du'))}</b>${esc(t)}</span></div>`;
+    }).join('');
+    return `<div class="fpop-card moment-card" role="dialog"><span class="fpop-kicker">Gemeinsamer Moment</span><h3>${esc(m.title)}</h3>
+      <div class="mo-lines">${lines}</div>
+      <div class="fpop-btns"><button class="btn" data-act="crew-card" data-id="${id}">Zurück zum Steckbrief</button></div></div>`;
   }
   // Hafengerücht: zeigt auf einen Begleiter, der noch fehlt (wechselt jeden Tag)
   function petRumor(profile) {
@@ -3575,6 +3604,7 @@ window.GL = window.GL || {};
     welcomePop,
     petPop,
     crewCard,
+    momentPop,
     musicBtn,
     sfxBtn,
     endlessPop,

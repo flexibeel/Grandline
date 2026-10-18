@@ -271,7 +271,8 @@ window.GL = window.GL || {};
     if (L.berry) items.push(`<li>${GL.sprites.coin()}<b>+${L.berry}</b> Berry</li>`);
     if (L.shards) items.push(`<li><i class="dg-shard">🔹</i><b>+${L.shards}</b> ${esc(T('Meersplitter'))}</li>`);
     L.gear.forEach(it => items.push(`<li><i class="dg-gear r${it.r}">⚙</i><b>${esc(GL.cgear && GL.cgear.name ? GL.cgear.name(it) : T('Ausrüstung'))}</b></li>`));
-    if (L.bond && L.bond.gain) items.push(`<li><i class="dg-heart">♥</i><b>+${L.bond.gain}</b> ${esc(T('Vertrautheit für die Stammcrew'))}${L.bond.ups.length ? ` · ${esc(L.bond.ups.join(', '))} ♥` : ''}</li>`);
+    if (L.snack) items.push(`<li><i class="dg-heart">🍙</i><b>+1</b> ${esc(T('Proviant zum Verschenken'))}</li>`);
+        if (L.bond && L.bond.gain) items.push(`<li><i class="dg-heart">♥</i><b>+${L.bond.gain}</b> ${esc(T('Vertrautheit für die Stammcrew'))}${L.bond.ups.length ? ` · ${esc(L.bond.ups.join(', '))} ♥` : ''}</li>`);
     if (L.find) items.push(`<li class="dg-findrow"><span class="dg-find big">${findArt(d.find)}</span><span><b>${esc(T(d.find.name))}</b><small>${esc(T(d.find.text))}</small></span></li>`);
     const def = bossOf(d);
     return card(`${scene(d, { boss: !cur.won })}
@@ -324,6 +325,7 @@ window.GL = window.GL || {};
     if (cur.won && cur.fresh) st.day = today();
     profile.counts = profile.counts || {};
     profile.counts.landgang = (profile.counts.landgang || 0) + 1;
+    profile.snacks = (profile.snacks || 0) + 1; L.snack = 1;
     // Vertrautheit: die Stammcrew wächst auch beim Landgang zusammen (wie in Duellen und Runs)
     if (GL.meta.squadGainXp && cur.fight && cur.fight.me) {
       const x = GL.meta.squadGainXp(profile, cur.fight.me.map(r => r.id), cur.won);
