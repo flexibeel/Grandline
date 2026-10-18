@@ -615,6 +615,21 @@ window.GL = window.GL || {};
     return art.per[Math.max(0, Math.min(art.per.length, lvl) - 1)];
   }
 
+  // Begleiter: nach dem Sieg über Bösewicht oder Boss einer Insel kann ihr Tier an Bord springen.
+  // Ohne Zufallszahl aus dem Run (Hash aus Seed + Insel), damit Kämpfe und Replays gleich bleiben.
+  function petCheck(run) {
+    const isl = chapterIsland(run);
+    const pet = isl && (GL.data.pets || []).find(p => p.isl === isl.id);
+    if (!pet) return;
+    let h = (run.seed ^ 0x9e3779b9) >>> 0;
+    const key = isl.id + ':' + (run.loop || 0);
+    for (let i = 0; i < key.length; i++) h = Math.imul(h ^ key.charCodeAt(i), 2654435761) >>> 0;
+    h = Math.imul(h ^ (h >>> 15), 2246822519) >>> 0;
+    if ((h % 1000) / 1000 >= pet.chance) return;
+    run.pets = run.pets || [];
+    if (!run.pets.includes(pet.id)) run.pets.push(pet.id);
+  }
+
   function finishBattle(run) {
     const C = GL.config;
     const b = run.battle;
@@ -661,7 +676,9 @@ window.GL = window.GL || {};
       run.lucky = { item: it ? it.uid : null, gold: LC.gold || 15, n: (run.luckyN = (run.luckyN || 0) + 1) };
     }
     const f = GL.effects.flags(run);
-    if (!f.noWinHeal) heal(run, (C.winHeal + f.winHeal) * Math.max(0, 1 + (run.H ? run.H.winHeal : 0)));
+    // Kampfrausch nimmt nur die normale Heilung weg, Heil-Schätze (Fleischkeule) wirken weiter
+    const wh = (f.noWinHeal ? 0 : C.winHeal) + f.winHeal;
+    if (wh > 0) heal(run, wh * Math.max(0, 1 + (run.H ? run.H.winHeal : 0)));
     if (b.kind === 'elite' && run.pending && run.pending.who) {
       const h = byId(GL.data.hunted, run.pending.who);
       const bm = run.mood === 'kopfgeld' ? 1.5 : 1;
@@ -671,6 +688,7 @@ window.GL = window.GL || {};
       rollTrophy(run, h.id, C.trophyChance.mini);
     }
     if (b.kind === 'elite' && run.pending && run.pending.gate) heal(run, 0.3);   // Insel befreit: kurz durchatmen
+    if ((b.kind === 'elite' && run.pending && run.pending.gate) || b.kind === 'boss') petCheck(run);
     if (b.kind === 'elite') dropItem(run, C.items.dropElite);
     if (b.kind === 'boss') dropItem(run, C.items.dropBoss, 1);
     if (b.kind === 'boss') {
@@ -945,6 +963,13 @@ window.GL = window.GL || {};
       case 'fruit':
       case 'treasure':
       case 'awaken': {
+        // Überspringen (Frucht/Schatz): kleine Goldbelohnung statt Auswahl
+        if (a.type === 'skip' && run.phase !== 'awaken') {
+          run.gold = (run.gold || 0) + (C.skipGold || 10);
+          if (run.fromEvent) { run.fromEvent = false; run.phase = 'map'; run.pool = []; return true; }
+          advance(run);
+          return true;
+        }
         if (a.type !== 'pick') return false;
         if (run.phase === 'awaken') {
           const u = run.crew[a.index];

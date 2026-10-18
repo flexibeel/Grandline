@@ -142,11 +142,11 @@ window.GL = window.GL || {};
       p.gearBag = byUid(p.gearBag, other.gearBag);
       p.chest = byUid(p.chest, other.chest);
       const union = (a, b) => Array.from(new Set([].concat(a || [], b || [])));
-      ['unlocked', 'epics', 'invites', 'friends', 'artLoadout'].forEach(k => { if (other[k]) p[k] = k === 'artLoadout' ? (p[k] || other[k]) : union(p[k], other[k]); });
+      ['unlocked', 'epics', 'invites', 'friends', 'artLoadout', 'pets'].forEach(k => { if (other[k]) p[k] = k === 'artLoadout' ? (p[k] || other[k]) : union(p[k], other[k]); });
       const maxMap = k => { p[k] = Object.assign({}, other[k] || {}, p[k] || {}); Object.keys(other[k] || {}).forEach(x => { p[k][x] = Math.max(p[k][x] || 0, other[k][x] || 0); }); };
       ['vault', 'loot', 'counts'].forEach(maxMap);
       if (other.seen) { p.seen = p.seen || {}; Object.keys(other.seen).forEach(k => { p.seen[k] = union(p.seen[k], other.seen[k]); }); }
-      ['rankXp', 'heatMax', 'bestStep', 'endlessBest', 'endlessLoops', 'squadW', 'shards'].forEach(k => { if (other[k] != null) p[k] = Math.max(p[k] || 0, other[k] || 0); });
+      ['rankXp', 'heatMax', 'bestStep', 'endlessBest', 'endlessLoops', 'squadW', 'shards', 'albumClaimed'].forEach(k => { if (other[k] != null) p[k] = Math.max(p[k] || 0, other[k] || 0); });
       if (other.stats) { p.stats = p.stats || {}; ['runs', 'wins', 'berryTotal'].forEach(k => { p.stats[k] = Math.max(p.stats[k] || 0, other.stats[k] || 0); }); }
       return p;
     },
@@ -559,6 +559,9 @@ window.GL = window.GL || {};
       (run.course || []).forEach(id => id && add(seen.islands, id));
       (run.eaten || []).forEach(id => add(seen.fruits, id));
       (run.relics || []).forEach(x => add(seen.relics, x.id || x));
+      // Begleiter gehen sofort an Bord (auch wenn der Run danach verloren geht)
+      profile.pets = profile.pets || [];
+      (run.pets || []).forEach(id => { if (add(profile.pets, id)) news.push({ kind: 'pet', id }); });
       // Endlos-Fahrt: zählt nicht für Freischaltungen (Kapitäne, erwachte Früchte gibt es nur auf den normalen Routen)
       const E = run.endlessSea != null;
       if (!E) (run.epics || []).forEach(id => { if (add(profile.epics, id)) news.push({ kind: 'epic', id }); });
@@ -638,6 +641,39 @@ window.GL = window.GL || {};
         if (ok) { profile.unlocked.push(u.unlock); news.push({ kind: 'crew', id: u.unlock }); }
       });
       return news;
+    },
+
+    // Sammelalbum: wie viele Einträge sind entdeckt? (gleiche Regeln wie die Album-Seite)
+    albumCount(profile) {
+      const s = profile.seen || {}, c = profile.counts || {}, has = (l, id) => (l || []).includes(id);
+      const crew = GL.data.crew.filter(d => !d.self), bosses = GL.data.bosses.concat(GL.data.raids, GL.data.hunted || []);
+      const pets = GL.data.pets || [];
+      const have = crew.filter(d => has(s.crew, d.id) || has(profile.unlocked, d.id)).length
+        + bosses.filter(d => (c['defeated:' + d.id] || 0) > 0).length
+        + GL.data.fruits.filter(f => has(s.fruits, f.id) || (f.awakened && has(profile.epics, f.id))).length
+        + GL.data.relics.filter(r => has(s.relics, r.id)).length
+        + pets.filter(p => has(profile.pets, p.id)).length;
+      const total = crew.length + bosses.length + GL.data.fruits.length + GL.data.relics.length + pets.length;
+      return { have, total };
+    },
+    // Sammelbuch-Stufe: erreichte Stufe, nächste Stufe und wie viele Einträge noch fehlen
+    albumStep(profile) {
+      const S = GL.data.albumSteps || [], ac = GL.meta.albumCount(profile);
+      const reached = S.filter(x => ac.have >= Math.ceil(x.at * ac.total)).length;
+      const next = S[reached] || null;
+      return { reached, next, left: next ? Math.ceil(next.at * ac.total) - ac.have : 0, need: next ? Math.ceil(next.at * ac.total) : ac.total, ac };
+    },
+    // Neue Sammelbuch-Belohnungen einlösen. Gibt die Liste der neu erreichten Stufen zurück
+    albumClaim(profile) {
+      const st = GL.meta.albumStep(profile), out = [];
+      profile.albumClaimed = profile.albumClaimed || 0;
+      while (profile.albumClaimed < st.reached) {
+        const x = GL.data.albumSteps[profile.albumClaimed++];
+        if (x.berry) profile.berry = (profile.berry || 0) + x.berry;
+        if (x.pet) { profile.pets = profile.pets || []; add(profile.pets, x.pet); }
+        out.push(x);
+      }
+      return out;
     },
 
     // Die nächsten Freischaltungen, am weitesten fortgeschrittene zuerst

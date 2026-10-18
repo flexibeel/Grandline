@@ -42,7 +42,7 @@
     const m = (GL.config.moods || []).find(x => x.id === run.mood);
     if (m) setTimeout(() => toast(`<span><b>${m.icon} Laune der See: ${m.name}</b>${m.text}</span>`), 600);
   }
-  function draw() { autoArrange(); moodNote(); GL.ui.render(run, anim, ui); featureCheck(); livePos(); musicMode(); }
+  function draw() { autoArrange(); moodNote(); GL.ui.render(run, anim, ui); featureCheck(); livePos(); musicMode(); if (ui.petQueue && ui.petQueue.length) setTimeout(showPets, 450); }
   // Musik: Titelbild etwas hörbarer, Hauptquartier leise, auf Fahrt ganz leise
   function musicMode() {
     if (!GL.music) return;
@@ -269,18 +269,37 @@
     });
   }
 
+  // Sammelbuch-Stufen einlösen (Berry sofort, Begleiter mit eigenem Fenster)
+  function checkAlbum() {
+    GL.meta.albumClaim(profile).forEach(x => {
+      if (x.berry) toast(`<span><b>Sammelbuch: neue Stufe!</b>+${x.berry} Berry fürs fleißige Entdecken.</span>`);
+      if (x.pet) ui.petQueue = (ui.petQueue || []).concat(x.pet);
+    });
+  }
+  // Wartende Begleiter-Fenster zeigen, sobald gerade nichts anderes offen ist und kein Kampf läuft
+  function showPets() {
+    if (!ui.petQueue || !ui.petQueue.length || document.getElementById('fpop') || (anim && !anim.done)) return;
+    const id = ui.petQueue.shift();
+    openGearPop(GL.ui.petPop(id, profile));
+  }
+
   function syncProfile() {
     if (!run) return saveProfile();
     GL.meta.update(profile, run).forEach(n => {
       if (n.kind === 'crew') {
         const d = GL.data.crew.find(c => c.id === n.id);
         toast(`<i>${GL.sprites.render(d)}</i><span><b>Freigeschaltet: ${d.name}</b>Ab jetzt als Kapitän wählbar und rekrutierbar.</span>`);
+      } else if (n.kind === 'pet') {
+        // Begleiter: eigenes kleines Fenster (erster Begleiter wird gleich mitgenommen)
+        if (!(profile.cos && profile.cos.pet)) profile.cos = Object.assign({}, profile.cos, { pet: n.id });
+        ui.petQueue = (ui.petQueue || []).concat(n.id);
       } else if (n.kind === 'epic') {
         const f = GL.data.fruits.find(x => x.id === n.id);
         toast(`<i>${GL.sprites.icon('fruit', f.id, true)}</i><span><b>Epische Frucht: ${f.name}</b>Taucht ab jetzt in deinen Runs auf.</span>`);
       }
     });
     checkChapters();
+    checkAlbum();
     checkCosmetics();
     (profile.quests || []).forEach(q => {
       if (!q.told && GL.meta.questProgress(profile, q).done) {
@@ -492,6 +511,7 @@
   // Zurück ins Hauptquartier (nach Run-Ende oder beim Aufgeben)
   function toHq() {
     stopAnim();
+    checkAlbum();
     if (run && !GL.run.isFinished(run)) GL.meta.finishRun(profile, Object.assign({}, run, { phase: 'over', step: 0, bounties: 0, defeated: [], berry: 0 }));
     run = null;
     ui.sheet = null;
@@ -727,6 +747,7 @@
         }
         GL.pickSel = null; ui.tvSel = null; act({ type: 'pick', index: i }); break;
       }
+      case 'loot-skip': GL.pickSel = null; act({ type: 'skip' }); break;
       case 'tv-sel': ui.tvSel = i; ui.lastStage = null; draw(); break;
       case 'up':   act({ type: 'swap', a: i, b: i - 1 }); break;
       case 'down': act({ type: 'swap', a: i, b: i + 1 }); break;
@@ -1354,7 +1375,18 @@
         }
         break;
       }
-      case 'album': ui.album = el.dataset.tab || 'stats'; draw(); break;
+      case 'album': checkAlbum(); ui.album = el.dataset.tab || 'stats'; draw(); break;
+      case 'pet-set': {
+        // Begleiter mitnehmen (leer = absetzen). Sitzt im Profil auf der Schulter und steht im Hafen am Steg
+        const v = el.dataset.v || null;
+        if (v && !(profile.pets || []).includes(v)) break;
+        profile.cos = Object.assign({}, profile.cos, { pet: v });
+        saveProfile();
+        if (document.getElementById('fpop') && el.closest('#fpop')) closePop();
+        const t = document.getElementById('title'); if (t) t.dataset.last = '';
+        ui.lastStage = null; draw();
+        break;
+      }
       case 'album-tab': ui.album = el.dataset.tab; draw(); break;
       case 'album-close': ui.album = null; draw(); break;
     }

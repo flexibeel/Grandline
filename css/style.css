@@ -4616,3 +4616,196 @@ body { overscroll-behavior: none; -webkit-tap-highlight-color: transparent; }
 .coach-ico svg { width: 18px; height: 18px; display: block; margin-top: 1px; }
 .coach span { flex: 1; }
 .coach-x { flex: none; width: 28px; height: 28px; border: 0; border-radius: 6px; background: #4f9a5a; color: #fff; font-weight: 800; cursor: pointer; box-shadow: inset 0 -3px 0 rgba(0,0,0,.2); }
+/* Frucht/Schatz überspringen: dezent, unter der Auswahl */
+.pick-skip-row { text-align: center; margin: 6px 0 0; }
+.pick-skip { background: none; border: 0; padding: 6px 10px; font: inherit; font-size: 12px; color: #8a6a44; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; }
+.pick-skip svg { width: 12px; height: 12px; }
+.pick-skip:hover { color: #5a3a1e; }
+/* Wiki Meta: starke Power-ups als kleine Chips */
+.wk-pu .pu-row { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 8px; }
+.pu-chip { display: inline-flex; align-items: center; gap: 5px; padding: 4px 8px 4px 5px; background: #fff8e8; border: 2px solid #d9bf8f; border-radius: 6px; box-shadow: 0 2px 0 #d9bf8f; font-size: 12px; line-height: 1.1; max-width: 100%; }
+.pu-chip b { font-weight: 700; color: #4a2f17; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 128px; }
+.pu-ico { width: 20px; height: 20px; flex: none; display: inline-flex; align-items: center; justify-content: center; }
+.pu-ico svg { width: 20px; height: 20px; image-rendering: pixelated; }
+.pu-lift { font-style: normal; font-weight: 800; font-size: 11px; padding: 1px 5px; border-radius: 4px; background: #efe3c8; color: #7a5a34; }
+.pu-lift.up { background: #dcefd6; color: #2f6a3a; }
+.pu-lift.down { background: #f4dcd6; color: #a2402e; }
+.pu-chip.weak { opacity: .62; filter: grayscale(.5); }
+
+/* ---------- Begleiter ---------- */
+@keyframes pet-hop { 0%, 60%, 100% { transform: translateY(0); } 70% { transform: translateY(-3px); } 80% { transform: translateY(0); } 88% { transform: translateY(-1px); } }
+@keyframes pet-dance { 0%, 100% { transform: translateY(0) scaleX(1); } 25% { transform: translateY(-3px) scaleX(1); } 50% { transform: translateY(0) scaleX(-1); } 75% { transform: translateY(-2px) scaleX(-1); } }
+.portrait .ppet { position: absolute; right: 1px; bottom: 1px; width: 40%; height: 40%; z-index: 2; display: block; animation: pet-hop 2.6s steps(1) infinite; }
+.portrait .ppet svg { width: 100% !important; height: 100% !important; filter: drop-shadow(0 1px 0 rgba(0,0,0,.25)); }
+.portrait.lg .ppet { width: 36%; height: 36%; }
+.ss-deck { position: absolute; left: 14px; right: 18px; top: 33px; height: 14px; display: flex; justify-content: center; gap: 3px; z-index: 2; pointer-events: none; }
+.ss-pet { display: block; width: 13px; height: 13px; animation: pet-dance 1.6s steps(4) infinite; }
+.ss-pet.d1 { animation-delay: -.4s; } .ss-pet.d2 { animation-delay: -.8s; } .ss-pet.d3 { animation-delay: -1.2s; }
+.ss-pet svg, .ss-buddy svg { width: 100%; height: 100%; display: block; shape-rendering: crispEdges; }
+.sail-stage .ss-dock .ss-buddy { width: 16px !important; height: 16px !important; margin-left: 2px !important; animation: pet-hop 2s steps(1) infinite !important; }
+.pet-hop { display: inline-block; animation: pet-hop 2.4s steps(1) infinite; }
+.pet-hop svg { display: block; }
+.pet-sil svg { filter: brightness(0) opacity(.28); }
+/* Album: Begleiter-Karten */
+.pet-card .acard-art { display: grid; place-items: center; }
+.pet-card .acard-art svg { width: 44px; height: 44px; shape-rendering: crispEdges; }
+.pet-card small { font-style: normal; }
+.pet-card.on { box-shadow: 0 0 0 3px #4f9a5a inset; }
+.pet-card .btn.mini { margin-top: 6px; }
+/* Fenster: neuer Begleiter */
+.pet-pop { text-align: center; }
+.pet-pop .pet-hop.big svg { width: 84px; height: 84px; shape-rendering: crispEdges; margin: 6px auto 2px; }
+.pet-pop h3 { margin: 4px 0 2px; }
+.pet-say { font-style: italic; color: #6b4a2a; margin: 4px 0 10px; }
+.pet-note { display: block; margin-top: 8px; color: #8a6a44; font-size: 11px; }
+/* Hafen: Gerücht + Sammelbuch */
+.hook-box { display: grid; gap: 6px; margin: 8px 0; padding: 8px; }
+.hook-row { display: flex; align-items: center; gap: 10px; width: 100%; text-align: left; background: rgba(255,255,255,.45); border: 0; border-radius: 6px; padding: 6px 8px; font: inherit; color: inherit; cursor: pointer; }
+.hook-row:hover { background: rgba(255,255,255,.7); }
+.hook-row > span { display: grid; gap: 1px; flex: 1; min-width: 0; }
+.hook-row small { font-size: 10px; text-transform: uppercase; letter-spacing: .06em; color: #a0724a; font-weight: 700; }
+.hook-row b { font-size: 13px; line-height: 1.25; }
+.hook-ico { width: 28px; height: 28px; flex: none; display: grid; place-items: center; }
+.hook-ico svg { width: 26px; height: 26px; shape-rendering: crispEdges; }
+.hook-ico .pet-sil, .hook-ico span { display: block; }
+.hook-bar { display: block; height: 5px; border-radius: 3px; background: rgba(0,0,0,.1); overflow: hidden; margin-top: 3px; }
+.hook-bar i { display: block; height: 100%; background: #e0a83a; }
+/* Album: Sammelbuch-Pfad */
+.album-steps { padding: 10px 12px; margin: 0 0 10px; }
+.as-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin-bottom: 8px; }
+.as-head small { color: #8a6a44; }
+.as-path { display: flex; align-items: center; }
+.as-line { flex: 1; height: 3px; background: rgba(0,0,0,.12); min-width: 6px; }
+.as-node { position: relative; width: 34px; height: 34px; flex: none; display: grid; place-items: center; border-radius: 8px; background: #efe2c6; box-shadow: inset 0 -3px 0 rgba(0,0,0,.12); font-style: normal; }
+.as-node svg { width: 22px; height: 22px; shape-rendering: crispEdges; }
+.as-node em { position: absolute; bottom: -14px; left: 50%; transform: translateX(-50%); font-size: 9px; font-style: normal; color: #8a6a44; }
+.as-node.done { background: #f6d77a; box-shadow: inset 0 -3px 0 rgba(160,110,20,.35), 0 0 0 2px #e0a83a; }
+.as-node.next { box-shadow: inset 0 -3px 0 rgba(0,0,0,.12), 0 0 0 2px #4f9a5a; animation: pet-hop 2.2s steps(1) infinite; }
+.album-steps { padding-bottom: 20px; }
+@media (prefers-reduced-motion: reduce) { .ppet, .ss-pet, .pet-hop, .as-node.next, .ss-buddy { animation: none !important; } }
+
+/* ---------- Piraten-Kosmetik: Pixel-Szenen, Pixel-Flaggen, animierte Rahmen ---------- */
+.portrait .pbg { position: absolute; inset: 0; z-index: 0; display: block; pointer-events: none; font-style: normal; }
+.portrait .pbg svg, .portrait .pflag svg { position: absolute !important; inset: 0; width: 100% !important; height: 100% !important; z-index: 0;
+  animation: none !important; transform: none !important; filter: none !important; }
+.portrait.has-art { background: #1a1a22; }
+/* Flaggen als Pixel-Bild, wehen leicht */
+.pflag.art { width: 42%; min-width: 15px; aspect-ratio: 13 / 11; background: none; overflow: hidden; border-width: 2px; border-radius: 2px;
+  transform-origin: 0 50%; animation: fl-wave 2.2s steps(2) infinite; }
+.pflag.art::before { content: none !important; }
+.portrait.xs .pflag.art, .portrait.sm .pflag.art { border-width: 1px; right: -2px; top: -2px; }
+@keyframes fl-wave { 50% { transform: skewY(-5deg) scaleX(.94); } }
+/* Bewegte Teile in den Szenen */
+.portrait .ca { transform-box: fill-box; }
+.ca-spin { transform-box: view-box !important; transform-origin: 2.5px 7.5px; animation: ca-spin 3.2s steps(8) infinite; }
+.ca-drift { animation: ca-drift 3s steps(3) infinite alternate; }
+.ca-fog { animation: ca-drift 5s steps(4) infinite alternate; }
+.ca-snow { animation: ca-snow 2.4s steps(6) infinite; }
+.ca-snow2 { animation: ca-snow 3s steps(6) infinite -1.2s; }
+.ca-tw1, .ca-tw2, .ca-tw3 { animation: ca-tw 1.8s steps(2) infinite; }
+.ca-tw2 { animation-delay: -.6s; } .ca-tw3 { animation-delay: -1.2s; }
+.ca-flick { animation: ca-flick .9s steps(2) infinite; } .ca-flick2 { animation: ca-flick 1.1s steps(2) infinite -.4s; }
+.ca-flash { animation: ca-flash 2.4s steps(1) infinite; }
+.ca-puff { transform-origin: 50% 50%; animation: ca-puff 2.4s steps(4) infinite; }
+.ca-puff2 { transform-origin: 50% 50%; animation: ca-puff 2.4s steps(4) infinite -1.2s; }
+.ca-splash { transform-origin: 50% 100%; animation: ca-splash 2.4s steps(3) infinite -1.2s; }
+.ca-flashall, .ca-bolt { animation: ca-storm 3.6s steps(1) infinite; }
+.ca-rain { animation: ca-rain .6s steps(3) infinite; }
+.ca-wave { animation: ca-wave 2.4s steps(6) infinite; } .ca-wave2 { animation: ca-wave 3s steps(6) infinite reverse; }
+.ca-sway { transform-origin: 30% 100%; animation: ca-sway 2.6s steps(3) infinite alternate; }
+.ca-sway2 { transform-origin: 70% 100%; animation: ca-sway 2.6s steps(3) infinite alternate-reverse; }
+.ca-blink { animation: ca-blink 3.4s steps(1) infinite; }
+.ca-rise { animation: ca-rise 2.8s steps(7) infinite; } .ca-rise2 { animation: ca-rise 3.4s steps(7) infinite -1.5s; }
+.ca-flag { transform-origin: 100% 0; animation: ca-flag 1.3s steps(2) infinite alternate; }
+@keyframes ca-spin { to { transform: rotate(360deg); } }
+@keyframes ca-drift { to { transform: translateX(2px); } }
+@keyframes ca-snow { from { transform: translateY(-3px); } to { transform: translateY(5px); } }
+@keyframes ca-tw { 50% { opacity: .15; } }
+@keyframes ca-flick { 50% { opacity: .55; } }
+@keyframes ca-flash { 0% { opacity: 1; } 12% { opacity: 0; } }
+@keyframes ca-puff { 0% { transform: scale(.3); opacity: 0; } 10% { opacity: 1; } 70% { transform: scale(1.25); opacity: .8; } 100% { transform: scale(1.5); opacity: 0; } }
+@keyframes ca-splash { 0% { transform: scaleY(0); } 40% { transform: scaleY(1); } 80%, 100% { transform: scaleY(0); } }
+@keyframes ca-storm { 0%, 62% { opacity: 0; } 64% { opacity: 1; } 67% { opacity: 0; } 70% { opacity: 1; } 74%, 100% { opacity: 0; } }
+@keyframes ca-rain { to { transform: translate(-2px, 6px); } }
+@keyframes ca-wave { to { transform: translateX(6px); } }
+@keyframes ca-sway { from { transform: rotate(-5deg); } to { transform: rotate(4deg); } }
+@keyframes ca-blink { 0%, 90% { opacity: 1; } 92% { opacity: 0; } 96%, 100% { opacity: 1; } }
+@keyframes ca-rise { from { transform: translateY(0); opacity: 1; } to { transform: translateY(-9px); opacity: 0; } }
+@keyframes ca-flag { to { transform: skewY(6deg) scaleX(.9); } }
+/* Animierte Rahmen: Leuchten innen über dem Hintergrund */
+.portrait .pbg::after { content: none; position: absolute; inset: 0; pointer-events: none; }
+.fr-schatzglanz { border-color: #e2a92a; box-shadow: 0 0 0 2px #fff6dc, 0 0 10px rgba(242,201,76,.6); }
+.fr-schatzglanz .pbg::after { content: ''; inset: -30%; background: linear-gradient(115deg, transparent 42%, rgba(255,248,200,.7) 48%, transparent 54%);
+  animation: fr-glint 3.2s steps(8) infinite; }
+.fr-glutkette { border-color: #5a2e1a; border-style: dashed; box-shadow: 0 0 0 1px #2a1a10, 0 0 9px rgba(242,118,46,.65); }
+.fr-glutkette .pbg::after { content: ''; box-shadow: inset 0 0 6px 2px rgba(242,118,46,.8); animation: fr-glow 1.2s steps(3) infinite alternate; }
+.fr-sturmband { border-color: #2a3f6a; box-shadow: 0 0 0 2px #9ab8e0, 0 0 8px rgba(120,160,230,.5); }
+.fr-sturmband .pbg::after { content: ''; box-shadow: inset 0 0 0 2px #fff27a, inset 0 0 8px rgba(255,242,122,.6); animation: ca-storm 3.6s steps(1) infinite; }
+.fr-regenbogen { border-color: #1f8a8a; border-style: solid; background-origin: padding-box; box-shadow: 0 0 0 2px #7fd8c8, 0 0 0 4px #1d5a6a; }
+.fr-regenbogen .pbg::after { content: ''; box-shadow: inset 0 0 0 2px #3fbfae, inset 0 0 7px rgba(80,220,200,.55); animation: fr-scale 2.4s steps(4) infinite alternate; }
+@keyframes fr-glint { from { transform: translateX(-60%); } to { transform: translateX(60%); } }
+@keyframes fr-glow { from { opacity: .45; } to { opacity: 1; } }
+@keyframes fr-scale { to { filter: hue-rotate(50deg) brightness(1.15); } }
+/* Seltene Teile im Editor hervorheben */
+.cos.rare-item { box-shadow: inset 0 0 0 2px #e8b830; }
+@media (prefers-reduced-motion: reduce) { .portrait .ca, .pflag.art, .portrait .pbg::after { animation: none !important; } }
+.ss-deck { top: 35px !important; height: 16px !important; gap: 4px !important; }
+.ss-pet { width: 16px !important; height: 16px !important; }
+.fpop-card.pet-pop { display: block; }
+.pet-pop .fpop-kicker { display: block; }
+.pet-pop .pet-hop.big { display: block; margin: 0 auto; width: max-content; }
+.pet-pop .fpop-btns { justify-content: center; }
+/* Seltene Teile: auch gesperrt in Farbe als Vorschau, damit man weiß, wofür man spielt */
+.cos.locked.rare-item { opacity: .85; }
+.cos.locked.rare-item .portrait { filter: saturate(.75) brightness(.9); }
+
+/* ---------- Tiefe der Figuren: Spielweise, Fähigkeit, Ulti, „Darum lohnt er sich“ ---------- */
+.tv-style { margin: 4px 0 6px; font-size: .76rem; font-style: italic; color: #7a5a3a; line-height: 1.3; }
+.tv-why { margin: 6px 0; padding: 6px 8px; background: #eaf3df; border: 2px solid #7fb07a; border-radius: 6px;
+  box-shadow: inset 0 -2px 0 rgba(0,0,0,.06); display: grid; gap: 4px; }
+.tv-why .why-k { font-size: .62rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: #3f7a4a; }
+.tv-why .why-row { display: flex; align-items: flex-start; gap: 6px; font-size: .74rem; line-height: 1.3; color: #2f4a2a; font-weight: 600; }
+.tv-why .why-row > svg, .tv-why .why-row > i, .tv-why .why-row > .pxi { flex: 0 0 auto; width: 14px; height: 14px; margin-top: 1px; font-style: normal; }
+.why-heart { color: #d0506a; font-size: .8rem; line-height: 1; }
+.why-sword { color: #8a5a2a; font-size: .8rem; line-height: 1; }
+.tv-abx { position: relative; margin: 5px 0; padding: 5px 8px 6px 10px; border-radius: 6px; background: #fbf3e2;
+  border: 2px solid #d9c49a; border-left-width: 5px; display: grid; grid-template-columns: auto 1fr auto; column-gap: 6px; align-items: baseline; }
+.tv-abx.ty-kraft { border-left-color: #d98a72; } .tv-abx.ty-klinge { border-left-color: #7fa98a; } .tv-abx.ty-technik { border-left-color: #7fa3c9; }
+.tv-abx.ult { border-color: #e2b85a; border-left-color: #d89a2a; background: linear-gradient(90deg, #fff3cf, #fbf3e2 70%); }
+.tv-abx .abx-k { font-size: .58rem; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; color: #fff; background: #8a6a44;
+  padding: 1px 5px; border-radius: 3px; box-shadow: 0 2px 0 rgba(0,0,0,.18); }
+.tv-abx.ult .abx-k { background: #c8861a; }
+.tv-abx b { font-size: .8rem; color: #3a2a1a; }
+.tv-abx .abx-when { font-style: normal; font-size: .62rem; font-weight: 700; color: #8a6a44; background: #efe2c4; padding: 1px 5px; border-radius: 3px; white-space: nowrap; }
+.tv-abx small { grid-column: 1 / -1; margin-top: 2px; font-size: .74rem; line-height: 1.3; color: #5a4a36; }
+.tv-mates { display: flex; align-items: center; gap: 4px; margin: 4px 0 2px; font-size: .7rem; color: #7a6a52; }
+.tv-mates > span { font-weight: 800; font-size: .62rem; text-transform: uppercase; letter-spacing: .05em; color: #c0506a; }
+.tv-mates > i { width: 20px; height: 22px; display: inline-block; }
+.tv-mates > i svg { width: 100%; height: 100%; }
+.tv-mates small { margin-left: 2px; font-size: .7rem; }
+.c3-style { display: block; margin: 4px 10px 0; font-size: .68rem; font-style: italic; line-height: 1.25; color: #7a5a3a; text-align: center; }
+
+/* ---------- Kampf: Fähigkeiten sichtbar, Zusammenspiel zum Start ---------- */
+.callout.ty-kraft { background: #f2b49e; } .callout.ty-klinge { background: #b6dcb9; } .callout.ty-technik { background: #b4d0ee; }
+.callout { border: 2px solid #3a2a1a; border-radius: 5px; box-shadow: 0 3px 0 rgba(0,0,0,.25); }
+.ptag.ab { background: #6a8a3a; font-size: .64rem; }
+.sy-intro { position: absolute; left: 50%; top: 10px; transform: translateX(-50%); z-index: 40; display: flex; flex-wrap: wrap; justify-content: center;
+  align-items: center; gap: 4px; max-width: 92%; pointer-events: none; animation: syIn .45s cubic-bezier(.2,1.4,.4,1) both; }
+.sy-intro small { width: 100%; text-align: center; font-size: .58rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: #fff;
+  text-shadow: 0 1px 0 #3a2a1a, 0 -1px 0 #3a2a1a, 1px 0 0 #3a2a1a, -1px 0 0 #3a2a1a; }
+.sy-chip { font-size: .68rem; font-weight: 800; color: #3a2a1a; background: #fbf3e2; border: 2px solid #3a2a1a; border-radius: 4px; padding: 1px 6px;
+  box-shadow: 0 3px 0 rgba(0,0,0,.25); white-space: nowrap; }
+.sy-chip.duo { background: #f6c6d0; } .sy-chip.fac { background: #f2deb0; } .sy-chip.ally { background: #d8c6f2; }
+.sy-intro.out { animation: syOut .45s ease-in forwards; }
+@keyframes syIn { from { opacity: 0; transform: translate(-50%, -14px) scale(.9); } to { opacity: 1; transform: translate(-50%, 0) scale(1); } }
+@keyframes syOut { to { opacity: 0; transform: translate(-50%, -10px); } }
+@media (prefers-reduced-motion: reduce) { .sy-intro, .sy-intro.out { animation: none; } }
+.pflag.art { right: 3px; top: 3px; }
+.portrait.xs .pflag.art, .portrait.sm .pflag.art { right: 1px; top: 1px; }
+.co-petchip { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 700; color: #6b4a2a; background: #f3e6c8; border-radius: 6px; padding: 2px 6px 2px 3px; margin: 0 4px 4px 0; }
+.co-petchip i { width: 16px; height: 16px; display: block; }
+.co-petchip svg { width: 16px; height: 16px; display: block; shape-rendering: crispEdges; }
+.portrait .ppet svg { animation: none !important; transform: none !important; }
+.tv-trait { display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap; }
+.tv-trait .abx-k { font-size: .58rem; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; color: #fff; background: #6a8a5a; padding: 1px 5px; border-radius: 3px; }
+.sy-intro { top: 40px; }

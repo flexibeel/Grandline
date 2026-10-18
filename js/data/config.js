@@ -69,6 +69,7 @@ GL.config = {
   eventChance: 0.2,       // Chance nach jeder Etappe
 
   // Heilung
+  skipGold: 10,           // Frucht oder Schatz überspringen
   winHeal: 0.15,          // nach jedem gewonnenen Kampf (Anteil vom Max-Leben)
   restHeal: 0.4,          // Rast an Land
   reviveAfterBoss: 0.5,   // Gefallene kommen nach einem Inselboss mit diesem Anteil zurück

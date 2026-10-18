@@ -1,6 +1,15 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-18h', date: '18.10.', title: 'Begleiter und Sammelbuch', items: [
+    'Begleiter: 16 kleine Tiere leben auf den Inseln, vom Laubfrosch in Syrup bis zum Wolkenfuchs auf Skypiea. Besiege dort Bösewicht oder Boss, mit etwas Glück kommt eins an Bord. Es sitzt auf deiner Schulter, die anderen tanzen im Hafen auf dem Schiff',
+    'Hafengerücht: Im Hafen steht jeden Tag, wo ein Begleiter auf dich wartet. Beim Kurs setzen zeigt „Begleiter?“, auf welcher Insel noch einer lebt',
+    'Sammelbuch im Album: Jede Entdeckung bringt dich weiter, mit Berry und drei besonderen Begleitern als Belohnung',
+    'Neue Piraten-Kosmetik: animierte Hintergründe wie Kraken-Tiefe, Kanonendonner, Sturmfahrt, Laternenhafen, Goldener Schatzberg und Unter schwarzer Flagge, glänzende Rahmen, alle Piratenflaggen als echte Pixel-Totenköpfe und 8 neue Titel',
+    'Wiki → Meta zeigt jetzt, welche Schätze, Teufelsfrüchte und Artefakte gerade stark sind, erst aus der Simulation, später live aus euren Runs',
+    'Mehr Tiefe für jede Figur: In der Taverne steht jetzt ihre Spielweise, wann Fähigkeit und Ulti wirken und warum sie sich gerade für deine Crew lohnt. Im Kampf siehst du, welche Fähigkeiten, Duos und Banden-Boni gerade wirken',
+    'Kampfrausch nimmt nur noch die normale Heilung weg. Fleischkeule und andere Heil-Schätze wirken weiter',
+    'Früchte und Schätze kannst du jetzt überspringen und bekommst dafür 10 Gold' ] },
   { v: '2026-10-18g', date: '18.10.', title: 'Fischmenscheninsel', items: [
     'Neue Route ab Rang 12: Im zweiten Meer kannst du zur Fischmenscheninsel abtauchen, zehntausend Meter unter dem Meer',
     'Zwei neue Bosse: Hody Jones auf dem Gyoncorde-Platz und Vander Decken IX über dem Ryugu-Palast',

@@ -219,13 +219,56 @@ window.GL = window.GL || {};
         const f = fu(sd, i) || el(sd, i);
         if (!f) return;
         const c = document.createElement('span');
-        c.className = 'callout' + (f.classList.contains('fu') ? ' on-field' : '');
+        c.className = 'callout ty-' + (list[i].type || 'kraft') + (f.classList.contains('fu') ? ' on-field' : '');
         c.textContent = a.name + '!';
+        f.querySelectorAll('.callout').forEach(x => x.remove());
         f.appendChild(c);
         setTimeout(() => c.remove(), 1500);
         return;
       }
     }
+  }
+
+  // Fähigkeiten, die beim normalen Treffer wirken (Krit-Stil, Scharfschütze, Doppelschlag,
+  // stärker werden): kurz sichtbar machen, damit jede Crew anders kämpft. Nur Anzeige.
+  const hitMemo = { last: null, ramp: {}, seen: {}, at: {} };
+  function hitAbility(ev) {
+    const run = window.__glRun || {};
+    const list = ev.side === 'crew' ? run.crew : (run.battle || {}).enemies;
+    const u = list && list[ev.from];
+    const a = u && GL.data.abilities[u.id];
+    const key = ev.side + ':' + ev.from;
+    const prev = hitMemo.last; hitMemo.last = key;
+    if (!a || ev.miss || ev.blocked) return;
+    const now = Date.now();
+    const calm = id => { if (now - (hitMemo.at[id] || 0) < 2600) return false; hitMemo.at[id] = now; return true; };
+    const critStyle = (a.mods || []).some(m => m.crit) || /Krit/.test(a.text || '');
+    if (a.kind === 'double' && prev === key) { tagAt(ev.side, ev.from, 'Doppelschlag!', 'buff ab', 50); return; }
+    if (a.kind === 'sniper' && !hitMemo.seen[key]) { hitMemo.seen[key] = 1; callout(u.id, ev.side); return; }
+    if (a.kind === 'ramp') {
+      const n = hitMemo.ramp[key] = (hitMemo.ramp[key] || 0) + 1;
+      tagAt(ev.side, ev.from, '+' + (a.value || 1) + ' ⚔', 'buff ab', 50);
+      if (n === 3 || n === 6 || n === 10) callout(u.id, ev.side);
+      return;
+    }
+    if (ev.crit && critStyle && calm(key)) callout(u.id, ev.side);
+  }
+  // Kampfbeginn: welche Duos, Banden-Boni und Bündnisse wirken gerade? Kurz als Pixel-Schilder
+  function synergyIntro(run) {
+    const field = $('#field');
+    if (!field || !run || !run.crew) return;
+    const alive = run.crew.filter(u => u.hp > 0);
+    const chips = [];
+    (GL.effects.duos(alive) || []).forEach(x => chips.push(`<span class="sy-chip duo">♥ ${x.name}</span>`));
+    (GL.effects.status(alive) || []).filter(s => s.active && s.kind === 'faction').forEach(s => chips.push(`<span class="sy-chip fac">${s.name} ${s.count}</span>`));
+    (GL.effects.alliances ? GL.effects.alliances(alive) : []).forEach(x => chips.push(`<span class="sy-chip ally">✦ ${x.name}</span>`));
+    if (!chips.length) return;
+    const n = document.createElement('div');
+    n.className = 'sy-intro';
+    n.innerHTML = `<small>Zusammenspiel</small>${chips.slice(0, 4).join('')}`;
+    field.appendChild(n);
+    setTimeout(() => n.classList.add('out'), 2300);
+    setTimeout(() => n.remove(), 2800);
   }
 
   // Kurze CSS-Animation neu starten
@@ -549,6 +592,8 @@ window.GL = window.GL || {};
         }
         fieldEl.classList.add('enter');
         setTimeout(() => fieldEl.classList.remove('enter'), 2500);
+        hitMemo.last = null; hitMemo.ramp = {}; hitMemo.seen = {}; hitMemo.at = {};
+        setTimeout(() => synergyIntro(run), 500);
       }
       Object.keys(live).forEach(k => delete live[k]);
       const root = $('#arena');
@@ -565,6 +610,7 @@ window.GL = window.GL || {};
         const tside = ev.side === 'crew' ? 'enemy' : 'crew';
         pulse(el(ev.side, ev.from), 'lunge');
         fieldHit(ev);
+        try { hitAbility(ev); } catch (e) { /* nur Anzeige */ }
         if (ev.miss) float(tside, ev.to, 'Ausgewichen', 'miss');
         else if (ev.blocked) float(tside, ev.to, 'Geblockt', 'block');
         else {

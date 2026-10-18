@@ -292,6 +292,50 @@ window.GL = window.GL || {};
   }
 
   // Welche Synergie-Stufen würde diese Figur zusätzlich freischalten?
+  // ---------- Tiefe der Figuren: Spielweise, wann die Fähigkeit wirkt, warum sie sich lohnt ----------
+  const styleOf = id => (GL.data.styles || {})[id] || '';
+  const SHE = ['nami', 'robin', 'hina', 'tashigi', 'kalifa', 'vivi', 'hancock', 'alvida', 'koala', 'perona', 'bonney'];
+  // Wann greift die Fähigkeit? Kurzes Schild statt langer Erklärung
+  function abWhen(a) {
+    if (!a) return '';
+    const K = { ramp: 'bei jedem Treffer', slow: 'zum Kampfstart', rally: 'zum Kampfstart', curse: 'zum Kampfstart', mimic: 'zum Kampfstart', oasis: 'zum Kampfstart',
+      medic: 'jede Runde', execute: 'beim Treffer', revive: 'einmal pro Kampf', thorns: 'wenn getroffen', burn: 'bei jedem Treffer', chain: 'bei jedem Treffer',
+      lifesteal: 'bei jedem Treffer', double: 'jede Runde', sniper: 'immer' };
+    if (a.kind && K[a.kind]) return K[a.kind];
+    if (a.status) return a.status.when === 'start' ? 'zum Kampfstart' : a.status.when === 'hit' ? 'beim Treffer' : a.status.when === 'every' ? `alle ${a.status.n || 3} Runden` : '';
+    return 'immer aktiv';
+  }
+  // Duo-Partner und Kampfstil-Vorteil, automatisch aus den Daten
+  function goodWith(id) {
+    return (GL.data.duos || []).filter(x => x.a === id || x.b === id).map(x => crewData(x.a === id ? x.b : x.a)).filter(Boolean);
+  }
+  // Bis zu zwei Gründe, warum sich die Figur JETZT für diese Crew lohnt
+  function whyNow(run, d, m) {
+    const out = [];
+    const before = GL.effects.status(run.crew), probe = { id: d.id, type: d.type, role: d.role, faction: d.faction };
+    const after = GL.effects.status(run.crew.concat([probe]));
+    after.forEach((s, i) => { if (s.active && s.active !== before[i].active) out.push({ ico: pxIcon(s.key), t: `Aktiviert ${s.name} ${s.count}: ${s.active.text}` }); });
+    GL.effects.duosWith(run.crew, d.id).forEach(x => out.push({ ico: '<i class="why-heart">♥</i>', t: `Duo ${x.name}: ${x.text}` }));
+    const alive = run.crew.filter(u => u.hp > 0);
+    const roles = new Set(alive.map(u => (crewData(u.id) || {}).role));
+    if (d.role === 'helfer' && !roles.has('helfer')) out.push({ ico: pxIcon('helfer'), t: 'Deine Crew hat noch keinen Helfer. Mit Heilung hält sie länger durch.' });
+    if (d.role === 'brecher' && !roles.has('brecher')) out.push({ ico: pxIcon('brecher'), t: 'Noch steht kein Brecher vorne, der die Schläge abfängt.' });
+    const boss = GL.run.boss ? GL.run.boss(run) : null;
+    if (boss && GL.data.types[d.type] && GL.data.types[d.type].strong === boss.type) out.push({ ico: pxIcon(d.type), t: `Stark gegen ${boss.name}, den Boss dieses Meeres (${GL.data.types[boss.type].name}).` });
+    const bestAtk = Math.max(0, ...alive.map(u => u.atk));
+    if (m && m.atk > bestAtk && alive.length) out.push({ ico: '<i class="why-sword">⚔</i>', t: `Höchster Angriff an Bord (${m.atk}).` });
+    return out.slice(0, 2);
+  }
+  // Fähigkeit und Ulti als kleine, lebendige Blöcke
+  function abilityBlock(d) {
+    const a = ability(d.id), u = ultiOf(d.id, d.role);
+    const st = styleOf(d.id), mates = goodWith(d.id).slice(0, 3);
+    return `${st ? `<p class="tv-style">„${esc(st)}“</p>` : ''}
+      ${a ? `<div class="tv-abx ty-${d.type}"><span class="abx-k">Fähigkeit</span><b>${esc(a.name)}</b><em class="abx-when">${esc(abWhen(a))}</em><small>${esc(a.text)}</small></div>` : ''}
+      ${u ? `<div class="tv-abx ult"><span class="abx-k">Ulti</span><b>${esc(u.name)}</b><em class="abx-when">wenn die Leiste voll ist</em><small>${esc(u.text)}</small></div>` : ''}
+      ${mates.length ? `<p class="tv-mates"><span>Gut mit</span>${mates.map(c => `<i title="${esc(c.name)}">${GL.sprites.render(c)}</i>`).join('')}<small>${mates.map(c => esc(c.name)).join(', ')}</small></p>` : ''}`;
+  }
+
   function unlockPreview(run, d) {
     const before = GL.effects.status(run.crew);
     const after = GL.effects.status(run.crew.concat([{ id: d.id, type: d.type, role: d.role, faction: d.faction }]));
@@ -328,6 +372,7 @@ window.GL = window.GL || {};
       </span>
       <span class="c3-name">${d.name}</span>
       <span class="c3-sub"><i class="c3-dot t-${d.type}"></i>${T ? esc(T.name) : ''}<span>·</span>${R ? esc(R.name) : ''}</span>
+      ${o.style && styleOf(d.id) ? `<span class="c3-style">${esc(styleOf(d.id))}</span>` : ''}
       <span class="c3-ab">
         ${a ? `<span title="${esc(a.text)}"><b>${a.name}</b> ${esc(shortText(a.text))}</span>` : ''}
         ${t ? `<span class="c3-trait" title="${esc(t.text)}"><b>${t.name}</b> ${esc(shortText(t.text))}</span>` : ''}
@@ -367,10 +412,11 @@ window.GL = window.GL || {};
   // Nach dem ersten Tipp auf eine Karte: großer Bestätigen-Knopf unten (zweiter Tipp auf die Karte geht auch)
   function pickDock(run, items) {
     const key = run.seed + ':' + run.step + ':' + run.phase;
-    if (!(GL.pickSel && GL.pickSel.key === key && items[GL.pickSel.i])) return `<p class="hint pick-hint">Antippen zum Auswählen, dann bestätigen.</p>`;
+    const skip = `<button class="pick-skip" data-act="loot-skip">Überspringen · +${GL.config.skipGold || 10} ${GL.sprites.coin()}</button>`;
+    if (!(GL.pickSel && GL.pickSel.key === key && items[GL.pickSel.i])) return `<p class="hint pick-hint">Antippen zum Auswählen, dann bestätigen.</p><p class="pick-skip-row">${skip}</p>`;
     const it = items[GL.pickSel.i];
     const chk = '<svg class="px-chk" viewBox="0 0 7 6" shape-rendering="crispEdges" aria-hidden="true"><path fill="currentColor" d="M6 0h1v1h-1zM5 1h1v1h-1zM6 1h1v1h-1zM0 2h1v1h-1zM4 2h1v1h-1zM5 2h1v1h-1zM0 3h1v1h-1zM1 3h1v1h-1zM3 3h1v1h-1zM4 3h1v1h-1zM1 4h1v1h-1zM2 4h1v1h-1zM3 4h1v1h-1zM2 5h1v1h-1z"/></svg>';
-    return `<div class="dock pick-dock"><button class="btn" data-act="pick" data-i="${GL.pickSel.i}">${chk} ${esc(it.name || 'Auswahl')} nehmen</button></div>`;
+    return `<div class="dock pick-dock"><button class="btn" data-act="pick" data-i="${GL.pickSel.i}">${chk} ${esc(it.name || 'Auswahl')} nehmen</button></div><p class="pick-skip-row">${skip}</p>`;
   }
   // Kurze Begründung unter einer Auswahl, falls es einen Tipp gibt
   function tipLine(tip) {
@@ -382,7 +428,7 @@ window.GL = window.GL || {};
     const d = crewData(offer.id);
     const m = GL.run.previewMember(run, offer);
     return cardButton(i, crewCardFace(d, m, {
-      lvl: m.lvl, stars: offer.stars, trait: offer.trait, gold: d.locked,
+      lvl: m.lvl, stars: offer.stars, trait: offer.trait, gold: d.locked, style: /(^|\s)cap(\s|$)/.test(extraCls || ''),
       extra: withPreview ? unlockPreview(run, d) : ''
     }), extraCls, tip);
   }
@@ -546,7 +592,7 @@ window.GL = window.GL || {};
   // Reihen von unten (Start) nach oben (Inselboss). Erreichbare Orte sind Knöpfe,
   // besuchte Orte sind golden verbunden, das Schiff zeigt, wo die Crew gerade ist.
   // „Neu“-Markierung: Gegner, die man noch nie besiegt hat, und Inseln, die man noch nie angesteuert hat
-  let seenRef = null;
+  let seenRef = null, profRef = null;
   const isNewFoe = id => !!(seenRef && id && !(seenRef.bosses || []).includes(id));
   const isNewIsl = isl => !!(seenRef && isl && !(seenRef.islands || []).includes(isl.id) && !(seenRef.bosses || []).includes(isl.villain || isl.boss));
   const newChip = '<span class="new-chip" title="Noch nie besiegt">Neu</span>';
@@ -1003,6 +1049,7 @@ window.GL = window.GL || {};
             ${i < 9 ? `<kbd class="key">${i + 1}</kbd>` : ''}
             ${route ? `<span class="co-routechip">Route: ${esc(route)}</span>` : ''}
             ${isNewIsl(isl) ? '<span class="new-chip co-new" title="Hier warst du noch nie">Neue Insel</span>' : ''}
+            ${(() => { const pt = (GL.data.pets || []).find(p => p.isl === isl.id); const pr = profRef; return pt && pr && !(pr.pets || []).includes(pt.id) ? `<span class="co-petchip"><i class="pet-sil">${petArt(pt.id)}</i>Begleiter?</span>` : ''; })()}
             <span class="co-top"><b class="co-name">${isl.name}</b><small>${isl.text}</small></span>
             <span class="co-route">${isl.places.map(p => `<i>${p}</i>`).join('<em>›</em>')}<em>›</em><i class="co-lair">${isl.lair}</i></span>
             <span class="co-foe"><span class="co-sprite">${GL.sprites.render(foe)}</span>
@@ -1070,10 +1117,9 @@ window.GL = window.GL || {};
             <div class="tv-d-head"><b>${esc(d.name)}</b>${d.faction ? `<span class="tv-fac">${pxIcon(d.faction)}${esc(GL.data.factions[d.faction].name)}</span>` : ''}<span class="tv-fac">${pxIcon(d.type)}${esc(GL.data.types[d.type].name)}</span><span class="tv-fac">${pxIcon(d.role)}${esc((GL.data.roles[d.role] || {}).name || '')}</span>
               <small>${weak && full ? `Pfeile: Vergleich mit deiner schwächsten Figur (${esc(crewData(weak.id).name)})` : `Noch ${lim - run.crew.length} ${lim - run.crew.length === 1 ? 'Platz' : 'Plätze'} frei: jede Figur macht deine Crew stärker`}</small></div>
             <div class="tv-stats">${row('Leben', '♥', m.max, weak && weak.max)}${row('Angriff', '⚔', m.atk, weak && weak.atk)}${row('Tempo', '➤', m.spd, weak && weak.spd)}</div>
-            ${a ? `<p class="tv-ab"><b>${esc(a.name)}</b> ${esc(a.text)}</p>` : ''}
-            ${t ? `<p class="tv-ab"><b>${esc(t.name)}</b> ${esc(t.text)}</p>` : ''}
-            ${u ? `<p class="tv-ab ult">✦ <b>${esc(u.name)}</b> ${esc(u.text)}</p>` : ''}
-            ${unlockPreview(run, d)}
+            ${(() => { const why = o.sold ? [] : whyNow(run, d, m); return why.length ? `<div class="tv-why"><span class="why-k">Darum lohnt ${SHE.includes(d.id) ? 'sie' : 'er'} sich jetzt</span>${why.map(w => `<span class="why-row">${w.ico}<span>${esc(w.t)}</span></span>`).join('')}</div>` : ''; })()}
+            ${abilityBlock(d)}
+            ${t ? `<p class="tv-ab tv-trait"><span class="abx-k">Eigenschaft</span><b>${esc(t.name)}</b> ${esc(t.text)}</p>` : ''}
             ${full && !o.sold && weak && weak.id !== run.captain
               ? `<button class="btn tv-buy tv-swap${weak.hp <= 0 ? ' down' : ''}" data-act="tv-swap" data-i="${sel}" data-j="${run.crew.indexOf(weak)}"${gold + GL.run.sellValue(weak) >= price ? '' : ' disabled'}>
                   <span class="tv-swap-out">${GL.sprites.render(crewData(weak.id))}${weak.hp <= 0 ? PX_GRAVE : ''}</span><span class="tv-swap-arrow">➜</span><span class="tv-swap-in">${GL.sprites.render(d)}</span>
@@ -1896,12 +1942,63 @@ window.GL = window.GL || {};
   function avatarOf(profile) { return { id: 'self', name: profile.nickname || 'Pirat', look: lookOf(profile) }; }
   function cosOf(profile) { return Object.assign({ bg: 'meer', frame: 'holz', anim: 'ruhig', title: 'neuling', flag: 'keine' }, profile.cos || {}); }
   function titleName(id) { const t = GL.data.cosmetics.titles.find(x => x.id === id); return t ? t.name : ''; }
+  // ---------- Begleiter ----------
+  const petDef = id => (GL.data.pets || []).find(p => p.id === id);
+  function petArt(id) { const p = petDef(id); return p ? GL.sprites.renderShaded({ id: 'pet-' + p.id, art: p.art }) : ''; }
+  function islName(id) {
+    for (const s of GL.data.islands) for (const S of [s, s.alt].filter(Boolean)) {
+      const i = S.small.concat(S.big).find(x => x.id === id); if (i) return i.name;
+    }
+    return '';
+  }
+  // Fenster, wenn ein Begleiter an Bord springt
+  function petPop(id, profile) {
+    const p = petDef(id); if (!p) return '';
+    const on = profile && profile.cos && profile.cos.pet === id;
+    return `<div class="fpop-card pet-pop" role="dialog">
+      <span class="fpop-kicker">Neuer Begleiter</span>
+      <div class="pet-hop big">${petArt(id)}</div>
+      <h3>${esc(p.name)}</h3>
+      <p class="pet-say">„${esc(p.say)}“</p>
+      <div class="fpop-btns">
+        ${on ? '' : `<button class="btn" data-act="pet-set" data-v="${p.id}">Mitnehmen</button>`}
+        <button class="btn ghost" data-act="pop-close">${on ? 'Schön' : 'Später'}</button>
+      </div>
+      <small class="pet-note">Begleiter sitzen auf deiner Schulter und tanzen im Hafen auf dem Schiff. Alle findest du im Album.</small>
+    </div>`;
+  }
+  // Zwei schlanke Zeilen im Hafen: ein Gerücht (Begleiter) und die nächste Sammelbuch-Belohnung
+  function hookLines(profile) {
+    const r = petRumor(profile), st = GL.meta.albumStep(profile);
+    const FEM = ['moewe', 'krabbe', 'kaluente', 'teleschnecke', 'taube', 'fledermaus', 'qualle', 'goldschnecke', 'schatzkrabbe'];
+    const nm = r ? r.name.replace(/^(Kleine[rs]?) /, m => m.toLowerCase()) : '';
+    const rumor = r ? `<button class="hook-row" data-act="album" data-tab="pets">
+        <i class="hook-ico pet-sil">${petArt(r.id)}</i>
+        <span><small>Hafengerücht</small><b>Auf ${esc(islName(r.isl))} soll ${FEM.includes(r.id) ? 'eine' : 'ein'} ${esc(nm)} leben</b></span></button>` : '';
+    const nx = st.next;
+    const rew = nx ? (nx.pet ? `${esc(petDef(nx.pet).name)}` : `${nx.berry} Berry`) : '';
+    const book = nx ? `<button class="hook-row" data-act="album" data-tab="pets">
+        <i class="hook-ico">${nx.pet ? `<span class="pet-sil">${petArt(nx.pet)}</span>` : GL.sprites.coin()}</i>
+        <span><small>Sammelalbum · Stufe ${st.reached + 1}</small><b>Noch ${st.left} ${st.left === 1 ? 'Entdeckung' : 'Entdeckungen'} bis ${rew}</b>
+        <i class="hook-bar"><i style="width:${Math.round(100 * st.ac.have / Math.max(1, st.need))}%"></i></i></span></button>` : '';
+    return rumor || book ? `<div class="hook-box pxf">${rumor}${book}</div>` : '';
+  }
+  // Hafengerücht: zeigt auf einen Begleiter, der noch fehlt (wechselt jeden Tag)
+  function petRumor(profile) {
+    const miss = (GL.data.pets || []).filter(p => p.isl && !(profile.pets || []).includes(p.id));
+    if (!miss.length) return null;
+    const day = Math.floor(Date.now() / 864e5);
+    return miss[day % miss.length];
+  }
   // Kleines Porträt mit Hintergrund, Rahmen und Animation (Profil, Rangliste, Startbildschirm)
   function portrait(look, cos, size) {
     const c = Object.assign({ bg: 'meer', frame: 'holz', anim: 'ruhig', flag: 'keine' }, cos || {});
-    const flag = c.flag && c.flag !== 'keine' ? `<i class="pflag fl-${c.flag}" aria-hidden="true"></i>` : '';
+    // Flagge und besondere Hintergründe als Pixel-Bild (cosmetics.js), sonst wie bisher per CSS
+    const fArt = c.flag && c.flag !== 'keine' && GL.data.flagSvg ? GL.data.flagSvg(c.flag) : '';
+    const flag = c.flag && c.flag !== 'keine' ? `<i class="pflag fl-${c.flag}${fArt ? ' art' : ''}" aria-hidden="true">${fArt}</i>` : '';
+    const bArt = GL.data.bgSvg ? GL.data.bgSvg(c.bg) : '';
     const star = c.star ? ' star-power' : '';
-    return `<span class="portrait bg-${c.bg} fr-${c.frame} an-${c.anim}${star}${size ? ' ' + size : ''}">${GL.sprites.render({ id: 'self', look: look || DEFAULT_LOOK })}${flag}${c.star ? '<i class="star-tag" aria-hidden="true">★</i>' : ''}</span>`;
+    return `<span class="portrait bg-${c.bg} fr-${c.frame} an-${c.anim}${star}${bArt ? ' has-art' : ''}${size ? ' ' + size : ''}"><i class="pbg" aria-hidden="true">${bArt}</i>${GL.sprites.render({ id: 'self', look: look || DEFAULT_LOOK })}${c.pet && petDef(c.pet) ? `<i class="ppet" aria-hidden="true">${petArt(c.pet)}</i>` : ''}${flag}${c.star ? '<i class="star-tag" aria-hidden="true">★</i>' : ''}</span>`;
   }
   // Easter Egg: nur der Entwickler (Account westerholt.felix…) darf den Regenbogen-Stern einschalten
   // Nächste Freischaltungen mit Fortschrittsbalken („Noch 1× … → Figur“)
@@ -2000,10 +2097,44 @@ window.GL = window.GL || {};
           <h4>Figuren, die oft gewinnen</h4><div class="wk-meta-row">${M.chars.slice(0, 8).map(x => crewData(x.id) ? `<span class="wk-mc">${mini(crewData(x.id), !known(x.id))}<b>${esc(crewData(x.id).name)}</b><small>${pct(x.win)} Siege</small></span>` : '').join('')}</div>
           ${M.alliances && M.alliances.length ? `<h4>Bündnisse</h4><div class="wk-list">${M.alliances.slice(0, 4).map(x => `<div class="wk-row"><span><b>${esc(x.name)}</b><small>${x.n} Runs, ${pct(x.win)} Siege</small></span></div>`).join('')}</div>` : ''}
           <p class="muted">Nur zum Nachschlagen: Jede Crew kann gewinnen. Die Liste wird mit Updates neu berechnet.</p></section>` : '';
-      body = real + live + sim;
+      body = real + live + powerupMeta(runs, M) + sim;
     }
     return `<div class="fpop-card wiki-pop"><div class="wk-head"><span class="event-kicker">Wiki</span><b>Nachschlagen</b></div>${tabs}<div class="wk-body">${body}</div>
       <div class="fpop-btns"><button class="btn" data-act="pop-close">Schließen</button></div></div>`;
+  }
+
+  // Meta im Wiki: welche Power-ups (Schätze, Früchte, Artefakte) gerade stark sind.
+  // Live aus echten Runs (runLog-Felder r/f/a), sobald genug da sind, sonst aus der Bot-Simulation.
+  function powerupMeta(runs, M) {
+    const KINDS = [
+      { k: 'r', sim: 'relics', title: 'Schätze', data: GL.data.relics, ico: id => GL.sprites.icon('relic', id) },
+      { k: 'f', sim: 'fruits', title: 'Teufelsfrüchte', data: GL.data.fruits, ico: id => GL.sprites.icon('fruit', id, (byId(GL.data.fruits, id) || {}).awakened) },
+      { k: 'a', sim: 'arts', title: 'Artefakte', data: GL.data.artifacts, ico: id => { const a = byId(GL.data.artifacts, id); return a ? artIcon(a) : ''; } }
+    ];
+    const withPu = runs.filter(x => Array.isArray(x.r));
+    const liveOn = withPu.length >= 40;
+    const liveWin = liveOn ? withPu.filter(x => x.w).length / withPu.length : 0;
+    const P = M && M.powerups;
+    const lists = KINDS.map(K => {
+      let rows = [];
+      if (liveOn) {
+        const agg = {};
+        withPu.forEach(x => (x[K.k] || []).filter((id, i, a) => a.indexOf(id) === i).forEach(id => { const o = agg[id] || (agg[id] = { n: 0, w: 0 }); o.n++; o.w += x.w ? 1 : 0; }));
+        rows = Object.keys(agg).filter(id => agg[id].n >= 5 && byId(K.data, id)).map(id => ({ id, lift: agg[id].w / agg[id].n - liveWin, n: agg[id].n }));
+      } else if (P && P[K.sim]) rows = P[K.sim].filter(x => byId(K.data, x.id)).map(x => ({ id: x.id, lift: x.lift, n: x.n }));
+      rows.sort((a, b) => b.lift - a.lift);
+      if (!rows.length) return '';
+      const top = rows.slice(0, 5), low = rows.length > 6 ? rows[rows.length - 1] : null;
+      const chip = (x, weak) => {
+        const d = byId(K.data, x.id); const v = Math.round(x.lift * 100);
+        return `<span class="pu-chip${weak ? ' weak' : ''}" data-tip="${esc(d.name)}${d.text ? ': ' + esc(String(d.text).replace(/\{\w+\}/g, '…')) : ''}"><i class="pu-ico">${K.ico(x.id)}</i><b>${esc(d.name)}</b><em class="pu-lift ${v > 0 ? 'up' : v < 0 ? 'down' : ''}">${v > 0 ? '+' : ''}${v} %</em></span>`;
+      };
+      return `<h4>${K.title}</h4><div class="pu-row">${top.map(x => chip(x)).join('')}${low && low.lift < 0 ? chip(low, true) : ''}</div>`;
+    }).join('');
+    if (!lists) return '';
+    const note = liveOn ? `Aus ${withPu.length} echten Runs (14 Tage): So viel öfter gewinnt man, wenn man es dabei hat.`
+      : `Aus ${(P.runs || 0).toLocaleString('de-DE')} Bot-Runs, bei denen zufällig gewählt wurde: So viel öfter gewinnt man damit. Live-Zahlen kommen, sobald genug echte Runs da sind.`;
+    return `<section class="wk-sec wk-pu"><h3>Starke Power-ups${liveOn ? ' <i class="wk-new">live</i>' : ''}</h3><p>${note}</p>${lists}<p class="muted">Grau = gerade am schwächsten. Jeder Schatz hat seine Crew, die ihn liebt.</p></section>`;
   }
 
   // ---------- Freunde: Code, QR, Einladen, Liste ----------
@@ -2251,7 +2382,7 @@ window.GL = window.GL || {};
       const on = d.cos[cls] === it.id;
       const prev = kind === 'titles' ? `<b class="cos-title">${esc(it.name)}</b>` : kind === 'badges' ? `<span class="badge-prev">${badgeSvg(it.id) || '–'}</span>`
         : portrait(d.char.look, Object.assign({}, d.cos, { [cls]: it.id }), 'xs');
-      return `<button class="cos${on ? ' on' : ''}${ok ? '' : ' locked'}" data-act="cos-pick" data-kind="${cls}" data-v="${it.id}"${ok ? '' : ' disabled'} title="${esc(it.name)}${ok ? '' : ': ' + GL.meta.reqText(it)}">
+      return `<button class="cos${on ? ' on' : ''}${ok ? '' : ' locked'}${it.rare ? ' rare-item' : ''}" data-act="cos-pick" data-kind="${cls}" data-v="${it.id}"${ok ? '' : ' disabled'} title="${esc(it.name)}${ok ? '' : ': ' + GL.meta.reqText(it)}">
         ${prev}<small>${ok ? esc(it.name) : '🔒 ' + GL.meta.reqText(it)}</small>${GL.devAll && Object.keys(it.req || {}).length ? `<em class="cos-req">${esc(GL.meta.reqText(it))}</em>` : ''}</button>`;
     }).join('')}</div></div>`;
     const def = GL.meta.selfDef(Object.assign({}, profile, { nickname: d.name || 'Pirat', char: d.char }));
@@ -2779,8 +2910,13 @@ window.GL = window.GL || {};
           const fig = id => { const d = id === 'self' ? avatarOf(profile) : crewData(id); return d ? `<i class="ss-mate">${GL.sprites.renderShaded ? GL.sprites.renderShaded(d) : GL.sprites.render(d)}</i>` : ''; };
           return `<div class="sail-stage tod-${t.id}" aria-hidden="true">
           <div class="ss-sun"></div>${t.id === 'night' ? '<div class="ss-stars"></div>' : ''}<div class="ss-cloud c1"></div><div class="ss-cloud c2"></div>
-          <div class="ss-sea"></div><div class="ss-ship">${GL.sprites.ship()}</div>
-          <div class="ss-dock"><span class="ss-lamp"></span>${crew.map(fig).join('')}</div>
+          <div class="ss-sea"></div><div class="ss-ship">${GL.sprites.ship()}${(() => {
+            // Begleiter tanzen an Deck (der aktive steht bei der Crew am Steg)
+            const act = cosOf(profile).pet;
+            const deck = (profile.pets || []).filter(id => id !== act && petDef(id)).slice(-4);
+            return deck.length ? `<span class="ss-deck">${deck.map((id, k) => `<i class="ss-pet d${k}">${petArt(id)}</i>`).join('')}</span>` : '';
+          })()}</div>
+          <div class="ss-dock"><span class="ss-lamp"></span>${crew.map(fig).join('')}${(() => { const a = cosOf(profile).pet; return a && petDef(a) ? `<i class="ss-mate ss-buddy">${petArt(a)}</i>` : ''; })()}</div>
           <span class="ss-title">${uiRef && uiRef.peek ? 'Dein Run läuft noch' : esc(greeting(profile, t))}</span>
         </div>`; })()}
         ${atSeaBox()}
@@ -2795,6 +2931,7 @@ window.GL = window.GL || {};
       ${room ? roomHead(profile, tab) : hubTiles(profile, tab)}
       ${room ? '' : featureNextLine(profile)}
       ${room || (uiRef && uiRef.peek) ? '' : goalList(profile, 2).replace('goal-box pxf', 'goal-box pxf hq-goals')}
+      ${room || (uiRef && uiRef.peek) ? '' : hookLines(profile)}
 
       ${!room ? '' : `
       ${tab === 'werft' ? `<section class="hq-sec">
@@ -2841,7 +2978,8 @@ window.GL = window.GL || {};
     { id: 'crew', name: 'Figuren' },
     { id: 'bosses', name: 'Bosse' },
     { id: 'fruits', name: 'Früchte' },
-    { id: 'relics', name: 'Schätze' }
+    { id: 'relics', name: 'Schätze' },
+    { id: 'pets', name: 'Begleiter' }
   ];
 
   function albumCard(known, sprite, title, sub, cls, no) {
@@ -2884,6 +3022,16 @@ window.GL = window.GL || {};
         const known = seen.relics.includes(r.id);
         const text = GL.loot.make(r, r.vals ? 1 : -1).text + (r.vals ? ' (Seltene Stufe)' : '');
         return { known, html: albumCard(known, GL.sprites.icon('relic', r.id), r.name, known ? text : 'Noch nicht gefunden') };
+      }),
+      pets: (GL.data.pets || []).map(p => {
+        const known = (profile.pets || []).includes(p.id), on = cosOf(profile).pet === p.id;
+        const where = p.isl ? `Lebt auf ${islName(p.isl)}. Besiege dort Bösewicht oder Boss, mit etwas Glück kommt das Tier an Bord.` : p.hint;
+        return { known, html: `<div class="acard pet-card${known ? '' : ' unknown'}${on ? ' on' : ''}${p.book ? ' gold' : ''}">
+          <div class="acard-art"><span class="pet-hop${known ? '' : ' pet-sil'}">${petArt(p.id)}</span></div>
+          <b>${known ? esc(p.name) : '???'}</b>
+          <small>${known ? `„${esc(p.say)}“` : esc(where)}</small>
+          ${known ? `<button class="btn mini${on ? '' : ' ghost'}" data-act="pet-set" data-v="${on ? '' : p.id}">${on ? '✓ Dabei' : 'Mitnehmen'}</button>` : ''}
+        </div>` };
       })
     };
     const all = Object.values(lists).flat();
@@ -2899,8 +3047,23 @@ window.GL = window.GL || {};
           <p class="hint">${total} von ${all.length} entdeckt. ${profile.stats.runs} ${profile.stats.runs === 1 ? 'Run' : 'Runs'} gespielt, ${profile.stats.wins} gewonnen.</p></div>
         <button class="btn ghost" data-act="album-close">Schließen</button>
       </div>
+      ${albumSteps(profile)}
       <div class="atabs" role="tablist">${tabs}</div>
       ${tab === 'stats' ? statsView(profile, lists) : `<div class="agrid">${lists[tab].map(x => x.html).join('')}</div>`}
+    </div>`;
+  }
+  // Sammelbuch-Stufen: Pfad mit Belohnungen, die erreichte Stufe leuchtet
+  function albumSteps(profile) {
+    const S = GL.data.albumSteps || [], st = GL.meta.albumStep(profile), ac = st.ac;
+    const nodes = S.map((x, i) => {
+      const done = i < st.reached, need = Math.ceil(x.at * ac.total);
+      const ico = x.pet ? `<span class="${done ? 'pet-hop' : 'pet-sil'}">${petArt(x.pet)}</span>` : GL.sprites.coin();
+      const tip = `Stufe ${i + 1}: ${need} Entdeckungen · ${x.pet ? 'Begleiter ' + petDef(x.pet).name : x.berry + ' Berry'}`;
+      return `<i class="as-node${done ? ' done' : ''}${i === st.reached ? ' next' : ''}" data-tip="${esc(tip)}" tabindex="0">${ico}<em>${need}</em></i>`;
+    }).join('<span class="as-line"></span>');
+    return `<div class="album-steps pxf">
+      <div class="as-head"><b>Sammelbuch</b><small>${st.next ? `Noch ${st.left} bis Stufe ${st.reached + 1}` : 'Alle Stufen geschafft!'}</small></div>
+      <div class="as-path">${nodes}</div>
     </div>`;
   }
   // Statistik: eigene Werte, Fortschritt beim Sammeln, beste Figuren
@@ -3112,7 +3275,7 @@ window.GL = window.GL || {};
       const titleEl = $('#title');
       titleEl.hidden = !ui.screen;
       document.body.classList.toggle('on-title', !!ui.screen);
-      seenRef = ui.profile && ui.profile.seen;
+      seenRef = ui.profile && ui.profile.seen; profRef = ui.profile || null;
       // Feste Leiste unten (nur im Hauptquartier): Hafen, Aufträge, Stammcrew, Rangliste, Kapitänsbuch
       const tb = document.getElementById('tabbar');
       if (tb) {
@@ -3261,6 +3424,7 @@ window.GL = window.GL || {};
     battleText,
     speedLabel,
     welcomePop,
+    petPop,
     endlessPop,
     huntPop,
     dailyPop,

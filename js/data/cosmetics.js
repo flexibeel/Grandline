@@ -10,26 +10,33 @@ GL.data = GL.data || {};
 GL.data.cosmetics = {
   backgrounds: [
     { id: 'meer',       name: 'Ruhige See',        req: {} },
-    { id: 'morgen',     name: 'Morgenrot',         req: { rank: 3 } },
-    { id: 'wueste',     name: 'Wüstenwind',        req: { reached: 1 } },
+    { id: 'morgen',     name: 'Morgen in Foosha',         req: { rank: 3 } },
+    { id: 'wueste',     name: 'Alabasta',        req: { reached: 1 } },
     { id: 'nacht',      name: 'Sternennacht',      req: { reached: 2 } },
     { id: 'sturm',      name: 'Gewittersturm',     req: { raids: 1 } },
     { id: 'kirsch',     name: 'Kirschblüten',      req: { rank: 6 } },
     { id: 'gold',       name: 'Schatzkammer',      req: { artifacts: 6 } },
     { id: 'legende',    name: 'Legende',           req: { wins: 5 } },
     { id: 'kokos',      name: 'Mandarinenhain',    req: { islands: 4 } },
-    { id: 'schnee',     name: 'Winterinsel',       req: { islands: 8 } },
-    { id: 'himmel',     name: 'Wolkenmeer',        req: { reached: 1, islands: 10 } },
+    { id: 'schnee',     name: 'Drumm-Insel',       req: { islands: 8 } },
+    { id: 'himmel',     name: 'Skypiea',        req: { reached: 1, islands: 10 } },
     { id: 'tiefsee',    name: 'Tiefsee',           req: { runs: 25 } },
     { id: 'marine',     name: 'Marine-Basis',      req: { hunted: 15 } },
     { id: 'lava',       name: 'Vulkan',            req: { maxHit: 120 } },
     { id: 'galaxie',    name: 'Sternenmeer',       req: { rank: 16 } },
-    { id: 'regenbogen', name: 'Regenbogen',        req: { islands: 18 } },
+    { id: 'regenbogen', name: 'Regenbogennebel',   req: { islands: 18 } },
     { id: 'zirkus',     name: 'Zirkuszelt',        req: { hunted: 12, runs: 15 } },
     { id: 'fischinsel', name: 'Fischmenscheninsel', req: { bosses: 12, islands: 14 } },
     { id: 'nebel',      name: 'Nebelschiff',       req: { reached: 2, runs: 30 } },
     { id: 'kaiserflagge', name: 'Rote Flagge',     req: { raids: 6, wins: 8 } },
-    { id: 'sunny',      name: 'Freundesschiff',    req: { invites: 2 } }
+    { id: 'sunny',      name: 'Freundesschiff',    req: { invites: 2 } },
+    // Besondere, animierte Piraten-Hintergründe (schwer zu verdienen)
+    { id: 'laternen',   name: 'Laternenhafen',     req: { runs: 100 }, rare: true },
+    { id: 'kanonen',    name: 'Kanonendonner',     req: { kos: 2000 }, rare: true },
+    { id: 'sturmfahrt', name: 'Sturmfahrt',        req: { heat: 4, wins: 6 }, rare: true },
+    { id: 'kraken',     name: 'Kraken-Tiefe',      req: { bosses: 25, reached: 2 }, rare: true },
+    { id: 'schatzberg', name: 'Goldener Schatzberg', req: { artifacts: 11 }, rare: true },
+    { id: 'jollyroger', name: 'Unter schwarzer Flagge', req: { wins: 25 }, rare: true }
   ],
   frames: [
     { id: 'holz',       name: 'Holz',              req: {} },
@@ -44,11 +51,14 @@ GL.data.cosmetics = {
     { id: 'saphir',     name: 'Saphir',            req: { artifacts: 9 } },
     { id: 'smaragd',    name: 'Smaragd',           req: { heat: 2 } },
     { id: 'feuer',      name: 'Feuer',             req: { kos: 500 } },
-    { id: 'regenbogen', name: 'Regenbogen',        req: { wins: 10 } },
+    { id: 'regenbogen', name: 'Seekönig-Schuppen', req: { wins: 10 } },
     { id: 'seetang',    name: 'Seetang',           req: { islands: 12, runs: 20 } },
     { id: 'knochen',    name: 'Knochen',           req: { kos: 1200 } },
     { id: 'kaiser',     name: 'Kaiserlich',        req: { rank: 18, wins: 15 } },
-    { id: 'freund',     name: 'Bande fürs Leben',  req: { invites: 1 } }
+    { id: 'freund',     name: 'Bande fürs Leben',  req: { invites: 1 } },
+    { id: 'schatzglanz', name: 'Schatzglanz',      req: { wins: 15, artifacts: 9 }, rare: true },
+    { id: 'glutkette',  name: 'Glühende Ankerkette', req: { kos: 3000 }, rare: true },
+    { id: 'sturmband',  name: 'Sturmband',         req: { raids: 10 }, rare: true }
   ],
   animations: [
     { id: 'ruhig',      name: 'Ruhig',             req: {} },
@@ -100,7 +110,15 @@ GL.data.cosmetics = {
     { id: 'hundert',    name: 'Hundert Inseln',    req: { islands: 24 } },
     { id: 'unbeugsam',  name: 'Unbeugsam',         req: { heat: 5 } },
     { id: 'gastgeber',  name: 'Gastgeber der Grand Line', req: { invites: 1 } },
-    { id: 'flottenchef', name: 'Herr der Flotte',  req: { invites: 5 } }
+    { id: 'flottenchef', name: 'Herr der Flotte',  req: { invites: 5 } },
+    { id: 'maat',       name: 'Zuverlässiger Maat', req: { quests: 20 } },
+    { id: 'duellant',   name: 'Meister der Duelle', req: { duels: 10 } },
+    { id: 'kanonier',   name: 'Meisterkanonier',   req: { kos: 2000 } },
+    { id: 'admiralsschreck', name: 'Admiralsschreck', req: { raids: 10 } },
+    { id: 'schatzkoenig', name: 'Schatzkönig',     req: { artifacts: 11 } },
+    { id: 'krakenbaendiger', name: 'Krakenbändiger', req: { bosses: 25 } },
+    { id: 'laternenhueter', name: 'Hüter der Hafenlaterne', req: { runs: 100 } },
+    { id: 'schwarzeflagge', name: 'Schrecken unter schwarzer Flagge', req: { wins: 25 } }
   ],
   // Piratenflagge: kleines Abzeichen am Porträt (Profil, Rangliste)
   flags: [
@@ -117,7 +135,10 @@ GL.data.cosmetics = {
     { id: 'clownnase',  name: 'Clownsnase',        req: { hunted: 15 } },
     { id: 'narbe',      name: 'Drei Narben',       req: { raids: 4, rank: 12 } },
     { id: 'faust',      name: 'Faust',             req: { kos: 800 } },
-    { id: 'freunde',    name: 'Freundschaft',      req: { invites: 1 } }
+    { id: 'freunde',    name: 'Freundschaft',      req: { invites: 1 } },
+    { id: 'strohhut',   name: 'Strohhut-Totenkopf', req: { wins: 3 } },
+    { id: 'kraken',     name: 'Kraken',            req: { runs: 60 } },
+    { id: 'schnurrbart', name: 'Weißer Schnurrbart', req: { bosses: 20 } }
   ]
 };
 
@@ -148,3 +169,173 @@ GL.data.charLocks = {
   'acc:pfeife':  { name: 'Pfeife',         req: { rank: 8 } },
   'acc:blume':   { name: 'Blume im Haar',  req: { islands: 5 } }
 };
+
+// ---------- Pixel-Bilder für Flaggen und besondere Hintergründe ----------
+// Flaggen: 13x11 Pixel. "." = Tuch, Buchstaben = Farben aus FC. cloth = Tuchfarbe.
+(function () {
+  const FC = { W: '#f4efe2', S: '#c9ced8', G: '#f2c94c', Y: '#f6d64a', R: '#e0302a', N: '#e0302a', H: '#e8c25a', P: '#c08ae0', B: '#4f8fe0', D: '#9a6a20' };
+  const SKULL = ['.....WWW.....', '....WWWWW....', '....W.W.W....', '....WWWWW....', '.....W.W.....'];
+  const BONES = ['..W.......W..', '...WW...WW...', '.....WWW.....', '...WW...WW...', '..W.......W..'];
+  const F = {
+    totenkopf: { cloth: '#18181f', rows: ['.............'].concat(SKULL, BONES) },
+    strohhut:  { cloth: '#18181f', rows: ['....HHHHH....', '..HHRRRRRHH..', '....WWWWW....', '....W.W.W....', '....WWWWW....', '.....W.W.....', '...WW...WW...', '.....WWW.....', '...WW...WW...', '..W.......W..', '.............'] },
+    clownnase: { cloth: '#18181f', rows: ['.............', '.....WWW.....', '....WWWWW....', '....W.W.W....', '....WWNWW....', '.....W.W.....'].concat(BONES) },
+    narbe:     { cloth: '#18181f', rows: ['.............', '.....WRWR.R..', '....WWWRWR.R.', '....W.W.R.R.R', '....WWWWW....', '.....W.W.....', '..S.......S..', '...SS...SS...', '.....SSS.....', '...SS...SS...', '..S.......S..'] },
+    schnurrbart: { cloth: '#18181f', rows: ['.............', '.....WWW.....', '....WWWWW....', '....W.W.W....', '....WWWWW....', '.WWWWW.WWWWW.', 'W...W.W.W...W', '...WW...WW...', '.....WWW.....', '...WW...WW...', '..W.......W..'] },
+    anker:     { cloth: '#244f7a', rows: ['.............', '......W......', '.....W.W.....', '......W......', '....WWWWW....', '......W......', '......W......', '..W...W...W..', '..WW..W..WW..', '...WWWWWWW...', '.....WWW.....'] },
+    stern:     { cloth: '#1b2230', rows: ['.............', '.............', '......G......', '.....GGG.....', '..GGGGGGGGG..', '...GGGGGGG...', '....GGGGG....', '....GG.GG....', '...GG...GG...', '..G.......G..', '.............'] },
+    schwerter: { cloth: '#7a2620', rows: ['S...........S', '.S.........S.', '..S.......S..', '...S.....S...', '....S...S....', '.....S.S.....', '......S......', '.....S.S.....', '....S...S....', '..GGG...GGG..', '...G.....G...'] },
+    sonne:     { cloth: '#d8662a', rows: ['.............', '......Y......', '..Y...Y...Y..', '...Y.YYY.Y...', '....YYYYY....', '.YYYYYYYYYYY.', '....YYYYY....', '...Y.YYY.Y...', '..Y...Y...Y..', '......Y......', '.............'] },
+    blume:     { cloth: '#c4467e', rows: ['.............', '......W......', '.....WWW.....', '..WW.WWW.WW..', '.WWWWYYYWWWW.', '..WWWYYYWWW..', '.WWWWYYYWWWW.', '..WW.WWW.WW..', '.....WWW.....', '......W......', '.............'] },
+    blitz:     { cloth: '#33244f', rows: ['.............', '......YYYY...', '.....YYYY....', '....YYYY.....', '...YYYYYYY...', '......YYY....', '.....YYY.....', '....YYY......', '...YY........', '..Y..........', '.............'] },
+    krone:     { cloth: '#4f2890', rows: ['.............', '.............', '..G...G...G..', '..GG.GGG.GG..', '..GGGGGGGGG..', '..GRGGBGGRG..', '..GGGGGGGGG..', '..DDDDDDDDD..', '.............', '.............', '.............'] },
+    drache:    { cloth: '#25704d', rows: ['.............', '........WWWW.', '.......WW.WWW', '.......WW....', '..WWW...WW...', '.WW.WW...WW..', 'WW...WW..WW..', '......WWWW...', '.............', '..W.W.W.W.W..', '.............'] },
+    faust:     { cloth: '#5a3c26', rows: ['.............', '.............', '...WWWWWWW...', '..WW.W.W.WW..', '..WWWWWWWWW..', '..WWWWWWWWW..', '..WW.WWWWWW..', '...WWWWWWW...', '....WWWWW....', '....WWWWW....', '.............'] },
+    freunde:   { cloth: '#b04470', rows: ['.............', '..YYY...YYY..', '.YYYYY.YYYYY.', '.YYYYYYYYYYY.', '.YYYYYYYYYYY.', '..YYYYYYYYY..', '...YYYYYYY...', '....YYYYY....', '.....YYY.....', '......Y......', '.............'] },
+    kraken:    { cloth: '#1d2a4a', rows: ['.............', '....PPPPP....', '...PPPPPPP...', '...PWPPPWP...', '...PPPPPPP...', '..P.P.P.P.P..', '.P..P.P.P..P.', '.P.P..P..P.P.', '..P...P...P..', '......P......', '.............'] }
+  };
+  const fcache = {};
+  GL.data.flagSvg = function (id) {
+    if (fcache[id] !== undefined) return fcache[id];
+    const f = F[id];
+    if (!f) return (fcache[id] = '');
+    let r = `<rect width="13" height="11" fill="${f.cloth}"/><rect y="10" width="13" height="1" fill="rgba(0,0,0,.25)"/>`;
+    f.rows.forEach((row, y) => row.split('').forEach((ch, x) => { if (FC[ch]) r += `<rect x="${x}" y="${y}" width="1" height="1" fill="${FC[ch]}"/>`; }));
+    return (fcache[id] = `<svg viewBox="0 0 13 11" shape-rendering="crispEdges" preserveAspectRatio="none" aria-hidden="true">${r}</svg>`);
+  };
+
+  // Hintergründe als kleine Pixel-Szenen (24x24). Teile mit Klasse bewegen sich per CSS.
+  function scene(draw) {
+    const groups = { '': [] };
+    const r = (x, y, w, h, c, cls) => { (groups[cls || ''] = groups[cls || ''] || []).push(`<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${c}"/>`); };
+    const bands = list => list.forEach(([y0, y1, c]) => r(0, y0, 24, y1 - y0, c));
+    draw(r, bands);
+    let out = groups[''].join('');
+    Object.keys(groups).forEach(k => { if (k) out += `<g class="ca ${k}">${groups[k].join('')}</g>`; });
+    return `<svg viewBox="0 0 24 24" shape-rendering="crispEdges" preserveAspectRatio="none" aria-hidden="true">${out}</svg>`;
+  }
+  const star = (r, x, y, cls, c) => { r(x, y, 1, 1, '#ffffff', cls); r(x - 1, y, 1, 1, c || '#fff2b0', cls); r(x + 1, y, 1, 1, c || '#fff2b0', cls); r(x, y - 1, 1, 1, c || '#fff2b0', cls); r(x, y + 1, 1, 1, c || '#fff2b0', cls); };
+  const S = {
+    // Sonnenaufgang über dem Windmühlendorf
+    morgen: (r, b) => {
+      b([[0, 4, '#6a74b0'], [4, 7, '#b882a6'], [7, 10, '#ee9e7a'], [10, 13, '#f7c08a'], [13, 15, '#f8dca4'], [15, 24, '#4f8cc0']]);
+      r(9, 13, 6, 2, '#ffe08a'); r(10, 12, 4, 1, '#ffe08a');
+      r(8, 16, 8, 1, '#ffd890'); r(10, 18, 5, 1, '#f8cc80'); r(11, 20, 3, 1, '#e8b870');
+      r(0, 17, 7, 7, '#5f9e4a'); r(0, 16, 5, 1, '#5f9e4a'); r(7, 19, 2, 5, '#4f8a3e');
+      r(1, 9, 3, 8, '#efe4d0'); r(1, 9, 1, 8, '#d8ccb6'); r(1, 8, 3, 1, '#8a4a2a'); r(2, 7, 1, 1, '#8a4a2a'); r(2, 13, 1, 3, '#6a4a30');
+      r(2, 3, 1, 9, '#7a5a3a', 'ca-spin'); r(-2, 7, 9, 1, '#7a5a3a', 'ca-spin'); r(-2, 6, 2, 1, '#f4ece0', 'ca-spin'); r(3, 3, 1, 3, '#f4ece0', 'ca-spin');
+    },
+    // Wüste mit Palast von Alubarna, wehender Sand
+    wueste: (r, b) => {
+      b([[0, 6, '#f6d4a0'], [6, 12, '#f8e0b4'], [12, 24, '#e6b872']]);
+      r(17, 2, 4, 4, '#fff0c0'); r(18, 1, 2, 1, '#fff0c0');
+      r(18, 9, 5, 4, '#f2e2c4'); r(19, 8, 3, 1, '#f2e2c4'); r(20, 7, 1, 1, '#e8c25a'); r(17, 13, 7, 4, '#e8d4b0'); r(16, 11, 1, 6, '#e8d4b0'); r(16, 10, 1, 1, '#c88a4a'); r(19, 14, 1, 2, '#b88a5a'); r(21, 14, 1, 2, '#b88a5a');
+      r(0, 15, 9, 3, '#eec37e'); r(0, 18, 24, 6, '#d8a460'); r(5, 17, 14, 2, '#e0ae6a'); r(0, 21, 24, 1, '#c8924e'); r(10, 23, 14, 1, '#c08848');
+      r(2, 12, 2, 1, '#f8e8c8', 'ca-drift'); r(6, 15, 3, 1, '#f8e8c8', 'ca-drift'); r(14, 19, 2, 1, '#f8e8c8', 'ca-drift'); r(20, 21, 3, 1, '#f8e8c8', 'ca-drift');
+    },
+    // Drumm: Zylinder-Berge mit Schloss, Schneefall
+    schnee: (r, b) => {
+      b([[0, 8, '#8fb0d4'], [8, 14, '#a8c4e0'], [14, 20, '#c4d8ea'], [20, 24, '#f4f8fb']]);
+      r(16, 6, 7, 15, '#e6eef5'); r(21, 6, 2, 15, '#bccbd9'); r(16, 6, 7, 1, '#ffffff');
+      r(17, 3, 4, 3, '#8a8aa6'); r(18, 2, 1, 1, '#8a8aa6'); r(20, 2, 1, 1, '#8a8aa6'); r(18, 4, 1, 1, '#f2d24a');
+      r(0, 11, 5, 10, '#d8e4ee'); r(3, 11, 2, 10, '#b4c4d4'); r(0, 11, 5, 1, '#ffffff');
+      r(0, 20, 24, 4, '#f4f8fb'); r(6, 19, 9, 1, '#f4f8fb');
+      [[3, 2], [9, 5], [13, 1], [7, 10], [1, 7], [12, 14], [23, 12], [5, 16]].forEach(([x, y]) => r(x, y, 1, 1, '#ffffff', 'ca-snow'));
+      [[6, 3], [11, 8], [2, 13], [14, 4], [8, 17], [22, 2]].forEach(([x, y]) => r(x, y, 1, 1, '#ffffff', 'ca-snow2'));
+    },
+    // Skypiea: Wolkenmeer, Bohnenranke, goldene Glocke
+    himmel: (r, b) => {
+      b([[0, 6, '#5ab4ec'], [6, 12, '#86ccf4'], [12, 16, '#b4e0fa'], [16, 24, '#ffffff']]);
+      r(0, 15, 6, 2, '#ffffff'); r(9, 14, 7, 2, '#ffffff'); r(18, 15, 6, 1, '#ffffff'); r(0, 19, 24, 1, '#e4f0fb'); r(0, 22, 24, 1, '#e4f0fb');
+      r(2, 3, 2, 13, '#4f9a4a'); r(1, 6, 1, 2, '#6aba5a'); r(4, 9, 2, 1, '#6aba5a'); r(0, 12, 2, 1, '#6aba5a');
+      r(19, 3, 3, 3, '#e8b830'); r(18, 5, 5, 1, '#e8b830'); r(20, 2, 1, 1, '#a07a20'); r(20, 6, 1, 1, '#a07a20');
+      star(r, 22, 3, 'ca-tw1');
+      r(6, 4, 4, 1, '#ffffff', 'ca-drift'); r(7, 3, 2, 1, '#ffffff', 'ca-drift'); r(13, 8, 5, 1, '#ffffff', 'ca-drift'); r(14, 7, 2, 1, '#ffffff', 'ca-drift');
+    },
+    // Regenbogennebel: Regenbogen im Nebel über stiller See
+    regenbogen: (r, b) => {
+      b([[0, 8, '#4c4f80'], [8, 14, '#6a7aa0'], [14, 17, '#8aa4b8'], [17, 24, '#355a78']]);
+      const cols = ['#e0483b', '#f29a2e', '#f2c94c', '#4fb05a', '#4f8fe0', '#8a5ad0'];
+      cols.forEach((c, k) => { for (let x = 0; x < 24; x++) { const y = Math.round(3 + k + (x - 11.5) * (x - 11.5) / 26); if (y < 17) r(x, y, 1, 1, c); } });
+      r(0, 17, 24, 1, '#9ab8c8'); r(3, 19, 6, 1, '#5a7a98'); r(14, 21, 7, 1, '#5a7a98');
+      r(-4, 12, 12, 2, 'rgba(240,240,255,.45)', 'ca-fog'); r(12, 15, 14, 2, 'rgba(240,240,255,.4)', 'ca-fog'); r(4, 9, 8, 1, 'rgba(240,240,255,.35)', 'ca-fog');
+    },
+    // Laternenkette über dem Nachthafen
+    laternen: (r, b) => {
+      b([[0, 6, '#121a36'], [6, 12, '#18244a'], [12, 17, '#1e2e58'], [17, 24, '#10283e']]);
+      [[3, 1], [9, 2], [14, 1], [20, 3], [6, 11], [17, 12], [1, 14]].forEach(([x, y]) => r(x, y, 1, 1, '#fff6d0'));
+      r(19, 6, 3, 3, '#f6eecc'); r(20, 5, 1, 1, '#f6eecc'); r(22, 7, 1, 1, '#f6eecc');
+      [[0, 3], [1, 3], [2, 4], [3, 4], [4, 4], [5, 5], [6, 5], [7, 5], [8, 6], [9, 6], [10, 6], [11, 6], [12, 6], [13, 6], [14, 6], [15, 5], [16, 5], [17, 5], [18, 4], [19, 4], [20, 4], [21, 3], [22, 3], [23, 3]].forEach(([x, y]) => r(x, y, 1, 1, '#3a2a20'));
+      const lamp = (x, y, cls) => { r(x, y, 2, 3, '#d8402a', cls); r(x, y + 1, 2, 1, '#ffb050', cls); r(x, y - 1, 2, 1, '#2a1a10'); };
+      lamp(2, 5, 'ca-flick'); lamp(7, 7, 'ca-flick2'); lamp(16, 7, 'ca-flick'); lamp(21, 5, 'ca-flick2');
+      r(0, 17, 24, 1, '#244a68'); r(0, 20, 3, 4, '#4a3020'); r(21, 20, 3, 4, '#4a3020'); r(0, 19, 3, 1, '#6a4a30'); r(21, 19, 3, 1, '#6a4a30');
+      r(2, 18, 2, 1, '#f2903a', 'ca-flick'); r(2, 21, 1, 1, '#c8702a', 'ca-flick'); r(21, 18, 2, 1, '#f2903a', 'ca-flick2'); r(22, 22, 1, 1, '#c8702a', 'ca-flick2');
+    },
+    // Kanonendonner im Abendrot: Mündungsfeuer, Rauch, Wasserfontäne
+    kanonen: (r, b) => {
+      b([[0, 5, '#3a2a5a'], [5, 9, '#7a3458'], [9, 13, '#d0583a'], [13, 17, '#f2a050'], [17, 24, '#24445e']]);
+      r(10, 15, 5, 2, '#ffd27a'); r(11, 14, 3, 1, '#ffd27a'); r(9, 18, 7, 1, '#e88a4a'); r(11, 20, 3, 1, '#c86a3a');
+      r(0, 16, 5, 4, '#3a2418'); r(0, 15, 5, 1, '#5a3a24'); r(0, 18, 5, 1, '#2a1810'); r(3, 14, 3, 2, '#1c1c22'); r(5, 14, 1, 1, '#3c3c48');
+      r(6, 14, 2, 2, '#ff9030', 'ca-flash'); r(8, 14, 1, 2, '#ffd060', 'ca-flash'); r(6, 13, 1, 1, '#ffd060', 'ca-flash');
+      r(0, 10, 4, 3, '#d8d2cc', 'ca-puff'); r(1, 9, 3, 1, '#eae6e0', 'ca-puff'); r(0, 13, 2, 1, '#b8b2ac', 'ca-puff');
+      r(1, 5, 3, 2, '#c8c2bc', 'ca-puff2'); r(2, 4, 2, 1, '#e0dcd6', 'ca-puff2');
+      r(19, 14, 5, 3, '#e8e8ee'); r(20, 13, 4, 1, '#e8e8ee'); r(19, 15, 5, 1, '#4f8fe0'); r(21, 6, 1, 7, '#5a4a40'); r(20, 7, 4, 5, '#f4f4f8'); r(20, 9, 4, 1, '#4f8fe0'); r(22, 5, 2, 1, '#4f8fe0');
+      r(17, 14, 1, 3, '#cfe8f5', 'ca-splash'); r(16, 15, 1, 2, '#a8d0e8', 'ca-splash'); r(18, 15, 1, 2, '#a8d0e8', 'ca-splash');
+    },
+    // Sturmfahrt: Regen, Blitz, Wellenkämme
+    sturmfahrt: (r, b) => {
+      b([[0, 5, '#2c3150'], [5, 11, '#22273e'], [11, 17, '#1c2034'], [17, 24, '#163048']]);
+      r(0, 0, 8, 3, '#3c425e'); r(2, 3, 5, 1, '#3c425e'); r(13, 0, 11, 2, '#3c425e'); r(15, 2, 7, 2, '#363c58');
+      r(0, 0, 24, 24, 'rgba(255,255,230,.35)', 'ca-flashall');
+      [[22, 3], [21, 4], [21, 5], [20, 6], [21, 7], [22, 8], [21, 9], [21, 10]].forEach(([x, y]) => r(x, y, 1, 1, '#fff27a', 'ca-bolt'));
+      for (let k = 0; k < 14; k++) { const x = (k * 7) % 26 - 1, y = (k * 5) % 16; r(x, y, 1, 2, 'rgba(190,210,250,.55)', 'ca-rain'); }
+      for (let x = -12; x < 36; x += 6) { r(x, 17, 3, 1, '#cfe0ee', 'ca-wave'); r(x + 1, 16, 1, 1, '#ffffff', 'ca-wave'); r(x + 3, 20, 3, 1, '#9fbad0', 'ca-wave2'); }
+      r(0, 22, 24, 2, '#10263a');
+    },
+    // Kraken-Tiefe: Tentakel, Luftblasen, leuchtende Augen
+    kraken: (r, b) => {
+      b([[0, 6, '#12325a'], [6, 12, '#0e2a4c'], [12, 18, '#0a2140'], [18, 24, '#071830']]);
+      [[5, 0], [6, 3], [7, 6]].forEach(([x, y]) => r(x, y, 2, 3, 'rgba(150,210,255,.10)'));
+      [[15, 0], [16, 3], [17, 6]].forEach(([x, y]) => r(x, y, 2, 3, 'rgba(150,210,255,.08)'));
+      r(0, 22, 24, 2, '#0e1c24'); r(5, 21, 3, 1, '#0e1c24'); r(15, 21, 4, 1, '#0e1c24');
+      const T = '#8a44b0', D = '#5e2a80', Su = '#f0a8d8';
+      r(0, 17, 4, 7, T, 'ca-sway'); r(1, 13, 3, 4, T, 'ca-sway'); r(2, 10, 2, 3, T, 'ca-sway'); r(3, 8, 2, 2, T, 'ca-sway'); r(5, 7, 1, 1, T, 'ca-sway'); r(6, 8, 1, 1, T, 'ca-sway');
+      r(3, 17, 1, 7, D, 'ca-sway'); r(3, 20, 1, 1, Su, 'ca-sway'); r(3, 15, 1, 1, Su, 'ca-sway'); r(3, 11, 1, 1, Su, 'ca-sway');
+      r(20, 16, 4, 8, T, 'ca-sway2'); r(20, 12, 3, 4, T, 'ca-sway2'); r(20, 9, 2, 3, T, 'ca-sway2'); r(19, 7, 2, 2, T, 'ca-sway2'); r(18, 6, 1, 1, T, 'ca-sway2'); r(17, 7, 1, 1, T, 'ca-sway2');
+      r(20, 16, 1, 8, D, 'ca-sway2'); r(20, 19, 1, 1, Su, 'ca-sway2'); r(20, 14, 1, 1, Su, 'ca-sway2'); r(20, 10, 1, 1, Su, 'ca-sway2');
+      r(9, 22, 2, 1, '#f6d64a', 'ca-blink'); r(13, 22, 2, 1, '#f6d64a', 'ca-blink');
+      r(8, 18, 1, 1, '#bfe8ff', 'ca-rise'); r(15, 20, 1, 1, '#bfe8ff', 'ca-rise'); r(12, 21, 1, 1, '#bfe8ff', 'ca-rise2'); r(6, 14, 1, 1, '#bfe8ff', 'ca-rise2'); r(18, 17, 1, 1, '#bfe8ff', 'ca-rise');
+    },
+    // Goldener Schatzberg in der Höhle, funkelnd
+    schatzberg: (r, b) => {
+      b([[0, 8, '#22161a'], [8, 16, '#2e1e1e'], [16, 24, '#3a2620']]);
+      [[2, 0, 2, 2], [3, 2, 1, 1], [9, 0, 2, 1], [16, 0, 3, 2], [17, 2, 1, 2], [21, 0, 2, 2]].forEach(([x, y, w, h]) => r(x, y, w, h, '#140c0e'));
+      r(3, 7, 18, 12, 'rgba(242,190,70,.10)');
+      r(0, 20, 24, 4, '#e2a92a'); r(1, 18, 22, 2, '#e8b432'); r(4, 16, 16, 2, '#eebe3c'); r(7, 14, 10, 2, '#f2c94c');
+      [[2, 19], [6, 17], [9, 15], [14, 15], [18, 17], [21, 19], [4, 21], [12, 22], [19, 22], [16, 20], [8, 20]].forEach(([x, y]) => r(x, y, 1, 1, '#fff2a0'));
+      [[1, 22], [5, 23], [10, 21], [15, 23], [20, 21], [23, 23]].forEach(([x, y]) => r(x, y, 1, 1, '#b07a18'));
+      r(4, 19, 1, 1, '#e0302a'); r(19, 21, 1, 1, '#4f8fe0'); r(7, 22, 1, 1, '#3fb06a'); r(17, 18, 1, 1, '#c060e0');
+      r(19, 14, 5, 4, '#8a5a2a'); r(19, 15, 5, 1, '#f2c94c'); r(21, 16, 1, 1, '#f2c94c'); r(19, 12, 5, 2, '#6a4220'); r(20, 13, 3, 1, '#ffe680');
+      r(0, 16, 3, 2, '#f2c94c'); r(0, 15, 1, 1, '#f2c94c'); r(2, 15, 1, 1, '#f2c94c'); r(1, 16, 1, 1, '#e0302a');
+      star(r, 2, 11, 'ca-tw1'); star(r, 21, 9, 'ca-tw2'); star(r, 3, 21, 'ca-tw3'); star(r, 21, 21, 'ca-tw1');
+    },
+    // Unter schwarzer Flagge: wehende Jolly-Roger-Flagge über dem Deck
+    jollyroger: (r, b) => {
+      b([[0, 5, '#1e1028'], [5, 10, '#4a1a30'], [10, 15, '#8a2a2e'], [15, 20, '#c04a2a'], [20, 24, '#5a3a24']]);
+      [[2, 2], [7, 1], [11, 3], [5, 6]].forEach(([x, y]) => r(x, y, 1, 1, '#ffe6d0'));
+      r(4, 14, 4, 2, '#f08a3a'); r(5, 13, 2, 1, '#f08a3a');
+      r(23, 0, 1, 20, '#4a3020');
+      r(15, 0, 8, 7, '#141418', 'ca-flag'); r(15, 7, 3, 1, '#141418', 'ca-flag'); r(20, 7, 3, 1, '#141418', 'ca-flag');
+      r(18, 1, 3, 1, '#f4efe2', 'ca-flag'); r(17, 2, 5, 1, '#f4efe2', 'ca-flag'); r(17, 3, 1, 1, '#f4efe2', 'ca-flag'); r(19, 3, 1, 1, '#f4efe2', 'ca-flag'); r(21, 3, 1, 1, '#f4efe2', 'ca-flag'); r(18, 4, 3, 1, '#f4efe2', 'ca-flag');
+      r(16, 5, 1, 1, '#f4efe2', 'ca-flag'); r(22, 5, 1, 1, '#f4efe2', 'ca-flag'); r(17, 5, 1, 1, '#141418', 'ca-flag'); r(18, 5, 3, 1, '#141418', 'ca-flag'); r(19, 5, 1, 1, '#f4efe2', 'ca-flag'); r(16, 6, 1, 1, '#f4efe2', 'ca-flag'); r(22, 6, 1, 1, '#f4efe2', 'ca-flag');
+      for (let x = 0; x < 24; x += 4) r(x, 20, 1, 4, '#3e2818');
+      r(0, 20, 24, 1, '#7a5434'); r(0, 22, 24, 1, '#4a3020');
+      [[1, 8], [2, 10], [3, 12], [4, 14], [5, 16], [6, 18]].forEach(([x, y]) => r(x, y, 1, 1, '#2a1418'));
+    }
+  };
+  const bcache = {};
+  GL.data.bgSvg = function (id) {
+    if (bcache[id] !== undefined) return bcache[id];
+    return (bcache[id] = S[id] ? scene(S[id]) : '');
+  };
+})();

@@ -281,6 +281,8 @@ window.GL = window.GL || {};
       captain: run.captain || (run.crew[0] && run.crew[0].id) || '',
       date: new Date().toISOString().slice(0, 10),
       step: run.step || 0,
+      // Power-ups des Runs (für die Live-Meta im Wiki): Schätze, Früchte, Artefakte
+      pu: { r: (run.relics || []).map(x => x.id), f: (run.eaten || []).slice(0, 12), a: (run.arts || []).map(x => x.id) },
       team: (run.crew || []).slice(0, 6).map(u => u.id === 'self' ? { id: 'self', lvl: u.lvl || 1, look: profile.char ? profile.char.look : null } : { id: u.id, lvl: u.lvl || 1 }),
       replay: { seed: run.seed, start: run.start, actions: run.actions }
     };
@@ -364,7 +366,7 @@ window.GL = window.GL || {};
         bossKills: n(o.bossKills) + entry.bosses,
         duels,
         // Letzte Runs (ohne Replay) für die Live-Meta im Wiki: wer war dabei, wie weit kam man
-        runLog: [{ t: (entry.team || []).map(x => x.id), c: entry.captain, w: entry.won ? 1 : 0, s: entry.step, h: entry.heat || 0, d: entry.date, e: entry.duel && /^T/.test(entry.duel) ? 1 : 0 }]
+        runLog: [{ t: (entry.team || []).map(x => x.id), c: entry.captain, w: entry.won ? 1 : 0, s: entry.step, h: entry.heat || 0, d: entry.date, e: entry.duel && /^T/.test(entry.duel) ? 1 : 0, r: entry.pu ? entry.pu.r : undefined, f: entry.pu ? entry.pu.f : undefined, a: entry.pu ? entry.pu.a : undefined }]
           .concat(Array.isArray(o.runLog) ? o.runLog : []).slice(0, 25)
       }));
       return better ? 'best' : 'saved';

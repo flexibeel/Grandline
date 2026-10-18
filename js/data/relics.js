@@ -9,7 +9,7 @@
 //   mods  = Werte im Kampf (Aufbau wie in types.js)
 //   flags = Sonderregeln, die die Spiellogik kennt:
 //     winHeal       zusätzliche Heilung nach Siegen (0.2 = 20 %)
-//     noWinHeal     keine Heilung nach Siegen
+//     noWinHeal     keine normale Heilung nach Siegen (winHeal von anderen Schätzen wirkt weiter)
 //     bossStartCut  Bosse starten mit weniger Leben (0.2 = 20 %)
 //     vivre         einmal pro Run: gefallene Crew steht mit diesem Anteil Leben wieder auf
 //     firstBlock    so viele gegnerische Treffer pro Kampf werden abgewehrt
@@ -45,7 +45,7 @@ GL.data.relics = [
     mods: [{ scope: 'role:kaempfer', crit: 'p' }] },
   { id: 'sunny',      name: 'Sunny-Bauplan',       unique: true,          text: 'Platz für ein 7. Crewmitglied.',
     flags: { crewLimit: 1 } },
-  { id: 'rausch',     name: 'Kampfrausch',         vals: { a: [2, 3, 5, 7] }, text: 'Ganze Crew +{a} Angriff, aber keine Heilung mehr nach Siegen.',
+  { id: 'rausch',     name: 'Kampfrausch',         vals: { a: [2, 3, 5, 7] }, text: 'Ganze Crew +{a} Angriff. Dafür keine normale Heilung nach Siegen, Heil-Schätze wirken weiter.',
     mods: [{ scope: 'all', atk: 'a' }], flags: { noWinHeal: true } },
   { id: 'medizin',    name: 'Medizinbuch',         vals: { p: 1 },        text: 'Heilung durch Helfer, Chopper und Vivi +{p}.',
     flags: { healBonus: 'p' } },
