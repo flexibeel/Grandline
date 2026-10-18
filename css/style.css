@@ -8796,3 +8796,36 @@ em.type.t-technik { background: #5b86b3 !important; }
 .ux-rew summary { cursor: pointer; font-weight: 700; padding: 6px 2px; }
 .ux-rew-list { display: grid; gap: 6px; }
 .ux-rew-it.toast { position: static; animation: none; opacity: 1; transform: none; pointer-events: auto; }
+
+/* ---------- SOC: Mitsegler im Hafen ---------- */
+.soc-fleet { position: absolute; inset: 0; pointer-events: none; z-index: 1; }
+.soc-ship { position: absolute; top: 74px; width: 46px; padding: 0; border: 0; background: none; cursor: pointer; pointer-events: auto; display: grid; justify-items: center; color: inherit; font: inherit; }
+.soc-ship.s0 { right: 3%; }
+.soc-ship.s1 { right: calc(3% + 54px); top: 66px; transform: scale(.82); transform-origin: 50% 100%; }
+.soc-ship.s2 { left: 21%; top: 50px; transform: scale(.72); transform-origin: 50% 100%; }
+.soc-ship.s3 { left: 32%; top: 50px; transform: scale(.62); transform-origin: 50% 100%; }
+.soc-hull { display: block; width: 40px; height: 30px; opacity: .88; filter: saturate(.85); }
+.soc-ship.on .soc-hull { opacity: 1; filter: none; animation: ts-bob 1.9s steps(4) infinite; }
+.soc-ship:nth-child(2).on .soc-hull { animation-delay: -.9s; }
+.soc-hull svg { width: 100%; height: 100%; display: block; shape-rendering: crispEdges; filter: drop-shadow(0 2px 0 rgba(0,0,0,.15)); }
+.soc-tag { display: grid; justify-items: center; margin-top: 1px; padding: 1px 5px 2px; border-radius: 4px; background: rgba(255,250,236,.86); box-shadow: 0 1px 0 rgba(90,60,30,.25); line-height: 1.05; max-width: 74px; white-space: nowrap; }
+.soc-tag b { font-size: 9.5px; font-weight: 800; color: #4a2f16; display: inline-flex; align-items: center; gap: 3px; max-width: 70px; overflow: hidden; text-overflow: ellipsis; }
+.soc-tag small { font-size: 8.5px; color: #7a6248; max-width: 70px; overflow: hidden; text-overflow: ellipsis; }
+.soc-tag .on-dot { width: 5px; height: 5px; margin: 0; }
+.soc-ship.s0 .soc-tag { justify-self: end; }
+.soc-ship:focus-visible { outline: 2px solid #f2d24a; outline-offset: 2px; border-radius: 4px; }
+.tod-night .soc-tag { background: rgba(40,44,70,.82); }
+.tod-night .soc-tag b { color: #f4ead0; } .tod-night .soc-tag small { color: #c9c0a8; }
+@media (max-width: 620px) { .soc-ship.s2, .soc-ship.s3 { display: none; } }
+@media (prefers-reduced-motion: reduce) { .soc-ship .soc-hull { animation: none !important; } }
+
+.soc-log { display: grid; gap: 5px; margin: 10px 0 0; padding: 8px 10px; border-radius: 10px; background: color-mix(in srgb, var(--panel) 92%, #fff); }
+.soc-log-h { font-size: .7rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--muted, #8a7356); }
+.soc-row { display: grid; grid-template-columns: 20px 1fr auto; align-items: center; gap: 6px; font-size: .8rem; line-height: 1.3; }
+.soc-ico { font-style: normal; text-align: center; }
+.soc-cheer { border: 0; background: none; font-size: 1rem; padding: 2px 4px; cursor: pointer; border-radius: 6px; display: inline-flex; align-items: center; gap: 3px; filter: grayscale(.4); opacity: .8; }
+.soc-cheer:hover { filter: none; opacity: 1; }
+.soc-cheer.done { filter: none; opacity: 1; cursor: default; animation: soc-prost .5s steps(4) 1; }
+.soc-cheer em { font-style: normal; font-size: .68rem; font-weight: 800; color: #b07a1c; }
+@keyframes soc-prost { 0% { transform: rotate(0) scale(1); } 40% { transform: rotate(-14deg) scale(1.25); } 70% { transform: rotate(8deg) scale(1.1); } 100% { transform: none; } }
+@media (prefers-reduced-motion: reduce) { .soc-cheer.done { animation: none; } }

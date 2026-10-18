@@ -143,6 +143,8 @@
   function livePos() {
     if (!run || GL.run.isFinished(run) || run.phase === 'starter') { GL.livePos = null; return; }
     GL.livePos = { sea: GL.run.island(run).name, isl: (GL.run.chapterIsland(run) || {}).name || null, step: run.step, daily: !!run.daily };
+    // Mitsegler: höchstens einmal pro Run kreuzt ein anderes Schiff (nur auf der Seekarte, nie im Kampf)
+    if (run.phase === 'map' && GL.social && !ui.screen) { const t = GL.social.passBy(run, profile); if (t) setTimeout(() => toast(t), 1200); }
   }
   ['fullscreenchange', 'webkitfullscreenchange'].forEach(ev => document.addEventListener(ev, () => { const t = document.getElementById('title'); if (t) t.dataset.last = ''; ui.lastStage = null; draw(); }));
 
@@ -1212,6 +1214,7 @@
         ui.screen = null; ui.hqTab = el.dataset.tab; ui.hqRoom = el.dataset.tab; if (el.dataset.tab === 'album') { ui.album = 'crew'; ui.hqTab = null; } draw(); break;
       case 'title-back': ui.screen = ui.profileFrom === 'hq' ? null : 'title'; draw(); break;
       case 'profile-edit': openProfile(); break;
+      case 'soc-cheer': if (GL.social && GL.social.cheer(profile, el.dataset.i)) { saveProfile(); if (GL.sfx) GL.sfx.play('found'); draw(); } break;
       case 'crew-name-open': ui.editTab = 'kampf'; ui.editSub = 'bande'; openProfile(); break;
       case 'login-open': ui.loginFrom = ui.screen || 'hq'; ui.screen = 'login'; draw(); break;
       case 'login-back': ui.screen = ui.loginFrom === 'hq' ? null : 'title'; draw(); break;
@@ -2323,6 +2326,8 @@
         if (on.length && !(anim && !anim.done)) on.slice(0, 2).forEach(n => toast(`<span><b><i class="on-dot"></i> ${esc2(n)} ist online</b>Ahoi! Vielleicht Lust auf ein Crew-Duell?</span>`));
       }
     });
+    // Hafen-Logbuch: was haben die anderen seit dem letzten Blick geschafft?
+    GL.online.onChange(() => { if (GL.social && profile.nickname && GL.social.note(profile)) saveProfile(); });
     GL.online.onChange(() => { checkDailyPay(); if ((!run || ui.screen) && document.activeElement && document.activeElement.id !== 'nick') draw(); });
     // Online liegt ein neuerer Spielstand (anderes Gerät): übernehmen und neu laden
     GL.online.onRemoteProfile(remote => {

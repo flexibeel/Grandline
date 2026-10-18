@@ -4109,7 +4109,8 @@ window.GL = window.GL || {};
     if (st.backend !== 'supabase') return '';
     const now = Date.now();
     const n = (st.rows || []).filter(x => x.updated && now - new Date(x.updated).getTime() < 10 * 60 * 1000 && x.id !== st.uid).length + 1;
-    const txt = n === 1 ? 'Nur du auf See' : `${n} Kopfgeldjäger*innen auf See`;
+    const en = GL.i18n && GL.i18n.lang && GL.i18n.lang() === 'en';
+    const txt = n === 1 ? (en ? 'Just you at sea' : 'Nur du auf See') : en ? `${n} bounty hunters at sea` : `${n} Kopfgeldjäger*innen auf See`;
     return `<span class="atsea" data-tip="Wer in den letzten 10 Minuten gespielt hat (du zählst mit). Aktualisiert sich von selbst."><i class="atsea-dot" aria-hidden="true"></i>${txt}</span>`;
   }
 
@@ -4612,6 +4613,7 @@ window.GL = window.GL || {};
             const deck = (profile.pets || []).filter(id => id !== act && petDef(id)).slice(-4);
             return deck.length ? `<span class="ss-deck">${deck.map((id, k) => `<i class="ss-pet d${k}">${petArt(id)}</i>`).join('')}</span>` : '';
           })()}</div>
+          ${GL.social ? GL.social.ships(profile) : ''}
           <div class="ss-dock"><span class="ss-lamp"></span>${crew.map(fig).join('')}${(() => { const a = cosOf(profile).pet; return a && petDef(a) ? `<i class="ss-mate ss-buddy">${petArt(a)}</i>` : ''; })()}</div>
           <span class="ss-title">${uiRef && uiRef.peek ? 'Dein Run läuft noch' : esc(greeting(profile, t))}</span>
         </div>`; })()}
@@ -4627,6 +4629,7 @@ window.GL = window.GL || {};
       ${room ? roomHead(profile, tab) : hubTiles(profile, tab)}
       ${room ? '' : featureNextLine(profile)}
       ${room || (uiRef && uiRef.peek) ? '' : goalList(profile, 2).replace('goal-box pxf', 'goal-box pxf hq-goals')}
+      ${room || (uiRef && uiRef.peek) || !GL.social ? '' : GL.social.logbook(profile)}
       ${room || (uiRef && uiRef.peek) ? '' : hookLines(profile)}
 
       ${!room ? '' : `

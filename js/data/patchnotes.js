@@ -1,6 +1,10 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-20l', date: '18.10.', title: 'Man segelt nicht allein', items: [
+    '⛵ Gerade auf See: Im Hafen ankern jetzt die Schiffe anderer Spieler neben deinem, mit Namen und wo sie gerade kreuzen. Antippen zeigt ihre Karte',
+    '📜 Hafen-Logbuch: Wer einen Boss gelegt, eine Liga erklommen oder seine Bande getauft hat, steht hier. Mit 🍻 kann man anstoßen. Die Marine liest mit',
+    'Unterwegs kreuzt ab und zu jemand in der Ferne. Man winkt. Höflich, aber knapp' ] },
   { v: '2026-10-20k', date: '18.10.', title: 'Stammcrew: Aufstellung vor Schatzkammer', items: [
     '⚖ Im Stammcrew-Duell zählt Ausrüstung nur noch zur Hälfte. Wer besser aufstellt, hat wieder eine Chance gegen dickere Rüstungen',
     'Zusammenhalt bringt im Duell höchstens +5 Stufen. Alte Freundschaften bleiben, sie gewinnen nur nicht mehr jedes Wortgefecht',
