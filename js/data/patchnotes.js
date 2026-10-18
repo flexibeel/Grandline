@@ -1,6 +1,11 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-20k', date: '18.10.', title: 'Stammcrew: Aufstellung vor Schatzkammer', items: [
+    '⚖ Im Stammcrew-Duell zählt Ausrüstung nur noch zur Hälfte. Wer besser aufstellt, hat wieder eine Chance gegen dickere Rüstungen',
+    'Zusammenhalt bringt im Duell höchstens +5 Stufen. Alte Freundschaften bleiben, sie gewinnen nur nicht mehr jedes Wortgefecht',
+    'Ab der Gold-Liga bewegt sich das Rating in ruhigeren Schritten',
+    'In Runs, Dungeons und Koop bleibt alles wie gehabt: Dort darf deine Ausrüstung weiter angeben' ] },
   { v: '2026-10-20j', date: '18.10.', title: 'Aufgeräumt, mehr Inhalt, ruhigere Reise', items: [
     '☰ Handy aufgeräumt: Knöpfe im Run-Kopf stecken im Menü, Crew-Reihe und Boni klappen sich ein, nur noch ein Hinweis gleichzeitig',
     'Weniger Tippen: Nach klaren Siegen geht es von selbst weiter, Training verteilt sich automatisch (abschaltbar), Coach nur noch 3 kurze Tipps',

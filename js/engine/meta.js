@@ -392,12 +392,12 @@ window.GL = window.GL || {};
       const r = rating == null ? 1000 : rating;
       return GL.meta.leagues.filter(l => r >= l.min).pop();
     },
-    // Rating nach einem Duell (nur das eigene ändert sich; K = 32)
+    // Rating nach einem Duell (nur das eigene ändert sich; K = 32, ab Gold 20)
     squadRate(profile, oppRating, win) {
       const me = profile.squadRating == null ? 1000 : profile.squadRating;
       const opp = oppRating == null ? 1000 : oppRating;
       const exp = 1 / (1 + Math.pow(10, (opp - me) / 400));
-      const delta = Math.round(32 * ((win ? 1 : 0) - exp));
+      const delta = Math.round((me >= 1200 ? 20 : 32) * ((win ? 1 : 0) - exp));   // ab Gold ruhigere Schritte
       profile.squadRating = Math.max(0, me + delta);
       profile.squadBest = Math.max(profile.squadBest || 0, profile.squadRating);
       return delta;
@@ -503,7 +503,8 @@ window.GL = window.GL || {};
       return GL.meta.squadIds(profile).map(id => {
         const d = id === 'self' ? self : GL.data.crew.find(c => c.id === id);
         if (!d) return null;
-        const lvl = base + GL.meta.squadBonus((profile.squadXp || {})[id]);
+        const bond = GL.meta.squadBonus((profile.squadXp || {})[id]);
+        const lvl = base + bond;
         const max = d.hp + (lvl - 1) * 3 + mod.hp;
         const r = { id, name: d.name, type: d.type, role: d.role, faction: d.faction || null, lvl,
           hp: max, max, atk: d.atk + Math.floor((lvl - 1) * 0.45) + mod.atk, spd: d.spd + mod.spd };
@@ -511,6 +512,7 @@ window.GL = window.GL || {};
         if (GL.cgear) {
           const t = GL.cgear.totals(profile, id);
           r.max += t.hp || 0; r.hp = r.max; r.atk += t.atk || 0; r.spd += t.spd || 0;
+          if (t.hp || t.atk || t.spd) r.gw = { hp: t.hp || 0, atk: t.atk || 0, spd: t.spd || 0 };   // Ausrüstungsanteil, fürs Duell
           const cap = GL.data.crewGear.caps || {};
           const gb = {}; ['crit', 'dodge', 'armor', 'dmgPct', 'critMult', 'regen', 'ultStart'].forEach(k => { if (t[k]) gb[k] = cap[k] ? Math.min(cap[k], t[k]) : t[k]; });
           if (Object.keys(gb).length) r.gb = gb;
@@ -518,6 +520,7 @@ window.GL = window.GL || {};
           if (wl.length) r.gear = wl;
         }
         if (id === 'self') { r.look = self.look; r.rally = self.rally; }
+        if (bond) r.bond = bond;
         return r;
       }).filter(Boolean);
     },

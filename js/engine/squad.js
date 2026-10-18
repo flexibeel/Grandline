@@ -6,7 +6,15 @@ window.GL = window.GL || {};
 (function () {
   function prep(list, pvp) {
     return (list || []).map(r => {
-      const x = Object.assign({}, r, { hp: r.max });
+      const x = Object.assign({}, r);
+      // Duell-Ausgleich: Ausrüstung zählt nur zur Hälfte, Zusammenhalt höchstens +5 Stufen.
+      // So entscheidet eher die Aufstellung als die Schatzkammer.
+      const g = r.gw;
+      const nn = v => Math.max(0, Math.min(1e5, +v || 0));   // Fremddaten: nie negativ
+      if (g && typeof g === 'object') { x.max = Math.max(1, r.max - Math.floor(nn(g.hp) / 2)); x.atk = Math.max(1, r.atk - Math.floor(nn(g.atk) / 2)); x.spd = r.spd - Math.floor(nn(g.spd) / 2); }
+      if (+r.bond > 5 && +r.bond <= 10) { const cut = Math.round(+r.bond) - 5; x.lvl = (r.lvl || 1) - cut; x.max = Math.max(1, x.max - cut * 3); x.atk = Math.max(1, x.atk - Math.floor(cut * 0.45)); }
+      if (r.gb) { x.gb = {}; Object.keys(r.gb).forEach(k => { x.gb[k] = typeof r.gb[k] === 'number' ? r.gb[k] / 2 : r.gb[k]; }); }
+      x.hp = x.max;
       if (r.id === 'self') {
         // eigener Pirat: Fähigkeit "Wille des Kapitäns" mitnehmen, Name aus dem Eintrag
         x.ability = 'rally'; x.power = r.rally || 1;
