@@ -169,5 +169,15 @@ window.GL = window.GL || {};
     return { crew, enemies, flags: flags(run) };
   }
 
-  GL.effects = { counts, status, flags, setup, relicList, duos, duosWith, alliances, alliancesNear };
+  // Dein Stil (Build): stärkste aktive Synergie aus Kampfstil oder Rolle, die einen Build-Namen hat
+  function build(crew) {
+    const list = status(crew).filter(s => s.kind !== 'faction' && s.active && (s.kind === 'type' ? GL.data.types : GL.data.roles)[s.key].build);
+    if (!list.length) return null;
+    const lvl = s => s.tiers.indexOf(s.active);
+    list.sort((a, b) => lvl(b) - lvl(a) || b.count - a.count || (a.kind === 'type' ? -1 : 1));
+    const s = list[0], d = (s.kind === 'type' ? GL.data.types : GL.data.roles)[s.key];
+    return { kind: s.kind, key: s.key, name: d.build, icon: d.icon, pitch: d.pitch, count: s.count, tier: lvl(s) + 1, tiers: s.tiers, active: s.active, next: s.next, label: d.name };
+  }
+
+  GL.effects = { counts, status, flags, setup, relicList, duos, duosWith, alliances, alliancesNear, build };
 })();

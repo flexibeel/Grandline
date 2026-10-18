@@ -176,8 +176,11 @@ window.GL = window.GL || {};
     const n = choices(run) + GL.config.shop.extraOffers;
     const fw = GL.config.shop.factionWeight || 1;
     const have = new Set(run.crew.map(u => u.faction).filter(Boolean));
-    if (fw === 1 || !have.size) return R.sample(run, free, n);
-    const pool = free.map(id => { const d = byId(GL.data.crew, id); return { id, w: d && d.faction && have.has(d.faction) ? fw : 1 }; });
+    // Build: Kampfstile, die schon mindestens zweimal an Bord sind, tauchen öfter auf (Build kristallisiert sich heraus)
+    const tw = GL.config.shop.typeWeight || 1, tc = GL.effects.counts(run.crew).type;
+    const build = new Set(Object.keys(tc).filter(k => tc[k] >= 2));
+    if ((fw === 1 || !have.size) && (tw === 1 || !build.size)) return R.sample(run, free, n);
+    const pool = free.map(id => { const d = byId(GL.data.crew, id); return { id, w: (d && d.faction && have.has(d.faction) ? fw : 1) * (d && build.has(d.type) ? tw : 1) }; });
     const out = [];
     while (out.length < n && pool.length) {
       let x = R.float(run) * pool.reduce((a, b) => a + b.w, 0), k = 0;

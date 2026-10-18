@@ -7406,3 +7406,59 @@ button.stb-row { cursor: pointer; } button.stb-row:active { transform: translate
 .tc-item { width: 72px; height: 72px; margin-left: -36px; bottom: 40px; }
 .tc-ped ~ .tc-item { bottom: 40px; }
 @media (max-width: 560px) { .tc-item, .tc-ped ~ .tc-item { width: 62px; height: 62px; margin-left: -31px; bottom: 36px; } .tc-chest { width: 76px; margin-left: -38px; } }
+
+/* ===== Fork J: Builds ===== */
+.build-chip { background: #fff4d8; border-color: #e6c27a; }
+.build-chip small { color: #c08a2e; font-size: .7rem; margin-left: 2px; letter-spacing: -1px; }
+.build-chip.b-kraft { background: #fde4dc; border-color: #e8a08a; }
+.build-chip.b-klinge { background: #e3f1e6; border-color: #93c4a0; }
+.build-chip.b-technik { background: #e2eefa; border-color: #93b6dc; }
+.build-chip.b-helfer { background: #e6f6e3; border-color: #9fd08a; }
+.build-chip.b-brecher { background: #ece6f6; border-color: #b4a2d8; }
+.crack { display: block; margin: 4px 0 2px; padding: 6px 10px; border-radius: 10px; background: #fff8e6; border: 1px dashed #e0c48a; font-size: .82rem; line-height: 1.35; color: var(--ink); }
+.crack b { color: var(--wood); font-weight: 700; }
+.crack i { font-style: normal; font-weight: 700; white-space: nowrap; }
+.co-foe .crack { font-size: .74rem; padding: 4px 8px; margin-top: 4px; }
+.sum-build { display: flex; align-items: center; gap: 10px; margin: 8px 0 2px; padding: 8px 12px; border-radius: 12px; background: #fff4d8; border: 2px solid #e6c27a; box-shadow: 0 2px 0 #e6c27a; }
+.sum-build > i { font-style: normal; font-size: 1.5rem; flex: none; width: 36px; text-align: center; }
+.sum-build b { display: block; font: 600 .98rem Fredoka, sans-serif; }
+.sum-build small { display: block; font-size: .78rem; color: var(--mute); line-height: 1.3; }
+.sum-build.none { background: #f6f1e3; border-color: #e4d6b4; box-shadow: 0 2px 0 #e4d6b4; }
+.sum-build.b-kraft { background: #fde4dc; border-color: #e8a08a; box-shadow: 0 2px 0 #e8a08a; }
+.sum-build.b-technik { background: #e2eefa; border-color: #93b6dc; box-shadow: 0 2px 0 #93b6dc; }
+.sum-build.b-klinge { background: #e3f1e6; border-color: #93c4a0; box-shadow: 0 2px 0 #93c4a0; }
+.sum-build.b-helfer { background: #e6f6e3; border-color: #9fd08a; box-shadow: 0 2px 0 #9fd08a; }
+
+/* ===== Schatz-Karten ruhiger (Felix: Leuchten zu viel, Felder zu groß, Schilder wie aus Word) ===== */
+.tc-rays, .tc-sp, .tc-glow { display: none !important; }
+.tc-face { background: var(--panel); border: 2px solid var(--line); border-radius: 14px; box-shadow: 0 3px 0 var(--line); }
+.tc-face.tc-rare { border-color: #9fc6e2; box-shadow: 0 3px 0 #9fc6e2; }
+.tc-face.tc-epic { border-color: #c9b0ea; box-shadow: 0 3px 0 #c9b0ea; }
+.tc-face.tc-legendary { border-color: #e8c472; box-shadow: 0 3px 0 #e8c472; }
+.tc-face.tc-awakened { border-color: #e9a092; box-shadow: 0 3px 0 #e9a092; }
+.tc-face.tc-unique { border-color: #93d2c6; box-shadow: 0 3px 0 #93d2c6; }
+.tc-stage { height: 96px; background: radial-gradient(circle at 50% 70%, color-mix(in srgb, var(--ch) 45%, #fff) 0, var(--panel-2) 70%); border-bottom: 2px solid var(--line); }
+.tc-item { width: 52px !important; height: 52px !important; margin-left: -26px !important; bottom: 30px !important; filter: drop-shadow(0 2px 0 rgba(0,0,0,.2)); animation-duration: 3s; }
+.tc-chest { width: 64px !important; margin-left: -32px !important; bottom: 4px; }
+.tc-info { gap: 4px; padding: 8px 10px 10px; }
+.tc-rib { margin-top: 0; font: 600 .68rem/1 'Fredoka', sans-serif; letter-spacing: 0; background: transparent; color: var(--cd); box-shadow: none; padding: 0; }
+.tc-sign { background: none; border: 0; box-shadow: none; padding: 0; color: var(--ink); text-shadow: none; font: 600 1rem/1.2 'Fredoka', sans-serif; }
+.tc-text { background: none; border: 0; padding: 0; font-size: .82rem; color: var(--mute); }
+.tc-take { min-height: 36px; min-width: 0; padding: 0 14px; border-radius: 10px; font: 700 .85rem 'Nunito', sans-serif; background: var(--btn); color: var(--btnink); box-shadow: 0 3px 0 var(--btnedge); }
+.opt.card.tc-opt:active .tc-take { box-shadow: 0 0 0 var(--btnedge); }
+@media (max-width: 560px) {
+  .tc-stage { width: 80px; min-height: 0; height: auto; border-right: 2px solid var(--line); border-bottom: 0; }
+  .tc-item { width: 46px !important; height: 46px !important; margin-left: -23px !important; bottom: 26px !important; }
+  .tc-chest { width: 56px !important; margin-left: -28px !important; }
+  .tc-info { padding: 8px 10px; }
+  .tc-take { align-self: flex-end; min-height: 38px; padding: 0 18px; }
+  #stage .cards.loot { gap: 10px !important; }
+}
+/* Seltenheit nur als leiser Schimmer, gestaffelt: gewöhnlich nichts, selten ein Hauch, episch etwas mehr, legendär warm */
+.tc-stage { background: var(--panel-2); }
+.tc-rare .tc-stage, .tc-face.tc-rare .tc-stage { background: radial-gradient(circle at 50% 75%, rgba(120, 175, 215, .18) 0, transparent 65%), var(--panel-2); }
+.tc-epic .tc-stage, .tc-face.tc-epic .tc-stage { background: radial-gradient(circle at 50% 75%, rgba(160, 120, 210, .26) 0, transparent 68%), var(--panel-2); }
+.tc-legendary .tc-stage, .tc-face.tc-legendary .tc-stage { background: radial-gradient(circle at 50% 75%, rgba(232, 180, 80, .34) 0, transparent 72%), var(--panel-2); }
+.tc-awakened .tc-stage, .tc-face.tc-awakened .tc-stage { background: radial-gradient(circle at 50% 75%, rgba(220, 110, 90, .3) 0, transparent 70%), var(--panel-2); }
+.tc-unique .tc-stage, .tc-face.tc-unique .tc-stage { background: radial-gradient(circle at 50% 75%, rgba(90, 180, 165, .26) 0, transparent 68%), var(--panel-2); }
+.tc-face:not(.tc-rare):not(.tc-epic):not(.tc-legendary):not(.tc-awakened):not(.tc-unique) .tc-item { animation: none; }

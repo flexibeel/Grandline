@@ -26,7 +26,7 @@ GL.config = {
   items: { dropElite: 0.6, dropBoss: 1, dropTreasure: 0.3, chestMax: 40, takeBase: 2, maxLevel: 5, forgeBase: 25 },
   // Taverne: Preise in Gold, Gold für Siege (+ Zinsen), Neu würfeln wird pro Besuch teurer
   shop: { startGold: 30, base: 14, perStar: 10, perLevel: 3, locked: 12, sellShare: 0.5,
-          reroll: 4, rerollStep: 3, extraOffers: 0, factionWeight: 2.4, interestMax: 3,
+          reroll: 4, rerollStep: 3, extraOffers: 0, factionWeight: 2.4, typeWeight: 1.7, interestMax: 3,
           win: { battle: 10, elite: 16, boss: 28, raid: 28 } },
   artLevels: [1, 2, 4, 7, 11],   // Funde, die ein Artefakt für Stufe 1 bis 5 braucht
   trophyChance: { boss: 0.35, raid: 1, mini: 0.2 },   // Chance auf ein Artefakt
@@ -81,7 +81,7 @@ GL.config = {
   awaken: { atk: 4, hp: 10 },
 
   // Gegnerstärke
-  enemyScale: 0.77,        // wie schnell normale Gegner pro Etappe stärker werden (längere Insel-Kapitel -> langsamer hochskalieren)
+  enemyScale: 0.78,        // wie schnell normale Gegner pro Etappe stärker werden (längere Insel-Kapitel -> langsamer hochskalieren)
   eliteMult: 1.3,         // Kopfgeldjäger sind um diesen Faktor stärker
   // Mehr Leben, etwas weniger Angriff: Kämpfe dauern etwas länger, ohne insgesamt härter zu werden
   grunt: { hpBase: 16, hpPerLevel: 4.4, atkBase: 3.7, atkPerLevel: 1.06, spdMin: 3, spdMax: 7 },

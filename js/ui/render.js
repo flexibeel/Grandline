@@ -601,7 +601,7 @@ window.GL = window.GL || {};
     return `${bars}<span class="track-loc">${island} · <b class="stop-name">${run.phase === 'course' ? 'Kurs setzen' : run.phase === 'starter' ? 'Kapitän wählen' : GL.run.stopName(run)}</b>${run.phase === 'course' || run.phase === 'starter' ? '' : ` <small class="muted">(${pos}/${GL.config.chapterSteps})</small>`}</span>
       <span class="head-chips">
         <em class="gold-chip" data-tip="Gold für die Taverne.\nGibt es für Siege, verfällt am Run-Ende.">${GL.sprites.coin()} <b>${run.gold || 0}</b></em>
-        <em class="bounty-chip" id="bounty-chip" data-tip="Kopfgeld deines Kapitäns.\nZählt für deinen Punktestand und die Rangliste 'Höchstes Kopfgeld'. Bringt sonst nichts im Run.">${GL.sprites.icon('node', 'elite')} <b>${fmtBounty(run.bountyM || 0)}</b></em>${run.mood && GL.config.moods ? (m => m ? `<em class="mood-chip" data-tip="${esc('Laune der See: ' + m.name + '\n' + m.text)}">${m.icon}<b>${esc(m.name)}</b></em>` : '')(GL.config.moods.find(x => x.id === run.mood)) : ''}${GL.run.twist && !GL.run.isFinished(run) ? (tw => tw ? `<em class="mood-chip twist-chip" data-tip="${esc('Insel-Twist: ' + tw.name + '\n' + tw.text)}">${tw.icon}<b>${esc(tw.name)}</b></em>` : '')(GL.run.twist(run)) : ''}${(run.streak || 0) >= 2 ? `<em class="streak-chip${run.streak >= 6 ? ' hot' : run.streak >= 3 ? ' warm' : ''}" data-tip="Kopfgeld-Serie: ${run.streak} Siege in Folge ohne K.O.\nAb 3 Siegen +1 Gold pro Sieg, ab 6 +2. Am Run-Ende Extra-Berry.\nFällt jemand, beginnt die Serie neu.">${PX_FLAME}<b>${run.streak}</b></em>` : ''}
+        <em class="bounty-chip" id="bounty-chip" data-tip="Kopfgeld deines Kapitäns.\nZählt für deinen Punktestand und die Rangliste 'Höchstes Kopfgeld'. Bringt sonst nichts im Run.">${GL.sprites.icon('node', 'elite')} <b>${fmtBounty(run.bountyM || 0)}</b></em>${run.mood && GL.config.moods ? (m => m ? `<em class="mood-chip" data-tip="${esc('Laune der See: ' + m.name + '\n' + m.text)}">${m.icon}<b>${esc(m.name)}</b></em>` : '')(GL.config.moods.find(x => x.id === run.mood)) : ''}${GL.run.twist && !GL.run.isFinished(run) ? (tw => tw ? `<em class="mood-chip twist-chip" data-tip="${esc('Insel-Twist: ' + tw.name + '\n' + tw.text)}">${tw.icon}<b>${esc(tw.name)}</b></em>` : '')(GL.run.twist(run)) : ''}${(bd => bd ? `<em class="mood-chip build-chip b-${bd.key}" data-tip="${esc('Dein Stil: ' + bd.name + ' (' + bd.count + '× ' + bd.label + ')\n' + bd.pitch + '\n' + bd.tiers.map(x => (bd.count >= x.n ? '✓ ' : '· ') + x.n + ': ' + x.text).join('\n'))}">${bd.icon}<b>${esc(bd.name)}</b><small>${'★'.repeat(bd.tier)}</small></em>` : '')(GL.effects.build ? GL.effects.build(run.crew) : null)}${(run.streak || 0) >= 2 ? `<em class="streak-chip${run.streak >= 6 ? ' hot' : run.streak >= 3 ? ' warm' : ''}" data-tip="Kopfgeld-Serie: ${run.streak} Siege in Folge ohne K.O.\nAb 3 Siegen +1 Gold pro Sieg, ab 6 +2. Am Run-Ende Extra-Berry.\nFällt jemand, beginnt die Serie neu.">${PX_FLAME}<b>${run.streak}</b></em>` : ''}
         ${run.heat ? `<em class="heat-chip">Stufe ${run.heat}</em>` : ''}
         ${run.loop ? `<em class="duel-chip endless-chip">Endlos ${run.loop + 1}</em>` : ''}
         ${run.daily ? '<em class="duel-chip">Tageskarte</em>' : run.duel ? `<button class="duel-chip" data-act="duel-copy" data-id="${run.duel}" title="Code teilen">Wettfahrt ${run.duel} · teilen</button>` : ''}
@@ -1056,9 +1056,25 @@ window.GL = window.GL || {};
     }).join('');
     const g = run.lastGold && b.win ? `<div class="sum-gold">${GL.sprites.coin()} +${run.lastGold.base} Gold${run.lastGold.interest ? ` <small>+${run.lastGold.interest} Zinsen</small>` : ''}</div>` : '';
     const it = run.lastItem && b.win ? (run.items || []).find(x => x.uid === run.lastItem && x.isNew) : null;
-    return `<div class="summary">${rows}</div>${g}`;
+    const bd = GL.effects.build ? GL.effects.build(run.crew) : null;
+    const bl = bd ? `<div class="sum-build b-${bd.key}"><i>${bd.icon}</i><span><b>${esc(bd.name)} ${'★'.repeat(bd.tier)}</b><small>${bd.next ? `Noch ${bd.next.n - bd.count}× ${esc(bd.label)} bis: ${esc(bd.next.text)}` : 'Höchste Stufe erreicht!'}</small></span></div>`
+      : `<div class="sum-build none"><i>✦</i><span><b>Noch kein Stil</b><small>2 gleiche Kampfstile oder Rollen ergeben einen Stil, z. B. 💥 Wucht, ⚔ Schwertkunst, 💨 Tempo oder 💚 Lazarett.</small></span></div>`;
+    return `<div class="summary">${rows}</div>${g}${bl}`;
   }
 
+  // „So knackst du ihn“: welcher Build gegen diesen Bösewicht besonders gut ist
+  function crackHint(boss) {
+    const T = GL.data.types, Ro = GL.data.roles;
+    const counter = Object.keys(T).find(k => T[k].strong === boss.type);
+    const A = ability(boss.id) || {};
+    const tanky = A.kind === 'lifesteal' || (A.mods || []).some(m => m.guard || m.armor) || (boss.hp || 0) > (boss.atk || 1) * 9;
+    const heavy = ['double', 'burn', 'chain', 'execute', 'ramp', 'sniper'].includes(A.kind) || (boss.atk || 0) * 7 >= (boss.hp || 0);
+    let second = tanky ? { icon: T.kraft.icon, name: T.kraft.build, why: 'knackt seine dicke Haut' }
+      : heavy ? { icon: Ro.helfer.icon, name: Ro.helfer.build, why: 'heilt gegen seine harten Schläge' }
+      : { icon: Ro.brecher.icon, name: Ro.brecher.build, why: 'fängt ihn vorne ab' };
+    if (second.name === T[counter].build) second = { icon: Ro.helfer.icon, name: Ro.helfer.build, why: 'hält länger durch' };
+    return { counter, html: `<span class="crack"><b>So knackst du ihn:</b> <i>${T[counter].icon} <span>${esc(T[counter].build)}</span></i> <span>(${esc(T[counter].name)} ×2 Schaden) ·</span> <i>${second.icon} <span>${esc(second.name)}</span></i> <span>${esc(second.why)}</span></span>` };
+  }
   function bossInfo(boss) {
     const T = GL.data.types;
     const counter = Object.keys(T).find(k => T[k].strong === boss.type);
@@ -1251,7 +1267,7 @@ window.GL = window.GL || {};
             <span class="co-route">${isl.places.map(p => `<i>${p}</i>`).join('<em>›</em>')}<em>›</em><i class="co-lair">${isl.lair}</i></span>
             <span class="co-foe"><span class="co-sprite">${GL.sprites.render(foe)}</span>
               <span><small>${ch === 0 ? 'Bösewicht der Insel' : 'Boss des Meeres'}</small><b>${foe.name} ${badge(foe.type)}${isNewFoe(foe.id) ? newChip : ''}</b>
-              <small>schwach gegen ${badge(info.counter)}${bounty ? ` · Kopfgeld ${bounty}` : ''}</small></span></span>
+              <small>schwach gegen ${badge(info.counter)}${bounty ? ` · Kopfgeld ${bounty}` : ''}</small>${crackHint(foe).html}</span></span>
           </button>`;
         }).join('');
         // Zum ersten Mal in diesem Meer: kleiner Freudenmoment
@@ -1273,7 +1289,7 @@ window.GL = window.GL || {};
         const info = bossInfo(foe);
         const last = GL.run.rowIdx(run) === GL.config.chapterSteps - 1;
         const preview = last ? ''
-          : `<div class="lbl">${gateFoe ? 'Bösewicht der Insel' : 'Boss des Meeres'}: ${foe.name} ${badge(foe.type)} schwach gegen ${badge(info.counter)}</div>`;
+          : `<div class="lbl">${gateFoe ? 'Bösewicht der Insel' : 'Boss des Meeres'}: ${foe.name} ${badge(foe.type)} schwach gegen ${badge(info.counter)}</div>${crackHint(foe).html}`;
         const tip = GL.advice.map(run);
         return `${noticeBox(run)}<h2>${here ? here.name : 'Wähle deine Route'}</h2>${preview}${seaChart(run, boss, tip)}${routeDock(run, boss, tip)}${tipLine(tip)}`;
       }
@@ -1537,7 +1553,10 @@ window.GL = window.GL || {};
             const t = lifeLine(ui.profile, who.id, run.phase === 'win' ? 'win' : 'lose', { boss: fd ? fd.name : 'den Boss' });
             const d = who.id === 'self' ? avatarOf(ui.profile) : crewData(who.id);
             return t && d ? `<p class="bond-say"><i>${GL.sprites.render(d)}</i><span><b>${esc(d.name)}</b>${esc(t)}</span></p>` : ''; })()}</div>` : '';
-        return `${head}${duelHtml}${endlessHtml}${record}${berry}${bond}${shardHtml}${cgHtml}${troHtml}${itemSum}${rankHtml}${heatUp}${goals}<div class="end-actions dock">${canEndless ? `<button class="btn" data-act="endless">${pxIco('ship')}Weitersegeln</button>` : ''}<button class="btn${canEndless ? ' ghost' : ''}" data-act="again">${pxIco('loop')}${run.daily ? 'Neuer Run' : run.duel ? 'Normaler Run' : 'Nochmal!'} ${keyHint('Leertaste')}</button>
+        const bdE = GL.effects.build ? GL.effects.build(run.crew) : null;
+        const buildEnd = bdE ? `<div class="sum-build b-${bdE.key}"><i>${bdE.icon}</i><span><b>Dein Stil: ${esc(bdE.name)} ${'★'.repeat(bdE.tier)}</b><small>${esc(bdE.pitch)}. ${bdE.next ? `Mit ${bdE.next.n}× ${esc(bdE.label)} wird er noch stärker.` : 'Volle Stufe, stark!'}</small></span></div>`
+          : `<div class="sum-build none"><i>✦</i><span><b>Probier mal einen Stil</b><small>Sammle gleiche Kampfstile: 💥 Wucht (Kraft) knackt Bosse, ⚔ Schwertkunst (Klinge) kritet, 💨 Tempo (Technik) weicht aus, 💚 Lazarett (Helfer) heilt.</small></span></div>`;
+        return `${head}${buildEnd}${duelHtml}${endlessHtml}${record}${berry}${bond}${shardHtml}${cgHtml}${troHtml}${itemSum}${rankHtml}${heatUp}${goals}<div class="end-actions dock">${canEndless ? `<button class="btn" data-act="endless">${pxIco('ship')}Weitersegeln</button>` : ''}<button class="btn${canEndless ? ' ghost' : ''}" data-act="again">${pxIco('loop')}${run.daily ? 'Neuer Run' : run.duel ? 'Normaler Run' : 'Nochmal!'} ${keyHint('Leertaste')}</button>
           <button class="btn ghost" data-act="hq">${pxIco('anchor')}Hauptquartier ${keyHint('H')}</button></div>`;
       }
     }

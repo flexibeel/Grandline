@@ -1,6 +1,14 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-20c', date: '18.10.', title: 'Kampfstile mit Tiefe', items: [
+    '💥 Wucht (Kraft): +2 › +5 › +9 Angriff, ab 4 Figuren deutlich mehr Schaden gegen Bosse',
+    '⚔ Schwertkunst (Klinge): Krit-Chance 20 › 40 › 55 %, mit immer härteren Krits',
+    '💨 Tempo (Technik): die ganze Crew schneller und weicht aus, Technik-Figuren bis 25 % Ausweichen',
+    '💚 Lazarett (Helfer): Heilung 3 › 6 › 9 pro Runde, ganz oben nimmt die Crew weniger Schaden. Bollwerk und Sturmtrupp bekommen eine neue Top-Stufe',
+    'Dein Stil als Chip oben im Run, nach jedem Sieg siehst du, was bis zur nächsten Stufe fehlt. Die Taverne bietet Figuren deines Stils öfter an',
+    'Jeder Boss zeigt „So knackst du ihn“ mit dem passenden Stil',
+    'Schatz-Karten ruhiger: Seltenheit als leiser Schimmer, gewöhnlich ganz schlicht, legendär warm golden' ] },
   { v: '2026-10-20b', date: '18.10.', title: 'Schatz-Look und selbst ausrüsten', items: [
     'Schätze und Früchte wählst du jetzt wie einen echten Fund: Podest mit Lichtstrahlen in der Seltenheitsfarbe, Namensschild und Effekt auf Pergament',
     'Kein Alles-auf-einen-Klick beim Ausrüsten: grüne Pfeile zeigen bessere Teile, anlegen machst du selbst',
