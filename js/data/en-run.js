@@ -144,6 +144,9 @@ GL.data.en = Object.assign(GL.data.en || {}, {
   'Längste Kopfgeld-Serie: {a} Siege (+{b} Berry)': 'Longest bounty streak: {a} wins (+{b} Berry)',
   'Zu Kampfbeginn: Boss verliert {a} %, Begleiter {b} % Leben. Die Crew wird von allen Zuständen befreit und hat {c} Runden Mut.': 'At battle start: boss loses {a} %, companions {b} % HP. The crew is cleansed of all status effects and has {c} rounds of courage.',
   '{a}/{b} Funde bis Stufe {c}': '{a}/{b} finds to level {c}',
+  'Kostenlos und ohne kommerzielle Absicht. Nicht verbunden mit Eiichiro Oda, Shueisha oder Toei Animation.': 'Free and non-commercial. Not affiliated with Eiichiro Oda, Shueisha or Toei Animation.',
+  'Inoffizielles Fanprojekt.': 'Unofficial fan project.',
+  'Ereignis auf See: Jede Wahl hat ihren Preis, der Hinweis sagt dir, was passiert.': 'Event at sea: every choice has its price; the hint tells you what happens.',
   // Aufträge (Vorlagen, {n} wird eingesetzt)
   'Verursache {n} Schaden': 'Deal {n} damage',
   'Schicke {n} Gegner k.o.': 'Knock out {n} enemies',

@@ -777,7 +777,7 @@ window.GL = window.GL || {};
         <span class="tr-body"><b>${esc(a.name)}</b><span class="tr-steps">Bündnis</span></span>
         <span class="tr-text"><em>Fehlt: Set-Bonus ${esc(F[miss].name)}. ${esc(a.text)}</em></span></div>`;
     }).join('');
-    return `<div class="tr-head">Aktive Boni</div>${active.map(row).join('') + allyRows + duoRows || '<p class="tr-empty">Noch keine</p>'}
+    return `<div class="tr-head">Aktive Boni</div>${active.map(row).join('') + allyRows + duoRows || '<p class="tr-empty">Noch keine. Gleiche Banden, Stile oder Rollen schalten Boni frei.</p>'}
       ${rest.length ? `<div class="tr-head sub">Fast geschafft</div>${rest.map(row).join('')}` : ''}
       ${near ? `<div class="tr-head sub">Bündnisse in Reichweite</div>${near}` : ''}`;
   }
@@ -1954,7 +1954,7 @@ window.GL = window.GL || {};
     const table = isDaily && !rows.length ? `${dayTabs}<p class="muted">${ui.dailyDay === 'y' ? 'Gestern hat niemand die Tageskarte gespielt.' : 'Heute noch keine Ergebnisse. Sei der Erste!'}</p>` : rows.length
       ? `${dayTabs}<ol class="lb-list">${rows.map((x, k) => row(x, k, cat.show ? cat.show(x) : cat.get(x), cat.sub && cat.sub(x) ? cat.unit + " · " + cat.sub(x) : cat.unit,
           `${x.wins || 0} / ${x.runs || 0} Siege`)).join('')}</ol>`
-      : `<p class="muted">${st.status === 'ready' ? 'Noch keine Einträge. Beende einen Run, um der Erste zu sein!' : ''}</p>`;
+      : (st.status === 'ready' ? emptyState(pxIco('swords'), 'Die Rangliste wartet auf dich', 'Noch keine Einträge. Beende einen Run und schreib deinen Namen als Erste:r ins Logbuch!') : '');
 
     // Duelle: alle Codes, bei denen du oder andere mitgespielt haben
     const codes = {};
@@ -2642,6 +2642,10 @@ window.GL = window.GL || {};
   }
 
   // ---------- Freunde: Code, QR, Einladen, Liste ----------
+  // Leere Bereiche: kleines Bild, ein freundlicher Satz, was als Nächstes zu tun ist
+  function emptyState(ico, title, text) {
+    return `<div class="empty-st"><i class="es-ico">${ico}</i><b>${esc(title)}</b><small>${esc(text)}</small></div>`;
+  }
   function friendsPop(profile) {
     const F = GL.friends, me = F ? F.mine() : '';
     const st = GL.online ? GL.online.state() : { rows: [] };
@@ -2662,7 +2666,7 @@ window.GL = window.GL || {};
         <small class="muted">Zählt nach dem ersten Run deines Freundes, jeder bringt ein legendäres Teil. Bisher: <b>${inv}</b>. Er bekommt 150 Berry.</small></div>`
         : `<p class="hint">Freunde gibt es, sobald du online bist (nach deinem ersten Run).</p>`}
       <div class="fr-add"><input id="fr-code" maxlength="8" placeholder="Code eines Freundes" autocomplete="off"><button class="btn" data-act="friend-add">Hinzufügen</button></div>
-      <div class="fr-list">${list.length ? list.map(row).join('') : '<p class="muted fr-empty">Noch keine Freunde in der Liste.</p>'}</div>
+      <div class="fr-list">${list.length ? list.map(row).join('') : emptyState(GL.sprites.ship(), 'Noch allein auf See', 'Gib deinen Code weiter oder trag oben einen ein. Zusammen segelt es sich schöner, und ihr könnt euch Flaschenpost schicken.')}</div>
       <div class="fpop-btns"><button class="btn ghost" data-act="pop-close">Schließen</button></div></div>`;
   }
   function invitePop(got, profile) {
@@ -3297,6 +3301,31 @@ window.GL = window.GL || {};
       <div class="fpop-btns"><button class="btn" data-act="reload">Neues Update testen</button><button class="btn ghost" data-act="pop-close">${inRun ? 'Run weiterspielen' : 'Später'}</button></div>
     </div>`;
   }
+  // Neuigkeiten zum Durchwischen: ein Slide pro Neuerung, am Ende die Wahl Weiterspielen / Story nochmal / Neu anfangen
+  function newsPop(profile, idx) {
+    const N = GL.data.news; if (!N) return '';
+    const en = GL.i18n && GL.i18n.lang && GL.i18n.lang() === 'en';
+    const L = a => (Array.isArray(a) ? (en ? a[1] : a[0]) : a);
+    const slides = N.slides.concat([{ choice: true }]);
+    const i = Math.max(0, Math.min(slides.length - 1, idx || 0));
+    const artOf = a => a.crew ? GL.sprites.render(crewData(a.crew) || {}) : a.self ? GL.sprites.render(avatarOf(profile)) : a.ship ? GL.sprites.ship() : a.emoji ? `<span class="nw-emoji">${a.emoji}</span>` : a.fa ? featureArt(a.fa) : '';
+    const body = slides.map((sl, k) => sl.choice
+      ? `<div class="nw-slide nw-choice${k === i ? ' on' : ''}" data-k="${k}"><div class="nw-art tone-gold"><span class="nw-emoji">🧭</span></div>
+          <span class="nw-kick">${en ? 'Your choice' : 'Deine Wahl'}</span><h3>${en ? 'How do you want to continue?' : 'Wie willst du weiterspielen?'}</h3>
+          <div class="nw-opts">
+            <button class="nw-opt main" data-act="news-done"><b>⚓ ${en ? 'Keep playing' : 'Weiterspielen'}</b><small>${en ? 'Your progress stays. New things unlock step by step.' : 'Dein Fortschritt bleibt. Neues kommt nach und nach.'}</small></button>
+            <button class="nw-opt" data-act="news-story"><b>📖 ${en ? 'Replay the story from chapter 1' : 'Story von Kapitel 1 erleben'}</b><small>${en ? 'Progress stays, the scenes start again from the beginning.' : 'Fortschritt bleibt, die Szenen starten nochmal von vorn.'}</small></button>
+            <button class="nw-opt danger" data-act="acc-reset"><b>🌱 ${en ? 'Start completely fresh' : 'Ganz neu anfangen'}</b><small>${en ? 'Experience everything as a newcomer. Name and look stay, progress is reset. You will be asked again.' : 'Alles als Neuling erleben. Name und Aussehen bleiben, der Fortschritt startet bei null. Wir fragen nochmal nach.'}</small></button>
+          </div></div>`
+      : `<div class="nw-slide${k === i ? ' on' : ''}" data-k="${k}"><div class="nw-art tone-${sl.tone || 'sea'}"><span class="nw-sparkle a">✦</span><span class="nw-sparkle b">✦</span>${artOf(sl.art || {})}</div>
+          <span class="nw-kick">${esc(L(sl.kicker))}</span><h3>${esc(L(sl.title))}</h3><p>${esc(L(sl.text))}</p></div>`).join('');
+    const dots = slides.map((_, k) => `<button class="nw-dot${k === i ? ' on' : ''}" data-act="news-go" data-i="${k}" aria-label="${k + 1}"></button>`).join('');
+    return `<div class="fpop-card news-pop" role="dialog" aria-labelledby="fpop-t" data-noclose="1">
+      <div class="nw-top"><span class="fpop-kicker" id="fpop-t">${en ? 'What is new' : 'Neu in Grand Line'}</span><button class="nw-skip" data-act="news-go" data-i="${slides.length - 1}">${en ? 'Skip' : 'Überspringen'} ›</button></div>
+      <div class="nw-track" style="--i:${i}">${body}</div>
+      <div class="nw-nav"><button class="nw-arrow" data-act="news-go" data-i="${i - 1}"${i === 0 ? ' disabled' : ''} aria-label="Zurück">‹</button><span class="nw-dots">${dots}</span><button class="nw-arrow next" data-act="news-go" data-i="${i + 1}"${i === slides.length - 1 ? ' disabled' : ''} aria-label="Weiter">›</button></div>
+    </div>`;
+  }
   function welcomePop(profile, fromV) {
     const news = GL.patchNotes.filter(n => !fromV || n.v > fromV).slice(0, 3);
     return `<div class="fpop-card" role="dialog" aria-labelledby="fpop-t">
@@ -3413,11 +3442,14 @@ window.GL = window.GL || {};
       const now = lvl ? fmtUpgrade(u, lvl * u.per) : 'Noch nicht gebaut.';
       const next = cost != null ? `Nächste Stufe: ${fmtUpgrade(u, (lvl + 1) * u.per)}` : 'Voll ausgebaut.';
       const can = cost != null && profile.berry >= cost;
-      return `<div class="hq-card${cost == null ? ' maxed' : ''}${can ? ' can-buy' : ''}">
-        <div class="hq-card-head"><b>${u.name}</b>${can ? '<em class="can-tag">Leistbar</em>' : ''}<span class="lvpips">${pips}</span></div>
-        <p>${now}</p><p class="muted">${next}</p>
-        ${cost != null ? `<button class="btn mini buy" data-act="buy-upgrade" data-id="${u.id}"${profile.berry < cost ? ' disabled' : ''}>
-          ${GL.sprites.coin()} ${fmt(cost)}</button>` : ''}
+      // Kompakte Werft-Kachel: Bild, Name, Stufen-Pips, was die nächste Stufe bringt, Preis
+      const WF_ICO = { rumpf: () => pxIco('anchor'), kanonen: () => GL.sprites.icon('relic', 'bordkanone'), segel: () => pxIco('ship'), kombuese: () => GL.sprites.icon('node', 'rest'),
+        ausguck: () => GL.sprites.icon('node', 'recruit'), schatzkarte: () => pxIco('chest'), training: () => GL.sprites.icon('node', 'battle'), buero: () => GL.sprites.icon('node', 'elite'), lager: () => GL.sprites.icon('relic', 'proviant') };
+      return `<div class="wf-tile${cost == null ? ' maxed' : ''}${can ? ' can-buy' : ''}">
+        <div class="wf-top"><i class="wf-ico">${(WF_ICO[u.id] || (() => pxIco('anchor')))()}</i><span class="wf-name"><b>${u.name}</b><span class="lvpips">${pips}</span></span></div>
+        ${lvl ? `<small class="wf-now"><em>Jetzt</em> ${now}</small>` : ''}
+        <small class="wf-next">${cost != null ? `<em>${lvl ? 'Dann' : 'Bringt'}</em> ${fmtUpgrade(u, (lvl + 1) * u.per)}` : '✓ Voll ausgebaut'}</small>
+        ${cost != null ? `<button class="btn mini buy wf-buy" data-act="buy-upgrade" data-id="${u.id}"${profile.berry < cost ? ' disabled' : ''}>${GL.sprites.coin()} ${fmt(cost)}</button>` : ''}
       </div>`;
     }).join('');
 
@@ -3432,10 +3464,10 @@ window.GL = window.GL || {};
       </div>`;
     }).join('') : '<p class="muted">Das Lager ist leer. Beim Händler bekommst du Ausrüstung für deine Runs.</p>';
 
-    const shop = GL.data.gear.map(g => `<div class="hq-item">
-        <i>${GL.sprites.icon('relic', g.id)}</i>
-        <span><b>${g.name}</b><small>${g.text}</small></span>
-        <button class="btn mini buy" data-act="buy-gear" data-id="${g.id}"${profile.berry < g.cost ? ' disabled' : ''}>${GL.sprites.coin()} ${fmt(g.cost)}</button>
+    const shop = GL.data.gear.map(g => `<div class="wf-tile shop${profile.berry >= g.cost ? ' can-buy' : ''}">
+        <div class="wf-top"><i class="wf-ico">${GL.sprites.icon('relic', g.id)}</i><span class="wf-name"><b>${g.name}</b>${profile.gear[g.id] ? `<em class="wf-own">×${profile.gear[g.id]} <span>im Lager</span></em>` : ''}</span></div>
+        <small class="wf-next">${g.text}</small>
+        <button class="btn mini buy wf-buy" data-act="buy-gear" data-id="${g.id}"${profile.berry < g.cost ? ' disabled' : ''}>${GL.sprites.coin()} ${fmt(g.cost)}</button>
       </div>`).join('');
 
     const H = GL.data.heat;
@@ -3494,8 +3526,8 @@ window.GL = window.GL || {};
 
       ${!room ? '' : `
       ${tab === 'werft' ? `<section class="hq-sec">
-        <p class="hint">Dauerhafte Ausbauten für dein Schiff. Sie gelten für jeden zukünftigen Run.</p>
-        <div class="hq-grid">${upgrades}</div></section>` : ''}
+        <p class="hint">Bau dein Schiff aus. Jede Stufe gilt für alle kommenden Runs.</p>
+        <div class="wf-grid">${upgrades}</div></section>` : ''}
 
       ${tab === 'profil' ? `<section class="hq-sec">
         <div class="pf-quick"><button class="btn ghost" data-act="album" data-tab="stats">📊 Statistik</button><button class="btn ghost" data-act="sticker">Sticker</button><button class="btn ghost" data-act="friends-open">♥ Freunde</button><button class="btn ghost" data-act="story-book">📖 Story</button></div>
@@ -3523,8 +3555,8 @@ window.GL = window.GL || {};
       ${tab === 'lager' ? lagerSection(profile, slots) : ''}
 
       ${tab === 'haendler' ? `<section class="hq-sec">
-        <p class="hint">Gekaufte Ausrüstung landet im Lager.</p>
-        <div class="hq-list">${shop}</div></section>` : ''}
+        <p class="hint">Kleine Helfer für den nächsten Run. Was du kaufst, wartet im Lager auf dich.</p>
+        <div class="wf-grid">${shop}</div></section>` : ''}
       ${roomFoot()}`}
     </div>`;
   }
@@ -3623,12 +3655,14 @@ window.GL = window.GL || {};
     </div>`;
   }
   // Statistik: eigene Werte, Fortschritt beim Sammeln, beste Figuren
+  const uiStats = {};
   function statsView(profile, lists) {
     const v = GL.meta.progressValues(profile), R = profile.records || {}, L = profile.life || {};
     const best = GL.save.best();
     const n = x => (x || 0).toLocaleString('de-DE');
-    const big = (val, lbl, ico) => `<div class="stv-n"><i>${ico}</i><b>${val}</b><small>${lbl}</small></div>`;
-    const bar = (lbl, have, need) => `<div class="stv-bar"><span>${lbl}</span><i><b style="width:${Math.round(100 * have / Math.max(1, need))}%"></b></i><em>${have}/${need}</em></div>`;
+    const big = (val, lbl, ico) => `<div class="stv-n"><i class="stv-ico">${ico}</i><b class="num">${val}</b><small>${lbl}</small></div>`;
+    const bar = (lbl, have, need) => `<div class="stv-bar"><span>${lbl}</span><i><b style="width:${Math.round(100 * have / Math.max(1, need))}%"></b></i><em class="num">${have}<small>/${need}</small></em></div>`;
+    const SI = { runs: pxIco('anchor'), wins: PX_STAR, best: GL.sprites.coin(), kos: GL.sprites.icon('node', 'battle'), hit: pxIco('fire') || '⚡', dmg: pxIco('swords'), boss: GL.sprites.icon('node', 'elite'), raid: GL.sprites.icon('node', 'raid'), isl: pxIco('ship') };
     const cosAll = Object.values(GL.data.cosmetics).flat(), cosHave = cosAll.filter(it => GL.meta.cosmeticUnlocked(profile, it, v)).length;
     const caps = GL.data.crew.filter(c => !c.self);
     const capHave = caps.filter(c => !c.locked || profile.unlocked.includes(c.id)).length;
@@ -3638,17 +3672,28 @@ window.GL = window.GL || {};
     const who = id => id === 'self' ? avatarOf(profile) : crewData(id);
     return `<div class="stv">
       <div class="stv-grid">
-        ${big(n(profile.stats.runs), 'Runs', '⚓')}${big(n(profile.stats.wins), 'Siege', '★')}${big(n(best ? best.score : 0), 'Bestwert', '♛')}
-        ${big(n(Math.max(R.kos || 0, L.kos || 0)), 'K.o.s', '✊')}${big(n(R.maxHit), 'Härtester Treffer', '⚡')}${big(n(Math.max(R.dmg || 0, L.dmg || 0)), 'Schaden gesamt', '⚔')}
-        ${big(n(v.bosses), 'Inselbosse', '☠')}${big(n(v.raids), 'Raids', '✦')}${big(n(v.islands), 'Inseln', '⛰')}
+        ${big(n(profile.stats.runs), 'Runs', SI.runs)}${big(n(profile.stats.wins), 'Siege', SI.wins)}${big(n(best ? best.score : 0), 'Bestwert', SI.best)}
+        ${big(n(Math.max(R.kos || 0, L.kos || 0)), 'K.o.s', SI.kos)}${big(n(R.maxHit), 'Härtester Treffer', SI.hit)}${big(n(Math.max(R.dmg || 0, L.dmg || 0)), 'Schaden gesamt', SI.dmg)}
+        ${big(n(v.bosses), 'Inselbosse', SI.boss)}${big(n(v.raids), 'Raids', SI.raid)}${big(n(v.islands), 'Inseln', SI.isl)}
       </div>
       <h3 class="stv-h">Gesammelt</h3>
       ${bar('Kapitäne frei', capHave, caps.length)}${bar('Figuren getroffen', known(lists.crew), lists.crew.length)}${bar('Gegner besiegt', known(lists.bosses), lists.bosses.length)}
       ${bar('Früchte', known(lists.fruits), lists.fruits.length)}${bar('Schätze', known(lists.relics), lists.relics.length)}${bar('Profil-Teile', cosHave, cosAll.length)}
       <h3 class="stv-h">Deine Figuren</h3>
-      ${top.length ? `<div class="stv-tbl"><div class="stv-tr head"><span></span><span>Figur</span><span>Runs</span><span>Siege</span><span>Schaden</span><span>K.o.s</span></div>
-        ${top.map(id => { const x = CS[id], d = who(id); return `<div class="stv-tr" data-tip="${esc(d.name + '\nBester Treffer: ' + n(x.best) + ' · Kämpfe: ' + n(x.fights))}"><i>${GL.sprites.render(d)}</i><b>${esc(d.name)}</b><span>${n(x.runs)}</span><span>${x.runs ? Math.round(100 * x.wins / x.runs) : 0} %</span><span>${n(x.dmg)}</span><span>${n(x.kos)}</span></div>`; }).join('')}</div>`
-        : '<p class="muted">Ab deinem nächsten Run sammeln sich hier die Werte jeder Figur.</p>'}
+      ${top.length ? (() => {
+        const sk = (uiStats.sort || 'dmg');
+        const val = (x, k) => k === 'wins' ? (x.runs ? x.wins / x.runs : 0) : (x[k] || 0);
+        const sorted = top.slice().sort((a, b) => val(CS[b], sk) - val(CS[a], sk));
+        const chips = [['dmg', 'Schaden'], ['wins', 'Siege'], ['runs', 'Runs'], ['kos', 'K.o.s']].map(([k, l]) => `<button class="sqc-f${sk === k ? ' on' : ''}" data-act="stv-sort" data-v="${k}">${l}</button>`).join('');
+        const card = (id, i) => { const x = CS[id], d = who(id), wr = x.runs ? Math.round(100 * x.wins / x.runs) : 0;
+          return `<div class="fig-card${i < 3 ? ' top t' + (i + 1) : ''}" data-tip="${esc(d.name + '\nBester Treffer: ' + n(x.best) + ' · Kämpfe: ' + n(x.fights))}">
+            ${i < 3 ? `<span class="fig-medal">${i + 1}</span>` : ''}
+            <i class="fig-por">${GL.sprites.renderShaded ? GL.sprites.renderShaded(d) : GL.sprites.render(d)}</i>
+            <span class="fig-body"><b>${esc(d.name)}</b>
+              <span class="fig-pills"><em title="Runs">${SI.runs}<span class="num">${n(x.runs)}</span></em><em title="Schaden">${SI.dmg}<span class="num">${n(x.dmg)}</span></em><em title="K.o.s">${SI.kos}<span class="num">${n(x.kos)}</span></em></span>
+              <span class="fig-wr"><i><b style="width:${wr}%"></b></i><small><span class="num">${wr} %</span> <span>Siege</span></small></span></span></div>`; };
+        return `<div class="fig-sort">${chips}</div><div class="fig-grid">${sorted.map(card).join('')}</div>`; })()
+        : emptyState(GL.sprites.ship(), 'Noch keine Werte', 'Ab deinem nächsten Run sammeln sich hier die Werte jeder Figur.')}
     </div>`;
   }
 
@@ -3677,38 +3722,32 @@ window.GL = window.GL || {};
   }
 
   // ---------- Willkommen / Anleitung ----------
+  // Einführung für Neue: drei kurze Karten mit Bildern statt Textwänden
+  const irow = (ico, t, sub) => `<div class="in-row"><i class="in-ico">${ico}</i><span><b>${t}</b>${sub ? `<small>${sub}</small>` : ''}</span></div>`;
   const INTRO = [
     {
-      kicker: 'Willkommen',
+      kicker: 'Willkommen an Bord',
       title: 'Auf zur Grand Line',
-      body: `<p>Ein kleines Roguelike im Browser: Stell deine Piratencrew zusammen und kämpf dich durch drei Meere voller Inseln aus der Serie bis zum letzten Boss. Jeder Run ist anders und dauert nur rund 20 Minuten.</p>
-        <div class="intro-note"><b>Inoffizielles Fanprojekt.</b> Kostenlos und ohne kommerzielle Absicht. Nicht verbunden mit Eiichiro Oda, Shueisha oder Toei Animation.</div>`
+      body: `<p class="in-lead">Crew sammeln, Inseln erobern, den Boss umhauen. Ein Run dauert etwa 20 Minuten. Scheitern gehört dazu: Mit jeder Fahrt wirst du stärker.</p>
+        <div class="intro-note"><b>Inoffizielles Fanprojekt.</b> Kostenlos, ohne Werbung, nicht verbunden mit Eiichiro Oda, Shueisha oder Toei Animation.</div>`
     },
     {
       kicker: 'So läuft ein Run',
       title: 'Wählen, kämpfen, weitersegeln',
-      body: `<ol class="intro-steps">
-        <li><b>Kapitän wählen.</b> Er oder sie startet allein.</li>
-        <li><b>Kurs setzen:</b> Welche Insel steuerst du an? Jede hat eigene Orte und am Ende ihren Bösewicht.</li>
-        <li><b>Route wählen:</b> Kampf, Taverne, Schatz, Teufelsfrucht oder Rast.</li>
-        <li><b>Kämpfe laufen automatisch.</b> Brecher stellen sich automatisch nach vorne.</li>
-        <li><b>Pro Meer zwei Inseln:</b> erst eine kleine mit Bösewicht, dann eine große mit dem Boss des Meeres.</li></ol>`
+      body: `<div class="in-rows">
+        ${irow(pxIco('anchor'), 'Kapitän wählen', 'Er oder sie bleibt den ganzen Run.')}
+        ${irow(GL.sprites.icon('node', 'recruit'), 'Route wählen', 'Kampf, Taverne, Schatz, Frucht oder Rast.')}
+        ${irow(pxIco('swords'), 'Kämpfe laufen allein', 'Du planst, deine Crew prügelt.')}
+        ${irow(GL.sprites.icon('node', 'elite'), 'Boss besiegen', 'Am Ende jeder Insel wartet ein Bösewicht.')}</div>`
     },
     {
       kicker: 'Stark werden',
-      title: 'Kombos und Level',
-      body: `<ul class="intro-list">
-        <li><b>Kampfstile:</b> ${badge('kraft')} schlägt ${badge('technik')} schlägt ${badge('klinge')} schlägt ${badge('kraft')}. Doppelter Schaden!</li>
-        <li><b>Kombos:</b> Mehrere Figuren mit gleichem Stil, gleicher Rolle oder aus derselben Bande schalten Boni frei.</li>
-        <li><b>Level-ups</b> geben Statuspunkte. Klick auf eine Figur, um sie zu verteilen.</li></ul>`
-    },
-    {
-      kicker: 'Zwischen den Runs',
-      title: 'Dein Hauptquartier',
-      body: `<ul class="intro-list">
-        <li>Jeder Run bringt <b>Berry</b>. Damit baust du dein Schiff aus und kaufst Ausrüstung.</li>
-        <li>Besiegte Bosse kannst du später als <b>Kapitän</b> spielen.</li>
-        <li class="kbd-only"><b>Tastatur:</b> <kbd class="key inline">Leertaste</kbd> geht weiter, <kbd class="key inline">1</kbd> bis <kbd class="key inline">9</kbd> wählt.</li></ul>`
+      title: 'Kombos und dein Hafen',
+      body: `<div class="in-rows">
+        ${irow(`${badge('kraft')}`, 'Kampfstile', `${badge('kraft')} schlägt ${badge('technik')} schlägt ${badge('klinge')} schlägt ${badge('kraft')}`)}
+        ${irow(pxIcon('strohhut'), 'Gleiche Banden = Boni', 'Volle Bande? Dann gibt es sogar eine Team-Fähigkeit.')}
+        ${irow(GL.sprites.coin(), 'Berry für den Hafen', 'Schiff ausbauen, Ausrüstung, deine Stammcrew.')}</div>
+        <p class="kbd-only in-kbd"><kbd class="key inline">Leertaste</kbd> geht weiter, <kbd class="key inline">1</kbd>–<kbd class="key inline">9</kbd> wählt.</p>`
     }
   ];
 
@@ -3796,6 +3835,8 @@ window.GL = window.GL || {};
 
   GL.ui = {
     dressRoom,
+    newsPop,
+    setStatsSort: k => { uiStats.sort = k; },
     storyBook,
     cgArtOf: it => cgArt(it),
     gearTip,

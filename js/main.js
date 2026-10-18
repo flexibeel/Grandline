@@ -119,7 +119,8 @@
   function featureCheck() {
     const old = document.getElementById('fpop');
     if (old && old.dataset.id === 'feedback') return;
-    if (old && (old.dataset.id === 'install' || old.dataset.id === 'notes' || old.dataset.id === 'duel' || old.dataset.id === 'gear' || old.dataset.id === 'welcome')) return;
+    if (old && (old.dataset.id === 'news' || old.dataset.id === 'install' || old.dataset.id === 'notes' || old.dataset.id === 'duel' || old.dataset.id === 'gear' || old.dataset.id === 'welcome')) return;
+    if (!run && !ui.screen && ui.intro == null && !old && GL.data.news && profile.nickname && (profile.rankXp || 0) > 0 && profile.newsSeen !== GL.data.news.v && !ui.newsShown) { ui.newsShown = true; ui.welcomeDue = false; openNews(0); return; }
     if (!run && !ui.screen && ui.intro == null && !old && ui.welcomeDue) { ui.welcomeDue = false; openWelcome(); return; }
     // Story: höchstens ein Kapitel pro Besuch im Hafen (nach jedem Run darf das nächste kommen)
     if (!run && !ui.screen && ui.intro == null && !old && profile.nickname && GL.story && !GL.story.active() && !ui.storyPending && !ui.storyShown && !document.getElementById('intro-card')) {
@@ -187,9 +188,10 @@
     if (!profile.nickname || GL.sandbox.on() || ui.fbOpen === false) return false;
     if (GL.meta.featuresNew && GL.meta.featuresNew(profile).length) return false;
     const runs = (profile.stats && profile.stats.runs) || 0, fb = profile.fb || {};
-    if (fb.sent) return false;
-    if (!fb.asked) return runs >= 2;
-    return fb.asked === 1 && runs >= 6;
+    if (!fb.asked && !fb.sent) return runs >= 2;
+    if (!fb.sent && fb.asked === 1) return runs >= 6;
+    // Stammspieler: alle 12 Runs nochmal kurz fragen, ob es gefällt
+    return runs >= (fb.at || 6) + 12;
   }
   function openGearPop(html) {
     const old = document.getElementById('fpop'); if (old) old.remove();
@@ -245,6 +247,37 @@
     if (GL.sfx) GL.sfx.play('found');
     toast(`<span class="toast-say"><i>${GL.sprites.render(d)}</i><span><b>${esc2(d.name || '')}</b>„${esc2(line)}“${first ? ' <em class="ts-bond">♥ +5</em>' : ''}</span></span>`);
   }
+  // Neuigkeiten-Karussell (einmal pro großem Update)
+  function openNews(i) {
+    const old = document.getElementById('fpop');
+    ui.newsI = i || 0;
+    if (old && old.dataset.id === 'news') {
+      const tr = old.querySelector('.nw-track'); if (!tr) return;
+      const N = GL.data.news.slides.length + 1;
+      ui.newsI = Math.max(0, Math.min(N - 1, ui.newsI));
+      tr.style.setProperty('--i', ui.newsI);
+      old.querySelectorAll('.nw-slide').forEach((s, k) => s.classList.toggle('on', k === ui.newsI));
+      old.querySelectorAll('.nw-dot').forEach((d, k) => d.classList.toggle('on', k === ui.newsI));
+      const [pv, nx] = old.querySelectorAll('.nw-arrow');
+      pv.dataset.i = ui.newsI - 1; pv.disabled = ui.newsI === 0; nx.dataset.i = ui.newsI + 1; nx.disabled = ui.newsI === N - 1;
+      if (GL.sfx) GL.sfx.play('tap');
+      return;
+    }
+    if (old) old.remove();
+    const el = document.createElement('div');
+    el.id = 'fpop'; el.className = 'fpop'; el.dataset.id = 'news';
+    el.innerHTML = GL.ui.newsPop(profile, ui.newsI);
+    document.body.appendChild(el);
+    requestAnimationFrame(() => el.classList.add('in'));
+    // Wischen
+    let sx = null, sy = 0;
+    el.addEventListener('pointerdown', e => { if (e.target.closest('.nw-track')) { sx = e.clientX; sy = e.clientY; } });
+    el.addEventListener('pointerup', e => {
+      if (sx == null) return; const dx = e.clientX - sx, dy = e.clientY - sy; sx = null;
+      if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) { suppressClick = true; setTimeout(() => { suppressClick = false; }, 300); openNews(ui.newsI + (dx < 0 ? 1 : -1)); }
+    });
+  }
+  function newsDone() { profile.newsSeen = GL.data.news.v; saveProfile(); closePop(); }
   function openWelcome() {
     const el = document.createElement('div');
     el.id = 'fpop'; el.className = 'fpop'; el.dataset.id = 'welcome';
@@ -264,7 +297,7 @@
     requestAnimationFrame(() => el.classList.add('in'));
   }
   function closeFeedback(sent) {
-    profile.fb = Object.assign({}, profile.fb || {}, { asked: ((profile.fb && profile.fb.asked) || 0) + (sent ? 0 : 1), sent: !!sent || !!(profile.fb && profile.fb.sent) });
+    profile.fb = Object.assign({}, profile.fb || {}, { asked: ((profile.fb && profile.fb.asked) || 0) + (sent ? 0 : 1), sent: !!sent || !!(profile.fb && profile.fb.sent), at: (profile.stats && profile.stats.runs) || 0 });
     saveProfile();
     ui.fbOpen = false;
     const el = document.getElementById('fpop');
@@ -341,6 +374,9 @@
   // Wartende Begleiter-Fenster zeigen, sobald gerade nichts anderes offen ist und kein Kampf läuft
   function showPets() {
     if (!ui.petQueue || !ui.petQueue.length || document.getElementById('fpop') || (anim && !anim.done)) return;
+    // Nicht mitten in eine Auswahl platzen (Schatz, Training, Kopfgeld-Plakat): erst auf der Seekarte oder im Hafen zeigen
+    if (run && !GL.run.isFinished(run) && !['map', 'course'].includes(run.phase)) return;
+    if (document.getElementById('story')) return;
     const id = ui.petQueue.shift();
     openGearPop(GL.ui.petPop(id, profile));
     if (GL.sfx) GL.sfx.play('found');
@@ -1280,6 +1316,9 @@
       case 'fpop-close': closeFeature(el.dataset.id, false); break;
       case 'fpop-map': closeFeature(el.dataset.id, false); setTimeout(() => { ui.wikiTab = 'routen'; openGearPop(GL.ui.wikiPop('routen', profile)); }, 300); break;
       case 'wb-close': closePop(); break;
+      case 'news-go': openNews(Number(el.dataset.i)); break;
+      case 'news-done': newsDone(); break;
+      case 'news-story': profile.story = { seen: [] }; ui.storyShown = false; newsDone(); toast('<span><b>📖 Die Story beginnt von vorn</b>Kapitel 1 startet gleich, die nächsten kommen mit deinen Fahrten.</span>'); setTimeout(() => { ui.lastStage = null; draw(); }, 600); break;
       case 'pop-close': closePop(); break;
       // ---------- Crew-Ausrüstung ----------
       case 'cg-slot': openGearPop(GL.ui.gearPick(profile, el.dataset.id, el.dataset.slot)); break;
@@ -1676,6 +1715,7 @@
         break;
       }
       case 'album-tab': ui.album = el.dataset.tab; draw(); break;
+      case 'stv-sort': GL.ui.setStatsSort(el.dataset.v); draw(); break;
       case 'album-close': ui.album = null; draw(); break;
     }
     if (type === 'fight') document.body.classList.remove('fast');

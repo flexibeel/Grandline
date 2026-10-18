@@ -133,5 +133,15 @@ window.GL = window.GL || {};
     const f = v[0] * Math.pow(2, steps[code % steps.length] / 12);
     tone(f, f * 0.94, 0.07, v[1], v[1] === 'square' ? 0.05 : 0.09);
   }
-  GL.sfx = { play, battle, toggle, voice, isOn: () => on };
+  // Kleine Klang-Akzente für Story-Szenen
+  function sting(name) {
+    if (!ready()) return;
+    if (name === 'boing') { tone(220, 520, 0.18, 'sine', 0.18); tone(520, 300, 0.12, 'sine', 0.1, 0.16); }
+    else if (name === 'shake') { tone(110, 60, 0.22, 'triangle', 0.25); tone(90, 50, 0.18, 'square', 0.05, 0.05); }
+    else if (name === 'dramatic') { [0, 0.07, 0.14, 0.21, 0.28].forEach((t, k) => tone(98 + k * 3, 90, 0.07, 'triangle', 0.12 + k * 0.02, t)); tone(147, 140, 0.4, 'square', 0.06, 0.36); }
+    else if (name === 'flash' || name === 'sparkle') { [0, 0.06, 0.12].forEach((t, k) => tone(1047 + k * 260, 1200 + k * 260, 0.12, 'sine', 0.08, t)); }
+    else if (name === 'zoom') { tone(300, 700, 0.16, 'sine', 0.07); }
+    else if (name === 'jump') { [0, 0.08, 0.16].forEach((t, k) => tone(440 + k * 90, 620 + k * 90, 0.07, 'square', 0.04, t)); }
+  }
+  GL.sfx = { play, battle, toggle, voice, sting, isOn: () => on };
 })();

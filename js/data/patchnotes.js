@@ -1,6 +1,12 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-19b', date: '18.10.', title: 'Neu-Fenster, lebendigere Szenen, schöneres Album', items: [
+    'Neuigkeiten zum Durchwischen: Bei großen Updates zeigt ein Karussell, was neu ist. Am Ende entscheidest du: weiterspielen, die Story von vorn erleben oder ganz neu anfangen (mit Nachfrage)',
+    'Story-Szenen: kürzer, witziger, mit Wackeln, Zoom, Hüpfen, Blitz und Trommelwirbel. Kulissen mit Palmen, Kisten, Möwen, Krabbe und Glühwürmchen. Auto-Knopf zum Zurücklehnen',
+    'Album: Statistik mit 3D-Kacheln, „Deine Figuren“ als Karten mit Medaillen und Sortierung. Zahlen überall besser lesbar',
+    'Neuling-Durchgang: kürzere Einführung, keine fünf Fenster mehr nach dem ersten Boss, Werft und Händler als Kacheln, schönere „Noch leer“-Stellen',
+    'Stammspieler werden alle 12 Runs kurz gefragt, wie es gefällt' ] },
   { v: '2026-10-19a', date: '18.10.', title: 'Story: Das Rezept vom Ende der Welt', items: [
     'Neu: eine Story in 8 Kapiteln. Kleine Szenen mit deiner Crew, Sprechblasen und eigenen Stimmen für jede Figur (wie bei Stardew). Mit deinem Fortschritt kommt das nächste Kapitel, höchstens eins pro Besuch im Hafen',
     'Im Kapitänsbuch unter „📖 Story“ siehst du alle Kapitel, kannst gesehene nochmal abspielen und siehst, wann das nächste kommt',
