@@ -192,11 +192,10 @@
   function feedbackDue() {
     if (!profile.nickname || GL.sandbox.on() || ui.fbOpen === false) return false;
     if (GL.meta.featuresNew && GL.meta.featuresNew(profile).length) return false;
+    // Nur ein einziges Mal fragen (Felix: einmal reicht, weggeklickt bleibt weg)
     const runs = (profile.stats && profile.stats.runs) || 0, fb = profile.fb || {};
-    if (!fb.asked && !fb.sent) return runs >= 2;
-    if (!fb.sent && fb.asked === 1) return runs >= 6;
-    // Stammspieler: alle 12 Runs nochmal kurz fragen, ob es gefällt
-    return runs >= (fb.at || 6) + 12;
+    if (fb.shown || fb.asked || fb.sent) return false;
+    return runs >= 3;
   }
   function openGearPop(html) {
     const old = document.getElementById('fpop'); if (old) old.remove();
@@ -294,6 +293,7 @@
   function openFeedback() {
     const old = document.getElementById('fpop'); if (old) old.remove();
     ui.fbStars = 0;
+    profile.fb = Object.assign({}, profile.fb || {}, { shown: Date.now() }); saveProfile();
     const el = document.createElement('div');
     el.id = 'fpop'; el.className = 'fpop'; el.dataset.id = 'feedback';
     el.innerHTML = GL.ui.feedbackPop(0);
@@ -498,7 +498,6 @@
           profile.testerIdx = ((profile.testerIdx || 0) + 1) % open.length;
           profile.seenFeatures = (profile.seenFeatures || []).filter(id => id !== open[profile.testerIdx].id);
         }
-        if (((profile.stats && profile.stats.runs) || 0) % 3 === 0) { profile.fb = {}; ui.fbOpen = null; }
         if (((profile.stats && profile.stats.runs) || 0) % 4 === 0) { ui.welcomeDue = true; ui.welcomeFrom = (GL.patchNotes[3] || {}).v; }
         profile.firstSeen = {};
       }

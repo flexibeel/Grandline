@@ -1,6 +1,8 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-20e', date: '18.10.', title: 'Hotfix: Bewertungsfenster', items: [
+    'Die Frage „Wie gefällt dir Grand Line?“ kommt nur noch ein einziges Mal. Weggeklickt bleibt weggeklickt' ] },
   { v: '2026-10-20d', date: '18.10.', title: 'Das Herz schlägt: Kampf, Früchte, Abenteuer', items: [
     'Bosse holen aus: eine Runde vorher kündigen sie den schweren Schlag an. Ausweichen und Rüstung zählen dagegen doppelt',
     '5 Stil-Kombos, wenn zwei Stile aktiv sind: Sturmangriff, Tausend Schnitte, Festung, Zäher Brocken, Klingensturm. Dazu Staub bei Wucht, „Knapp vorbei!“ beim Ausweichen, kleine Plus beim Heilen und eine Kampfbilanz nach jedem Sieg',
