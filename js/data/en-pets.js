@@ -6,6 +6,7 @@ GL.data.en = Object.assign(GL.data.en || {}, {
   'Hafengerücht': 'Harbor rumor', 'Sammelbuch': 'Collection book', 'Alle Stufen geschafft!': 'All tiers done!', 'Belohnung im Sammelalbum.': 'Reward in the collection album.',
   'Begleiter sitzen auf deiner Schulter und tanzen im Hafen auf dem Schiff. Alle findest du im Album.': 'Companions sit on your shoulder and dance on your ship in the harbor. Find them all in the album.',
   'Sammelbuch: neue Stufe!': 'Collection book: new tier!',
+  'Schatz: Vivre Card': 'Treasure: Vivre Card', 'Letzte Hoffnung': 'Last hope', 'Die Crew steht wieder auf!': 'The crew gets back up!', 'Die Vivre Card bringt die ganze Crew zurück!': 'The Vivre Card brings the whole crew back!',
   'Zeitungsmöwe': 'News Coo', 'Kleiner Wachhund': 'Little Guard Dog', 'Laubfrosch': 'Tree Frog', 'Seestern': 'Starfish', 'Mandarinenkrabbe': 'Tangerine Crab',
   'Schneehase': 'Snow Hare', 'Mini-Dino': 'Mini Dino', 'Südvogel': 'South Bird', 'Fleckschnabel-Ente': 'Spot-Billed Duck', 'Wolkenfuchs': 'Cloud Fox',
   'Teleschnecke': 'Den Den Mushi', 'Taube mit Zylinder': 'Pigeon in a Top Hat', 'Kleines Gespenst': 'Little Ghost', 'Schattenfledermaus': 'Shadow Bat',

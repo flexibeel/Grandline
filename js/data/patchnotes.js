@@ -1,6 +1,9 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-18i', date: '18.10.', title: 'Klarere Kampfmomente', items: [
+    'Rettet die Vivre Card deine Crew, steht jetzt groß im Kampf, warum alle wieder aufstehen und mit wie viel Leben',
+    'Steht nur noch eine Figur, erscheint kurz „Letzte Hoffnung“. Wiederbelebte verlieren sofort ihren K.O.-Stempel' ] },
   { v: '2026-10-18h', date: '18.10.', title: 'Begleiter und Sammelbuch', items: [
     'Begleiter: 16 kleine Tiere leben auf den Inseln, vom Laubfrosch in Syrup bis zum Wolkenfuchs auf Skypiea. Besiege dort Bösewicht oder Boss, mit etwas Glück kommt eins an Bord. Es sitzt auf deiner Schulter, die anderen tanzen im Hafen auf dem Schiff',
     'Hafengerücht: Im Hafen steht jeden Tag, wo ein Begleiter auf dich wartet. Beim Kurs setzen zeigt „Begleiter?“, auf welcher Insel noch einer lebt',

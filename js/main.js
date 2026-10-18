@@ -560,9 +560,9 @@
     // Fähigkeiten-Hinweise etwas länger stehen lassen, damit man sie lesen kann
     // Wie bei TFT: lange Kämpfe werden mit den Runden von selbst etwas flotter
     const f = (SPEEDF[anim.speed] || 0.55) * (anim.rn >= 7 ? 0.65 : anim.rn >= 4 ? 0.82 : 1);
-    const big = ev.k === 'rage' || ev.k === 'will' || ev.k === 'weather' || ev.final;   // Wendepunkte bekommen immer etwas Zeit
+    const big = ev.k === 'rage' || ev.k === 'will' || ev.k === 'weather' || ev.final || (ev.k === 'revive' && ev.by === 'vivre');   // Wendepunkte bekommen immer etwas Zeit
     const wait = ev.k === 'special' ? Math.max(900, 1800 * f) : ev.k === 'ult' ? Math.max(500, SPEED.ult * f)
-      : big ? Math.max(900, 1500 * f) : ev.k === 'hit' ? SPEED.normal * f : SPEED.special * f;
+      : ev.k === 'revive' && ev.by === 'vivre' ? Math.max(1700, 2600 * f) : big ? Math.max(900, 1500 * f) : ev.k === 'hit' ? SPEED.normal * f : SPEED.special * f;
     anim.timer = setTimeout(stepAnim, wait);
   }
 

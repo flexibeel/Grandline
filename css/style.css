@@ -4809,3 +4809,8 @@ body { overscroll-behavior: none; -webkit-tap-highlight-color: transparent; }
 .tv-trait { display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap; }
 .tv-trait .abx-k { font-size: .58rem; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; color: #fff; background: #6a8a5a; padding: 1px 5px; border-radius: 3px; }
 .sy-intro { top: 40px; }
+/* Vivre Card / Letzte Hoffnung: deutlicher Moment im Kampf */
+.ult-call.vivre { animation: vivre-in 2.4s ease-out both; }
+.ult-call.vivre b { font-size: 1.15em; }
+@keyframes vivre-in { 0% { opacity: 0; transform: translateX(-50%) scale(.6); } 12% { opacity: 1; transform: translateX(-50%) scale(1.08); } 20% { transform: translateX(-50%) scale(1); } 85% { opacity: 1; } 100% { opacity: 0; } }
+.ult-call.last { background: linear-gradient(180deg, #ffe0d6, #f08a6a); color: #3a1a10; }

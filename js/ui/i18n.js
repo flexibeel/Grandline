@@ -99,6 +99,8 @@ window.GL = window.GL || {};
     [/^Auf (.+) soll eine? (.+) leben$/, (m, isl, nm) => { const X = GL.data.en || {}, k = nm.charAt(0).toUpperCase() + nm.slice(1); return `Rumor says a ${X[k] || nm} lives on ${isl}`; }],
     [/^Noch (\d+) Entdeckungen? bis (.+)$/, (m, n, x) => `${n} more ${n === '1' ? 'discovery' : 'discoveries'} until ${(GL.data.en || {})[x] || x}`],
     [/^Noch (\d+) bis Stufe (\d+)$/, '$1 more until tier $2'],
+    [/^Einmal pro Run, alle mit (\d+) % Leben$/, 'Once per run, everyone at $1 % HP'],
+    [/^Nur noch (.+) steht!$/, 'Only $1 is still standing!'],
     [/^Sammelalbum · Stufe (\d+)$/, 'Collection album · Tier $1'],
     [/^Lebt auf (.+)\. Besiege dort Bösewicht oder Boss, mit etwas Glück kommt das Tier an Bord\.$/, 'Lives on $1. Beat the villain or boss there and with a bit of luck it hops aboard.'],
     [/^Stufe (\d+): (\d+) Entdeckungen · Begleiter (.+)$/, 'Tier $1: $2 discoveries · Companion $3'],

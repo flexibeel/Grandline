@@ -66,6 +66,7 @@ window.GL = window.GL || {};
     f.dataset.hp = pct > 50 ? 'high' : pct > 20 ? 'mid' : 'low';
     f.classList.toggle('ko', hp <= 0);
     if (wasUp && hp <= 0) stamp(f);
+    if (hp > 0) f.querySelectorAll('.ko-stamp').forEach(x => x.remove());   // wiederbelebt: Stempel weg
     fieldHp(side, i, hp);
   }
 
@@ -389,7 +390,15 @@ window.GL = window.GL || {};
     document.querySelectorAll('#arena .fighter[data-side="crew"]').forEach(f => { max += Number(f.dataset.max) || 0; hp += Number(f.querySelector('.f-hp span').textContent) || 0; });
     const foesUp = document.querySelectorAll('#arena .fighter[data-side="enemy"]:not(.ko)').length;
     field.classList.toggle('tense', !!max && foesUp > 0 && hp / max < 0.35 && hp > 0);
+    // Nur noch einer steht: kurzer Hinweis, einmal pro Kampf
+    const up = [...document.querySelectorAll('#arena .fighter[data-side="crew"]:not(.ko)')];
+    if (up.length === 1 && foesUp > 0 && !lastShown && document.querySelectorAll('#arena .fighter[data-side="crew"]').length > 1) {
+      lastShown = true;
+      const nm = (up[0].querySelector('.f-name b') || {}).textContent || '';
+      banner('us will last', `<small>Letzte Hoffnung</small><b>Nur noch ${nm} steht!</b>`, 1300);
+    }
   }
+  let lastShown = false;
 
   function fieldHtml(run, crewHp, enemyHp) {
     const b = run.battle;
@@ -582,7 +591,7 @@ window.GL = window.GL || {};
         run.battle.shown = true;
         const b0 = run.battle.enemies[0];
         if (b0 && (b0.boss || b0.raid)) { const d = enemyData(b0.id) || crewData(b0.id); fieldEl.dataset.boss = (run.battle.kind === 'raid' ? 'Raid: ' : 'Boss: ') + (d ? d.name : ''); }
-        lowShown = false;
+        lowShown = false; lastShown = false;
         // Bosse bekommen ihren großen Auftritt schon vor dem Kampf (siehe startFight in main.js)
         if (run.pending && run.pending.rival) {
           const n = document.createElement('div');
@@ -645,6 +654,14 @@ window.GL = window.GL || {};
         });
       } else if (ev.k === 'revive') {
         if (GL.data.abilities[ev.by]) callout(ev.by, ev.side);
+        // Vivre Card: die ganze Crew war besiegt. Erst kurz Stille, dann steht alle auf, gut sichtbar mit Grund
+        if (ev.by === 'vivre') {
+          const field = $('#field');
+          if (field) { pulse(field, 'finale'); fx('fx-flash', { x: 0, y: 0 }, 500); }
+          const x0 = ev.list[0], e0 = x0 ? el('crew', x0.to) : null, mx = e0 ? Number(e0.dataset.max) : 0;
+          const pct = x0 && mx ? Math.round(100 * x0.hp / mx) : 30;
+          banner('us will vivre', `<small>Schatz: Vivre Card</small><b>Die Crew steht wieder auf!</b><em>Einmal pro Run, alle mit ${pct} % Leben</em>`, 2400);
+        }
         ev.list.forEach(x => {
           setHp(ev.side, x.to, x.hp); pulse(el(ev.side, x.to), 'revived'); float(ev.side, x.to, 'Wieder da!', 'heal');
           pulse(fu(ev.side, x.to), 'rise'); fx('fx-heal', center(fu(ev.side, x.to)), 900);
