@@ -54,6 +54,8 @@ GL.data.relics = [
   // Neu zur großen Neuauflage
   { id: 'mandarinen', name: 'Mandarinen-Kiste',    vals: { a: [1, 1, 2, 2] }, text: 'Ganze Crew heilt sich am Ende jeder Runde um {a}.',
     mods: [{ scope: 'all', regen: 'a' }] },
+  { id: 'medkoffer',  name: 'Choppers Medizinkoffer', vals: { p: [0.3, 0.35, 0.45, 0.6] }, text: 'Nach jedem Sieg stehen Gefallene mit {p} Leben wieder auf. Chopper hat sie gebeten, nicht so viel zu sterben.',
+    flags: { reviveWin: 'p' } },
   { id: 'loewenkopf', name: 'Sunny-Löwenkopf',     vals: { a: [5, 7, 9, 12], b: [1, 2, 3, 4] }, text: 'Zu Kampfbeginn erleiden alle Gegner {a} Schaden, ganze Crew +{b} Tempo.',
     mods: [{ scope: 'all', spd: 'b' }], flags: { cannon: 'a' } }
 ];

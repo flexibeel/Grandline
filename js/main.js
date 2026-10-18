@@ -15,6 +15,7 @@
   ui.welcomeFrom = profile.lastVersion || null;
   // Großes Update (Landgang, Begleiter, Sounds): einmal die Neuigkeiten zeigen
   if (profile.nickname && (profile.rankXp || 0) > 0 && profile.lastVersion && profile.lastVersion < '2026-10-18j') ui.welcomeDue = true;
+  ui.greetAway = profile.lastVisit ? Date.now() - profile.lastVisit : null;   // für den Willkommens-Gruß
   profile.lastVisit = Date.now(); profile.lastVersion = GL.version;
 
   // Eigener Pirat: beim Laden eintragen, damit Avatar und Name überall stimmen
@@ -140,6 +141,13 @@
         }, 900);
         return;
       }
+    }
+    // Willkommen zurück: eine Crew-Figur grüßt mit Sprechblase (einmal pro Besuch, nach Story/Neuigkeiten)
+    if (!run && !ui.screen && ui.intro == null && !old && GL.greet && !GL.greet.active() && !ui.storyPending && !profile.launchIntro
+        && !(GL.story && GL.story.active()) && !document.getElementById('story') && GL.greet.due(profile, ui.greetAway)) {
+      setTimeout(() => { if (!run && !ui.screen && !document.getElementById('fpop') && !(GL.story && GL.story.active())) { GL.greet.show(profile, ui.greetAway, () => saveProfile()); saveProfile(); } }, 700);
+      try { sessionStorage.setItem('gl.greeted', '1'); } catch (e) { /* egal */ }
+      return;
     }
     if (!run && !ui.screen && ui.intro == null && !old && feedbackDue()) { openFeedback(); return; }
     if (!run && !ui.screen && ui.intro == null && !old && installDue()) { openInstall(); return; }
@@ -710,7 +718,7 @@
     // Fähigkeiten-Hinweise etwas länger stehen lassen, damit man sie lesen kann
     // Wie bei TFT: lange Kämpfe werden mit den Runden von selbst etwas flotter
     const f = (SPEEDF[anim.speed] || 0.55) * (anim.rn >= 7 ? 0.65 : anim.rn >= 4 ? 0.82 : 1);
-    const big = ev.k === 'rage' || ev.k === 'windup' || ev.heavy || ev.k === 'will' || ev.k === 'weather' || ev.final || (ev.k === 'revive' && ev.by === 'vivre');   // Wendepunkte bekommen immer etwas Zeit
+    const big = ev.k === 'rage' || ev.k === 'windup' || ev.heavy || ev.k === 'will' || ev.k === 'weather' || ev.k === 'wave' || ev.final || (ev.k === 'revive' && (ev.by === 'vivre' || ev.by === 'doc'));   // Wendepunkte bekommen immer etwas Zeit
     const wait = ev.k === 'special' ? Math.max(900, 1800 * f) : ev.k === 'ult' ? Math.max(500, SPEED.ult * f)
       : ev.k === 'revive' && ev.by === 'vivre' ? Math.max(1700, 2600 * f) : big ? Math.max(900, 1500 * f) : ev.k === 'hit' ? SPEED.normal * f : SPEED.special * f;
     anim.timer = setTimeout(stepAnim, wait);
@@ -2309,6 +2317,8 @@
     document.addEventListener('visibilitychange', () => {
       if (document.hidden) { hiddenAt = Date.now(); if (GL.online.flushSave) GL.online.flushSave(); return; }
       if (hiddenAt && Date.now() - hiddenAt > 120000 && run && !GL.run.isFinished(run)) toast('<span><b>⚓ Willkommen zurück</b>Dein Run hat hier auf dich gewartet.</span>');
+      // Nach längerer Pause im Hafen: nochmal ein kleiner Gruß
+      if (hiddenAt && Date.now() - hiddenAt > 45 * 60e3 && (!run || GL.run.isFinished(run))) { try { sessionStorage.removeItem('gl.greeted'); } catch (e2) { /* egal */ } ui.greetAway = Date.now() - hiddenAt; setTimeout(featureCheck, 600); }
     });
     window.addEventListener('pagehide', () => { if (GL.online.flushSave) GL.online.flushSave(); });
     window.addEventListener('focus', backToApp);

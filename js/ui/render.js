@@ -421,8 +421,8 @@ window.GL = window.GL || {};
   // Eigene Kulisse für die Strohhüte und ein paar Ikonen: Heimat oder Lieblingsort
   const CHAR_THEME = { ruffy: 'foosha', zorro: 'dojo', nami: 'orchard', lysop: 'syrup', sanji: 'baratie', chopper: 'snow', robin: 'ruins', franky: 'dock', brook: 'mist', enel: 'sky', ace: 'whale', shanks: 'sunset', vivi: 'desert', mihawk: 'dusk' };
   function cardDelay(id) { let h = 0; for (const c of String(id)) h = (h * 31 + c.charCodeAt(0)) >>> 0; return -((h % 23) / 10).toFixed(1); }
-  function cardStage(d) {
-    const th = CHAR_THEME[d.id] || CARD_THEME[d.faction] || TYPE_THEME[d.type] || 'beach';
+  function cardStage(d, forceTh) {
+    const th = forceTh || CHAR_THEME[d.id] || CARD_THEME[d.faction] || TYPE_THEME[d.type] || 'beach';
     const props = {
       beach: '<i class="cs-ship"></i><i class="cs-palm"></i>',
       navy: '<i class="cs-flag"></i><i class="cs-post"></i>',
@@ -616,7 +616,7 @@ window.GL = window.GL || {};
     return `${bars}<span class="track-loc">${island} · <b class="stop-name">${run.phase === 'course' ? 'Kurs setzen' : run.phase === 'starter' ? 'Kapitän wählen' : GL.run.stopName(run)}</b>${run.phase === 'course' || run.phase === 'starter' ? '' : ` <small class="muted">(${pos}/${GL.config.chapterSteps})</small>`}</span>
       <span class="head-chips">
         <em class="gold-chip" data-tip="Gold für die Taverne.\nGibt es für Siege, verfällt am Run-Ende.">${GL.sprites.coin()} <b>${run.gold || 0}</b></em>
-        <em class="bounty-chip" id="bounty-chip" data-tip="Kopfgeld deines Kapitäns.\nZählt für deinen Punktestand und die Rangliste 'Höchstes Kopfgeld'. Bringt sonst nichts im Run.">${GL.sprites.icon('node', 'elite')} <b>${fmtBounty(run.bountyM || 0)}</b></em>${run.mood && GL.config.moods ? (m => m ? `<em class="mood-chip" data-tip="${esc('Laune der See: ' + m.name + '\n' + m.text)}">${m.icon}<b>${esc(m.name)}</b></em>` : '')(GL.config.moods.find(x => x.id === run.mood)) : ''}${GL.run.twist && !GL.run.isFinished(run) ? (tw => tw ? `<em class="mood-chip twist-chip" data-tip="${esc('Insel-Twist: ' + tw.name + '\n' + tw.text)}">${tw.icon}<b>${esc(tw.name)}</b></em>` : '')(GL.run.twist(run)) : ''}${(bd => bd ? `<em class="mood-chip build-chip b-${bd.key}" data-tip="${esc('Dein Stil: ' + bd.name + ' (' + bd.count + '× ' + bd.label + ')\n' + bd.pitch + '\n' + bd.tiers.map(x => (bd.count >= x.n ? '✓ ' : '· ') + x.n + ': ' + x.text).join('\n') + comboTip(run.crew))}">${bd.icon}<b>${esc(bd.name)}</b><small>${'★'.repeat(bd.tier)}</small>${GL.effects.combos && GL.effects.combos(run.crew).length ? '<i class="combo-dot" aria-hidden="true">✦</i>' : ''}</em>` : '')(GL.effects.build ? GL.effects.build(run.crew) : null)}${(run.streak || 0) >= 2 ? `<em class="streak-chip${run.streak >= 6 ? ' hot' : run.streak >= 3 ? ' warm' : ''}" data-tip="Kopfgeld-Serie: ${run.streak} Siege in Folge ohne K.O.\nAb 3 Siegen +1 Gold pro Sieg, ab 6 +2. Am Run-Ende Extra-Berry.\nFällt jemand, beginnt die Serie neu.">${PX_FLAME}<b>${run.streak}</b></em>` : ''}
+        <em class="bounty-chip" id="bounty-chip" data-tip="Kopfgeld deines Kapitäns.\nZählt für deinen Punktestand und die Rangliste 'Höchstes Kopfgeld'. Bringt sonst nichts im Run.">${GL.sprites.icon('node', 'elite')} <b>${fmtBounty(run.bountyM || 0)}</b></em>${run.mood && GL.config.moods ? (m => m ? `<em class="mood-chip" data-tip="${esc('Laune der See: ' + m.name + '\n' + m.text)}">${m.icon}<b>${esc(m.name)}</b></em>` : '')(GL.config.moods.find(x => x.id === run.mood)) : ''}${GL.run.twist && !GL.run.isFinished(run) ? (tw => tw ? `<em class="mood-chip twist-chip" data-tip="${esc('Insel-Twist: ' + tw.name + '\n' + tw.text)}">${tw.icon}<b>${esc(tw.name)}</b></em>` : '')(GL.run.twist(run)) : ''}${(bd => bd ? `<em class="mood-chip build-chip b-${bd.key}" data-tip="${esc('Dein Stil: ' + bd.name + ' (' + bd.count + '× ' + bd.label + ')\n' + bd.pitch + '\n' + bd.tiers.map(x => (bd.count >= x.n ? '✓ ' : '· ') + x.n + ': ' + x.text).join('\n') + comboTip(run.crew))}">${bd.icon}<b>${esc(bd.name)}</b><small>${'★'.repeat(bd.tier)}</small>${GL.effects.combos && GL.effects.combos(run.crew).length ? '<i class="combo-dot" aria-hidden="true">✦</i>' : ''}</em>` : '')(GL.effects.build ? GL.effects.build(run.crew) : null)}${run.epi && run.epi.part && !GL.run.isFinished(run) ? (ep => ep ? `<em class="mood-chip ep-chip" data-tip="${esc((GL.i18n && GL.i18n.lang() === 'en' ? 'Episode on this island: ' + ep.title[1] + '\nYour choices pay off before the villain.' : 'Folge auf dieser Insel: ' + ep.title[0] + '\nDeine Entscheidungen zahlen sich vor dem Bösewicht aus.'))}">📜<b>${esc(GL.i18n && GL.i18n.lang() === 'en' ? ep.title[1] : ep.title[0])} (${Math.min(3, run.epi.part)}/3)</b></em>` : '')((GL.data.crewEpisodes || []).find(e => e.id === run.epi.id)) : ''}${(run.streak || 0) >= 2 ? `<em class="streak-chip${run.streak >= 6 ? ' hot' : run.streak >= 3 ? ' warm' : ''}" data-tip="Kopfgeld-Serie: ${run.streak} Siege in Folge ohne K.O.\nAb 3 Siegen +1 Gold pro Sieg, ab 6 +2. Am Run-Ende Extra-Berry.\nFällt jemand, beginnt die Serie neu.">${PX_FLAME}<b>${run.streak}</b></em>` : ''}
         ${run.heat ? `<em class="heat-chip">Stufe ${run.heat}</em>` : ''}
         ${run.loop ? `<em class="duel-chip endless-chip">Endlos ${run.loop + 1}</em>` : ''}
         ${run.daily ? '<em class="duel-chip">Tageskarte</em>' : run.duel ? `<button class="duel-chip" data-act="duel-copy" data-id="${run.duel}" title="Code teilen">Wettfahrt ${run.duel} · teilen</button>` : ''}
@@ -869,6 +869,63 @@ window.GL = window.GL || {};
     return `<div class="route-dock" role="group" aria-label="Nächster Halt"><span class="rd-kick">Nächster Halt</span><div class="rd-grid rd-n${run.optCols.length}">${cards}</div></div>`;
   }
 
+  // ---------- Reise-Erzählung (statt Knotenkarte): Bühne, eine Figur beschreibt die Lage, Wahlkarten als kleine Szenen ----------
+  // Alles fest aus Seed + Etappe gewählt (kein Zufallszug), gleiche Aktionen wie die Karte (data-act="node").
+  const JR_LBL = { battle: ['Kampf', 'Fight'], elite: ['Kopfgeld', 'Bounty'], recruit: ['Taverne', 'Tavern'], fruit: ['Frucht', 'Fruit'], treasure: ['Schatz', 'Treasure'],
+    rest: ['Rast', 'Rest'], boss: ['Boss', 'Boss'], raid: ['Raid', 'Raid'], gate: ['Bösewicht', 'Villain'] };
+  function jrHash(s) { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
+  function journeyView(run, boss, tip) {
+    const ch = run.chart, R = GL.data.routeLines;
+    if (!ch || !run.optCols || !run.optCols.length || !R) return routeDock(run, boss, tip);
+    const en = !!(GL.i18n && GL.i18n.lang && GL.i18n.lang() === 'en');
+    const L = v => (Array.isArray(v) ? v[en ? 1 : 0] : v);
+    const pos = GL.run.rowIdx(run), row = ch.rows[pos] || [];
+    const key = (run.seed || 0) + ':' + GL.run.chapterIdx(run) + ':' + pos;
+    const pick = (list, salt) => list && list.length ? list[jrHash(key + ':' + salt) % list.length] : null;
+    const here = GL.run.chapterIsland(run);
+    // Sprecher: eine Figur aus der Crew, die etwas zu sagen hat (sonst Kalle die Zeitungsmöwe)
+    const talkers = (run.crew || []).filter(u => R.intro[u.id]);
+    const sp = talkers.length ? talkers[jrHash(key + ':who') % talkers.length] : null;
+    const spId = sp ? sp.id : 'kalle';
+    const spDef = sp ? (crewData(sp.id) || sp) : { id: 'kalle', name: 'Kalle' };
+    const opts = run.optCols.map((col, k) => ({ k, n: row[col] })).filter(o => o.n);
+    const foeOf = n => n.t === 'boss' ? boss : n.t === 'elite' && n.who ? enemyData(n.who) : null;
+    const bigFoe = opts.map(o => foeOf(o.n)).find((f, i) => f && (opts[i].n.t === 'boss' || opts[i].n.gate));
+    let line = bigFoe && jrHash(key + ':near') % 2 === 0 ? pick(R.near, 'near') : null;
+    if (!line && here && R.isle[here.id] && pos === 0) line = pick(R.isle[here.id], 'isle');
+    if (!line) line = pick(R.intro[spId] || R.intro.kalle, 'intro');
+    const lineTxt = L(line || ['', '']).replace(/\{foe\}/g, bigFoe ? bigFoe.name : '');
+    const spr = u => GL.sprites.render(u && u.id !== 'self' ? (crewData(u.id) || u) : u);
+    // Grafik-Bibliothek (falls vorhanden): Szenen und Knoten-Icons, sonst eigene Pixel-Bühne
+    const art = (fn, id) => { try { return GL.art && GL.art[fn] ? GL.art[fn](id, { run }) || '' : ''; } catch (e) { return ''; } };
+    const kalleArt = '<svg viewBox="0 0 12 10" shape-rendering="crispEdges" aria-hidden="true"><rect x="3" y="2" width="6" height="4" fill="#f4f1ea"/><rect x="2" y="3" width="1" height="2" fill="#f4f1ea"/><rect x="9" y="3" width="2" height="1" fill="#e8a53a"/><rect x="7" y="3" width="1" height="1" fill="#2a2a2a"/><rect x="4" y="1" width="3" height="1" fill="#5a6b8a"/><rect x="3" y="6" width="1" height="2" fill="#e8a53a"/><rect x="6" y="6" width="1" height="2" fill="#e8a53a"/><rect x="1" y="4" width="2" height="1" fill="#c9c4b8"/></svg>';
+    const face = sp ? spr(sp) : kalleArt;
+    const crewOnDeck = (run.crew || []).slice(0, 4).map((u, i) => `<i class="jr-mate" style="--i:${i}">${spr(u)}</i>`).join('');
+    const seaCls = 'jr-sea-' + ((GL.run.island(run) || {}).id || 'east-blue');
+    const cards = opts.map(({ k, n }) => {
+      const isBoss = n.t === 'boss';
+      const foe = foeOf(n);
+      const kind = isBoss ? 'boss' : n.gate ? 'gate' : n.t;
+      const isTip = tip && tip.index === k;
+      let txt = L(pick(R.node[kind] || R.node[n.t] || R.node.battle, 'n' + k + kind) || ['', '']);
+      if (foe) txt = txt.replace(/\{foe\}/g, foe.name);
+      const icon = foe ? GL.sprites.render(foe) : (art('icon', n.t) || GL.sprites.icon('node', n.t));
+      const lbl = L(JR_LBL[kind] || JR_LBL.battle);
+      return `<button class="jr-card n-${n.t}${foe ? ' jr-foe' : ''}${isBoss || n.gate ? ' jr-big' : ''}${isTip ? ' is-tip' : ''}" data-act="node" data-i="${k}" style="--d:${0.12 + k * 0.08}s">
+        ${isTip ? `<span class="tip-badge">${en ? 'Tip' : 'Tipp'}</span>` : ''}${k < 9 ? `<kbd class="key">${k + 1}</kbd>` : ''}
+        <span class="jr-ico">${icon}</span>
+        <span class="jr-txt"><span class="jr-lbl">${esc(lbl)}${foe ? ` · ${esc(foe.name)}` : ''}${foe && foe.bounty && !isBoss ? ` <em>${foe.bounty} Mio. ฿</em>` : ''}</span><b>${esc(txt)}</b>${dangerTag(run, n.t)}</span>
+      </button>`;
+    }).join('');
+    return `<div class="journey ${seaCls}">
+      <div class="jr-stage" aria-hidden="true">${(s => s ? `<span class="jr-art">${s}</span>` : '')(art('scene', (here && here.id) || ((GL.run.island(run) || {}).id)))}<i class="jr-sun"></i><i class="jr-cloud a"></i><i class="jr-cloud b"></i>
+        ${here ? `<span class="jr-isle"><i></i></span>` : ''}
+        <span class="jr-ship">${GL.sprites.ship ? GL.sprites.ship() : ''}</span><span class="jr-deck">${crewOnDeck}</span><i class="jr-wave a"></i><i class="jr-wave b"></i></div>
+      <div class="jr-say"><span class="jr-face">${face}</span><span class="jr-bubble"><b>${esc(spDef.name || 'Kalle')}</b><span class="jr-line">${esc(lineTxt)}</span></span></div>
+      <div class="jr-opts jr-n${opts.length}" role="group" aria-label="${en ? 'Where to?' : 'Wohin?'}">${cards}</div>
+    </div>`;
+  }
+
   // ---------- Buff-Leiste links (wie bei TFT) ----------
   // Zeigt alle Synergien, die die Crew gerade hat: aktive oben, angefangene darunter.
   function traitRail(run) {
@@ -1049,6 +1106,18 @@ window.GL = window.GL || {};
       const n = Math.max(...ev.list.map(x => x.amount));
       return `${actor}${skill} heilt ${who} um ${n}.`;
     }
+    if (ev.k === 'wave') {
+      const elite = (ev.list || []).some(x => run.battle && run.battle.enemies[x.to] && run.battle.enemies[x.to].elite2);
+      const L = elite ? ['Welle 2! Nachschub, und einer davon hat offensichtlich trainiert.', 'Welle 2! Ein Anführer kommt mit. Er hat sogar einen Hut.', 'Welle 2! Diesmal mit Chef. Natürlich.']
+        : ['Welle 2! Es kommen noch welche. Es kommen immer noch welche.', 'Welle 2! Die zweite Reihe will auch mal.', 'Welle 2! Jemand hat Verstärkung gerufen. Unhöflich.'];
+      return L[(run.step || 0) % L.length];
+    }
+    if (ev.k === 'revive' && ev.by === 'doc') {
+      const who = targetName(run, 'crew', ev.list[0].to);
+      return ev.doc === 'chopper' ? `Chopper flickt ${who} zusammen. „Nicht sterben, das ist ein Befehl vom Arzt!“`
+        : ev.doc === 'lazarett' ? `Das Lazarett holt ${who} zurück aufs Deck. Mit Pflaster und Ermahnung.`
+        : `Die Hito-Hito-Frucht weiß, was zu tun ist: ${who} steht wieder.`;
+    }
     if (ev.k === 'revive') {
       if (ev.by === 'tori-tori') return `${targetName(run, 'crew', ev.list[0].to)} steht in blauer Phönix-Flamme wieder auf!`;
       return ev.by === 'vivre'
@@ -1123,7 +1192,11 @@ window.GL = window.GL || {};
     const comboLine = cb.length ? `<div class="sum-combo">${cb.map(c => `<span title="${esc(c.text)}"><i>${c.icon}</i><b>${esc(c.name)}</b></span>`).join('')}</div>` : '';
     const bl = bd ? `<div class="sum-build b-${bd.key}"><i>${bd.icon}</i><span><b>${esc(bd.name)} ${'★'.repeat(bd.tier)}</b><small>${bd.next ? `Noch ${bd.next.n - bd.count}× ${esc(bd.label)} bis: ${esc(bd.next.text)}` : 'Höchste Stufe erreicht!'}</small></span></div>`
       : `<div class="sum-build none"><i>✦</i><span><b>Noch kein Stil</b><small>2 gleiche Kampfstile oder Rollen ergeben einen Stil, z. B. 💥 Wucht, ⚔ Schwertkunst, 💨 Tempo oder 💚 Lazarett.</small></span></div>`;
-    return `<div class="summary">${rows}</div>${g}${bl}${comboLine}${tally}`;
+    // Gefallene rappeln sich nach dem Sieg wieder auf (Medizinkoffer mehr)
+    const down = b.win ? run.crew.filter(u => u.hp <= 0) : [];
+    const rvP = Math.max(GL.config.reviveAfterWin || 0, (GL.effects.flags(run).reviveWin || 0));
+    const revLine = down.length && rvP > 0 ? `<div class="sum-revive"><i>✚</i><span>${down.map(u => esc(unitName(u))).join(', ')} ${down.length === 1 ? 'rappelt sich' : 'rappeln sich'} mit ${Math.round(rvP * 100)} % Leben wieder auf.</span></div>` : '';
+    return `<div class="summary">${rows}</div>${g}${bl}${comboLine}${revLine}${tally}`;
   }
   // Tooltip-Zeilen für aktive und fast erreichte Stil-Kombos
   function comboTip(crew) {
@@ -1292,7 +1365,7 @@ window.GL = window.GL || {};
     const fig = key => {
       if (key === 'B' && bId === 'kalle') key = 'kalle';
       if (key === 'kalle') return { name: en ? 'Kalle the News Coo' : 'Kalle, die Zeitungsmöwe', spr: gull ? GL.sprites.render({ id: 'pet-moewe', art: gull.art }) : '' };
-      const d = crewData(key === 'A' ? aId : bId) || {};
+      const d = crewData(key === 'A' ? aId : key === 'B' ? bId : key) || {};   // auch feste Sprecher wie 'zorro' (events3.js)
       return { name: d.name || '?', spr: d.id ? GL.sprites.render(d) : '' };
     };
     const A = fig('A'), B = fig('B');
@@ -1304,7 +1377,7 @@ window.GL = window.GL || {};
     const opts = ev.choices.map((c, i) => `<button class="opt ce-opt" data-act="pick" data-i="${i}">${i < 9 ? `<kbd class="key">${i + 1}</kbd>` : ''}
         <span class="ce-opt-b"><b>${esc(L2(c.label))}</b><small>${esc(L2(c.hint))}</small></span><i class="ce-go" aria-hidden="true">›</i></button>`).join('');
     return `<div class="event ce-event">
-      <div class="ce-head"><i class="ce-ico">${ico}</i><span><small>${en ? 'On the way' : 'Unterwegs'}</small><h2>${esc(L2(ev.title))}</h2></span></div>
+      <div class="ce-head"><i class="ce-ico">${ico}</i><span><small>${ev.ep ? `📜 ${en ? 'Episode' : 'Folge'} · ${en ? 'part' : 'Teil'} ${ev.part}/3` : (en ? 'On the way' : 'Unterwegs')}</small><h2>${esc(L2(ev.title))}</h2></span></div>
       <div class="ce-stage bg-${ev.bg || 'insel'}"><span class="ce-cast">${cast.map(k => `<i class="ce-who">${fig(k).spr}</i>`).join('')}</span></div>
       <div class="ce-lines">${lines}</div>
       <div class="ce-opts">${opts}</div>
@@ -1349,6 +1422,22 @@ window.GL = window.GL || {};
         const cnt = k => all.filter(x => x.d.type === k || x.d.role === k).length;
         const chip = (k, name) => `<button class="lb-cat${f === k ? ' on' : ''}" data-act="cap-filter" data-v="${k}">${name}${k !== 'all' ? ` <small>${cnt(k)}</small>` : ''}</button>`;
         const filters = all.length > 4 ? `<div class="lb-cats cap-filter">${chip('all', 'Alle')}${Object.keys(T).map(k => chip(k, T[k].name)).join('')}${Object.keys(Rl).map(k => chip(k, (ROLE_ICON[k] || '') + ' ' + Rl[k].name)).join('')}</div>` : '';
+        // Du bist immer Kapitän: oben deine Karte, darunter der Erste Maat (einmal wählen, kein Neu-Würfeln)
+        if (run.mateMode) {
+          const me = crewData('self') || {}, pf = ui.profile;
+          const gr = pf && GL.meta.selfGrowth ? GL.meta.selfGrowth(pf) : null;
+          const fr = run.start && run.start.self && run.start.self.fruit ? byId(GL.data.fruits, run.start.self.fruit.id) : null;
+          const restMate = restHtml.replace('⚓ Ebenfalls in deiner Crew', '⚓ Warten am Steg').replace('Sie wechseln sich mit den Kapitänen oben ab. Nächster Run, neues Glück.', 'Nächstes Mal stehen andere als Maat bereit. Der Steg ist geduldig.').replace(/kommt in einem anderen Run zur Wahl/g, 'wartet auf die nächste Fahrt');
+          return `<div class="capv-me">
+              <span class="capv-spr">${GL.sprites.render(me)}<i class="capv-hat">⚓</i></span>
+              <span class="capv-txt"><small class="capv-k">Kapitän</small><b>${esc(me.name || 'Du')}</b>
+                <span class="capv-tags">${me.crewName ? `<em class="capv-tag">⚑ ${esc(me.crewName)}</em>` : ''}${fr ? `<em class="capv-tag fr">${esc(fr.name)}</em>` : ''}<em class="capv-tag">♥ ${me.hp} · ⚔ ${me.atk} · ➶ ${me.spd}</em></span>
+                ${gr ? `<small class="capv-grow">Rang ${gr.rank}${gr.bond ? ` · Vertraut ${gr.bond}` : ''} → +${gr.hp} Leben, +${gr.atk} Angriff${gr.spd ? `, +${gr.spd} Tempo` : ''}</small>` : ''}</span>
+            </div>
+            <h2 class="capv-h">Wähle deinen Ersten Maat</h2>
+            <p class="hint">Der Maat kommt sofort an Bord. Seine Heuer ist dein Startgold, er ist es wert. Meistens.</p>
+            <div class="cards">${run.pool.map((o, i) => offerButton(run, o, i, 'cap mate' + (crewData(o.id).locked ? ' unlocked-cap' : '') + (run.buddy === o.id ? ' buddy-cap' : ''), false)).join('')}</div>${run.buddy && run.pool.some(o => o.id === run.buddy) ? `<p class="hint buddy-hint">♥ ${esc(crewData(run.buddy).name)} ist dein Vertrauter und steht extra zur Wahl.</p>` : ''}${restMate}${lockedHtml}`;
+        }
         return `<h2>Wähle deinen Kapitän</h2>
           <p class="hint">Mit ihm oder ihr beginnt deine Reise. Werte und Eigenschaft sind bei jedem Run neu ausgewürfelt.</p>
           ${filters}
@@ -1364,21 +1453,37 @@ window.GL = window.GL || {};
         const twoRoutes = ch === 0 && GL.data.altOpen(run, GL.run.islandIndex(run));
         const findIsl = id => (ch === 0 ? sea.small : sea.big).find(x => x.id === id) || (twoRoutes ? baseSea.alt.small.find(x => x.id === id) || baseSea.small.find(x => x.id === id) : null);
         const opts = (run.courseOpts || []).map(findIsl).filter(Boolean);
+        // Inselwahl als kleine Postkarten: Pixel-Kulisse oben mit Bösewicht, darunter Route und Gegner-Info
+        const ISL_THEME = { 'shells-town': 'navy', 'orange-town': 'circus', 'syrup': 'syrup', 'baratie': 'baratie', 'gecko-klippen': 'dusk', 'eisenbucht': 'dock',
+          'loguetown': 'town', 'arlong-park': 'reef', 'whisky-peak': 'city', 'little-garden': 'bamboo', 'drumm': 'snow', 'jaya': 'beach', 'zwillingskap': 'whale',
+          'alabasta': 'desert', 'skypiea': 'sky', 'tiefsee': 'reef', 'korallenhuegel': 'reef', 'fischmenschen-viertel': 'reef', 'meerwald': 'reef', 'gyoncorde': 'reef', 'ryugu': 'bubble',
+          'long-ring': 'wind', 'water-7': 'dock', 'puffing-tom': 'beach', 'enies-gate': 'navy', 'tower': 'navy', 'tor': 'navy',
+          'florian': 'grave', 'grusel-garten': 'grave', 'hogback-labor': 'grave', 'mangroven': 'grave', 'thriller-schloss': 'grave', 'sabaody': 'bubble' };
+        const foeOf = isl => enemyData(ch === 0 ? isl.villain : isl.boss);
+        const bounties = opts.map(isl => (foeOf(isl) || {}).bounty || 0);
+        const rankOf = b => bounties.filter(x => x < b).length;   // 0 = leichteste Wahl
         const cards = opts.map((isl, i) => {
           const route = twoRoutes ? (baseSea.alt.small.includes(isl) ? baseSea.alt.name : baseSea.name) : '';
-          const foe = enemyData(ch === 0 ? isl.villain : isl.boss);
+          const foe = foeOf(isl);
           const info = bossInfo(foe);
           const bounty = foe.bounty ? `${foe.bounty} Mio. ฿` : '';
-          return `<button class="opt course-opt" data-act="pick" data-i="${i}">
+          const th = ISL_THEME[isl.id] || 'beach';
+          const lvl = opts.length > 1 ? Math.min(2, Math.round(2 * rankOf(foe.bounty || 0) / (opts.length - 1))) : 1;
+          const danger = `<span class="co-danger d${lvl}" title="${['Gemütlicher Einstieg', 'Ordentlich was los', 'Wird ungemütlich'][lvl]}">${[0, 1, 2].map(k => `<i class="${k <= lvl ? 'on' : ''}"></i>`).join('')}<small>${['gemütlich', 'ordentlich', 'ungemütlich'][lvl]}</small></span>`;
+          const pet = (() => { const pt = (GL.data.pets || []).find(p => p.isl === isl.id); const pr = profRef; return pt && pr && !(pr.pets || []).includes(pt.id) ? `<span class="co-petchip"><i class="pet-sil">${petArt(pt.id)}</i>Begleiter?</span>` : ''; })();
+          return `<button class="opt course-opt co2" data-act="pick" data-i="${i}">
             ${i < 9 ? `<kbd class="key">${i + 1}</kbd>` : ''}
-            ${route ? `<span class="co-routechip">Route: ${esc(route)}</span>` : ''}
-            ${isNewIsl(isl) ? '<span class="new-chip co-new" title="Hier warst du noch nie">Neue Insel</span>' : ''}
-            ${(() => { const pt = (GL.data.pets || []).find(p => p.isl === isl.id); const pr = profRef; return pt && pr && !(pr.pets || []).includes(pt.id) ? `<span class="co-petchip"><i class="pet-sil">${petArt(pt.id)}</i>Begleiter?</span>` : ''; })()}
-            <span class="co-top"><b class="co-name">${isl.name}</b><small>${isl.text}</small></span>
-            <span class="co-route">${isl.places.map(p => `<i>${p}</i>`).join('<em>›</em>')}<em>›</em><i class="co-lair">${isl.lair}</i></span>
-            <span class="co-foe"><span class="co-sprite">${GL.sprites.render(foe)}</span>
-              <span><small>${ch === 0 ? 'Bösewicht der Insel' : 'Boss des Meeres'}</small><b>${foe.name} ${badge(foe.type)}${isNewFoe(foe.id) ? newChip : ''}</b>
-              <small>schwach gegen ${badge(info.counter)}${bounty ? ` · Kopfgeld ${bounty}` : ''}</small>${crackHint(foe).html}</span></span>
+            <span class="co-scene">${cardStage({ id: 'isl-' + isl.id }, th)}
+              <span class="co-boss"><i class="co-boss-sh" aria-hidden="true"></i>${GL.sprites.render(foe)}</span>
+              <span class="co-chips">${route ? `<span class="co-routechip">${esc(route)}</span>` : ''}${isNewIsl(isl) ? '<span class="new-chip co-new" title="Hier warst du noch nie">Neue Insel</span>' : ''}${pet}</span>
+              <b class="co-name">${isl.name}</b></span>
+            <span class="co-body">
+              <small class="co-text">${isl.text}</small>
+              <span class="co-route">${isl.places.map(p => `<i>${p}</i>`).join('<em>›</em>')}<em>›</em><i class="co-lair">${isl.lair}</i></span>
+              <span class="co-foe2"><span><small>${ch === 0 ? 'Bösewicht der Insel' : 'Boss des Meeres'}</small><b>${foe.name} ${badge(foe.type)}${isNewFoe(foe.id) ? newChip : ''}</b>
+                <small>schwach gegen ${badge(info.counter)}${bounty ? ` · ${bounty}` : ''}</small></span>${danger}</span>
+              ${crackHint(foe).html}
+            </span>
           </button>`;
         }).join('');
         // Zum ersten Mal in diesem Meer: kleiner Freudenmoment
@@ -1387,6 +1492,7 @@ window.GL = window.GL || {};
         const seaBanner = freshSea ? `<div class="new-sea"><i class="ns-star">★</i><span><small>Neues Meer entdeckt</small><b>${esc(twoRoutes ? baseSea.name + ' oder ' + baseSea.alt.name : baseSea.name)}</b><em>${esc(baseSea.tagline || '')}</em></span><i class="ns-star">★</i></div>` : '';
         return `${noticeBox(run)}${seaBanner}<span class="event-kicker">${twoRoutes ? (GL.run.islandIndex(run) === 1 ? 'Zweites Meer' : 'Drittes Meer') + ' · Zwei Routen' : sea.name + ' · ' + (ch === 0 ? 'Erste Insel' : 'Zweite Insel')}</span>
           <h2>${ch === 0 ? 'Welche Insel steuerst du an?' : 'Kurs auf den Boss des Meeres'}</h2>
+          ${GL.run.twist ? (tw => tw ? `<span class="co-twist" data-tip="${esc('Insel-Twist dieser Etappe: ' + tw.name + '\n' + tw.text)}">${tw.icon || '🎲'} <b>${esc(tw.name)}</b><small>${esc(tw.text)}</small></span>` : '')(GL.run.twist(run)) : ''}
           <p class="hint course-hint">${ch === 0 ? 'Jede Insel hat ihre eigenen Orte. Am Ende wartet ihr Bösewicht: Sieg bringt Kopfgeld, einen Schatz und eine Verschnaufpause.'
             : 'Auf der großen Insel wartet der Boss dieses Meeres. Wähle den Gegner, gegen den deine Crew die besseren Karten hat.'}</p>
           <div class="course-grid">${cards}</div>`;
@@ -1402,7 +1508,7 @@ window.GL = window.GL || {};
         const preview = last ? ''
           : `<div class="lbl">${gateFoe ? 'Bösewicht der Insel' : 'Boss des Meeres'}: ${foe.name} ${badge(foe.type)} schwach gegen ${badge(info.counter)}</div>${crackHint(foe).html}`;
         const tip = GL.advice.map(run);
-        return `${noticeBox(run)}<h2>${here ? here.name : 'Wähle deine Route'}</h2>${preview}${seaChart(run, boss, tip)}${routeDock(run, boss, tip)}${tipLine(tip)}`;
+        return `${noticeBox(run)}<h2>${here ? here.name : 'Wähle deine Route'}</h2>${preview}${journeyView(run, boss, tip)}<details class="jr-map"><summary>🗺 ${GL.i18n && GL.i18n.lang && GL.i18n.lang() === 'en' ? 'Map' : 'Karte'}</summary>${seaChart(run, boss, tip)}</details>${tipLine(tip)}`;
       }
 
       case 'recruit': {
@@ -1546,7 +1652,7 @@ window.GL = window.GL || {};
         const foeRows = foes.map((e, i) => {
           const d = GL.data.foeDef(e) || enemyData(e.id);
           const fk = e.kind && GL.data.foeKind(e.kind);
-          return `<div class="pv-u foe${e.boss ? ' boss' : ''}${fk ? ' special' : ''}${i === 0 ? ' is-front' : ''}" tabindex="0"
+          return `${e.wave === 2 && !(foes[i - 1] && foes[i - 1].wave === 2) ? '<span class="pv-wsep" aria-hidden="true">Welle 2</span>' : ''}<div class="pv-u foe${e.boss ? ' boss' : ''}${fk ? ' special' : ''}${e.wave === 2 ? ' w2' : ''}${e.elite2 ? ' elite2' : ''}${i === 0 ? ' is-front' : ''}" tabindex="0"
               data-tip="${esc(`${d.name}\n${e.hp} Leben · ${e.atk} Angriff${fk ? '\n' + fk.text : ''}${!fk && !e.boss && ability(e.id) ? '\n' + ability(e.id).name + ': ' + ability(e.id).text : ''}`)}">
             ${i === 0 ? '<i class="pv-front" aria-hidden="true"></i>' : ''}
             <span class="pv-s">${GL.sprites.render(d)}</span>
@@ -1565,7 +1671,7 @@ window.GL = window.GL || {};
           <div class="pv isl-${GL.run.island(run).id}${run.pending.kind === 'raid' ? ' raid' : ''}">
             <div class="pv-side"><span class="pv-label">Deine Crew ${dangerTag(run, run.pending.kind)}</span><div class="pv-row">${crewRows}</div></div>
             <div class="pv-vs" aria-hidden="true">VS</div>
-            <div class="pv-side"><span class="pv-label">Gegner</span><div class="pv-row">${foeRows}</div></div>
+            <div class="pv-side"><span class="pv-label">Gegner${foes.some(e => e.wave === 2) ? ' <em class="pv-waves">2 Wellen</em>' : ''}</span><div class="pv-row">${foeRows}</div></div>
           </div>
           <p class="hint form-hint">Aufstellung automatisch: <b>Brecher vorne</b>, Helfer hinten. ${typeChart()}</p>
           ${boss && ability(boss.id) && !run.pending.rival ? `<p class="hint boss-mech"><b>${unitName(boss)}, ${ability(boss.id).name}:</b> ${abilityTag(ability(boss.id))} ${ability(boss.id).text}</p>` : ''}
@@ -3349,7 +3455,9 @@ window.GL = window.GL || {};
       const big = (act, cur, list, src) => `<div class="pe-big">${list.map(id => { const x = src[id] || {}; const t = (x.tiers || [])[0];
         return `<button class="pe-bt${cur === id ? ' on' : ''}" data-act="${act}" data-v="${id}"><i>${pxIcon(id, 'lg')}</i><b>${esc(x.name || id)}</b>${act === 'char-type' && x.strong ? `<small>stark gegen ${esc((src[x.strong] || {}).name || '')}</small>` : t ? `<small>${esc(t.text)}</small>` : ''}</button>`; }).join('')}</div>`;
       const s = subs('kampf', [['stil', 'Kampfstil'], ['frucht', 'Teufelsfrucht'], ['bande', 'Bande']]);
-      body = s.html + (s.cur === 'frucht' ? selfFruitBlock(profile) : s.cur === 'bande' ? crewNameBlock(profile, ui) : `<span class="pe-h">Kampfstil</span>${big('char-type', d.char.type, ['kraft', 'klinge', 'technik'], GL.data.types)}
+      const gw = GL.meta.selfGrowth ? GL.meta.selfGrowth(profile) : null;
+      const growLine = gw ? `<div class="capv-growbox"><b>⚓ Dein Pirat ist immer Kapitän</b><small>Rang ${gw.rank}${gw.bond ? ` · Vertraut ${gw.bond}` : ''} → +${gw.hp} Leben, +${gw.atk} Angriff${gw.spd ? `, +${gw.spd} Tempo` : ''}. Wächst mit jedem Rang und mit der Vertrautheit deiner Crew.</small></div>` : '';
+      body = s.html + (s.cur === 'frucht' ? selfFruitBlock(profile) : s.cur === 'bande' ? crewNameBlock(profile, ui) : growLine + `<span class="pe-h">Kampfstil</span>${big('char-type', d.char.type, ['kraft', 'klinge', 'technik'], GL.data.types)}
         <span class="pe-h">Rolle</span>${big('char-role', d.char.role, ['kaempfer', 'brecher', 'helfer'], GL.data.roles)}
         <p class="pe-note">Dein Pirat ist als Kapitän spielbar und wird mit jedem Piratenrang stärker.</p>`);
     } else if (tab === 'stil') {
@@ -4356,7 +4464,7 @@ window.GL = window.GL || {};
         <span><b>${d.name} hat trainiert!</b><small>Lv ${u.lvl} · wähle ein Training${others > 0 ? ` · danach noch ${others} weitere` : ''}</small></span>
         <button class="link" data-act="train-auto" title="Für alle das empfohlene Training wählen">Für alle</button></div>
       <div class="train-opts">${TRAIN.map(t => `<button class="train-opt${rec && rec.stat === t.c ? ' rec' : ''}" data-act="train" data-i="${i}" data-c="${t.c}">
-        ${rec && rec.stat === t.c ? '<span class="tip-badge">Tipp</span>' : ''}<i class="to-ico">${pxIco(t.px) || t.ico}</i><b>${t.name}</b><small>${t.fx(u.points)}</small></button>`).join('')}</div>
+        ${rec && rec.stat === t.c ? '<span class="tip-badge">Tipp</span>' : ''}<i class="to-ico">${(t.px === 'swords' && GL.art ? GL.art.icon('kampf') : '') || pxIco(t.px) || t.ico}</i><b>${t.name}</b><small>${t.fx(u.points)}</small></button>`).join('')}</div>
       <div class="train-auto-row">${autoCheck(profile)}<small>Automatisch verteilen</small></div>
     </div>`;
   }

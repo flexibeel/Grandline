@@ -31,8 +31,13 @@ window.GL = window.GL || {};
   function simulate(run, crewRefs, enemyRefs, kind, opts) {
     const C = GL.config;
     const o = opts || {};
-    const { crew, enemies, flags } = GL.effects.setup(run, crewRefs, enemyRefs);
-    crew.concat(enemies).forEach(u => { u.status = {}; });
+    // Nachschub (Welle 2) wird mit vorbereitet, kämpft aber erst, wenn Welle 1 gefallen ist
+    const reserveRefs = Array.isArray(o.reserve) ? o.reserve : [];
+    const S0 = GL.effects.setup(run, crewRefs, enemyRefs.concat(reserveRefs));
+    const crew = S0.crew, flags = S0.flags;
+    const enemies = S0.enemies.slice(0, enemyRefs.length);
+    const reserve = S0.enemies.slice(enemyRefs.length);
+    crew.concat(enemies, reserve).forEach(u => { u.status = {}; });
     const events = [];
     const alive = list => list.filter(u => u.hp > 0);
     const sideOf = s => (s === 'crew' ? crew : enemies);
@@ -67,6 +72,15 @@ window.GL = window.GL || {};
           events.push({ k: 'revive', side: u.side, list: [{ to: idx(u), hp: u.hp }], by: u.id });
         }
       });
+      // Feldarzt: Chopper, ein volles Lazarett (4 Helfer) oder die Hito-Hito-Frucht holen einmal pro Kampf jemanden zurück
+      if (doc && !docUsed && alive(crew).length && alive(enemies).length) {
+        const down = crew.find(u => u.hp === 0);
+        if (down) {
+          docUsed = true;
+          down.hp = Math.max(1, Math.ceil(down.max * doc.p));
+          events.push({ k: 'revive', side: 'crew', list: [{ to: idx(down), hp: down.hp }], by: 'doc', doc: doc.by, from: doc.from });
+        }
+      }
       if (flags.vivre && !run.vivreUsed && !alive(crew).length) {
         run.vivreUsed = true;
         const list = crew.map((u, i) => { u.hp = Math.ceil(u.max * flags.vivre); return { to: i, hp: u.hp }; });
@@ -339,11 +353,30 @@ window.GL = window.GL || {};
       }
     }
     let firstBlock = flags.firstBlock;  // Anzahl abgewehrter Treffer pro Kampf
+    // Wer kann als Feldarzt Gefallene zurückholen? (einmal pro Kampf)
+    const DC = C.doctor || {};
+    const chop = !pvp && kind !== 'duel' ? crew.find(u => u.id === 'chopper') : null;
+    const helfer = crew.filter(u => u.role === 'helfer').length;
+    const doc = pvp || kind === 'duel' ? null
+      : chop && DC.chopper ? { p: DC.chopper, by: 'chopper', from: idx(chop) }
+      : helfer >= 4 && DC.lazarett ? { p: DC.lazarett, by: 'lazarett' }
+      : (run.eaten || []).some(id => /^hito/.test(id)) && DC.hito ? { p: DC.hito, by: 'hito' } : null;
+    let docUsed = false;
+    // Welle 2 rückt nach, sobald Welle 1 gefallen ist
+    let waveN = 1;
+    function callWave() {
+      if (!reserve.length || !alive(crew).length) return false;
+      const list = [];
+      reserve.splice(0).forEach(u => { enemies.push(u); list.push({ to: enemies.length - 1, hp: u.hp }); });
+      waveN++;
+      events.push({ k: 'wave', n: waveN, of: waveN, list });
+      return true;
+    }
     FX = GL.fruitFx && !pvp && kind !== 'duel' ? GL.fruitFx.setup(run, crew, enemies, { events, addStatus, damage, heal }) : null;
     let rounds = 0;
 
     // ---------- Runden ----------
-    while (alive(crew).length && alive(enemies).length && rounds < C.battleRoundsMax) {
+    while (alive(crew).length && rounds < C.battleRoundsMax && (alive(enemies).length || callWave())) {
       rounds++;
       events.push({ k: 'round', n: rounds });
       // Boss holt aus: alle 3 Runden kündigt er einen schweren Schlag an, der in der nächsten Runde kommt.
@@ -537,8 +570,9 @@ window.GL = window.GL || {};
     // Leben zurück in die echten Figuren schreiben
     crew.forEach(u => { u.ref.hp = u.hp; });
     enemies.forEach(u => { u.ref.hp = u.hp; });
+    reserve.forEach(u => { u.ref.hp = u.hp; });
 
-    const win = !alive(enemies).length && alive(crew).length > 0;
+    const win = !alive(enemies).length && !reserve.length && alive(crew).length > 0;
     // Finaler Schlag: der Treffer, der den letzten Gegner fällt, bekommt seinen eigenen Moment
     if (win) for (let i = events.length - 1; i >= 0; i--) {
       const e = events[i];

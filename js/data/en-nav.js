@@ -33,3 +33,14 @@ Object.assign(GL.data.en, {
   'Sie wechseln sich mit den Kapitänen oben ab. Nächster Run, neues Glück.': 'They take turns with the captains above. Next run, new luck.',
   '🔒 Noch gesperrt': '🔒 Still locked'
 });
+// Fork V: Du bist Kapitän
+Object.assign(GL.data.en, {
+  'Kapitän': 'Captain', 'Wähle deinen Ersten Maat': 'Pick your First Mate',
+  'Der Maat kommt sofort an Bord. Seine Heuer ist dein Startgold, er ist es wert. Meistens.': 'Your mate comes aboard right away. Their wage is your starting gold. Worth it. Usually.',
+  '⚓ Warten am Steg': '⚓ Waiting on the dock', 'Nächstes Mal stehen andere als Maat bereit. Der Steg ist geduldig.': 'Next time others are ready to sign on. The dock is patient.',
+  '⚓ Dein Pirat ist immer Kapitän': '⚓ Your pirate is always captain'
+});
+GL.i18nExtraP = (GL.i18nExtraP || []).concat([
+  [/^Rang (\d+)( · Vertraut (\d+))? → \+(\d+) Leben, \+(\d+) Angriff(, \+(\d+) Tempo)?(\. Wächst mit jedem Rang und mit der Vertrautheit deiner Crew\.)?$/, (m, r, b, bv, hp, atk, s, sv, tail) => `Rank ${r}${b ? ' · Bond ' + bv : ''} → +${hp} HP, +${atk} attack${s ? ', +' + sv + ' speed' : ''}${tail ? '. Grows with every rank and with your crew’s bond.' : ''}`],
+  [/^(.+): wartet auf die nächste Fahrt$/, '$1: waits for the next voyage']
+]);

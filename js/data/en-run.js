@@ -230,3 +230,9 @@ Object.assign(GL.data.en, { 'Antippen': 'Tap', '✓ Gewählt': '✓ Chosen' });
 GL.i18nExtraP = (GL.i18nExtraP || []).concat([
   [/^(Gewöhnlich|Selten|Episch|Legendär|Erwacht|Einzigartig) · (Schatz|Teufelsfrucht)$/, (m, r, k) => ({ 'Gewöhnlich': 'Common', 'Selten': 'Rare', 'Episch': 'Epic', 'Legendär': 'Legendary', 'Erwacht': 'Awakened', 'Einzigartig': 'Unique' }[r] + ' · ' + (k === 'Schatz' ? 'Treasure' : 'Devil fruit'))]
 ]);
+// Fork S: Inselwahl-Postkarten
+Object.assign(GL.data.en, {
+  'gemütlich': 'cozy', 'ordentlich': 'lively', 'ungemütlich': 'rough',
+  'Gemütlicher Einstieg': 'Cozy start', 'Ordentlich was los': 'Quite a bit going on', 'Wird ungemütlich': 'Getting rough'
+});
+GL.i18nExtraP = (GL.i18nExtraP || []).concat([[/^Insel-Twist dieser Etappe: ([\s\S]+)$/, 'Island twist for this leg: $1']]);

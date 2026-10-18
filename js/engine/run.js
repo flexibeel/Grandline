@@ -179,8 +179,10 @@ window.GL = window.GL || {};
     // Build: Kampfstile, die schon mindestens zweimal an Bord sind, tauchen öfter auf (Build kristallisiert sich heraus)
     const tw = GL.config.shop.typeWeight || 1, tc = GL.effects.counts(run.crew).type;
     const build = new Set(Object.keys(tc).filter(k => tc[k] >= 2));
-    if ((fw === 1 || !have.size) && (tw === 1 || !build.size)) return R.sample(run, free, n);
-    const pool = free.map(id => { const d = byId(GL.data.crew, id); return { id, w: (d && d.faction && have.has(d.faction) ? fw : 1) * (d && build.has(d.type) ? tw : 1) }; });
+    // Du bist Kapitän: freigeschaltete Kapitäne tauchen in der Taverne etwas öfter auf
+    const uw = run.mateMode ? 1.4 : 1, anyU = uw !== 1 && free.some(id => { const d = byId(GL.data.crew, id); return d && d.locked; });
+    if ((fw === 1 || !have.size) && (tw === 1 || !build.size) && !anyU) return R.sample(run, free, n);
+    const pool = free.map(id => { const d = byId(GL.data.crew, id); return { id, w: (d && d.faction && have.has(d.faction) ? fw : 1) * (d && build.has(d.type) ? tw : 1) * (d && d.locked ? uw : 1) }; });
     const out = [];
     while (out.length < n && pool.length) {
       let x = R.float(run) * pool.reduce((a, b) => a + b.w, 0), k = 0;
@@ -456,6 +458,26 @@ window.GL = window.GL || {};
         atk: Math.round(boss.atk * (1 + H.enemyAtk + H.bossAtk) * BF.atk), spd: boss.spd + H.enemySpd
       });
     }
+    // Gegnerwellen: normale Kämpfe ab einer bestimmten Etappe bekommen Nachschub (Welle 2), Raids dauern länger
+    const W = C.waves;
+    const waveOn = W && !gate && ((kind === 'battle' || kind === 'elite') ? !boss && (run.step || 0) >= (W.fromStep || 2) : kind === 'raid');
+    if (waveOn) {
+      const sea = islandIndex(run);
+      const n2 = kind === 'raid' ? (W.raidExtra || 2) : (W.extra || 2);
+      if (kind === 'raid') enemies.forEach(e => { if (e.boss) { e.max = e.hp = Math.round(e.max * (W.raidHp || 1)); } });
+      let gp = GL.data.grunts.filter(x => !x.seas || x.seas.includes(Math.min(sea, 2)));
+      for (let i = 0; i < n2; i++) {
+        const type = gp[R.int(run, 0, gp.length - 1)];
+        const elite = i === 0 && (sea >= (W.eliteFromSea || 1) || kind === 'elite' || kind === 'raid');
+        const hpM = (W.hp || 0.8) * (elite ? (W.eliteHp || 1.4) : 1), atkM = (W.atk || 0.9) * (elite ? (W.eliteAtk || 1.2) : 1);
+        const max = Math.max(1, Math.round((g.hpBase + level * g.hpPerLevel) * (kind === 'raid' ? C.eliteMult : 1) * (1 + H.enemyHp) * hpM));
+        enemies.push({
+          id: type.id, type: type.type, hp: max, max, wave: 2, elite2: elite || undefined,
+          atk: Math.max(1, Math.round((g.atkBase + level * g.atkPerLevel) * (kind === 'raid' ? C.eliteMult : 1) * (1 + H.enemyAtk) * atkM)),
+          spd: Math.max(1, R.int(run, g.spdMin, g.spdMax) + H.enemySpd + (elite ? 1 : 0) - (run.mood === 'flaute' ? 1 : 0) + ((twistOf(run) || {}).foeSpd || 0))
+        });
+      }
+    }
     // Endlos-Modus: jede Runde deutlich stärker (auch Bosse, die sonst feste Werte haben)
     // Endlos-Fahrt in späteren Meern: die Crew startet ohne Schätze aus den Vor-Meeren, daher etwas leichter
     if (run.endlessSea) {
@@ -526,10 +548,12 @@ window.GL = window.GL || {};
     run.pool = [];
     run.pending = null;
     // Neues Insel-Kapitel: erst den Kurs wählen
-    if (rowIdx(run) === 0) { openCourse(run); return; }
+    if (rowIdx(run) === 0) { endEpisode(run); openCourse(run); return; }
     run.options = genOptions(run);
     // Zwischen-Event mit der Crew: einmal pro Insel-Kapitel sicher in der Reihe vor dem Bösewicht
     const CE = GL.data.crewEvents || [], rI = rowIdx(run), chap = run.step - rI;
+    // Folge: Teil 2 unterwegs, Teil 3 direkt vor dem Bösewicht
+    if (run.epi && run.epi.chap === chap && run.epi.part < 3 && (rI === 1 || rI === GL.config.chapterSteps - 2)) { episodePart(run, rI === 1 ? 2 : 3); return; }
     if (CE.length && rI === GL.config.chapterSteps - 2 && run.ceChap !== chap) { startCrewEvent(run, chap); return; }
     // Gelegentlich ein Ereignis auf See (nicht direkt vor dem Bösewicht oder Boss)
     if (rI < GL.config.chapterSteps - 1 && R.float(run) < GL.config.eventChance) {
@@ -539,11 +563,54 @@ window.GL = window.GL || {};
       run.phase = 'event';
     }
   }
+  // ---------- Folgen: drei Teile über ein Insel-Kapitel (js/data/events3.js) ----------
+  // Teil 1 nach dem Ablegen, Teil 2 unterwegs, Teil 3 vor dem Bösewicht. Entscheidungen setzen Flags,
+  // Teil 3 wählt danach seine Variante. temp-Boni gelten bis zum Ende des Kapitels.
+  function startEpisode(run) {
+    const EP = GL.data.crewEpisodes || [];
+    if (!EP.length) return false;
+    if (R.float(run) >= 0.6) return false;
+    run.epSeen = run.epSeen || [];
+    let pool = EP.filter(e => !run.epSeen.includes(e.id));
+    if (!pool.length) { run.epSeen = []; pool = EP.slice(); }
+    const ep = pool[R.int(run, 0, pool.length - 1)];
+    run.epSeen.push(ep.id);
+    run.epi = { id: ep.id, chap: run.step - rowIdx(run), part: 0, flags: [] };
+    episodePart(run, 1);
+    return true;
+  }
+  function episodePart(run, n) {
+    const ep = (GL.data.crewEpisodes || []).find(e => e.id === run.epi.id);
+    if (!ep) { run.epi = null; return; }
+    let id = `ep-${ep.id}-${n}`;
+    if (n === 3) { const v = ep.third.find(x => x.need && run.epi.flags.includes(x.need)) || ep.third.find(x => !x.need); id = v ? v.id : null; }
+    if (!id || !(GL.data.crewEvents || []).some(e => e.id === id)) { run.epi.part = n; return; }
+    run.epi.part = n;
+    run.ceChap = run.epi.chap;   // kein zusätzliches Zwischen-Event in diesem Kapitel
+    const alive = run.crew.filter(u => u.hp > 0);
+    const a = (alive[0] || run.crew[0] || {}).id || 'ruffy';
+    const others = alive.filter(u => u.id !== a);
+    const b = others.length ? others[R.int(run, 0, others.length - 1)].id : 'kalle';
+    run.event = { id, crew: true, cast: [a, b] };
+    run.phase = 'event';
+  }
+  // Kapitel vorbei: Folge abschließen und Boni „bis zum Ende der Insel“ zurücknehmen
+  function endEpisode(run) {
+    (run.epTemp || []).forEach(t => run.crew.forEach(u => {
+      if (!t.ids.includes(u.uid != null ? u.uid : u.id)) return;
+      if (t.stat === 'hp') { u.max = Math.max(1, u.max - t.value); u.hp = Math.min(u.hp, u.max); } else u[t.stat] = Math.max(t.stat === 'atk' || t.stat === 'spd' ? 1 : 0, u[t.stat] - t.value);
+    }));
+    run.epTemp = [];
+    run.epi = null;
+  }
+
   // Mini-Szene mit Kapitän (A) und jemandem aus der Crew (B), danach eine Entscheidung
   function startCrewEvent(run, chap) {
     const CE = GL.data.crewEvents;
     run.ceSeen = run.ceSeen || [];
-    let pool = CE.filter(e => !run.ceSeen.includes(e.id));
+    const ok = e => !e.ep && (!e.when || e.when(run));
+    let pool = CE.filter(e => ok(e) && !run.ceSeen.includes(e.id));
+    if (!pool.length) { run.ceSeen = []; pool = CE.filter(ok); }
     if (!pool.length) { run.ceSeen = []; pool = CE.slice(); }
     const ev = pool[R.int(run, 0, pool.length - 1)];
     const alive = run.crew.filter(u => u.hp > 0);
@@ -567,6 +634,11 @@ window.GL = window.GL || {};
     if (o.berry) { run.berry += o.berry; lines.push(`${o.berry > 0 ? '+' : ''}${o.berry} Berry`); }
     if (o.gold) { run.gold = Math.max(0, (run.gold || 0) + o.gold); lines.push(`${o.gold > 0 ? '+' : ''}${o.gold} Gold`); }
     if (o.heal) { heal(run, o.heal); lines.push(`Crew heilt ${Math.round(o.heal * 100)} %`); }
+    if (o.revive) {
+      const down = run.crew.filter(u => u.hp <= 0);
+      down.forEach(u => { u.hp = Math.max(1, Math.ceil(u.max * o.revive)); });
+      lines.push(down.length ? `${down.length === 1 ? 'Ein Gefallener steht' : down.length + ' Gefallene stehen'} mit ${Math.round(o.revive * 100)} % Leben wieder auf` : 'Niemand musste geflickt werden. Auch schön.');
+    }
     if (o.hurt) {
       run.crew.forEach(u => { if (u.hp > 0) u.hp = Math.max(1, u.hp - Math.ceil(u.max * o.hurt)); });
       lines.push(`Crew verliert ${Math.round(o.hurt * 100)} % Leben`);
@@ -580,6 +652,13 @@ window.GL = window.GL || {};
     if (o.points && run.crew[0]) { run.crew[0].points += o.points; lines.push(`Kapitän +${o.points} Statuspunkte`); }
     if (o.buffAll) { run.crew.forEach(u => { const v = o.buffAll.value; if (o.buffAll.stat === 'hp') { u.max += v; if (u.hp > 0) u.hp += v; } else u[o.buffAll.stat] += v; });   /* nur wer jetzt an Bord ist */ lines.push(`Ganze Crew +${o.buffAll.value} ${{ atk: 'Angriff', hp: 'Leben', spd: 'Tempo' }[o.buffAll.stat] || o.buffAll.stat}`); }
     if (o.crit) { run.crit = (run.crit || 0) + o.crit; lines.push(`Ganze Crew +${Math.round(o.crit * 100)} % Krit-Chance`); }
+    if (o.temp) {
+      // gilt bis zum Ende des Insel-Kapitels (Folgen), wird in endEpisode zurückgenommen
+      const t = o.temp, ids = [];
+      run.crew.forEach(u => { if (t.stat === 'hp') { u.max += t.value; if (u.hp > 0) u.hp = Math.max(1, u.hp + t.value); } else u[t.stat] += t.value; ids.push(u.uid != null ? u.uid : u.id); });
+      run.epTemp = (run.epTemp || []).concat([{ stat: t.stat, value: t.value, ids }]);
+      lines.push(`Bis zum Ende der Insel: Ganze Crew ${t.value > 0 ? '+' : ''}${t.value} ${{ atk: 'Angriff', hp: 'Leben', spd: 'Tempo' }[t.stat] || t.stat}`);
+    }
     if (o.relic !== undefined) {
       const free = freeRelics(run);
       if (free.length) {
@@ -757,6 +836,10 @@ window.GL = window.GL || {};
     // Kampfrausch nimmt nur die normale Heilung weg, Heil-Schätze (Fleischkeule) wirken weiter
     const wh = (f.noWinHeal ? 0 : C.winHeal) + f.winHeal;
     if (wh > 0) heal(run, wh * Math.max(0, 1 + (run.H ? run.H.winHeal : 0)));
+    // Gefallene rappeln sich nach dem Sieg wieder auf (Medizinkoffer: deutlich mehr)
+    const rv = Math.max(C.reviveAfterWin || 0, f.reviveWin || 0);
+    run.revived = [];
+    if (rv > 0) run.crew.forEach(u => { if (u.hp <= 0) { u.hp = Math.max(1, Math.ceil(u.max * rv)); run.revived.push(u.id); } });
     if (b.kind === 'elite' && run.pending && run.pending.who) {
       const h = byId(GL.data.hunted, run.pending.who);
       const bm = run.mood === 'kopfgeld' ? 1.5 : 1;
@@ -864,11 +947,19 @@ window.GL = window.GL || {};
         if (a.type !== 'pick') return false;
         const offer = run.pool[a.index];
         if (!offer) return false;
-        run.crew.push(makeMember(run, offer)); autoEquip(run);
+        // Erster Maat: dein Pirat ist Kapitän (vorne), der Maat kommt als Zweiter an Bord
+        if (run.mateMode && run.selfOffer) {
+          run.crew.push(makeMember(run, run.selfOffer));
+          run.crew.push(makeMember(run, offer));
+          run.mate = offer.id;
+          // Der Maat will auch bezahlt werden: seine Heuer ist dein ganzes Startgold
+          run.gold = 0;
+        } else run.crew.push(makeMember(run, offer));
+        autoEquip(run);
         run.crew[0].points += run.startPoints || 0;
-        run.captain = offer.id;
+        run.captain = run.crew[0].id;
         // Eigene Teufelsfrucht deines Piraten (im Profil ausgerüstet): wirkt wie eine gegessene Frucht
-        if (offer.id === 'self' && run.start.self && run.start.self.fruit) {
+        if (run.captain === 'self' && run.start.self && run.start.self.fruit) {
           const sf = run.start.self.fruit, fd = byId(GL.data.fruits, sf.id);
           if (fd && !fd.awakened && !fd.unique) { applyEffect(run, GL.loot.fruit({ id: sf.id, r: Math.max(0, Math.min(1, sf.r | 0)) }).effect); run.eaten.push(sf.id); run.selfFruit = sf.id; }
         }
@@ -903,6 +994,7 @@ window.GL = window.GL || {};
         run.courseOpts = null;
         run.phase = 'map';
         run.options = genOptions(run);
+        if (startEpisode(run)) return true;
         return true;
       }
 
@@ -933,6 +1025,7 @@ window.GL = window.GL || {};
           openTreasure(run);
         } else if (node === 'rest') {
           heal(run, (C.restHeal + (run.mood === 'flaute' ? 0.2 : 0) + (run.bonus ? run.bonus.restHeal : 0)) * Math.max(0, 1 + (run.H ? run.H.restHeal : 0)));
+          run.crew.forEach(u => { if (u.hp <= 0) u.hp = Math.max(1, Math.ceil(u.max * (C.reviveAtRest || 0))); });   // Rast weckt Gefallene
           advance(run);
         }
         return true;
@@ -946,12 +1039,15 @@ window.GL = window.GL || {};
           return true;
         }
         if (a.type === 'fight') {
-          const enemies = run.pending.enemies.map(e => Object.assign({}, e));
+          // Welle 1 kämpft sofort, Welle 2 wartet als Nachschub (gleiche Reihenfolge wie in der Anzeige)
+          const all = run.pending.enemies.map(e => Object.assign({}, e));
+          const enemies = all.filter(e => e.wave !== 2).concat(all.filter(e => e.wave === 2));
+          const reserve = enemies.filter(e => e.wave === 2);
           const start = enemies.map(e => Object.assign({}, e));
           const crewStart = run.crew.map(u => u.hp);
           const special = !!run.pending.special;
           if (special) run.charge = 0;
-          const res = GL.battle.simulate(run, run.crew, enemies, run.pending.kind, { special });
+          const res = GL.battle.simulate(run, run.crew, enemies.filter(e => e.wave !== 2), run.pending.kind, { special, reserve });
           // Werte für die Rangliste: Schaden, härtester Treffer, K.o.s, Krits
           const S = run.stats || (run.stats = { dmg: 0, maxHit: 0, kos: 0, crits: 0, taken: 0, fights: 0 });
           S.fights++;
@@ -1005,6 +1101,7 @@ window.GL = window.GL || {};
         const lines = [];
         run.phase = 'map';
         applyOutcome(run, ch.outcome, lines);
+        if (ch.flag && run.epi) run.epi.flags.push(ch.flag);
         run.notice = { title: ev.title, text: ch.text, lines };
         run.event = null;
         return true;
@@ -1206,6 +1303,16 @@ window.GL = window.GL || {};
       if (p.self) { registerSelf(p.self); run.start.self = p.self; }
       // Nicht alle auf einmal: dein eigener Pirat plus eine kleine, zufällige Auswahl aus allen freigeschalteten Kapitänen
       const capPool = GL.config.starters.concat(run.unlocked.filter(id => byId(GL.data.crew, id) && !GL.config.starters.includes(id)));
+      // Du bist immer selbst Kapitän: statt Kapitänswahl gibt es einen „Ersten Maat“ aus 3 Angeboten (kein Neu-Würfeln).
+      // Ohne eigenen Piraten (z. B. Wettfahrt mit festem Kapitän, alte Spielstände) bleibt die alte Kapitänswahl.
+      if (p.self && !p.classicCaptain) {
+        run.mateMode = true;
+        run.selfOffer = rollOffer(run, 'self');
+        const mates = R.sample(run, capPool, Math.min(capPool.length, GL.config.captainChoices || 3));
+        if (run.buddy && capPool.includes(run.buddy) && !mates.includes(run.buddy)) mates.push(run.buddy);
+        run.pool = mates.map(id => rollOffer(run, id));
+        return run;
+      }
       const caps = (p.self ? ['self'] : []).concat(R.sample(run, capPool, Math.min(capPool.length, GL.config.captainChoices || 3)));
       // Vertrauter: steht zusätzlich als Kapitän zur Wahl (nur wenn freigeschaltet)
       if (run.buddy && capPool.includes(run.buddy) && !caps.includes(run.buddy)) caps.push(run.buddy);

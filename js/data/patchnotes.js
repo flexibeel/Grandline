@@ -1,6 +1,15 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-20f', date: '18.10.', title: 'Du bist Kapitän: Reise, Folgen, Wellen', items: [
+    '⚓ Du bist immer selbst Kapitän. Zum Start wählst du deinen Ersten Maat (3 Angebote, kein Neu-Würfeln, seine Heuer ist dein Startgold). Dein Pirat wächst dauerhaft mit Rang und Vertrautheit',
+    'Die Reise erzählt sich: statt Knotenkarte eine kleine Szene, deine Crew beschreibt die Lage, du wählst Wege als Szenen-Karten. Die Karte gibt es noch hinter „🗺 Karte“',
+    '📜 7 Folgen über drei Teile pro Insel (z. B. Die Flaschenpost, Die lange Nacht, Das Nebelschiff), deine Entscheidungen wirken bis zum Bosskampf. Dazu 45 neue Zwischen-Events, insgesamt 61',
+    'Gegnerwellen: ab der 3. Etappe kommt Nachschub, später mit Anführer ★. Raids dauern länger',
+    'Wiederbeleben: Gefallene rappeln sich nach jedem Sieg auf (10 %), Rast weckt sie (30 %), Chopper/Lazarett/Hito-Hito holen einmal pro Kampf jemanden zurück. Neu: Choppers Medizinkoffer, Event Feldlazarett',
+    'Kampffenster mit mehr Liebe: Funken, Schnittbögen, Leuchtspuren, Schockwellen bei Flächenangriffen, Farbwisch bei Spezialattacken, K.O. mit kreisenden Sternchen, weniger Text',
+    'Willkommens-Grüße: Wer zurückkommt, wird von der Crew mit Sprechblase begrüßt (29 Varianten)',
+    'Inselwahl als Postkarten mit Kulisse, Bösewicht und Gefahr-Anzeige. Neue Pixel-Szenen und Symbole für Kampf, Taverne, Schatz, Rast und mehr' ] },
   { v: '2026-10-20e', date: '18.10.', title: 'Hotfix: Bewertungsfenster', items: [
     'Die Frage „Wie gefällt dir Grand Line?“ kommt nur noch ein einziges Mal. Weggeklickt bleibt weggeklickt' ] },
   { v: '2026-10-20d', date: '18.10.', title: 'Das Herz schlägt: Kampf, Früchte, Abenteuer', items: [

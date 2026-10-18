@@ -76,12 +76,17 @@ GL.config = {
   winHeal: 0.15,          // nach jedem gewonnenen Kampf (Anteil vom Max-Leben)
   restHeal: 0.4,          // Rast an Land
   reviveAfterBoss: 0.5,   // Gefallene kommen nach einem Inselboss mit diesem Anteil zurück
+  reviveAfterWin: 0.1,    // Gefallene rappeln sich nach jedem gewonnenen Kampf mit diesem Anteil auf
+  reviveAtRest: 0.3,      // Rast an Land weckt Gefallene mit diesem Anteil
+  doctor: { chopper: 0.25, lazarett: 0.2, hito: 0.2 },   // Feldarzt: einmal pro Kampf holt er einen Gefallenen zurück
+  // Gegnerwellen: normale Kämpfe ab dieser Etappe kommen in zwei Wellen (Welle 2 etwas schwächer, später mit Elite)
+  waves: { fromStep: 2, extra: 2, hp: 0.85, atk: 0.95, eliteHp: 1.45, eliteAtk: 1.2, eliteFromSea: 1, raidHp: 1.2, raidExtra: 2 },
 
   // Erwachen nach einem Inselboss
   awaken: { atk: 4, hp: 10 },
 
   // Gegnerstärke
-  enemyScale: 0.83,         // wie schnell normale Gegner pro Etappe stärker werden (längere Insel-Kapitel -> langsamer hochskalieren)
+  enemyScale: 0.95,         // wie schnell normale Gegner pro Etappe stärker werden (längere Insel-Kapitel -> langsamer hochskalieren)
   eliteMult: 1.3,         // Kopfgeldjäger sind um diesen Faktor stärker
   // Mehr Leben, etwas weniger Angriff: Kämpfe dauern etwas länger, ohne insgesamt härter zu werden
   grunt: { hpBase: 16, hpPerLevel: 4.4, atkBase: 3.7, atkPerLevel: 1.06, spdMin: 3, spdMax: 7 },

@@ -109,6 +109,7 @@ window.GL = window.GL || {};
       if (x.effBonus) f.effBonus += x.effBonus;
       if (x.crewLimit) f.crewLimit += x.crewLimit;
       if (x.healBonus) f.healMult *= 1 + x.healBonus;
+      if (x.reviveWin) f.reviveWin = Math.max(f.reviveWin || 0, x.reviveWin);
     });
     return f;
   }

@@ -18,6 +18,15 @@ GL.data.crewEvents = [
       { label: ['Mitnehmen', 'Take it'], hint: ['-12 Gold Finderlohn-Steuer, Teufelsfrucht wählen', '-12 gold finder’s tax, pick a devil fruit'], outcome: { gold: -12, pick: 'fruit' }, text: ['Ihr packt sie vorsichtig ein. Niemand beißt rein. Noch nicht.', 'You pack it carefully. Nobody bites. Not yet.'] },
       { label: ['Verkaufen', 'Sell it'], hint: ['+12 Gold', '+12 gold'], outcome: { gold: 12 }, text: ['Ein Händler zahlt erstaunlich gut für erstaunlich schlechtes Obst.', 'A merchant pays surprisingly well for surprisingly bad fruit.'] }
     ] },
+  { id: 'ce-lazarett', bg: 'hafen', icon: 'rest', title: ['Feldlazarett', 'Field hospital'],
+    lines: [
+      ['B', 'Am Kai steht ein Zelt mit rotem Kreuz. Und eine Schlange. Eine lange Schlange.', 'There is a tent with a red cross at the pier. And a queue. A long queue.'],
+      ['A', 'Wer bei uns liegt, steht wieder auf. Notfalls mit Verband bis zur Nase.', 'Whoever is down gets back up. With bandages up to the nose if need be.']
+    ],
+    choices: [
+      { label: ['Anstellen', 'Join the queue'], hint: ['-10 Gold, Gefallene mit 50 % zurück', '-10 gold, fallen back with 50%'], outcome: { gold: -10, revive: 0.5 }, text: ['Der Arzt fragt nicht, wie das passiert ist. Er hat das Schiff gesehen.', 'The doctor does not ask how it happened. He has seen the ship.'] },
+      { label: ['Selbst verarzten', 'Patch up yourselves'], hint: ['Gefallene mit 20 % zurück, Crew heilt 10 %', 'Fallen back with 20%, crew heals 10%'], outcome: { revive: 0.2, heal: 0.1 }, text: ['Viel Pflaster, wenig Ahnung. Erstaunlich wirksam.', 'Lots of plasters, little clue. Surprisingly effective.'] }
+    ] },
   { id: 'ce-koch', bg: 'kueche', icon: 'rest', title: ['Kochwettstreit', 'Cook-off'],
     lines: [
       ['B', 'Ich koche heute. Ich habe ein Rezept. Es hat nur drei Flecken.', 'I am cooking today. I have a recipe. It only has three stains.'],

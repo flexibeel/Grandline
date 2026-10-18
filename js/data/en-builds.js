@@ -66,3 +66,26 @@ GL.i18nExtraP = (GL.i18nExtraP || []).concat([
   [/^(\d+)× ausgewichen( \(auch dem großen Schlag!\))?$/, (m, n, x) => 'dodged ' + n + '×' + (x ? ' (even the big one!)' : '')],
   [/^(\d+) geheilt$/, '$1 healed']
 ]);
+// Fork R: Wiederbeleben & Wellen
+Object.assign(GL.data.en, {
+  'Welle 2! Es kommen noch welche. Es kommen immer noch welche.': 'Wave 2! There are more. There are always more.',
+  'Welle 2! Die zweite Reihe will auch mal.': 'Wave 2! The second row wants a turn too.',
+  'Welle 2! Jemand hat Verstärkung gerufen. Unhöflich.': 'Wave 2! Somebody called for backup. Rude.',
+  'Welle 2! Nachschub, und einer davon hat offensichtlich trainiert.': 'Wave 2! Reinforcements, and one of them has clearly been training.',
+  'Welle 2! Ein Anführer kommt mit. Er hat sogar einen Hut.': 'Wave 2! A leader joins in. He even has a hat.',
+  'Welle 2! Diesmal mit Chef. Natürlich.': 'Wave 2! With a boss this time. Of course.',
+  'Nachschub': 'Reinforcements', 'Welle 2!': 'Wave 2!', 'mit Anführer': 'with a leader', 'Welle 2': 'Wave 2', '2 Wellen': '2 waves',
+  'Choppers Medizinkoffer': 'Chopper’s Medical Kit', 'Feldlazarett': 'Field hospital',
+  'Niemand musste geflickt werden. Auch schön.': 'Nobody needed patching up. Also nice.'
+});
+GL.i18nExtraP = (GL.i18nExtraP || []).concat([
+  [/^(\d+) neue Gegner$/, '$1 new enemies'],
+  [/^Welle (\d+)!$/, 'Wave $1!'],
+  [/^Chopper flickt (.+) zusammen\. „Nicht sterben, das ist ein Befehl vom Arzt!“$/, 'Chopper patches $1 up. “No dying, that is a doctor’s order!”'],
+  [/^Das Lazarett holt (.+) zurück aufs Deck\. Mit Pflaster und Ermahnung\.$/, 'The field hospital drags $1 back on deck. With plasters and a lecture.'],
+  [/^Die Hito-Hito-Frucht weiß, was zu tun ist: (.+) steht wieder\.$/, 'The Hito-Hito fruit knows what to do: $1 is back up.'],
+  [/^(.+) (rappelt sich|rappeln sich) mit (\d+) % Leben wieder auf\.$/, '$1 get back up with $3 % HP.'],
+  [/^Nach jedem Sieg stehen Gefallene mit (.+) Leben wieder auf\. Chopper hat sie gebeten, nicht so viel zu sterben\.$/, 'After every win the fallen get back up with $1 HP. Chopper asked them to die less.'],
+  [/^Ein Gefallener steht mit (\d+) % Leben wieder auf$/, 'One fallen member gets back up with $1 % HP'],
+  [/^(\d+) Gefallene stehen mit (\d+) % Leben wieder auf$/, '$1 fallen get back up with $2 % HP']
+]);

@@ -202,6 +202,7 @@ window.GL = window.GL || {};
   // Eigene Bilder für einzelne Schätze (sonst bunte Schatztruhe)
   const RELIC_ART = {
     mandarinen: { c: { A: '#f08a24', B: '#ffc061', C: '#3d8b46', D: '#8a5a32', E: '#5f3c20' }, rows: ['...C..C...', '..ACA.CA..', '.ABAAABAA.', '.AAAAAAAA.', 'DDDDDDDDDD', 'DEEEEEEEED', 'DDDDDDDDDD', 'DEEEEEEEED', 'DDDDDDDDDD', '..........'] },
+    medkoffer: { c: { A: '#e8e2d4', B: '#c9bfa8', C: '#d8433a', D: '#6b4a2e', E: '#8a6a44' }, rows: ['...DDDD...', '...D..D...', '.AAAAAAAA.', 'AAAACCAAAA', 'AAAACCAAAA', 'ACCCCCCCCA', 'ACCCCCCCCA', 'AAAACCAAAA', 'ABBBCCBBBA', '.BBBBBBBB.'] },
     loewenkopf: { c: { A: '#f2c14e', B: '#e08a2a', C: '#fff3c4', D: '#3a2a1e' }, rows: ['.BBBBBBBB.', 'BBAAAAAABB', 'BAAAAAAAAB', 'BADAAAADAB', 'BAAAAAAAAB', 'BAACCCCAAB', 'BAACDDCAAB', 'BBAACCAABB', '.BBAAAABB.', '..BBBBBB..'] }
   };
 
@@ -261,6 +262,8 @@ window.GL = window.GL || {};
       const key = kind + ':' + id + (epic ? ':e' : '');
       if (cache[key]) return cache[key];
       if (kind === 'node') {
+        // Plastische Knoten-Symbole aus der Grafik-Bibliothek (art.js), sonst die alten flachen
+        if (GL.art && GL.art.icon) { const a = GL.art.icon(id); if (a) return (cache[key] = a); }
         if (id === 'fruit') return GL.sprites.icon('fruit', 'gum-gum');
         if (id === 'treasure') return GL.sprites.icon('relic', 'kanone');
         const ic = NODE_ICONS[id];

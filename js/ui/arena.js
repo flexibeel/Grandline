@@ -17,6 +17,10 @@ window.GL = window.GL || {};
 
   // Start-Energie wie im Kampfsystem (Crew und Bösewichte/Bosse haben eine Ulti, einfache Gegner nicht)
   let curRun = null;
+  // Gegnerwellen: Welle 2 wartet unsichtbar am Rand, bis sie im Kampf aufgerufen wird
+  const waveIn = new Set();
+  let waveDone = false;
+  const waitW2 = (side, i, unit) => side === 'enemy' && unit && unit.wave === 2 && !waveDone && !waveIn.has(i);
   function startEnergy(side, unit) {
     const U = GL.config.ult || {};
     if (side === 'crew') return Math.min(100, (U.start || 0) + ((curRun && curRun.ultBonus) || 0));
@@ -27,7 +31,7 @@ window.GL = window.GL || {};
   function fighter(side, i, entry, unit, hp) {
     const pct = Math.max(0, 100 * hp / unit.max);
     const en = startEnergy(side, unit);
-    return `<div class="fighter${hp <= 0 ? ' ko' : ''}${unit.boss ? ' big' : ''}${unit.mini ? ' mini-boss' : ''}" data-side="${side}" data-i="${i}">
+    return `<div class="fighter${hp <= 0 ? ' ko' : ''}${unit.boss ? ' big' : ''}${unit.mini ? ' mini-boss' : ''}${waitW2(side, i, unit) ? ' w2-wait' : ''}" data-side="${side}" data-i="${i}">
       <div class="f-status" aria-label="Zustände"></div>
       <div class="f-sprite">${GL.sprites.render(entry)}</div>
       <div class="f-info">
@@ -44,7 +48,7 @@ window.GL = window.GL || {};
     ['crew', 'enemy'].forEach(side => {
       const list = [...root.querySelectorAll(`.fighter[data-side="${side}"]`)];
       list.forEach(el => el.classList.remove('front'));
-      const first = list.find(el => !el.classList.contains('ko'));
+      const first = list.find(el => !el.classList.contains('ko') && !el.classList.contains('w2-wait'));
       if (first) first.classList.add('front');
     });
   }
@@ -382,9 +386,9 @@ window.GL = window.GL || {};
     const depth = 1.04 - y / 140;
     const scale = (unit.boss ? 1.6 : unit.mini ? 1.15 : 1) * depth;
     const pct = Math.max(0, 100 * hp / unit.max);
-    return `<div class="fu fu-${side}${hp <= 0 ? ' ko' : ''}${unit.boss ? ' boss' : ''}${unit.mini ? ' mini' : ''}" data-side="${side}" data-i="${i}"
+    return `<div class="fu fu-${side}${hp <= 0 ? ' ko' : ''}${unit.boss ? ' boss' : ''}${unit.mini ? ' mini' : ''}${unit.elite2 ? ' elite2' : ''}${waitW2(side, i, unit) ? ' w2-wait' : ''}" data-side="${side}" data-i="${i}"
         style="left:${x}%;bottom:${y}%;z-index:${200 - y};--s:${scale.toFixed(2)}">
-      <div class="fu-shadow"></div>${hp <= 0 ? '<span class="fu-ko">K.O.</span>' : ''}
+      <div class="fu-shadow"></div>${hp <= 0 ? (GL.arenaFx ? GL.arenaFx.koMark() : '<span class="fu-ko">K.O.</span>') : ''}
       <div class="fu-aura"></div>
       <div class="fu-body" style="--d:${(i * 0.37 + (side === 'crew' ? 0 : 0.5)).toFixed(2)}s">${GL.sprites.renderShaded ? GL.sprites.renderShaded(entry) : GL.sprites.render(entry)}</div>
       <div class="fu-bar"><i style="width:${pct}%"></i></div>
@@ -570,6 +574,7 @@ window.GL = window.GL || {};
       if (ev.heavy) { fx('kfx-heavy', T, 650); tagAt(tside, ev.to, 'Schwerer Schlag!', 'debuff', 60); }
       if (ev.eff === 'strong') fx('fx-ring', T, 700);
       pulse(tgt, ev.crit ? 'hurt-crit' : 'hurt');
+      if (GL.arenaFx) try { GL.arenaFx.hit(ev, A, T, type, fast); } catch (e) { /* nur Deko */ }
       if (ev.crit) tagAt(tside, ev.to, 'KRIT!', 'crit', 56);
       fieldFloat(tside, ev.to, '-' + ev.dmg, (ev.crit ? 'crit' : ev.eff === 'strong' ? 'strong' : ev.eff === 'weak' ? 'weak' : '') + bigNum(tside, ev.to, ev.dmg));
       if (ev.crit) { pulse($('#field'), 'zoom'); fx('fx-flash', { x: 0, y: 0 }, 300); }
@@ -603,7 +608,8 @@ window.GL = window.GL || {};
     tension();
     const was = !u.classList.contains('ko');
     u.classList.toggle('ko', hp <= 0);
-    if (was && hp <= 0) { const p = center(u); fx('fx-ko', p, 900); const t = fx('ptag ko', { x: p.x, y: p.y - 30 }, 1100); if (t) t.textContent = 'K.O.'; }
+    if (was && hp <= 0) { const p = center(u); fx('fx-ko', p, 900); if (GL.arenaFx) GL.arenaFx.ko(u, p); else { const t = fx('ptag ko', { x: p.x, y: p.y - 30 }, 1100); if (t) t.textContent = 'K.O.'; } }
+    if (!(hp <= 0)) { const k = u.querySelector('.fu-ko.kx'); if (k) k.remove(); }
   }
   function fieldAura(side, i) {
     const u = fu(side, i);
@@ -638,6 +644,7 @@ window.GL = window.GL || {};
       curRun = run;
       const b = run.battle;
       const done = !anim || anim.done;
+      waveDone = done;
       const crewHp = done ? run.crew.map(u => u.hp) : anim.crewHp;
       const enemyHp = done ? b.enemyEnd : anim.enemyHp;
       const crew = run.crew.map((u, i) => fighter('crew', i, u.def || crewData(u.id), u, crewHp[i])).join('');
@@ -656,6 +663,7 @@ window.GL = window.GL || {};
       const fieldEl = $('#field');
       if (run.battle && fieldEl && !run.battle.shown) {
         run.battle.shown = true;
+        waveIn.clear();
         const b0 = run.battle.enemies[0];
         if (b0 && (b0.boss || b0.raid)) { const d = enemyData(b0.id) || crewData(b0.id); fieldEl.dataset.boss = (run.battle.kind === 'raid' ? 'Raid: ' : 'Boss: ') + (d ? d.name : ''); }
         lowShown = false; lastShown = false;
@@ -702,6 +710,7 @@ window.GL = window.GL || {};
         setEn(tside, ev.to, ev.et);
       } else if (ev.k === 'ult') {
         ultFx(ev);
+        if (GL.arenaFx) try { GL.arenaFx.ult(ev); } catch (e) { /* nur Deko */ }
       } else if (ev.k === 'teamCharge') {
         if (ev.side === 'crew') teamBarSet(ev.n, ev.n >= ev.need);
       } else if (ev.k === 'team') {
@@ -721,6 +730,7 @@ window.GL = window.GL || {};
           fieldFloat(ev.side, x.to, '-' + x.dmg, 'burn' + bigNum(ev.side, x.to, x.dmg));
           if (ev.final && x.hp === 0) finale(ev.side, x.to);
         });
+        if (GL.arenaFx && ev.list.length >= 2) try { GL.arenaFx.aoe(ev.side, ev.list.map(x => x.to), ev.by); } catch (e) { /* nur Deko */ }
       } else if (ev.k === 'heal') {
         if (GL.data.abilities[ev.by] && !ev.ult) callout(ev.by, ev.side);
         ev.list.forEach(x => {
@@ -753,6 +763,16 @@ window.GL = window.GL || {};
           fieldFloat(ev.side, x.to, d.name + '!', d.good ? 'buff' : 'debuff');
           float(ev.side, x.to, d.name + '!', 'tag ' + (d.good ? 'buff' : 'debuff'));
         });
+      } else if (ev.k === 'wave') {
+        // Nachschub läuft ein: Welle 2 wird sichtbar, kurzes Schild oben
+        (ev.list || []).forEach((x, n) => {
+          waveIn.add(x.to);
+          [fu('enemy', x.to), el('enemy', x.to)].forEach(node => { if (node) { node.classList.remove('w2-wait'); node.classList.add('w2-in'); node.style.setProperty('--wd', (n * 0.12).toFixed(2) + 's'); } });
+        });
+        const elite = (ev.list || []).some(x => curRun && curRun.battle && curRun.battle.enemies[x.to] && curRun.battle.enemies[x.to].elite2);
+        banner('them wave', `<small>Nachschub</small><b>Welle ${ev.n}!</b><em>${elite ? 'mit Anführer' : (ev.list || []).length + ' neue Gegner'}</em>`, 1500);
+        const rb = $('#f-round'); if (rb) { rb.dataset.wave = 'Welle ' + ev.n; }
+        if (GL.sfx && GL.sfx.sting) GL.sfx.sting('dramatic');
       } else if (ev.k === 'windup') {
         // Boss holt aus: lehnt sich zurück, kleines Warnzeichen, nächste Runde kommt der schwere Schlag
         const b = fu('enemy', ev.to); if (b) b.classList.add('windup');

@@ -122,13 +122,21 @@ window.GL = window.GL || {};
       const ch = profile.char;
       if (!ch || !profile.nickname) return null;
       const k = GL.meta.rankIndex(profile);
-      const base = { kraft: { hp: 33, atk: 8, spd: 5 }, klinge: { hp: 29, atk: 9, spd: 6 }, technik: { hp: 27, atk: 8, spd: 7 } }[ch.type] || { hp: 30, atk: 8, spd: 6 };
+      const base = { kraft: { hp: 33, atk: 8, spd: 5 }, klinge: { hp: 31, atk: 9, spd: 6 }, technik: { hp: 32, atk: 9, spd: 7 } }[ch.type] || { hp: 30, atk: 8, spd: 6 };
+      // Du bist immer Kapitän: dein Pirat wächst mit dem Piratenrang und mit der Vertrautheit deiner Crew zu dir
+      const g = GL.meta.selfGrowth(profile);
       return {
         name: profile.nickname, type: ch.type || 'kraft', role: ch.role || 'kaempfer', look: ch.look,
-        hp: base.hp + Math.round(k * 1.4), atk: base.atk + Math.floor(k / 3), spd: base.spd + Math.floor(k / 7),
+        hp: base.hp + g.hp, atk: base.atk + g.atk, spd: base.spd + g.spd,
         rally: 1 + Math.floor(k / 5),
         fruit: GL.meta.selfFruit(profile), crew: GL.meta.crewName(profile)
       };
+    },
+    // Wachstum des eigenen Piraten (Rang + Vertrautheit „self“), für Steckbrief und Kapitänskarte
+    selfGrowth(profile) {
+      const k = GL.meta.rankIndex(profile);
+      const b = GL.meta.squadBonus ? GL.meta.squadBonus(((profile.squadXp || {}).self) || 0) : 0;
+      return { rank: k + 1, bond: b, hp: Math.round(k * 1.4) + b, atk: Math.floor(k / 3) + Math.floor(b / 5), spd: Math.floor(k / 7) };
     },
     // Eigene Teufelsfrucht: nur schon gegessene, normale Früchte (keine erwachten, keine Heil-Frucht).
     // Stufe Gewöhnlich, ab Rang 8 Selten. Wirkt, wenn dein Pirat Kapitän ist.
