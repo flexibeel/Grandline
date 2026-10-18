@@ -1,6 +1,10 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-18r', date: '18.10.', title: 'Schöner auswählen', items: [
+    'Frucht und Schatz: Oben siehst du jetzt das Leben deiner Crew. Heil-Früchte zeigen, wie viel sie gerade bringen (z. B. „+43 Leben für 2 Verletzte“ oder „Deine Crew ist gerade gesund“)',
+    'Hinweis und „Überspringen“ unter der Auswahl als saubere Knöpfe statt Text',
+    'Hinweisfenster im Pixel-Stil. In der Kopfleiste klappen sie nach unten auf und werden nicht mehr abgeschnitten. Kopfgeld-Serie als glühende Flammen-Plakette' ] },
   { v: '2026-10-18q', date: '18.10.', title: 'Dein Vertrauter', items: [
     'Neu im Hafen: Wähle einen Vertrauten aus deiner Stammcrew. Er steht im Run extra als Kapitän zur Wahl und wartet in der ersten Taverne auf dich (♥ Vertrauter)',
     'Kämpfen tut er wie immer, aber er wird mit jeder Fahrt schneller vertraut. Tageskarte und Wettfahrt bleiben für alle gleich' ] },

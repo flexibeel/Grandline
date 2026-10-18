@@ -176,5 +176,6 @@ GL.data.en = Object.assign(GL.data.en || {}, {
 "wie bisher": "as before",
 "♥ Vertrauter": "♥ Companion",
 "Fertig": "Done",
-"Dein Vertrauter steht im Run extra als Kapitän zur Wahl und wartet in der ersten Taverne auf dich. Kämpfen tut er wie immer, aber er wird mit jeder Fahrt vertrauter.": "Your companion is an extra captain choice in the run and waits for you in the first tavern. They fight as usual, but grow closer with every voyage."
+"Dein Vertrauter steht im Run extra als Kapitän zur Wahl und wartet in der ersten Taverne auf dich. Kämpfen tut er wie immer, aber er wird mit jeder Fahrt vertrauter.": "Your companion is an extra captain choice in the run and waits for you in the first tavern. They fight as usual, but grow closer with every voyage.",
+"Deine Crew ist gerade gesund": "Your crew is healthy right now"
 });

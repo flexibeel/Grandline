@@ -388,7 +388,30 @@ window.GL = window.GL || {};
   }
 
   // Beutekarte (Schatz oder Frucht)
-  function lootCardFace(item, kind) {
+  // Was bringt eine Frucht deiner Crew gerade konkret? (z. B. „+43 Leben für 2 Verletzte“ oder „Crew ist gesund“)
+  function lootBenefit(run, item) {
+    const e = item && item.effect; if (!run || !e) return null;
+    const alive = run.crew.filter(u => u.hp > 0), front = alive[0];
+    const STN = { atk: 'Angriff', hp: 'Leben', spd: 'Tempo' };
+    const one = x => {
+      if (x.type === 'healAll') {
+        const miss = alive.reduce((s, u) => s + (u.max - u.hp), 0), n = alive.filter(u => u.hp < u.max).length;
+        return miss > 0 ? { t: `+${miss} Leben für ${n} ${n === 1 ? 'Verletzten' : 'Verletzte'}`, good: miss >= 20 } : { t: 'Deine Crew ist gerade gesund', good: false, meh: true };
+      }
+      if (x.type === 'buffAll') return null;   // steht schon im Kartentext
+      if (x.type === 'buffFront') return front ? { t: `+${x.value} ${STN[x.stat] || x.stat} für ${crewData(front.id).name} (vorne)`, good: true } : null;
+      if (x.type === 'crit') return null;
+      return null;
+    };
+    const L = (e.type === 'multi' ? e.list.map(one) : [one(e)]).filter(Boolean);
+    return L.length ? { t: L.map(x => x.t).join(' · '), meh: L.every(x => x.meh), good: L.some(x => x.good) } : null;
+  }
+  // Leben der Crew als kleine Leiste über der Auswahl
+  function crewHpStrip(run) {
+    return `<div class="hp-strip">${run.crew.map(u => { const d = crewData(u.id), p = Math.max(0, Math.round(100 * u.hp / u.max));
+      return `<span class="hs-u${u.hp <= 0 ? ' ko' : ''}" data-tip="${esc(d.name)}: ${u.hp}/${u.max} Leben"><i>${GL.sprites.render(d)}</i><b class="hs-bar"><s class="${p > 50 ? 'hi' : p > 20 ? 'mid' : 'lo'}" style="width:${p}%"></s></b></span>`; }).join('')}</div>`;
+  }
+  function lootCardFace(item, kind, ben) {
     const rid = item.awakened ? 'awakened' : item.rarity >= 0 ? GL.config.rarities[item.rarity].id : 'unique';
     const label = item.awakened ? 'Erwacht' : item.rarity >= 0 ? GL.loot.rarityName(item.rarity) : 'Einzigartig';
     return `<span class="card-face loot-face frame-${rid}">
@@ -397,6 +420,7 @@ window.GL = window.GL || {};
       <span class="card-name">${item.name}</span>
       <span class="card-type">${kind === 'fruit' ? 'Teufelsfrucht' : 'Schatz'}</span>
       <span class="card-text">${item.text}</span>
+      ${ben ? `<span class="card-ben${ben.meh ? ' meh' : ben.good ? ' good' : ''}">${ben.meh ? '◦' : '▲'} ${esc(ben.t)}</span>` : ''}
     </span>`;
   }
 
@@ -1161,18 +1185,18 @@ window.GL = window.GL || {};
       case 'fruit': {
         const items = run.pool.map(it => GL.loot.fruit(it));
         const tip = GL.advice.loot(run, items, 'fruit');
-        return `<h2>Welche Frucht isst du?</h2>
+        return `${crewHpStrip(run)}<h2>Welche Frucht isst du?</h2>
           <p class="hint">Je seltener die Frucht, desto stärker ihr Effekt.</p>
           <div class="cards loot">${items.map((f, i) => {
           const rid = f.awakened ? 'awakened' : f.rarity >= 0 ? GL.config.rarities[f.rarity].id : 'unique';
-          return cardButton(i, lootCardFace(f, 'fruit'), `loot-opt lr-${rid}`, tip);
+          return cardButton(i, lootCardFace(f, 'fruit', lootBenefit(run, f)), `loot-opt lr-${rid}`, tip);
         }).join('')}</div>${tipLine(tip)}${pickDock(run, items)}`;
       }
 
       case 'treasure': {
         const items = run.pool.map(it => GL.loot.relic(it));
         const tip = GL.advice.loot(run, items, 'relic');
-        return `<h2>Welchen Schatz nimmst du mit?</h2>
+        return `${crewHpStrip(run)}<h2>Welchen Schatz nimmst du mit?</h2>
           <p class="hint">Schätze wirken bis zum Ende des Runs. Je seltener, desto stärker.</p>
           <div class="cards loot">${items.map((r, i) => {
             const rid = r.rarity >= 0 ? GL.config.rarities[r.rarity].id : 'unique';

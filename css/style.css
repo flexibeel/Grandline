@@ -5146,3 +5146,39 @@ button.ss-mate { background: none; border: 0; padding: 0; cursor: pointer; font:
 .tv-rec.tv-buddy { background: #e88aa8 !important; color: #fff !important; }
 .opt.buddy-cap { box-shadow: 0 0 0 3px #e88aa8; }
 .buddy-hint { color: #a0304e; }
+/* ---------- Design-Politur: Tooltips im Pixel-Stil ---------- */
+[data-tip]::after { background: #fffaf0 !important; color: #3a2a18 !important; border: 2px solid #6b4a2a; border-radius: 6px !important;
+  box-shadow: 3px 3px 0 rgba(60,40,20,.28), 0 10px 22px rgba(60,40,20,.18) !important; font-weight: 600; padding: 7px 10px !important; }
+[data-tip]::before { border-top-color: #6b4a2a !important; }
+/* Kopfleiste im Run: Hinweise klappen nach unten auf, damit nichts oben abgeschnitten wird */
+.head-chips [data-tip]::after { bottom: auto !important; top: calc(100% + 9px); }
+.head-chips [data-tip]::before { bottom: auto !important; top: calc(100% + 1px); border-top-color: transparent !important; border-bottom-color: #6b4a2a !important; }
+/* Kopfleiste: Chips als kleine 3D-Plaketten */
+.head-chips em, .head-chips .duel-chip { box-shadow: inset 0 -3px 0 rgba(0,0,0,.12), 0 2px 0 rgba(60,40,20,.22); border-radius: 8px !important; }
+.streak-chip { display: inline-flex; align-items: center; gap: 4px; font-style: normal; font-weight: 800; padding: 3px 10px; border: 2px solid #e8a43a; background: #fff1d6; color: #a0501a; white-space: nowrap; }
+.streak-chip.warm { background: #ffe2b8; border-color: #e07a2c; }
+.streak-chip.hot { background: #ffd0a8; border-color: #d0452a; color: #8a2a10; animation: streak-glow 1.4s ease-in-out infinite; }
+.streak-chip svg { width: 14px; height: 16px; }
+@keyframes streak-glow { 50% { box-shadow: inset 0 -3px 0 rgba(0,0,0,.12), 0 0 10px rgba(240,120,40,.6); } }
+.mood-chip { white-space: nowrap; }
+/* Frucht/Schatz: Hinweis und Überspringen als saubere Leiste */
+.pick-hint { display: flex !important; align-items: center; justify-content: center; gap: 6px; width: max-content; margin: 10px auto 0 !important; padding: 5px 12px; border-radius: 8px;
+  background: #fff6e0; border: 2px solid #ecd6a6; color: #7a5a34 !important; font-size: 12px !important; font-weight: 700; box-shadow: 0 2px 0 rgba(60,40,20,.15); }
+.pick-hint::before { content: '👆'; font-size: 13px; }
+.pick-skip-row { margin: 10px 0 0 !important; }
+.pick-skip { text-decoration: none !important; font-weight: 800 !important; font-size: 12.5px !important; color: #6b4a2a !important; background: #f3e6c8 !important; border: 2px solid #d9bf8c !important;
+  border-radius: 8px !important; padding: 5px 12px !important; box-shadow: inset 0 -3px 0 rgba(0,0,0,.1), 0 2px 0 rgba(60,40,20,.2); transition: transform .08s; }
+.pick-skip:hover { background: #f8eccf !important; }
+.pick-skip:active { transform: translateY(2px); box-shadow: inset 0 -1px 0 rgba(0,0,0,.1); }
+.pick-skip svg { width: 13px !important; height: 13px !important; }
+@media (prefers-reduced-motion: reduce) { .streak-chip.hot { animation: none; } }
+/* Frucht/Schatz: Crew-Leben und konkreter Nutzen */
+.hp-strip { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin: 0 0 8px; padding: 6px 8px; border-radius: 8px; background: rgba(255,255,255,.5); box-shadow: inset 0 -2px 0 rgba(0,0,0,.06); }
+.hs-u { display: grid; justify-items: center; gap: 2px; width: 40px; }
+.hs-u i svg { width: 24px; height: 28px; display: block; }
+.hs-u.ko { opacity: .45; filter: grayscale(1); }
+.hs-bar { display: block; width: 34px; height: 5px; border-radius: 3px; background: rgba(0,0,0,.14); overflow: hidden; }
+.hs-bar s { display: block; height: 100%; text-decoration: none; }
+.hs-bar s.hi { background: #4f9a5a; } .hs-bar s.mid { background: #e0a83a; } .hs-bar s.lo { background: #d0452a; }
+.card-ben { display: block; margin-top: 6px; font-size: 11.5px; font-weight: 800; line-height: 1.25; padding: 4px 6px; border-radius: 6px; background: #eef6e8; color: #2f6a3a; }
+.card-ben.meh { background: #f1ebe0; color: #8a7a64; }

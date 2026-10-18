@@ -106,6 +106,8 @@ window.GL = window.GL || {};
     [/^Vertraut (\d+) · ganz eng$/, 'Bond $1 · best friends'],
     [/^🔒 ab Vertraut (\d+)$/, '🔒 at bond $1'],
     [/^Duo: (.+)$/, (m, t) => 'Duo: ' + ((GL.data.en || {})[t] || t)],
+    [/^(▲|◦) (.+)$/, (m, a, t) => a + ' ' + t.replace(/\+(\d+) Leben für (\d+) (Verletzten|Verletzte)/, (x, n, k) => `+${n} HP for ${k} injured`).replace(/\+(\d+) (Angriff|Leben|Tempo) für alle (\d+)/, (x, n, st, c) => `+${n} ${({ Angriff: 'Attack', Leben: 'HP', Tempo: 'Speed' })[st]} for all ${c}`).replace(/\+(\d+) (Angriff|Leben|Tempo) für (.+) \(vorne\)/, (x, n, st, w) => `+${n} ${({ Angriff: 'Attack', Leben: 'HP', Tempo: 'Speed' })[st]} for ${w} (front)`).replace(/\+(\d+) % Krit für alle/, '+$1 % crit for all').replace('Deine Crew ist gerade gesund', 'Your crew is healthy right now')],
+    [/^(.+): (\d+)\/(\d+) Leben$/, '$1: $2/$3 HP'],
     [/^♥ (.+) ist dein Vertrauter und steht extra zur Wahl\.$/, '♥ $1 is your companion and an extra choice.'],
     [/^Vertraut (\d+) mit (.+)$/, 'Bond $1 with $2'],
     [/^(\d+) Figuren mit Vertraut 6$/, '$1 characters at bond 6'],
