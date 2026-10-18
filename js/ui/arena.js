@@ -380,13 +380,16 @@ window.GL = window.GL || {};
     deep: '<i class="p3 coral l"></i><i class="p3 coral r"></i><i class="p3 kelp m"></i><i class="bubbles"></i>',
     grave: '<i class="p3 tomb l"></i><i class="p3 tomb r"></i><i class="p3 deadtree bg"></i><i class="fog"></i>'
   };
+  // Formation: der Anführer steht hinten (eigener Platz), sein Gefolge vorne mit kleinem Schild
+  let leadAt = -1;
   function fieldUnit(side, i, entry, unit, hp) {
     const slots = side === 'crew' ? CREW_SLOTS : FOE_SLOTS;
-    const [x, y] = slots[Math.min(i, slots.length - 1)];
+    const backLead = side === 'enemy' && i === leadAt && i > 0;
+    const [x, y] = backLead ? [79, 20] : slots[Math.min(i, slots.length - 1)];
     const depth = 1.04 - y / 140;
     const scale = (unit.boss ? 1.6 : unit.mini ? 1.15 : 1) * depth;
     const pct = Math.max(0, 100 * hp / unit.max);
-    return `<div class="fu fu-${side}${hp <= 0 ? ' ko' : ''}${unit.boss ? ' boss' : ''}${unit.mini ? ' mini' : ''}${unit.elite2 ? ' elite2' : ''}${waitW2(side, i, unit) ? ' w2-wait' : ''}" data-side="${side}" data-i="${i}"
+    return `<div class="fu fu-${side}${hp <= 0 ? ' ko' : ''}${side === 'enemy' && leadAt > 0 && i < leadAt && !unit.wave ? ' guard' : ''}${backLead ? ' lead-back' : ''}${unit.boss ? ' boss' : ''}${unit.mini ? ' mini' : ''}${unit.elite2 ? ' elite2' : ''}${waitW2(side, i, unit) ? ' w2-wait' : ''}" data-side="${side}" data-i="${i}"
         style="left:${x}%;bottom:${y}%;z-index:${200 - y};--s:${scale.toFixed(2)}">
       <div class="fu-shadow"></div>${hp <= 0 ? (GL.arenaFx ? GL.arenaFx.koMark() : '<span class="fu-ko">K.O.</span>') : ''}
       <div class="fu-aura"></div>
@@ -440,6 +443,7 @@ window.GL = window.GL || {};
   function fieldHtml(run, crewHp, enemyHp) {
     const b = run.battle;
     const crew = run.crew.map((u, i) => fieldUnit('crew', i, u.def || crewData(u.id), u, crewHp[i])).join('');
+    leadAt = b.enemies.findIndex(e => (e.boss || e.mini) && e.wave !== 2);
     const foes = b.enemies.map((e, i) => fieldUnit('enemy', i, e.def || GL.data.foeDef(e) || crewData(e.id), e, enemyHp[i])).join('');
     const isl = GL.run.island(run).id;
     const th = themeOf(run);
@@ -664,7 +668,7 @@ window.GL = window.GL || {};
       if (run.battle && fieldEl && !run.battle.shown) {
         run.battle.shown = true;
         waveIn.clear();
-        const b0 = run.battle.enemies[0];
+        const b0 = run.battle.enemies.find(e => e.boss || e.raid) || run.battle.enemies[0];
         if (b0 && (b0.boss || b0.raid)) { const d = enemyData(b0.id) || crewData(b0.id); fieldEl.dataset.boss = (run.battle.kind === 'raid' ? 'Raid: ' : 'Boss: ') + (d ? d.name : ''); }
         lowShown = false; lastShown = false;
         // Bosse bekommen ihren großen Auftritt schon vor dem Kampf (siehe startFight in main.js)

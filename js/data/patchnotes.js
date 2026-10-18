@@ -1,6 +1,11 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-20i', date: '18.10.', title: 'Klügere Gegner, klarere Taverne', items: [
+    '🛡 Formation: Bosse und Kopfgeld-Ziele stehen hinten, ihr Gefolge schützt sie. Erst durchschlagen, Technik-Figuren schießen über die Köpfe (gegen den Boss etwas schwächer)',
+    '„Für den Boss!“: Trifft deine Crew den Anführer, legt sich sein Gefolge kurz mehr ins Zeug. Wütende Bosse pfeifen einmal einen Gefallenen zurück',
+    'Gegner-Heiler flicken zuerst den Boss, gegnerische Schützen zielen auf deine Angeschlagenen',
+    'Taverne auf einen Blick: ▲ stark für dich / ◦ passt / ▽ gerade nicht direkt auf jeder Kachel, mit kurzem Grund. Bei voller Crew steht gleich daneben, wen die Figur ersetzt' ] },
   { v: '2026-10-20h', date: '18.10.', title: 'Hotfix: lesbarer, kompakter, sicherer', items: [
     'Schätze und Früchte am Handy als kompakte Zeilen: alles auf einen Blick, kein Scrollen mehr',
     'Taverne und Erster Maat zeigen Boni-Wappen: was eine Figur aktiviert (▲) und was beim Tausch wegfällt (▼)',

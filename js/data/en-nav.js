@@ -51,3 +51,4 @@ GL.i18nExtraP = (GL.i18nExtraP || []).concat([
   [/^(Duo|Kombo) (.+?) \(fällt weg\): (.*)$/, (m, k, n, x) => (k === 'Kombo' ? 'Combo' : 'Duo') + ' ' + n + ' (lost): ' + x],
   [/^Kombo (.+?): (.*)$/, 'Combo $1: $2']
 ]);
+GL.data.en = Object.assign(GL.data.en || {}, { 'stärker': 'stronger', 'schwächer': 'weaker', 'freier Platz': 'free seat' });

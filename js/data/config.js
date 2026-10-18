@@ -86,7 +86,7 @@ GL.config = {
   awaken: { atk: 4, hp: 10 },
 
   // Gegnerstärke
-  enemyScale: 0.95,         // wie schnell normale Gegner pro Etappe stärker werden (längere Insel-Kapitel -> langsamer hochskalieren)
+  enemyScale: 0.997,         // wie schnell normale Gegner pro Etappe stärker werden (längere Insel-Kapitel -> langsamer hochskalieren)
   eliteMult: 1.3,         // Kopfgeldjäger sind um diesen Faktor stärker
   // Mehr Leben, etwas weniger Angriff: Kämpfe dauern etwas länger, ohne insgesamt härter zu werden
   grunt: { hpBase: 16, hpPerLevel: 4.4, atkBase: 3.7, atkPerLevel: 1.06, spdMin: 3, spdMax: 7 },

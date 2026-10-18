@@ -478,6 +478,12 @@ window.GL = window.GL || {};
         });
       }
     }
+    // Formation: das Gefolge steht vorne und schützt den Anführer (Boss / Kopfgeld-Ziel steht hinten)
+    if (C.formation !== false) {
+      const lead = enemies.filter(e => (e.boss || e.mini) && e.wave !== 2);
+      const w1 = enemies.filter(e => !lead.includes(e) && e.wave !== 2), w2 = enemies.filter(e => e.wave === 2);
+      if (lead.length && w1.length) enemies.splice(0, enemies.length, ...w1, ...lead, ...w2);
+    }
     // Endlos-Modus: jede Runde deutlich stärker (auch Bosse, die sonst feste Werte haben)
     // Endlos-Fahrt in späteren Meern: die Crew startet ohne Schätze aus den Vor-Meeren, daher etwas leichter
     if (run.endlessSea) {
@@ -787,11 +793,13 @@ window.GL = window.GL || {};
     if (!run.pets.includes(pet.id)) run.pets.push(pet.id);
   }
 
+  // Anführer eines Kampfs (Boss/Raid-Boss/Kopfgeld-Ziel), unabhängig von der Aufstellung
+  const leadOf = b => (b.enemies || []).find(e => e.boss || e.raid) || (b.enemies || []).find(e => e.mini) || b.enemies[0];
   function finishBattle(run) {
     const C = GL.config;
     const b = run.battle;
     if (b.kind === 'raid') {
-      const raid = b.enemies[0];
+      const raid = leadOf(b);
       if (!b.win) {
         // Ein verlorener Raid beendet den Run nicht: die Crew entkommt geschwächt
         run.crew.forEach(u => { u.hp = Math.max(1, Math.ceil(u.max * C.raidEscapeHp)); });
@@ -820,8 +828,8 @@ window.GL = window.GL || {};
     }
     if (!b.win) { run.phase = 'over'; return; }
     if (b.kind === 'boss') {
-      run.defeated.push(b.enemies[0].id); rollTrophy(run, b.enemies[0].id, C.trophyChance.boss);
-      (run.gearSrc = run.gearSrc || []).push({ id: b.enemies[0].id, sea: islandIndex(run), loop: run.loop || 0 });   // Crew-Ausrüstung (wird nach dem Run gewürfelt)
+      run.defeated.push(leadOf(b).id); rollTrophy(run, leadOf(b).id, C.trophyChance.boss);
+      (run.gearSrc = run.gearSrc || []).push({ id: leadOf(b).id, sea: islandIndex(run), loop: run.loop || 0 });   // Crew-Ausrüstung (wird nach dem Run gewürfelt)
     }
 
     // Glücksfund: selten eine Goldtruhe mit mindestens seltener Ausrüstung und Extra-Gold
@@ -855,7 +863,7 @@ window.GL = window.GL || {};
     if (b.kind === 'boss') {
       const bossGain = Math.round(GL.config.bossBounty[Math.min(run.bounties, GL.config.bossBounty.length - 1)] * (1 + 0.25 * (run.heat || 0)));
       run.bountyM = (run.bountyM || 0) + bossGain;
-      run.lastBounty = { id: b.enemies[0].id, gain: bossGain };
+      run.lastBounty = { id: leadOf(b).id, gain: bossGain };
       run.bounties++;
       if (run.endlessSea == null && run.bounties >= GL.data.islands.length) { run.phase = 'win'; return; }
       run.crew.forEach(u => { u.hp = u.hp > 0 ? u.max : Math.ceil(u.max * C.reviveAfterBoss); });

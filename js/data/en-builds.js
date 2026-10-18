@@ -107,3 +107,12 @@ GL.i18nExtraP = (GL.i18nExtraP || []).concat([
     [/^(\d+) Runs$/, '$1 runs']
   ]);
 })();
+// Fork AI1: Formation & Gegner-KI
+Object.assign(GL.data.en, {
+  'Gefolge schützt': 'Escort guards', 'Schützt den Anführer': 'Guards the leader',
+  'Formation\nDas Gefolge steht vorne und schützt den Anführer. Nahkämpfer müssen sich erst durchschlagen. Technik-Figuren schießen über die Köpfe hinweg, verlieren dabei aber etwas Wucht.': 'Formation\nThe escort stands in front and guards the leader. Melee fighters must break through first. Technique fighters shoot over their heads but lose some punch.'
+});
+GL.i18nExtraP = (GL.i18nExtraP || []).concat([
+  [/^„Für den Boss!“ Das Gefolge von (.+) wird wütend: \+(\d+) % Angriff\.$/, '“For the boss!” $1\'s escort gets angry: +$2 % attack.'],
+  [/^(.+) pfeift\. (.+) steht wieder auf und tut so, als wäre nichts gewesen\.$/, '$1 whistles. $2 gets back up and pretends nothing happened.']
+]);

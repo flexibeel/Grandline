@@ -8532,3 +8532,42 @@ em.type.t-technik { background: #5b86b3 !important; }
   #stage .cards.loot .fr-fam b { font-size: .62rem !important; letter-spacing: -.01em; }
   #stage .cards.loot .tc-info { gap: 1px 6px; }
 }
+
+/* ===== Fork AI1: Formation & Gegner-KI ===== */
+.pv-u.foe { position: relative; }
+.pv-guard { position: absolute; top: -6px; left: -4px; width: 14px; height: 16px; z-index: 2; filter: drop-shadow(0 1px 0 rgba(0,0,0,.25)); }
+.pv-guard svg, .px-guard { width: 100%; height: 100%; display: block; }
+.pv-lead { position: absolute; top: -7px; right: -3px; font-style: normal; font-size: .7rem; color: #c08a2e; text-shadow: 0 1px 0 #fff; z-index: 2; }
+.pz-chip.guard .pz-ic svg { width: 12px; height: 14px; }
+/* Arena: Gefolge mit kleinem Schild über dem Kopf, solange es den Anführer deckt */
+.fu.guard:not(.ko)::before { content: ''; position: absolute; left: 50%; bottom: calc(100% * var(--s, 1) + 4px); width: 10px; height: 12px; margin-left: -5px; z-index: 3; opacity: .85;
+  background: no-repeat center/contain url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 9' shape-rendering='crispEdges'><rect x='0' y='1' width='8' height='4' fill='%233a2a14'/><rect x='1' y='0' width='6' height='1' fill='%233a2a14'/><rect x='1' y='5' width='6' height='2' fill='%233a2a14'/><rect x='2' y='7' width='4' height='1' fill='%233a2a14'/><rect x='3' y='8' width='2' height='1' fill='%233a2a14'/><rect x='1' y='1' width='6' height='4' fill='%239fb8d6'/><rect x='2' y='5' width='4' height='1' fill='%239fb8d6'/><rect x='4' y='2' width='1' height='3' fill='%23f2c94c'/><rect x='3' y='3' width='3' height='1' fill='%23f2c94c'/></svg>"); }
+.fu.lead-back .fu-body { filter: drop-shadow(0 0 0 transparent); }
+
+/* ===== Taverne auf einen Blick ===== */
+.tv-off .tv-fitb { position: absolute; top: 4px; right: 4px; z-index: 2; width: 18px; height: 18px; display: grid; place-items: center; border-radius: 5px;
+  font: 800 .72rem/1 'Nunito', sans-serif; font-style: normal; }
+.tv-off .tv-fitb.fit-up { background: #4f9a5a; color: #fff; box-shadow: 0 2px 0 #2f6a38; }
+.tv-off .tv-fitb.fit-ok { background: #efe4cc; color: #6b4c26; box-shadow: 0 2px 0 #d8c39a; }
+.tv-off .tv-fitb.fit-down { background: #e6e0d6; color: #8a7c66; box-shadow: 0 2px 0 #cfc6b6; }
+.tv-off .tv-why1 { display: inline-flex; align-items: center; gap: 3px; max-width: 100%; min-height: 15px; padding: 1px 5px; border-radius: 6px;
+  font-size: .64rem; line-height: 1.1; white-space: nowrap; overflow: hidden; }
+.tv-off .tv-why1 b { overflow: hidden; text-overflow: ellipsis; font-weight: 800; }
+.tv-off .tv-why1 svg { width: 11px; height: 11px; flex: none; }
+.tv-off .tv-why1 .ge-hex { flex: none; font-size: .62rem; }
+.tv-off .tv-why1.fit-up { background: #e3f3df; color: #2f6a38; }
+.tv-off .tv-why1.fit-ok { background: #f5ecd8; color: #6b4c26; }
+.tv-off .tv-why1.fit-down { background: #eeeae3; color: #8a7c66; }
+.tv-off .tv-why1.fit-up svg rect { fill: #3f8a4a; }
+.tv-off .tv-why1.fit-down svg rect { fill: #b0574a; }
+.tv-off.tvr-down:not(.sel) .tv-spr { opacity: .72; filter: saturate(.7); }
+.tv-off.tvr-up:not(.sold) { box-shadow: 0 0 0 2px rgba(79,154,90,.45); }
+.tv-repl { display: inline-flex; align-items: center; gap: 1px; padding: 0 3px 0 2px; height: 16px; border-radius: 5px; background: #f2e9d6; border: 1px solid #dcc9a2;
+  font-size: .62rem; color: #7a5a30; }
+.tv-repl i { width: 13px; height: 15px; display: block; }
+.tv-repl i svg { width: 100%; height: 100%; display: block; }
+@media (max-width: 560px) {
+  .tv-off .tv-sub { display: none; }
+  .tv-off .tv-fitb { width: 16px; height: 16px; font-size: .66rem; top: 3px; right: 3px; }
+}
+.tv-off .tv-fitb.fit-ok { font-size: 1rem; line-height: .8; }

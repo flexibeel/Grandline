@@ -332,6 +332,15 @@ window.GL = window.GL || {};
           e.atk = Math.round(e.atk * (1 + DR.rageAtk)); e.spd += 1;
           if (e.ult) e.energy = Math.min(U.max, e.energy + DR.rageEnergy);
           events.push({ k: 'rage', side: 'enemy', to: idx(e), by: e.id, ea: e.ult ? e.energy : null });
+          if (FM.on && !called && FM.call > 0) {
+            const down = enemies.find(f => f.hp <= 0 && !isLead(f));
+            if (down) {
+              called = true;
+              down.hp = Math.max(1, Math.ceil(down.max * FM.call));
+              events.push({ k: 'revive', side: 'enemy', list: [{ to: idx(down), hp: down.hp }], by: e.id, ai: 'call' });
+              events.push({ k: 'note', by: e.id, side: 'enemy', ai: 'call', text: `${nameOf(e)} pfeift. ${nameOf(down)} steht wieder auf und tut so, als wäre nichts gewesen.` });
+            }
+          }
         }
         // Endphase: letzter Akt mit voller Ulti und einem kleinen Atemzug
         if (e.hp > 0 && e.raged && !e.lastAct && e.hp <= e.max * DR.finalAt) {
@@ -373,6 +382,27 @@ window.GL = window.GL || {};
       return true;
     }
     FX = GL.fruitFx && !pvp && kind !== 'duel' ? GL.fruitFx.setup(run, crew, enemies, { events, addStatus, damage, heal }) : null;
+    // ---------- Gegner-KI: Formation und Zielwahl ----------
+    //   Das Gefolge steht vorne und schützt den Anführer (Boss/Kopfgeld-Ziel). Nahkämpfer müssen sich erst durchkämpfen,
+    //   Technik-Figuren schießen über die Köpfe hinweg (mit Abschlag). Gegnerische Technik-Schützen suchen sich
+    //   die angeschlagenste Figur deiner Crew. Trifft die Crew den Anführer, wird das Gefolge kurz wütend.
+    const FM = Object.assign({ on: true, ranged: 0.75, foeFocus: true, rally: 0.12, call: 0.35 }, C.formation || {});
+    const isLead = f => !!(f.boss || f.mini || f.raid);
+    let rallied = false, called = false;
+    function pickTarget(u, living) {
+      const tank = living.find(f => f.ability === 'taunt');
+      if (tank) return tank;
+      if (!pvp && FM.on && u.side === 'crew') {
+        const guards = living.filter(f => !isLead(f)), lead = living.filter(isLead);
+        if (guards.length && lead.length) return u.type === 'technik' ? living.reduce((a, b) => (b.hp < a.hp ? b : a)) : guards[0];
+      }
+      if (!pvp && FM.on && FM.foeFocus && u.side === 'enemy' && !isLead(u) && u.type === 'technik') {
+        return living.reduce((a, b) => (b.hp / b.max < a.hp / a.max ? b : a));
+      }
+      return living[0];
+    }
+    // Schutz: Schüsse über das Gefolge hinweg verlieren etwas Wucht
+    const behindGuards = (u, target) => !pvp && FM.on && u.side === 'crew' && isLead(target) && alive(enemies).some(f => !isLead(f));
     let rounds = 0;
 
     // ---------- Runden ----------
@@ -426,7 +456,7 @@ window.GL = window.GL || {};
             ? living.reduce((a, b) => (b.hp < a.hp ? b : a))
             : u.ability === 'bully'
               ? living.reduce((a, b) => (b.atk > a.atk ? b : a))
-              : (living.find(f => f.ability === 'taunt') || living[0]);
+              : pickTarget(u, living);
           const to = foes.indexOf(target);
 
           let mult = typeMult(u.type, target.type);
@@ -444,6 +474,7 @@ window.GL = window.GL || {};
           if (u.status.fear) dmg *= 0.65;
           if (target.status.weak) dmg *= 1.25;
           if (FX) dmg *= FX.dmgMult(u, target);
+          if (behindGuards(u, target)) dmg *= FM.ranged;
           const heavy = u.wind === 2 && u.side === 'enemy';
           if (heavy) { dmg *= BF.windup; u.wind = 0; }
           dmg = Math.max(1, Math.round(dmg * (1 - target.guard)) - target.armor * (heavy ? 2 : 1));
@@ -463,6 +494,15 @@ window.GL = window.GL || {};
           events.push({ k: 'hit', side: u.side, from: idx(u), to, dmg, crit: crit && dmg > 0, lucky, eff, blocked, miss, hp: target.hp, heavy: heavy || undefined,
             ea: u.ult ? u.energy : null, et: target.ult ? target.energy : null });
 
+          // „Für den Boss!“: Trifft die Crew den Anführer, wird sein Gefolge einmal pro Kampf wütend
+          if (!pvp && FM.on && !rallied && dmg > 0 && u.side === 'crew' && isLead(target)) {
+            const gs = alive(enemies).filter(f => !isLead(f));
+            if (gs.length) {
+              rallied = true;
+              gs.forEach(f => { f.atk = Math.round(f.atk * (1 + FM.rally)); });
+              events.push({ k: 'note', by: target.id, side: 'enemy', ai: 'rally', text: `„Für den Boss!“ Das Gefolge von ${nameOf(target)} wird wütend: +${Math.round(FM.rally * 100)} % Angriff.` });
+            }
+          }
           // Konter: Bosse schlagen manchmal sofort zurück
           if (!pvp && dmg > 0 && target.hp > 0 && (target.boss || target.raid) && u.side === 'crew' && !target.status.stun && R.float(run) < (BF.counter || 0)) {
             const cd = Math.max(1, Math.round(target.atk * (BF.counterMult || 0.6) * typeMult(target.type, u.type) * (1 - (u.guard || 0))) - (u.armor || 0));
@@ -559,7 +599,9 @@ window.GL = window.GL || {};
         }
       });
       crew.concat(enemies).filter(u => u.hp > 0 && u.ability === 'medic').forEach(u => {
-        const hurt = alive(allies(u)).filter(f => f.hp < f.max).sort((a, b) => a.hp / a.max - b.hp / b.max)[0];
+        const hurtAll = alive(allies(u)).filter(f => f.hp < f.max).sort((a, b) => a.hp / a.max - b.hp / b.max);
+        const vip = !pvp && FM.on && u.side === 'enemy' ? hurtAll.find(f => isLead(f) && f.hp < f.max * 0.85) : null;
+        const hurt = vip || hurtAll[0];
         if (hurt) {
           const got = heal(hurt, Math.round(u.power * (u.side === 'crew' ? flags.healMult : 1)));
           events.push({ k: 'heal', side: u.side, list: [{ to: idx(hurt), amount: got, hp: hurt.hp }], by: u.id });

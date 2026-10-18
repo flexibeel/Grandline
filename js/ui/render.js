@@ -5,6 +5,8 @@ window.GL = window.GL || {};
 (function () {
   const byId = (list, id) => list.find(x => x.id === id);
   const crewData = id => byId(GL.data.crew, id);
+  // Kleines Pixel-Schild: Gefolge schützt den Anführer
+  const PX_GUARD = '<svg class="px-guard" viewBox="0 0 8 9" shape-rendering="crispEdges" aria-hidden="true"><rect x="1" y="0" width="6" height="1" fill="#3a2a14"/><rect x="0" y="1" width="8" height="4" fill="#3a2a14"/><rect x="1" y="5" width="6" height="2" fill="#3a2a14"/><rect x="2" y="7" width="4" height="1" fill="#3a2a14"/><rect x="3" y="8" width="2" height="1" fill="#3a2a14"/><rect x="1" y="1" width="6" height="4" fill="#9fb8d6"/><rect x="2" y="5" width="4" height="1" fill="#9fb8d6"/><rect x="3" y="6" width="2" height="1" fill="#7f9cc0"/><rect x="1" y="1" width="2" height="1" fill="#e6f0fa"/><rect x="4" y="2" width="1" height="3" fill="#f2c94c"/><rect x="3" y="3" width="3" height="1" fill="#f2c94c"/></svg>';
   // Streamer-Modus: Mail, Spielercode und Kopier-Codes werden nirgends im Klartext gezeigt
   const streamOn = () => !!(GL.streamer && GL.streamer.on());
   let mailShown = false;
@@ -404,6 +406,32 @@ window.GL = window.GL || {};
       .map(s => `${s.kind === 'faction' ? 'Set-Bonus ' : ''}${s.name} ${s.count}: ${s.active.text}`);
     GL.effects.duosWith(run.crew, d.id).forEach(x => gains.push(`Duo ${x.name}: ${x.text}`));
     return gains.length ? `<span class="gain">Schaltet frei: ${gains.join('; ')}</span>` : '';
+  }
+
+  // ---------- Taverne auf einen Blick: ▲ Stark für dich / ◦ Passt / ▽ Gerade nicht ----------
+  function tvRate(run, o, d, m, twin, out, full, overall) {
+    const en = GL.i18n && GL.i18n.lang && GL.i18n.lang() === 'en';
+    const R = [];   // { s: Punkte, html, tip }
+    if (twin) R.push({ s: 3, html: `${PX_STAR_UP || '★'}<b>★${(twin.stars || 1) + 1}</b>`, tip: en ? 'Merge into a stronger crew member' : 'Zusammenlegen zu einer stärkeren Figur' });
+    let L = [];
+    try { L = twin ? [] : gainList(run, d, out); } catch (e) { L = []; }
+    L.filter(g => !g.x && g.st === 'up').forEach(g => R.push({ s: 2, html: `${gainIco(g)}<b>${g.from}→${g.to}</b>`, tip: gainTip(g) }));
+    L.filter(g => g.x && g.st === 'up').forEach(g => R.push({ s: 1, html: `<span class="ge-hex">${esc(g.ico || '✦')}</span><b>${esc(g.name)}</b>`, tip: gainTip(g) }));
+    // Wegfallende Stufen zählen, aber gedeckelt (sonst wirkt jeder Tausch schlecht)
+    L.filter(g => g.st === 'down').slice(0, 2).forEach(g => R.push({ s: -1, html: `${gainIco(g)}<b>▼</b>`, tip: gainTip(g) }));
+    try {
+      const b = GL.effects && GL.effects.build ? GL.effects.build(run.crew || []) : null;
+      if (b && !twin && ((b.kind === 'type' && d.type === b.key) || (b.kind === 'role' && d.role === b.key))) R.push({ s: 1, html: `<span class="ge-hex">${esc(b.icon || '✦')}</span><b>${esc(b.name)}</b>`, tip: (en ? 'Fits your style ' : 'Passt zu deinem Stil ') + b.name });
+    } catch (e) { /* egal */ }
+    if (full && out && !twin) {
+      if (out.hp <= 0) R.push({ s: 3, html: `${PX_UP}<b>K.O.</b>`, tip: en ? 'Replaces a knocked-out crew member' : 'Ersetzt eine besiegte Figur' });
+      else if (overall) { const v = { uu: 2, u: 1, e: 0, d: -1, dd: -2 }[overall] || 0; if (v) R.push({ s: v, html: `${v > 0 ? PX_UP : PX_DOWN}<b>${v > 0 ? (en ? 'stronger' : 'stärker') : (en ? 'weaker' : 'schwächer')}</b>`, tip: (v > 0 ? (en ? 'Stronger than ' : 'Stärker als ') : (en ? 'Weaker than ' : 'Schwächer als ')) + crewData(out.id).name }); }
+    } else if (!full && !twin) R.push({ s: 1, html: `<span class="ge-hex">+</span><b>${en ? 'free seat' : 'freier Platz'}</b>`, tip: en ? 'You still have room on board' : 'Es ist noch Platz an Bord' });
+    const score = R.reduce((n, r) => n + r.s, 0);
+    const g = score >= 3 ? 'up' : score >= 1 ? 'ok' : 'down';
+    const best = R.slice().sort((a, b) => (g === 'down' ? a.s - b.s : b.s - a.s))[0];
+    const label = { up: en ? 'Strong for you' : 'Stark für dich', ok: en ? 'Fits' : 'Passt', down: en ? 'Not right now' : 'Gerade nicht' }[g];
+    return { g, mark: { up: '▲', ok: '◦', down: '▽' }[g], label, html: best ? best.html : '', tip: label + (R.length ? ': ' + R.map(r => r.tip).join(' · ') : '') };
   }
 
   // ---------- Hotfix: Wappen bei Rekruten (welche Boni bringt die Figur, was fällt beim Tausch weg) ----------
@@ -1844,7 +1872,11 @@ window.GL = window.GL || {};
         const pw = u => u.max * 0.5 + u.atk * 4 + u.spd * 2;
         const others = run.crew.filter(u => u.id !== run.captain);
         // Besiegte zuerst ersetzen, sonst die schwächste Figur
-        const autoWeak = (others.length ? others : run.crew).slice().sort((a, b) => ((a.hp <= 0) ? -1e6 : pw(a)) - ((b.hp <= 0) ? -1e6 : pw(b)))[0];
+        // Tausch-Vorschlag: Besiegte zuerst, sonst wer am wenigsten fehlt (Stärke + verlorene Boni-Stufen)
+        const tierLoss = u => { try { if (!GL.effects || !GL.effects.status) return 0; const tc = s => s.tiers.filter(x => s.count >= x.n).length;
+          const B = GL.effects.status(run.crew), A = GL.effects.status(run.crew.filter(x => x !== u)); return B.reduce((n, s, k) => n + Math.max(0, tc(s) - tc(A[k] || { count: 0, tiers: s.tiers })), 0); } catch (e) { return 0; } };
+        const keepVal = u => u.hp <= 0 ? -1e6 : pw(u) + 30 * tierLoss(u);
+        const autoWeak = (others.length ? others : run.crew).slice().sort((a, b) => keepVal(a) - keepVal(b))[0];
         // Tauschziel: selbst gewählt (Figur unten antippen) oder automatisch die schwächste
         const tt = ui.tvTarget && ui.tvTarget.key === run.seed + ':' + run.step ? run.crew.find(u => u.id === ui.tvTarget.id) : null;
         const picked = tt && tt.id !== run.captain ? tt : null;
@@ -1858,14 +1890,17 @@ window.GL = window.GL || {};
           const twin = mergeTwin(run, o);
           const can = !o.sold && (!full || twin) && gold >= price;
           const overall = weak && full && !twin ? cmp(pw(m), pw(weak)) : null;
-          return `<button class="tv-off pxf${o.sold ? ' sold' : can ? '' : ' cant'}${sel === i ? ' sel' : ''}${(o.stars || 1) >= 3 ? ' s3' : ''}${twin && !o.sold ? ' dup' : ''}${tip && tip.index === i && !o.sold ? ' rec' : ''}" data-act="tv-sel" data-i="${i}">
+          const rate = tvRate(run, o, d, m, twin, full && weak && weak.id !== run.captain ? weak : null, full, overall);
+          return `<button class="tv-off pxf tvr-${rate.g}${o.sold ? ' sold' : can ? '' : ' cant'}${sel === i ? ' sel' : ''}${(o.stars || 1) >= 3 ? ' s3' : ''}${twin && !o.sold ? ' dup' : ''}${tip && tip.index === i && !o.sold ? ' rec' : ''}" data-act="tv-sel" data-i="${i}">
             ${twin && !o.sold ? `<span class="tv-rec tv-dup">${PX_STAR_UP}Aufwerten</span>` : run.buddy === o.id && !o.sold ? '<span class="tv-rec tv-buddy">♥ Vertrauter</span>' : tip && tip.index === i && !o.sold ? '<span class="tv-rec">Tipp</span>' : ''}
             <span class="tv-stars">${stars(o.stars || 1)}</span>
             <i class="tv-spr">${GL.sprites.renderShaded ? GL.sprites.renderShaded(d) : GL.sprites.render(d)}</i>
+            ${o.sold ? '' : `<em class="tv-fitb fit-${rate.g}" title="${esc(rate.label)}">${rate.mark}</em>`}
             <b class="tv-name">${esc(d.name)}</b>
+            ${o.sold ? '' : `<small class="tv-why1 fit-${rate.g}" title="${esc(rate.tip)}">${rate.html}</small>`}
             <span class="tv-tags">${gainRow(run, d, weak && full && !twin && weak.id !== run.captain ? weak : null, false) || `${d.faction ? pxIcon(d.faction) : ''}${pxIcon(d.type)}${pxIcon(d.role)}`}</span>
             <small class="tv-sub">${d.faction ? esc(FAC_SHORT[d.faction] || '') + ' · ' : ''}Lv ${m.lvl}${profRef && GL.meta.bond(profRef, d.id) ? ` <em class="tv-bond" title="Vertraut: kennt deine Crew aus früheren Fahrten">♥${GL.meta.bond(profRef, d.id)}</em>` : ''}</small>
-            <span class="tv-cmp">${overall ? arrow(overall) : ''}</span>
+            <span class="tv-cmp">${full && weak && !twin && !o.sold && weak.id !== run.captain ? `<span class="tv-repl" title="${esc((GL.i18n && GL.i18n.lang() === 'en' ? 'replaces ' : 'ersetzt ') + crewData(weak.id).name)}">⇄<i>${GL.sprites.render(crewData(weak.id))}</i></span>` : ''}${overall ? arrow(overall) : ''}</span>
             <span class="tv-price${can || o.sold ? '' : ' no'}">${o.sold ? 'Gekauft' : `${GL.sprites.coin()} ${price}`}</span>
           </button>`;
         }).join('');
@@ -1977,6 +2012,7 @@ window.GL = window.GL || {};
           return `${e.wave === 2 && !(foes[i - 1] && foes[i - 1].wave === 2) ? '<span class="pv-wsep" aria-hidden="true">Welle 2</span>' : ''}<div class="pv-u foe${e.boss ? ' boss' : ''}${fk ? ' special' : ''}${e.wave === 2 ? ' w2' : ''}${e.elite2 ? ' elite2' : ''}${i === 0 ? ' is-front' : ''}" tabindex="0"
               data-tip="${esc(`${d.name}\n${e.hp} Leben · ${e.atk} Angriff${fk ? '\n' + fk.text : ''}${!fk && !e.boss && ability(e.id) ? '\n' + ability(e.id).name + ': ' + ability(e.id).text : ''}`)}">
             ${i === 0 ? '<i class="pv-front" aria-hidden="true"></i>' : ''}
+            ${boss && !e.boss && !e.mini && e.wave !== 2 && foes.indexOf(boss) > i ? `<i class="pv-guard" aria-hidden="true" title="Schützt den Anführer">${PX_GUARD}</i>` : ''}${(e.boss || e.mini) && i > 0 ? '<i class="pv-lead" aria-hidden="true">★</i>' : ''}
             <span class="pv-s">${GL.sprites.render(d)}</span>
             ${fk ? `<em class="pv-m fk fk-${fk.key}">${fk.tag}</em>` : !e.boss && !e.mini && ability(e.id) && d.art ? `<em class="pv-m fk">${esc(ability(e.id).name)}</em>` : ''}
             <i class="pv-hp"><b style="width:100%"></b></i>
@@ -1992,6 +2028,7 @@ window.GL = window.GL || {};
         if (huntedT) chips.push(`<span class="pz-chip gold" tabindex="0" data-tip="${esc(`Kopfgeld: ${huntedT.bounty} Mio. ฿\nSieg: Das Kopfgeld geht an deinen Kapitän, dazu ein Schatz.`)}"><i class="pz-ic">${GL.sprites.icon('node', 'elite')}</i><b>${huntedT.bounty} Mio. ฿</b></span>`);
         if (kind === 'raid') chips.push(`<span class="pz-chip epic" tabindex="0" data-tip="${esc('Raid-Beute\nGewinnst du, gehört dir eine erwachte Teufelsfrucht für immer. Verlierst du, entkommt deine Crew mit wenig Leben.')}"><i class="pz-ic">${GL.sprites.icon('node', 'fruit')}</i><b>Erwachte Frucht</b></span>`);
         if (foes.some(e => e.wave === 2)) chips.push(`<span class="pz-chip wave" tabindex="0" data-tip="${esc('2 Wellen\nNach der ersten Gruppe kommt Nachschub.')}"><i class="pz-ic">🌊</i><b>2 Wellen</b></span>`);
+        if (boss && foes.indexOf(boss) > 0) chips.push(`<span class="pz-chip guard" tabindex="0" data-tip="${esc('Formation\nDas Gefolge steht vorne und schützt den Anführer. Nahkämpfer müssen sich erst durchschlagen. Technik-Figuren schießen über die Köpfe hinweg, verlieren dabei aber etwas Wucht.')}"><i class="pz-ic">${PX_GUARD}</i><b>Gefolge schützt</b></span>`);
         chips.push(`<span class="pz-chip info" tabindex="0" data-tip="${esc('Aufstellung automatisch\nBrecher vorne, Helfer hinten.\n' + typeTip)}"><i class="pz-ic">ⓘ</i><b>Typen</b></span>`);
         const ab = boss && !run.pending.rival ? ability(boss.id) : null;
         const mech = ab ? `<div class="pz-mech" tabindex="0" data-tip="${esc(`${unitName(boss)}: ${ab.name}\n${ab.text}`)}"><span class="pz-mech-k">Fähigkeit</span><b>${esc(ab.name)}</b><span class="pz-tags">${abilityTag(ab)}</span><i class="pz-more" aria-hidden="true">ⓘ</i></div>` : '';
