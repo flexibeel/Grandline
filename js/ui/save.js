@@ -166,7 +166,9 @@ GL.daily = {
   // Heute schon gespielt? (dieses Gerät oder online, z. B. auf dem anderen Handy)
   done(profile) {
     const day = GL.daily.today();
-    if (profile.daily && profile.daily.d === day) return { local: true, score: profile.daily.score };
+    // Abgebrochen (keine Punkte)? Dann darf man es einmal neu versuchen
+    if (profile.daily && profile.daily.d === day && (profile.daily.score != null || (profile.daily.tries || 1) >= 2)) return { local: true, score: profile.daily.score };
+    if (profile.daily && profile.daily.d === day) return null;
     const st = GL.online && GL.online.state ? GL.online.state() : null;
     const me = st && st.uid && (st.rows || []).find(x => x.id === st.uid || (profile.nickname && x.name === profile.nickname));
     const e = me && me.duels && me.duels[GL.daily.code(day)];

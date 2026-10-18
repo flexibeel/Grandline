@@ -1,6 +1,14 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-19d', date: '18.10.', title: 'Segelkumpane, Pinnwand, lebendige Karten', items: [
+    'Visitenkarte neu: großes Porträt, klare Werte, Artefakte und Funde als Symbole, die Stammcrew mit Ausrüstung als Mini-Karten. Neu: gemeisterte Landgänge',
+    '⚓ Als Segelkumpan anheuern: Tipp in der Rangliste auf einen Piraten und nimm ihn in deine Freundesliste auf. Er bekommt Bescheid und kann dich zurück anheuern',
+    '📌 Pinnwand im Wiki: Feedback mit Häkchen landet als Zettel an der Korkwand, mit Sternen und deinem Namen',
+    'Charakterkarten mit kleiner Bühne je Bande (Strand, Nachtstadt, Wüste, Riff …), Figuren bewegen sich, warmer Pixelrahmen',
+    'Landgänge haben Stufen: Jeder Sieg macht den Ort schwerer, ab Stufe 2 kommt der Boss mit Gefolge',
+    'Kampf-Leiste und Sieg/Niederlage-Schild im Holz-Stil. K.o.-Figuren liegen scharf da',
+    'Tageskarte: Abgebrochen? Dann gibt es einen zweiten Versuch. Eine laufende Tageskarte wird einfach fortgesetzt' ] },
   { v: '2026-10-19c', date: '18.10.', title: 'Kampfszenen neu', items: [
     'Jede Insel hat jetzt ihre eigene Kampfkulisse: Stadt, Strand, Schiffsdeck, Steg, Dschungel, Schnee auf Drum, Wüste in Alabasta, Wolken auf Skypiea und mehr. Bosse kämpfen unter roter Flagge',
     'Figuren stehen auf festem Boden mit klarem Schatten, Besiegte liegen sauber mit K.O.-Schild. Keine halbdurchsichtigen Kreise mehr',

@@ -590,7 +590,9 @@
   // Tageskarte: gleicher Seed für alle, keine dauerhaften Boni, ein Versuch pro Tag
   function startDaily() {
     const day = GL.daily.today();
-    if (GL.daily.done(profile) || (run && run.daily === day)) { toast('<span><b>Heute schon gesegelt</b>Morgen gibt es eine neue Tageskarte.</span>'); return; }
+    if (run && run.daily === day && !GL.run.isFinished(run)) { ui.screen = null; ui.peek = false; draw(); return; }   // laufende Tageskarte einfach fortsetzen
+    if (GL.daily.done(profile)) { toast('<span><b>Heute schon gesegelt</b>Morgen gibt es eine neue Tageskarte.</span>'); return; }
+    const retry = profile.daily && profile.daily.d === day && profile.daily.score == null;
     stopAnim();
     ui.sheet = null; ui.album = null;
     run = GL.run.create(GL.daily.seed(day), { heat: 0, self: selfNow() });
@@ -598,9 +600,12 @@
     run.daily = day;
     // Serie: gestern auch gespielt?
     const y = new Date(Date.now() - 864e5); const yd = y.getFullYear() + '-' + String(y.getMonth() + 1).padStart(2, '0') + '-' + String(y.getDate()).padStart(2, '0');
-    profile.dailyStreak = profile.daily && profile.daily.d === yd ? (profile.dailyStreak || 1) + 1 : 1;
-    profile.daily = { d: day, score: null };
-    profile.dailyPay = (profile.dailyPay || []).concat([day]).slice(-7);
+    if (retry) { profile.daily.tries = (profile.daily.tries || 1) + 1; toast('<span><b>Zweiter Versuch</b>Deine abgebrochene Tageskarte startet neu. Diesmal zählt sie.</span>'); }
+    else {
+      profile.dailyStreak = profile.daily && profile.daily.d === yd ? (profile.dailyStreak || 1) + 1 : 1;
+      profile.daily = { d: day, score: null, tries: 1 };
+      profile.dailyPay = (profile.dailyPay || []).concat([day]).slice(-7);
+    }
     ui.newBest = false; ui.lastBerry = null; ui.restartArmed = false;
     saveProfile();
     GL.save.storeRun(run);
@@ -857,12 +862,22 @@
     const hide = () => { if (tip) tip.remove(); tip = null; cur = null; };
     document.addEventListener('pointerover', e => {
       if (e.pointerType !== 'mouse') return;
-      const chip = e.target.closest('.cg-bagit .cg-chip[data-uid]');
+      const chip = e.target.closest('.cg-bagit .cg-chip[data-uid], .pc2-gear .cg-chip[data-row]');
       if (!chip) { if (tip && !e.target.closest('.gtip-float')) hide(); return; }
-      if (cur === chip.dataset.uid) return;
-      hide(); cur = chip.dataset.uid;
-      const crewId = (document.querySelector('.dress-pop') && ui.dress && ui.dress.id) || null;
-      const html = GL.ui.gearTip(profile, cur, crewId); if (!html) return;
+      const key = chip.dataset.uid || (chip.dataset.row + ':' + chip.dataset.i + ':' + chip.dataset.k);
+      if (cur === key) return;
+      hide(); cur = key;
+      let html = '';
+      if (chip.dataset.row) {
+        // Ausrüstung eines anderen Spielers (Visitenkarte)
+        const row = ((GL.online && GL.online.state().rows) || []).find(r => r.id === chip.dataset.row);
+        const g = row && row.squad && row.squad[+chip.dataset.i] && (row.squad[+chip.dataset.i].gear || [])[+chip.dataset.k];
+        html = g ? GL.ui.gearTipItem(g) : '';
+      } else {
+        const crewId = (document.querySelector('.dress-pop') && ui.dress && ui.dress.id) || null;
+        html = GL.ui.gearTip(profile, cur, crewId);
+      }
+      if (!html) return;
       tip = document.createElement('div'); tip.className = 'gtip-float'; tip.innerHTML = html; document.body.appendChild(tip);
       const r = chip.getBoundingClientRect(), tw = tip.offsetWidth, th = tip.offsetHeight;
       let x = r.right + 10, y = r.top - 4;
@@ -1156,6 +1171,7 @@
       }
       case 'wiki-open': case 'wiki-tab': {
         ui.wikiTab = el.dataset.v || ui.wikiTab || 'basis';
+        if (ui.wikiTab === 'pinnwand' && GL.online.pinboard) GL.online.pinboard().then(l => { GL.ui.setPins(l); const c = document.querySelector('#fpop .fpop-card'); if (c && ui.wikiTab === 'pinnwand') { const tmp = document.createElement('div'); tmp.innerHTML = GL.ui.wikiPop('pinnwand', profile); c.replaceWith(tmp.firstElementChild); } });
         if (!profile.wikiSeen) { profile.wikiSeen = 1; saveProfile(); }
         if (type === 'wiki-tab') { const c = document.querySelector('#fpop .fpop-card'); if (c) { const h = GL.ui.wikiPop(ui.wikiTab, profile); const tmp = document.createElement('div'); tmp.innerHTML = h; c.replaceWith(tmp.firstElementChild); break; } }
         openGearPop(GL.ui.wikiPop(ui.wikiTab, profile));
@@ -1277,6 +1293,32 @@
       }
       case 'squad-back': if (ui.squadFight) clearTimeout(ui.squadFight.timer); ui.squadFight = null; draw(); break;
       case 'lb-view': ui.viewPlayer = el.dataset.id; draw(); break;
+      case 'kumpan-add': {
+        // Segelkumpan anheuern: Freundescode aus der Online-ID, in die Liste, Bescheid geben, kleines Fest
+        const st = GL.online.state(), row = (st.rows || []).find(r => r.id === el.dataset.id);
+        if (!row || row.id === st.uid || !GL.friends) break;
+        const c = GL.friends.code(row.id);
+        if (GL.friends.add(profile, c)) {
+          saveProfile();
+          if (GL.online.friendSend) GL.online.friendSend(row.id, profile.nickname || 'Pirat', GL.friends.mine());
+          if (GL.sfx) GL.sfx.play('found');
+          ui.viewPlayer = null; ui.lastStage = null; draw();
+          openGearPop(GL.ui.kumpanPop(profile, row));
+        }
+        break;
+      }
+      case 'kumpan-back': {
+        const c = el.dataset.code;
+        if (GL.friends && GL.friends.add(profile, c)) {
+          saveProfile(); if (GL.sfx) GL.sfx.play('found');
+          const st = GL.online.state(), row = (st.rows || []).find(r => GL.friends.norm(GL.friends.code(r.id)) === GL.friends.norm(c));
+          if (row && GL.online.friendSend) GL.online.friendSend(row.id, profile.nickname || 'Pirat', GL.friends.mine());
+          el.outerHTML = '<span class="pc2-kb">♥ Segelkumpan</span>';
+          toast(`<span><b>⚓ Zurück angeheuert</b>${esc2(el.dataset.name || 'Pirat')} ist jetzt dein Segelkumpan.</span>`);
+          ui.lastStage = null; draw();
+        }
+        break;
+      }
       case 'lb-view-close': if (ui.squadFight) clearTimeout(ui.squadFight.timer); ui.viewPlayer = null; ui.squadFight = null; draw(); break;
       case 'noop': break;
       case 'char-part': ui.draft.char.look[el.dataset.part] = el.dataset.v; draw(); break;
@@ -1435,7 +1477,8 @@
       case 'fb-send': {
         if (!ui.fbStars) break;
         const t = document.getElementById('fb-text');
-        GL.online.sendFeedback(ui.fbStars, t ? t.value.trim() : '', (profile.stats && profile.stats.runs) || 0, GL.meta.rankIndex(profile) + 1);
+        const pinEl = document.getElementById('fb-pin');
+        GL.online.sendFeedback(ui.fbStars, t ? t.value.trim() : '', (profile.stats && profile.stats.runs) || 0, GL.meta.rankIndex(profile) + 1, !!(pinEl && pinEl.checked), profile.nickname);
         closeFeedback(true);
         toast('<span><b>Danke!</b>Dein Feedback ist angekommen.</span>');
         break;
@@ -2018,6 +2061,21 @@
       });
     };
     setTimeout(checkBottles, 8000);
+    // Segelkumpane: wer hat dich angeheuert?
+    const checkKumpan = () => {
+      if (!profile.nickname || !GL.online.friendInbox) return;
+      GL.online.friendInbox().then(list => {
+        if (!list || !list.length) return;
+        const show = () => {
+          if (document.getElementById('fpop') || (GL.story && GL.story.active()) || (run && !GL.run.isFinished(run))) { setTimeout(show, 4000); return; }
+          if (GL.sfx) GL.sfx.play('found');
+          openGearPop(GL.ui.kumpanInPop(profile, list));
+        };
+        show();
+      });
+    };
+    setTimeout(checkKumpan, 9500);
+    setInterval(checkKumpan, 300000);
     setInterval(checkBottles, 300000);
     // App wieder vorne: neuere Version laden bzw. Spielstand vom anderen Gerät holen
     let lastSync = Date.now();

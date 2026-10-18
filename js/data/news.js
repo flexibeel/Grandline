@@ -4,7 +4,7 @@
 window.GL = window.GL || {};
 GL.data = GL.data || {};
 GL.data.news = {
-  v: '2026-10-19c',
+  v: '2026-10-19d',
   slides: [
     { art: { fa: 'flag' }, tone: 'gold',
       kicker: ['Großes Update', 'Big update'], title: ['Grand Line hat sich rausgeputzt', 'Grand Line got a makeover'],
@@ -18,6 +18,9 @@ GL.data.news = {
     { art: { crew: ['zorro', 'sanji'], stars: true }, tone: 'wood',
       kicker: ['Stammcrew', 'Home crew'], title: ['Karten ziehen, Crew ankleiden', 'Drag cards, dress your crew'],
       text: ['Deine Stammcrew steht als Karten auf dem Deck. Ziehen zum Aufstellen, antippen zum Ankleiden. Gleiche Figuren in der Taverne werden zu ★★ und ★★★.', 'Your home crew stands on deck as cards. Drag to line up, tap to dress up. Duplicate crew in the tavern merge into ★★ and ★★★.'] },
+    { art: { crew: ['ruffy', 'lysop'] }, tone: 'warm',
+      kicker: ['Freunde', 'Friends'], title: ['Segelkumpane & Pinnwand', 'Sailing buddies & pinboard'],
+      text: ['In der Rangliste kannst du Piraten als Segelkumpan anheuern, sie bekommen Bescheid. Im Wiki hängt eine Pinnwand mit Zetteln der Crew.', 'Hire pirates from the leaderboard as sailing buddies, they get notified. The wiki has a pinboard with notes from the crew.'] },
     { art: { crew: ['smoker', 'ruffy'] }, tone: 'gold',
       kicker: ['Kampf', 'Battle'], title: ['Kampfszenen neu', 'New battle scenes'],
       text: ['Jede Insel hat ihre eigene Kulisse: Strand, Schnee, Wüste, Wolken. Mit einer Hand spielbar: Turbo, Ende, Weiter, alles am selben Knopf.', 'Every island has its own backdrop: beach, snow, desert, clouds. One-handed: turbo, end, continue, all on the same button.'] },

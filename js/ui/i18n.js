@@ -343,6 +343,7 @@ window.GL = window.GL || {};
     if (D[core] != null) out = D[core];
     else if (X && X[core] != null) out = X[core];
     else for (const [re, rep] of P) { if (re.test(core)) { const o = core.replace(re, rep); if (o !== core) { out = o; break; } } }
+    if (out == null) for (const [re, rep] of (GL.i18nExtraP || [])) { if (re.test(core)) { const o = core.replace(re, rep); if (o !== core) { out = o; break; } } }
     if (out == null) out = fromTemplate(core);
     if (out == null && core.includes(' · ')) { const parts = core.split(' · '); const t = parts.map(x => tr(x)); if (t.some((x, i) => x !== parts[i])) out = t.join(' · '); }
     const res = out == null ? text : lead + out + trail;

@@ -53,7 +53,7 @@ window.GL = window.GL || {};
       if (Array.isArray(r.vaultTop)) r.vaultTop = r.vaultTop.filter(v => v && typeof v === 'object' && (GL.data.artifacts || []).some(a => a.id === v.id)).slice(0, 6).map(v => ({ id: v.id, lvl: num(v.lvl, 0, 99) }));
       if (Array.isArray(r.showcase)) r.showcase = r.showcase.filter(x => typeof x === 'string').slice(0, 3);
       if (Array.isArray(r.isles)) r.isles = r.isles.filter(x => typeof x === 'string').slice(0, 80);
-      ['score', 'rankXp', 'heatMax', 'artifacts', 'bestStep', 'pets', 'endlessBest', 'endlessLoops', 'seasDone', 'squadPower', 'squadW', 'squadRating', 'captains', 'invites', 'wins', 'runs', 'topBounty', 'bestDmg', 'maxHit', 'totalDmg', 'kos', 'crits', 'bossKills'].forEach(k => { if (r[k] != null) r[k] = num(r[k], 0, 1e12); });
+      ['score', 'rankXp', 'heatMax', 'artifacts', 'bestStep', 'pets', 'endlessBest', 'endlessLoops', 'seasDone', 'squadPower', 'squadW', 'squadRating', 'captains', 'invites', 'wins', 'runs', 'topBounty', 'bestDmg', 'maxHit', 'totalDmg', 'kos', 'crits', 'bossKills', 'landgang', 'landOrte'].forEach(k => { if (r[k] != null) r[k] = num(r[k], 0, 1e12); });
       if (Array.isArray(r.squad)) r.squad = r.squad.filter(x => x && typeof x === 'object' && (x.id === 'self' || x.id === 'rival' || GL.data.crew.some(c => c.id === x.id))).slice(0, 4)
         .map(x => Object.assign(x, { lvl: num(x.lvl, 1, 999), max: num(x.max, 1, 1e6), hp: num(x.hp != null ? x.hp : x.max, 0, 1e6), atk: num(x.atk, 0, 1e5), spd: num(x.spd, 0, 1e4), gear: Array.isArray(x.gear) ? x.gear.filter(g => g && typeof g === 'object' && (GL.cgear ? (g.t ? GL.data.crewGear.trophyPerks[g.t] && Object.prototype.hasOwnProperty.call(GL.data.crewGear.trophyPerks, g.t) : GL.cgear.base(g.b)) : true)).slice(0, 4).map(g => { const A = (GL.data.crewGear || {}).affixes || {}, a = {}; Object.keys(g.a || {}).forEach(k => { if (Object.prototype.hasOwnProperty.call(A, k) && isFinite(+g.a[k])) a[k] = +g.a[k]; }); return Object.assign(g, { a, r: Math.max(0, Math.min(3, Math.round(+g.r || 0))), m: Object.prototype.hasOwnProperty.call(A, g.m) ? g.m : undefined }); }) : undefined }));
     });
@@ -368,6 +368,8 @@ window.GL = window.GL || {};
       squadOn: GL.meta.squadUnlocked(profile),
       squadRating: profile.squadRating == null ? 1000 : profile.squadRating,
       captains: (profile.unlocked || []).length + GL.config.starters.length,
+      landgang: Object.values(profile.dungeons || {}).reduce((n, d) => n + ((d && d.clears) || 0), 0),
+      landOrte: Object.values(profile.dungeons || {}).filter(d => d && d.clears > 0).length,
       refBy: profile.refBy || null,
       invites: (profile.invites || []).length,
       updated: new Date().toISOString()
@@ -419,12 +421,28 @@ window.GL = window.GL || {};
   }
 
   // ---------- Feedback (Tabelle feedback, siehe tools/update-2026-10-17.sql) ----------
-  async function sendFeedback(stars, comment, runs, rank) {
+  async function sendFeedback(stars, comment, runs, rank, pin, name) {
     if (!client || !state.uid || (GL.sandbox && GL.sandbox.on())) return false;
+    const row = { stars, comment: comment ? String(comment).slice(0, 300) : null, runs, rank };
+    if (pin && comment) { row.pin = true; row.name = String(name || 'Pirat').slice(0, 24); }
     try {
-      const { error } = await client.from('feedback').insert({ stars, comment: comment ? String(comment).slice(0, 300) : null, runs, rank });
+      let { error } = await client.from('feedback').insert(row);
+      if (error && row.pin) { delete row.pin; delete row.name; ({ error } = await client.from('feedback').insert(row)); }   // ohne Pinnwand-Spalten (altes SQL)
       return !error;
     } catch (e) { return false; }
+  }
+  // Pinnwand: öffentliche Rückmeldungen (nur die, die der Spieler freigegeben hat), höchstens alle 5 Minuten neu laden
+  let pinCache = null, pinAt = 0;
+  async function pinboard() {
+    if (pinCache && Date.now() - pinAt < 300000) return pinCache;
+    if (!client) return [];
+    try {
+      const { data, error } = await client.from('feedback').select('id,name,stars,comment,created_at').eq('pin', true).order('created_at', { ascending: false }).limit(40);
+      if (error || !data) return pinCache || [];
+      pinCache = data.map(x => ({ id: x.id, name: String(x.name || 'Pirat').replace(/[<>&"'`\u0000-\u001f]/g, '').slice(0, 24), stars: Math.max(1, Math.min(5, Number(x.stars) || 0)), text: String(x.comment || '').replace(/[<>`\u0000-\u0008]/g, '').slice(0, 300), at: x.created_at })).filter(x => x.text);
+      pinAt = Date.now();
+      return pinCache;
+    } catch (e) { return pinCache || []; }
   }
 
   // ---------- Stammcrew-Verteidigung (Tabelle duel_events, siehe tools/update-2026-10-17.sql) ----------
@@ -462,6 +480,27 @@ window.GL = window.GL || {};
       data.forEach((x, i) => { data[i] = safeData(x); data[i].from_name = String(data[i].from_name || 'Pirat').slice(0, 24); });
       try { await client.from('bottle_post').delete().in('id', data.map(x => x.id)); } catch (e) { /* egal */ }
       return data;
+    } catch (e) { return []; }
+  }
+
+  // ---------- Segelkumpane (Tabelle friend_events, siehe tools/segelkumpan.sql) ----------
+  // Wer jemanden anheuert, schickt eine kleine Nachricht mit Name und Freundescode. Ohne Tabelle passiert einfach nichts.
+  const KUMPAN_CODE = /^[2-9A-HJKMNP-Z]{6}$/;
+  async function friendSend(toId, name, code) {
+    if (!client || !state.uid || (GL.sandbox && GL.sandbox.on())) return false;
+    if (!/^[0-9a-f-]{36}$/i.test(String(toId || '')) || toId === state.uid) return false;
+    const c = String(code || '').toUpperCase().replace(/[^0-9A-Z]/g, '');
+    if (!KUMPAN_CODE.test(c)) return false;
+    try { const { error } = await client.from('friend_events').insert({ to_id: toId, from_name: String(name || 'Pirat').replace(/[<>"'`]/g, '').slice(0, 24), from_code: c }); return !error; } catch (e) { return false; }
+  }
+  async function friendInbox() {
+    if (!client || !state.uid || (GL.sandbox && GL.sandbox.on())) return [];
+    try {
+      const { data, error } = await client.from('friend_events').select('id,from_name,from_code,created_at').eq('to_id', state.uid).order('created_at', { ascending: true }).limit(20);
+      if (error || !data || !data.length) return [];
+      try { await client.from('friend_events').delete().in('id', data.map(x => x.id)); } catch (e) { /* egal */ }
+      return data.map(x => ({ name: String(x.from_name || 'Pirat').replace(/[<>"'`\u0000-\u001f]/g, '').slice(0, 24) || 'Pirat', code: String(x.from_code || '').toUpperCase().replace(/[^0-9A-Z]/g, '') }))
+        .filter(x => KUMPAN_CODE.test(x.code));
     } catch (e) { return []; }
   }
 
@@ -515,6 +554,6 @@ window.GL = window.GL || {};
     try { await pullSave(); await codeSync(); if (store && store.refresh) await store.refresh(); } catch (e) { /* egal */ }
   }
   const refresh = () => (store && store.refresh ? store.refresh().catch(() => {}) : Promise.resolve());
-  GL.online = { refresh, init, submit, rename, register, pushSave, resync, duelReport, duelInbox, bottleSend, bottleInbox, sendFeedback, linkEmail, loginEmail, verifyCode, logout, wipe, liveFields, codeLoad, codeSave, codeClaim,
+  GL.online = { pinboard, refresh, init, submit, rename, register, pushSave, resync, duelReport, duelInbox, bottleSend, bottleInbox, friendSend, friendInbox, sendFeedback, linkEmail, loginEmail, verifyCode, logout, wipe, liveFields, codeLoad, codeSave, codeClaim,
     onRemoteProfile(fn) { onRemote = fn; }, state: () => state, onChange(fn) { listeners.push(fn); } };
 })();

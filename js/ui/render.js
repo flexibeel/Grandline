@@ -384,6 +384,30 @@ window.GL = window.GL || {};
     let s = String(t || '').replace(/\s*\([^)]*\)/g, '').split(/(?<=[.!])\s/)[0].replace(/[.!]$/, '');
     return s.length > 74 ? s.slice(0, 72).replace(/\s+\S*$/, '') + '…' : s;
   }
+  // Kleine lebendige Bühne hinter jeder Figur: Thema nach Bande, sonst nach Kampfstil
+  const CARD_THEME = { strohhut: 'beach', marine: 'navy', cp9: 'city', baroque: 'desert', weissbart: 'whale', samurai: 'dusk', buggy: 'circus', fischmensch: 'reef', revolution: 'wind', rothaar: 'sunset', supernova: 'bubble', thriller: 'grave' };
+  const TYPE_THEME = { kraft: 'beach', klinge: 'bamboo', technik: 'town' };
+  function cardDelay(id) { let h = 0; for (const c of String(id)) h = (h * 31 + c.charCodeAt(0)) >>> 0; return -((h % 23) / 10).toFixed(1); }
+  function cardStage(d) {
+    const th = CARD_THEME[d.faction] || TYPE_THEME[d.type] || 'beach';
+    const props = {
+      beach: '<i class="cs-ship"></i><i class="cs-palm"></i>',
+      navy: '<i class="cs-flag"></i><i class="cs-post"></i>',
+      city: '<i class="cs-moon"></i><i class="cs-house a"></i><i class="cs-house b"></i>',
+      desert: '<i class="cs-dune"></i><i class="cs-cactus"></i>',
+      whale: '<i class="cs-ship big"></i>',
+      dusk: '<i class="cs-cliff"></i><i class="cs-bird"></i>',
+      circus: '<i class="cs-tent"></i>',
+      reef: '<i class="cs-coral a"></i><i class="cs-coral b"></i><i class="cs-bub a"></i><i class="cs-bub b"></i>',
+      wind: '<i class="cs-hill"></i><i class="cs-leaf a"></i><i class="cs-leaf b"></i>',
+      sunset: '<i class="cs-ship"></i>',
+      bubble: '<i class="cs-bub a"></i><i class="cs-bub b"></i><i class="cs-bub c"></i>',
+      grave: '<i class="cs-moon"></i><i class="cs-stone"></i><i class="cs-tree"></i>',
+      bamboo: '<i class="cs-bam a"></i><i class="cs-bam b"></i><i class="cs-bam c"></i>',
+      town: '<i class="cs-house a"></i><i class="cs-house b"></i><i class="cs-lamp"></i>'
+    }[th] || '';
+    return `<span class="c3-stage cs-${th}" aria-hidden="true"><i class="cs-cloud"></i><i class="cs-cloud b"></i><i class="cs-sea"></i>${props}<i class="cs-ground"></i><i class="cs-spark"></i></span>`;
+  }
   function crewCardFace(d, m, opts) {
     const o = opts || {};
     const a = ability(d.id);
@@ -396,8 +420,8 @@ window.GL = window.GL || {};
     return `<span class="card-face cf3 fac-${d.faction || 'none'} ty-${d.type}${o.gold ? ' frame-gold' : ''}${rare ? ' shiny' : ''}">
       <span class="c3-top">
         <span class="c3-head"><span class="c3-fac">${fac ? pxIcon(d.faction, 'sm') + esc(FAC_SHORT[d.faction] || fac.name) : 'Ohne Bande'}</span>${o.stars ? stars(o.stars) : ''}</span>
-        <span class="c3-ped" aria-hidden="true"></span>
-        <span class="c3-sprite">${GL.sprites.renderShaded ? GL.sprites.renderShaded(d) : GL.sprites.render(d)}</span>
+        ${cardStage(d)}
+        <span class="c3-sprite" style="--cd:${cardDelay(d.id)}s"><i class="c3-shadow" aria-hidden="true"></i>${GL.sprites.renderShaded ? GL.sprites.renderShaded(d) : GL.sprites.render(d)}</span>
         ${o.lvl ? `<em class="c3-lv">Lv ${o.lvl}</em>` : ''}
       </span>
       <span class="c3-name">${d.name}</span>
@@ -898,7 +922,8 @@ window.GL = window.GL || {};
   function ffButton(anim) {
     const turbo = (anim.speed || 2) >= 4;
     const ready = !anim.t0 || Date.now() - anim.t0 >= 1500;
-    return `<button class="fbar-ff${turbo ? ' end' : ''}${turbo && !ready ? ' wait' : ''}" data-act="ff" aria-label="${turbo ? 'Zum Ergebnis springen' : 'Turbo'}"><b>${turbo ? 'Ende' : 'Turbo'}</b><small>${turbo ? 'zum Ergebnis' : 'schneller'}</small><i class="ff-ico">${turbo ? '⏭' : '⏩'}</i></button>`;
+    const ch = n => `<svg class="ff-px" viewBox="0 0 ${n * 5} 7" shape-rendering="crispEdges" aria-hidden="true">${Array.from({ length: n }, (_, k) => `<path transform="translate(${k * 5} 0)" d="M0 0h1v1h1v1h1v1h1v1h-1v1h-1v1h-1v1h-1z"/>`).join('')}${turbo ? `<rect x="${n * 5 - 1}" y="0" width="1" height="7"/>` : ''}</svg>`;
+    return `<button class="fbar-ff${turbo ? ' end' : ''}${turbo && !ready ? ' wait' : ''}" data-act="ff" aria-label="${turbo ? 'Zum Ergebnis springen' : 'Turbo'}"><b>${turbo ? 'Ende' : 'Turbo'}</b><small>${turbo ? 'zum Ergebnis' : 'schneller'}</small><i class="ff-ico">${ch(turbo ? 2 : 2)}</i></button>`;
   }
   function speedLabel(n) {
     // Pixel-Vorspulpfeile: je schneller, desto mehr Pfeile leuchten
@@ -1336,7 +1361,7 @@ window.GL = window.GL || {};
           log = b.win ? 'Sieg! Die Gegner sind besiegt.'
             : b.kind === 'raid' ? 'Der Raid ist gescheitert. Deine Crew entkommt mit letzter Kraft.'
             : 'Niederlage. Deine Crew ist gefallen.';
-          controls = `<div class="fbar fbar3 is-done"><div class="fbar-seg" role="group" aria-label="Tempo">${seg}</div>${sfxBtn('fc-sfx')}<button class="fbar-ff go" data-act="continue"><b>Weiter</b><small>${keyHint('Leertaste')}</small><i class="ff-ico">›</i></button></div>`;
+          controls = `<div class="fbar fbar3 is-done"><div class="fbar-seg" role="group" aria-label="Tempo">${seg}</div>${sfxBtn('fc-sfx')}<button class="fbar-ff go" data-act="continue"><b>Weiter</b><small>zur Route</small><i class="ff-ico"><svg class="ff-px" viewBox="0 0 5 7" shape-rendering="crispEdges" aria-hidden="true"><path d="M0 0h1v1h1v1h1v1h1v1h-1v1h-1v1h-1v1h-1z"/></svg></i></button></div>`;
         } else {
           log = anim.log;
           controls = `<div class="fbar fbar3"><div class="fbar-seg" role="group" aria-label="Tempo">${seg}</div>${sfxBtn('fc-sfx')}${ffButton(anim)}</div>`;
@@ -1861,6 +1886,34 @@ window.GL = window.GL || {};
     const rid = GL.config.rarities[Math.max(0, it.r)].id;
     return `<span class="vc-chip ir-${rid}">${itemIcon(it)}<b>${esc(d.name || it.id)}${it.lvl ? ' +' + it.lvl : ''}</b>${rarityPill(it.r)}</span>`;
   }
+  // Visitenkarte: Artefakte und Funde nur als Symbol-Kacheln, Details im Tooltip (PC: darüberfahren, Handy: antippen)
+  function vaultTile(v) {
+    const art = (GL.data.artifacts || []).find(a => a.id === v.id);
+    if (!art) return '';
+    const tip = `${art.name} · Stufe ${v.lvl}\n${fmtArt(art, GL.run.artValue(art, v.lvl || 1))}`;
+    return `<span class="pc2-ic" data-tip="${esc(tip)}" tabindex="0">${artIcon(art)}<em class="pc2-lv">${v.lvl}</em></span>`;
+  }
+  function chestTile(it) {
+    const d = (GL.data.items || []).find(x => x.id === it.id) || {};
+    const R = GL.config.rarities[Math.max(0, it.r)] || {};
+    const tip = `${d.name || it.id}${it.lvl ? ' +' + it.lvl : ''} · ${R.name || ''}${itemStatText(it) ? '\n' + itemStatText(it) : ''}`;
+    return `<span class="pc2-ic ir-${R.id || ''}" data-tip="${esc(tip)}" tabindex="0">${itemIcon(it)}${it.lvl ? `<em class="pc2-lv">+${it.lvl}</em>` : ''}</span>`;
+  }
+  // Stammcrew eines anderen Spielers: Mini-Karten mit Ausrüstung (Seltenheitsfarbe, Tooltip beim Darüberfahren, Antippen öffnet die Karte)
+  function squadMinis(x) {
+    return `<div class="pc2-crew">${(x.squad || []).map((r, i) => `<div class="pc2-m">
+      <span class="pc2-m-spr">${squadSprite(r)}</span><b>${esc(String(r.name || '').split(' ')[0])}</b><small>Lv ${r.lvl || 1}</small>
+      <span class="pc2-m-st"><em>♥${r.max || 0}</em><em>⚔${r.atk || 0}</em></span>
+      <span class="pc2-gear">${(r.gear || []).length ? r.gear.map((g, k) => cgChip(g, 'cg-peek', `data-row="${esc(x.id)}" data-i="${i}" data-k="${k}"`)).join('') : '<small class="pc2-nog">ohne Ausrüstung</small>'}</span>
+    </div>`).join('')}</div>`;
+  }
+  // Tooltip für ein Ausrüstungsteil eines anderen Spielers (gleicher Stil wie der Vergleich in der eigenen Truhe)
+  function gearTipItem(it) {
+    if (!it || !GL.cgear) return '';
+    let lines = []; try { lines = GL.cgear.lines(it); } catch (e) { lines = []; }
+    return `<div class="gtip cr-${GL.cgear.RID[it.r] || ''}"><b>${esc(GL.cgear.name(it))}</b><small>${GL.cgear.RNAME[it.r] || ''} · ⚔ ${GL.cgear.power(it)}</small>
+      <div class="gc">${lines.map(l => `<span class="gc-row${l.main ? ' up' : ''}"><span>${esc(l.text)}</span></span>`).join('')}</div></div>`;
+  }
   function playerCard(x, isMe, ui) {
     const sf = ui && ui.squadFight && ui.squadFight.id === x.id ? ui.squadFight : null;
     const res = sf ? sf.res : null;
@@ -1875,7 +1928,7 @@ window.GL = window.GL || {};
     }
     const meOn = GL.meta.squadUnlocked(ui && ui.profile ? ui.profile : {});
     const sq = (x.squadOn || x.npc) && (x.squad || []).length
-      ? `<div class="pcard-sec"><b>Stammcrew ${leagueChip(x.squadRating, true)} ${x.squadPower ? `<small>⚔ ${x.squadPower} Stärke</small>` : ''}</b>${squadRow(x.squad)}${(x.squad || []).some(r => (r.gear || []).length) ? `<div class="pc-gear">${x.squad.map((r, i) => (r.gear || []).length ? `<span class="pc-gear-row"><small>${esc(r.name)}</small>${r.gear.map((g, k) => cgChip(g, 'cg-peek', `data-row="${esc(x.id)}" data-i="${i}" data-k="${k}"`)).join('')}</span>` : '').join('')}</div>` : ''}
+      ? `<div class="pcard-sec"><b>Stammcrew ${leagueChip(x.squadRating, true)} ${x.squadPower ? `<small>⚔ ${x.squadPower} Stärke</small>` : ''}</b>${squadMinis(x)}
           ${isMe ? '' : meOn ? `<button class="btn pcard-duel" data-act="squad-fight" data-id="${esc(x.id)}">⚔ ${res ? 'Nochmal herausfordern' : 'Herausfordern'}</button>` : '<small class="muted">Herausfordern geht nach deinem ersten gewonnenen Run oder ab Rang 5.</small>'}</div>`
       : '';
     if (res) return `<div class="pcard-bg" data-act="lb-view-close"><div class="pcard" data-act="noop">
@@ -1888,31 +1941,78 @@ window.GL = window.GL || {};
       </div></div>`;
     return playerCardBody(x, isMe, sq);
   }
+  // Visitenkarte: großer Kopf mit Porträt, Segelkumpan-Knopf, Werte-Kacheln mit Symbolen, dann Sammlungen und Stammcrew
+  function kumpanState(x, isMe) {
+    if (isMe || !x || !x.id || x.npc || !GL.friends) return { show: false };
+    const c = GL.friends.norm(GL.friends.code(x.id));
+    const mine = (profRef && profRef.friends) || [];
+    return { show: c.length === 6, code: c, friend: mine.includes(c) };
+  }
   function playerCardBody(x, isMe, sq) {
     const fmt = n => Number(n || 0).toLocaleString('de-DE');
     const cap = crewData(x.captain || (x.best && x.best.captain));
+    const k = kumpanState(x, isMe);
+    const tile = (ico, v, lbl, cls, sub) => `<div class="pc2-t${cls ? ' ' + cls : ''}"><i class="pc2-i">${ico}</i><b>${v}</b><span>${lbl}</span>${sub ? `<small>${sub}</small>` : ''}</div>`;
+    const lg = Number(x.landgang || 0), lo = Number(x.landOrte || 0);
+    const kumpan = !k.show ? '' : k.friend
+      ? `<div class="pc2-kumpan is"><span class="pc2-kb">♥ Segelkumpan</span><small>Ihr seid zusammen unterwegs. Entfernen geht in deiner Freundesliste.</small></div>`
+      : `<button class="pc2-kumpan-btn" data-act="kumpan-add" data-id="${esc(x.id)}"><span class="pc2-kico">⚓</span><span><b>Als Segelkumpan anheuern</b><small>${esc(x.name || 'Pirat')} landet in deiner Freundesliste und bekommt Bescheid</small></span></button>`;
     return `<div class="pcard-bg" data-act="lb-view-close">
-      <div class="pcard" data-act="noop">
-        <button class="link pcard-close" data-act="lb-view-close">✕</button>
-        <div class="pcard-top">
-          <span class="pcard-cap">${x.look ? portrait(x.look, x.cos, 'lg') : cap ? GL.sprites.render(cap) : ''}</span>
-          <b class="pcard-name">${medal(GL.meta.rankIndex({ rankXp: x.rankXp || 0 }), 'small')} ${esc(x.name || 'Unbekannter Pirat')}${onDot(x)} ${badgeIcon(x.cos, true)}${isMe ? ' <em>du</em>' : ''}</b>
-          ${x.cos && x.cos.star ? '<span class="admin-tag big">★ Entwickler · hat dieses Spiel gebaut</span>' : ''}
-          <small>${x.cos && x.cos.title ? esc(titleName(x.cos.title)) + ' · ' : ''}${esc(x.rank || '')}</small>
+      <div class="pcard pc2" data-act="noop">
+        <button class="pop-x pc2-x" data-act="lb-view-close" aria-label="Schließen"><span>✕</span></button>
+        <div class="pc2-head">
+          <span class="pc2-por">${x.look ? portrait(x.look, x.cos, 'lg') : cap ? GL.sprites.render(cap) : ''}</span>
+          <div class="pc2-id">
+            <b class="pc2-name">${medal(GL.meta.rankIndex({ rankXp: x.rankXp || 0 }), 'small')} ${esc(x.name || 'Unbekannter Pirat')}${onDot(x)} ${badgeIcon(x.cos, true)}${isMe ? ' <em class="pc2-you">du</em>' : ''}</b>
+            <small class="pc2-sub">${x.cos && x.cos.title ? `<em class="pc2-title">${esc(titleName(x.cos.title))}</em>` : ''}${esc(x.rank || '')}</small>
+            <span class="pc2-chips">${x.squadOn || x.squadRating ? leagueChip(x.squadRating, true) : ''}${lg ? `<em class="pc2-chip land">🏝 ${fmt(lg)} Landgänge</em>` : ''}${x.pets ? `<em class="pc2-chip">🐾 ${fmt(x.pets)}</em>` : ''}</span>
+            ${x.cos && x.cos.star ? '<span class="admin-tag big">★ Entwickler · hat dieses Spiel gebaut</span>' : ''}
+          </div>
         </div>
-        <div class="pcard-stats">
-          <div><b>${fmt(x.score)}</b><span>Bestwert</span></div>
-          <div><b>${fmt(x.wins)}</b><span>Siege</span></div>
-          <div><b>${fmt(x.runs)}</b><span>Runs</span></div>
-          <div><b>${fmt(x.maxHit)}</b><span>Härtester Treffer</span></div>
-          <div><b>${fmt(x.kos)}</b><span>K.o.s</span></div>
-          <div><b>${fmt(x.topBounty)}</b><span>Mio. ฿ Kopfgeld</span></div>
+        ${kumpan}
+        <div class="pc2-grid">
+          ${tile('🏆', fmt(x.score), 'Bestwert', 'gold')}
+          ${tile('★', fmt(x.wins), 'Siege')}
+          ${tile('⚓', fmt(x.runs), 'Runs')}
+          ${tile('⚡', fmt(x.maxHit), 'Härtester Treffer')}
+          ${tile('✊', fmt(x.kos), 'K.o.s')}
+          ${tile('💰', fmt(x.topBounty), 'Mio. ฿ Kopfgeld')}
+          ${tile('🏝', fmt(lg), 'Landgänge gemeistert', 'land', lo ? `${fmt(lo)} ${lo === 1 ? 'Ort' : 'Orte'}` : '')}
+          ${tile('🗺', fmt(x.seasDone || 0), 'Meere geschafft')}
+          ${tile('🧭', fmt(x.captains || 0), 'Kapitäne frei')}
         </div>
-        ${(x.showcase || []).length ? `<div class="pcard-sec showcase"><b>Vitrine</b><div class="vc-row">${x.showcase.map(id => { const l = lootDef(id); return l ? `<span class="sc-item lr-${l.r}">${lootArt(l)}<small>${esc(l.name)}</small></span>` : ''; }).join('')}</div></div>` : ''}
-        ${(x.vaultTop || []).length ? `<div class="pcard-sec"><b>Artefakte</b><div class="vc-row">${x.vaultTop.map(vaultChip).join('')}</div></div>` : ''}
-        ${(x.chestTop || []).length ? `<div class="pcard-sec"><b>Seltene Funde</b><div class="vc-row">${x.chestTop.map(chestChip).join('')}</div></div>` : ''}
-        ${sq}
+        ${(x.showcase || []).length ? `<div class="pcard-sec pc2-sec showcase"><b>✦ Vitrine</b><div class="vc-row">${x.showcase.map(id => { const l = lootDef(id); return l ? `<span class="sc-item lr-${l.r}">${lootArt(l)}<small>${esc(l.name)}</small></span>` : ''; }).join('')}</div></div>` : ''}
+        ${(x.vaultTop || []).length || (x.chestTop || []).length ? `<div class="pc2-duo">
+          ${(x.vaultTop || []).length ? `<div class="pcard-sec pc2-sec"><b>✦ Artefakte</b><div class="pc2-icons">${x.vaultTop.map(vaultTile).join('')}</div></div>` : ''}
+          ${(x.chestTop || []).length ? `<div class="pcard-sec pc2-sec"><b>✦ Seltene Funde</b><div class="pc2-icons">${x.chestTop.map(chestTile).join('')}</div></div>` : ''}
+        </div>` : ''}
+        ${sq ? sq.replace('class="pcard-sec"', 'class="pcard-sec pc2-sec pc2-squad"') : ''}
       </div>
+    </div>`;
+  }
+  // Bestätigung nach dem Anheuern: beide Porträts, ein Seil dazwischen
+  function kumpanPop(profile, row) {
+    const me = profile && profile.char ? portrait(profile.char.look, profile.cos, 'lg') : '';
+    const them = row && row.look ? portrait(row.look, row.cos, 'lg') : '';
+    return `<div class="fpop-card kumpan-pop" role="dialog" aria-labelledby="fpop-t">
+      <span class="fpop-kicker">Neuer Segelkumpan</span>
+      <div class="kp-duo"><span class="kp-p">${me}</span><span class="kp-rope"><i>⚓</i></span><span class="kp-p">${them}</span></div>
+      <h3 id="fpop-t">Ahoi! ${esc((row && row.name) || 'Pirat')} ist jetzt dein Segelkumpan.</h3>
+      <p>Ihr seht euch in der Freundesliste, wer gerade online ist, und könnt euch Flaschenpost schicken. ${esc((row && row.name) || 'Pirat')} bekommt Bescheid und kann dich zurück anheuern.</p>
+      <div class="fpop-btns"><button class="btn" data-act="pop-close">Leinen los!</button><button class="btn ghost" data-act="friends-open">♥ Freundesliste</button></div>
+    </div>`;
+  }
+  // Nachricht: jemand hat dich angeheuert, mit Knopf zum Zurück-Anheuern
+  function kumpanInPop(profile, list) {
+    const first = list[0];
+    const known = c => ((profile && profile.friends) || []).includes(c);
+    return `<div class="fpop-card kumpan-pop kp-in" role="dialog" aria-labelledby="fpop-t">
+      <span class="fpop-kicker">Post vom Hafen</span>
+      <div class="kp-bell">🔔</div>
+      <h3 id="fpop-t">${list.length === 1 ? `${esc(first.name)} hat dich als Segelkumpan angeheuert!` : `${list.length} Piraten haben dich als Segelkumpan angeheuert!`}</h3>
+      <p>Zurück anheuern? Dann seid ihr gegenseitig in der Freundesliste.</p>
+      <div class="kp-list">${list.map(x => `<div class="kp-row"><b>${esc(x.name)}</b><small>${esc(GL.friends ? GL.friends.fmt(x.code) : x.code)}</small>${known(x.code) ? '<span class="pc2-kb">♥ Schon dabei</span>' : `<button class="btn mini" data-act="kumpan-back" data-code="${esc(x.code)}" data-name="${esc(x.name)}">⚓ Zurück anheuern</button>`}</div>`).join('')}</div>
+      <div class="fpop-btns"><button class="btn ghost" data-act="pop-close">Später</button></div>
     </div>`;
   }
   function leaderboard(profile, ui) {
@@ -2462,7 +2562,7 @@ window.GL = window.GL || {};
   }
 
   // ---------- Wiki: einfach erklärt, mit kleinen Bildern. Plus Meta-Liste (was ist gerade stark) ----------
-  const WIKI_TABS = [['basis', 'Grundlagen'], ['boni', 'Boni'], ['bosse', 'Bosse'], ['routen', 'Routen'], ['meta', 'Meta']];
+  const WIKI_TABS = [['basis', 'Grundlagen'], ['boni', 'Boni'], ['bosse', 'Bosse'], ['routen', 'Routen'], ['meta', 'Meta'], ['pinnwand', '📌 Pinnwand']];
   // Wer war schon auf dieser Route? Freunde zuerst (mit Bild), dazu die Zahl aller Piraten in der Rangliste
   function routeVisitors(profile, ids) {
     const st = GL.online ? GL.online.state() : { rows: [] };
@@ -2471,6 +2571,19 @@ window.GL = window.GL || {};
     const friends = GL.friends ? rows.filter(r => fr.has(GL.friends.norm(GL.friends.code(r.id)))) : [];
     return { n: rows.length, friends: friends.slice(0, 4) };
   }
+  // Pinnwand: Zettel mit Sternen, Namen und Datum, leicht schief angepinnt (Daten kommen per GL.ui.pinData)
+  let pinData = null;
+  function pinboardHtml() {
+    const list = pinData;
+    const head = `<section class="wk-sec pb-head"><h3>📌 Pinnwand der Crew</h3><p>Was andere Piraten über Grand Line sagen. Eigenen Zettel anpinnen: über „★ Feedback“ unten im Hafen, Häkchen bei „Pinnwand“ setzen.</p><button class="btn mini" data-act="fb-open">✍ Zettel schreiben</button></section>`;
+    if (list == null) return head + '<p class="pb-wait">Zettel werden geholt …</p>';
+    if (!list.length) return head + emptyPin();
+    const cols = ['#fff6a8', '#ffd6e0', '#cdeffd', '#d8f5c8', '#ffe2b8'];
+    const d = t => { const x = new Date(t); return isFinite(x) ? `${x.getDate()}.${x.getMonth() + 1}.` : ''; };
+    return head + `<div class="pb-wall">${list.map((n, k) => `<div class="pb-note" style="--c:${cols[(n.id || k) % cols.length]};--r:${((n.id || k) * 37 % 7) - 3}deg"><i class="pb-pin"></i>
+      <span class="pb-stars">${'★'.repeat(n.stars)}<i>${'★'.repeat(5 - n.stars)}</i></span><p>${esc(n.text)}</p><small>— ${esc(GL.safeName ? GL.safeName(n.name) : n.name)}${d(n.at) ? ' · ' + d(n.at) : ''}</small></div>`).join('')}</div>`;
+  }
+  const emptyPin = () => '<p class="pb-wait">Noch hängt hier kein Zettel. Sei der Erste!</p>';
   // Seekarte: alle Meere untereinander, zweite Routen zweigen zur Seite ab. Das Schiff zeigt, wie weit du kamst
   function seaMap(profile, compact) {
     const c = (profile && profile.counts) || {};
@@ -2567,6 +2680,8 @@ window.GL = window.GL || {};
             ${ab ? `<small>${esc(ab.name)}: ${esc(ab.text)}</small>` : ''}</span></div>`; }).join('')}</div></section>`;
     } else if (t === 'routen') {
       body = routesWiki(profile);
+    } else if (t === 'pinnwand') {
+      body = pinboardHtml();
     } else {
       // Live: was nutzen die besten Spieler gerade?
       const st = GL.online ? GL.online.state() : { rows: [] };
@@ -3297,8 +3412,9 @@ window.GL = window.GL || {};
       <h3 id="fb-t">Wie gefällt dir Grand Line bisher?</h3>
       <div class="fb-stars" role="radiogroup" aria-label="Bewertung">${[1, 2, 3, 4, 5].map(n => `<button class="fb-star${n <= s ? ' on' : ''}" data-act="fb-star" data-i="${n}" role="radio" aria-checked="${n === s}" aria-label="${n} Stern${n > 1 ? 'e' : ''}">★</button>`).join('')}</div>
       <textarea id="fb-text" maxlength="300" rows="2" placeholder="Was gefällt dir, was nervt? (freiwillig)"></textarea>
+      <label class="fb-pin"><input type="checkbox" id="fb-pin"> <span>📌 Auf die Pinnwand im Wiki hängen (mit deinem Piratennamen)</span></label>
       <div class="fpop-btns"><button class="btn" data-act="fb-send"${s ? '' : ' disabled'}>Senden</button><button class="btn ghost" data-act="fb-later">Später</button></div>
-      <small class="fb-note">Anonym. Hilft, das Spiel besser zu machen.</small>
+      <small class="fb-note">Ohne Häkchen anonym. Hilft, das Spiel besser zu machen.</small>
     </div>`;
   }
   function updatePop(j, inRun) {
@@ -3853,7 +3969,11 @@ window.GL = window.GL || {};
 
   GL.ui = {
     ffButton,
+    gearTipItem,
+    kumpanPop,
+    kumpanInPop,
     dressRoom,
+    setPins: l => { pinData = l; },
     newsPop,
     setStatsSort: k => { uiStats.sort = k; },
     storyBook,
