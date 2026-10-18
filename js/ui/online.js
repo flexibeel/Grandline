@@ -19,10 +19,52 @@ window.GL = window.GL || {};
 
   // Gleicher Name = gleicher Spieler (z. B. neues Gerät, neue Sitzung): nur einmal zeigen.
   // Eigener Eintrag hat Vorrang, Bestwerte aus den alten Einträgen werden übernommen.
+  // Sicherheit: Daten anderer Spieler sind fremd. Alles rekursiv säubern, bevor es irgendwo angezeigt wird:
+  // Texte ohne < > " ' ` (kann kein HTML/Attribut mehr aufbrechen), Zahlen endlich, keine Prototyp-Schlüssel, Größe begrenzt.
+  const BAD_KEY = /^(__proto__|constructor|prototype)$/;
+  function safeData(v, depth, loose) {
+    const d = depth || 0;
+    if (v == null) return v;
+    if (typeof v === 'string') return loose ? v.replace(/[<>`]/g, '') : v.replace(/[<>"'`\u0000-\u001f]/g, '').slice(0, 400);
+    if (typeof v === 'number') return isFinite(v) ? v : 0;
+    if (typeof v === 'boolean') return v;
+    if (d > (loose ? 14 : 8)) return null;
+    if (Array.isArray(v)) return (loose ? v : v.slice(0, 400)).map(x => safeData(x, d + 1, loose));
+    if (typeof v === 'object') {
+      const o = {};
+      (loose ? Object.keys(v) : Object.keys(v).slice(0, 200)).forEach(k => { if (!BAD_KEY.test(k) && (loose ? !/[<>"'`]/.test(k) : /^[\w$.:| -]{1,48}$/.test(k))) o[k] = safeData(v[k], d + 1, loose); });
+      return o;
+    }
+    return null;
+  }
+  GL.safeData = safeData;
+  function safeRows(rows) {
+    rows = (Array.isArray(rows) ? rows : []).filter(r => r && typeof r === 'object').map(r => safeData(r));
+    const ARR = ['squad', 'isles', 'showcase', 'vaultTop', 'chestTop', 'trophies', 'items', 'crew', 'relics', 'gear'];
+    const OBJ = ['look', 'cos', 'ship', 'pos', 'endlessRec', 'bestPlace'];
+    rows.forEach(r => {
+      r.name = String(r.name || '').slice(0, 24);
+      r.id = String(r.id || '');
+      ARR.forEach(k => { if (r[k] != null && !Array.isArray(r[k])) delete r[k]; });
+      OBJ.forEach(k => { if (r[k] != null && (typeof r[k] !== 'object' || Array.isArray(r[k]))) delete r[k]; });
+      const num = (v, lo, hi) => { const n = Number(v); return isFinite(n) ? Math.max(lo, Math.min(hi, Math.round(n))) : lo; };
+      const RN = ((GL.config || {}).rarities || [0]).length - 1;
+      if (Array.isArray(r.chestTop)) r.chestTop = r.chestTop.filter(it => it && typeof it === 'object' && (GL.data.items || []).some(x => x.id === it.id)).slice(0, 4).map(it => ({ id: it.id, r: num(it.r, 0, RN), lvl: num(it.lvl, 0, 99) }));
+      if (Array.isArray(r.vaultTop)) r.vaultTop = r.vaultTop.filter(v => v && typeof v === 'object' && (GL.data.artifacts || []).some(a => a.id === v.id)).slice(0, 6).map(v => ({ id: v.id, lvl: num(v.lvl, 0, 99) }));
+      if (Array.isArray(r.showcase)) r.showcase = r.showcase.filter(x => typeof x === 'string').slice(0, 3);
+      if (Array.isArray(r.isles)) r.isles = r.isles.filter(x => typeof x === 'string').slice(0, 80);
+      ['score', 'rankXp', 'heatMax', 'artifacts', 'bestStep', 'pets', 'endlessBest', 'endlessLoops', 'seasDone', 'squadPower', 'squadW', 'squadRating', 'captains', 'invites', 'wins', 'runs', 'topBounty', 'bestDmg', 'maxHit', 'totalDmg', 'kos', 'crits', 'bossKills'].forEach(k => { if (r[k] != null) r[k] = num(r[k], 0, 1e12); });
+      if (Array.isArray(r.squad)) r.squad = r.squad.filter(x => x && typeof x === 'object' && (x.id === 'self' || x.id === 'rival' || GL.data.crew.some(c => c.id === x.id))).slice(0, 4)
+        .map(x => Object.assign(x, { lvl: num(x.lvl, 1, 999), max: num(x.max, 1, 1e6), hp: num(x.hp != null ? x.hp : x.max, 0, 1e6), atk: num(x.atk, 0, 1e5), spd: num(x.spd, 0, 1e4), gear: Array.isArray(x.gear) ? x.gear.filter(g => g && typeof g === 'object' && (GL.cgear ? (g.t ? GL.data.crewGear.trophyPerks[g.t] && Object.prototype.hasOwnProperty.call(GL.data.crewGear.trophyPerks, g.t) : GL.cgear.base(g.b)) : true)).slice(0, 4).map(g => { const A = (GL.data.crewGear || {}).affixes || {}, a = {}; Object.keys(g.a || {}).forEach(k => { if (Object.prototype.hasOwnProperty.call(A, k) && isFinite(+g.a[k])) a[k] = +g.a[k]; }); return Object.assign(g, { a, r: Math.max(0, Math.min(3, Math.round(+g.r || 0))), m: Object.prototype.hasOwnProperty.call(A, g.m) ? g.m : undefined }); }) : undefined }));
+    });
+    return rows;
+  }
+  GL.safeRows = safeRows;
   const MAXF = ['score', 'wins', 'runs', 'topBounty', 'bestDmg', 'maxHit', 'totalDmg', 'kos', 'crits', 'bossKills', 'rankXp', 'artifacts', 'heatMax', 'captains', 'squadW', 'squadRating'];
   function dedupe(rows) {
     const groups = {};
     const out = [];
+    rows = safeRows(rows);
     if (GL.safeName) rows.forEach(r => { if (r && r.name && !GL.nameCheck(r.name).ok) r.name = 'Pirat'; });
     rows.forEach(r => {
       const key = String(r.name || '').trim().toLowerCase();
@@ -113,7 +155,7 @@ window.GL = window.GL || {};
       let lastUid = null;
       try { lastUid = localStorage.getItem('grandline.uid'); localStorage.setItem('grandline.uid', state.uid); } catch (e) { /* egal */ }
       const switched = !!lastUid && lastUid !== state.uid;
-      const remote = d && d.data && !d.data.wiped ? d.data : null;
+      const remote = d && d.data && typeof d.data === 'object' && !d.data.wiped ? safeData(d.data, 0, true) : null;
       const remoteBetter = remote && (!local || switched || (remote.savedAt || 0) > (local.savedAt || 0) + 1000
         || (!state.anon && (remote.rankXp || 0) > (local.rankXp || 0)));
       if (remoteBetter && onRemote) onRemote(remote);
@@ -176,7 +218,8 @@ window.GL = window.GL || {};
     const { data, error } = await client.rpc('code_load', { p_code: GL.code.key(code) });
     if (error) return { ok: false, msg: codeMsg(error) };
     state.codeReady = true;
-    return { ok: true, data: data || null };
+    // Spielstand vom Server: nur ein Objekt akzeptieren und gefährliche Zeichen entfernen
+    return { ok: true, data: data && typeof data === 'object' && !Array.isArray(data) ? safeData(data, 0, true) : null };
   }
   // Beim Start: Code reservieren bzw. neueren Stand von einem anderen Gerät übernehmen
   async function codeSync() {
@@ -396,6 +439,7 @@ window.GL = window.GL || {};
     try {
       const { data, error } = await client.from('duel_events').select('id,attacker_name,attacker_won,delta,created_at').eq('defender', state.uid).order('created_at', { ascending: true }).limit(50);
       if (error || !data || !data.length) return [];
+      data.forEach((x, i) => { data[i] = safeData(x); data[i].attacker_name = String(data[i].attacker_name || 'Pirat').slice(0, 24); data[i].delta = Math.max(0, Math.min(64, Number(data[i].delta) || 0)); data[i].attacker_won = !!data[i].attacker_won; });
       try { await client.from('duel_events').delete().in('id', data.map(x => x.id)); } catch (e) { /* egal */ }
       return data;
     } catch (e) { return []; }
@@ -415,6 +459,7 @@ window.GL = window.GL || {};
     try {
       const { data, error } = await client.from('bottle_post').select('id,from_name,item,note,created_at').eq('to_id', state.uid).order('created_at', { ascending: true }).limit(20);
       if (error || !data || !data.length) return [];
+      data.forEach((x, i) => { data[i] = safeData(x); data[i].from_name = String(data[i].from_name || 'Pirat').slice(0, 24); });
       try { await client.from('bottle_post').delete().in('id', data.map(x => x.id)); } catch (e) { /* egal */ }
       return data;
     } catch (e) { return []; }
