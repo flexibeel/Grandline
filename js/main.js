@@ -186,6 +186,39 @@
     document.body.appendChild(el);
     requestAnimationFrame(() => el.classList.add('in'));
   }
+  // Ankleidemenü öffnen bzw. ohne Flackern neu zeichnen
+  function showDress(patch) {
+    ui.dress = Object.assign({}, ui.dress || {}, patch || {});
+    const html = GL.ui.dressRoom(profile, ui.dress);
+    const el = document.getElementById('fpop');
+    if (el && el.querySelector('.dress-pop')) {
+      const sc = el.querySelector('.dress-pop').scrollTop, ws = el.scrollTop;
+      el.innerHTML = html;
+      const dp = el.querySelector('.dress-pop'); if (dp) dp.scrollTop = sc; el.scrollTop = ws;
+    } else openGearPop(html);
+  }
+  function squadPushLater() { clearTimeout(ui.squadPush); ui.squadPush = setTimeout(() => { if (GL.online && GL.online.register) GL.online.register(profile); }, 1500); }
+  // Karte auf Platz k setzen: steht sie schon in der Crew, tauschen beide die Plätze
+  function squadPlace(id, k) {
+    const ids = GL.meta.squadIds(profile).slice(), j = ids.indexOf(id);
+    if (j >= 0) { if (k < ids.length) { const t = ids[k]; ids[k] = id; ids[j] = t; } }
+    else if (k < ids.length) ids[k] = id; else ids.push(id);
+    profile.squad = ids.filter(Boolean); saveProfile(); squadPushLater();
+    if (GL.sfx) GL.sfx.play('tap');
+  }
+  // Kleine Reaktion beim Ausrüsten (einmal pro Teil etwas Vertrautheit)
+  const GEAR_SAY = { waffe: ['Oh, die liegt gut in der Hand!', 'Damit trau ich mich an jeden Boss!', 'Scharf. Sehr scharf.'], kleid: ['Steht mir, oder?', 'Gemütlich und robust!', 'Jetzt seh ich aus wie ein echter Pirat!'], schmuck: ['Glänzt das schön!', 'Fühlt sich nach Glück an.', 'Für mich? Danke!'], trophae: ['Die kommt an einen Ehrenplatz!', 'Damit erzähl ich noch lange Geschichten.', 'Was für eine Erinnerung!'] };
+  function gearThanks(crewId, it) {
+    if (!it) return;
+    const slot = GL.cgear.slotOf(it), L = GEAR_SAY[slot] || GEAR_SAY.waffe;
+    profile.gearThanked = profile.gearThanked || [];
+    const first = !profile.gearThanked.includes(it.uid);
+    if (first) { profile.gearThanked.push(it.uid); if (profile.gearThanked.length > 300) profile.gearThanked.shift(); profile.squadXp = profile.squadXp || {}; profile.squadXp[crewId] = (profile.squadXp[crewId] || 0) + 5; }
+    const d = crewId === 'self' ? { id: 'self', name: profile.nickname || 'Du', look: GL.meta.selfDef(profile).look } : GL.data.crew.find(c => c.id === crewId) || {};
+    const line = L[(it.uid.length + (profile.gearThanked.length || 0)) % L.length];
+    if (GL.sfx) GL.sfx.play('found');
+    toast(`<span class="toast-say"><i>${GL.sprites.render(d)}</i><span><b>${esc2(d.name || '')}</b>„${esc2(line)}“${first ? ' <em class="ts-bond">♥ +5</em>' : ''}</span></span>`);
+  }
   function openWelcome() {
     const el = document.createElement('div');
     el.id = 'fpop'; el.className = 'fpop'; el.dataset.id = 'welcome';
@@ -713,7 +746,7 @@
         if (Math.hypot(e.clientX - drag.x, e.clientY - drag.y) < 8) return;
         drag.on = true;
         drag.ghost = drag.chip.cloneNode(true); drag.ghost.classList.add('cg-ghost'); document.body.appendChild(drag.ghost);
-        document.querySelectorAll(`.cg-row [data-act="cg-slot"][data-slot="${drag.slot}"]`).forEach(x => x.classList.add('drop-ok'));
+        document.querySelectorAll(`.cg-row [data-act="cg-slot"][data-slot="${drag.slot}"], [data-cgslot="${drag.slot}"]`).forEach(x => x.classList.add('drop-ok'));
         document.body.classList.add('cg-dragging');
       }
       e.preventDefault();
@@ -730,15 +763,64 @@
       if (d.ghost) d.ghost.remove();
       document.body.classList.remove('cg-dragging');
       const t = document.elementFromPoint(e.clientX, e.clientY);
-      const slot = t && t.closest('[data-act="cg-slot"]');
+      const slot = t && t.closest('[data-act="cg-slot"], [data-cgslot]');
       document.querySelectorAll('.drop-ok, .drop-hover').forEach(x => x.classList.remove('drop-ok', 'drop-hover'));
       if (!slot) return;
       if (slot.dataset.slot !== d.slot) { toast('<span><b>Passt hier nicht</b>Dieses Teil gehört auf den Platz „' + ((GL.data.crewGear.slots.find(s => s.id === d.slot) || {}).name || '') + '“.</span>'); return; }
-      GL.cgear.equip(profile, slot.dataset.id, d.it.uid); profile.gearNew = []; saveProfile(); ui.lastStage = null; draw();
-      toast('<span><b>Angelegt</b>' + GL.cgear.name(d.it) + '</span>');
+      GL.cgear.equip(profile, slot.dataset.id, d.it.uid); profile.gearNew = []; gearThanks(slot.dataset.id, d.it); saveProfile(); ui.lastStage = null; draw();
+      if (document.querySelector('.dress-pop')) showDress({ uid: null, slot: d.slot });
     };
     document.addEventListener('pointerup', end);
     document.addEventListener('pointercancel', e => { if (drag && drag.ghost) drag.ghost.remove(); document.body.classList.remove('cg-dragging'); document.querySelectorAll('.drop-ok, .drop-hover').forEach(x => x.classList.remove('drop-ok', 'drop-hover')); drag = null; });
+  })();
+
+  // ---------- Stammcrew: Karten auf einen Platz ziehen (Maus sofort, Finger nach kurzem Halten) ----------
+  (function squadDrag() {
+    let dr = null;
+    const clear = () => { document.querySelectorAll('.sq-drop-ok, .sq-drop-hover').forEach(x => x.classList.remove('sq-drop-ok', 'sq-drop-hover')); document.body.classList.remove('sq-dragging'); };
+    const begin = () => {
+      dr.on = true;
+      const src = dr.el.querySelector('.sqc-spr, .sqd-spr') || dr.el;
+      dr.ghost = document.createElement('div'); dr.ghost.className = 'sq-ghost'; dr.ghost.innerHTML = src.innerHTML; document.body.appendChild(dr.ghost);
+      dr.ghost.style.left = dr.cx + 'px'; dr.ghost.style.top = dr.cy + 'px';
+      document.querySelectorAll('[data-sqslot]').forEach(x => x.classList.add('sq-drop-ok'));
+      document.body.classList.add('sq-dragging');
+      if (navigator.vibrate && dr.touch) try { navigator.vibrate(12); } catch (e) {}
+    };
+    document.addEventListener('pointerdown', e => {
+      const el = e.target.closest('[data-sqcard], [data-sqid]');
+      if (!el || e.button > 0 || e.target.closest('.sqd-x, .sqd-bond')) return;
+      dr = { el, id: el.dataset.sqcard || el.dataset.sqid, x: e.clientX, y: e.clientY, cx: e.clientX, cy: e.clientY, on: false, pid: e.pointerId, touch: e.pointerType !== 'mouse' };
+      if (dr.touch) dr.hold = setTimeout(() => { if (dr && !dr.on) begin(); }, 260);
+    });
+    document.addEventListener('touchmove', e => { if (dr && dr.on) e.preventDefault(); }, { passive: false });
+    document.addEventListener('pointermove', e => {
+      if (!dr || e.pointerId !== dr.pid) return;
+      dr.cx = e.clientX; dr.cy = e.clientY;
+      if (!dr.on) {
+        if (Math.hypot(e.clientX - dr.x, e.clientY - dr.y) < 7) return;
+        if (dr.touch) { clearTimeout(dr.hold); dr = null; return; }   // Finger bewegt sich sofort: scrollen
+        begin();
+      }
+      e.preventDefault();
+      dr.ghost.style.left = e.clientX + 'px'; dr.ghost.style.top = e.clientY + 'px';
+      document.querySelectorAll('.sq-drop-hover').forEach(x => x.classList.remove('sq-drop-hover'));
+      const t = document.elementFromPoint(e.clientX, e.clientY), sl = t && t.closest('[data-sqslot]');
+      if (sl) sl.classList.add('sq-drop-hover');
+    }, { passive: false });
+    const end = e => {
+      if (!dr || e.pointerId !== dr.pid) return;
+      const d = dr; dr = null; clearTimeout(d.hold);
+      if (!d.on) return;
+      suppressClick = true; setTimeout(() => { suppressClick = false; }, 400);
+      if (d.ghost) d.ghost.remove();
+      const t = document.elementFromPoint(e.clientX, e.clientY), sl = t && t.closest('[data-sqslot]');
+      clear();
+      if (!sl) return;
+      squadPlace(d.id, Number(sl.dataset.sqslot)); ui.sqPick = null; ui.lastStage = null; draw();
+    };
+    document.addEventListener('pointerup', end);
+    document.addEventListener('pointercancel', e => { if (dr) { clearTimeout(dr.hold); if (dr.ghost) dr.ghost.remove(); } clear(); dr = null; });
   })();
 
   document.addEventListener('click', e => {
@@ -1143,9 +1225,28 @@
       case 'pop-close': closePop(); break;
       // ---------- Crew-Ausrüstung ----------
       case 'cg-slot': openGearPop(GL.ui.gearPick(profile, el.dataset.id, el.dataset.slot)); break;
+      case 'dress': ui.sqPick = null; showDress({ id: el.dataset.id, slot: null, uid: null }); break;
+      case 'dr-slot': showDress({ id: el.dataset.id, slot: el.dataset.slot || null, uid: null }); break;
+      case 'dr-item': showDress({ uid: ui.dress && ui.dress.uid === el.dataset.uid ? null : el.dataset.uid }); break;
+      case 'dr-on': {
+        const it = GL.cgear.bag(profile).find(x => x.uid === el.dataset.uid);
+        GL.cgear.equip(profile, el.dataset.id, el.dataset.uid); profile.gearNew = []; gearThanks(el.dataset.id, it); saveProfile();
+        showDress({ uid: null, slot: it ? GL.cgear.slotOf(it) : null }); ui.lastStage = null; draw(); break;
+      }
+      case 'dr-off': GL.cgear.unequip(profile, el.dataset.id, el.dataset.slot); saveProfile(); showDress({ uid: null }); ui.lastStage = null; draw(); break;
+      case 'sq-filter': ui.sqFilter = el.dataset.v; ui.lastStage = null; draw(); break;
+      case 'sq-all': ui.sqAll = true; ui.lastStage = null; draw(); break;
+      case 'sq-pick': {
+        const id = el.dataset.id, ids = GL.meta.squadIds(profile).slice();
+        if (ui.sqPick === id) { ui.sqPick = null; }
+        else if (ids.includes(id)) { ui.sqPick = null; showDress({ id, slot: null, uid: null }); break; }
+        else if (ids.length < GL.meta.squadSize) { ids.push(id); profile.squad = ids; saveProfile(); squadPushLater(); ui.sqPick = null; }
+        else ui.sqPick = id;
+        ui.lastStage = null; draw(); break;
+      }
+      case 'sq-place': { if (ui.sqPick) { squadPlace(ui.sqPick, Number(el.dataset.k)); ui.sqPick = null; } ui.lastStage = null; draw(); break; }
       case 'cg-on': {
-        GL.cgear.equip(profile, el.dataset.id, el.dataset.uid); profile.gearNew = []; saveProfile(); closePop(); ui.lastStage = null; draw();
-        toast('<span><b>Angelegt</b>Deine Stammcrew ist jetzt stärker.</span>');
+        GL.cgear.equip(profile, el.dataset.id, el.dataset.uid); profile.gearNew = []; gearThanks(el.dataset.id, GL.cgear.bag(profile).find(x => x.uid === el.dataset.uid)); saveProfile(); closePop(); ui.lastStage = null; draw();
         break;
       }
       case 'cg-off': GL.cgear.unequip(profile, el.dataset.id, el.dataset.slot); saveProfile(); closePop(); ui.lastStage = null; draw(); break;
@@ -1154,13 +1255,14 @@
         if (GL.cgear.reroll(profile, el.dataset.uid)) {
           saveProfile(); ui.lastStage = null; draw();
           const it = GL.cgear.bag(profile).find(x => x.uid === el.dataset.uid);
-          if (it) openGearPop(GL.ui.gearView(it, true, profile));
+          if (document.querySelector('.dress-pop')) showDress({});
+          else if (it) openGearPop(GL.ui.gearView(it, true, profile));
         }
         break;
       }
       case 'cg-scrap': {
         const b = GL.cgear.scrap(profile, el.dataset.uid);
-        if (b) { saveProfile(); closePop(); ui.lastStage = null; draw(); toast(`<i>${GL.sprites.coin()}</i><span><b>Zerlegt</b>+${b} Berry</span>`); }
+        if (b) { saveProfile(); if (document.querySelector('.dress-pop')) showDress({ uid: null }); else closePop(); ui.lastStage = null; draw(); toast(`<i>${GL.sprites.coin()}</i><span><b>Zerlegt</b>+${b} Berry</span>`); }
         break;
       }
       case 'cg-peek': {

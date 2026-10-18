@@ -1625,7 +1625,7 @@ window.GL = window.GL || {};
       <div class="mp-btns"><button class="btn" data-act="squad-attack">⚔ Angreifen</button><button class="btn ghost" data-act="squad-match">Anderer</button><button class="btn ghost mp-x" data-act="pop-close" aria-label="Abbrechen">✕</button></div>
     </div>`;
   }
-  function squadSection(profile) {
+  function squadSection(profile, uiRef) {
     if (!GL.meta.squadUnlocked(profile)) {
       return `<section class="hq-sec squad-sec squad-locked">
         <div class="sl-art">${squadMini(GL.meta.squadRefs(profile))}</div>
@@ -1638,39 +1638,122 @@ window.GL = window.GL || {};
     const pool = GL.meta.squadPool(profile);
     const ids = GL.meta.squadIds(profile);
     const N = GL.meta.squadSize;
-    // Jede Figur mit Werten; wer nicht dabei ist, wird mit der schwächsten aufgestellten Figur verglichen (Pixel-Pfeile)
     const pw = r => r.max * 0.5 + r.atk * 4 + r.spd * 2;
-    const weakest = refs.slice().sort((a, b) => pw(a) - pw(b))[0];
+    const weakest = refs.length >= N ? refs.slice().sort((a, b) => pw(a) - pw(b))[0] : null;
     const refOf = id => GL.meta.squadRefs(Object.assign({}, profile, { squad: [id] }))[0];
-    const pick = pool.map(id => {
-      const d = id === 'self' ? avatarOf(profile) : crewData(id);
-      const dd = id === 'self' ? { type: profile.char.type, role: profile.char.role } : d;
-      const k = ids.indexOf(id);
-      const r = refOf(id);
-      const cmp = r && weakest && k < 0 ? cmpArrow(pw(r), pw(weakest)) : '';
-      return `<button class="sq-pick${k >= 0 ? ' on' : ''}${weakest && weakest.id === id && refs.length > 1 ? ' weak' : ''}" data-act="squad-toggle" data-id="${id}" title="${esc(d.name)}${r ? ` · ♥ ${r.max} ⚔ ${r.atk} ➤ ${r.spd}` : ''}">
-        ${k >= 0 ? `<em class="sq-num">${k + 1}</em>` : ''}<i>${GL.sprites.render(d)}</i>
-        <small>${esc(d.name)}</small>${badge(dd.type)}
-        ${r ? `<span class="sq-st">♥${r.max} ⚔${r.atk} ➤${r.spd}</span>` : ''}${cmp ? `<span class="sq-cmp">${cmp}</span>` : ''}</button>`;
+    const dOf = id => id === 'self' ? avatarOf(profile) : crewData(id);
+    const pick = uiRef && uiRef.sqPick && pool.includes(uiRef.sqPick) ? uiRef.sqPick : null;
+    const flt = (uiRef && uiRef.sqFilter) || 'all';
+    const W = GL.cgear ? GL.cgear.worn(profile) : {}, bag = GL.cgear ? GL.cgear.bag(profile) : [];
+    const SL = GL.data.crewGear ? GL.data.crewGear.slots : [];
+    // Bühne: vier Karten auf dem Deck. Antippen = Ankleiden, Ziehen = Reihenfolge, Karte aus der Sammlung draufziehen = einsetzen
+    const deck = Array.from({ length: N }, (_, k) => {
+      const r = refs[k];
+      if (!r) return `<div class="sqd-card empty${pick ? ' target' : ''}" data-act="sq-place" data-k="${k}" data-sqslot="${k}"><span class="sqd-plus">+</span><small>${pick ? 'Hier einsetzen' : 'Karte hierher ziehen'}</small></div>`;
+      const d = dOf(r.id), xp = (profile.squadXp || {})[r.id] || 0, bond = GL.meta.squadBonus(xp);
+      const slots = SL.map(sl => { const it = bag.find(x => x.uid === (W[r.id] || {})[sl.id]);
+        return it ? `<span class="sqd-g cr-${GL.cgear.RID[it.r]}" title="${esc(GL.cgear.name(it))}">${cgArt(it)}</span>` : `<span class="sqd-g none" title="${esc(sl.name)}">${CG_ICON[sl.id]}</span>`; }).join('');
+      return `<div class="sqd-card${pick ? ' target' : ''}${k === 0 ? ' front' : ''}" data-sqslot="${k}" data-sqid="${esc(r.id)}">
+        <button class="sqd-main" data-act="${pick ? 'sq-place' : 'dress'}" data-k="${k}" data-id="${esc(r.id)}">
+          <span class="sqd-pos">${k === 0 ? 'Vorne' : k + 1}</span>
+          <span class="sqd-lv">Lv ${r.lvl}</span>
+          <i class="sqd-spr">${squadSprite(r)}</i>
+          <b class="sqd-name">${esc(d.name)}</b>
+          <span class="sqd-st"><em>♥${r.max}</em><em>⚔${r.atk}</em><em>➤${r.spd}</em></span>
+          <span class="sqd-gear">${slots}</span>
+          ${pick ? `<span class="sqd-swap">Tauschen</span>` : `<span class="sqd-dress">${pxIco('anchor')}Ankleiden</span>`}
+        </button>
+        ${bond ? `<button class="sqd-bond" data-act="crew-card" data-id="${esc(r.id)}" title="Steckbrief">♥${bond}</button>` : ''}
+        ${refs.length > 1 && !pick ? `<button class="sqd-x" data-act="squad-toggle" data-id="${esc(r.id)}" aria-label="Aus der Stammcrew nehmen">✕</button>` : ''}
+      </div>`;
     }).join('');
+    // Sammlung: alle Karten, die du aufstellen kannst. Sortiert nach Stärke, Filter nach Kampfstil
+    const cards = pool.map(id => ({ id, d: dOf(id), r: refOf(id), on: ids.includes(id) })).filter(x => x.d && x.r);
+    const typeOf = x => x.id === 'self' ? profile.char.type : x.d.type;
+    const shown = cards.filter(x => flt === 'all' || typeOf(x) === flt).sort((a, b) => (b.on - a.on) || pw(b.r) - pw(a.r));
+    const delta = x => { if (x.on || !weakest) return ''; const df = Math.round(pw(x.r) - pw(weakest)); return df === 0 ? '' : `<em class="sqc-d ${df > 0 ? 'up' : 'dn'}" title="Im Vergleich zur schwächsten Figur deiner Stammcrew">${df > 0 ? '▲' : '▼'}${Math.abs(df)}</em>`; };
+    const types = ['all'].concat(Object.keys(GL.data.types));
+    const filt = `<div class="sqc-filter" role="tablist">${types.map(t => `<button class="sqc-f${flt === t ? ' on' : ''}" data-act="sq-filter" data-v="${t}">${t === 'all' ? 'Alle' : `${pxIcon(t)}${esc(GL.data.types[t].name)}`}</button>`).join('')}</div>`;
+    const LIM = 12, all = uiRef && uiRef.sqAll, cut = !all && shown.length > LIM + 2;
+    const coll = (cut ? shown.slice(0, LIM) : shown).map(x => `<button class="sqc${x.on ? ' on' : ''}${pick === x.id ? ' picked' : ''}${weakest && weakest.id === x.id ? ' weak' : ''}" data-act="sq-pick" data-id="${esc(x.id)}" data-sqcard="${esc(x.id)}">
+        ${x.on ? '<span class="sqc-on">Dabei</span>' : delta(x)}
+        <i class="sqc-spr">${GL.sprites.render(x.d)}</i><b>${esc(x.d.name)}</b>
+        <span class="sqc-ty">${pxIcon(typeOf(x))}<small>♥${x.r.max} ⚔${x.r.atk}</small></span></button>`).join('') + (cut ? `<button class="sqc-more" data-act="sq-all">Alle ${shown.length} Karten zeigen</button>` : '');
     const w = profile.squadW || 0, l = profile.squadL || 0;
-    return `<section class="hq-sec squad-sec">
+    const r0 = profile.squadRating == null ? 1000 : profile.squadRating, nx = GL.meta.leagues.find(x => x.min > r0);
+    const pd = pick ? dOf(pick) : null;
+    return `<section class="hq-sec squad-sec sq2">
       <div class="squad-head">
         <div><span class="event-kicker">Deine Stammcrew</span>
           <b class="squad-power">⚔ ${GL.meta.squadPower(refs)} Stärke</b>
           <small>Level ${GL.meta.squadLevel(profile)} · ${w} Siege, ${l} Niederlagen</small></div>
-        ${(() => { const r = profile.squadRating == null ? 1000 : profile.squadRating; const L = GL.meta.league(r); const nx = GL.meta.leagues.find(x => x.min > r);
-          return `<div class="sq-league">${leagueChip(r, true)}<small>${nx ? `noch ${nx.min - r} bis ${nx.name}` : 'höchste Liga'}</small></div>`; })()}
+        <div class="sq-league">${leagueChip(r0, true)}<small>${nx ? `noch ${nx.min - r0} bis ${nx.name}` : 'höchste Liga'}</small></div>
       </div>
-      ${squadRow(refs)}
-      ${gearPanel(profile, refs)}
-      <button class="btn squad-match" data-act="squad-match">⚔ Gegner suchen <small>ähnliche Stärke</small></button>
-      <div class="sq-xp">${refs.map(r => { const nx = GL.meta.squadNext((profile.squadXp || {})[r.id]);
-        return `<button class="sq-xpb" data-act="crew-card" data-id="${r.id}"><small>${esc(r.name)} <em>♥${GL.meta.squadBonus((profile.squadXp || {})[r.id])}</em></small><i class="xpbar"><i style="width:${nx ? Math.round(100 * nx.have / nx.need) : 100}%"></i></i></button>`; }).join('')}</div>
-      <p class="hint">Freunde fordern deine Stammcrew in der Rangliste heraus, auch wenn du offline bist. Die Crew wächst beim normalen Spielen mit: Wer in einem Run, Duell oder Landgang dabei ist, wird vertrauter und bekommt Extra-Level (♥). Bis zu ${N} Figuren, <b>zuerst gewählt steht vorne</b>.</p>
-      <p class="sq-legend"><span class="weak-key"></span> schwächste Figur deiner Stammcrew · Pfeile: so viel stärker oder schwächer wäre eine andere Figur</p>
-      <div class="sq-pool">${pick}</div>
+      <div class="sqd-deck${pick ? ' picking' : ''}">${deck}</div>
+      ${pick ? `<div class="sq-pickbar"><i>${GL.sprites.render(pd)}</i><span><b>${esc(pd.name)}</b> einsetzen: tipp oben auf einen Platz</span><button class="btn mini ghost" data-act="sq-pick" data-id="${esc(pick)}">Abbrechen</button></div>`
+        : `<p class="sq-tip">Karte antippen zum Ankleiden. Aus der Sammlung eine Karte auf einen Platz ziehen oder antippen. <b>Vorne</b> steht, wer zuerst getroffen wird.</p>`}
+      <button class="btn squad-match" data-act="squad-match">${pxIco('swords')}Gegner suchen <small>ähnliche Stärke</small></button>
+      ${GL.cgear ? `<button class="sq-chest" data-act="dress" data-id="${esc((refs[0] || {}).id || 'self')}"><i class="sq-chest-ico">${pxIco('chest')}</i><span><b>Truhe & Ankleiden</b><small>${bag.length}/${GL.data.crewGear.bagMax} Teile · 🔹 ${profile.shards || 0}${(profile.gearNew || []).length ? ` · <em class="sq-new">${profile.gearNew.length} neu</em>` : ''}</small></span><span class="sq-chest-go">›</span></button>` : ''}
+      <div class="sqc-head"><b>Deine Karten</b><small>${cards.length} Figuren · ${ids.length}/${N} dabei</small></div>
+      ${filt}
+      <div class="sqc-grid">${coll}</div>
+      <p class="hint">Freunde fordern deine Stammcrew in der Rangliste heraus, auch wenn du offline bist. Wer in einem Run, Duell oder Landgang dabei ist, wird vertrauter und bekommt Extra-Level (♥). ▲/▼ zeigt, wie viel stärker oder schwächer eine Karte als deine schwächste Figur wäre.</p>
     </section>`;
+  }
+  // Ankleidemenü: Figur in der Mitte, vier Plätze drumherum, Truhe darunter
+  function dressRoom(profile, st) {
+    const refs = GL.meta.squadRefs(profile);
+    const id = refs.some(r => r.id === st.id) ? st.id : (refs[0] || {}).id;
+    const r = refs.find(x => x.id === id); if (!r) return '';
+    const d = id === 'self' ? avatarOf(profile) : crewData(id);
+    const W = GL.cgear.worn(profile), bag = GL.cgear.bag(profile), SL = GL.data.crewGear.slots;
+    const fresh = profile.gearNew || [];
+    const slotSel = st.slot || null;
+    const curOf = sid => bag.find(x => x.uid === (W[id] || {})[sid]);
+    const sel = st.uid ? bag.find(x => x.uid === st.uid) : (slotSel ? curOf(slotSel) : null);
+    const slotBtn = sl => { const it = curOf(sl.id);
+      return `<button class="dr-slot${slotSel === sl.id ? ' on' : ''}${it ? ' cr-' + GL.cgear.RID[it.r] : ' empty'}" data-act="dr-slot" data-slot="${sl.id}" data-cgslot="${sl.id}" data-id="${esc(id)}">
+        <i class="dr-art">${it ? cgArt(it) : `<span class="dr-ph">${CG_ICON[sl.id]}</span>`}</i><small>${esc(sl.name)}</small>${it ? `<em class="dr-pow">⚔${GL.cgear.power(it)}</em>` : ''}</button>`; };
+    const tabs = refs.map(x => `<button class="dr-tab${x.id === id ? ' on' : ''}" data-act="dress" data-id="${esc(x.id)}"><i>${squadSprite(x)}</i><small>${esc(String(x.name).split(' ')[0])}</small></button>`).join('');
+    const g = r.gb || {};
+    const extra = [g.crit ? `Krit ${Math.round(g.crit * 100)} %` : '', g.dodge ? `Ausweichen ${Math.round(g.dodge * 100)} %` : '', g.armor ? `Rüstung ${g.armor}` : '', g.dmgPct ? `Schaden +${Math.round(g.dmgPct * 100)} %` : ''].filter(Boolean);
+    // Detail: ausgewähltes Teil mit Vergleich zum jetzigen auf dem Platz
+    let detail = '';
+    if (sel) {
+      const sid = GL.cgear.slotOf(sel), cur = curOf(sid), mine = cur && cur.uid === sel.uid;
+      const by = GL.cgear.wornBy(profile, sel.uid), w = gearWearer(profile, by);
+      const dp = cur && !mine ? GL.cgear.power(sel) - GL.cgear.power(cur) : null;
+      const C = GL.data.crewGear, cost = C.rerollCost[sel.r] || 1, sh = profile.shards || 0;
+      const canRe = Object.keys(sel.a || {}).filter(k => k !== sel.m).length > 0;
+      const btns = mine
+        ? `<button class="btn mini ghost" data-act="dr-off" data-id="${esc(id)}" data-slot="${sid}">Abnehmen</button>`
+        : `<button class="btn mini" data-act="dr-on" data-id="${esc(id)}" data-uid="${sel.uid}">${by ? `Von ${esc(w.name)} nehmen` : `${pxIco('anchor')}Anlegen`}</button>`;
+      detail = `<div class="dr-detail">${cgCard(sel, `<div class="cg-optfoot">${wornTag(profile, by, mine)}${dp != null ? `<span class="cg-delta ${dp > 0 ? 'up' : dp < 0 ? 'dn' : 'eq'}">${dp > 0 ? '+' : ''}${dp} ⚔ zum jetzigen</span>` : ''}</div>
+        <div class="dr-btns">${btns}${canRe ? `<button class="btn mini ghost" data-act="cg-reroll" data-uid="${sel.uid}"${sh < cost ? ' disabled' : ''}>🔹 Neu würfeln (${cost})</button>` : ''}${by ? '' : `<button class="btn mini ghost danger-btn" data-act="cg-scrap" data-uid="${sel.uid}">Zerlegen (+${C.scrap[sel.r]} Berry${C.shardScrap[sel.r] ? `, +${C.shardScrap[sel.r]} 🔹` : ''})</button>`}</div>`)}</div>`;
+    } else if (slotSel) {
+      detail = `<p class="dr-empty">Noch nichts auf „${esc((SL.find(x => x.id === slotSel) || {}).name || '')}“. Wähl unten ein Teil aus der Truhe oder zieh es auf den Platz.</p>`;
+    } else {
+      detail = `<p class="dr-empty">Tipp einen Platz an oder ein Teil in der Truhe. Teile kannst du auch direkt auf einen Platz ziehen.</p>`;
+    }
+    const list = bag.filter(x => !slotSel || GL.cgear.slotOf(x) === slotSel).sort((a, b) => b.r - a.r || GL.cgear.power(b) - GL.cgear.power(a));
+    const better = it => { const c = curOf(GL.cgear.slotOf(it)); return !GL.cgear.wornBy(profile, it.uid) && (!c || GL.cgear.power(it) > GL.cgear.power(c)); };
+    const chest = list.length ? list.map(it => { const by = GL.cgear.wornBy(profile, it.uid), w = gearWearer(profile, by);
+      return `<span class="cg-bagit dr-it${fresh.includes(it.uid) ? ' new' : ''}${by ? ' worn' : ''}${sel && sel.uid === it.uid ? ' on' : ''}">${cgChip(it, 'dr-item', `data-uid="${it.uid}" data-id="${esc(id)}"`)}${w ? `<i class="cg-face" title="Angelegt bei ${esc(w.name)}">${w.spr}</i>` : better(it) ? '<i class="dr-up" title="Besser als das jetzige">▲</i>' : ''}</span>`; }).join('')
+      : `<p class="hint">${slotSel ? 'Keine passenden Teile in der Truhe.' : 'Die Truhe ist leer. Bosse und Raids lassen Waffen, Kleidung und Schmuck fallen.'}</p>`;
+    const fl = `<div class="dr-filter"><button class="sqc-f${!slotSel ? ' on' : ''}" data-act="dr-slot" data-slot="" data-id="${esc(id)}">Alle <em>${bag.length}</em></button>${SL.map(sl => { const n = bag.filter(x => GL.cgear.slotOf(x) === sl.id).length; return `<button class="sqc-f${slotSel === sl.id ? ' on' : ''}" data-act="dr-slot" data-slot="${sl.id}" data-id="${esc(id)}">${CG_ICON[sl.id]} <em>${n}</em></button>`; }).join('')}</div>`;
+    return `<div class="fpop-card dress-pop" role="dialog" aria-labelledby="fpop-t">
+      <button class="dr-x" data-act="pop-close" aria-label="Schließen">✕</button>
+      <span class="fpop-kicker">Ankleiden</span>
+      <div class="dr-tabs">${tabs}</div>
+      <div class="dr-stage">
+        <div class="dr-col">${SL.slice(0, 2).map(slotBtn).join('')}</div>
+        <div class="dr-hero"><span class="dr-glow"></span><i class="dr-spr">${squadSprite(r)}</i><span class="dr-ped"></span>
+          <b id="fpop-t">${esc(d.name)} <small class="dr-lv">Lv ${r.lvl}</small></b><span class="dr-stats"><em>♥ ${r.max}</em><em>⚔ ${r.atk}</em><em>➤ ${r.spd}</em></span>${extra.length ? `<small class="dr-extra">${extra.join(' · ')}</small>` : ''}</div>
+        <div class="dr-col">${SL.slice(2).map(slotBtn).join('')}</div>
+      </div>
+      ${detail}
+      <div class="dr-chest"><div class="dr-chest-h"><b>${pxIco('chest')}Truhe</b><small>${bag.length}/${GL.data.crewGear.bagMax} · 🔹 ${profile.shards || 0}</small></div>${fl}<div class="dr-grid">${chest}</div></div>
+    </div>`;
   }
   function duelReport(res, theirName) {
     const lines = [];
@@ -1848,33 +1931,69 @@ window.GL = window.GL || {};
 
   // ---------- Schmiede: Ausrüstung behalten, verbessern, mitnehmen ----------
   function forgeSection(profile) {
+    // Schmiede als Werkstatt: oben das Regal für den nächsten Run, darunter die Truhe nach Seltenheit, unten der Amboss
     const chest = (profile.chest || []).slice().sort((a, b) => b.r - a.r || (b.lvl || 0) - (a.lvl || 0));
     const slots = GL.meta.itemSlots(profile);
-    const used = (profile.itemLoadout || []).length;
+    const load = profile.itemLoadout || [];
+    const used = load.length;
     const fmt = n => n.toLocaleString('de-DE');
-    const cards = chest.map(it => {
-      const on = (profile.itemLoadout || []).includes(it.uid);
+    const R = GL.config.rarities, MAXL = GL.config.items.maxLevel;
+    const rid = it => R[Math.max(0, it.r)].id;
+    const lvPips = it => `<span class="fg-pips" title="Stufe ${it.lvl || 0} von ${MAXL}">${Array.from({ length: MAXL }, (_, k) => `<i class="${k < (it.lvl || 0) ? 'on' : ''}"></i>`).join('')}</span>`;
+    const nameOnly = it => esc(((GL.data.items.find(x => x.id === it.id) || {}).name) || it.id);
+    // Regal: belegte Plätze groß, freie gestrichelt, nächster Platz als Schloss
+    const nextRank = [5, 10, 15, 20].find(k => k > GL.meta.rankIndex(profile));
+    const shelfItems = load.map(uid => chest.find(x => x.uid === uid)).filter(Boolean);
+    const shelf = Array.from({ length: slots }, (_, k) => {
+      const it = shelfItems[k];
+      return it ? `<button class="fg-slot full ir-${rid(it)}" data-act="toggle-item" data-id="${it.uid}" title="Antippen: wieder in die Truhe">
+          <span class="fg-ico">${itemIcon(it)}</span><b>${nameOnly(it)}${it.lvl ? ` <em>+${it.lvl}</em>` : ''}</b><small>${itemStatText(it)}</small><span class="fg-x">✕</span></button>`
+        : `<span class="fg-slot empty"><span class="fg-ico">+</span><small>Platz frei</small></span>`;
+    }).join('') + (nextRank != null && slots < GL.config.items.takeBase + 4 ? `<span class="fg-slot locked"><span class="fg-ico">🔒</span><small>ab Rang ${nextRank + 1}</small></span>` : '');
+    // Truhe: Kacheln, nach Seltenheit gruppiert
+    const card = it => {
+      const on = load.includes(it.uid);
       const cost = GL.meta.forgeCost(it);
-      const btns = `<span class="forge-btns">
-        <button class="btn mini${on ? '' : ' ghost'}" data-act="toggle-item" data-id="${it.uid}"${!on && used >= slots ? ' disabled' : ''}>${on ? 'Kommt mit' : 'Mitnehmen'}</button>
-        ${cost != null ? `<button class="btn mini buy" data-act="forge" data-id="${it.uid}"${profile.berry < cost ? ' disabled' : ''}>⚒ ${GL.sprites.coin()} ${fmt(cost)}</button>` : '<small class="muted">Max.</small>'}
-        <button class="link" data-act="scrap" data-id="${it.uid}" title="Einschmelzen für Berry">einschmelzen</button></span>`;
-      return itemCard(it, btns, on ? 'on' : '');
-    }).join('');
-    const R = GL.config.rarities;
-    const fuseBar = R.slice(0, -1).map((rr, r) => {
+      const melt = 8 * (it.r + 1) + 10 * (it.lvl || 0);
+      return `<div class="fg-card ir-${rid(it)}${on ? ' on' : ''}">
+        ${on ? '<span class="fg-on">Dabei</span>' : ''}
+        <span class="fg-ico">${itemIcon(it)}</span>
+        <b class="fg-name">${nameOnly(it)}${it.lvl ? ` <em>+${it.lvl}</em>` : ''}</b>
+        ${lvPips(it)}
+        <small class="fg-stat">${itemStatText(it)}</small>
+        <button class="fg-take${on ? ' on' : ''}" data-act="toggle-item" data-id="${it.uid}"${!on && used >= slots ? ' disabled' : ''}>${on ? '✓ Kommt mit' : used >= slots ? 'Regal voll' : 'Mitnehmen'}</button>
+        <span class="fg-tools">
+          ${cost != null ? `<button class="fg-tool anvil" data-act="forge" data-id="${it.uid}"${profile.berry < cost ? ' disabled' : ''} title="Schmieden: eine Stufe stärker">⚒ <i>${GL.sprites.coin()}</i>${fmt(cost)}</button>` : '<span class="fg-tool max">Max.</span>'}
+          <button class="fg-tool melt" data-act="scrap" data-id="${it.uid}" title="Einschmelzen für ${melt} Berry">🔥 +${melt}</button>
+        </span>
+      </div>`;
+    };
+    const groups = R.map((rr, r) => ({ r, rr, items: chest.filter(x => x.r === r) })).reverse().filter(g => g.items.length);
+    const bag = groups.map(g => `<div class="fg-group ir-${g.rr.id}"><div class="fg-gh">${rarityPill(g.r)}<small>${g.items.length}</small></div><div class="fg-grid">${g.items.map(card).join('')}</div></div>`).join('');
+    // Amboss: 3 gleiche → 1 bessere, als Bild
+    const fuse = R.slice(0, -1).map((rr, r) => {
       const n = GL.meta.fusable(profile, r).length;
       const cost = GL.meta.fuseCost(r);
       const ok = n >= 3 && profile.berry >= cost;
-      return `<div class="fuse-step ir-${rr.id}${ok ? ' ready' : ''}">
-        <span class="fuse-from">${rarityPill(r)} <small>${n >= 3 ? `${n} da` : `${n} von 3`}</small></span><span class="fuse-arrow">→</span>${rarityPill(r + 1)}
-        <button class="btn mini${ok ? '' : ' ghost'}" data-act="fuse" data-r="${r}"${ok ? '' : ' disabled'}>Verschmelzen · ${GL.sprites.coin()} ${cost}</button>
+      const pips = [0, 1, 2].map(k => `<i class="fu-pip${k < n ? ' have' : ''}" style="--c:${RAR_COL[r]}"></i>`).join('');
+      return `<div class="fu-step${ok ? ' ready' : ''}${n ? '' : ' none'}">
+        <span class="fu-in">${pips}</span><span class="fu-arrow">➜</span><span class="fu-out" style="--c:${RAR_COL[r + 1]}">?</span>
+        <span class="fu-txt">${rarityPill(r)} <small>${n >= 3 ? `${n} bereit` : `${n} von 3`}</small></span>
+        <button class="fg-tool fu-go${ok ? ' hot' : ''}" data-act="fuse" data-r="${r}"${ok ? '' : ' disabled'}>Verschmelzen · <i>${GL.sprites.coin()}</i>${cost}</button>
       </div>`;
     }).join('');
-    return `<section class="hq-sec">
-      <div class="fuse-box"><b>Verschmelzen</b><small>3 Teile gleicher Seltenheit (nicht ausgewählt, niedrigste Stufe zuerst) werden zu 1 zufälligen Teil der nächsten Seltenheit.</small>${fuseBar}</div>
-      <p class="hint">Ausrüstung aus deinen Runs landet hier. Verbessere sie mit Berry (bis +${GL.config.items.maxLevel}) und nimm bis zu <b>${slots}</b> Stück in den nächsten Run mit (mehr Plätze ab Rang 6, 11, 16, 21). Im Run legst du sie im Steckbrief einer Figur an.</p>
-      ${chest.length ? `<div class="item-grid">${cards}</div>` : '<p class="muted">Noch leer. Besiege Kopfgeld-Ziele und Bosse, dann füllt sich die Truhe.</p>'}
+    return `<section class="hq-sec forge2">
+      <div class="fg-shelf pxf">
+        <div class="fg-head"><b>Fürs nächste Abenteuer</b><span class="fg-count">${used}/${slots}</span></div>
+        <div class="fg-shelf-row">${shelf}</div>
+        <small class="fg-note">Im Run legst du die Teile im Steckbrief einer Figur an.</small>
+      </div>
+      ${chest.length ? `<div class="fg-bag"><div class="fg-head"><b>Truhe</b><span class="fg-count">${chest.length}</span><span class="fg-berry"><i>${GL.sprites.coin()}</i>${fmt(profile.berry || 0)}</span></div>${bag}</div>`
+        : '<p class="fg-empty pxf">Noch leer. Besiege Kopfgeld-Ziele und Bosse, dann füllt sich die Truhe.</p>'}
+      <div class="fg-anvil pxf">
+        <div class="fg-head"><b>⚒ Amboss</b><small>3 gleiche Teile (nicht dabei) werden zu 1 besseren</small></div>
+        <div class="fu-grid">${fuse}</div>
+      </div>
     </section>`;
   }
 
@@ -3264,7 +3383,7 @@ window.GL = window.GL || {};
         ${devicesBox()}
         ${dangerZone(uiRef)}</section>` : ''}
       ${tab === 'auftraege' ? questBoard(profile) : ''}
-      ${tab === 'stammcrew' ? squadSection(profile) : ''}
+      ${tab === 'stammcrew' ? squadSection(profile, uiRef) : ''}
       ${tab === 'kammer' ? vaultSection(profile) : ''}
       ${tab === 'schmiede' ? forgeSection(profile) : ''}
       ${tab === 'rangliste' ? leaderboard(profile, uiRef) : ''}
@@ -3546,6 +3665,7 @@ window.GL = window.GL || {};
   }
 
   GL.ui = {
+    dressRoom,
     introSteps: INTRO.length,
     weekPop,
     // Kleines Freunde-Symbol (zwei Pixel-Köpfe) für die Ecke oben
