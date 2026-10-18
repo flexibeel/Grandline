@@ -53,6 +53,9 @@ GL.config = {
   ],
 
   // Sterne neuer Crewmitglieder: Gewicht und Bonus auf die Grundwerte
+  // Zusammenlegen wie bei TFT: Taucht eine Figur aus deiner Crew mit gleichen Sternen in der Taverne auf,
+  // macht ein Kauf aus beiden eine Figur mit einem Stern mehr (bis 3). Selten, damit es etwas Besonderes bleibt.
+  merge: { chance: 0.14, hp: 0.25, atk: 0.2, atkMin: 2 },
   stars: [
     { n: 1, w: 44, hp: -3, atk: 0 },
     { n: 2, w: 36, hp: 0,  atk: 0 },

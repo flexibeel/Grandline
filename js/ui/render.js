@@ -82,6 +82,28 @@ window.GL = window.GL || {};
     : ['..........', '.KKKKKKKK.', 'KBBBBBBBBK', 'KbbbbbbbbK', 'KKKKGGKKKK', 'KBBBGGBBBK', 'KBBBBBBBBK', 'KBBBBBBBBK', 'KbbbbbbbbK', 'KKKKKKKKKK'],
     { K: '#3a2416', B: '#a8693a', b: '#7a4a24', G: '#f2d24a', Y: '#f2d24a' }, [10, 10]);
   const PX_STAR = pxArt(['....Y.....', '...YYY....', 'YYYYYYYYY.', '.YYYOYYY..', '..YYYYY...', '..YYOYY...', '.YYY.YYY..', '.YY...YY..', 'Y.......Y.', '..........'], { Y: '#f2c94c', O: '#e0a020' }, [10, 10]);
+  // Kleine Pixel-Icons für wichtige Knöpfe (10×10, eigene Palette mit dunkler Kontur oder 'C' = Knopf-Textfarbe)
+  const PXI_ART = {
+    dice: [['.KKKKKKKK.', 'KWWWWWWWWK', 'KWKKWWWWWK', 'KWKKWWWWWK', 'KWWWKKWWWK', 'KWWWKKWWWK', 'KWWWWWKKWK', 'KWWWWWKKWK', 'KssssssssK', '.KKKKKKKK.'], { K: '#3a2416', W: '#fffaf0', s: '#d8c8b0' }],
+    ship: [['....R.....', '....KWW...', '...WKWWs..', '..WWKWWWs.', '..WWKWWWs.', '....K.....', 'KBBBBBBBBK', '.KbbbbbbK.', '..KKKKKK..', 'w.ww..ww.w'], { K: '#3a2416', W: '#fffaf0', s: '#d8c8b0', R: '#e0483b', B: '#c07a3a', b: '#8a4f24', w: '#7fc4e8' }],
+    swords: [['W........W', '.W......W.', '..W....W..', '...W..W...', '....WW....', '....WW....', '...G..G...', '..G....G..', '.K......K.', 'K........K'], { W: '#eef3f8', G: '#f2c94c', K: '#6b4a2a' }],
+    coin: [['...KKKK...', '..KYYYYK..', '.KYYWYYOK.', 'KYYWYYYYOK', 'KYYYYYYYOK', 'KYYYYYYYOK', 'KYYYYYYOOK', '.KYYYYOOK.', '..KOOOOK..', '...KKKK...'], { K: '#7a4a14', Y: '#f2d24a', O: '#d99a20', W: '#fff6c8' }],
+    anchor: [['....CC....', '...C..C...', '....CC....', '..CCCCCC..', '....CC....', '....CC....', 'C...CC...C', 'CC..CC..CC', '.CC.CC.CC.', '..CCCCCC..'], {}],
+    loop: [['...CCCC.C.', '.CCCCCCCC.', '.CC...CCC.', 'CC...CCCC.', 'CC........', 'CC......CC', '.CC....CC.', '.CCCCCCCC.', '...CCCC...', '..........'], {}]
+  };
+  const pxiCache = {};
+  function pxIco(name) {
+    if (name === 'chest') return `<i class="pxi pxi-chest">${PX_CHEST(false)}</i>`;
+    if (name === 'fire') return `<i class="pxi pxi-fire">${PX_FLAME}</i>`;
+    const a = PXI_ART[name];
+    if (!a) return '';
+    if (!pxiCache[name]) {
+      let r = '';
+      a[0].forEach((row, y) => row.split('').forEach((ch, x) => { const f = ch === 'C' ? 'currentColor' : a[1][ch]; if (f) r += `<rect x="${x}" y="${y}" width="1" height="1" fill="${f}"/>`; }));
+      pxiCache[name] = `<i class="pxi pxi-${name}"><svg viewBox="0 0 10 10" shape-rendering="crispEdges" aria-hidden="true">${r}</svg></i>`;
+    }
+    return pxiCache[name];
+  }
   function weekPop(profile) {
     const w = GL.meta.weekly(profile);
     const row = t => `<div class="wk-task${t.done ? ' done' : ''}"><i>${t.done ? '✓' : ''}</i><span><b>${esc(t.text)}</b><span class="goal-bar"><i style="width:${Math.round(100 * t.have / t.need)}%"></i></span></span><em>${t.have}/${t.need}</em></div>`;
@@ -133,6 +155,13 @@ window.GL = window.GL || {};
   function stars(n) {
     return `<span class="stars s${n}" aria-label="${n} von 3 Sternen">${'★'.repeat(n)}<i>${'★'.repeat(3 - n)}</i></span>`;
   }
+
+  // Sterne zusammenlegen: passendes Crewmitglied zum Doppel-Angebot
+  function mergeTwin(run, o) {
+    if (!o || !o.dup) return null;
+    return run.crew.find(u => u.id === o.id && (u.stars || 1) === (o.stars || 1) && (o.stars || 1) < 3) || null;
+  }
+  const PX_STAR_UP = '<svg class="px-starup" viewBox="0 0 9 9" width="12" height="12" shape-rendering="crispEdges" aria-hidden="true"><path fill="#ffd34a" d="M4 0h1v2h2v1h2v1H8v1H7v1h1v2H7V7H5V6H4v1H2v1H1V6h1V5H1V4H0V3h2V2h2z"/><path fill="#b8860b" d="M4 6h1v1H4zM2 7h1v1H2zM6 7h1v1H6z"/></svg>';
 
   function traitChip(id) {
     const t = trait(id);
@@ -440,7 +469,7 @@ window.GL = window.GL || {};
     if (!(GL.pickSel && GL.pickSel.key === key && items[GL.pickSel.i])) return `<p class="hint pick-hint">Antippen zum Auswählen, dann bestätigen.</p><p class="pick-skip-row">${skip}</p>`;
     const it = items[GL.pickSel.i];
     const chk = '<svg class="px-chk" viewBox="0 0 7 6" shape-rendering="crispEdges" aria-hidden="true"><path fill="currentColor" d="M6 0h1v1h-1zM5 1h1v1h-1zM6 1h1v1h-1zM0 2h1v1h-1zM4 2h1v1h-1zM5 2h1v1h-1zM0 3h1v1h-1zM1 3h1v1h-1zM3 3h1v1h-1zM4 3h1v1h-1zM1 4h1v1h-1zM2 4h1v1h-1zM3 4h1v1h-1zM2 5h1v1h-1z"/></svg>';
-    return `<div class="dock pick-dock"><button class="btn" data-act="pick" data-i="${GL.pickSel.i}">${chk} ${esc(it.name || 'Auswahl')} nehmen</button></div><p class="pick-skip-row">${skip}</p>`;
+    return `<div class="dock pick-dock"><button class="btn" data-act="pick" data-i="${GL.pickSel.i}">${run.phase === 'treasure' ? pxIco('chest') : chk} ${esc(it.name || 'Auswahl')} nehmen</button></div><p class="pick-skip-row">${skip}</p>`;
   }
   // Kurze Begründung unter einer Auswahl, falls es einen Tipp gibt
   function tipLine(tip) {
@@ -1124,10 +1153,11 @@ window.GL = window.GL || {};
         const tiles = run.pool.map((o, i) => {
           const d = crewData(o.id), m = GL.run.previewMember(run, o);
           const price = GL.run.offerPrice(run, o);
-          const can = !o.sold && !full && gold >= price;
-          const overall = weak && full ? cmp(pw(m), pw(weak)) : null;
-          return `<button class="tv-off pxf${o.sold ? ' sold' : can ? '' : ' cant'}${sel === i ? ' sel' : ''}${(o.stars || 1) >= 3 ? ' s3' : ''}${tip && tip.index === i && !o.sold ? ' rec' : ''}" data-act="tv-sel" data-i="${i}">
-            ${run.buddy === o.id && !o.sold ? '<span class="tv-rec tv-buddy">♥ Vertrauter</span>' : tip && tip.index === i && !o.sold ? '<span class="tv-rec">Tipp</span>' : ''}
+          const twin = mergeTwin(run, o);
+          const can = !o.sold && (!full || twin) && gold >= price;
+          const overall = weak && full && !twin ? cmp(pw(m), pw(weak)) : null;
+          return `<button class="tv-off pxf${o.sold ? ' sold' : can ? '' : ' cant'}${sel === i ? ' sel' : ''}${(o.stars || 1) >= 3 ? ' s3' : ''}${twin && !o.sold ? ' dup' : ''}${tip && tip.index === i && !o.sold ? ' rec' : ''}" data-act="tv-sel" data-i="${i}">
+            ${twin && !o.sold ? `<span class="tv-rec tv-dup">${PX_STAR_UP}Aufwerten</span>` : run.buddy === o.id && !o.sold ? '<span class="tv-rec tv-buddy">♥ Vertrauter</span>' : tip && tip.index === i && !o.sold ? '<span class="tv-rec">Tipp</span>' : ''}
             <span class="tv-stars">${stars(o.stars || 1)}</span>
             <i class="tv-spr">${GL.sprites.renderShaded ? GL.sprites.renderShaded(d) : GL.sprites.render(d)}</i>
             <b class="tv-name">${esc(d.name)}</b>
@@ -1140,7 +1170,8 @@ window.GL = window.GL || {};
         let detail = '';
         if (sel != null && run.pool[sel]) {
           const o = run.pool[sel], d = crewData(o.id), m = GL.run.previewMember(run, o);
-          const price = GL.run.offerPrice(run, o), can = !o.sold && !full && gold >= price;
+          const twin = mergeTwin(run, o);
+          const price = GL.run.offerPrice(run, o), can = !o.sold && (!full || twin) && gold >= price;
           const a = ability(d.id), t = o.trait ? trait(o.trait) : null, u = ultiOf(d.id, d.role);
           const row = (lbl, ico, v, w) => `<span class="tv-st"><i>${ico}</i>${lbl} <b>${v}</b>${w != null && full ? arrow(cmp(v, w)) : ''}</span>`;
           detail = `${phone ? '<div class="tv-sheet-bg" data-act="tv-sel" data-i="-1"></div>' : ''}<div class="tv-detail pxf${phone ? ' tv-sheet' : ''}">${phone ? '<button class="tv-sheet-x" data-act="tv-sel" data-i="-1" aria-label="Schließen">✕</button>' : ''}
@@ -1150,18 +1181,22 @@ window.GL = window.GL || {};
             ${(() => { const why = o.sold ? [] : whyNow(run, d, m); return why.length ? `<div class="tv-why"><span class="why-k">Darum lohnt ${SHE.includes(d.id) ? 'sie' : 'er'} sich jetzt</span>${why.map(w => `<span class="why-row">${w.ico}<span>${esc(w.t)}</span></span>`).join('')}</div>` : ''; })()}
             ${abilityBlock(d)}
             ${t ? `<p class="tv-ab tv-trait"><span class="abx-k">Eigenschaft</span><b>${esc(t.name)}</b> ${esc(t.text)}</p>` : ''}
-            ${full && !o.sold && weak && weak.id !== run.captain
+            ${twin && !o.sold ? (() => { const M = GL.config.merge, to = (twin.stars || 1) + 1; return `<div class="tv-merge pxf"><span class="mg-pair"><i>${GL.sprites.render(d)}</i><b class="mg-st">${'★'.repeat(twin.stars || 1)}</b><span class="mg-plus">+</span><i>${GL.sprites.render(d)}</i><b class="mg-st">${'★'.repeat(twin.stars || 1)}</b><span class="mg-arrow">➜</span><i class="mg-out">${GL.sprites.render(d)}</i><b class="mg-st mg-to">${'★'.repeat(to)}</b></span>
+              <p><b>Zusammenlegen:</b> ${esc(d.name)} ist schon in deiner Crew. Zwei gleiche werden zu einer stärkeren Figur mit ${to} Sternen: +${Math.round(twin.max * M.hp)} Leben, +${Math.max(M.atkMin, Math.round(twin.atk * M.atk))} Angriff, volle Heilung. Braucht keinen freien Platz.</p>${!full ? '<small class="mg-tip">Tipp: Du hast noch freie Plätze. Eine neue Figur bringt meist mehr, Zusammenlegen lohnt sich vor allem bei voller Crew.</small>' : ''}</div>`; })() : ''}
+            ${twin && !o.sold
+              ? `<button class="btn tv-buy tv-mergebtn" data-act="pick" data-i="${sel}"${can ? '' : ' disabled'}>${gold < price ? `Zu wenig Gold (${price})` : `${PX_STAR_UP}Zusammenlegen für ${price} Gold`}</button>`
+              : full && !o.sold && weak && weak.id !== run.captain
               ? `<button class="btn tv-buy tv-swap${weak.hp <= 0 ? ' down' : ''}" data-act="tv-swap" data-i="${sel}" data-j="${run.crew.indexOf(weak)}"${gold + GL.run.sellValue(weak) >= price ? '' : ' disabled'}>
                   <span class="tv-swap-out">${GL.sprites.render(crewData(weak.id))}${weak.hp <= 0 ? PX_GRAVE : ''}</span><span class="tv-swap-arrow">➜</span><span class="tv-swap-in">${GL.sprites.render(d)}</span>
                   <span>${gold + GL.run.sellValue(weak) >= price ? `Tauschen gegen ${esc(crewData(weak.id).name)}${weak.hp <= 0 ? ' (K.O.)' : ''} · ${price} Gold` : `Zu wenig Gold (${price})`}</span></button>`
-              : `<button class="btn tv-buy" data-act="pick" data-i="${sel}"${can ? '' : ' disabled'}>${o.sold ? 'Schon angeheuert' : full ? 'Schiff voll: erst jemanden entlassen' : gold < price ? `Zu wenig Gold (${price})` : `Anheuern für ${price} Gold`}</button>`}
+              : `<button class="btn tv-buy" data-act="pick" data-i="${sel}"${can ? '' : ' disabled'}>${o.sold ? 'Schon angeheuert' : full ? 'Schiff voll: erst jemanden entlassen' : gold < price ? `Zu wenig Gold (${price})` : `${pxIco('coin')}Anheuern für ${price} Gold`}</button>`}
           </div>`;
         }
         const roll = GL.run.rerollCost(run);
         const crewRow = run.crew.map((u, i) => {
           const d = crewData(u.id), cap = u.id === run.captain;
           const down = u.hp <= 0;
-          return `<span class="tv-mem pxf${weak && full && u === weak ? ' weak' : ''}${down ? ' down' : ''}"><i>${GL.sprites.render(d)}</i>${down ? `<span class="down-mark">${PX_GRAVE}<b>K.O.</b></span>` : ''}<small>${esc(d.name)}</small><em>${down ? 'Besiegt' : 'Lv ' + u.lvl}</em>
+          return `<span class="tv-mem pxf${weak && full && u === weak ? ' weak' : ''}${down ? ' down' : ''}${ui.mergeFx === u.id ? ' merged' : ''}"><i>${GL.sprites.render(d)}</i>${down ? `<span class="down-mark">${PX_GRAVE}<b>K.O.</b></span>` : ''}${(u.stars || 1) > 1 ? `<span class="tv-mstars">${'★'.repeat(u.stars)}</span>` : ''}<small>${esc(d.name)}</small><em>${down ? 'Besiegt' : 'Lv ' + u.lvl}</em>
             ${cap ? '<span class="tv-cap">Kapitän</span>' : askDismiss(i) ? `<button class="tv-x ask" data-act="dismiss" data-i="${i}">Wirklich? +${GL.run.sellValue(u)}</button>` : `<button class="tv-x${down ? ' hot' : ''}" data-act="dismiss" data-i="${i}" title="Entlassen (+${GL.run.sellValue(u)} Gold)">✕ ${GL.run.sellValue(u)}</button>`}</span>`;
         }).join('');
         const harbor = run.harbor ? `<div class="harbor-box pxf"><span class="event-kicker">${run.loop ? `Zwischenhafen · Runde ${run.loop + 1}` : 'Endlos-Fahrt · Hafen'}</span>
@@ -1176,8 +1211,8 @@ window.GL = window.GL || {};
             <div class="tv-crew-head"><span>Deine Crew ${run.crew.length}/${lim}</span>${downN ? `<span class="down-chip">${PX_GRAVE} ${downN} besiegt: austauschen oder bei einer Rast heilen</span>` : weak && full ? '<small><span class="weak-key"></span> = schwächste Figur, Pfeile vergleichen mit ihr</small>' : ''}</div>
             <div class="tv-crew">${crewRow}</div>
             <div class="tv-actions">
-              <button class="btn ghost" data-act="reroll"${gold < roll ? ' disabled' : ''}>Neu würfeln · ${roll} ${keyHint('R')}</button>
-              <div class="dock"><button class="btn" data-act="leave">${run.harbor ? 'Ablegen: nächste Runde' : 'Weitersegeln'} ${keyHint('Leertaste')}</button></div>
+              <button class="btn ghost" data-act="reroll"${gold < roll ? ' disabled' : ''}>${pxIco('dice')}Neu würfeln · ${roll} ${keyHint('R')}</button>
+              <div class="dock"><button class="btn" data-act="leave">${pxIco('ship')}${run.harbor ? 'Ablegen: nächste Runde' : 'Weitersegeln'} ${keyHint('Leertaste')}</button></div>
             </div>
           </div>`;
       }
@@ -1253,7 +1288,7 @@ window.GL = window.GL || {};
           ${boss && ability(boss.id) && !run.pending.rival ? `<p class="hint boss-mech"><b>${unitName(boss)}, ${ability(boss.id).name}:</b> ${abilityTag(ability(boss.id))} ${ability(boss.id).text}</p>` : ''}
           ${boss && ability(boss.id) && ability(boss.id).status ? counterHint(run, ability(boss.id).status.key) : ''}
           ${specialPanel(run)}
-          <div class="dock"><button class="btn" data-act="fight">Kampf starten ${keyHint('Leertaste')}</button></div>`;
+          <div class="dock"><button class="btn" data-act="fight">${pxIco('swords')}Kampf starten ${keyHint('Leertaste')}</button></div>`;
       }
 
       case 'battle': {
@@ -1314,16 +1349,18 @@ window.GL = window.GL || {};
             <div class="xpbar big rank-bar fill-anim" style="--from:${fromPct}%;--to:${toPct}%"><i style="width:${toPct}%"></i></div></div>${ups}`;
         }
         const newItems = (run.items || []).filter(x => !x.carried);
-        const itemSum = newItems.length ? `<div class="trophy-sum items-sum"><span class="event-kicker">Neue Ausrüstung für die Schmiede</span>
-          ${newItems.map(x => `<span class="trophy-chip ir-${GL.config.rarities[x.r].id}">${esc(itemName(x))}</span>`).join('')}</div>` : '';
+        // Beute als kleine 3D-Kacheln (Icon groß, Rahmen in Seltenheitsfarbe, Name darunter), nacheinander eingeblendet
+        const lootTile = (rid, art, name, i, tip) => `<span class="loot-tile lt-${rid}" style="--d:${i}"${tip ? ` data-tip="${esc(tip)}"` : ''}><i class="lt-art">${art}</i><small>${esc(name)}</small></span>`;
+        const itemSum = newItems.length ? `<div class="trophy-sum items-sum loot-sum"><span class="event-kicker">Neue Ausrüstung für die Schmiede</span>
+          <span class="loot-grid">${newItems.map((x, i) => lootTile(GL.config.rarities[x.r].id, itemIcon(x), itemName(x), i, GL.config.rarities[x.r].name)).join('')}</span></div>` : '';
         const cgNew = ui.profile && ui.lastBerry != null && GL.cgear ? (ui.profile.lastGear || []).map(uid => GL.cgear.bag(ui.profile).find(x => x.uid === uid)).filter(Boolean) : [];
-        const cgHtml = cgNew.length ? `<div class="trophy-sum cg-sum"><span class="event-kicker">Beute für deine Stammcrew</span>
-          ${cgNew.map(it => `<span class="trophy-chip cr-${GL.cgear.RID[it.r]}">${cgArt(it)} ${esc(GL.cgear.name(it))}</span>`).join('')}</div>` : '';
+        const cgHtml = cgNew.length ? `<div class="trophy-sum cg-sum loot-sum"><span class="event-kicker">Beute für deine Stammcrew</span>
+          <span class="loot-grid">${cgNew.map((it, i) => lootTile(GL.cgear.RID[it.r], cgArt(it), GL.cgear.name(it), i)).join('')}</span></div>` : '';
         const shardHtml = run.endlessSea != null && ui.lastBerry != null ? `<div class="trophy-sum"><span class="event-kicker">Endlos-Fahrt · ${esc((GL.data.islands[run.endlessSea] || {}).name || '')}</span>
           <span>${run.loop || 0} ${run.loop === 1 ? 'Runde' : 'Runden'} geschafft${ui.profile && ui.profile.lastShards ? ` · <b>+${ui.profile.lastShards} 🔹 Meersplitter</b> zum Neu-Würfeln von Ausrüstung` : ''}</span></div>` : '';
         const tro = (run.trophies || []).map(id => (GL.data.artifacts || []).find(a => a.id === id)).filter(Boolean);
-        const troHtml = tro.length ? `<div class="trophy-sum"><span class="event-kicker">Neu in der Schatzkammer</span>
-          ${tro.map(a => `<span class="trophy-chip" title="${a.text.replace('{v}', '…')}">${artIcon(a)} ${a.name}</span>`).join('')}</div>` : '';
+        const troHtml = tro.length ? `<div class="trophy-sum tro-sum loot-sum"><span class="event-kicker">Neu in der Schatzkammer</span>
+          <span class="loot-grid">${tro.map((a, i) => lootTile('trophy', artIcon(a), a.name, i, a.text.replace('{v}', '…'))).join('')}</span></div>` : '';
         const duelHtml = run.daily ? `<div class="duel-sum"><span class="event-kicker">Tageskarte</span><span>Dein Ergebnis heute: <b>${GL.run.score(run).toLocaleString('de-DE')}</b> Punkte. Vergleiche dich in der Rangliste unter „Tageskarte“.</span></div>` : run.duel ? `<div class="duel-sum"><span class="event-kicker">Wettfahrt ${run.duel}</span>
           <span>Dein Ergebnis: <b>${GL.run.score(run).toLocaleString('de-DE')}</b> Punkte. Schick deinem Freund den Code <b>${run.duel}</b>, er spielt denselben Run.</span>
           <button class="btn mini ghost" data-act="duel-copy" data-id="${run.duel}">Code teilen</button></div>` : '';
@@ -1341,8 +1378,8 @@ window.GL = window.GL || {};
             const t = lifeLine(ui.profile, who.id, run.phase === 'win' ? 'win' : 'lose', { boss: fd ? fd.name : 'den Boss' });
             const d = who.id === 'self' ? avatarOf(ui.profile) : crewData(who.id);
             return t && d ? `<p class="bond-say"><i>${GL.sprites.render(d)}</i><span><b>${esc(d.name)}</b>${esc(t)}</span></p>` : ''; })()}</div>` : '';
-        return `${head}${duelHtml}${endlessHtml}${record}${berry}${bond}${shardHtml}${cgHtml}${troHtml}${itemSum}${rankHtml}${heatUp}${goals}<div class="end-actions dock">${canEndless ? `<button class="btn" data-act="endless">Weitersegeln ⚓</button>` : ''}<button class="btn${canEndless ? ' ghost' : ''}" data-act="again">${run.daily ? 'Neuer Run' : run.duel ? 'Normaler Run' : 'Nochmal!'} ${keyHint('Leertaste')}</button>
-          <button class="btn ghost" data-act="hq">Hauptquartier ${keyHint('H')}</button></div>`;
+        return `${head}${duelHtml}${endlessHtml}${record}${berry}${bond}${shardHtml}${cgHtml}${troHtml}${itemSum}${rankHtml}${heatUp}${goals}<div class="end-actions dock">${canEndless ? `<button class="btn" data-act="endless">${pxIco('ship')}Weitersegeln</button>` : ''}<button class="btn${canEndless ? ' ghost' : ''}" data-act="again">${pxIco('loop')}${run.daily ? 'Neuer Run' : run.duel ? 'Normaler Run' : 'Nochmal!'} ${keyHint('Leertaste')}</button>
+          <button class="btn ghost" data-act="hq">${pxIco('anchor')}Hauptquartier ${keyHint('H')}</button></div>`;
       }
     }
     return '';
@@ -1504,9 +1541,21 @@ window.GL = window.GL || {};
       <div class="cg-head"><b>Ausrüstung</b><small>${bag.length}/${GL.data.crewGear.bagMax} in der Tasche · 🔹 ${profile.shards || 0}</small></div>
       ${bag.length ? '<p class="cg-hint">Teil auf einen passenden Platz ziehen oder den Platz antippen.</p>' : ''}
       ${rows}
-      ${list.length ? `<div class="cg-bag">${GL.data.crewGear.slots.map(sl => { const grp = list.filter(it => GL.cgear.slotOf(it) === sl.id); return grp.length ? `<div class="cg-grp"><small class="cg-grp-t">${CG_ICON[sl.id]} ${sl.id === 'trophae' ? 'Trophäen' : sl.id === 'waffe' ? 'Waffen' : sl.name} <em>${grp.length}</em></small><div class="cg-grp-items">${grp.map(it => `<span class="cg-bagit${fresh.includes(it.uid) ? ' new' : ''}${GL.cgear.wornBy(profile, it.uid) ? ' worn' : ''}">${cgChip(it, 'cg-item', `data-uid="${it.uid}"`)}</span>`).join('')}</div></div>` : ''; }).join('')}</div>`
+      ${list.length ? `<div class="cg-bag">${GL.data.crewGear.slots.map(sl => { const grp = list.filter(it => GL.cgear.slotOf(it) === sl.id); return grp.length ? `<div class="cg-grp"><small class="cg-grp-t">${CG_ICON[sl.id]} ${sl.id === 'trophae' ? 'Trophäen' : sl.id === 'waffe' ? 'Waffen' : sl.name} <em>${grp.length}</em></small><div class="cg-grp-items">${grp.map(it => { const by = GL.cgear.wornBy(profile, it.uid), w = gearWearer(profile, by); return `<span class="cg-bagit${fresh.includes(it.uid) ? ' new' : ''}${by ? ' worn' : ''}">${cgChip(it, 'cg-item', `data-uid="${it.uid}"`)}${w ? `<i class="cg-face" title="Angelegt bei ${esc(w.name)}">${w.spr}</i>` : ''}</span>`; }).join('')}</div></div>` : ''; }).join('')}</div>`
         : '<p class="hint">Noch leer. Bosse und Raids lassen ab jetzt Waffen, Kleidung und Schmuck fallen, im Endlos-Modus öfter und besser.</p>'}
     </div>`;
+  }
+  // Wer trägt dieses Teil? (Mini-Figur + Name)
+  function gearWearer(profile, by) {
+    if (!by) return null;
+    const ref = (GL.meta.squadRefs(profile) || []).find(r => r.id === by);
+    const name = by === 'self' ? (profile.nickname || 'Du') : (crewData(by) || {}).name || (ref && ref.name) || '';
+    const spr = ref ? squadSprite(ref) : crewData(by) ? GL.sprites.render(crewData(by)) : '';
+    return { name, spr };
+  }
+  function wornTag(profile, by, here) {
+    const w = gearWearer(profile, by);
+    return w ? `<span class="cg-worn${here ? ' here' : ''}"><i>${w.spr}</i><span>${here ? 'Gerade angelegt bei' : 'Angelegt bei'} <b>${esc(w.name)}</b></span></span>` : '<span class="cg-worn free">Frei in der Tasche</span>';
   }
   // Fenster: Teil für einen Platz wählen
   function gearPick(profile, crewId, slot) {
@@ -1517,9 +1566,11 @@ window.GL = window.GL || {};
     const who = crewId === 'self' ? (profile.nickname || 'Du') : (crewData(crewId) || {}).name;
     return `<div class="fpop-card cg-pop" role="dialog" aria-labelledby="fpop-t">
       <span class="fpop-kicker">${esc(sl.name || '')} für ${esc(who || '')}</span>
-      ${cur ? cgCard(cur, `<button class="btn mini ghost" data-act="cg-off" data-id="${esc(crewId)}" data-slot="${slot}">Ablegen</button>`) : '<h3 id="fpop-t">Noch nichts angelegt</h3>'}
-      ${opts.length ? `<div class="cg-list">${opts.map(it => { const by = GL.cgear.wornBy(profile, it.uid);
-        return cgCard(it, `<button class="btn mini" data-act="cg-on" data-id="${esc(crewId)}" data-uid="${it.uid}">${by ? 'Hierher wechseln' : 'Anlegen'}</button>`); }).join('')}</div>`
+      ${cur ? cgCard(cur, `${wornTag(profile, crewId, true)}<button class="btn mini ghost" data-act="cg-off" data-id="${esc(crewId)}" data-slot="${slot}">Ablegen</button>`) : '<h3 id="fpop-t">Noch nichts angelegt</h3>'}
+      ${opts.length ? `<div class="cg-list">${opts.map(it => { const by = GL.cgear.wornBy(profile, it.uid), w = gearWearer(profile, by);
+        const dp = cur ? GL.cgear.power(it) - GL.cgear.power(cur) : null;
+        const delta = dp == null ? '' : `<span class="cg-delta ${dp > 0 ? 'up' : dp < 0 ? 'dn' : 'eq'}">${dp > 0 ? '+' : ''}${dp} ⚔ zum jetzigen</span>`;
+        return `<div class="cg-opt${by ? ' taken' : ''}">${cgCard(it, `<div class="cg-optfoot">${wornTag(profile, by)}${delta}</div><button class="btn mini${by ? ' ghost' : ''}" data-act="cg-on" data-id="${esc(crewId)}" data-uid="${it.uid}">${by ? `Von ${esc(w.name)} nehmen` : 'Anlegen'}</button>${by ? `<small class="cg-warn">${esc(w.name)} hat danach nichts mehr auf diesem Platz.</small>` : ''}`)}</div>`; }).join('')}</div>`
         : `<p class="hint">Keine passenden Teile in der Tasche. Bosse lassen ${esc(sl.name || 'Ausrüstung')} fallen.</p>`}
       <div class="fpop-btns"><button class="btn ghost" data-act="pop-close">Schließen</button></div>
     </div>`;
@@ -1530,7 +1581,7 @@ window.GL = window.GL || {};
     const C = GL.data.crewGear, cost = C.rerollCost[it.r] || 1, sh = profile.shards || 0;
     const extra = Object.keys(it.a || {}).filter(k => k !== it.m).length;
     const rr = own && extra ? `<button class="btn mini" data-act="cg-reroll" data-uid="${it.uid}"${sh < cost ? ' disabled' : ''}>🔹 Werte neu würfeln (${cost})</button>` : '';
-    const foot = own ? `<div class="cg-foot">${rr}${by ? `<small class="muted">Angelegt bei ${esc(by === 'self' ? (profile.nickname || 'dir') : (crewData(by) || {}).name || '')}</small>`
+    const foot = own ? `<div class="cg-foot">${rr}${by ? wornTag(profile, by)
       : `<button class="btn mini ghost danger-btn" data-act="cg-scrap" data-uid="${it.uid}">Zerlegen (+${C.scrap[it.r]} Berry${C.shardScrap[it.r] ? `, +${C.shardScrap[it.r]} 🔹` : ''})</button>`}</div>
       <small class="cg-shards">🔹 ${sh} Meersplitter · gibt es in der Endlos-Fahrt und beim Zerlegen seltener Teile</small>` : '';
     return `<div class="fpop-card cg-pop" role="dialog"><span class="fpop-kicker">Ausrüstung</span>${cgCard(it, foot)}
@@ -2165,6 +2216,28 @@ window.GL = window.GL || {};
     const friends = GL.friends ? rows.filter(r => fr.has(GL.friends.norm(GL.friends.code(r.id)))) : [];
     return { n: rows.length, friends: friends.slice(0, 4) };
   }
+  // Seekarte: alle Meere untereinander, zweite Routen zweigen zur Seite ab. Das Schiff zeigt, wie weit du kamst
+  function seaMap(profile, compact) {
+    const c = (profile && profile.counts) || {};
+    const far = [0, 1, 2].filter(i => c['reached:' + i]).length - 1;
+    const seen = (profile && profile.seen && profile.seen.islands) || [];
+    const ord = ['Erstes', 'Zweites', 'Drittes'];
+    const node = (S, i, alt) => {
+      const isl = S.small.concat(S.big), been = isl.some(x => seen.includes(x.id));
+      const feat = alt ? (GL.data.features || []).find(f => f.id === S.feature) : null;
+      const open = !alt || (profile && feat && GL.meta.featureOpen(profile, feat.id));
+      const bosses = (S.bosses || []).map(id => enemyData(id)).filter(Boolean);
+      const how = alt ? (open ? `Im ${ord[i]} Meer beim Kurs setzen wählen` : `🔒 ab Rang ${feat ? feat.lvl : '?'}`) : `${ord[i]} Meer`;
+      return `<div class="sm-node${alt ? ' alt' : ''}${been ? ' been' : ''}${open ? '' : ' locked'}">
+        ${!alt && far === i ? '<i class="sm-ship" title="So weit bist du gekommen">⛵</i>' : ''}
+        <b>${esc(S.name)}</b><small>${esc(how)}</small>
+        ${compact ? '' : `<span class="sm-bosses">${bosses.map(bb => `<i>${GL.sprites.render(bb)}</i>`).join('')}</span>`}
+        ${been ? '<em class="sm-been">✓</em>' : ''}</div>`;
+    };
+    return `<div class="sea-map${compact ? ' compact' : ''}"><span class="sm-compass" aria-hidden="true">✦</span>
+      ${GL.data.islands.map((S, i) => `<div class="sm-row">${node(S, i, false)}${S.alt ? `<span class="sm-fork" aria-hidden="true"></span>${node(S.alt, i, true)}` : ''}</div>${i < GL.data.islands.length - 1 ? '<span class="sm-path" aria-hidden="true"></span>' : ''}`).join('')}
+      <p class="sm-note">Jeder Run startet im East Blue. Zweite Routen erscheinen im jeweiligen Meer beim Kurs setzen: Dann steht eine Insel aus jeder Route zur Wahl.</p></div>`;
+  }
   // Wiki: alle Meere und Routen mit Inseln, Bösewichten, Bossen, Begleitern und Landgängen
   function routesWiki(profile) {
     const seen = (profile && profile.seen && profile.seen.islands) || [];
@@ -2189,7 +2262,7 @@ window.GL = window.GL || {};
         ${v.n ? `<div class="wr-line wr-who"><span class="wr-k">Schon hier</span>${v.friends.map(r => `<span class="wr-fr"><i class="fr-av">${portrait(r.look || {}, r.cos || {}, 'xs')}</i>${esc(r.name)}</span>`).join('')}<small>${v.n} ${v.n === 1 ? 'Pirat' : 'Piraten'} aus der Rangliste</small></div>` : ''}
       </div>`;
     };
-    return `<section class="wk-sec"><h3>Routen der Grand Line</h3><p>Jedes Meer hat seine Inseln, Bösewichte und Bosse. Manche Meere haben eine zweite Route, die du mit dem Piratenrang freischaltest. Auf vielen Inseln wartet ein Begleiter und ein Landgang.</p>
+    return `<section class="wk-sec"><h3>Seekarte</h3>${seaMap(profile)}</section><section class="wk-sec"><h3>Routen der Grand Line</h3><p>Jedes Meer hat seine Inseln, Bösewichte und Bosse. Manche Meere haben eine zweite Route, die du mit dem Piratenrang freischaltest. Auf vielen Inseln wartet ein Begleiter und ein Landgang.</p>
       ${GL.data.islands.map((S, i) => sec(S, i, false) + (S.alt ? sec(S.alt, i, true) : '')).join('')}</section>
       <section class="wk-sec"><h3>Landgang</h3><p>Kurze Abenteuer auf Inseln, die du schon kennst (im Hafen unter „Landgang“). Erst ein paar schnelle Entscheidungen, deine Stammcrew redet mit. Passt eine Figur zur Aufgabe (★), klappt es öfter. Gute Entscheidungen schwächen den Boss, Pech macht es knapp. Am Ende kämpft deine Stammcrew gegen den Boss des Ortes.</p>
         <p>Jederzeit wiederholbar. Die erste Erkundung pro Ort und Tag bringt volle Beute: Berry, Meersplitter, Ausrüstung (mit Glück episch) und ein seltenes Fundstück.</p>
@@ -2981,7 +3054,8 @@ window.GL = window.GL || {};
       const bosses = (R.bosses || []).map(id => enemyData(id)).filter(Boolean);
       const pts = (GL.data.pets || []).filter(p => ids.includes(p.isl));
       const v = routeVisitors(prof, ids);
-      return `<div class="wow-route">
+      const seaIdx = GL.data.islands.findIndex(x => x.alt === R);
+      return `<div class="wow-route"><p class="wow-how"><b>So kommst du hin:</b> Segle im Run bis ins ${['erste', 'zweite', 'dritte'][seaIdx] || ''} Meer (${esc(GL.data.islands[seaIdx].name)}). Beim Kurs setzen steht dann eine Insel von ${esc(R.name)} zur Wahl.</p>
         <div class="wow-bosses">${bosses.map(b => `<span><i>${GL.sprites.render(b)}</i><small>${esc(b.name)}</small></span>`).join('')}</div>
         <p class="wow-line">${isl.length} Inseln${pts.length ? ` · ${pts.length} Begleiter <span class="wow-pets">${pts.map(p => `<i class="pet-sil">${petArt(p.id)}</i>`).join('')}</span>` : ''}</p>
         ${v.friends.length ? `<p class="wow-line">Schon dort: ${v.friends.map(r => `<b>${esc(r.name)}</b>`).join(', ')}</p>` : v.n ? `<p class="wow-line">${v.n} ${v.n === 1 ? 'Pirat war' : 'Piraten waren'} schon dort. Jetzt du!</p>` : `<p class="wow-line">Noch kaum jemand war dort. Sei unter den Ersten!</p>`}
@@ -2995,7 +3069,7 @@ window.GL = window.GL || {};
       <p>${esc(f.text)}</p>${wow}
       ${f.steps && f.steps.length ? `<ol class="fpop-steps">${f.steps.map(s => `<li>${esc(s)}</li>`).join('')}</ol>` : ''}
       ${more && more.length ? `<p class="fpop-more">Auch neu: ${more.map(m => `<span>${featureArt(m.art)}${esc(m.name.replace(/^(Der|Die|Das|Deine) /, ''))}</span>`).join('')}</p>` : ''}
-      <div class="fpop-btns">${f.tab ? `<button class="btn" data-act="fpop-go" data-id="${f.id}">Ansehen</button>` : ''}<button class="btn ghost" data-act="fpop-close" data-id="${f.id}">${f.tab ? 'Später' : 'Alles klar'}</button></div>
+      <div class="fpop-btns">${R ? `<button class="btn" data-act="fpop-map" data-id="${f.id}">🗺 Seekarte</button>` : ''}${f.tab ? `<button class="btn" data-act="fpop-go" data-id="${f.id}">Ansehen</button>` : ''}<button class="btn ghost" data-act="fpop-close" data-id="${f.id}">${f.tab ? 'Später' : 'Alles klar'}</button></div>
     </div>`;
   }
   // Ruhiger Hinweis auf die nächste Freischaltung
@@ -3143,7 +3217,7 @@ window.GL = window.GL || {};
         ${atSeaBox()}
         ${uiRef && uiRef.peek ? `<small class="sail-note">Oben links geht es zurück zum Run.</small>` : `
         <div class="sail-row">
-          <button class="btn sail" data-act="sail">⚓ Leinen los! ${keyHint('Leertaste')}</button>
+          <button class="btn sail" data-act="sail">${pxIco('ship')}Leinen los! ${keyHint('Leertaste')}</button>
         </div>
         ${actionDock(profile)}
         <div class="sail-meta">${heatBox}${board.length ? `<span class="sail-board"><span class="sb-lbl">An Bord</span>${board.join('')}</span>` : ''}${buddyChip(profile)}</div>`}

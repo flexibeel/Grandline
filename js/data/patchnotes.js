@@ -1,6 +1,13 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-18t', date: '18.10.', title: 'Sterne zusammenlegen', items: [
+    'Neu in der Taverne: Manchmal wartet dort ein Doppelgänger von jemandem aus deiner Crew (goldener Rahmen, „Aufwerten“). Zwei gleiche werden zu einer Figur mit ★★, zwei ★★ zu ★★★: mehr Leben, mehr Angriff, volle Heilung, und es braucht keinen freien Platz',
+    'Kommt mit Absicht nicht oft: Eine ★★★-Crew braucht Geduld, gerade in der Endlos-Fahrt',
+    'Stammcrew-Ausrüstung: Beim Auswählen siehst du jetzt, ob ein Teil schon angelegt ist und bei wem (mit Mini-Figur), und wie viel stärker oder schwächer es als das jetzige ist. In der Tasche zeigt ein kleines Gesicht, wer es trägt',
+    'Vergleichspfeile in Taverne und Stammcrew in sanfteren Farben',
+    'Neue Route freigeschaltet? Im Wiki gibt es jetzt eine Seekarte: Welches Meer, von welcher Insel aus und wie du hinkommst. Der Hinweis hat dafür einen eigenen Knopf',
+    'Knöpfe mit kleinen Pixel-Bildern (Würfel bei „Neu würfeln“, Schiff bei „Weitersegeln“ und mehr). Beute am Ende eines Runs als schöne Kacheln statt Liste' ] },
   { v: '2026-10-18s', date: '18.10.', title: 'Landgang-Fix', items: [
     'Landgang-Bosskampf: Die Crew startet jetzt mit vollem Leben. Vorher zeigte der Anfang schon den Endstand, deshalb sah es aus, als stünden Besiegte plötzlich wieder auf' ] },
   { v: '2026-10-18r', date: '18.10.', title: 'Schöner auswählen', items: [

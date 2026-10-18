@@ -177,5 +177,13 @@ GL.data.en = Object.assign(GL.data.en || {}, {
 "♥ Vertrauter": "♥ Companion",
 "Fertig": "Done",
 "Dein Vertrauter steht im Run extra als Kapitän zur Wahl und wartet in der ersten Taverne auf dich. Kämpfen tut er wie immer, aber er wird mit jeder Fahrt vertrauter.": "Your companion is an extra captain choice in the run and waits for you in the first tavern. They fight as usual, but grow closer with every voyage.",
-"Deine Crew ist gerade gesund": "Your crew is healthy right now"
+"Deine Crew ist gerade gesund": "Your crew is healthy right now",
+"Seekarte": "Sea map",
+"🗺 Seekarte": "🗺 Sea map",
+"So kommst du hin:": "How to get there:",
+"Jeder Run startet im East Blue. Zweite Routen erscheinen im jeweiligen Meer beim Kurs setzen: Dann steht eine Insel aus jeder Route zur Wahl.": "Every run starts in the East Blue. Second routes show up in their sea when you set course: one island from each route is offered.",
+"So weit bist du gekommen": "This is how far you got",
+"Erstes Meer": "First sea",
+"Zweites Meer": "Second sea",
+"Drittes Meer": "Third sea"
 });

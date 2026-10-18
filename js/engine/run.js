@@ -99,6 +99,16 @@ window.GL = window.GL || {};
     return { id, stars: star.n, trait, lvl, alloc, jitter: R.int(run, -1, 1) };
   }
 
+  // Zwei gleiche Figuren werden eine stärkere: +1 Stern, mehr Leben und Angriff, voll geheilt
+  function mergeMember(run, u) {
+    const M = GL.config.merge;
+    const before = u.stars || 1;
+    u.stars = Math.min(3, before + 1);
+    const addHp = Math.round(u.max * M.hp), addAtk = Math.max(M.atkMin, Math.round(u.atk * M.atk));
+    u.max += addHp; u.hp = u.max; u.atk += addAtk;
+    u.merged = (u.merged || 0) + 1;
+    run.lastMerge = { id: u.id, from: before, to: u.stars, hp: addHp, atk: addAtk };
+  }
   function makeMember(run, offer) {
     const C = GL.config;
     const d = byId(GL.data.crew, offer.id);
@@ -176,6 +186,19 @@ window.GL = window.GL || {};
     }
     return out;
   }
+  // Zusammenlegen: manchmal taucht eine Figur aus der Crew (unter 3 Sternen) noch einmal auf
+  function addDuplicate(run, offers) {
+    const M = GL.config.merge; if (!M || !offers.length) return null;
+    const cand = run.crew.filter(u => u.id !== 'self' && (u.stars || 1) < 3 && byId(GL.data.crew, u.id));
+    if (!cand.length || R.float(run) >= M.chance) return null;
+    const u = cand[R.int(run, 0, cand.length - 1)];
+    offers.push(u.id);   // zusätzliches Angebot, nimmt keinem anderen den Platz
+    return u;
+  }
+  function dupOffer(run, offer, u) {
+    if (!u || offer.id !== u.id) return offer;
+    return Object.assign(offer, { stars: u.stars || 1, dup: true });
+  }
   function openShop(run) {
     const offers = shopOffers(run);
     // Vertrauter: wartet in der ersten Taverne, falls er nicht schon an Bord ist
@@ -183,7 +206,8 @@ window.GL = window.GL || {};
       run.buddyMet = true;
       if (!run.crew.some(u => u.id === run.buddy) && !offers.includes(run.buddy) && offers.length) offers[offers.length - 1] = run.buddy;
     }
-    run.pool = offers.map(id => rollOffer(run, id));
+    const du = addDuplicate(run, offers);
+    run.pool = offers.map(id => dupOffer(run, rollOffer(run, id), du));
     run.shopRolls = 0;
     run.phase = 'recruit';
   }
@@ -945,7 +969,8 @@ window.GL = window.GL || {};
           if ((run.gold || 0) < cost) return false;
           run.gold -= cost;
           run.shopRolls = (run.shopRolls || 0) + 1;
-          run.pool = shopOffers(run).map(id => rollOffer(run, id));
+          const offers = shopOffers(run), du = addDuplicate(run, offers);
+          run.pool = offers.map(id => dupOffer(run, rollOffer(run, id), du));
           return true;
         }
         if (a.type === 'leave') {
@@ -957,12 +982,16 @@ window.GL = window.GL || {};
         }
         if (a.type !== 'pick') return false;
         const offer = run.pool[a.index];
-        if (!offer || offer.sold || run.crew.length >= crewLimit(run)) return false;
+        if (!offer || offer.sold) return false;
+        // Zusammenlegen braucht keinen freien Platz
+        const twin = offer.dup ? run.crew.find(u => u.id === offer.id && (u.stars || 1) === offer.stars && offer.stars < 3) : null;
+        if (!twin && (run.crew.length >= crewLimit(run) || run.crew.some(u => u.id === offer.id))) return false;
         const price = offerPrice(run, offer);
         if ((run.gold || 0) < price) return false;
         run.gold -= price;
         run.shopFree = false;
         offer.sold = true;
+        if (twin) { mergeMember(run, twin); return true; }
         run.crew.push(makeMember(run, offer)); autoEquip(run);
         return true;
       }

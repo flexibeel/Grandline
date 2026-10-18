@@ -43,7 +43,7 @@ window.GL = window.GL || {};
     // Hauptquartier
     'Im Hafen': 'At the harbor', '‹ Hafen': '‹ Harbor', '‹ Zurück zum Hafen': '‹ Back to harbor', 'Stammcrew': 'Squad', 'Werft': 'Shipyard', 'Schmiede': 'Forge',
     'Schatzkammer': 'Treasury', 'Lager': 'Storage', 'Händler': 'Merchant', 'Kapitänsbuch': 'Captain’s log', 'Rang, Code, Konto': 'Rank, code, account', 'Ausbauten': 'Upgrades', 'Proviant': 'Supplies',
-    '⚓ Leinen los!': '⚓ Cast off!', 'Die Grand Line ruft!': 'The Grand Line calls!', 'Dein Run läuft noch': 'Your run is still going', 'Raid-Ziel': 'Raid target', 'Heute offen': 'Open today',
+    '⚓ Leinen los!': '⚓ Cast off!', 'Leinen los!': 'Cast off!', 'Die Grand Line ruft!': 'The Grand Line calls!', 'Dein Run läuft noch': 'Your run is still going', 'Raid-Ziel': 'Raid target', 'Heute offen': 'Open today',
     '✓ gespielt': '✓ played', 'Wie weit?': 'How far?', 'Einladen': 'Invite', 'Leistbar': 'Affordable', 'An Bord': 'On board', '📊 Statistik': '📊 Stats', '♥ Freunde': '♥ Friends',
     'Pirat und Aussehen bearbeiten': 'Edit pirate and look', '★ Feedback': '★ Feedback', 'Rechtliches': 'Legal', 'Abholen': 'Claim', 'Ansehen': 'View',
     'Dauerhafte Ausbauten für dein Schiff. Sie gelten für jeden zukünftigen Run.': 'Permanent upgrades for your ship. They apply to every future run.',
@@ -92,6 +92,14 @@ window.GL = window.GL || {};
   // Muster mit Zahlen
   const P = [
     [/^Anheuern für (\d+) Gold$/, 'Hire for $1 gold'],
+    [/^Tipp: Du hast noch freie Plätze\. Eine neue Figur bringt meist mehr, Zusammenlegen lohnt sich vor allem bei voller Crew\.$/, 'Tip: you still have free slots. A new member usually brings more; merging pays off most with a full crew.'],
+    [/^Zusammenlegen für (\d+) Gold$/, 'Merge for $1 gold'],
+    [/^(.+) ist schon in deiner Crew\. Zwei gleiche werden zu einer stärkeren Figur mit (\d) Sternen: \+(\d+) Leben, \+(\d+) Angriff, volle Heilung\. Braucht keinen freien Platz\.$/, '$1 is already in your crew. Two of the same become one stronger $2-star member: +$3 HP, +$4 attack, fully healed. Needs no free slot.'],
+    [/^(★+) (.+) zusammengelegt!$/, '$1 $2 merged!'],
+    [/^\+(\d+) Leben, \+(\d+) Angriff, voll geheilt\.$/, '+$1 HP, +$2 attack, fully healed.'],
+    [/^([+-]?\d+) ⚔ zum jetzigen$/, '$1 ⚔ vs. current'],
+    [/^Von (.+) nehmen$/, 'Take from $1'],
+    [/^(.+) hat danach nichts mehr auf diesem Platz\.$/, '$1 will have nothing in this slot afterwards.'],
     [/^Neu würfeln · (\d+)$/, 'Reroll · $1'],
     [/^Aus ([\d.]+) Bot-Runs, bei denen zufällig gewählt wurde: So viel öfter gewinnt man damit\. Live-Zahlen kommen, sobald genug echte Runs da sind\.$/, 'From $1 bot runs with random picks: how much more often you win with it. Live numbers arrive once there are enough real runs.'],
     [/^Aus (\d+) echten Runs \(14 Tage\): So viel öfter gewinnt man, wenn man es dabei hat\.$/, 'From $1 real runs (14 days): how much more often you win when you have it.'],
@@ -102,6 +110,9 @@ window.GL = window.GL || {};
     [/^Einmal pro Run, alle mit (\d+) % Leben$/, 'Once per run, everyone at $1 % HP'],
     [/^Nur noch (.+) steht!$/, 'Only $1 is still standing!'],
     [/^(.+) ist online$/, '$1 is online'],
+    [/^Im (Ersten|Zweiten|Dritten) Meer beim Kurs setzen wählen$/, (m, n) => `Pick it when setting course in the ${({ Ersten: 'first', Zweiten: 'second', Dritten: 'third' })[n]} sea`],
+    [/^🔒 ab Rang (\d+)$/, '🔒 from rank $1'],
+    [/^Segle im Run bis ins (erste|zweite|dritte) Meer \((.+)\)\. Beim Kurs setzen steht dann eine Insel von (.+) zur Wahl\.$/, (m, n, sea, r) => `Sail to the ${({ erste: 'first', zweite: 'second', dritte: 'third' })[n]} sea (${sea}) in a run. When setting course, an island of ${r} is offered.`],
     [/^Vertraut (\d+) · noch (\d+) bis (\d+)$/, 'Bond $1 · $2 more to $3'],
     [/^Vertraut (\d+) · ganz eng$/, 'Bond $1 · best friends'],
     [/^🔒 ab Vertraut (\d+)$/, '🔒 at bond $1'],

@@ -335,7 +335,16 @@
     const itemsBefore = (run.items || []).length;
     const luckyBefore = run.luckyN || 0;
     const lootBefore = (run.loot || []).length;
+    const mergeBefore = run.lastMerge;
     if (!GL.run.act(run, action)) return;
+    // Sterne zusammengelegt: kleiner Glanzmoment
+    if (run.lastMerge && run.lastMerge !== mergeBefore) {
+      const mg = run.lastMerge, cd = GL.data.crew.find(c => c.id === mg.id) || {};
+      if (GL.sfx) setTimeout(() => GL.sfx.play('level'), 120);
+      ui.mergeFx = mg.id;
+      setTimeout(() => { ui.mergeFx = null; }, 1600);
+      toast(`<span class="toast-merge"><i>${GL.sprites.render(cd)}</i><span><b>${'★'.repeat(mg.to)} ${esc2(cd.name || '')} zusammengelegt!</b>+${mg.hp} Leben, +${mg.atk} Angriff, voll geheilt.</span></span>`);
+    }
     if (profile.settings && profile.settings.autoTrain && action.type !== 'spend' && run.crew.some(u => u.points > 0)) autoTrainAll(true);
     if ((run.loot || []).length > lootBefore) run.loot.slice(lootBefore).forEach((id, k) => {
       const l = (GL.data.huntLoot || []).find(x => x.id === id);
@@ -1128,6 +1137,7 @@
       case 'showcase': if (GL.meta.toggleShowcase(profile, el.dataset.id)) { saveProfile(); ui.lastStage = null; draw(); if (GL.online && GL.online.register) GL.online.register(profile); } break;
       case 'fpop-go': closeFeature(el.dataset.id, true); break;
       case 'fpop-close': closeFeature(el.dataset.id, false); break;
+      case 'fpop-map': closeFeature(el.dataset.id, false); setTimeout(() => { ui.wikiTab = 'routen'; openGearPop(GL.ui.wikiPop('routen', profile)); }, 300); break;
       case 'wb-close': closePop(); break;
       case 'pop-close': closePop(); break;
       // ---------- Crew-Ausrüstung ----------
