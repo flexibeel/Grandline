@@ -1,6 +1,11 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-21h', date: '19.10.', title: 'Weniger „Wer war das?“', items: [
+    '🛡 Gegner treffen nicht mehr über 60 % deines Lebens auf einmal, angekündigte Brocken nicht über 80 %. Wer dich umhauen will, muss jetzt zweimal fragen',
+    '🎯 Gegner-Krits ×1,75 statt ×2. Die Marine hat ihre Lupen abgegeben, die Fäuste hat sie behalten',
+    '⚖ Dafür schlagen normale Gegner ab dem zweiten Meer etwas fester zu. Gleiche Schwierigkeit, nur weniger Überraschungs-K.O.',
+    '🔥 Kopfgeld-Stufe 5 ist keine Klippe mehr. Auf hohen Stufen wird der Deckel lockerer, damit sich dort niemand zu wohl fühlt' ] },
   { v: '2026-10-21g', date: '19.10.', title: 'Offene See macht Pause', items: [
     '⛵ Die Offene See taucht vorerst nicht mehr als Routen-Wahl auf. Sie war im Grunde dieselbe Strecke, nur mit mehr Wasser drumherum. Laufende Seefahrten segeln ganz normal zu Ende',
     '🗺 Die Seekarte kommt wieder, und zwar dort, wo sie hingehört: als Weg in die Landgänge' ] },
