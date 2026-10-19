@@ -29,5 +29,8 @@ GL.data.en = Object.assign(GL.data.en || {}, {
   'Sturmtrupp: Kämpfer +70 % Schaden, 75 % Nachsetzen nach einem K.O.': 'Strike Team: Fighters +70 % damage, 75 % follow-up after a K.O.',
   'Ganze Crew heilt 8 Leben pro Runde, einmal pro Kampf steht eine Gefallene wieder auf': 'Whole crew heals 8 HP per round, once per fight a fallen fighter gets back up',
   'Lazarett: ganze Crew heilt 11 Leben pro Runde, erleidet 10 % weniger Schaden, Wiederbeleben stärker': 'Field Hospital: whole crew heals 11 HP per round, takes 10 % less damage, stronger revive',
+  // KAMPFTIEFE
+  'Anführer': 'Leader', 'Fällt er, verliert sein Gefolge den Mut: Furcht und langsamer.': 'If he falls, his crew loses heart: fear and slower.',
+  'Schwung': 'Momentum', 'Blöße': 'Opening', 'Schwachstelle': 'Weak spot', 'Standhaft!': 'Holds firm!', 'Aufgerissen!': 'Torn open!', 'Schnitt!': 'Cut!', 'Anführer fällt!': 'Leader down!',
   'Extra-Zug!': 'Extra move!', 'Konter!': 'Riposte!', 'Rüstungsbruch!': 'Armor break!', 'Nachsetzen!': 'Follow-up!', 'Spott': 'Taunt'
 });

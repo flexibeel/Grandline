@@ -1380,6 +1380,14 @@ window.GL = window.GL || {};
     // FIGHT: Pläne, Signaturen, Launen und Stil-Taktik (Text kommt zweisprachig aus dem Kampf)
     const EN = GL.i18n && GL.i18n.lang && GL.i18n.lang() === 'en';
     if (ev.k === 'plan') return EN && ev.en ? ev.en : ev.text || '';
+    // KAMPFTIEFE (feature/kampftiefe): Schwung, Moralbruch, Stil-Ketten
+    if (ev.k === 'surge') return EN ? 'Momentum! The crew is on a roll: ult bars charge, everyone hits a little harder.' : 'Schwung! Die Crew ist in Fahrt: Ulti-Leisten laden, alle hauen etwas fester zu.';
+    if (ev.k === 'status' && ev.rout != null) { const n = targetName(run, 'enemy', ev.rout); return EN ? `${n} is down. The rest suddenly remember an appointment elsewhere (fear, slower).` : `${n} liegt. Dem Rest fällt plötzlich ein Termin woanders ein (Furcht, langsamer).`; }
+    if (ev.k === 'status' && ev.cut && ev.list[0]) { const n = targetName(run, ev.side, ev.list[0].to); return EN ? `A clean cut: ${n} is bleeding. A heavy blow would tear it open.` : `Sauberer Schnitt: ${n} blutet. Ein Kraft-Schlag würde das aufreißen.`; }
+    if (ev.k === 'dmg' && ev.rip && ev.list[0]) { const a = anyData(ev.by) ? anyData(ev.by).name : '', n = targetName(run, ev.side, ev.list[0].to); return EN ? `${a} tears the wound open: ${ev.list[0].dmg} at once from ${n}.` : `${a} reißt die Wunde auf: ${ev.list[0].dmg} Schaden auf einmal bei ${n}.`; }
+    if (ev.k === 'hit' && ev.stand) { const n = targetName(run, 'crew', ev.to); return EN ? `${n} should be down. ${n} disagrees. 1 HP left.` : `${n} müsste eigentlich liegen. ${n} sieht das anders. 1 Leben übrig.`; }
+    if (ev.k === 'hit' && ev.op && !ev.miss) { const a = crewData(run.crew[ev.from].id).name, n = targetName(run, 'enemy', ev.to); return EN ? `${a} uses the opening: critical hit on ${n} for ${ev.dmg}.` : `${a} nutzt die Blöße: kritisch, ${ev.dmg} Schaden an ${n}.`; }
+    // /KAMPFTIEFE
     if (ev.k === 'sig') { const n = anyData(ev.by) ? anyData(ev.by).name : (EN ? 'The boss' : 'Der Boss'); return EN ? `${n} unleashes ${ev.en}${ev.strong ? ', stronger than before' : ''}! ${ev.tEn}` : `${n} entfesselt ${ev.name}${ev.strong ? ', stärker als zuvor' : ''}! ${ev.text}`; }
     if (ev.k === 'extra') { const n = targetName(run, ev.side, ev.from); return EN ? `${n} is so quick there is time for an extra move.` : `${n} ist so schnell, dass es für einen Extra-Zug reicht.`; }
     if (ev.k === 'riposte') { const a = targetName(run, ev.side, ev.from), b = targetName(run, ev.side === 'crew' ? 'enemy' : 'crew', ev.to); return EN ? `${a} parries and strikes back: ${ev.dmg} damage to ${b}.` : `${a} pariert und kontert: ${ev.dmg} Schaden an ${b}.`; }
@@ -1565,6 +1573,16 @@ window.GL = window.GL || {};
     if (!bd || bd.key !== 'technik') { if (dodges >= 2) SL.push(P('💨', `${dodges}× ausgewichen`, `${dodges}× dodged`)); }
     if (!bd || bd.key !== 'brecher') { if (absorbed >= 10) SL.push(P('🛡', `${absorbed} geblockt`, `${absorbed} blocked`)); }
     if (!bd || bd.key !== 'helfer') { if (healed >= 8) SL.push(P('💚', `${healed} geheilt`, `${healed} healed`)); }
+    // KAMPFTIEFE (feature/kampftiefe): Ketten, Schwung, Moralbruch, Standhaft
+    { let kOp = 0, kRip = 0, kSurge = 0, kRout = 0, kStand = 0;
+      b.events.forEach(ev => { if (ev.op && ev.dmg > 0) kOp++; if (ev.rip) kRip += ev.list[0] ? ev.list[0].dmg : 0; if (ev.k === 'surge') kSurge++; if (ev.rout != null) kRout++; if (ev.stand) kStand++; });
+      const KX = [];
+      if (kSurge) KX.push(P('⚡', `${kSurge}× in Fahrt`, `${kSurge}× on a roll`));
+      if (kOp) KX.push(P('◆', `${kOp}× Blöße genutzt`, `${kOp}× opening used`));
+      if (kRip) KX.push(P('🩸', `${kRip} aufgerissen`, `${kRip} torn open`));
+      if (kRout) KX.push(P('🚩', `${kRout}× Anführer gestürzt`, `${kRout}× leader toppled`));
+      if (kStand) KX.push(P('🛡', `${kStand}× standhaft`, `${kStand}× held firm`));
+      SL.splice(Math.min(1, SL.length), 0, ...KX.slice(0, 2)); }
     const styleLine = bd && SL.length ? `<div class="bs-style b-${bd.key}"><i>${bd.icon}</i><span>${enS ? 'Your style delivered:' : 'Dein Stil hat geleistet:'}</span>${SL.slice(0, 3).join('<em>·</em>')}</div>`
       : SL.length ? `<div class="bs-style"><i>✦</i><span>${enS ? 'This fight:' : 'Dieser Kampf:'}</span>${SL.slice(0, 3).join('<em>·</em>')}</div>` : '';
     const tally = b.win && !styleLine ? [

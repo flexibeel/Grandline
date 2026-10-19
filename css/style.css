@@ -9519,3 +9519,27 @@ em.type.t-technik { background: #5b86b3 !important; }
 @keyframes duoJump { 0% { transform: translateY(0); } 35% { transform: translateY(-14px); } 60% { transform: translateY(0); } 75% { transform: translateY(-4px); } 100% { transform: translateY(0); } }
 .ult-call.duo { background: linear-gradient(#fff3d0, #f3dca4) !important; border-color: #b8783a !important; color: #4a3014 !important; }
 @media (prefers-reduced-motion: reduce) { #field.jz-zoom, #field.jz-ko, #field.jz-stop, .fu.duo-jump .fu-body { animation: none !important; } }
+
+/* ===== KAMPFTIEFE (feature/kampftiefe): Schwung-Leiste, Blöße-Marke, Moralbruch, Ketten-Schilder ===== */
+.mo-bar { display: inline-flex; align-items: center; gap: 4px; padding: 2px 6px 2px 4px; background: #2a2236; box-shadow: 0 0 0 2px #1a1424, inset 0 -3px 0 rgba(0,0,0,.3); }
+.mo-ico { font-style: normal; font-size: .7rem; line-height: 1; filter: grayscale(.5); }
+.mo-segs { display: flex; gap: 2px; }
+.mo-seg { width: 8px; height: 8px; background: #4a3e5a; box-shadow: inset 0 2px 0 rgba(0,0,0,.25); transition: background .2s; }
+.mo-seg.on { background: #ffd84a; box-shadow: inset 0 -2px 0 #c89a1a; }
+.mo-bar.tick { animation: moTick .3s steps(3); }
+.mo-bar.drop .mo-segs { animation: moDrop .35s steps(2); }
+.mo-bar.full { animation: moFull .9s steps(6); }
+.mo-bar.full .mo-ico { filter: none; }
+@keyframes moTick { 0% { transform: translateY(-2px); } 100% { transform: none; } }
+@keyframes moDrop { 0%, 100% { transform: none; } 50% { transform: translateX(-2px); filter: saturate(0); } }
+@keyframes moFull { 0%, 100% { box-shadow: 0 0 0 2px #1a1424; } 30%, 70% { box-shadow: 0 0 0 2px #ffd84a, 0 0 8px rgba(255,216,74,.6); } }
+/* Blöße: kleine Raute über markierten Gegnern (Technik deckt sie auf, Klinge nutzt sie) */
+.fu-mark { display: none; position: absolute; left: 50%; top: -10px; width: 6px; height: 6px; margin-left: -3px; background: #ffe27a; box-shadow: 0 0 0 1px #6a4a10; transform: rotate(45deg); z-index: 5; pointer-events: none; }
+.fu.marked:not(.ko) .fu-mark { display: block; animation: mkBlink 1s steps(2) infinite; }
+@keyframes mkBlink { 50% { opacity: .45; } }
+/* Moralbruch: Gefolge duckt sich und wird blass, solange die Furcht hält */
+.fu.routed .fu-body { filter: saturate(.55) brightness(.92); transform: translateY(2px); transition: filter .3s, transform .3s; }
+.ptag.chain { font-size: .62rem; }
+.int-lead { background: #f3e2c0; border-color: #8a5a2a; }
+@media (prefers-reduced-motion: reduce) { .mo-bar.tick, .mo-bar.drop .mo-segs, .mo-bar.full, .fu.marked .fu-mark { animation: none !important; } .fu.routed .fu-body { transition: none; } }
+/* ===== /KAMPFTIEFE ===== */

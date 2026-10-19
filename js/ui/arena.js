@@ -25,7 +25,9 @@ window.GL = window.GL || {};
     call: pxIco(['......k', '....kyk', 'k.kyyyk', 'kkyyyyk', 'k.kyyyk', '....kyk', '......k'], { k: '#5a3a12', y: '#e8b84a' }),
     taunt: pxIco(['.kkkkk.', 'kbbbbbk', 'kbwbbbk', 'kbbbbbk', '.kbbbk.', '..kbk..', '...k...'], { k: '#2a3a52', b: '#8fb0d6', w: '#eaf2fb' }),
     // FIGHT: Signatur-Angriff eines Bosses (Stern)
-    sig: pxIco(['...k...', '..kyk..', 'kkyyykk', '.kyyyk.', '..kyk..', '.kk.kk.', 'k.....k'], { k: '#5a2a7a', y: '#e9b8ff' })
+    sig: pxIco(['...k...', '..kyk..', 'kkyyykk', '.kyyyk.', '..kyk..', '.kk.kk.', 'k.....k'], { k: '#5a2a7a', y: '#e9b8ff' }),
+    // KAMPFTIEFE: Anführer – fällt er, wankt das Gefolge
+    lead: pxIco(['k......', 'krrrr..', 'krrrrr.', 'krrrr..', 'k......', 'k......', 'k......'], { k: '#4a3218', r: '#c2412d' })
   };
   // FIGHT: Pläne der Gegnergruppen und Boss-Signaturen als Absicht (Text aus GL.data.foePlans / bossSigs)
   function planOn(team, key) {
@@ -41,7 +43,8 @@ window.GL = window.GL || {};
     aimLow: ['Zielt auf Angeschlagene', 'Schießt über die Köpfe auf die Figur mit dem wenigsten Leben.', 'Picks on the wounded', 'Shoots past the front line at your most battered fighter.'],
     aimWeak: ['Scharfschütze', 'Nimmt immer die schwächste Figur ins Visier.', 'Sniper', 'Always targets your weakest fighter.'],
     aimStrong: ['Rauflustig', 'Sucht sich deine stärkste Figur aus.', 'Bully', 'Goes after your strongest fighter.'],
-    taunt: ['Leibwache', 'Zieht alle Angriffe auf sich, bis sie fällt.', 'Bodyguard', 'Draws every attack until it falls.']
+    taunt: ['Leibwache', 'Zieht alle Angriffe auf sich, bis sie fällt.', 'Bodyguard', 'Draws every attack until it falls.'],
+    lead: ['Anführer', 'Fällt er, verliert sein Gefolge den Mut: Furcht und langsamer.', 'Leader', 'If he falls, his crew loses heart: fear and slower.']
   };
   function intents(e, team, opts) {
     if (!e || (opts && opts.pvp) || e.pvp || (e.ref && e.ref.pvp)) return [];
@@ -59,6 +62,9 @@ window.GL = window.GL || {};
     const pk = !lead(e) && GL.data.foePlanOf ? GL.data.foePlanOf(e.id) : null;
     if (pk && planOn(team, pk)) out.unshift({ k: (GL.data.foePlans[pk].icon || 'wind'), t: 'plan:' + pk });
     if ((e.boss || e.raid) && GL.data.bossSigs && GL.data.bossSigs[e.id]) out.unshift({ k: 'sig', t: 'sig:' + e.id });
+    // KAMPFTIEFE: Anführer mit Gefolge (Boss, Kopfgeld-Ziel, Elite der zweiten Welle)
+    const chief = !!(e.boss || e.mini || e.raid || e.elite2);
+    if (chief && (GL.config.chain || {}).on !== false && (team || []).some(f => f !== e && !(f.boss || f.mini || f.raid || f.elite2))) { if (e.boss || e.raid) out.push({ k: 'lead', t: 'lead' }); else out.unshift({ k: 'lead', t: 'lead' }); }
     return out.slice(0, e.boss || e.raid ? 3 : 2);
   }
   function intentText(t) {
@@ -479,7 +485,7 @@ window.GL = window.GL || {};
     return `<div class="fu fu-${side}${hp <= 0 ? ' ko' : ''}${side === 'enemy' && leadAt > 0 && i < leadAt && !unit.wave ? ' guard' : ''}${backLead ? ' lead-back' : ''}${unit.boss ? ' boss' : ''}${unit.mini ? ' mini' : ''}${unit.elite2 ? ' elite2' : ''}${waitW2(side, i, unit) ? ' w2-wait' : ''}" data-side="${side}" data-i="${i}"
         style="left:${x}%;bottom:${y}%;z-index:${200 - y};--s:${scale.toFixed(2)}">
       <div class="fu-shadow"></div>${hp <= 0 ? (GL.arenaFx ? GL.arenaFx.koMark() : '<span class="fu-ko">K.O.</span>') : ''}
-      <div class="fu-aura"></div>
+      <div class="fu-aura"></div>${side === 'enemy' ? '<i class="fu-mark" aria-hidden="true"></i>' : ''}
       <div class="fu-body" style="--d:${(i * 0.37 + (side === 'crew' ? 0 : 0.5)).toFixed(2)}s">${GL.sprites.renderShaded ? GL.sprites.renderShaded(entry) : GL.sprites.render(entry)}</div>
       <div class="fu-bar"><i style="width:${pct}%"></i></div>
       ${side === 'enemy' && hp > 0 && curRun && curRun.battle ? intentHtml(unit, curRun.battle.enemies, { pvp: curRun.battle.kind === 'duel' }, 'fu-int') : ''}
@@ -780,11 +786,64 @@ window.GL = window.GL || {};
       <span class="tb-txt"><small>${String(F.name || '').replace(/[<>&"]/g, '')}</small><b>${String(t.name).replace(/[<>&"]/g, '')}</b></span>
       <span class="tb-segs">${segs}</span></div>`;
   }
+  // KAMPFTIEFE: Schwung-Leiste (Krits, K.O.s, Ketten füllen sie, eigene K.O.s leeren sie; voll = Crew in Fahrt)
+  const moNeed = () => Math.max(2, ((GL.config.chain || {}).moNeed) || 6);
+  function moBarHtml(run, done) {
+    const b = run.battle;
+    if (!b || b.kind === 'duel' || (GL.config.chain || {}).on === false || (b.enemies || []).some(e => e.pvp || (e.ref && e.ref.pvp))) return '';
+    let n = 0;
+    if (done) (b.events || []).forEach(e => { if (e.mo != null) n = e.mo; });
+    const N = moNeed(), en = GL.i18n && GL.i18n.lang && GL.i18n.lang() === 'en';
+    const tip = en ? 'Momentum: crits, K.O.s and combos fill it, losing fighters drains it. Full = the crew gets going (ult energy, +attack).' : 'Schwung: Krits, K.O.s und Ketten füllen ihn, eigene K.O.s kosten. Voll = die Crew kommt in Fahrt (Ulti-Energie, mehr Angriff).';
+    return `<div class="mo-bar" id="mo-bar" title="${tip}" aria-label="${tip}"><i class="mo-ico" aria-hidden="true">⚡</i><span class="mo-segs">${Array.from({ length: N }, (_, k) => `<i class="mo-seg${k < n ? ' on' : ''}"></i>`).join('')}</span></div>`;
+  }
+  function moSet(n) {
+    const bar = $('#mo-bar'); if (!bar) return;
+    const prev = bar.querySelectorAll('.mo-seg.on').length;
+    bar.querySelectorAll('.mo-seg').forEach((s, k) => s.classList.toggle('on', k < n));
+    if (n !== prev && !REDUCED()) { bar.classList.remove('tick', 'drop'); void bar.offsetWidth; bar.classList.add(n > prev ? 'tick' : 'drop'); }
+  }
+  function moFull() {
+    const bar = $('#mo-bar'); if (!bar) return;
+    bar.querySelectorAll('.mo-seg').forEach(s => s.classList.add('on'));
+    bar.classList.remove('full'); void bar.offsetWidth; bar.classList.add('full');
+    setTimeout(() => { bar.classList.remove('full'); bar.querySelectorAll('.mo-seg').forEach(s => s.classList.remove('on')); }, 900);
+  }
+  const L = (de, en) => (GL.i18n && GL.i18n.lang && GL.i18n.lang() === 'en' ? en : de);
+
   function teamBarSet(n, full) {
     const bar = $('#team-bar'); if (!bar) return;
     bar.querySelectorAll('.tb-seg').forEach((s, k) => s.classList.toggle('on', k < n));
     if (full) { bar.classList.add('full'); setTimeout(() => { bar.classList.remove('full'); bar.querySelectorAll('.tb-seg').forEach(s => s.classList.remove('on')); }, 1400); }
     else { bar.classList.remove('tick'); void bar.offsetWidth; bar.classList.add('tick'); }
+  }
+
+  // KAMPFTIEFE: kleine Pixel-Hinweise für Stil-Ketten, Moralbruch und Standhaft (nur Anzeige, Wirkung kommt aus battle.js)
+  function chainFx(ev) {
+    const fast = document.body.classList.contains('fast');
+    if (ev.k === 'hit') {
+      const ts = ev.side === 'crew' ? 'enemy' : 'crew', t = fu(ts, ev.to);
+      if (ev.op && t) { t.classList.remove('marked'); setTimeout(() => tagAt(ts, ev.to, L('◆ Blöße!', '◆ Opening!'), 'crit chain', 78), fast ? 40 : 170); }
+      if (ev.xp && !ev.miss) setTimeout(() => tagAt(ts, ev.to, L('✕ Schwachstelle', '✕ Weak spot'), 'debuff chain', 78), fast ? 40 : 200);
+      if (ev.mk && t && !ev.miss) t.classList.add('marked');
+      if (ev.hp <= 0 && t) t.classList.remove('marked', 'routed');
+      if (ev.stand) setTimeout(() => { tagAt('crew', ev.to, L('Standhaft!', 'Holds firm!'), 'buff chain', 70); const c = center(fu('crew', ev.to)); if (c) pxFx('shield', c, 'st', 900); }, fast ? 40 : 200);
+    } else if (ev.k === 'dmg' && ev.rip && ev.list[0]) {
+      const x = ev.list[0], c = center(fu(ev.side, x.to));
+      tagAt(ev.side, x.to, L('Aufgerissen!', 'Torn open!'), 'crit chain', 70);
+      removeLive(ev.side, x.to, 'bleed');
+      if (c && !fast) { pxFx('drop', { x: c.x - 8, y: c.y }, 'st', 700); pxFx('drop', { x: c.x + 8, y: c.y - 6 }, 'st', 700, 90); }
+      if (ev.from != null) pulse(fu('crew', ev.from), 'atk');
+    } else if (ev.k === 'status' && ev.cut && ev.list[0]) {
+      tagAt(ev.side, ev.list[0].to, L('Schnitt!', 'Cut!'), 'debuff chain', 84);
+    } else if (ev.k === 'status' && ev.rout != null) {
+      tagAt('enemy', ev.rout, L('Anführer fällt!', 'Leader down!'), 'buff chain', 50);
+      ev.list.forEach(x => { const u = fu('enemy', x.to); if (u) u.classList.add('routed'); });
+    } else if (ev.k === 'round') {
+      document.querySelectorAll('#field .fu.routed').forEach(u => { const i = Number(u.dataset.i), st = live['enemy:' + i]; if (!st || !st.fear) u.classList.remove('routed'); });
+    } else if (ev.k === 'revive') {
+      ev.list.forEach(x => { const u = fu(ev.side, x.to); if (u) u.classList.remove('marked', 'routed'); });
+    }
   }
 
   GL.arena = {
@@ -799,7 +858,7 @@ window.GL = window.GL || {};
       const enemyHp = done ? b.enemyEnd : anim.enemyHp;
       const crew = run.crew.map((u, i) => fighter('crew', i, u.def || crewData(u.id), u, crewHp[i])).join('');
       const foes = b.enemies.map((e, i) => fighter('enemy', i, e.def || GL.data.foeDef(e) || crewData(e.id), e, enemyHp[i])).join('');
-      return `<div class="battle3d${done && b.win ? ' won' : ''}">${fieldHtml(run, crewHp, enemyHp)}<div class="f-strip" id="f-strip">${teamBarHtml(run, done)}</div><div class="arena hud isl-${GL.run.island(run).id}${b.kind === 'raid' ? ' raid' : b.kind === 'boss' ? ' bossfight' : ''}${done ? '' : ' entering'}" id="arena">
+      return `<div class="battle3d${done && b.win ? ' won' : ''}">${fieldHtml(run, crewHp, enemyHp)}<div class="f-strip" id="f-strip">${teamBarHtml(run, done)}${moBarHtml(run, done)}</div><div class="arena hud isl-${GL.run.island(run).id}${b.kind === 'raid' ? ' raid' : b.kind === 'boss' ? ' bossfight' : ''}${done ? '' : ' entering'}" id="arena">
         <div class="arena-sky" aria-hidden="true"></div>
         <div class="side side-crew">${crew}</div>
         <div class="side side-enemy">${foes}</div>
@@ -840,7 +899,15 @@ window.GL = window.GL || {};
     play(ev) {
       const root = $('#arena');
       if (!root) return;
-      if (ev.k === 'hit') {
+      if (ev.mo != null && ev.k !== 'surge') moSet(ev.mo);
+      try { chainFx(ev); } catch (e) { /* nur Anzeige */ }
+      if (ev.k === 'surge') {
+        moFull();
+        banner('us will surge', `<small>${L('Schwung', 'Momentum')}</small><b>⚡ ${L('Die Crew ist in Fahrt!', 'The crew is on a roll!')}</b>`, 1100);
+        (ev.list || []).forEach((x, k) => { const u = fu('crew', x.to); setEn('crew', x.to, x.en); if (u) { pulse(u, 'rise'); pxFx('bolt', center(u), 'rise', 800, 60 * k); } });
+        juice('zoom');
+        if (GL.sfx) GL.sfx.play('level');
+      } else if (ev.k === 'hit') {
         const tside = ev.side === 'crew' ? 'enemy' : 'crew';
         pulse(el(ev.side, ev.from), 'lunge');
         fieldHit(ev);
@@ -904,7 +971,7 @@ window.GL = window.GL || {};
         if (GL.sfx) GL.sfx.play('level');
       } else if (ev.k === 'dmg') {
         // Schaden durch eine Fähigkeit: Name über dem Auslöser einblenden
-        if (GL.data.abilities[ev.by] && !ev.ult && !ev.chain && !ev.sig && !ev.plan) callout(ev.by, ev.side === 'crew' ? 'enemy' : 'crew');
+        if (GL.data.abilities[ev.by] && !ev.ult && !ev.chain && !ev.sig && !ev.plan && !ev.rip) callout(ev.by, ev.side === 'crew' ? 'enemy' : 'crew');
         if (ev.chain && ev.list[0]) fieldFloat(ev.side, ev.list[0].to, 'Nachsetzen!', ev.side === 'enemy' ? 'buff' : 'debuff');
         ev.list.forEach(x => {
           pulse(el(ev.side, x.to), 'hit'); float(ev.side, x.to, '-' + x.dmg, 'burn'); setHp(ev.side, x.to, x.hp);
@@ -939,7 +1006,7 @@ window.GL = window.GL || {};
           pulse(fu(ev.side, x.to), 'rise'); fx('fx-heal', center(fu(ev.side, x.to)), 900);
         });
       } else if (ev.k === 'status') {
-        if (GL.data.abilities[ev.by] && !ev.ult && !ev.brk && !ev.sig && !ev.plan) callout(ev.by, ev.side === 'crew' && ev.list[0] && GL.data.statuses[ev.list[0].key].good ? 'crew' : (ev.side === 'crew' ? 'enemy' : 'crew'));
+        if (GL.data.abilities[ev.by] && !ev.ult && !ev.brk && !ev.sig && !ev.plan && !ev.cut && ev.rout == null) callout(ev.by, ev.side === 'crew' && ev.list[0] && GL.data.statuses[ev.list[0].key].good ? 'crew' : (ev.side === 'crew' ? 'enemy' : 'crew'));
         if (ev.brk && ev.list[0]) fieldFloat(ev.side, ev.list[0].to, 'Rüstungsbruch!', 'debuff');
         ev.list.forEach(x => {
           const d = GL.data.statuses[x.key];
