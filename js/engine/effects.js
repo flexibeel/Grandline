@@ -121,10 +121,43 @@ window.GL = window.GL || {};
     return f;
   }
 
-  function applyMod(u, m, run) {
-    STATS.forEach(s => { if (m[s]) u[s] += m[s]; });
-    if (m.atkPerBounty) u.atk += m.atkPerBounty * run.bounties;
+  // STATS: src = { ico, name } (nur für die Werte-Aufschlüsselung im Steckbrief, ändert nichts am Ergebnis)
+  function note(u, s, src, v) {
+    if (!u.trace || !src || !v) return;
+    const L = u.trace[s] = u.trace[s] || [];
+    const x = L.find(y => y.name === src.name);
+    if (x) x.v += v; else L.push({ ico: src.ico, name: src.name, v });
+  }
+  function applyMod(u, m, run, src) {
+    STATS.forEach(s => { if (m[s]) { u[s] += m[s]; note(u, s, src, m[s]); } });
+    if (m.atkPerBounty) { u.atk += m.atkPerBounty * run.bounties; note(u, 'atk', src, m.atkPerBounty * run.bounties); }
     if (m.ignoreWeak) u.ignoreWeak = true;
+  }
+  // STATS: dieselben Boni wie synergyMods/relicList/abilityMods/artifactMods, aber mit Herkunft
+  function labeledCrewMods(run, crewRefs) {
+    const T = GL.data.types, Ro = GL.data.roles;
+    const icoOf = s => s.kind === 'type' ? (T[s.key].icon || '⚔') : s.kind === 'role' ? (Ro[s.key].icon || '⚔') : '🏴';
+    const out = [];
+    status(crewRefs).filter(s => s.active).forEach(s => s.active.mods.forEach(m => out.push({ m, src: { ico: icoOf(s), name: s.name + ' ' + s.count } })));
+    duos(crewRefs).forEach(d => d.mods.forEach(m => out.push({ m, src: { ico: '♥', name: d.name } })));
+    alliances(crewRefs).forEach(a => a.mods.forEach(m => out.push({ m, src: { ico: '🤝', name: a.name } })));
+    combos(crewRefs).forEach(c => c.mods.forEach(m => out.push({ m, src: { ico: c.icon || '✦', name: c.name } })));
+    relicList(run).forEach(r => (r.mods || []).forEach(m => out.push({ m, src: { ico: '💎', name: r.name } })));
+    const A = GL.data.abilities;
+    Object.keys(A).forEach(k => (A[k].mods || []).forEach(m => out.push({ m, src: { ico: '✦', name: A[k].name } })));
+    (run.arts || []).forEach(x => {
+      const art = (GL.data.artifacts || []).find(t => t.id === x.id);
+      if (art && art.mod) out.push({ m: { scope: art.mod.scope, [art.mod.stat]: GL.run.artValue(art, x.lvl) }, src: { ico: '🏺', name: art.name } });
+    });
+    return out;
+  }
+  // STATS: Krit mit Deckel. Was über dem Deckel liegt, wird Krit-Schaden (gilt für Treffer, Ultis und Konter gleich)
+  function critOf(u, extra) {
+    const C = GL.config, K = C.caps || {};
+    const cap = K.crit != null ? K.crit : 0.85;
+    const ch = (u.crit || 0) + (C.baseCrit || 0) + (extra || 0);
+    const over = Math.max(0, ch - cap);
+    return { ch: Math.min(cap, ch), over, mult: (u.critMult || C.critMult || 1.5) + over * (K.critOver || 0) };
   }
 
   // Kampfwerte der ausgerüsteten Artefakte
@@ -154,26 +187,33 @@ window.GL = window.GL || {};
   }
 
   // Baut die Kampf-Einheiten mit allen Boni
-  function setup(run, crewRefs, enemyRefs) {
+  function setup(run, crewRefs, enemyRefs, opt) {
     const crew = crewRefs.map(r => unit('crew', r, { crit: run.crit, dmgPct: (run.sk && run.sk.dmgPct) || 0 }));   // dmgPct: Feinschliff Schaden
     const enemies = enemyRefs.map(r => unit('enemy', r));
+    // STATS: Aufschlüsselung mitschreiben (nur Anzeige)
+    if (opt && opt.trace) crew.forEach(u => {
+      u.trace = {};
+      note(u, 'crit', { ico: '🍈', name: 'Früchte & Ereignisse' }, run.crit || 0);
+      note(u, 'dmgPct', { ico: '🌳', name: 'Feinschliff' }, (run.sk && run.sk.dmgPct) || 0);
+    });
 
-    const crewMods = [...synergyMods(crewRefs), ...relicList(run).flatMap(r => r.mods || []), ...abilityMods(), ...artifactMods(run)];
-    crew.forEach(u => crewMods.forEach(m => { if (applies(m.scope, u)) applyMod(u, m, run); }));
+    const crewMods = labeledCrewMods(run, crewRefs);   // STATS: gleiche Reihenfolge wie vorher, nur mit Herkunft
+    crew.forEach(u => crewMods.forEach(x => { if (applies(x.m.scope, u)) applyMod(u, x.m, run, x.src); }));
     // Eigenschaft wirkt nur auf die Figur selbst
     crew.forEach(u => {
       const t = GL.data.traits.find(x => x.id === u.ref.trait);
-      if (t && t.mods) applyMod(u, t.mods, run);
+      if (t && t.mods) applyMod(u, t.mods, run, { ico: '🧬', name: t.name });
     });
     // Ausrüstung (Leben wird schon beim Anlegen verrechnet)
     crew.forEach(u => {
       const it = u.ref.item && (run.items || []).find(x => x.uid === u.ref.item);
       if (!it) return;
       const s = GL.run.itemStats(it);
-      Object.keys(s).forEach(k => { if (k !== 'hp' && k in u) u[k] += s[k]; });
+      const def = (GL.data.items || []).find(x => x.id === it.id);
+      Object.keys(s).forEach(k => { if (k !== 'hp' && k in u) { u[k] += s[k]; note(u, k, { ico: '⚙', name: def ? def.name : 'Ausrüstung' }, s[k]); } });
     });
     // Crew-Ausrüstung der Stammcrew (Duelle): Zusatzwerte wie Krit, Ausweichen, Rüstung
-    crew.concat(enemies).forEach(u => { const g = u.ref.gb; if (g) Object.keys(g).forEach(k => { if (k !== 'ultStart' && k in u) u[k] += g[k]; }); });
+    crew.concat(enemies).forEach(u => { const g = u.ref.gb; if (g) Object.keys(g).forEach(k => { if (k !== 'ultStart' && k in u) { u[k] += g[k]; note(u, k, { ico: '⚙', name: 'Crew-Ausrüstung' }, g[k]); } }); });
     // Für Gegner gelten nur ihre eigenen Fähigkeiten
     enemies.forEach(u => abilityMods().forEach(m => {
       if (m.scope === 'char:' + u.id) applyMod(u, m, run);
@@ -186,11 +226,16 @@ window.GL = window.GL || {};
       enemies.forEach(u => sm.forEach(m => { if (applies(m.scope, u)) applyMod(u, m, run); }));
     }
     // NEXT: Deckel gegen Stapel-Explosionen (sonst wird aus vielen kleinen Boni Unsterblichkeit oder ein 4×-Krit)
+    const K = GL.config.caps || {};
     crew.concat(enemies).forEach(u => {
-      u.critMult = Math.min(u.critMult, 3);
+      if (u.trace) u.raw = { critMult: u.critMult, dmgPct: u.dmgPct, bossPct: u.bossPct, guard: u.guard, regen: u.regen };   // STATS: vor dem Deckel
+      u.critMult = Math.min(u.critMult, K.critMultMax || 3);
       u.dmgPct = Math.min(u.dmgPct, 1);
       u.bossPct = Math.min(u.bossPct, 1);
-      u.guard = Math.min(u.guard, 0.6);
+      // STATS: Ausweichen über dem Deckel wird Schutz (weniger Schaden), statt zu verfallen
+      const dOver = Math.max(0, u.dodge - (K.dodge != null ? K.dodge : 0.6));
+      u.dodgeGuard = dOver > 0 ? Math.min(K.dodgeOverMax || 0, dOver * (K.dodgeOver || 0)) : 0;
+      u.guard = Math.min(u.guard + u.dodgeGuard, K.guardMax || 0.6);
       u.regen = Math.min(u.regen, Math.max(2, Math.round((u.max || 0) * 0.1)));
       u.killChain = Math.min(u.killChain, 0.75);
     });
@@ -207,5 +252,5 @@ window.GL = window.GL || {};
     return { kind: s.kind, key: s.key, name: d.build, icon: d.icon, pitch: d.pitch, count: s.count, tier: lvl(s) + 1, tiers: s.tiers, active: s.active, next: s.next, label: d.name };
   }
 
-  GL.effects = { counts, status, flags, setup, relicList, duos, duosWith, alliances, alliancesNear, build, combos, combosNear };
+  GL.effects = { counts, status, flags, setup, relicList, duos, duosWith, alliances, alliancesNear, build, combos, combosNear, critOf };   // STATS: critOf
 })();

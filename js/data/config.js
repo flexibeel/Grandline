@@ -114,6 +114,11 @@ GL.config = {
   // Ultis: Energie pro eigenem Treffer / eingestecktem Treffer, bei max feuert die Ulti. Bosse starten mit etwas Energie.
   ult: { max: 100, gainHit: 40, gainHurt: 20, start: 20, bossStart: 40, fireChance: 0.6, maxWait: 2, spark: 0.05 },
   critMult: 2,
+  // STATS: Deckel für Krit-Chance und Ausweichen. Was darüber liegt, verfällt nicht, sondern wird umgewandelt:
+  //   critOver: je 1 % Krit-Chance über dem Deckel +critOver % Krit-Schaden (0.5 → 20 % drüber = +10 % Krit-Schaden)
+  //   dodgeOver: je 1 % Ausweichen über dem Deckel +dodgeOver % Schutz (weniger Schaden), höchstens dodgeOverMax
+  //   critMultMax/guardMax: Deckel aus effects.js (Krit-Schaden ×3, Schutz 60 %); der Überlauf kommt obendrauf
+  caps: { crit: 0.85, dodge: 0.6, critOver: 0.5, dodgeOver: 0.5, dodgeOverMax: 0.2, critMultMax: 3, guardMax: 0.6 },
   // Kampfwetter (nur normale Kämpfe und Kopfgeldjäger): so oft kommt eins, und was es tut
   // Bosskampf: länger je Meer, Boss weicht manchmal aus und kontert
   // FIGHT: Bosse waren Pappkameraden (99 % Siege in 1,7 Runden). Jetzt mehr Leben und Biss, dazu Signatur-Angriffe.

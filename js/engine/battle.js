@@ -187,10 +187,11 @@ window.GL = window.GL || {};
         const living = alive(foes);
         if (!living.length) return;
         const mult0 = f.mult * (P ? UV.perfectMult : 1) * (st.team ? 1 : (1 + UV.ramp * (u.ultCount - 1)));
-        const crit = !P && R.float(run) < (u.crit || 0) + (C.baseCrit || 0);
+        const KR = GL.effects.critOf(u);   // STATS: gleicher Deckel + Überlauf wie bei normalen Treffern
+        const crit = !P && R.float(run) < KR.ch;
         const targets = f.target === 'all' ? living
           : f.target === 'weakest' ? [living.reduce((a, b) => (b.hp < a.hp ? b : a))] : [living[0]];
-        const list = targets.map(t => { const d = ultStrike(u, t, mult0 * (1 + (R.float(run) * 2 - 1) * UV.spread) * (crit ? (u.critMult || 1.5) : 1), f.pierce); return { to: foes.indexOf(t), dmg: Math.min(t.hp, d), hp: damage(t, d) }; });
+        const list = targets.map(t => { const d = ultStrike(u, t, mult0 * (1 + (R.float(run) * 2 - 1) * UV.spread) * (crit ? KR.mult : 1), f.pierce); return { to: foes.indexOf(t), dmg: Math.min(t.hp, d), hp: damage(t, d) }; });
         st.hit = targets;
         events.push({ k: 'dmg', side: targets[0].side, list, by: u.id, ult: true, team: st.team || undefined, crit });
         checkRevives();
@@ -334,6 +335,7 @@ window.GL = window.GL || {};
     // Landgang-Räume (FUN) können eine Bedingung fest vorgeben (o.weather), sonst entscheidet der Zufall wie bisher
     const wx = o.weather && !pvp ? (WX.find(w => w.id === o.weather) || null)
       : !pvp && (kind === 'battle' || kind === 'elite') && WX.length && R.float(run) < (C.weatherChance || 0) ? WX[Math.floor(R.float(run) * WX.length)] : null;
+    const DCAP = (C.caps && C.caps.dodge != null) ? C.caps.dodge : 0.6;   // STATS
     const wxMiss = wx && wx.miss || 0, wxCrit = wx && wx.crit || 0, wxGain = wx && wx.gain || 1, wxDmg = wx && wx.crewDmg || 0;
     if (wx) {
       if (wx.crewSpd) crew.forEach(u => { u.spd += wx.crewSpd; });
@@ -954,13 +956,14 @@ window.GL = window.GL || {};
           if (target.boss || target.mini) dmg *= 1 + u.bossPct;
           if (u.side === 'crew') dmg *= 1 + wxDmg;
           if (isDuelPair(u, target)) dmg *= 1 + (LX.wx.duel || 0);
-          const critCh = Math.min(0.85, (u.crit || 0) + (C.baseCrit || 0) + wxCrit);   // Deckel: nie Dauer-Krit
+          const KR = GL.effects.critOf(u, wxCrit);   // STATS: Deckel (config.caps.crit), darüber wird es Krit-Schaden
+          const critCh = KR.ch;
           let crit = critCh > 0 && R.float(run) < critCh;
           // KAMPFTIEFE: Blöße (von Technik markiert) -> Klinge trifft sicher kritisch. Schwachstelle: Technik gegen Geschwächt/Betäubt
           const opening = KT && u.side === 'crew' && u.type === 'klinge' && !!target.mark;
           if (opening) { crit = true; target.mark = false; dmg *= 1 + CH.open; }
           const expose = KT && u.side === 'crew' && u.type === 'technik' && !!(target.status.weak || target.status.stun);
-          if (expose) dmg *= 1 + CH.expose;          if (crit) dmg *= u.critMult;
+          if (expose) dmg *= 1 + CH.expose;          if (crit) dmg *= KR.mult;
           if (u.status.fear) dmg *= 0.65;
           if (target.status.weak) dmg *= 1.25;
           if (FX) dmg *= FX.dmgMult(u, target);
@@ -974,7 +977,7 @@ window.GL = window.GL || {};
           let blocked = false;
           let miss = false;
           if (u.side === 'enemy' && firstBlock > 0) { blocked = true; firstBlock--; dmg = 0; }
-          else if ((target.dodge || 0) + wxMiss > 0 && R.float(run) < Math.min(0.6, ((target.dodge || 0) + wxMiss) * (heavy ? 2 : 1))) { miss = true; dmg = 0; }   // Deckel: höchstens 60 % Ausweichen
+          else if ((target.dodge || 0) + wxMiss > 0 && R.float(run) < Math.min(DCAP, ((target.dodge || 0) + wxMiss) * (heavy ? 2 : 1))) { miss = true; dmg = 0; }   // Deckel: höchstens 60 % Ausweichen (STATS: config.caps.dodge, Überlauf = Schutz, siehe effects.js)
 
           // Volltreffer: seltener Glücksschlag der eigenen Crew
           let lucky = false;
@@ -1012,8 +1015,9 @@ window.GL = window.GL || {};
           // Schwertkunst: Klinge-Figuren parieren und schlagen sofort zurück (keine Konter auf Konter)
           if (dmg > 0 && target.hp > 0 && u.hp > 0 && target.riposte > 0 && !target.status.stun && R.float(run) < Math.min(0.6, target.riposte)) {
             // Konter können kritisch sein (Klinge-Figuren haben viel Krit)
-            const rcrit = R.float(run) < (target.crit || 0) + (C.baseCrit || 0);
-            const rc = Math.max(1, Math.round(target.atk * (C.riposteMult || 0.7) * (rcrit ? target.critMult : 1) * typeMult(target.type, u.type) * (1 + (target.dmgPct || 0)) * (1 - (u.guard || 0))) - (u.armor || 0));
+            const RK = GL.effects.critOf(target);   // STATS: Konter mit demselben Deckel + Überlauf
+            const rcrit = R.float(run) < RK.ch;
+            const rc = Math.max(1, Math.round(target.atk * (C.riposteMult || 0.7) * (rcrit ? RK.mult : 1) * typeMult(target.type, u.type) * (1 + (target.dmgPct || 0)) * (1 - (u.guard || 0))) - (u.armor || 0));
             damage(u, rc);
             events.push({ k: 'riposte', side: target.side, from: idx(target), to: idx(u), dmg: rc, hp: u.hp, crit: rcrit || undefined });
             checkRevives();
