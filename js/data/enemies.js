@@ -140,3 +140,63 @@ GL.data.raids = [
   { id: 'shanks',     name: 'Rothaar Shanks', type: 'klinge',  hp: 190, atk: 14, spd: 8,  escort: 2, raid: true, rare: true, reward: 'haki-epic',
     look: { hair: '#c0302a', skin: '#f2c9a0', shirt: '#f0f0f0', pants: '#3a3a3a' } }
 ];
+
+// ---------- FIGHT: Gegner mit Plänen statt Werte-Säcken ----------
+// Jede Gegnergruppe hat eine erkennbare Kampf-Rotation (battle.js: Pläne). Ein Plan pro Kampf:
+// die Gruppe, die im Kampf am stärksten vertreten ist (mind. min Mitglieder).
+GL.data.foePlans = {
+  marine: { min: 2, ids: ['marine'], icon: 'aim', name: 'Formation', en: 'Formation',
+    t: 'Wirft zuerst ein Netz, dann feuert die ganze Truppe alle 3 Runden eine Salve.',
+    tEn: 'Throws a net first, then the whole squad fires a volley every 3 rounds.' },
+  pirat: { min: 2, ids: ['pirate', 'thug', 'mercenary'], icon: 'wind', name: 'Rausch', en: 'Frenzy',
+    t: 'Jeder gefallene Kumpan macht die anderen wütender. Der Letzte schlägt doppelt.',
+    tEn: 'Every fallen mate makes the rest angrier. The last one strikes twice.' },
+  tiere: { min: 2, ids: ['boar', 'crab', 'gull', 'momoo', 'kampfaffe', 'bananacroc', 'wolf', 'bat', 'mo-skorpion', 'mo-schneewolf', 'mo-sumpfaffe', 'mo-wolke'], icon: 'aim', name: 'Rudeljagd', en: 'Pack hunt',
+    t: 'Das Rudel stürzt sich gemeinsam auf eine Figur. Bisse lassen bluten.',
+    tEn: 'The pack piles onto one fighter together. Bites cause bleeding.' },
+  see: { min: 1, ids: ['seaking', 'mo-qualle', 'mo-fischmensch'], icon: 'wind', name: 'Gezeiten', en: 'Tides',
+    t: 'Alle 3 Runden rollt eine Welle über die ganze Crew. Eine Runde vorher wird es still.',
+    tEn: 'Every 3 rounds a wave rolls over your whole crew. It goes quiet a round before.' },
+  untot: { min: 1, ids: ['mo-zombie'], icon: 'heal', name: 'Untot', en: 'Undead',
+    t: 'Steht einmal wieder auf. Das ist unhöflich, aber konsequent.',
+    tEn: 'Gets back up once. Rude, but consistent.' },
+  maschine: { min: 1, ids: ['mo-roboter'], icon: 'wind', name: 'Überhitzt', en: 'Overheat',
+    t: 'Alle 3 Runden ein greller Schuss auf deine stärkste Figur, danach kühlt er eine Runde ab.',
+    tEn: 'Every 3 rounds a blinding shot at your strongest fighter, then it cools down for a turn.' }
+};
+GL.data.foePlanOf = id => { const P = GL.data.foePlans; return Object.keys(P).find(k => P[k].ids.includes(id)) || null; };
+
+// Signatur-Angriffe der Bosse und Raid-Bosse: kommen bei Wut (60 %) und in der Endphase (25 %, stärker).
+// Eine Aktion vorher angekündigt (Absicht ✦ leuchtet). fx: aoe (alle), single (stärkste/schwächste),
+// front (vorderste n), multi (n Einzeltreffer), status, drain (Schaden heilt den Boss), self (Angriff +x),
+// stun (n Figuren setzen aus), purge (gute Zustände der Crew weg)
+GL.data.bossSigs = {
+  smoker:      { name: 'Weißer Rauch', en: 'White Smoke', t: 'Rauch überall. Deine Crew sieht nichts und kassiert mehr.', tEn: 'Smoke everywhere. Your crew sees nothing and takes more.',
+    fx: [{ do: 'status', key: 'weak', rounds: 2, target: 'all' }, { do: 'aoe', m: 0.45 }] },
+  arlong:      { name: 'Sägezahn-Sturm', en: 'Sawtooth Storm', t: 'Er beißt sich durch die Reihe. Alle bluten.', tEn: 'He bites his way down the line. Everyone bleeds.',
+    fx: [{ do: 'aoe', m: 0.5 }, { do: 'status', key: 'bleed', rounds: 3, value: 3, target: 'all' }] },
+  crocodile:   { name: 'Wüstensarg', en: 'Desert Coffin', t: 'Sand saugt deiner Crew das Leben aus. Ihm schmeckt es.', tEn: 'Sand drains the life from your crew. He enjoys it.',
+    fx: [{ do: 'drain', m: 0.5 }] },
+  enel:        { name: 'Donnergott', en: 'God of Thunder', t: 'Ein Blitz für alle, und einer bleibt kurz stehen.', tEn: 'A bolt for everyone, and one of them freezes for a moment.',
+    fx: [{ do: 'aoe', m: 0.75 }, { do: 'stun', n: 1 }] },
+  'rob-lucci': { name: 'Rokuogan', en: 'Rokuogan', t: 'Ein Schlag, gezielt auf deine Stärkste. Er hat geübt.', tEn: 'One strike, aimed at your strongest. He has practised.',
+    fx: [{ do: 'single', m: 2.3, pick: 'strong' }] },
+  kaku:        { name: 'Sturmschnitt', en: 'Tempest Cut', t: 'Ein Schnitt durch die ersten beiden. Lang und unhöflich.', tEn: 'One cut through the first two. Long and impolite.',
+    fx: [{ do: 'front', m: 1.25, n: 2 }] },
+  hody:        { name: 'Energie-Steroide', en: 'Energy Steroids', t: 'Er schluckt eine Pille und wird unangenehm.', tEn: 'He swallows a pill and becomes unpleasant.',
+    fx: [{ do: 'self', atk: 0.3 }, { do: 'aoe', m: 0.4 }] },
+  vander:      { name: 'Zielmarke', en: 'Target Mark', t: 'Er markiert die Schwächste. Alles fliegt jetzt dorthin.', tEn: 'He marks the weakest. Everything flies that way now.',
+    fx: [{ do: 'status', key: 'weak', rounds: 3, target: 'low' }, { do: 'single', m: 1.5, pick: 'low' }] },
+  moria:       { name: 'Schattenraub', en: 'Shadow Theft', t: 'Er stiehlt den Schatten deiner Stärksten. Sie steht kurz bedeppert da.', tEn: 'He steals the shadow of your strongest. They stand there, baffled.',
+    fx: [{ do: 'stun', n: 1, pick: 'strong' }, { do: 'self', atk: 0.2 }] },
+  kuma:        { name: 'Ursus-Schock', en: 'Ursus Shock', t: 'Eine Luftblase aus Schmerz. Sie platzt über allen.', tEn: 'A bubble of pain. It bursts over everyone.',
+    fx: [{ do: 'aoe', m: 0.85 }] },
+  kizaru:      { name: 'Lichtgeschwindigkeit', en: 'Speed of Light', t: 'Drei Tritte, schneller als jede Ausrede.', tEn: 'Three kicks, faster than any excuse.',
+    fx: [{ do: 'multi', m: 0.75, n: 3 }] },
+  doflamingo:  { name: 'Vogelkäfig', en: 'Birdcage', t: 'Fäden überall. Zwei von euch hängen kurz fest.', tEn: 'Strings everywhere. Two of you are stuck for a moment.',
+    fx: [{ do: 'aoe', m: 0.45 }, { do: 'stun', n: 2 }] },
+  teach:       { name: 'Schwarzes Loch', en: 'Black Hole', t: 'Er schluckt alles Gute. Mut, Schilde, Laune.', tEn: 'He swallows everything good. Courage, shields, mood.',
+    fx: [{ do: 'purge' }, { do: 'aoe', m: 0.6 }] },
+  shanks:      { name: 'Königshaki', en: 'Conqueror\'s Haki', t: 'Er schaut nur. Das reicht.', tEn: 'He just looks. That is enough.',
+    fx: [{ do: 'status', key: 'fear', rounds: 2, target: 'all' }, { do: 'aoe', m: 0.35 }] }
+};

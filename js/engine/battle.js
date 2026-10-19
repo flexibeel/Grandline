@@ -42,6 +42,8 @@ window.GL = window.GL || {};
     const alive = list => list.filter(u => u.hp > 0);
     const sideOf = s => (s === 'crew' ? crew : enemies);
     let FX = null;   // Teufelsfrucht-Mechaniken (js/engine/fruitfx.js)
+    let PL = null;   // FIGHT: Plan der Gegnergruppe (GL.data.foePlans), höchstens einer pro Kampf
+    let LX = null;   // FIGHT: Kampf-Laune (Kampfwetter mit eigener Mechanik)
 
     function damage(u, amount) {
       u.hp = Math.max(0, u.hp - amount);
@@ -86,6 +88,7 @@ window.GL = window.GL || {};
         const list = crew.map((u, i) => { u.hp = Math.ceil(u.max * flags.vivre); return { to: i, hp: u.hp }; });
         events.push({ k: 'revive', side: 'crew', list, by: 'vivre' });
       }
+      if (PL) planFall();
     }
 
     // ---------- Zustände (halten mehrere Runden) ----------
@@ -323,6 +326,36 @@ window.GL = window.GL || {};
       if (wx.foeSpd) enemies.forEach(u => { u.spd += wx.foeSpd; });
       events.push({ k: 'weather', id: wx.id, name: wx.name, text: wx.text });
       gainMult = wxGain;
+      LX = { id: wx.id, wx };
+      // Zweikampf: die beiden Stärksten gehen aufeinander los
+      if (wx.duel) {
+        const c = alive(crew).reduce((a, b) => (b.atk > a.atk ? b : a), alive(crew)[0]);
+        const e = alive(enemies).reduce((a, b) => (b.atk > a.atk ? b : a), alive(enemies)[0]);
+        if (c && e) { LX.duel = [c, e]; events.push({ k: 'wxfx', id: 'duell', list: [{ side: 'crew', to: idx(c) }, { side: 'enemy', to: idx(e) }] }); }
+      }
+    }
+    const isDuelPair = (a, b) => !!(LX && LX.duel && ((a === LX.duel[0] && b === LX.duel[1]) || (a === LX.duel[1] && b === LX.duel[0])));
+    // Kampf-Launen, die zu Rundenbeginn wirken (Pulverfass, Möwen)
+    function launeRound(n) {
+      if (!LX) return;
+      const w = LX.wx;
+      if (w.blast && n === 2) {
+        const c = alive(crew)[0], e = alive(enemies)[0];
+        if (!c || !e) return;
+        events.push({ k: 'wxfx', id: 'pulver' });
+        [c, e].forEach(t => {
+          const d = Math.max(1, Math.round(t.max * w.blast));
+          events.push({ k: 'dmg', side: t.side, list: [{ to: idx(t), dmg: Math.min(t.hp, d), hp: damage(t, d) }], by: 'pulver' });
+        });
+        checkRevives();
+      }
+      if (w.gulls && R.float(run) < w.gulls) {
+        const pool = alive(crew).concat(alive(enemies));
+        if (!pool.length) return;
+        const t = pool[Math.floor(R.float(run) * pool.length)];
+        const got = addStatus(t, 'stun', 1);
+        events.push({ k: 'wxfx', id: 'moewen', side: t.side, to: idx(t), hit: !!got });
+      }
     }
     function drama() {
       if (pvp) return;
@@ -332,6 +365,7 @@ window.GL = window.GL || {};
           e.atk = Math.round(e.atk * (1 + DR.rageAtk)); e.spd += 1;
           if (e.ult) e.energy = Math.min(U.max, e.energy + DR.rageEnergy);
           events.push({ k: 'rage', side: 'enemy', to: idx(e), by: e.id, ea: e.ult ? e.energy : null });
+          sigWarn(e, 1);
           if (FM.on && !called && FM.call > 0) {
             const down = enemies.find(f => f.hp <= 0 && !isLead(f));
             if (down) {
@@ -349,6 +383,7 @@ window.GL = window.GL || {};
           if (e.ult) e.energy = U.max;
           const got = heal(e, Math.round(e.max * DR.finalHeal));
           events.push({ k: 'rage', phase: 3, side: 'enemy', to: idx(e), by: e.id, ea: e.ult ? e.energy : null, heal: got, hp: e.hp });
+          sigWarn(e, SG.final || 1.3);
         }
       });
       if (!willUsed && alive(enemies).length) {
@@ -368,7 +403,7 @@ window.GL = window.GL || {};
     const helfer = crew.filter(u => u.role === 'helfer').length;
     const doc = pvp || kind === 'duel' ? null
       : chop && DC.chopper ? { p: DC.chopper, by: 'chopper', from: idx(chop) }
-      : helfer >= 4 && DC.lazarett ? { p: DC.lazarett, by: 'lazarett' }
+      : helfer >= (DC.lazarettN || 3) && DC.lazarett ? { p: helfer >= 4 ? (DC.lazarett4 || DC.lazarett) : DC.lazarett, by: 'lazarett' }
       : (run.eaten || []).some(id => /^hito/.test(id)) && DC.hito ? { p: DC.hito, by: 'hito' } : null;
     let docUsed = false;
     // Welle 2 rückt nach, sobald Welle 1 gefallen ist
@@ -403,6 +438,166 @@ window.GL = window.GL || {};
     }
     // Schutz: Schüsse über das Gefolge hinweg verlieren etwas Wucht
     const behindGuards = (u, target) => !pvp && FM.on && u.side === 'crew' && isLead(target) && alive(enemies).some(f => !isLead(f));
+
+    // ---------- FIGHT: Signatur-Angriffe der Bosse (bei Wut und in der Endphase, eine Aktion vorher angekündigt) ----------
+    const SIG = GL.data.bossSigs || {}, SG = Object.assign({ final: 1.3 }, C.sig || {});
+    function sigWarn(e, m) {
+      const S = SIG[e.id];
+      if (!S || pvp || kind === 'duel' || C.sig === false) return;
+      e.sigPending = m;
+      events.push({ k: 'plan', side: 'enemy', plan: 'sig', step: 'warn', to: idx(e), by: e.id,
+        text: `${nameOf(e)} bereitet ${S.name} vor …`, en: `${nameOf(e)} is preparing ${S.en} …` });
+    }
+    function doSig(u) {
+      const S = SIG[u.id], m = u.sigPending || 1;
+      u.sigPending = 0;
+      events.push({ k: 'sig', side: 'enemy', from: idx(u), by: u.id, name: S.name, en: S.en, text: S.t, tEn: S.tEn, strong: m > 1 || undefined });
+      const hitList = (list, mult) => {
+        const out = list.filter(t => t && t.hp > 0).map(t => {
+          let d = u.atk * mult * m * typeMult(u.type, t.type);
+          if (t.status.weak) d *= 1.25;
+          d = Math.max(1, Math.round(d * (1 - (t.guard || 0))) - (t.armor || 0));
+          return { to: idx(t), dmg: Math.min(t.hp, d), hp: damage(t, d) };
+        });
+        if (out.length) { events.push({ k: 'dmg', side: 'crew', list: out, by: u.id, sig: true }); checkRevives(); }
+        return out;
+      };
+      S.fx.forEach(f => {
+        const T = alive(crew);
+        if (!T.length) return;
+        const strong = () => T.reduce((a, b) => (b.atk > a.atk ? b : a)), low = () => T.reduce((a, b) => (b.hp / b.max < a.hp / a.max ? b : a));
+        if (f.do === 'aoe') hitList(T, f.m);
+        else if (f.do === 'single') hitList([f.pick === 'low' ? low() : strong()], f.m);
+        else if (f.do === 'front') hitList(T.slice(0, f.n || 2), f.m);
+        else if (f.do === 'multi') { for (let k = 0; k < (f.n || 3); k++) { const L = alive(crew); if (!L.length) break; hitList([L[Math.floor(R.float(run) * L.length)]], f.m); } }
+        else if (f.do === 'drain') {
+          const out = hitList(T, f.m), tot = out.reduce((s, x) => s + x.dmg, 0);
+          const got = heal(u, Math.round(tot * 0.6));
+          if (got > 0) events.push({ k: 'heal', side: 'enemy', list: [{ to: idx(u), amount: got, hp: u.hp }], by: u.id, sig: true });
+        } else if (f.do === 'status') {
+          const list = f.target === 'all' ? T : f.target === 'low' ? [low()] : T.slice(0, 1);
+          const got = list.map(t => addStatus(t, f.key, f.rounds + (m > 1 ? 1 : 0), f.value)).filter(Boolean);
+          if (got.length) events.push({ k: 'status', side: 'crew', list: got, by: u.id, sig: true });
+        } else if (f.do === 'stun') {
+          const pool = f.pick === 'strong' ? [strong()] : T.slice(), pick = [];
+          for (let k = 0; k < (f.n || 1) && pool.length; k++) pick.push(pool.splice(Math.floor(R.float(run) * pool.length), 1)[0]);
+          const got = pick.map(t => addStatus(t, 'stun', 1)).filter(Boolean);
+          if (got.length) events.push({ k: 'status', side: 'crew', list: got, by: u.id, sig: true });
+        } else if (f.do === 'self') {
+          const add = Math.max(1, Math.round(u.atk * f.atk * m));
+          u.atk += add;
+          events.push({ k: 'note', by: u.id, side: 'enemy', sig: true, text: `${nameOf(u)} wird stärker: +${add} Angriff.` });
+        } else if (f.do === 'purge') {
+          let n = 0;
+          T.forEach(t => Object.keys(t.status).forEach(k => { const d = GL.data.statuses[k]; if (d && d.good) { delete t.status[k]; n++; } }));
+          T.forEach(t => { if (t.regen > 0) { t.regen = Math.floor(t.regen / 2); n++; } });
+          events.push({ k: 'note', by: u.id, side: 'enemy', sig: true, text: n ? 'Alles Gute ist weg: Mut verflogen, Heilung halbiert.' : 'Es gab nichts Gutes zu schlucken. Er wirkt enttäuscht.' });
+        }
+      });
+    }
+
+    // ---------- FIGHT: Pläne der Gegnergruppen (eine erkennbare Rotation pro Kampf) ----------
+    const PD = GL.data.foePlans || {};
+    const PV = Object.assign({ salvo: 0.45, frenzy: 0.1, bite: 0.18, wave: 0.55, beam: 1.6, undead: 0.3 }, C.plan || {});
+    const inPlan = u => !!(PL && u && u.side === 'enemy' && PL.ids.includes(u.id));
+    function planEv(step, u, text, en, big) {
+      events.push({ k: 'plan', side: 'enemy', plan: PL.key, step, to: u ? idx(u) : null, by: u ? u.id : null, text, en, big: big || undefined });
+    }
+    function pickPlan() {
+      if (pvp || kind === 'duel' || C.plans === false) return null;
+      const cnt = {};
+      enemies.concat(reserve).forEach(u => { if (isLead(u)) return; const k = GL.data.foePlanOf ? GL.data.foePlanOf(u.id) : null; if (k) cnt[k] = (cnt[k] || 0) + 1; });
+      const keys = Object.keys(cnt).filter(k => cnt[k] >= (PD[k].min || 1)).sort((a, b) => cnt[b] - cnt[a]);
+      return keys.length ? Object.assign({ key: keys[0] }, PD[keys[0]], { down: 0 }) : null;
+    }
+    const planMembers = () => alive(enemies).filter(inPlan);
+    function planRound(n) {
+      const G = planMembers(), g0 = G[0];
+      if (!g0 || !alive(crew).length) return;
+      const k = PL.key;
+      if (k === 'marine') {
+        if (n === 1) {
+          const t = alive(crew).reduce((a, b) => (b.spd > a.spd ? b : a));
+          planEv('netz', g0, `Formation! Die Marine wirft ein Netz über ${nameOf(t)}.`, `Formation! The Marines throw a net over ${nameOf(t)}.`, true);
+          const got = addStatus(t, 'stun', 1);
+          if (got) events.push({ k: 'status', side: 'crew', list: [got], by: g0.id, plan: 'netz' });
+        } else if (n % 3 === 2) planEv('anlegen', g0, 'Die Marine legt an … Nächste Runde knallt es.', 'The Marines take aim … next round it goes bang.');
+        else if (n % 3 === 0) {
+          const acc = {};
+          G.forEach(s => {
+            const L = alive(crew); if (!L.length) return;
+            const t = L[Math.floor(R.float(run) * L.length)];
+            const d = Math.max(1, Math.round(s.atk * PV.salvo * (1 - (t.guard || 0))) - (t.armor || 0));
+            acc[idx(t)] = (acc[idx(t)] || 0) + d;
+          });
+          planEv('salve', g0, 'Salve! Die ganze Marine-Truppe feuert auf einmal.', 'Volley! The whole Marine squad fires at once.', !PL.bigUsed);
+          PL.bigUsed = true;
+          const list = Object.keys(acc).map(i => { const t = crew[+i]; return { to: +i, dmg: Math.min(t.hp, acc[i]), hp: damage(t, acc[i]) }; });
+          if (list.length) { events.push({ k: 'dmg', side: 'crew', list, by: 'salve' }); checkRevives(); }
+        }
+      } else if (k === 'pirat') {
+        if (n === 1) planEv('start', g0, 'Piraten! Jeder Gefallene macht die anderen wütender.', 'Pirates! Every fallen mate makes the rest angrier.', true);
+      } else if (k === 'tiere') {
+        if (n === 1) {
+          PL.prey = alive(crew).reduce((a, b) => (b.max < a.max ? b : a));
+          planEv('rudel', g0, `Rudeljagd! Das Rudel hat sich ${nameOf(PL.prey)} ausgesucht.`, `Pack hunt! The pack has picked ${nameOf(PL.prey)}.`, true);
+        }
+      } else if (k === 'see') {
+        if (n === 1) planEv('start', g0, 'Gezeiten! Alle 3 Runden rollt eine Welle über deine Crew.', 'Tides! Every 3 rounds a wave rolls over your crew.', true);
+        else if (n % 3 === 2) { PL.tide = true; planEv('ebbe', g0, 'Das Wasser zieht sich zurück. Das ist nie ein gutes Zeichen.', 'The water pulls back. That is never a good sign.'); }
+        else if (n % 3 === 0 && PL.tide) {
+          PL.tide = false;
+          const avgA = G.reduce((s, x) => s + x.atk, 0) / G.length;
+          planEv('welle', g0, 'Die Welle kommt! Die ganze Crew wird nass und wund.', 'Here comes the wave! The whole crew gets soaked and sore.', !PL.bigUsed);
+          PL.bigUsed = true;
+          const list = alive(crew).map(t => { const d = Math.max(1, Math.round(avgA * PV.wave * (1 - (t.guard || 0))) - (t.armor || 0)); return { to: idx(t), dmg: Math.min(t.hp, d), hp: damage(t, d) }; });
+          events.push({ k: 'dmg', side: 'crew', list, by: 'welle' });
+          checkRevives();
+        }
+      } else if (k === 'untot') {
+        if (n === 1) planEv('start', g0, 'Untot! Was hier fällt, steht einmal wieder auf.', 'Undead! What falls here gets back up once.', true);
+      } else if (k === 'maschine') {
+        if (n % 3 === 2) planEv('surren', g0, `${nameOf(g0)} surrt bedrohlich. Irgendwas lädt da.`, `${nameOf(g0)} whirs ominously. Something is charging.`);
+        else if (n % 3 === 0) G.forEach(r => {
+          const L = alive(crew); if (!L.length) return;
+          const t = L.reduce((a, b) => (b.atk > a.atk ? b : a));
+          const miss = R.float(run) < (t.dodge || 0);
+          const d = miss ? 0 : Math.max(1, Math.round(r.atk * PV.beam * typeMult(r.type, t.type) * (1 - (t.guard || 0))) - (t.armor || 0));
+          planEv('schuss', r, `${nameOf(r)} überhitzt und feuert einen grellen Strahl auf ${nameOf(t)}.`, `${nameOf(r)} overheats and fires a blinding beam at ${nameOf(t)}.`, !PL.bigUsed);
+          PL.bigUsed = true;
+          if (miss) events.push({ k: 'hit', side: 'enemy', from: idx(r), to: idx(t), dmg: 0, miss: true, hp: t.hp, eff: '' });
+          else events.push({ k: 'dmg', side: 'crew', list: [{ to: idx(t), dmg: Math.min(t.hp, d), hp: damage(t, d) }], by: r.id, plan: 'schuss' });
+          r.cool = true;
+          checkRevives();
+        });
+      }
+    }
+    function planFall() {
+      const k = PL.key;
+      if (k === 'untot') enemies.forEach(u => {
+        if (u.hp === 0 && inPlan(u) && !u.undead && alive(crew).length) {
+          u.undead = true;
+          u.hp = Math.max(1, Math.ceil(u.max * PV.undead));
+          events.push({ k: 'revive', side: 'enemy', list: [{ to: idx(u), hp: u.hp }], by: u.id, plan: 'untot' });
+          planEv('auf', u, `${nameOf(u)} steht wieder auf. Niemand hat ihn darum gebeten.`, `${nameOf(u)} gets back up. Nobody asked.`);
+        }
+      });
+      if (k === 'pirat') {
+        const grp = enemies.filter(inPlan), down = grp.filter(u => u.hp <= 0).length;
+        if (down <= PL.down) return;
+        const add = down - PL.down;
+        PL.down = down;
+        const rest = grp.filter(u => u.hp > 0);
+        if (!rest.length || !alive(crew).length) return;
+        rest.forEach(u => { u.atk = Math.round(u.atk * Math.pow(1 + PV.frenzy, add)); });
+        if (rest.length === 1 && !PL.last) {
+          PL.last = true; rest[0].planDouble = true;
+          planEv('letzter', rest[0], `${nameOf(rest[0])} ist allein übrig und nimmt das persönlich: schlägt jetzt doppelt.`, `${nameOf(rest[0])} is the last one standing and takes it personally: now strikes twice.`, !PL.bigUsed);
+          PL.bigUsed = true;
+        } else planEv('rausch', rest[0], `Rausch! Die Piraten werden wütender: +${Math.round(PV.frenzy * 100)} % Angriff.`, `Frenzy! The pirates get angrier: +${Math.round(PV.frenzy * 100)} % attack.`);
+      }
+    }
+    PL = pickPlan();
     let rounds = 0;
     // Duell-Kommandos (nur Stammcrew-Duell, nur mit o.duel): vor jedem Zug steht eine Zug-Marke im Protokoll.
     // Ein Kommando wirkt vor dem genannten Zug. Alles davor bleibt Ereignis für Ereignis gleich,
@@ -456,8 +651,15 @@ window.GL = window.GL || {};
         const st = statusOf(u);
         if (st && st.when === 'every' && rounds % st.n === 0) spreadStatus(u, st);
       });
+      if (PL) planRound(rounds);
+      launeRound(rounds);
+      if (!alive(crew).length) break;
       const queue = crew.concat(enemies).filter(u => u.hp > 0);
-      if (pvp) {
+      if (LX && LX.wx.shuffle) {
+        // Glitschiges Deck: wer zuerst dran ist, entscheidet jede Runde (fast nur) das Glück
+        queue.forEach(u => { u.tb = u.spd * 0.06 + R.float(run); });
+        queue.sort((a, b) => b.tb - a.tb);
+      } else if (pvp) {
         // Duell: bei gleichem Tempo entscheidet der Zufall, wer zuerst handelt (sonst hätte der Angreifer immer Vorteil)
         queue.forEach(u => { u.tb = R.float(run); });
         queue.sort((a, b) => b.spd - a.spd || b.tb - a.tb);
@@ -473,6 +675,10 @@ window.GL = window.GL || {};
           events.push({ k: 'skip', side: u.side, to: idx(u) });
           continue;
         }
+        // Roboter kühlt nach dem grellen Schuss eine Aktion lang ab
+        if (u.cool) { u.cool = false; if (PL) planEv('kuehlen', u, `${nameOf(u)} kühlt ab. Es dampft und riecht nach Lötzinn.`, `${nameOf(u)} cools down. It steams and smells of solder.`); continue; }
+        // Boss-Signatur: angekündigt, kommt jetzt statt des normalen Angriffs
+        if (u.sigPending && u.side === 'enemy' && SIG[u.id]) { doSig(u); continue; }
         // Ulti: Bei voller Leiste zündet sie mit etwas Glück sofort, spätestens im übernächsten Zug.
         // Selten springt schon bei halb voller Leiste ein Funke über (Glücks-Ulti).
         if (u.ult && u.energy >= U.max) {
@@ -480,15 +686,30 @@ window.GL = window.GL || {};
           u.ultWait = (u.ultWait || 0) + 1;
         } else if (u.ult && u.energy >= U.max * 0.5 && R.float(run) < (U.spark || 0)) { doUlt(u, true); continue; }
         const foes = foesOf(u);
-        const attacks = u.ability === 'double' ? 2 : 1;
+        // Tempo-Stil: Chance auf einen Extra-Zug. Letzter Pirat im Rausch schlägt doppelt.
+        const baseAtt = u.ability === 'double' || u.planDouble ? 2 : 1;
+        const extra = u.extraTurn > 0 && R.float(run) < Math.min(0.6, u.extraTurn) ? 1 : 0;
+        const attacks = baseAtt + extra;
 
         for (let n = 0; n < attacks; n++) {
           const living = foes.filter(f => f.hp > 0);
           if (!living.length || u.hp <= 0) break;
+          if (extra && n === baseAtt) events.push({ k: 'extra', side: u.side, from: idx(u) });
 
+          // Zweikampf (Kampf-Laune): die beiden Stärksten suchen sich gegenseitig.
+          // Spott (Bollwerk): Brecher ziehen die Angriffe auf sich (Stufe 2 auch die von Schützen).
+          // Rudeljagd: Tiere stürzen sich gemeinsam auf ein Opfer.
           // sniper: schwächstes Ziel, bully: stärkstes Ziel (meister Angriff),
           // sonst: Leibwache (taunt) fängt ab, ansonsten wer vorne steht
-          const target = u.ability === 'sniper'
+          let target = null;
+          if (LX && LX.duel && (u === LX.duel[0] || u === LX.duel[1])) { const other = u === LX.duel[0] ? LX.duel[1] : LX.duel[0]; if (other.hp > 0 && living.includes(other)) target = other; }
+          const taunter = target ? null : living.find(f => f.taunt > 0);
+          if (taunter && (taunter.taunt >= 2 || (u.ability !== 'sniper' && u.ability !== 'bully'))) target = taunter;
+          if (!target && inPlan(u) && PL.key === 'tiere' && u.ability !== 'sniper') {
+            if (!PL.prey || PL.prey.hp <= 0 || !living.includes(PL.prey)) PL.prey = living.reduce((a, b) => (b.hp / b.max < a.hp / a.max ? b : a));
+            target = PL.prey;
+          }
+          if (!target) target = u.ability === 'sniper'
             ? living.reduce((a, b) => (b.hp < a.hp ? b : a))
             : u.ability === 'bully'
               ? living.reduce((a, b) => (b.atk > a.atk ? b : a))
@@ -504,7 +725,8 @@ window.GL = window.GL || {};
           let dmg = u.atk * (1 + (R.float(run) * 2 - 1) * sp) * mult * (1 + u.dmgPct);
           if (target.boss || target.mini) dmg *= 1 + u.bossPct;
           if (u.side === 'crew') dmg *= 1 + wxDmg;
-          const critCh = (u.crit || 0) + (C.baseCrit || 0) + wxCrit;
+          if (isDuelPair(u, target)) dmg *= 1 + (LX.wx.duel || 0);
+          const critCh = Math.min(0.85, (u.crit || 0) + (C.baseCrit || 0) + wxCrit);   // Deckel: nie Dauer-Krit
           const crit = critCh > 0 && R.float(run) < critCh;
           if (crit) dmg *= u.critMult;
           if (u.status.fear) dmg *= 0.65;
@@ -520,7 +742,7 @@ window.GL = window.GL || {};
           let blocked = false;
           let miss = false;
           if (u.side === 'enemy' && firstBlock > 0) { blocked = true; firstBlock--; dmg = 0; }
-          else if ((target.dodge || 0) + wxMiss > 0 && R.float(run) < ((target.dodge || 0) + wxMiss) * (heavy ? 2 : 1)) { miss = true; dmg = 0; }
+          else if ((target.dodge || 0) + wxMiss > 0 && R.float(run) < Math.min(0.6, ((target.dodge || 0) + wxMiss) * (heavy ? 2 : 1))) { miss = true; dmg = 0; }   // Deckel: höchstens 60 % Ausweichen
 
           // Volltreffer: seltener Glücksschlag der eigenen Crew
           let lucky = false;
@@ -548,9 +770,37 @@ window.GL = window.GL || {};
             events.push({ k: 'counter', side: 'enemy', from: idx(target), to: idx(u), dmg: cd, hp: u.hp });
             checkRevives();
           }
+          // Schwertkunst: Klinge-Figuren parieren und schlagen sofort zurück (keine Konter auf Konter)
+          if (dmg > 0 && target.hp > 0 && u.hp > 0 && target.riposte > 0 && !target.status.stun && R.float(run) < Math.min(0.6, target.riposte)) {
+            // Konter können kritisch sein (Klinge-Figuren haben viel Krit)
+            const rcrit = R.float(run) < (target.crit || 0) + (C.baseCrit || 0);
+            const rc = Math.max(1, Math.round(target.atk * (C.riposteMult || 0.7) * (rcrit ? target.critMult : 1) * typeMult(target.type, u.type) * (1 + (target.dmgPct || 0)) * (1 - (u.guard || 0))) - (u.armor || 0));
+            damage(u, rc);
+            events.push({ k: 'riposte', side: target.side, from: idx(target), to: idx(u), dmg: rc, hp: u.hp, crit: rcrit || undefined });
+            checkRevives();
+          }
+          // Sturmtrupp: wer einen Gegner umhaut, setzt mit Schwung nach
+          if (dmg > 0 && target.hp === 0 && u.hp > 0 && u.killChain > 0 && R.float(run) < u.killChain) {
+            const next = foes.find(f => f.hp > 0);
+            if (next) {
+              const d = Math.max(1, Math.round(u.atk * 0.7 * (1 + (u.dmgPct || 0)) * typeMult(u.type, next.type) * (1 - (next.guard || 0))) - (next.armor || 0));
+              events.push({ k: 'dmg', side: next.side, list: [{ to: foes.indexOf(next), dmg: Math.min(next.hp, d), hp: damage(next, d) }], by: u.id, chain: true });
+              checkRevives();
+            }
+          }
           // Fähigkeiten nach einem Treffer
           if (dmg > 0) {
             if (FX) FX.onHit(u, target, dmg);
+            // Wucht: harte Treffer brechen die Rüstung (Geschwächt: +25 % Schaden)
+            if (u.armorBreak > 0 && target.hp > 0 && !target.status.weak && R.float(run) < u.armorBreak) {
+              const got = addStatus(target, 'weak', 2);
+              if (got) events.push({ k: 'status', side: target.side, list: [got], by: u.id, brk: true });
+            }
+            // Rudeljagd: Bisse lassen bluten
+            if (inPlan(u) && PL.key === 'tiere' && target.hp > 0 && R.float(run) < PV.bite) {
+              const got = addStatus(target, 'bleed', 2, Math.max(2, Math.round(u.atk * 0.25)));
+              if (got) events.push({ k: 'status', side: target.side, list: [got], by: u.id, plan: 'biss' });
+            }
             const st = statusOf(u);
             if (st && st.when === 'hit' && target.hp > 0 && (!st.chance || R.float(run) < st.chance)) spreadStatus(u, st, target);
             if (u.ability === 'ramp') u.atk += u.power;

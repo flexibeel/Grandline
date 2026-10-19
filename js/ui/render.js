@@ -1323,11 +1323,24 @@ window.GL = window.GL || {};
     vivre: 'Die Vivre Card',
     helfer: 'Ein Helfer',
     bleed: 'Wunden, Gift und Feuer',
-    special: 'Der Spezialangriff'
+    special: 'Der Spezialangriff',
+    salve: 'Die Marine-Salve', welle: 'Die Welle', pulver: 'Das Pulverfass'
   };
 
   let windupN = -1;
   function battleText(run, ev) {
+    // FIGHT: Pläne, Signaturen, Launen und Stil-Taktik (Text kommt zweisprachig aus dem Kampf)
+    const EN = GL.i18n && GL.i18n.lang && GL.i18n.lang() === 'en';
+    if (ev.k === 'plan') return EN && ev.en ? ev.en : ev.text || '';
+    if (ev.k === 'sig') { const n = anyData(ev.by) ? anyData(ev.by).name : (EN ? 'The boss' : 'Der Boss'); return EN ? `${n} unleashes ${ev.en}${ev.strong ? ', stronger than before' : ''}! ${ev.tEn}` : `${n} entfesselt ${ev.name}${ev.strong ? ', stärker als zuvor' : ''}! ${ev.text}`; }
+    if (ev.k === 'extra') { const n = targetName(run, ev.side, ev.from); return EN ? `${n} is so quick there is time for an extra move.` : `${n} ist so schnell, dass es für einen Extra-Zug reicht.`; }
+    if (ev.k === 'riposte') { const a = targetName(run, ev.side, ev.from), b = targetName(run, ev.side === 'crew' ? 'enemy' : 'crew', ev.to); return EN ? `${a} parries and strikes back: ${ev.dmg} damage to ${b}.` : `${a} pariert und kontert: ${ev.dmg} Schaden an ${b}.`; }
+    if (ev.k === 'wxfx') {
+      if (ev.id === 'pulver') return EN ? 'The powder keg goes up! Splinters fly at the front.' : 'Das Pulverfass geht hoch! Vorne fliegen Splitter.';
+      if (ev.id === 'moewen') { const n = targetName(run, ev.side, ev.to); return EN ? (ev.hit ? `A gull pecks ${n}. Out for a turn.` : `A gull pecks ${n}, who does not care.`) : (ev.hit ? `Eine Möwe pickt ${n}. Setzt eine Runde aus.` : `Eine Möwe pickt ${n}. Prallt ab.`); }
+      if (ev.id === 'duell' && ev.list && ev.list.length === 2) { const a = targetName(run, 'crew', ev.list[0].to), b = targetName(run, 'enemy', ev.list[1].to); return EN ? `Duel: ${a} versus ${b}. Everyone else steps aside.` : `Zweikampf: ${a} gegen ${b}. Alle anderen treten einen Schritt zurück.`; }
+      return '';
+    }
     if (ev.k === 'note') return ev.text;
     if (ev.k === 'round') return '';
     if (ev.k === 'special') return `Spezialangriff: ${ev.name}!`;

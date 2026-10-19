@@ -23,8 +23,16 @@ window.GL = window.GL || {};
     heal: pxIco(['.kkkkk.', 'kggwggk', 'kgwwwgk', 'kwwwwwk', 'kgwwwgk', 'kggwggk', '.kkkkk.'], { k: '#2c5a2a', g: '#5fae4f', w: '#effae6' }),
     aim: pxIco(['..rrr..', '.r...r.', 'r..k..r', 'r.kkk.r', 'r..k..r', '.r...r.', '..rrr..'], { r: '#c2412d', k: '#3a2a14' }),
     call: pxIco(['......k', '....kyk', 'k.kyyyk', 'kkyyyyk', 'k.kyyyk', '....kyk', '......k'], { k: '#5a3a12', y: '#e8b84a' }),
-    taunt: pxIco(['.kkkkk.', 'kbbbbbk', 'kbwbbbk', 'kbbbbbk', '.kbbbk.', '..kbk..', '...k...'], { k: '#2a3a52', b: '#8fb0d6', w: '#eaf2fb' })
+    taunt: pxIco(['.kkkkk.', 'kbbbbbk', 'kbwbbbk', 'kbbbbbk', '.kbbbk.', '..kbk..', '...k...'], { k: '#2a3a52', b: '#8fb0d6', w: '#eaf2fb' }),
+    // FIGHT: Signatur-Angriff eines Bosses (Stern)
+    sig: pxIco(['...k...', '..kyk..', 'kkyyykk', '.kyyyk.', '..kyk..', '.kk.kk.', 'k.....k'], { k: '#5a2a7a', y: '#e9b8ff' })
   };
+  // FIGHT: Pläne der Gegnergruppen und Boss-Signaturen als Absicht (Text aus GL.data.foePlans / bossSigs)
+  function planOn(team, key) {
+    const P = (GL.data.foePlans || {})[key];
+    if (!P) return false;
+    return (team || []).filter(f => !(f.boss || f.mini || f.raid) && P.ids.includes(f.id)).length >= (P.min || 1);
+  }
   const INT_TXT = {
     wind: ['Holt aus', 'Alle 3 Runden kündigt er einen schweren Schlag an. Ausweichen und Rüstung helfen dagegen doppelt.', 'Winds up', 'Every 3 rounds he announces a heavy blow. Dodge and armor count double against it.'],
     call: ['Ruft Verstärkung', 'Wird er wütend, pfeift er einen gefallenen Gefolgsmann zurück. Schnell sein lohnt sich.', 'Calls for help', 'Once enraged, he whistles a fallen henchman back up. Speed pays off.'],
@@ -48,10 +56,20 @@ window.GL = window.GL || {};
     if (e.ability === 'sniper') out.push({ k: 'aim', t: 'aimWeak' });
     else if (e.ability === 'bully') out.push({ k: 'aim', t: 'aimStrong' });
     else if (FM.on && FM.foeFocus && !lead(e) && e.type === 'technik' && e.ability !== 'medic') out.push({ k: 'aim', t: 'aimLow' });
-    return out.slice(0, 2);
+    const pk = !lead(e) && GL.data.foePlanOf ? GL.data.foePlanOf(e.id) : null;
+    if (pk && planOn(team, pk)) out.unshift({ k: (GL.data.foePlans[pk].icon || 'wind'), t: 'plan:' + pk });
+    if ((e.boss || e.raid) && GL.data.bossSigs && GL.data.bossSigs[e.id]) out.unshift({ k: 'sig', t: 'sig:' + e.id });
+    return out.slice(0, e.boss || e.raid ? 3 : 2);
   }
   function intentText(t) {
-    const en = GL.i18n && GL.i18n.lang && GL.i18n.lang() === 'en', x = INT_TXT[t] || ['', ''];
+    const en = GL.i18n && GL.i18n.lang && GL.i18n.lang() === 'en';
+    if (/^plan:/.test(t)) { const P = (GL.data.foePlans || {})[t.slice(5)] || {}; return en ? [P.en || '', P.tEn || ''] : [P.name || '', P.t || '']; }
+    if (/^sig:/.test(t)) {
+      const S = (GL.data.bossSigs || {})[t.slice(4)] || {};
+      return en ? ['✦ ' + (S.en || ''), 'Signature move when enraged (60 %) and again, stronger, in the final phase: ' + (S.tEn || '')]
+        : ['✦ ' + (S.name || ''), 'Signatur-Angriff bei Wut (60 %) und noch einmal, stärker, in der Endphase: ' + (S.t || '')];
+    }
+    const x = INT_TXT[t] || ['', ''];
     return en ? [x[2], x[3]] : [x[0], x[1]];
   }
   function intentHtml(e, team, opts, cls) {
@@ -851,7 +869,8 @@ window.GL = window.GL || {};
         if (GL.sfx) GL.sfx.play('level');
       } else if (ev.k === 'dmg') {
         // Schaden durch eine Fähigkeit: Name über dem Auslöser einblenden
-        if (GL.data.abilities[ev.by] && !ev.ult) callout(ev.by, ev.side === 'crew' ? 'enemy' : 'crew');
+        if (GL.data.abilities[ev.by] && !ev.ult && !ev.chain && !ev.sig && !ev.plan) callout(ev.by, ev.side === 'crew' ? 'enemy' : 'crew');
+        if (ev.chain && ev.list[0]) fieldFloat(ev.side, ev.list[0].to, 'Nachsetzen!', ev.side === 'enemy' ? 'buff' : 'debuff');
         ev.list.forEach(x => {
           pulse(el(ev.side, x.to), 'hit'); float(ev.side, x.to, '-' + x.dmg, 'burn'); setHp(ev.side, x.to, x.hp);
           const p = center(fu(ev.side, x.to));
@@ -862,7 +881,7 @@ window.GL = window.GL || {};
         });
         if (GL.arenaFx && ev.list.length >= 2) try { GL.arenaFx.aoe(ev.side, ev.list.map(x => x.to), ev.by); } catch (e) { /* nur Deko */ }
       } else if (ev.k === 'heal') {
-        if (GL.data.abilities[ev.by] && !ev.ult) callout(ev.by, ev.side);
+        if (GL.data.abilities[ev.by] && !ev.ult && !ev.sig) callout(ev.by, ev.side);
         ev.list.forEach(x => {
           pulse(el(ev.side, x.to), 'healed'); float(ev.side, x.to, '+' + x.amount, 'heal'); setHp(ev.side, x.to, x.hp);
           fx('fx-heal', center(fu(ev.side, x.to)), 900); fieldFloat(ev.side, x.to, '+' + x.amount, 'heal');
@@ -871,7 +890,7 @@ window.GL = window.GL || {};
           if (ev.side === 'crew' && ev.by === 'helfer' && sigKey() === 'helfer' && !document.body.classList.contains('fast')) { const c = center(fu(ev.side, x.to)); if (c) fx('sig-sparkle', c, 950); }
         });
       } else if (ev.k === 'revive') {
-        if (GL.data.abilities[ev.by]) callout(ev.by, ev.side);
+        if (GL.data.abilities[ev.by] && !ev.plan) callout(ev.by, ev.side);
         // Vivre Card: die ganze Crew war besiegt. Erst kurz Stille, dann steht alle auf, gut sichtbar mit Grund
         if (ev.by === 'vivre') {
           const field = $('#field');
@@ -885,7 +904,8 @@ window.GL = window.GL || {};
           pulse(fu(ev.side, x.to), 'rise'); fx('fx-heal', center(fu(ev.side, x.to)), 900);
         });
       } else if (ev.k === 'status') {
-        if (GL.data.abilities[ev.by] && !ev.ult) callout(ev.by, ev.side === 'crew' && ev.list[0] && GL.data.statuses[ev.list[0].key].good ? 'crew' : (ev.side === 'crew' ? 'enemy' : 'crew'));
+        if (GL.data.abilities[ev.by] && !ev.ult && !ev.brk && !ev.sig && !ev.plan) callout(ev.by, ev.side === 'crew' && ev.list[0] && GL.data.statuses[ev.list[0].key].good ? 'crew' : (ev.side === 'crew' ? 'enemy' : 'crew'));
+        if (ev.brk && ev.list[0]) fieldFloat(ev.side, ev.list[0].to, 'Rüstungsbruch!', 'debuff');
         ev.list.forEach(x => {
           const d = GL.data.statuses[x.key];
           addLive(ev.side, x.to, x.key, x.rounds);
@@ -961,9 +981,48 @@ window.GL = window.GL || {};
         cinematic(ev.by, ev.name);
         pulse(root, 'shake');
         pulse($('#field'), 'special');
+      } else if (ev.k === 'plan') {
+        // FIGHT: Plan der Gegnergruppe oder Ankündigung einer Boss-Signatur
+        const en = GL.i18n && GL.i18n.lang() === 'en';
+        if (ev.plan === 'sig') {
+          const S = (GL.data.bossSigs || {})[ev.by] || {};
+          const u = fu('enemy', ev.to); if (u) u.classList.add('sigwarn');
+          tagAt('enemy', ev.to, '✦ ' + (en ? S.en : S.name) + ' …', 'debuff', 70);
+        } else {
+          const P = (GL.data.foePlans || {})[ev.plan] || {};
+          const SHORT = { netz: ['Netz!', 'Net!'], anlegen: ['legt an …', 'takes aim …'], salve: ['Salve!', 'Volley!'], rudel: ['Rudeljagd!', 'Pack hunt!'],
+            ebbe: ['Ebbe …', 'Ebb …'], welle: ['Welle!', 'Wave!'], surren: ['surrt …', 'whirs …'], schuss: ['Strahl!', 'Beam!'], kuehlen: ['kühlt ab', 'cools down'],
+            auf: ['steht wieder auf', 'gets back up'], rausch: ['Rausch! +15 %', 'Frenzy! +15 %'], letzter: ['Allein: doppelt!', 'Alone: twice!'], start: [P.name || '', P.en || ''] };
+          const s = (SHORT[ev.step] || [P.name || '', P.en || ''])[en ? 1 : 0];
+          // Kurzes Schild ohne Fließtext (der steht schon im Kampf-Log darunter)
+          if (ev.big) banner('them plan', `<small>${String((en ? P.en : P.name) || '').replace(/[<>&"]/g, '')}</small><b>${String(s).replace(/[<>&"]/g, '')}</b>`, 1300);
+          if (ev.to != null) { tagAt('enemy', ev.to, s, 'debuff', 60); pulse(fu('enemy', ev.to), 'atk'); }
+          if (ev.step === 'salve' || ev.step === 'welle' || ev.step === 'schuss') pulse($('#field'), 'boss-slam');
+        }
+      } else if (ev.k === 'sig') {
+        const en = GL.i18n && GL.i18n.lang() === 'en';
+        const u = fu('enemy', ev.from); if (u) u.classList.remove('sigwarn');
+        banner('them rage sig', `<small>✦ ${en ? 'Signature move' : 'Signatur-Angriff'}${ev.strong ? (en ? ' · stronger' : ' · stärker') : ''}</small><b>${String(en ? ev.en : ev.name).replace(/[<>&"]/g, '')}</b><em>${String(en ? ev.tEn : ev.text).replace(/[<>&"]/g, '')}</em>`, 1700);
+        pulse(el('enemy', ev.from), 'lunge'); pulse(u, 'atk');
+        const fld = $('#field'); if (fld) { pulse(fld, 'boss-slam'); fx('fx-flash', { x: 0, y: 0 }, 350); }
+        if (GL.sfx && GL.sfx.sting) GL.sfx.sting('dramatic');
+      } else if (ev.k === 'extra') {
+        fieldFloat(ev.side, ev.from, 'Extra-Zug!', ev.side === 'crew' ? 'buff' : 'debuff');
+        pulse(fu(ev.side, ev.from), 'lunge');
+      } else if (ev.k === 'riposte') {
+        const vs = ev.side === 'crew' ? 'enemy' : 'crew';
+        fieldFloat(ev.side, ev.from, 'Konter!', ev.side === 'crew' ? 'buff' : 'debuff');
+        pulse(fu(ev.side, ev.from), 'atk');
+        pulse(el(vs, ev.to), 'hit'); float(vs, ev.to, '-' + ev.dmg, 'crit');
+        fx('fx-slash', center(fu(vs, ev.to)), 500); pulse(fu(vs, ev.to), 'hurt');
+        fieldFloat(vs, ev.to, '-' + ev.dmg, 'crit'); setHp(vs, ev.to, ev.hp);
+      } else if (ev.k === 'wxfx') {
+        if (ev.id === 'pulver') { pulse(root, 'shake'); fx('fx-flash', { x: 0, y: 0 }, 400); const fld = $('#field'); if (fld) pulse(fld, 'boss-slam'); }
+        else if (ev.id === 'moewen' && ev.to != null) { fieldFloat(ev.side, ev.to, ev.hit ? '🐦 Pick!' : '🐦', 'debuff'); pulse(fu(ev.side, ev.to), 'hurt'); }
+        else if (ev.id === 'duell') (ev.list || []).forEach(x => { const u = fu(x.side, x.to); if (u) u.classList.add('duelist'); fieldFloat(x.side, x.to, '⚔', 'buff'); });
       } else if (ev.k === 'note') {
         pulse(root, 'flash');
-        if (ev.by && !ev.ult) callout(ev.by, ev.side);
+        if (ev.by && !ev.ult && !ev.sig) callout(ev.by, ev.side);
       }
       markFront(root);
     }

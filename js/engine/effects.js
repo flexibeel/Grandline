@@ -3,7 +3,9 @@
 window.GL = window.GL || {};
 
 (function () {
-  const STATS = ['atk', 'spd', 'crit', 'critMult', 'armor', 'guard', 'dodge', 'dmgPct', 'bossPct', 'regen'];
+  // FIGHT: Taktik-Werte der Stile (battle.js): extraTurn = Chance auf Extra-Zug, riposte = Konter-Chance,
+  // armorBreak = Chance auf Rüstungsbruch (Geschwächt), killChain = Ketten-Schlag nach K.O., taunt = zieht Angriffe (2 = auch Schützen)
+  const STATS = ['atk', 'spd', 'crit', 'critMult', 'armor', 'guard', 'dodge', 'dmgPct', 'bossPct', 'regen', 'extraTurn', 'riposte', 'armorBreak', 'killChain', 'taunt'];
 
   function applies(scope, u) {
     if (!scope || scope === 'all') return true;
@@ -141,6 +143,7 @@ window.GL = window.GL || {};
       power: ref.power || (GL.data.abilities[ref.id] && GL.data.abilities[ref.id].value) || 0,
       hp: ref.hp, max: ref.max, atk: ref.atk, spd: ref.spd,
       crit: 0, critMult: GL.config.critMult, armor: 0, guard: 0, dodge: 0, dmgPct: 0, bossPct: 0, regen: 0,
+      extraTurn: 0, riposte: 0, armorBreak: 0, killChain: 0, taunt: 0,
       ignoreWeak: false, revived: false
     }, base);
   }

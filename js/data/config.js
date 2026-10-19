@@ -78,7 +78,7 @@ GL.config = {
   reviveAfterBoss: 0.5,   // Gefallene kommen nach einem Inselboss mit diesem Anteil zurück
   reviveAfterWin: 0.1,    // Gefallene rappeln sich nach jedem gewonnenen Kampf mit diesem Anteil auf
   reviveAtRest: 0.3,      // Rast an Land weckt Gefallene mit diesem Anteil
-  doctor: { chopper: 0.25, lazarett: 0.2, hito: 0.2 },   // Feldarzt: einmal pro Kampf holt er einen Gefallenen zurück
+  doctor: { chopper: 0.25, lazarett: 0.2, lazarett4: 0.3, lazarettN: 3, hito: 0.2 },   // Feldarzt: einmal pro Kampf holt er einen Gefallenen zurück
   // Gegnerwellen: normale Kämpfe ab dieser Etappe kommen in zwei Wellen (Welle 2 etwas schwächer, später mit Elite)
   waves: { fromStep: 2, extra: 2, hp: 0.85, atk: 0.95, eliteHp: 1.45, eliteAtk: 1.2, eliteFromSea: 1, raidHp: 1.2, raidExtra: 2 },
 
@@ -94,7 +94,7 @@ GL.config = {
   ],
   // Stammcrew-Duell: Kommando-Knöpfe (laden pro Zug, wirken ab dem nächsten Zug). charge = Züge bis voll
   duelCmds: { charge: { cheer: 10, food: 13, dice: 18 }, cheerAtk: 0.08, cheerTurns: 5, food: 0.2, salvoP: 0.3, salvo: 0.22, tripP: 0.28 },
-  enemyScale: 0.975,         // wie schnell normale Gegner pro Etappe stärker werden (längere Insel-Kapitel -> langsamer hochskalieren)
+  enemyScale: 0.935,         // wie schnell normale Gegner pro Etappe stärker werden (längere Insel-Kapitel -> langsamer hochskalieren)
   eliteMult: 1.3,         // Kopfgeldjäger sind um diesen Faktor stärker
   // Mehr Leben, etwas weniger Angriff: Kämpfe dauern etwas länger, ohne insgesamt härter zu werden
   grunt: { hpBase: 16, hpPerLevel: 4.4, atkBase: 3.7, atkPerLevel: 1.06, spdMin: 3, spdMax: 7 },
@@ -114,17 +114,29 @@ GL.config = {
   critMult: 2,
   // Kampfwetter (nur normale Kämpfe und Kopfgeldjäger): so oft kommt eins, und was es tut
   // Bosskampf: länger je Meer, Boss weicht manchmal aus und kontert
-  bossFight: { hp: 0.2, hpPerSea: 0.12, atk: 0.92, dodge: 0.08, counter: 0.15, counterMult: 0.6, windup: 1.8 },   // windup: schwerer Schlag nach Ankündigung
+  // FIGHT: Bosse waren Pappkameraden (99 % Siege in 1,7 Runden). Jetzt mehr Leben und Biss, dazu Signatur-Angriffe.
+  //   hpFloor/atkFloor: Boss hat mindestens so viel wie x normale Gegner derselben Etappe
+  bossFight: { hp: 0.5, hpPerSea: 0.12, atk: 1.1, hpFloor: [3.0, 4.3, 6.0], atkFloor: [1.1, 1.3, 1.5], dodge: 0.08, counter: 0.15, counterMult: 0.6, windup: 1.8 },   // windup: schwerer Schlag nach Ankündigung
   // Begegnung auf See mit der Crew eines anderen Spielers (statt eines normalen Kampfes)
   rival: { chance: 0.2, hp: 1.05, atk: 0.9, max: 4, gold: 12 },
-  weatherChance: 0.35,
+  // FIGHT: Pläne der Gegnergruppen (enemies.js foePlans): Salve (Anteil Angriff je Marine), Rausch (+Angriff je Gefallenem),
+  // Biss (Blutungs-Chance), Welle (Anteil Ø-Angriff an alle), Strahl (Faktor Angriff), Untot (Leben beim Aufstehen)
+  plan: { salvo: 0.45, frenzy: 0.1, bite: 0.18, wave: 0.55, beam: 1.6, undead: 0.3 },
+  sig: { final: 1.3 },   // Boss-Signatur in der Endphase: so viel stärker
+  riposteMult: 0.7,      // Schwertkunst-Konter: Anteil des eigenen Angriffs (kann kritisch sein)
+  // FIGHT: dazu Kampf-Launen mit eigener Mechanik (Pulverfass, Möwen, glitschiges Deck, Zweikampf). Höchstens eine pro Kampf.
+  weatherChance: 0.4,
   weather: [
     { id: 'nebel',  name: 'Nebel',        text: 'Alle verfehlen öfter.',              miss: 0.12 },
     { id: 'wind',   name: 'Rückenwind',   text: 'Deine Crew ist schneller.',          crewSpd: 2 },
     { id: 'sturm',  name: 'Gegenwind',    text: 'Die Gegner sind schneller.',         foeSpd: 2 },
     { id: 'mond',   name: 'Vollmond',     text: 'Ulti-Leisten laden schneller.',      gain: 1.5 },
     { id: 'hitze',  name: 'Hitzewelle',   text: 'Mehr kritische Treffer für alle.',   crit: 0.1 },
-    { id: 'jubel',  name: 'Schatzfieber', text: 'Deine Crew trifft härter.',          crewDmg: 0.12 }
+    { id: 'jubel',  name: 'Schatzfieber', text: 'Deine Crew trifft härter.',          crewDmg: 0.12 },
+    { id: 'pulver', name: 'Pulverfass',   text: 'In Runde 2 fliegt ein Fass in die Luft. Vorne wird es heiß, auf beiden Seiten.', blast: 0.16 },
+    { id: 'moewen', name: 'Möwenangriff', text: 'Möwen picken wahllos zu. Wer erwischt wird, setzt aus.', gulls: 0.45 },
+    { id: 'glitsch', name: 'Glitschiges Deck', text: 'Wer zuerst dran ist, entscheidet jede Runde das Glück.', shuffle: true },
+    { id: 'duell',  name: 'Zweikampf',    text: 'Die beiden Stärksten gehen aufeinander los. +25 % Schaden gegeneinander.', duel: 0.25 }
   ],
   typeStrong: 2,          // Schaden gegen einen Typ, gegen den man stark ist
   typeWeak: 0.5,          // Schaden gegen einen Typ, gegen den man schwach ist
