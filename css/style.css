@@ -9813,7 +9813,7 @@ em.type.t-technik { background: #5b86b3 !important; }
 .sk-life { pointer-events: none; z-index: 7; } .sk-gull { width: 12px; } .sk-gull svg { width: 12px; height: 8px; display: block; animation: os-flap .5s steps(2) infinite; }
 .sk-gull.a { left: 0; top: 20%; animation: os-fly 18s linear infinite; } .sk-gull.b { left: 0; top: 62%; animation: os-fly 25s linear infinite -11s; }
 .sk-panel { position: relative; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; min-height: 64px; padding: 8px 10px; background: #fffaf0; border: 2px solid #e2c08a; border-radius: 10px; }
-.sk-panel.sel, .sk-panel.lair { padding-right: 40px; } .sk-panel.lair { align-items: flex-start; } .sk-panel.lair .sk-go { margin-right: -30px !important; width: calc(100% + 30px); } .sk-panel.good { border-color: #6aa84a; background: #f0f8e6; } .sk-panel.bad { border-color: #e2a090; background: #fbeee8; } .sk-panel.msg { background: #fff6e0; }
+.sk-panel.sel, .sk-panel.lair { padding-right: 40px; } .sk-panel.good { border-color: #6aa84a; background: #f0f8e6; } .sk-panel.bad { border-color: #e2a090; background: #fbeee8; } .sk-panel.msg { background: #fff6e0; }
 .sk-x { all: unset; cursor: pointer; position: absolute; top: 4px; right: 4px; width: 32px; height: 32px; display: grid; place-items: center; font-weight: 800; color: #5e3b1d; border-radius: 8px; background: #f3e2bd; border: 2px solid #8a5a34; box-sizing: border-box; }
 .sk-pi { flex: none; width: 46px; height: 46px; border-radius: 9px; background: #f6eedd; border: 2px solid #e2c08a; display: grid; place-items: center; overflow: hidden; }
 .sk-pi > svg { width: 80%; height: auto; } .sk-pi.boss { background: #3a2c4a; border-color: #2b1d14; } .sk-pi.boss svg { width: 90%; height: auto; }
@@ -9829,7 +9829,7 @@ em.type.t-technik { background: #5b86b3 !important; }
 .sk-go { flex: 1 0 100%; margin: 2px 0 0 !important; min-height: 46px; justify-content: center; text-align: center; }
 .sk-btns { display: flex; gap: 8px; } .sk-btns .btn { flex: 1; margin: 0; min-height: 46px; justify-content: center; text-align: center; padding: 0 8px; font-size: .92rem; }
 .sk-btns .sk-list { flex: 0 0 auto; }
-.sk-help-pop { text-align: left; } .sk-help-pop h3 { text-align: center; }
+.sk-help-pop { text-align: left; } .sk-help-pop h3 { text-align: center; } .sk-help-pop .fpop-kicker { display: block; text-align: center; } .sk-help-pop .fpop-btns .btn { justify-content: center; text-align: center; }
 .sk-hl { list-style: none; margin: 0 0 14px; padding: 0; display: grid; gap: 10px; }
 .sk-hl li { display: flex; gap: 10px; align-items: center; font-size: .9rem; line-height: 1.35; }
 .sk-hl li > i { flex: none; width: 40px; height: 40px; border-radius: 9px; background: #4fab9b; border: 2px solid #2b1d14; display: grid; place-items: center; }
@@ -9848,4 +9848,7 @@ em.type.t-technik { background: #5b86b3 !important; }
 .sk-boss.sil svg { filter: brightness(0) opacity(.8); }
 .sk-lair.looming .sk-boss.sil { animation: sk-loom 3s ease-in-out infinite; }
 .sk-pi-sil { display: grid; place-items: center; width: 100%; height: 100%; background: linear-gradient(#6a6a7a, #3a3a4a); } .sk-pi-sil svg { width: 80%; height: auto; filter: brightness(0) opacity(.85); }
+.sk-panel.lair { display: grid; grid-template-columns: 46px 1fr; gap: 6px 10px; align-items: start; }
+.sk-panel.lair .sk-pt { grid-column: 2; } .sk-panel.lair .sk-go { grid-column: 1 / -1; margin-right: -30px !important; }
+.sk-card .sk-pt > small { position: static !important; } .sk-lk { white-space: normal; line-height: 1.2 !important; }
 /* ---------- END DUNGEON-SUCHE ---------- */

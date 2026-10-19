@@ -116,8 +116,8 @@ GL.data.seekarte = {
     helpLines: [
       ['Tippe aufs Wasser: Das Schiff segelt bis zu 2 Felder. Jeder Zug kostet 1 Proviant.', 'Tap the water: the ship sails up to 2 squares. Each move costs 1 supply.'],
       ['Wo du gesegelt bist, verschwindet der Nebel. Für immer.', 'Where you’ve sailed, the fog lifts. For good.'],
-      ['Taverne, Flaschenpost und Wracks verraten, wo Orte liegen. Der Kompass sagt wärmer oder kälter.', 'Tavern, bottles and wrecks reveal where spots are. The compass says warmer or colder.'],
-      ['Gefundene Orte bleiben markiert. Antippen, anlegen, Landgang wie gewohnt.', 'Found spots stay marked. Tap, go ashore, shore leave as usual.']
+      ['Taverne, Flaschenpost und Wracks verraten, wo Orte liegen. Der Kompass sagt wärmer oder kälter. Direkt daneben anhalten = gefunden.', 'Tavern, bottles and wrecks reveal where spots are. The compass says warmer or colder. Stop right next to one = found.'],
+      ['Gefundene Orte bleiben markiert. Antippen, anlegen, Landgang wie gewohnt. Proviant ist pro Fahrt, im Hafen gibt es neuen.', 'Found spots stay marked. Tap, go ashore, shore leave as usual. Supplies are per trip, the harbour refills them.']
     ],
     ok: ['Leinen los', 'Cast off'],
     migrated: ['Deine bekannten Orte sind schon eingetragen.', 'Your known spots are already marked.'],
