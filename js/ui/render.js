@@ -2292,9 +2292,9 @@ window.GL = window.GL || {};
     { id: 'wins',      name: 'Siege',             get: x => x.wins,      unit: 'gewonnene Runs' },
     { id: 'rankXp',    name: 'Piratenrang',       get: x => x.rankXp,    unit: 'Rang-EP' },
     { id: 'artifacts', name: 'Artefakte',         get: x => x.artifacts, unit: 'Artefakte gefunden' },
-    { id: 'squadRating', name: 'Crew-Liga',       get: x => x.squadOn ? (x.squadRating || 1000) : 0, unit: 'Crew-Rating' },
+    { id: 'dlRating', name: 'Dungeon-Liga',       get: x => x.dlRating || 0, unit: 'Liga-Punkte aus Landgängen' },
     { id: 'endless',   name: 'Endlos',            get: x => x.endlessRec ? (x.endlessRec.sea + 1) * 1000 + x.endlessRec.loops : (x.endlessLoops || 0), show: x => x.endlessRec ? x.endlessRec.loops : (x.endlessLoops || 0), unit: 'Runden Endlos-Fahrt', sub: x => x.endlessRec ? (GL.data.islands[x.endlessRec.sea] || {}).name : '' },
-    { id: 'squadW',    name: 'Crew-Duelle',       get: x => x.squadW,    unit: 'Stammcrew-Siege' }
+    { id: 'squadW',    name: 'Freundschaftsduelle', get: x => x.squadW,    unit: 'Stammcrew-Siege' }
   ];
   // Dein Profil als Karte: Name, Rang, wichtigste Werte
   function myCard(profile, mine, best, fmt) {
@@ -2472,7 +2472,7 @@ window.GL = window.GL || {};
     const idx = Array.from({ length: n }, (_, i) => i);
     return `<div class="fpop-card match-pop" role="dialog" aria-labelledby="fpop-t">
       <div class="mp-head"><span class="fpop-kicker">Gegner gefunden</span>
-        <h3 id="fpop-t">${esc(row.name || 'Pirat')}</h3>${row.squadRating ? leagueChip(row.squadRating, true) : ''}</div>
+        <h3 id="fpop-t">${esc(row.name || 'Pirat')}</h3>${GL.dliga ? GL.dliga.chip(row.dlRating || 0, true) : ''}</div>
       <div class="mp-teams">
         <span class="mp-lbl">Du <b>⚔ ${mine}</b></span><div class="mp-row">${idx.map(i => tile(mineR[i], foeR[i], false)).join('')}</div>
         <span class="mp-lbl foe">${esc(String(row.name || 'Gegner').slice(0, 14))} <b>⚔ ${theirs}</b></span><div class="mp-row">${idx.map(i => tile(foeR[i], null, true)).join('')}</div>
@@ -2558,7 +2558,7 @@ window.GL = window.GL || {};
         <div><span class="event-kicker">Deine Stammcrew</span>
           <b class="squad-power">⚔ ${GL.meta.squadPower(refs)} Stärke</b>
           <small>Level ${GL.meta.squadLevel(profile)} · ${w} Siege, ${l} Niederlagen</small></div>
-        <div class="sq-league">${leagueChip(r0, true)}<small>${nx ? `noch ${nx.min - r0} bis ${nx.name}` : 'höchste Liga'}</small></div>
+        <div class="sq-league"><em class="league-chip lg-friend" title="Duelle sind Freundschaftsspiele: Spaß, Taktik, kein Rang">🤝 Freundschaftsduelle</em><small>Rang gibt es jetzt in der Dungeon-Liga (Landgang)</small></div>
       </div>
       <div class="sqd-deck${pick ? ' picking' : ''}">${deck}</div>
       ${pick ? `<div class="sq-pickbar"><i>${GL.sprites.render(pd)}</i><span><b>${esc(pd.name)}</b> einsetzen: tipp oben auf einen Platz</span><button class="btn mini ghost" data-act="sq-pick" data-id="${esc(pick)}">Abbrechen</button></div>`
@@ -2798,13 +2798,13 @@ window.GL = window.GL || {};
     }
     const meOn = GL.meta.squadUnlocked(ui && ui.profile ? ui.profile : {});
     const sq = (x.squadOn || x.npc) && (x.squad || []).length
-      ? `<div class="pcard-sec"><b>Stammcrew ${leagueChip(x.squadRating, true)} ${x.squadPower ? `<small>⚔ ${x.squadPower} Stärke</small>` : ''}</b>${squadMinis(x)}
+      ? `<div class="pcard-sec"><b>Stammcrew ${GL.dliga ? GL.dliga.chip(x.dlRating || 0, true) : ''} ${x.squadPower ? `<small>⚔ ${x.squadPower} Stärke</small>` : ''}</b>${squadMinis(x)}
           ${isMe ? '' : meOn ? `<button class="btn pcard-duel" data-act="squad-fight" data-id="${esc(x.id)}">⚔ ${res ? 'Nochmal herausfordern' : 'Herausfordern'}</button>` : '<small class="muted">Herausfordern geht nach deinem ersten gewonnenen Run oder ab Rang 5.</small>'}</div>`
       : '';
     if (res) return `<div class="pcard-bg" data-act="lb-view-close"><div class="pcard" data-act="noop">
         <button class="link pcard-close" data-act="lb-view-close">✕</button>
         ${duelReport(res, x.name || 'Gegner')}
-        ${sf && sf.ratingDelta != null ? `<p class="duel-rating">Crew-Rating ${sf.ratingDelta >= 0 ? '+' : ''}${sf.ratingDelta} → ${leagueChip(ui.profile.squadRating, true)}</p>` : sf && sf.practice ? `<p class="duel-rating">Übungskampf: Ab 1100 zählt die Marine nicht mehr für die Liga.</p>` : ''}
+        ${sf && sf.ratingDelta != null ? `<p class="duel-rating">🤝 Freundschaftsduell · zählt nicht für die Liga</p>` : sf && sf.practice ? `<p class="duel-rating">Übungskampf: Ab 1100 zählt die Marine nicht mehr für die Liga.</p>` : ''}
         ${sf && sf.xp ? `<p class="duel-xp">Stammcrew-EP: +${sf.xp.gain} für jede Figur${sf.xp.ups.length ? ` · <b>Level-up: ${sf.xp.ups.map(esc).join(', ')}</b>` : ''}</p>` : ''}
         <div class="duel-actions"><button class="btn" data-act="squad-match">⚔ Nächster Gegner</button><button class="btn ghost" data-act="squad-fight" data-id="${esc(x.id)}">Nochmal</button>
           <button class="btn ghost" data-act="squad-back">Zur Visitenkarte</button></div>
@@ -2836,7 +2836,7 @@ window.GL = window.GL || {};
             <b class="pc2-name">${medal(GL.meta.rankIndex({ rankXp: x.rankXp || 0 }), 'small')} ${esc(x.name || 'Unbekannter Pirat')}${onDot(x)} ${badgeIcon(x.cos, true)}${isMe ? ' <em class="pc2-you">du</em>' : ''}</b>
             <small class="pc2-sub">${x.cos && x.cos.title ? `<em class="pc2-title">${esc(titleName(x.cos.title))}</em>` : ''}${esc(x.rank || '')}</small>
             ${x.crewName ? `<span class="pc2-crew"><i class="c3-jolly" aria-hidden="true"></i>${esc(x.crewName)}</span>` : ''}
-            <span class="pc2-chips">${x.squadOn || x.squadRating ? leagueChip(x.squadRating, true) : ''}${lg ? `<em class="pc2-chip land">🏝 ${fmt(lg)} Landgänge</em>` : ''}${x.pets ? `<em class="pc2-chip">🐾 ${fmt(x.pets)}</em>` : ''}</span>
+            <span class="pc2-chips">${GL.dliga ? GL.dliga.chip(x.dlRating || 0, true) : ''}${lg ? `<em class="pc2-chip land">🏝 ${fmt(lg)} Landgänge</em>` : ''}${x.pets ? `<em class="pc2-chip">🐾 ${fmt(x.pets)}</em>` : ''}</span>
             ${x.cos && x.cos.star ? '<span class="admin-tag big">★ Entwickler · hat dieses Spiel gebaut</span>' : ''}
           </div>
         </div>
@@ -2904,14 +2904,14 @@ window.GL = window.GL || {};
     else if (st.readOnly) info = 'Du kannst die Rangliste ansehen, aber noch nicht eintragen. Der Besitzer der Seite muss dich per E-Mail als Bearbeiter einladen.';
     else info = 'Nach jedem Run wird alles eingetragen. Wähle oben, worin ihr euch messt.';
     const isDaily = cat.id === 'daily';
-    const isCrew = cat.id === 'squadRating' || cat.id === 'squadW';
+    const isCrew = cat.id === 'squadW', isDl = cat.id === 'dlRating';
     dailyCodeShown = GL.daily.code(ui.dailyDay === 'y' ? yesterday() : GL.daily.today());
     let rows = (st.rows || []).slice().sort((a, b) => (Number(cat.get(b)) || 0) - (Number(cat.get(a)) || 0));
     if (isDaily) rows = rows.filter(x => x.duels && x.duels[dailyCodeShown]);
     // Rangliste ab dem Live-Start: wer seit dem Start noch nicht gesegelt ist, taucht bei Fahrt-Wertungen erst nach der ersten Fahrt auf
     rows = rows.filter(x => !x.preSeason || (Number(cat.get(x)) || 0) > 0);
     if (GL.season && GL.season.started()) info = '⛵ Seit dem Live-Start: Bestwerte und Zähler starten bei null, es zählen nur Fahrten ab dem 18.10., 18 Uhr. ' + info;
-    const MAIN = ['score', 'daily', 'endless', 'squadRating', 'rankXp', 'topBounty'];
+    const MAIN = ['score', 'daily', 'endless', 'dlRating', 'rankXp', 'topBounty'];
     const chip = c => `<button class="lb-cat${c.id === cat.id ? ' on' : ''}" data-act="lb-cat" data-id="${c.id}">${c.name}</button>`;
     const more = LB_CATS.filter(c => !MAIN.includes(c.id));
     const chips = `<div class="lb-cats" role="tablist">${LB_CATS.filter(c => MAIN.includes(c.id)).map(chip).join('')}
@@ -2923,7 +2923,7 @@ window.GL = window.GL || {};
         <span class="lb-pos">${k + 1}</span>
         <span class="lb-cap">${x.look ? portrait(x.look, x.cos, 'sm') : cap ? GL.sprites.render(cap) : ''}</span>
         <span class="lb-who"><b>${medal(GL.meta.rankIndex({ rankXp: x.rankXp || 0 }), 'tiny')} ${esc(x.name || 'Unbekannter Pirat')}${x.crewName ? `<small class="lb-crewname" title="Bande">${esc(x.crewName)}</small>` : ''}${onDot(x)} ${badgeIcon(x.cos)}${x.id === st.uid ? ' <em>du</em>' : ''}${x.cos && x.cos.star ? ' <em class="admin-tag" title="Der Entwickler dieses Spiels. Unbesiegbar (fast).">★ Entwickler</em>' : ''}${(x.showcase || []).length ? `<span class="lb-show">${x.showcase.map(lootChip).join('')}</span>` : ''}</b>
-          ${isDaily ? dailyLine(x.duels[dailyCodeShown]) : isCrew && x.squadOn && (x.squad || []).length ? `<span class="lb-crew">${squadMini(x.squad)}${leagueChip(x.squadRating)}</span>` : journey(x)}</span>
+          ${isDaily ? dailyLine(x.duels[dailyCodeShown]) : isDl && GL.dliga ? `<span class="lb-crew">${GL.dliga.chip(x.dlRating || 0)}${x.landOrte ? `<small class="dl-orte">🏝 ${x.landOrte} Orte</small>` : ''}</span>` : isCrew && x.squadOn && (x.squad || []).length ? `<span class="lb-crew">${squadMini(x.squad)}</span>` : journey(x)}</span>
         <span class="lb-score"><b>${fmt(value)}</b><small>${unit}</small></span>
       </li>`;
     };
@@ -2963,14 +2963,14 @@ window.GL = window.GL || {};
       ${chips}
       ${table}
       ${(() => {
-        const top = (st.rows || []).filter(x => x.squadOn && (x.squad || []).length).sort((a, b) => (b.squadRating || 1000) - (a.squadRating || 1000)).slice(0, 3);
+        const top = (st.rows || []).filter(x => (x.dlRating || 0) > 0 && (x.squad || []).length).sort((a, b) => (b.dlRating || 0) - (a.dlRating || 0)).slice(0, 3);
         if (!top.length) return '';
         const order = top.length === 3 ? [top[1], top[0], top[2]] : top;
-        return `<div class="podium"><div class="lbl">Stärkste Stammcrews</div><div class="pod-row">${order.map(x => {
+        return `<div class="podium"><div class="lbl">Dungeon-Liga: Spitze</div><div class="pod-row">${order.map(x => {
           const place = top.indexOf(x) + 1;
           return `<button class="pod p${place}" data-act="lb-view" data-id="${esc(x.id)}">
             <span class="pod-crew">${squadMini(x.squad)}</span>
-            <b>${esc(x.name || 'Pirat')}</b>${leagueChip(x.squadRating, true)}
+            <b>${esc(x.name || 'Pirat')}</b>${GL.dliga ? GL.dliga.chip(x.dlRating || 0, true) : ''}
             <span class="pod-step">${place}</span></button>`; }).join('')}</div></div>`;
       })()}
       ${duelBox}
@@ -4697,7 +4697,7 @@ window.GL = window.GL || {};
       <div class="sk-tree">${paths}</div>
       ${S.treeDone && S.treeDone(profile) ? (() => { const po = S.polish(profile);
         return `<div class="sk-polish"><div class="sk-tal-h"><b>🔧 Feinschliff</b><small>Alle Pfade voll. Weitere Punkte machen kleine Dinge etwas besser.</small></div>
-          <div class="skp-row">${S.POLISH.map(x => `<button class="skp-it${po[x.k] >= x.max ? ' max' : ''}" data-act="sk-polish" data-k="${x.k}"${free < 1 || po[x.k] >= x.max ? ' disabled' : ''} title="${esc(x.text)}"><i>${x.icon}</i><b>${po[x.k]}/${x.max}</b><small>${esc(x.text)}</small></button>`).join('')}</div></div>`; })() : ''}
+          <div class="skp-row">${S.POLISH.map(x => `<button class="skp-it${po[x.k] >= x.max ? ' max' : ''}" data-act="sk-polish" data-k="${x.k}"${free < 1 || po[x.k] >= x.max ? ' disabled' : ''} title="${esc(x.text)}"><i>${x.icon}</i><b>${x.soft ? `${po[x.k]} · ${x.soft.round ? '+' + S.polishVal(x, po[x.k]) : '+' + Math.round(S.polishVal(x, po[x.k]) * 1000) / 10 + ' %'}` : `${po[x.k]}/${x.max}`}</b><small>${esc(x.text)}</small></button>`).join('')}</div></div>`; })() : ''}
       <div class="sk-tal-h"><b>✨ Talente</b><small>Ab Vertraut 2 mit der Figur</small></div>
       <div class="sk-tals">${tal}</div>
       <div class="sk-foot"><small>Gilt für alle kommenden Fahrten. Umskillen ist kostenlos.</small>${S.learned(profile).length ? `<button class="btn mini ghost" data-act="sk-reset">${uiRef && uiRef.skArmed ? 'Sicher? Nochmal tippen' : '↺ Umskillen'}</button>` : ''}</div>
@@ -5113,7 +5113,7 @@ window.GL = window.GL || {};
   }
 
   GL.ui = {
-    cardStage,
+    cardStage, petArt,
     lagePop, lageSky,
     ffButton,
     gearTipItem,

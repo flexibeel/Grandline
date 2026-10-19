@@ -281,7 +281,9 @@ window.GL = window.GL || {};
         launch: profile.launch ? 1 : 0,     // ist am Startabend gesegelt
         // Vertrautheit: bond_<id> je Figur und wie viele Figuren mindestens Vertraut 6 sind
         ...Object.fromEntries(Object.keys(profile.squadXp || {}).map(id => ['bond_' + id, GL.meta.squadBonus(profile.squadXp[id])])),
-        bondFriends: Object.values(profile.squadXp || {}).filter(x => GL.meta.squadBonus(x) >= 6).length
+        bondFriends: Object.values(profile.squadXp || {}).filter(x => GL.meta.squadBonus(x) >= 6).length,
+        // Marken-Laden (Dungeon-Liga): gekaufte Optik schaltet frei
+        ...Object.fromEntries((Array.isArray(profile.dlOwned) ? profile.dlOwned : []).map(id => ['dl_' + id, 1]))
       };
     },
     cosmeticUnlocked(profile, item, vals) {
@@ -296,7 +298,7 @@ window.GL = window.GL || {};
         hunted: 'Kopfgeld-Ziele besiegt', raids: 'Raids gewonnen', artifacts: 'Artefakte gefunden', reached: 'Meer erreicht',
         islands: 'verschiedene Inseln besucht', heat: 'Kopfgeld-Stufe', duels: 'Stammcrew-Duelle gewonnen', quests: 'Aufträge erledigt', prestige: 'Prestige-Stufe', invites: 'Freund eingeladen', veteran: '', launch: '' };
       const bondName = id => { const d = id === 'self' ? null : GL.data.crew.find(c => c.id === id); return d ? d.name : id; };
-      return Object.keys(item.req || {}).map(k => k.startsWith('bond_') ? `Vertraut ${item.req[k]} mit ${bondName(k.slice(5))}` : k === 'bondFriends' ? `${item.req[k]} Figuren mit Vertraut 6` : k === 'heat' ? `Kopfgeld-Stufe ${item.req.heat}` : k === 'rank' ? `Rang ${item.req.rank}` : k === 'veteran' ? 'Vor dem großen Neustart gesegelt' : k === 'launch' ? 'Am Startabend (18./19.10.) gesegelt' : k === 'reached' ? `${GL.data.islands[item.req.reached].name} erreichen` : `${item.req[k]} ${L[k]}`).join(', ') || 'frei';
+      return Object.keys(item.req || {}).map(k => k.startsWith('bond_') ? `Vertraut ${item.req[k]} mit ${bondName(k.slice(5))}` : k === 'bondFriends' ? `${item.req[k]} Figuren mit Vertraut 6` : k === 'heat' ? `Kopfgeld-Stufe ${item.req.heat}` : k === 'rank' ? `Rang ${item.req.rank}` : k === 'veteran' ? 'Vor dem großen Neustart gesegelt' : k === 'launch' ? 'Am Startabend (18./19.10.) gesegelt' : k.startsWith('dl_') ? 'Im Marken-Laden (Landgang)' : k === 'reached' ? `${GL.data.islands[item.req.reached].name} erreichen` : `${item.req[k]} ${L[k]}`).join(', ') || 'frei';
     },
 
     // Artefakt-Plätze: einer zu Beginn, dazu einer ab Rang 5, 9 und 13

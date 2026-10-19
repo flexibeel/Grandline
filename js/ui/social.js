@@ -48,7 +48,7 @@ window.GL = window.GL || {};
 
   // ---------- Hafen-Logbuch ----------
   const LEAGUE_EN = { planke: 'Plank League', bronze: 'Bronze League', silber: 'Silver League', gold: 'Gold League', diamant: 'Diamond League', legende: 'Legend League' };
-  const leagueOf = v => { const l = GL.meta && GL.meta.league ? GL.meta.league(v) : null; return l ? { id: l.id, name: en() ? (LEAGUE_EN[l.id] || l.name) : l.name } : null; };
+  const leagueOf = v => { const l = GL.dliga ? GL.dliga.league(v) : null; return l ? { id: l.id, name: (en() ? l.en : l.name) + (en() ? ' league' : '-Liga') } : null; };   // Dungeon-Liga
   const pick = (arr, seed) => arr[Math.abs(seed | 0) % arr.length];
   const hash = s => { let h = 7; String(s).split('').forEach(c => { h = (h * 31 + c.charCodeAt(0)) | 0; }); return h; };
   function line(e) {
@@ -70,7 +70,7 @@ window.GL = window.GL || {};
     }
   }
   const ICO = { boss: '💀', win: '🏁', league: '🏅', crew: '🏴', sea: '🗺', land: '🏝', bounty: '📜', new: '⚓', fact: '📖' };
-  const snapOf = r => ({ n: clean(r.name).slice(0, 24), b: +r.bossKills || 0, w: +r.wins || 0, r: r.squadOn ? (+r.squadRating || 1000) : 0,
+  const snapOf = r => ({ n: clean(r.name).slice(0, 24), b: +r.bossKills || 0, w: +r.wins || 0, r: +r.dlRating || 0,
     c: r.crewName ? clean(r.crewName).slice(0, 20) : '', s: +r.seasDone || 0, l: +r.landgang || 0, t: +r.topBounty || 0 });
 
   function note(profile) {

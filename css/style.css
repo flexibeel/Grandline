@@ -9292,3 +9292,56 @@ em.type.t-technik { background: #5b86b3 !important; }
 .field.v3 .fu.ko .fu-body svg .sp-u { animation: none; }
 .field.v3 .fu.ko .fu-shadow { width: 64px !important; animation: none; }
 @media (prefers-reduced-motion: reduce) { .field.v3 .fu-body .spr .sp-u, .field.v3 .fu-shadow { animation: none !important; } }
+
+/* ===== DLIGA: Dungeon-Liga, Marken-Laden ===== */
+.dl-chip { display: inline-flex; align-items: center; gap: 3px; padding: 1px 7px 1px 5px; border-radius: 999px; font-style: normal; font-size: .72rem; font-weight: 800; line-height: 1.5;
+  background: #f3ead6; border: 1px solid #c9a46a; color: #5a4328; white-space: nowrap; vertical-align: middle; }
+.dl-chip i { font-style: normal; font-size: .85em; }
+.dl-chip b { font-weight: 900; }
+.dl-chip.dl-bronze { background: #f6e1cf; border-color: #cf8446; color: #7a4320; }
+.dl-chip.dl-silber { background: #eef1f4; border-color: #9aa5b2; color: #4a5560; }
+.dl-chip.dl-gold { background: #fbf0c8; border-color: #e0a92a; color: #7a5a12; }
+.dl-chip.dl-diamant { background: #e2f3f9; border-color: #4fb6d8; color: #1d5a70; }
+.dl-chip.dl-legende { background: #efe4fa; border-color: #8a4fd0; color: #4a2380; box-shadow: 0 0 0 1px rgba(138,79,208,.15); }
+.dl-panel { margin: 4px 0 10px; padding: 8px 10px; border-radius: 10px; background: #f6ecd6; border: 1px solid #dcc59a; display: grid; gap: 5px; }
+.dl-top { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.dl-shopbtn { margin-left: auto; padding: 3px 10px; border-radius: 8px; font: inherit; font-size: .76rem; font-weight: 800; cursor: pointer; color: #3a2410;
+  background: #fbe6b4; border: 2px solid #b8783a; box-shadow: 0 2px 0 #8a5a2a; white-space: nowrap; }
+.dl-shopbtn:active { transform: translateY(1px); box-shadow: 0 1px 0 #8a5a2a; }
+.dl-marks { font-size: .82rem; color: #5a4328; white-space: nowrap; }
+.dl-bar { height: 7px; border-radius: 4px; background: #e6d6b4; overflow: hidden; box-shadow: inset 0 1px 0 rgba(0,0,0,.08); }
+.dl-bar i { display: block; height: 100%; background: linear-gradient(#e8b84a, #c9902a); }
+.dl-next { font-size: .7rem; color: #7a6248; line-height: 1.35; }
+.dl-res { margin: 8px 0; padding: 7px 10px; border-radius: 10px; background: #f3ead6; border: 1px solid #d8c39a; display: grid; gap: 4px; font-size: .8rem; color: #4a3820; }
+.dl-res.best { background: #fbf2d2; border-color: #e0b44a; }
+.dl-res-p { display: flex; gap: 6px; flex-wrap: wrap; }
+.dl-res-p i { font-style: normal; font-size: .72rem; padding: 1px 6px; border-radius: 6px; background: #fff8e6; border: 1px solid #e0cfa6; }
+.dl-res-g { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+.dl-up { font-weight: 900; color: #7a4a10; animation: dlUp .6s ease-out; }
+@keyframes dlUp { from { transform: scale(.85); opacity: 0; } to { transform: none; opacity: 1; } }
+.dl-shop { max-width: 440px; }
+.dl-shop .dl-sub { font-size: .8rem; color: #6b5a44; margin: 0 0 6px; }
+.dl-shop .dl-msg { margin: 0 0 6px; padding: 5px 8px; border-radius: 8px; background: #e9f1dc; border: 1px solid #a9c48a; font-size: .8rem; }
+.dl-list { display: grid; gap: 6px; max-height: min(56vh, 520px); overflow-y: auto; padding-right: 2px; }
+.dl-it { display: grid; grid-template-columns: 44px 1fr auto; align-items: center; gap: 8px; padding: 6px 8px; text-align: left; cursor: pointer; font: inherit; color: #3a2a18;
+  background: #fff8e6; border: 2px solid #d8c39a; border-radius: 10px; box-shadow: 0 2px 0 #c9a46a; }
+.dl-it:disabled { cursor: default; opacity: .7; }
+.dl-it.can { border-color: #c9a46a; }
+.dl-it.can:active { transform: translateY(1px); box-shadow: 0 1px 0 #c9a46a; }
+.dl-it.own { opacity: 1; background: #eef3e2; border-color: #a9c48a; box-shadow: 0 2px 0 #8aa86a; }
+.dl-it-t { display: grid; min-width: 0; }
+.dl-it-t b { font-size: .86rem; }
+.dl-it-t small { font-size: .68rem; color: #7a6248; line-height: 1.25; }
+.dl-pr { font-style: normal; font-weight: 900; font-size: .8rem; white-space: nowrap; }
+.dl-sw { width: 44px; height: 40px; border-radius: 8px; overflow: hidden; display: grid; place-items: center; background: #e8dcc0; position: relative; }
+.dl-sw.pbg svg, .dl-sw .pbg svg { width: 100%; height: 100%; display: block; }
+.dl-sw.pet svg, .dl-sw.ship svg { width: 34px; height: 34px; }
+.dl-sw.sk { font-size: 1.3rem; color: #c9902a; background: #fbf0c8; }
+.dl-sw.fr { border: 4px solid #8a6a3a; }
+.dl-orte { margin-left: 4px; font-size: .68rem; color: #7a6248; }
+.league-chip.lg-friend { background: #eef3e2; border-color: #a9c48a; color: #3f5a2a; }
+/* Neue Rahmen aus dem Marken-Laden */
+.fr-kompass { border-color: #2f5a7a !important; box-shadow: 0 0 0 2px #c9a46a, inset 0 0 0 2px #f4ead0; }
+.fr-gewoelbe { border-color: #4a4a52 !important; border-style: double !important; box-shadow: 0 0 0 2px #2a2a30, inset 0 0 6px rgba(90,140,60,.45); }
+.bg-kartentisch { background: #e8d6a8; } .bg-laternengrotte { background: #22222e; } .bg-wrackbucht { background: #8ab8d8; } .bg-goldkajuete { background: #5a3220; }
+@media (max-width: 400px) { .dl-it { grid-template-columns: 38px 1fr auto; gap: 6px; } .dl-sw { width: 38px; height: 34px; } }

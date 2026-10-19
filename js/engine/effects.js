@@ -147,7 +147,7 @@ window.GL = window.GL || {};
 
   // Baut die Kampf-Einheiten mit allen Boni
   function setup(run, crewRefs, enemyRefs) {
-    const crew = crewRefs.map(r => unit('crew', r, { crit: run.crit }));
+    const crew = crewRefs.map(r => unit('crew', r, { crit: run.crit, dmgPct: (run.sk && run.sk.dmgPct) || 0 }));   // dmgPct: Feinschliff Schaden
     const enemies = enemyRefs.map(r => unit('enemy', r));
 
     const crewMods = [...synergyMods(crewRefs), ...relicList(run).flatMap(r => r.mods || []), ...abilityMods(), ...artifactMods(run)];

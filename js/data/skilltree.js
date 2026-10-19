@@ -73,17 +73,24 @@ GL.data.skilltree = {
       const runs = Math.floor(((p.stats && p.stats.runs) || 0) / 6);
       const land = Math.floor(landgang(p) / 3);
       const bond = Math.floor(Object.values(p.squadXp || {}).reduce((s, x) => s + GL.meta.squadBonus(x), 0) / 5);
-      return { rank, runs, land, bond };
+      const shop = Math.max(0, Math.min(999, Math.floor(+p.dlSkill || 0)));   // im Marken-Laden gekauft (Dungeon-Liga)
+      return { rank, runs, land, bond, shop };
     },
-    earned(p) { const s = GL.skills.sources(p); return s.rank + s.runs + s.land + s.bond; },
+    earned(p) { const s = GL.skills.sources(p); return s.rank + s.runs + s.land + s.bond + s.shop; },
     learned(p) { return (Array.isArray(p.skills) ? p.skills : []).filter(id => find(id)); },
     spent(p) { return GL.skills.learned(p).reduce((s, id) => s + cost(find(id)), 0) + GL.skills.polishSpent(p); },
     // Feinschliff (20t): wenn alle Pfade voll sind, fließen weitere Punkte in kleine, endlose Stufen (mit Deckel)
     POLISH: [
       { k: 'berry', icon: '🪙', name: 'Feinschliff: Berry', max: 15, per: 0.01, text: '+1 % Berry je Punkt' },
       { k: 'goldPct', icon: '💰', name: 'Feinschliff: Gold', max: 15, per: 0.01, text: '+1 % Gold pro Sieg je Punkt' },
-      { k: 'hp', icon: '♥', name: 'Feinschliff: Leben', max: 8, per: 1, text: '+1 Leben für jede Figur je Punkt' }
+      { k: 'hp', icon: '♥', name: 'Feinschliff: Leben', max: 8, per: 1, text: '+1 Leben für jede Figur je Punkt' },
+      // Ohne harte Grenze, aber jeder weitere Punkt bringt etwas weniger: Wert = cap · (1 − f^n)
+      { k: 'dmgPct', icon: '⚔', name: 'Feinschliff: Schaden', max: 999, soft: { cap: 0.25, f: 0.97 }, text: 'Mehr Schaden für die ganze Crew, jeder Punkt etwas weniger (bis +25 %)' },
+      { k: 'hpPct', icon: '❤', name: 'Feinschliff: Zähigkeit', max: 999, soft: { cap: 0.3, f: 0.97 }, text: 'Mehr Leben in Prozent, jeder Punkt etwas weniger (bis +30 %)' },
+      { k: 'spd', icon: '💨', name: 'Feinschliff: Tempo', max: 999, soft: { cap: 2, f: 0.95, round: true }, text: 'Mehr Tempo: +1 ab 14 Punkten, +2 ab 28' }
     ],
+    // Wert einer Feinschliff-Stufe bei n Punkten
+    polishVal(x, n) { if (!n) return 0; if (x.soft) { const v = x.soft.cap * (1 - Math.pow(x.soft.f, n)); return x.soft.round ? Math.round(v) : Math.round(v * 1000) / 1000; } return n * x.per; },
     polish(p) { const o = (p.polish && typeof p.polish === 'object') ? p.polish : {}; const out = {}; GL.skills.POLISH.forEach(x => { out[x.k] = Math.max(0, Math.min(x.max, Math.floor(+o[x.k] || 0))); }); return out; },
     polishSpent(p) { const o = GL.skills.polish(p); return Object.values(o).reduce((a, b) => a + b, 0); },
     treeDone(p) { return T().paths.every(pa => pa.nodes.every(n => GL.skills.has(p, n.id))); },
@@ -125,7 +132,7 @@ GL.data.skilltree = {
         Object.keys(n.eff).forEach(k => { out[k] = Math.round(((out[k] || 0) + n.eff[k]) * 1000) / 1000; });
       });
       const po = GL.skills.polish(p);
-      GL.skills.POLISH.forEach(x => { if (po[x.k]) out[x.k] = Math.round(((out[x.k] || 0) + po[x.k] * x.per) * 1000) / 1000; });
+      GL.skills.POLISH.forEach(x => { if (po[x.k]) out[x.k] = Math.round(((out[x.k] || 0) + GL.skills.polishVal(x, po[x.k])) * 1000) / 1000; });
       return out;
     }
   };

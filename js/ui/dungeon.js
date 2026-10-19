@@ -148,6 +148,7 @@ window.GL = window.GL || {};
     return card(`<span class="fpop-kicker">${esc(T('Landgang'))}</span>
       <h3>${esc(T('Wohin geht es heute?'))}</h3>
       <p class="dg-sub">${esc(T('Kurz erkunden, dann gegen den Boss des Ortes kämpfen. Deine Stammcrew kämpft mit. Die erste Erkundung pro Tag bringt die volle Beute.'))}</p>
+      ${GL.dliga ? GL.dliga.panelHtml(profile) : ''}
       <div class="dg-with"><small>${esc(T('Mit dabei'))}</small>${crew.slice(0, 6).map(sprite).join('')}</div>
       <div class="dg-list">${rows}</div>
       <p class="dg-sub small">${esc(T('Fundstücke'))}: ${nf}/${(D().dungeons || []).length}</p>
@@ -406,6 +407,7 @@ window.GL = window.GL || {};
       <h3>${cur.won ? esc(T(def.name)) + ' ' + esc(T('besiegt')) : esc(T('Rückzug zum Schiff'))}</h3>
       <ul class="dg-loot">${items.join('') || `<li>${esc(T('Diesmal nur schöne Erinnerungen.'))}</li>`}</ul>
       ${L.find ? `<p class="dg-gain">${esc(T('Neues Fundstück für deine Sammlung!'))}</p>` : ''}
+      ${L.dl && GL.dliga ? GL.dliga.resultHtml(L.dl) : ''}
       ${bubble(m, cur.won ? line(m, 'end') : line(m, 'no'))}
       ${cur.won ? '' : `<p class="dg-text small">${esc(T('Tipp: Gute Entscheidungen vorher schwächen den Boss. Passende Figuren haben bessere Chancen.'))}</p>`}
       <div class="fpop-btns"><button class="btn" data-act="dg-start" data-v="${d.id}">${esc(T('Nochmal'))}</button><button class="btn ghost" data-act="dg-list">${esc(T('Andere Orte'))}</button></div>`);
@@ -447,6 +449,19 @@ window.GL = window.GL || {};
     profile.berry = (profile.berry || 0) + L.berry;
     profile.shards = (profile.shards || 0) + L.shards;
     if (L.gear.length && GL.cgear) { const B = GL.cgear.bag(profile); L.gear.forEach(it => B.push(it)); profile.gearNew = (profile.gearNew || []).concat(L.gear.map(x => x.uid)); }
+    // Dungeon-Liga: bester Lauf pro Ort/Stufe/Tiefe zählt, dazu Marken (js/ui/dliga.js)
+    if (cur.won && GL.dliga && cur.fight && cur.fight.res) {
+      const res = cur.fight.res, me = cur.fight.me || [];
+      const rounds = res.events.reduce((m, e) => (e.k === 'round' && e.n > m ? e.n : m), 0) || 12;
+      // Leben am Ende aus den Ereignissen nachrechnen (wie die Kampfanzeige)
+      const hp = (cur.fight.startHp || me.map(r => r.hp)).slice();
+      res.events.forEach(ev => {
+        if (ev.k === 'hit') { if (ev.side === 'enemy' && ev.hp !== undefined) hp[ev.to] = ev.hp; }
+        else if (ev.list && ev.side === 'crew') ev.list.forEach(x => { if (x.hp !== undefined && x.to != null) hp[x.to] = x.hp; });
+      });
+      const maxSum = me.reduce((a, u) => a + (u.max || 0), 0), hpSum = hp.reduce((a, v) => a + Math.max(0, +v || 0), 0);
+      try { L.dl = GL.dliga.record(profile, { win: true, id: d.id, sea: d.sea || 0, lvl: cur.fight.lvl || 0, deep: !!cur.deep, rounds, hpFrac: maxSum ? hpSum / maxSum : 0 }); } catch (e) { L.dl = null; }
+    }
     if (cur.won) st.clears += 1;
     if (cur.won && cur.fresh) st.day = today();
     profile.counts = profile.counts || {};
