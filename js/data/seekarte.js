@@ -18,24 +18,24 @@ GL.data.seekarte = {
   // Wo die Orte liegen (Spalte, Reihe). Fest, damit die Karte für alle gleich ist.
   spots: {
     zirkus: [3, 6], graeber: [1, 3], ruinen: [4, 3], drumm: [6, 4], koralle: [7, 7],
-    kanaele: [2, 1], impel: [4, 0], gruft: [6, 1]
+    kanaele: [1, 1], impel: [4, 1], gruft: [6, 2]
   },
   // Gebiete mit eigenem Charakter (eine Zeile pro Kartenreihe, ein Buchstabe pro Feld)
   map: ['NNNNNNNN', 'NNNNNNNN', 'NNNNNNNN', 'SSSSKKKK', 'SSSSKKKK', 'BBBBKKKK', 'BBBBBBTT', 'BBBBBBTT', 'BBBBBBTT'],
   regions: {
-    B: { id: 'bucht', sea: ['#56b3a3', '#4fab9b'], name: ['Ruhige Bucht', 'Quiet Bay'],
+    B: { id: 'bucht', label: [2, 7], sea: ['#56b3a3', '#4fab9b'], name: ['Ruhige Bucht', 'Quiet Bay'],
       text: ['So ruhig, dass selbst Lysop hier mutig wird. Kurz.', 'So calm even Lysop gets brave here. Briefly.'], deco: 'palm' },
-    S: { id: 'sand', sea: ['#6cb7a0', '#78bca0'], name: ['Sandmeer', 'Sand Sea'],
+    S: { id: 'sand', label: [2, 4], sea: ['#6cb7a0', '#78bca0'], name: ['Sandmeer', 'Sand Sea'],
       text: ['Das Wasser schmeckt nach Wüste. Niemand weiß, wie Wasser nach Wüste schmecken kann.', 'The water tastes of desert. Nobody knows how water can taste of desert.'], deco: 'cactus' },
-    K: { id: 'frost', sea: ['#7db6cf', '#8cc2d8'], name: ['Frostwolken-See', 'Frostcloud Sea'],
+    K: { id: 'frost', label: [5, 3], sea: ['#7db6cf', '#8cc2d8'], name: ['Frostwolken-See', 'Frostcloud Sea'],
       text: ['Oben Wolken, unten Eis, dazwischen ihr. Mütze auf.', 'Clouds above, ice below, you in between. Hat on.'], deco: 'berg' },
-    T: { id: 'tief', sea: ['#2f6f8f', '#2a6584'], name: ['Tiefseegraben', 'Deep Trench'],
+    T: { id: 'tief', label: [6, 6], sea: ['#2f6f8f', '#2a6584'], name: ['Tiefseegraben', 'Deep Trench'],
       text: ['Hier ist das Meer so tief, dass unten jemand anderes wohnt.', 'The sea is so deep here that someone else lives at the bottom.'], deco: 'kelp' },
-    N: { id: 'nebel', sea: ['#5b7f86', '#56777e'], name: ['Nebelmeer', 'Sea of Mist'],
+    N: { id: 'nebel', label: [2, 0], sea: ['#5b7f86', '#56777e'], name: ['Nebelmeer', 'Sea of Mist'],
       text: ['Wilde Gewässer. Die Möwen fliegen hier lieber zu zweit.', 'Wild waters. Even the gulls fly in pairs here.'], deco: 'rock' }
   },
   // Kleine Deko-Inseln (ohne Spielwirkung), damit jedes Gebiet anders aussieht
-  isles: [[1, 7, 'palm'], [5, 8, 'palm'], [0, 4, 'cactus'], [3, 4, 'cactus'], [5, 5, 'berg'], [7, 3, 'berg'], [6, 8, 'kelp'], [0, 0, 'rock'], [7, 0, 'rock'], [4, 2, 'rock']],
+  isles: [[1, 7, 'palm'], [5, 8, 'palm'], [0, 4, 'cactus'], [3, 4, 'cactus'], [5, 5, 'berg'], [7, 3, 'berg'], [6, 8, 'kelp'], [0, 0, 'rock'], [7, 0, 'rock'], [2, 2, 'rock']],
   // Ereignisse auf See (beim Segeln, wenn kein Treibgut da ist). w = Gewicht, more = Gebiet, in dem es öfter passiert
   events: {
     delfine:   { w: 3, more: 'B', name: ['Delfine', 'Dolphins'], text: ['Delfine schieben das Schiff ein Stück. Gratis. Verdächtig. +1 Proviant.', 'Dolphins push the ship along. For free. Suspicious. +1 supply.'] },
@@ -94,8 +94,8 @@ GL.data.seekarte = {
     sighted: ['Gesichtet', 'Sighted'],
     sightedText: ['Ein Kartenfetzen zeigt hier etwas. Hinsegeln, um den Ort zu finden.', 'A map scrap shows something here. Sail there to find the spot.'],
     loot: ['Beute', 'Loot'],
-    lootGear: ['Ausrüstung (Chance auf Episch)', 'Gear (chance of epic)'],
-    lootShards: ['Meersplitter', 'Sea shards'],
+    lootGear: ['Ausrüstung', 'Gear'],
+    lootShards: ['Meersplitter', 'Sea Shards'],
     lootFind: ['Fundstück', 'Keepsake'],
     boss: ['Boss', 'Boss'],
     level: ['Stufe', 'Level'],
@@ -132,7 +132,7 @@ GL.data.seekarte = {
     go: ['Hinsegeln', 'Sail there'],
     clears: ['{n}× gemeistert', 'cleared {n}×'],
     marks: ['Dungeon-Marken', 'Dungeon tokens'],
-    epic: ['Episch-Chance {p} %', 'epic chance {p} %'],
+    epic: ['{p} % episch', '{p} % epic'],
     you: ['Dein Schiff', 'Your ship'],
     region: ['Gebiet', 'Region']
   }

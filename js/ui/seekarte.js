@@ -92,8 +92,20 @@ window.GL = window.GL || {};
       if (S().clear(s, c, r)) continue;
       o += `<rect x="${c}" y="${r}" width="1.01" height="1.01" fill="url(#skfog)"/>`;
     }
-    return `<svg class="sk-fog" viewBox="0 0 ${C.cols} ${C.rows}" preserveAspectRatio="none" aria-hidden="true">
-      <defs><pattern id="skfog" width="1" height="1" patternUnits="userSpaceOnUse"><rect width="1" height="1" fill="#efe2c2"/><path d="M0 .25h1M0 .75h1" stroke="#e2d1a8" stroke-width=".06"/><path d="M.2 0l-.2 .2M.7 0l-.7 .7M1 .3l-.7 .7M1 .8l-.2 .2" stroke="#d9c494" stroke-width=".04"/></pattern></defs>${o}</svg>`;
+    return `<svg class="sk-fog" viewBox="0 0 ${C.cols} ${C.rows}" preserveAspectRatio="none" shape-rendering="crispEdges" aria-hidden="true">
+      <defs><pattern id="skfog" width="${C.cols}" height="${C.rows}" patternUnits="userSpaceOnUse"><rect width="${C.cols}" height="${C.rows}" fill="#efe2c2"/>${hatch()}</pattern></defs>${o}</svg>`;
+  }
+  // Pergament: lose, durchgehende Striche (keine Kachelkanten)
+  let hatchCache = null;
+  function hatch() {
+    if (hatchCache) return hatchCache;
+    const C = D().cfg;
+    let h = 777, o = '';
+    const rnd = () => { h = Math.imul(h ^ (h >>> 13), 1103515245) + 12345 >>> 0; return (h >>> 8) / 16777216; };
+    for (let i = 0; i < 70; i++) { const x = rnd() * C.cols, y = rnd() * C.rows; o += `<rect x="${x.toFixed(2)}" y="${y.toFixed(2)}" width="${(0.25 + rnd() * 0.4).toFixed(2)}" height=".05" fill="#d9c494"/>`; }
+    for (let i = 0; i < 24; i++) { const x = rnd() * C.cols, y = rnd() * C.rows; o += `<rect x="${x.toFixed(2)}" y="${y.toFixed(2)}" width=".08" height=".08" fill="#cdb682"/>`; }
+    hatchCache = o;
+    return o;
   }
 
   const pos = (c, r) => { const C = D().cfg; return `left:${((c + 0.5) / C.cols * 100).toFixed(3)}%;top:${((r + 0.5) / C.rows * 100).toFixed(3)}%`; };
@@ -115,6 +127,14 @@ window.GL = window.GL || {};
       o += `<button class="sk-find k-${f.k}${isReach(f.c, f.r) ? ' can' : ''}${sel && sel.c === f.c && sel.r === f.r ? ' on' : ''}" data-act="sk-tap" data-c="${f.c}" data-r="${f.r}" style="${pos(f.c, f.r)}" aria-label="${esc(L(D().kinds[f.k].name))}">${art(f.k === 'storm' ? 'storm' : f.k)}</button>`;
     });
     o += fogLayer(s);
+    // Gebietsnamen wie auf alten Seekarten (sobald ein Feld des Gebiets erkundet ist)
+    Object.keys(D().regions).forEach(k => {
+      const cells = [];
+      D().map.forEach((row, r) => row.split('').forEach((ch, c) => { if (ch === k) cells.push([c, r]); }));
+      const g = D().regions[k], lp = g.label || cells[Math.floor(cells.length / 2)];
+      if (!S().clear(s, lp[0], lp[1])) return;
+      o += `<span class="sk-rname r-${g.id}" style="${pos(lp[0], lp[1])}">${esc(L(g.name))}</span>`;
+    });
     // Hafen
     const [hc, hr] = C.home;
     o += `<button class="sk-harbour${t.ship[0] === hc && t.ship[1] === hr ? ' here' : ''}" data-act="sk-tap" data-c="${hc}" data-r="${hr}" style="${pos(hc, hr)}" aria-label="${esc(T('harbour'))}">${art('harbour')}</button>`;
@@ -137,7 +157,7 @@ window.GL = window.GL || {};
           <b class="sk-name">${esc(tr(d.name))}</b></button>`;
       } else if (seen || near) {
         o += `<button class="sk-lair ${st === 'locked' ? 'locked' : 'looming'}${seen ? ' seen' : ''}${sel && sel.c === c && sel.r === r ? ' on' : ''}" data-act="sk-tap" data-c="${c}" data-r="${r}" style="${pos(c, r)}" aria-label="${esc(T('looming'))}">
-          <span class="sk-lair-isle sil">${pix(d.scene.deco)}</span><span class="sk-flag">${art('flag')}</span>${st === 'locked' ? '<i class="sk-lock">🔒</i>' : '<i class="sk-q">?</i>'}</button>`;
+          <span class="sk-lair-isle sil">${pix(d.scene.deco)}</span><span class="sk-flag">${art('flag')}</span>${b ? `<span class="sk-boss sil">${GL.sprites.render(b)}</span>` : ''}${st === 'locked' ? '<i class="sk-lock">🔒</i>' : '<i class="sk-q">?</i>'}</button>`;
       }
     });
     // Kielwasser vom letzten Feld
@@ -212,7 +232,7 @@ window.GL = window.GL || {};
     if (t.prov <= 0) return box('<i class="sk-ev">🍙</i>', T('prov'), T('provOut'), '', 'bad');
     const hid = S().hidden(profile).length;
     const sub = !hid ? (S().foundCount(profile) >= S().dgs().length ? T('allFound') : T('moreLater')) : T('unknown').replace('{n}', hid);
-    const tut = !s.found.length && hid ? T('hintTut') : T('hint');
+    const tut = !s.found.length && hid ? T('hintTut') : t.n > 1 || s.found.length ? L(S().region(t.ship[0], t.ship[1]).text) : T('hint');
     return `<div class="sk-panel hint"><span class="sk-pt"><small class="sk-hint">${esc(tut)}</small><small class="sk-sub">${esc(sub)}</small></span></div>`;
   }
   const go = (c, r, label) => `<button class="btn sk-go" data-act="sk-go" data-c="${c}" data-r="${r}">${esc(label || T('go'))}</button>`;
@@ -223,13 +243,16 @@ window.GL = window.GL || {};
   // Boss-Versteck: aus der Ferne Silhouette, gefunden mit Boss, Stufe und Beute
   function lairPanel(profile, d) {
     const st = S().status(profile, d), b = bossOf(d), s = profile.sk;
-    if (st === 'locked') return box(`<span class="sk-pi-isle sil">${pix(d.scene.deco)}</span>`, T('locked'), T('lockedText').replace('{n}', tr(d.needText)), '', 'sel lock');
-    if (st === 'hidden') return box(`<span class="sk-pi-isle sil">${pix(d.scene.deco)}</span>`, T('looming'), T('loomingText'), '', 'sel');
+    if (st === 'locked') return box(b ? `<span class="sk-pi-sil">${GL.sprites.render(b)}</span>` : `<span class="sk-pi-isle sil">${pix(d.scene.deco)}</span>`, T('locked'), T('lockedText').replace('{n}', tr(d.needText)), '', 'sel lock');
+    if (st === 'hidden') {
+      const t = s.trip, k = S().dist(S().spot(d.id), t.ship);
+      return box(b ? `<span class="sk-pi-sil">${GL.sprites.render(b)}</span>` : `<span class="sk-pi-isle sil">${pix(d.scene.deco)}</span>`, T('looming'), T('loomingText'), `<span class="sk-away">${esc(k - 1 <= 1 ? T('away1') : T('away').replace('{n}', Math.ceil((k - 1) / D().cfg.reach)))}</span>`, 'sel');
+    }
     const P = profile.dungeons && profile.dungeons[d.id] || { clears: 0 };
     const lvl = Math.min(12, P.clears || 0);
     const ep = Math.round((0.22 + 0.02 * Math.min(10, lvl)) * 100);
     const has = (profile.dgFinds || []).includes(d.find.id);
-    const chips = [`⚙ ${T('lootGear').replace(/ \(.*\)$/, '')}`, `✦ ${T('epic').replace('{p}', ep)}`, `🔹 ${T('lootShards')}`, `${has ? '✓' : '?'} ${T('lootFind')}: ${has ? tr(d.find.name) : '???'}`];
+    const chips = [`⚙ ${T('lootGear')}`, `✦ ${T('epic').replace('{p}', ep)}`, `🔹 ${T('lootShards')}`, `${has ? '✓' : '?'} ${T('lootFind')}`];
     return `<div class="sk-panel lair"><button class="sk-x" data-act="sk-x" aria-label="Schließen">✕</button>
       <span class="sk-pi boss">${b ? GL.sprites.render(b) : ''}</span>
       <span class="sk-pt"><small class="sk-lk">☠ ${esc(T('lair'))} · ${esc(T('level'))} ${lvl + 1}${P.clears ? ' · ' + esc(T('clears').replace('{n}', P.clears)) : ''}</small>
