@@ -181,9 +181,10 @@ window.GL = window.GL || {};
   function listHtml(profile) {
     const crew = members(profile);
     const rows = (D().dungeons || []).map(d => {
-      const open = unlocked(profile, d), st = peek(profile, d.id), fr = fresh(profile, d.id);
+      const open0 = unlocked(profile, d), st = peek(profile, d.id), fr = fresh(profile, d.id);
+      const hid = open0 && GL.seekarte && !GL.seekarte.allowed(profile, d.id), open = open0 && !hid;   // DUNGEON-SUCHE: erst auf der Seekarte finden
       const has = (profile.dgFinds || []).includes(d.find.id);
-      const status = !open ? `🔒 ${esc(T(d.needText))}` : fr ? `<em class="dg-fresh">${esc(T('Heute volle Beute'))}</em>` : esc(T('Schon erkundet: kleine Beute'));
+      const status = hid ? `🧭 ${esc(T('Noch auf der Seekarte versteckt'))}` : !open ? `🔒 ${esc(T(d.needText))}` : fr ? `<em class="dg-fresh">${esc(T('Heute volle Beute'))}</em>` : esc(T('Schon erkundet: kleine Beute'));
       return `<button class="dg-row${open ? '' : ' locked'}" ${open ? `data-act="dg-start" data-v="${d.id}"` : 'disabled'}>
         <span class="dg-mini" style="--sky:${d.scene.sky};--ground:${d.scene.ground}">${pix(d.scene.deco)}</span>
         <span class="dg-rt"><b>${esc(T(d.name))}</b><small>${status}</small></span>
@@ -199,7 +200,7 @@ window.GL = window.GL || {};
       <div class="dg-with"><small>${esc(T('Mit dabei'))}</small>${crew.slice(0, 6).map(sprite).join('')}</div>
       <div class="dg-list">${rows}</div>
       <p class="dg-sub small">${esc(T('Fundstücke'))}: ${nf}/${(D().dungeons || []).length}</p>
-      <div class="fpop-btns"><button class="btn ghost" data-act="pop-close">${esc(T('Schließen'))}</button></div>`, 'dg-listcard');
+      <div class="fpop-btns">${GL.skUi ? `<button class="btn" data-act="sk-open">🧭 ${esc(T('Zur Seekarte'))}</button>` : ''}<button class="btn ghost" data-act="pop-close">${esc(T('Schließen'))}</button></div>`, 'dg-listcard');   // DUNGEON-SUCHE: Knopf zur Seekarte
   }
   // ---------- Werte-Vergleich (Boss gegen dein Team) ----------
   // Kleine Pixel-Symbole (7x7) für die Werte-Kacheln
@@ -304,7 +305,7 @@ window.GL = window.GL || {};
       ${bubble(m, line(m, 'go'))}
       <!-- Platz für den Gemeinschafts-Landgang (Fork P): GL.coop.dungeonSlot(d, profile) liefert HTML -->
       <div class="dg-coop-slot" data-dg="${esc(d.id)}">${GL.coop && GL.coop.dungeonSlot ? GL.coop.dungeonSlot(d, cur.profile) : ''}</div>
-      <div class="fpop-btns"><button class="btn" data-act="dg-go">${esc(T('Los geht’s'))}</button><button class="btn ghost" data-act="dg-list">${esc(T('Zurück'))}</button></div>`);
+      <div class="fpop-btns"><button class="btn" data-act="dg-go">${esc(T('Los geht’s'))}</button><button class="btn ghost" data-act="${GL.skUi ? 'sk-open' : 'dg-list'}">${esc(T('Zurück'))}</button></div>`);   // DUNGEON-SUCHE
   }
   function choiceBtn(c, i) {
     const p = cur.plans[i], m = memberById(p.doer), f = fits(m, c.k);
@@ -583,13 +584,13 @@ window.GL = window.GL || {};
       ${L.dl && GL.dliga ? GL.dliga.resultHtml(L.dl) : ''}
       ${bubble(m, cur.won ? line(m, 'end') : line(m, 'no'))}
       ${cur.won ? '' : `<p class="dg-text small">${esc(T('Tipp: Gute Entscheidungen vorher schwächen den Boss. Passende Figuren haben bessere Chancen.'))}</p>`}
-      <div class="fpop-btns"><button class="btn" data-act="dg-start" data-v="${d.id}">${esc(T('Nochmal'))}</button><button class="btn ghost" data-act="dg-list">${esc(T('Andere Orte'))}</button></div>`);
+      <div class="fpop-btns"><button class="btn" data-act="dg-start" data-v="${d.id}">${esc(T('Nochmal'))}</button><button class="btn ghost" data-act="${GL.skUi ? 'sk-open' : 'dg-list'}">${esc(T(GL.skUi ? 'Zur Seekarte' : 'Andere Orte'))}</button></div>`);   // DUNGEON-SUCHE
   }
 
   // ---------- Ablauf ----------
   function start(profile, id) {
     const d = (D().dungeons || []).find(x => x.id === id);
-    if (!d || !unlocked(profile, d)) return null;
+    if (!d || !unlocked(profile, d) || (GL.seekarte && !GL.seekarte.allowed(profile, d.id))) return null;   // DUNGEON-SUCHE
     stop();
     const pool = (d.steps || []).concat(D().dungeonSteps || []);
     const steps = [];

@@ -182,6 +182,12 @@ window.GL = window.GL || {};
         Object.keys(other.dungeons).forEach(id => { const a = p.dungeons[id] || {}, b = other.dungeons[id] || {};
           p.dungeons[id] = { clears: Math.max(a.clears || 0, b.clears || 0), day: [a.day, b.day].filter(Boolean).sort().pop() || null }; });
       }
+      // DUNGEON-SUCHE: Seekarte vereinen (gefundene Orte, gelichteter Nebel)
+      if (GL.seekarte) {
+        const had = [base.sk, other.sk].filter(x => x && x.v).length;
+        if (had) p.sk = GL.seekarte.merge(p.sk && p.sk.v ? p.sk : null, other.sk && other.sk.v ? other.sk : null);
+        if (had === 1) GL.seekarte.adopt(p);   // eine Seite ist ein alter Stand ohne Seekarte
+      }
       return p;
     },
     // ---------- Ausrüstung: Truhe und Schmiede ----------
