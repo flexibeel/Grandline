@@ -150,7 +150,7 @@ window.GL = window.GL || {};
       if (u.status.fear) d *= 0.65;
       if (t.status.weak) d *= 1.25;
       d = pierce ? Math.round(d) : Math.round(d * (1 - (t.guard || 0))) - (t.armor || 0);
-      return Math.max(1, d);
+      return u.side === 'enemy' ? foeCap(t, Math.max(1, d), true) : Math.max(1, d);   // GEGNER-WERTE: Gegner-Ulti wie ein angekündigter Brocken gedeckelt
     }
     // Ulti-Würfel: dieselbe Ulti fühlt sich nie gleich an.
     //   Schaden schwankt, kann kritisch sein, wird mit jeder weiteren Ulti im Kampf etwas stärker.
@@ -323,6 +323,10 @@ window.GL = window.GL || {};
     }
 
     const pvp = enemies.some(u => u.ref && u.ref.pvp);
+    // GEGNER-WERTE: Gegner-Treffer gegen die Crew gedeckelt (Anteil Max-Leben), Gegner-Krit etwas flacher. Nicht in Duellen/PvP.
+    const FH = !pvp && kind !== 'duel' && C.foeHit ? C.foeHit : null;
+    if (FH && FH.critMult) enemies.concat(reserve).forEach(e => { e.critMult = Math.min(e.critMult, FH.critMult); });
+    const foeCap = (t, d, big) => (FH && t && t.side === 'crew' && d > 0 ? Math.min(d, Math.max(1, Math.ceil(t.max * (big ? FH.capBig : FH.cap)))) : d);
     // ---------- Wendepunkte: machen jeden Kampf zur kleinen Geschichte ----------
     //   Boss-Wut: Bosse und Raid-Bosse werden bei halbem Leben wütend (stärker, schneller, Ulti lädt)
     //   Letzter Wille: Fällt die Crew unter ein Drittel ihres Lebens, rafft sie sich einmal auf
@@ -529,7 +533,7 @@ window.GL = window.GL || {};
         const out = list.filter(t => t && t.hp > 0).map(t => {
           let d = u.atk * mult * m * typeMult(u.type, t.type);
           if (t.status.weak) d *= 1.25;
-          d = Math.max(1, Math.round(d * (1 - (t.guard || 0))) - (t.armor || 0));
+          d = foeCap(t, Math.max(1, Math.round(d * (1 - (t.guard || 0))) - (t.armor || 0)), true);   // GEGNER-WERTE: Rüstung vor dem Mindestschaden, Deckel
           return { to: idx(t), dmg: Math.min(t.hp, d), hp: damage(t, d) };
         });
         if (out.length) { events.push({ k: 'dmg', side: 'crew', list: out, by: u.id, sig: true }); checkRevives(); }
@@ -601,7 +605,7 @@ window.GL = window.GL || {};
             const L = alive(crew); if (!L.length) return;
             const t = L[Math.floor(R.float(run) * L.length)];
             const d = Math.max(1, Math.round(s.atk * PV.salvo * (1 - (t.guard || 0))) - (t.armor || 0));
-            acc[idx(t)] = (acc[idx(t)] || 0) + d;
+            acc[idx(t)] = foeCap(t, (acc[idx(t)] || 0) + d, true);   // GEGNER-WERTE: Salve gesammelt gedeckelt
           });
           planEv('salve', g0, 'Salve! Die ganze Marine-Truppe feuert auf einmal.', 'Volley! The whole Marine squad fires at once.', !PL.bigUsed);
           PL.bigUsed = true;
@@ -623,7 +627,7 @@ window.GL = window.GL || {};
           const avgA = G.reduce((s, x) => s + x.atk, 0) / G.length;
           planEv('welle', g0, 'Die Welle kommt! Die ganze Crew wird nass und wund.', 'Here comes the wave! The whole crew gets soaked and sore.', !PL.bigUsed);
           PL.bigUsed = true;
-          const list = alive(crew).map(t => { const d = Math.max(1, Math.round(avgA * PV.wave * (1 - (t.guard || 0))) - (t.armor || 0)); return { to: idx(t), dmg: Math.min(t.hp, d), hp: damage(t, d) }; });
+          const list = alive(crew).map(t => { const d = foeCap(t, Math.max(1, Math.round(avgA * PV.wave * (1 - (t.guard || 0))) - (t.armor || 0)), true); return { to: idx(t), dmg: Math.min(t.hp, d), hp: damage(t, d) }; });
           events.push({ k: 'dmg', side: 'crew', list, by: 'welle' });
           checkRevives();
         }
@@ -635,7 +639,7 @@ window.GL = window.GL || {};
           const L = alive(crew); if (!L.length) return;
           const t = L.reduce((a, b) => (b.atk > a.atk ? b : a));
           const miss = R.float(run) < (t.dodge || 0);
-          const d = miss ? 0 : Math.max(1, Math.round(r.atk * PV.beam * typeMult(r.type, t.type) * (1 - (t.guard || 0))) - (t.armor || 0));
+          const d = miss ? 0 : foeCap(t, Math.max(1, Math.round(r.atk * PV.beam * typeMult(r.type, t.type) * (1 - (t.guard || 0))) - (t.armor || 0)), true);   // GEGNER-WERTE
           planEv('schuss', r, `${nameOf(r)} überhitzt und feuert einen grellen Strahl auf ${nameOf(t)}.`, `${nameOf(r)} overheats and fires a blinding beam at ${nameOf(t)}.`, !PL.bigUsed);
           PL.bigUsed = true;
           if (miss) events.push({ k: 'hit', side: 'enemy', from: idx(r), to: idx(t), dmg: 0, miss: true, hp: t.hp, eff: '' });
@@ -983,6 +987,7 @@ window.GL = window.GL || {};
           let lucky = false;
           if (dmg > 0 && u.side === 'crew' && R.float(run) < (C.luckyHit || 0)) { lucky = true; dmg = Math.round(dmg * 2.5); }
           // KAMPFTIEFE: Standhaft – ein Brecher der Crew übersteht einmal pro Kampf einen tödlichen Treffer mit 1 Leben
+          if (u.side === 'enemy' && dmg > 0) dmg = foeCap(target, dmg, heavy);   // GEGNER-WERTE: kein Einzeltreffer über den Deckel (Ankündigung darf mehr)
           let stand = false;
           if (KT && CH.stand !== false && dmg > 0 && target.side === 'crew' && target.role === 'brecher' && !target.stood && target.hp > 1 && target.hp >= target.max * (CH.standAt || 0) && dmg >= target.hp) { dmg = target.hp - 1; target.stood = true; stand = true; }
           damage(target, dmg);
@@ -1007,7 +1012,7 @@ window.GL = window.GL || {};
           }
           // Konter: Bosse schlagen manchmal sofort zurück
           if (!pvp && dmg > 0 && target.hp > 0 && (target.boss || target.raid) && u.side === 'crew' && !target.status.stun && R.float(run) < (BF.counter || 0)) {
-            const cd = Math.max(1, Math.round(target.atk * (BF.counterMult || 0.6) * typeMult(target.type, u.type) * (1 - (u.guard || 0))) - (u.armor || 0));
+            const cd = foeCap(u, Math.max(1, Math.round(target.atk * (BF.counterMult || 0.6) * typeMult(target.type, u.type) * (1 - (u.guard || 0))) - (u.armor || 0)), false);   // GEGNER-WERTE: Konter gedeckelt
             damage(u, cd);
             events.push({ k: 'counter', side: 'enemy', from: idx(target), to: idx(u), dmg: cd, hp: u.hp });
             checkRevives();

@@ -448,6 +448,7 @@ window.GL = window.GL || {};
     const H = riskH(run);
     const level = (run.step + (run.loopSteps || 0)) * C.enemyScale;
     const mult = (kind === 'elite' ? (gate && islandIndex(run) === 0 ? 1 : C.eliteMult) + H.eliteMult : 1) * (gate ? C.gateMult : 1);
+    const FA = (C.foeHit && C.foeHit.atk) || 1;   // GEGNER-WERTE: Ausgleich zum Treffer-Deckel (nur normale Gegner, Bosse haben eigene Werte)
 
     let boss = kind === 'boss' ? currentBoss(run) : null;
     if (kind === 'raid') {
@@ -472,7 +473,7 @@ window.GL = window.GL || {};
       const max = Math.round((g.hpBase + level * g.hpPerLevel) * mult * (1 + H.enemyHp) * moodHp * (1 + ((twistOf(run) || {}).foeHp || 0)));
       enemies.push({
         id: type.id, type: type.type, hp: max, max,
-        atk: Math.round((g.atkBase + level * g.atkPerLevel) * mult * (1 + H.enemyAtk)),
+        atk: Math.round((g.atkBase + level * g.atkPerLevel) * mult * (1 + H.enemyAtk) * FA),
         spd: Math.max(1, R.int(run, g.spdMin, g.spdMax) + H.enemySpd - (run.mood === 'flaute' ? 1 : 0) + ((twistOf(run) || {}).foeSpd || 0))
       });
     }
@@ -484,7 +485,7 @@ window.GL = window.GL || {};
       const max = Math.round((g.hpBase + level * g.hpPerLevel) * mult * target.hpX * (1 + H.enemyHp));
       enemies.unshift({
         id: target.id, type: target.type, mini: true, hp: max, max,
-        atk: Math.round((g.atkBase + level * g.atkPerLevel) * mult * target.atkX * (1 + H.enemyAtk)),
+        atk: Math.round((g.atkBase + level * g.atkPerLevel) * mult * target.atkX * (1 + H.enemyAtk) * FA),
         spd: target.spd + H.enemySpd
       });
     }
@@ -516,7 +517,7 @@ window.GL = window.GL || {};
         const max = Math.max(1, Math.round((g.hpBase + level * g.hpPerLevel) * (kind === 'raid' ? C.eliteMult : 1) * (1 + H.enemyHp) * hpM * (1 + ((twistOf(run) || {}).foeHp || 0))));
         enemies.push({
           id: type.id, type: type.type, hp: max, max, wave: 2, elite2: elite || undefined,
-          atk: Math.max(1, Math.round((g.atkBase + level * g.atkPerLevel) * (kind === 'raid' ? C.eliteMult : 1) * (1 + H.enemyAtk) * atkM)),
+          atk: Math.max(1, Math.round((g.atkBase + level * g.atkPerLevel) * (kind === 'raid' ? C.eliteMult : 1) * (1 + H.enemyAtk) * FA * atkM)),
           spd: Math.max(1, R.int(run, g.spdMin, g.spdMax) + H.enemySpd + (elite ? 1 : 0) - (run.mood === 'flaute' ? 1 : 0) + ((twistOf(run) || {}).foeSpd || 0))
         });
       }

@@ -99,7 +99,8 @@ GL.config = {
   enemyScale: 0.9,        // wie schnell normale Gegner pro Etappe stärker werden (längere Insel-Kapitel -> langsamer hochskalieren)
   eliteMult: 1.3,         // Kopfgeldjäger sind um diesen Faktor stärker
   // Mehr Leben, etwas weniger Angriff: Kämpfe dauern etwas länger, ohne insgesamt härter zu werden
-  grunt: { hpBase: 13, hpPerLevel: 3.6, atkBase: 4.8, atkPerLevel: 1.38, spdMin: 3, spdMax: 7 },
+  // GEGNER-WERTE: Leben leicht angehoben (13 / 3.6 -> 13.5 / 3.75) als Ausgleich zum Treffer-Deckel (foeHit)
+  grunt: { hpBase: 13.5, hpPerLevel: 3.75, atkBase: 4.8, atkPerLevel: 1.38, spdMin: 3, spdMax: 7 },
   maxGrunts: 4,
   // Besondere Gegner (Sanitäter, Schildträger …): Chance pro normalem Gegner, wächst pro Meer; höchstens max pro Kampf
   foeKinds: { base: 0.14, perSea: 0.09, cap: 0.45, max: 2, fromStep: 2 },
@@ -119,6 +120,12 @@ GL.config = {
   //   dodgeOver: je 1 % Ausweichen über dem Deckel +dodgeOver % Schutz (weniger Schaden), höchstens dodgeOverMax
   //   critMultMax/guardMax: Deckel aus effects.js (Krit-Schaden ×3, Schutz 60 %); der Überlauf kommt obendrauf
   caps: { crit: 0.85, dodge: 0.6, critOver: 0.5, dodgeOver: 0.5, dodgeOverMax: 0.2, critMultMax: 3, guardMax: 0.6 },
+  // GEGNER-WERTE (21f): Schaden Gegner -> Crew lesbarer machen, ohne den Kampf leichter zu machen.
+  //   cap    = ein einzelner normaler Gegner-Treffer (auch Konter) nimmt höchstens diesen Anteil vom Max-Leben
+  //   capBig = angekündigte Brocken (Boss-Signatur, Wucht-Schlag nach Ankündigung, Überhitzt-Strahl, Salve) höchstens so viel
+  //   critMult = Krit-Faktor der Gegner (Crew behält critMult oben); nicht in Duellen/PvP
+  //   atk    = Ausgleich auf den Angriff normaler Gegner, damit die Kappung die Gesamt-Schwierigkeit nicht senkt
+  foeHit: { cap: 0.6, capBig: 0.8, critMult: 1.75, atk: 1.1 },
   // Kampfwetter (nur normale Kämpfe und Kopfgeldjäger): so oft kommt eins, und was es tut
   // Bosskampf: länger je Meer, Boss weicht manchmal aus und kontert
   // FIGHT: Bosse waren Pappkameraden (99 % Siege in 1,7 Runden). Jetzt mehr Leben und Biss, dazu Signatur-Angriffe.
