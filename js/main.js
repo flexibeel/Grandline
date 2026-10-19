@@ -1811,6 +1811,15 @@
       case 'news-done': newsDone(); break;
       case 'news-story': profile.story = { seen: [] }; ui.storyShown = false; newsDone(); toast('<span><b>📖 Die Story beginnt von vorn</b>Kapitel 1 startet gleich, die nächsten kommen mit deinen Fahrten.</span>'); setTimeout(() => { ui.lastStage = null; draw(); }, 600); break;
       case 'pop-close': closePop(); break;
+      // ---------- OFFENE SEE (js/ui/opensea.js): Seekarte antippen, segeln, Hilfe ----------
+      case 'sea-tap': case 'sea-go': case 'sea-x': case 'sea-direct': case 'sea-help': {
+        const r0 = GL.seaUi ? GL.seaUi.click(type, el, run) : null;
+        if (r0 && r0.pop) openGearPop(r0.pop);
+        else if (r0 && r0.act) act(r0.act);
+        else { ui.lastStage = null; draw(); }
+        break;
+      }
+      // ---------- END OFFENE SEE ----------
       // Team-Wappen: Details in der Leiste darunter zeigen (nichts neu zeichnen)
       case 'tm-tip': {
         const w = el.closest('.tm-wrap'), box = w && w.querySelector('.tm-detail');

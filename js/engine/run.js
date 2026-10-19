@@ -369,6 +369,9 @@ window.GL = window.GL || {};
       });
       a.forEach(n => { n.next = [...new Set(n.next)].sort((x, y) => x - y); });
     }
+    // ---------- OFFENE SEE (js/engine/opensea.js): ein Ort wird zur Offenen See, ohne Zufallszug ----------
+    if (GL.seaRun) GL.seaRun.place(run, rows);
+    // ---------- END OFFENE SEE ----------
     const names = here ? here.places.concat([here.lair || here.name]) : [];
     return { rows, at: null, path: [], stops: rows.map((_, r) => names[r] || null) };
   }
@@ -595,6 +598,9 @@ window.GL = window.GL || {};
   }
 
   function advance(run) {
+    // ---------- OFFENE SEE: nach Kampf/Schatz/Taverne eines Fundes zurück auf die Seekarte ----------
+    if (run.sea && run.sea.open) { run.phase = 'sea'; run.pool = []; run.pending = null; return; }
+    // ---------- END OFFENE SEE ----------
     // Endlos-Fahrt: am Ende des Meeres geht es von vorn los, nur härter
     if (run.endlessSea != null && run.step + 1 >= (run.endlessSea + 1) * GL.config.stepsPerIsland) { endlessLoop(run); return; }
     run.step++;
@@ -931,7 +937,7 @@ window.GL = window.GL || {};
   }
 
   // Statuspunkt verteilen: { type: 'spend', index, stat: 'hp' | 'atk' | 'spd' }
-  const SPEND_PHASES = ['course', 'map', 'prep', 'recruit', 'fruit', 'treasure', 'awaken', 'battle', 'event'];
+  const SPEND_PHASES = ['course', 'map', 'prep', 'recruit', 'fruit', 'treasure', 'awaken', 'battle', 'event', 'sea'];   // 'sea' = OFFENE SEE
   function spend(run, a) {
     const C = GL.config;
     const u = run.crew[a.index];
@@ -953,7 +959,7 @@ window.GL = window.GL || {};
     return true;
   }
 
-  const SWAP_PHASES = ['course', 'map', 'prep', 'recruit', 'fruit', 'treasure', 'awaken', 'event'];
+  const SWAP_PHASES = ['course', 'map', 'prep', 'recruit', 'fruit', 'treasure', 'awaken', 'event', 'sea'];   // 'sea' = OFFENE SEE
   function swap(run, a) {
     const n = run.crew.length;
     if (!SWAP_PHASES.includes(run.phase)) return false;
@@ -1003,6 +1009,7 @@ window.GL = window.GL || {};
     if (a.type === 'swap') return swap(run, a);
     if (a.type === 'dismiss') return dismiss(run, a);
     if (a.type === 'equip') return equip(run, a);
+    if (a.type === 'sea') return GL.seaRun ? GL.seaRun.act(run, a) : false;   // OFFENE SEE: segeln
     switch (run.phase) {
       case 'starter': {
         if (a.type !== 'pick') return false;
@@ -1085,6 +1092,8 @@ window.GL = window.GL || {};
         } else if (node === 'treasure') {
           dropItem(run, C.items.dropTreasure);
           openTreasure(run);
+        } else if (node === 'sea' && GL.seaRun) {   // OFFENE SEE: Seekarte für diese Etappe öffnen
+          GL.seaRun.start(run);
         } else if (node === 'rest') {
           heal(run, Math.max(0.05, C.restHeal + (run.mood === 'flaute' ? 0.2 : 0) + (run.bonus ? run.bonus.restHeal : 0) + ((twistOf(run) || {}).restAdd || 0)) * Math.max(0, 1 + (run.H ? run.H.restHeal : 0)));
           run.crew.forEach(u => { if (u.hp <= 0) u.hp = Math.max(1, Math.ceil(u.max * (C.reviveAtRest || 0))); });   // Rast weckt Gefallene
@@ -1263,6 +1272,8 @@ window.GL = window.GL || {};
 
   GL.run = {
     courseRisk, riskOf,
+    // OFFENE SEE: interne Bausteine für js/engine/opensea.js
+    _x: { islandIndex, chapterIdx, dropItem, advance, makeEnemies, openTreasure, openShop },
     // profile = dauerhafte Freischaltungen { unlocked: [...], epics: [...] }.
     // Wird im Run gespeichert, damit ein Replay genau gleich abläuft.
     // profile.upgrades = Werft-Stufen { rumpf: 2, ... }, profile.gear = mitgenommene Ausrüstung [ids]
@@ -1401,6 +1412,8 @@ window.GL = window.GL || {};
     act(run, action) {
       const ok = handle(run, action);
       if (ok) run.actions.push(action);
+      // OFFENE SEE: Ereignis/Auswahl eines Fundes erledigt (zurück auf 'map') -> weiter auf der Seekarte
+      if (ok && run.phase === 'map' && run.sea && run.sea.open) run.phase = 'sea';
       return ok;
     },
 

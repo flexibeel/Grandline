@@ -1045,7 +1045,7 @@ window.GL = window.GL || {};
 
   // Große Daumen-Karten unter der Seekarte: eine Karte pro erreichbarem Ort (gleiche Aktion wie die Kartenpunkte)
   const DOCK_TXT = { battle: 'Kampf, bringt Gold', elite: 'Starker Gegner, dafür ein Schatz', recruit: 'Neue Crew anheuern', fruit: 'Teufelsfrucht aussuchen',
-    treasure: 'Schatz für den ganzen Run', rest: 'Alle heilen 40 %', boss: 'Kopfgeld und Erwachen', raid: 'Extrem stark, epische Frucht' };
+    treasure: 'Schatz für den ganzen Run', rest: 'Alle heilen 40 %', sea: 'Frei segeln, Funde einsammeln', boss: 'Kopfgeld und Erwachen', raid: 'Extrem stark, epische Frucht' };
   function routeDock(run, boss, tip) {
     const ch = run.chart;
     if (!ch || !run.optCols || !run.optCols.length) return '';
@@ -1072,7 +1072,7 @@ window.GL = window.GL || {};
   // ---------- Reise-Erzählung (statt Knotenkarte): Bühne, eine Figur beschreibt die Lage, Wahlkarten als kleine Szenen ----------
   // Alles fest aus Seed + Etappe gewählt (kein Zufallszug), gleiche Aktionen wie die Karte (data-act="node").
   const JR_LBL = { battle: ['Kampf', 'Fight'], elite: ['Kopfgeld', 'Bounty'], recruit: ['Taverne', 'Tavern'], fruit: ['Frucht', 'Fruit'], treasure: ['Schatz', 'Treasure'],
-    rest: ['Rast', 'Rest'], boss: ['Boss', 'Boss'], raid: ['Raid', 'Raid'], gate: ['Bösewicht', 'Villain'] };
+    rest: ['Rast', 'Rest'], boss: ['Boss', 'Boss'], raid: ['Raid', 'Raid'], gate: ['Bösewicht', 'Villain'], sea: ['Offene See', 'Open sea'] };   // sea = OFFENE SEE
   function jrHash(s) { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
   function journeyView(run, boss, tip) {
     const ch = run.chart, R = GL.data.routeLines;
@@ -1656,7 +1656,7 @@ window.GL = window.GL || {};
     const unit = GL.effects.setup(run, run.crew, []).crew[i];
     const t = trait(u.trait);
     const need = GL.run.xpNeed(u.lvl);
-    const canSpend = ['map', 'prep', 'recruit', 'fruit', 'treasure', 'awaken', 'battle', 'event'].includes(run.phase);
+    const canSpend = ['map', 'prep', 'recruit', 'fruit', 'treasure', 'awaken', 'battle', 'event', 'sea'].includes(run.phase);   // 'sea' = OFFENE SEE
     const P = GL.config.point;
     const diff = (eff, base) => eff !== base ? ` <em class="up">${eff > base ? '+' : ''}${eff - base}</em>` : '';
     const stat = (label, value) => `<div class="st"><span>${label}</span><b>${value}</b></div>`;
@@ -1718,7 +1718,7 @@ window.GL = window.GL || {};
   function equipSection(run, i) {
     const u = run.crew[i];
     const items = run.items || [];
-    const can = ['map', 'prep', 'recruit', 'fruit', 'treasure', 'awaken', 'event'].includes(run.phase);
+    const can = ['map', 'prep', 'recruit', 'fruit', 'treasure', 'awaken', 'event', 'sea'].includes(run.phase);   // 'sea' = OFFENE SEE
     const cur = u.item ? items.find(x => x.uid === u.item) : null;
     const others = items.filter(x => x.uid !== u.item);
     const holder = uid => run.crew.find(o => o.item === uid);
@@ -1992,6 +1992,9 @@ window.GL = window.GL || {};
           <div class="course-grid">${cards}</div>`;
       }
 
+      // ---------- OFFENE SEE (js/ui/opensea.js) ----------
+      case 'sea': return GL.seaUi ? GL.seaUi.stage(run, { noticeBox }) : '';
+      // ---------- END OFFENE SEE ----------
       case 'map': {
         const boss = GL.run.boss(run);
         const here = GL.run.chapterIsland(run);
@@ -5410,7 +5413,7 @@ window.GL = window.GL || {};
       if (open && $('#syn details')) $('#syn details').open = true;
 
       // Hauptbereich nur neu aufbauen, wenn sich etwas geändert hat (sonst starten Animationen neu)
-      const canTrain = ['map', 'prep', 'recruit', 'fruit', 'treasure', 'course', 'event'].includes(run.phase);
+      const canTrain = ['map', 'prep', 'recruit', 'fruit', 'treasure', 'course', 'event', 'sea'].includes(run.phase);   // 'sea' = OFFENE SEE
       const html = coach(run, ui.profile) + (canTrain ? trainPanel(run, ui.profile) : '') + stage(run, anim, ui);
       if (html !== ui.lastStage) {
         $('#stage').innerHTML = html;
