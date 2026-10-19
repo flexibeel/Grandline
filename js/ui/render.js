@@ -4014,7 +4014,7 @@ window.GL = window.GL || {};
     const pulse = day ? `<div class="ts-pulse" title="Spieler, die gerade spielen und in den letzten 24 Stunden aktiv waren"><i class="tp-dot"></i><b>${live}</b> gerade auf See <span>·</span> <b>${day}</b> heute an Bord</div>`
       : st.status === 'connecting' ? `<div class="ts-pulse wait"><i class="tp-dot"></i>Funk zur Flotte <span class="tp-dots"><i></i><i></i><i></i></span></div>` : '';
     return `<div class="ts-inner">
-      <div class="ts-top">${profile.nickname ? profileChip(profile) : '<span></span>'}<span class="ts-tbtn">${/* Konten-Sync */ GL.online && GL.online.badge ? GL.online.badge() : ''}<button class="mu-btn lang-btn" data-act="lang" aria-label="Sprache wechseln" title="Deutsch / English">${GL.i18n && GL.i18n.lang() === 'en' ? 'DE' : 'EN'}</button><button class="mu-btn wk-btn${profile.wikiSeen ? '' : ' fresh'}" data-act="wiki-open" aria-label="Wiki" title="Wiki: Nachschlagen und Meta">${GL.ui.wikiIcon}</button>${musicBtn()}${sfxBtn()}</span></div>
+      <div class="ts-top">${profile.nickname ? profileChip(profile) : '<span></span>'}<span class="ts-tbtn"><button class="mu-btn lang-btn" data-act="lang" aria-label="Sprache wechseln" title="Deutsch / English">${GL.i18n && GL.i18n.lang() === 'en' ? 'DE' : 'EN'}</button><button class="mu-btn wk-btn${profile.wikiSeen ? '' : ' fresh'}" data-act="wiki-open" aria-label="Wiki" title="Wiki: Nachschlagen und Meta">${GL.ui.wikiIcon}</button>${musicBtn()}${sfxBtn()}</span></div>
       <div class="ts-logo"><b>${esc(W)}</b><small>Ein Piraten-Roguelike</small></div>
       <div class="ts-scene" aria-hidden="true">
         <div class="ts-sun"></div>
@@ -4030,7 +4030,7 @@ window.GL = window.GL || {};
           <button class="btn ghost" data-act="title-go" data-tab="album">Sammelalbum</button>
           <button class="btn ghost" data-act="intro-open">Anleitung</button>
         </div>
-        <button class="link ts-login" data-act="login-open">${st.anon === false && st.email ? 'Angemeldet ✓' : 'Anmelden'}</button>
+        <span class="ts-acc">${/* Konten-Sync: Cloud-Symbol */ GL.online && GL.online.badge && profile.nickname ? GL.online.badge() : ''}<button class="link ts-login" data-act="login-open">${st.anon === false && st.email ? 'Angemeldet ✓' : 'Anmelden'}</button></span>
         <div class="ts-small"><button class="link ts-notes" data-act="notes-open">Neuigkeiten${profile.nickname && profile.notesSeen !== GL.version ? ' <i class="new-dot"></i>' : ''}</button><button class="link ts-reload" data-act="reload">↻ Neu laden</button>${fsLink()}${streamToggle()}</div>
       </div>
       <p class="ts-foot">Inoffizielles Fanprojekt, kostenlos und ohne kommerzielle Absicht. One Piece gehört seinen Rechteinhabern. <a href="legal.html">Rechtliches &amp; Datenschutz</a></p>

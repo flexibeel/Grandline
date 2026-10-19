@@ -234,6 +234,17 @@ window.GL = window.GL || {};
       return;
     }
     state.leaving = true;   // bis zum Neuladen nichts Altes mehr hochladen
+    if (chosen) {
+      // Bewusst „Cloud“ gewählt: genau diesen Stand nehmen (nicht mit dem lokalen mischen, sonst wäre die Wahl wirkungslos)
+      const p = Object.assign({}, remote), runJ = p._runJ; delete p._runJ;
+      try {
+        if (typeof runJ === 'string' && runJ.length > 2) localStorage.setItem('grandline.run', runJ); else localStorage.removeItem('grandline.run');
+        localStorage.setItem('grandline.profile', JSON.stringify(p));
+        sessionStorage.setItem('gl.pulled', '1');
+      } catch (e) { /* egal */ }
+      location.reload();
+      return;
+    }
     // main.js übernimmt nur ohne diese Marke (Schleifenschutz); sie wird dort gleich wieder gesetzt
     try { sessionStorage.removeItem('gl.pulled'); } catch (e) { /* egal */ }
     if (onRemote) onRemote(Object.assign({}, remote));
