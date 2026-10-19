@@ -9507,3 +9507,15 @@ em.type.t-technik { background: #5b86b3 !important; }
 .dg-plan > i { font-style: normal; font-size: 1.35rem; width: 30px; text-align: center; flex: none; }
 .dg-plan > span { display: flex; flex-direction: column; line-height: 1.2; }
 .dg-plan b { font-size: .95rem; } .dg-plan small { font-size: .76rem; color: #7a6248; margin-top: 2px; }
+
+/* ===== C3: Duo-Momente, Kamera-Ruck, Treffer-Stopp ===== */
+#field.jz-zoom { animation: jzZoom .42s cubic-bezier(.2,.8,.3,1); }
+#field.jz-ko { animation: jzKo .42s ease-out; }
+#field.jz-stop { animation: jzStop .14s steps(2); }
+@keyframes jzZoom { 0% { transform: scale(1); } 35% { transform: scale(1.035); } 100% { transform: scale(1); } }
+@keyframes jzKo { 0% { transform: scale(1) translateX(0); } 20% { transform: scale(1.045) translateX(-3px); } 40% { transform: scale(1.045) translateX(3px); } 100% { transform: scale(1) translateX(0); } }
+@keyframes jzStop { 0% { transform: scale(1.012); } 100% { transform: scale(1); } }
+.fu.duo-jump .fu-body { animation: duoJump .7s cubic-bezier(.3,1.6,.5,1); }
+@keyframes duoJump { 0% { transform: translateY(0); } 35% { transform: translateY(-14px); } 60% { transform: translateY(0); } 75% { transform: translateY(-4px); } 100% { transform: translateY(0); } }
+.ult-call.duo { background: linear-gradient(#fff3d0, #f3dca4) !important; border-color: #b8783a !important; color: #4a3014 !important; }
+@media (prefers-reduced-motion: reduce) { #field.jz-zoom, #field.jz-ko, #field.jz-stop, .fu.duo-jump .fu-body { animation: none !important; } }

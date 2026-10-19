@@ -1,6 +1,12 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-21b', date: '19.10.', title: 'Befehle im Landgang, Duo-Momente', items: [
+    '📣🛡💥 Kapitänsbefehle jetzt auch im Landgang-Bosskampf. Sie laden dort etwas langsamer, weil Bosse länger durchhalten als ihr Ruf',
+    '🤝 Duo-Momente: Schlagen zwei befreundete Figuren (z. B. Kapitän & Vize, Brüder) dasselbe Ziel, springen sie kurz gemeinsam ins Bild. Die Crew-Zusammenstellung sieht man jetzt im Kampf',
+    '🎥 Große Momente bekommen einen kleinen Ruck: Boss-Signatur, Boss-K.O., Team- und Duo-Attacke. Krits halten kurz inne. Bei „reduzierter Bewegung“ bleibt alles still',
+    '⚔ Normale Gegner schlagen härter zu und halten dafür weniger aus. Schildwall, Heiler und Bollwerk lohnen sich mehr',
+    'Landgang: Mr. 1 (Gräber) ist nicht mehr unfair, Klingenwirbel prallt am Schildwall ab. Absalom (Gruft) bleibt sichtbar, wenn ihr ihn ins Visier nehmt' ] },
   { v: '2026-10-21a', date: '19.10.', title: 'Bosse mit Köpfchen', items: [
     '🧠 Jeder Landgang-Boss hat jetzt eine Mechanik: Buggys Trommler, Wapols Fressattacke, Mr. 1s Klingenwirbel, Ohms Gewitter, Fukuros Tekkai, Absaloms Unsichtbarkeit, eine Flutwelle in der Korallenhöhle und Pulverfässer in Impel Down',
     '📋 Vor dem Bosskampf wählst du einen Kampfplan: Fokus, Schildwall, Finte, Aufräumen oder Abstand. Der richtige Plan kontert die Mechanik, die Einleitung gibt einen Hinweis. Der falsche ist eine wertvolle Lebenserfahrung',

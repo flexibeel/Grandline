@@ -444,10 +444,10 @@ window.GL = window.GL || {};
     const lvl = o.lvl != null ? o.lvl : landgangLevel(profile, d.id), mult = 1 + 0.07 * lvl;
     const nMin = lvl >= 8 ? 3 : lvl >= 4 ? 2 : lvl >= 1 ? 1 : 0;
     const sp = (D().dungeonSpecials || {})[d.id] || null;
-    const spCut = sp ? ({ drain: 0.96, thorns: 0.85, revive: 0.8, single: 0.92 }[sp.tag] || 0.9) : 1;   // Spezialangriff macht ihn gefährlich, dafür etwas weniger Masse
+    const spCut = sp ? ({ drain: 0.96, thorns: 0.85, revive: 0.8, single: 0.86 }[sp.tag] || 0.9) : 1;   // Spezialangriff macht ihn gefährlich, dafür etwas weniger Masse
     const dh = o.deep ? DEEP.hp : 1, da = o.deep ? DEEP.atk : 1;
     const boss = { id: def.id, name: def.name, type: def.type, boss: true, hp: Math.round(max * mult * dh * spCut * (1 - 0.12 * Math.min(2, nMin))), max: Math.round(max * mult * dh * spCut * (1 - 0.12 * Math.min(2, nMin))),
-      atk: Math.max(3, Math.round(sumHp / (BOSS.rounds * BOSS.k) * (1 + BOSS.atkPerSea * sea) * atkUp * mult * da * spCut * (1 - 0.1 * Math.min(2, nMin)))),
+      atk: Math.max(3, Math.round(sumHp / (BOSS.rounds * BOSS.k) * (1 + BOSS.atkPerSea * sea) * atkUp * mult * da * (sp && sp.kind === 'double' ? 0.53 : spCut) * (1 - 0.1 * Math.min(2, nMin)))),   // Doppelschläger: zwei Treffer, jeder schwächer
       spd: Math.round(me.reduce((s, r) => s + r.spd, 0) / me.length) + (lvl >= 6 ? 1 : 0) };
     if (sp) { boss.ability = sp.kind; boss.power = sp.power; }
     const X = D(), pool = [].concat((X.hunted || []).filter(h => d.alt && h.island === d.alt), X.grunts || []);
@@ -472,18 +472,53 @@ window.GL = window.GL || {};
     // Startwerte merken, bevor die Simulation die Leben verändert (sonst startet die Anzeige mit dem Endstand)
     const startHp = me.map(r => r.hp), bossMax = boss.max;
     const foes = [boss].concat(minions);
-    const res = GL.battle.simulate(run, me.map(r => Object.assign({}, r)), foes.map(f => Object.assign({}, f)), 'boss', { weather: modOf() ? modOf().w : null, mech: mm ? { id: mm.id, plan: cur.plan || null, countered: cur.plan === mm.counter } : null });
+    // C3: Kapitänsbefehle auch im Landgang. Gleicher Seed + gleiche Startwerte = gleicher Verlauf bis zum Befehl.
+    const meStart = JSON.stringify(me), foesStart = JSON.stringify(foes);
+    const opts = { weather: modOf() ? modOf().w : null, mech: mm ? { id: mm.id, plan: cur.plan || null, countered: cur.plan === mm.counter } : null, turns: true, cmds: [], burst: GL.battle.burstKind ? GL.battle.burstKind(me) : 'strike' };
+    const sim = cmds => GL.battle.simulate(Object.assign({}, run, { rng: seed || 1, crew: JSON.parse(meStart) }), JSON.parse(meStart), JSON.parse(foesStart), 'boss', Object.assign({}, opts, { cmds: cmds.slice() }));
+    const res = sim([]);
     const per = GL.config.stepsPerIsland || 8;
     const dRun = { step: sea * per, seed: 1, alt: d.alt ? { [sea]: true } : {}, captain: me[0].id,
       crew: me.map(r => Object.assign({}, r, { def: r.id === 'self' ? { id: 'self', name: r.name, look: r.look, type: r.type } : null })),
       battle: { kind: 'boss', events: res.events, shown: false, enemies: [Object.assign({}, boss, { def })].concat(minions.map(m => Object.assign({}, m, { def: X.grunts.find(g => g.id === m.id) || (X.hunted || []).find(h => h.id === m.id) }))), enemyEnd: foes.map(() => 0) } };
-    return { res, dRun, me, boss: Object.assign({}, boss, { hp: bossMax, max: bossMax }), minions, lvl, i: 0, fast: false, timer: null, startHp };
+    return { res, dRun, me, boss: Object.assign({}, boss, { hp: bossMax, max: bossMax }), minions, lvl, i: 0, fast: false, timer: null, startHp, sim, cmds: [], turn: 0, rc: { rally: 0, guard: 0, burst: 0 }, burst: opts.burst };
   }
   function fightHtml() {
     const f = cur.fight, d = cur.d;
     return card(`<div class="dg-head"><span class="fpop-kicker">⚔ ${esc(T('Bosskampf'))} · ${esc(T(d.name))}</span>${fxChips()}</div>
       <div class="dg-arena">${GL.arena.html(f.dRun, { crewHp: f.startHp, enemyHp: [f.boss.max].concat((f.minions || []).map(m => m.max)), done: false })}</div>
-      <div class="dg-live"><span id="dg-log">${esc(T('Der Kampf beginnt!'))}</span><button class="btn mini ghost" data-act="dg-fast">${esc(T('Schneller'))}</button></div>`, 'dg-fightcard');
+      <div class="dg-live"><span id="dg-log">${esc(T('Der Kampf beginnt!'))}</span><button class="btn mini ghost" data-act="dg-fast">${esc(T('Schneller'))}</button></div>
+      ${cmdBar(f)}`, 'dg-fightcard');
+  }
+  // Kapitänsbefehle im Landgang: dieselben drei Knöpfe wie im Run
+  const CMD_IDS = ['rally', 'guard', 'burst'];
+  function cmdBar(f) {
+    const en = EN(), bk = f.burst || 'strike';
+    const BK = { strike: ['💥', en ? 'Broadside' : 'Breitseite'], wall: ['💥', en ? 'Broadside' : 'Breitseite'], mend: ['💚', en ? 'Patch-up' : 'Flickpause'], stun: ['💫', en ? 'Feint' : 'Finte'] }[bk] || ['💥', en ? 'Broadside' : 'Breitseite'];
+    const B = [['rally', '📣', en ? 'Charge' : 'Angriff'], ['guard', '🛡', en ? 'Shield wall' : 'Schildwall'], ['burst', BK[0], BK[1]]];
+    const C = dgCharge();
+    return `<div class="rc-bar dg-rc" role="group" aria-label="${en ? 'Captain orders' : 'Kapitänsbefehle'}">${B.map(([c, i, t]) => {
+      const p = Math.min(1, (f.rc[c] || 0) / (C[c] || 6)), full = !f.done && p >= 1;
+      return `<button class="rc-btn${full ? ' full' : ''}" data-act="dg-cmd" data-c="${c}"${full ? '' : ' disabled'} style="--p:${p.toFixed(3)}"><i class="rc-ico">${i}</i><b>${esc(t)}</b><span class="rc-fill" aria-hidden="true"></span></button>`;
+    }).join('')}</div>`;
+  }
+  // Landgang-Kämpfe dauern länger als Run-Kämpfe: Befehle laden hier doppelt so lange
+  function dgCharge() { const C = (GL.config.runCmds || {}).charge || { rally: 4, guard: 6, burst: 9 }, out = {}; CMD_IDS.forEach(k => { out[k] = (C[k] || 6) * 2; }); return out; }
+  function cmdRefresh(f) {
+    const C = dgCharge();
+    CMD_IDS.forEach(k => {
+      const b = document.querySelector(`.dg-rc .rc-btn[data-c="${k}"]`); if (!b) return;
+      const p = Math.min(1, (f.rc[k] || 0) / (C[k] || 6));
+      b.style.setProperty('--p', p.toFixed(3)); b.classList.toggle('full', p >= 1 && !f.done); b.disabled = !(p >= 1 && !f.done);
+    });
+  }
+  function cmdUse(k) {
+    const f = cur && cur.fight, C = dgCharge();
+    if (!f || f.done || !CMD_IDS.includes(k) || (f.rc[k] || 0) < (C[k] || 6)) return;
+    f.cmds.push({ at: f.turn + 1, cmd: k });
+    try { f.res = f.sim(f.cmds); } catch (e) { f.cmds.pop(); return; }
+    f.rc[k] = 0; cmdRefresh(f);
+    const b = document.querySelector(`.dg-rc .rc-btn[data-c="${k}"]`); if (b) { b.classList.add('used'); setTimeout(() => b.classList.remove('used'), 500); }
   }
   function say(m, txt) {
     const box = document.getElementById('dg-log');
@@ -503,7 +538,8 @@ window.GL = window.GL || {};
     if (!f || f.done) return;
     if (!document.getElementById('dg-log')) { f.done = true; endFight(true); return; }   // Fenster geschlossen: still auflösen
     const ev = f.res.events[f.i++];
-    if (!ev) { f.done = true; f.timer = setTimeout(() => endFight(false), 1100); return; }
+    if (!ev) { f.done = true; cmdRefresh(f); f.timer = setTimeout(() => endFight(false), 1100); return; }
+    if (ev.k === 'turn') { f.turn = ev.t; CMD_IDS.forEach(k => { f.rc[k] = (f.rc[k] || 0) + 1; }); cmdRefresh(f); f.timer = setTimeout(playStep, 0); return; }
     try { GL.arena.play(ev); } catch (e) { /* nur Anzeige */ }
     const crewM = () => pick(cur.crew);
     if (ev.k === 'plan' && ev.plan === 'mech') say(null, (EN() && ev.en) ? ev.en : ev.text);
@@ -514,7 +550,7 @@ window.GL = window.GL || {};
       f.downs = (f.downs || 0) + 1;
       say(crewM(), T(pick(f.downs >= left - 1 ? DRAMA.low : DRAMA.ko)) + (down ? ` (${down.id === 'self' ? down.name : T(down.name)} k.o.)` : ''));
     }
-    const base = ev.k === 'round' ? 120 : ev.k === 'ult' ? 1100 : ev.k === 'rage' ? 1500 : ev.k === 'hit' ? 520 : 760;
+    const base = ev.k === 'round' ? 120 : ev.k === 'ult' ? 1100 : ev.k === 'rage' || ev.k === 'duo' ? 1300 : ev.k === 'hit' ? 520 + (ev.crit && !ev.miss ? 70 : 0) : 760;
     f.timer = setTimeout(playStep, base * (f.fast ? 0.35 : 1));
   }
   function endFight(silent) {
@@ -630,6 +666,7 @@ window.GL = window.GL || {};
       if (name === 'dg-go') { cur.i = 0; cur.plans = null; return stepHtml(); }
       if (name === 'dg-pick') return choose(Number(data.i));
       if (name === 'dg-fast') { if (cur.fight) { cur.fight.fast = !cur.fight.fast; } return undefined; }
+      if (name === 'dg-cmd') { cmdUse(data.c); return undefined; }
       if (name === 'dg-next') {
         if (cur.done) return listHtml(profile);
         if (cur.last && cur.last.boss && mechOf(cur.d) && !cur.plan) return planHtml();

@@ -349,6 +349,15 @@ window.GL = window.GL || {};
   }
 
   // Kurze CSS-Animation neu starten
+  // C3: kurzer Kamera-Ruck für große Momente (nur Transform, kein Layout), bei reduzierter Bewegung aus
+  const REDUCED = () => !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  function juice(kind) {
+    const f = $('#field');
+    if (!f || REDUCED() || document.body.classList.contains('fast')) return;
+    f.classList.remove('jz-zoom', 'jz-stop', 'jz-ko'); void f.offsetWidth;
+    f.classList.add('jz-' + kind);
+    setTimeout(() => f.classList.remove('jz-' + kind), kind === 'stop' ? 140 : 420);
+  }
   function pulse(node, cls) {
     if (!node) return;
     node.classList.remove(cls);
@@ -836,6 +845,8 @@ window.GL = window.GL || {};
         pulse(el(ev.side, ev.from), 'lunge');
         fieldHit(ev);
         try { hitAbility(ev); } catch (e) { /* nur Anzeige */ }
+        if (ev.crit && !ev.miss) juice('stop');
+        if (ev.side === 'crew' && ev.hp === 0 && curRun && curRun.battle && curRun.battle.enemies && curRun.battle.enemies[ev.to] && (curRun.battle.enemies[ev.to].boss || curRun.battle.enemies[ev.to].raid)) juice('ko');
         if (ev.miss) float(tside, ev.to, 'Ausgewichen', 'miss');
         else if (ev.blocked) float(tside, ev.to, 'Geblockt', 'block');
         else {
@@ -889,6 +900,7 @@ window.GL = window.GL || {};
         banner('team' + (ev.side === 'crew' ? '' : ' them'), `<small>Team-Fähigkeit · ${String(F.name || '').replace(/[<>&"]/g, '')}</small><b>${String(ev.name).replace(/[<>&"]/g, '')}</b><em>${String(ev.text || '').replace(/[<>&"]/g, '')}</em>`, 2000);
         const field = $('#field'); if (field) { pulse(field, 'finale'); fx('fx-flash', { x: 0, y: 0 }, 450); }
         pulse(el(ev.side, ev.from), 'lunge');
+        if (ev.side === 'crew') juice('zoom');
         if (GL.sfx) GL.sfx.play('level');
       } else if (ev.k === 'dmg') {
         // Schaden durch eine Fähigkeit: Name über dem Auslöser einblenden
@@ -1028,7 +1040,16 @@ window.GL = window.GL || {};
         banner('them rage sig', `<small>✦ ${en ? 'Signature move' : 'Signatur-Angriff'}${ev.strong ? (en ? ' · stronger' : ' · stärker') : ''}</small><b>${String(en ? ev.en : ev.name).replace(/[<>&"]/g, '')}</b><em>${String(en ? ev.tEn : ev.text).replace(/[<>&"]/g, '')}</em>`, 1700);
         pulse(el('enemy', ev.from), 'lunge'); pulse(u, 'atk');
         const fld = $('#field'); if (fld) { pulse(fld, 'boss-slam'); fx('fx-flash', { x: 0, y: 0 }, 350); }
+        juice('zoom');
         if (GL.sfx && GL.sfx.sting) GL.sfx.sting('dramatic');
+      } else if (ev.k === 'duo') {
+        const en = GL.i18n && GL.i18n.lang() === 'en', E = s => String(s || '').replace(/[<>&"]/g, '');
+        const nmOf = i => { const u = curRun && curRun.crew && curRun.crew[i]; const d = u && (u.def || GL.data.crew.find(c => c.id === u.id)); return E(d ? (d.id === 'self' ? d.name : (GL.i18n && GL.i18n.t ? GL.i18n.t(d.name) : d.name)) : ''); };
+        banner('team duo', `<small>${en ? 'Duo' : 'Duo-Moment'} · ${nmOf(ev.a)} &amp; ${nmOf(ev.b)}</small><b>${E(en && GL.i18n.t ? GL.i18n.t(ev.name) : ev.name)}</b>`, 1100);
+        pulse(el('crew', ev.a), 'lunge'); pulse(el('crew', ev.b), 'lunge');
+        [ev.a, ev.b].forEach(i => { const u = fu('crew', i); if (u) { u.classList.remove('duo-jump'); void u.offsetWidth; u.classList.add('duo-jump'); setTimeout(() => u.classList.remove('duo-jump'), 700); } });
+        juice('zoom');
+        if (GL.sfx) GL.sfx.play('level');
       } else if (ev.k === 'extra') {
         fieldFloat(ev.side, ev.from, 'Extra-Zug!', ev.side === 'crew' ? 'buff' : 'debuff');
         pulse(fu(ev.side, ev.from), 'lunge');

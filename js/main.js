@@ -919,9 +919,9 @@
     // Fähigkeiten-Hinweise etwas länger stehen lassen, damit man sie lesen kann
     // Wie bei TFT: lange Kämpfe werden mit den Runden von selbst etwas flotter
     const f = (SPEEDF[anim.speed] || 0.55) * (anim.rn >= 7 ? 0.65 : anim.rn >= 4 ? 0.82 : 1);
-    const big = ev.k === 'rage' || ev.k === 'windup' || ev.heavy || ev.k === 'will' || ev.k === 'weather' || ev.k === 'wave' || ev.final || ev.k === 'sig' || (ev.k === 'plan' && (ev.big || ev.plan === 'sig')) || (ev.k === 'revive' && (ev.by === 'vivre' || ev.by === 'doc'));   // Wendepunkte bekommen immer etwas Zeit
+    const big = ev.k === 'duo' || ev.k === 'rage' || ev.k === 'windup' || ev.heavy || ev.k === 'will' || ev.k === 'weather' || ev.k === 'wave' || ev.final || ev.k === 'sig' || (ev.k === 'plan' && (ev.big || ev.plan === 'sig')) || (ev.k === 'revive' && (ev.by === 'vivre' || ev.by === 'doc'));   // Wendepunkte bekommen immer etwas Zeit
     const wait = ev.k === 'special' ? Math.max(900, 1800 * f) : ev.k === 'ult' ? Math.max(500, SPEED.ult * f)
-      : ev.k === 'revive' && ev.by === 'vivre' ? Math.max(1700, 2600 * f) : big ? Math.max(900, 1500 * f) : ev.k === 'hit' ? SPEED.normal * f * (nextQuick(ev) ? 0.6 : 1) : SPEED.special * f;
+      : ev.k === 'revive' && ev.by === 'vivre' ? Math.max(1700, 2600 * f) : big ? Math.max(900, 1500 * f) : ev.k === 'hit' ? SPEED.normal * f * (nextQuick(ev) ? 0.6 : 1) + (ev.crit && !ev.miss ? 70 : 0) : SPEED.special * f;   // Krit: kurzer Treffer-Stopp
     anim.timer = setTimeout(stepAnim, wait);
   }
 
@@ -1397,11 +1397,12 @@
       case 'endless-open': openGearPop(GL.ui.endlessPop(profile)); break;
       case 'hunt-open': openGearPop(GL.ui.huntPop(profile)); break;
       // Landgang: kleine Abenteuer im Fenster (js/ui/dungeon.js)
-      case 'dg-open': case 'dg-list': case 'dg-start': case 'dg-go': case 'dg-pick': case 'dg-next': case 'dg-fast': case 'dg-depth': case 'dg-door': case 'dg-relic': case 'dg-plan': {
+      case 'dg-open': case 'dg-list': case 'dg-start': case 'dg-go': case 'dg-pick': case 'dg-next': case 'dg-fast': case 'dg-cmd': case 'dg-depth': case 'dg-door': case 'dg-relic': case 'dg-plan': {
         // Landgang mit Bosskampf der Stammcrew: Beute wird beim Kampfende gespeichert (onSave)
         GL.dungeon.onSave = () => { saveProfile(); ui.lastStage = null; draw(); };
         const h = GL.dungeon.act(type, el.dataset, profile);
         if (type === 'dg-fast') { el.classList.toggle('on'); break; }
+        if (type === 'dg-cmd') break;
         if (GL.dungeon.dirty) { saveProfile(); ui.lastStage = null; draw(); }
         if (h == null) { if (type !== 'dg-open' && type !== 'dg-list') closePop(); break; }
         const box = document.getElementById('fpop');

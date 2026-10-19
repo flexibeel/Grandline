@@ -51,7 +51,7 @@ window.GL = window.GL || {};
       if (M && u === M.boss && amount > 0) {
         if (M.id === 'drummer' && M.drum && M.drum.hp > 0) amount = Math.max(1, Math.round(amount * 0.3));
         if (M.id === 'tekkai' && M.iron) amount = Math.max(1, Math.round(amount * 0.25));
-        if (M.id === 'vanish' && M.hidden) amount = Math.max(1, Math.round(amount * (M.c ? 0.8 : 0.3)));
+        if (M.id === 'vanish') amount = M.c ? Math.round(amount * 1.12) : M.hidden ? Math.max(1, Math.round(amount * 0.5)) : amount;   // Fokus enttarnt ihn: kein Verstecken, sogar etwas leichter zu treffen
         if (M.id === 'powder') M.hits = (M.hits || 0) + 1;
         if (M.id === 'larvae' && M.larvae.some(l => l.hp > 0)) amount = Math.max(1, Math.round(amount * 0.35));
       }
@@ -675,9 +675,9 @@ window.GL = window.GL || {};
       } else if (M.id === 'whirl' || M.id === 'flood') {
         if (before) mechEv('vor', B, M.id === 'whirl' ? nm + ' dreht sich ein …' : 'Das Wasser zieht sich zurück …', M.id === 'whirl' ? nm + ' winds up …' : 'The water draws back …', false, M.id === 'whirl' ? ['dreht sich …', 'winds up …'] : ['Ebbe …', 'Ebb …']);
         if (third) {
-          const pct = M.c ? 0.03 : 0.08;
+          const pct = M.c ? (M.id === 'whirl' ? 0 : 0.02) : 0.07;
           mechEv('los', B, M.c ? 'Schildwall genau rechtzeitig. Es rauscht, aber es hält.' : (M.id === 'whirl' ? 'Klingenwirbel durch die ganze Crew!' : 'Flutwelle!'), M.c ? 'Shield wall just in time. It roars, but it holds.' : (M.id === 'whirl' ? 'Blade whirl through the whole crew!' : 'Flood wave!'), true, M.id === 'whirl' ? ['Wirbel!', 'Whirl!'] : ['Flut!', 'Flood!']);
-          hitCrew(team, pct, 'mech');
+          if (pct > 0) hitCrew(team, pct, 'mech'); else if (M.id === 'whirl') { mechEv('prall', B, nm + ' prallt am Schildwall ab. Klirrt schön, tut aber keinem weh.', nm + ' bounces off the shield wall. Lovely clang, no harm done.', false, ['Abgeprallt!', 'Bounced!']); }
         }
       } else if (M.id === 'storm') {
         if (before) mechEv('vor', B, 'Es knistert über der Crew …', 'It crackles above the crew …', false, ['knistert …', 'crackles …']);
@@ -694,8 +694,8 @@ window.GL = window.GL || {};
           else { M.iron = true; mechEv('eisen', B, 'Tekkai! ' + nm + ' ist diese Runde aus Eisen.', 'Tekkai! ' + nm + ' is made of iron this round.', true, ['Eisen!', 'Iron!']); }
         }
       } else if (M.id === 'vanish') {
-        M.hidden = r % 2 === 0;
-        if (M.hidden) mechEv('weg', B, M.c ? nm + ' wird unsichtbar – aber ihr habt ihn im Blick.' : nm + ' wird unsichtbar. Die Crew schlägt ins Leere.', M.c ? nm + ' turns invisible – but you keep him in sight.' : nm + ' turns invisible. The crew swings at nothing.', r <= 2, ['unsichtbar …', 'invisible …']);
+        M.hidden = !M.c && r % 2 === 0;
+        if (M.hidden || (M.c && r === 2)) mechEv('weg', B, M.c ? nm + ' wird unsichtbar – aber ihr habt ihn im Blick.' : nm + ' wird unsichtbar. Die Crew schlägt ins Leere.', M.c ? nm + ' turns invisible – but you keep him in sight.' : nm + ' turns invisible. The crew swings at nothing.', r <= 2, ['unsichtbar …', 'invisible …']);
       } else if (M.id === 'larvae') {
         if (r === 1 && M.c) {
           const list = M.larvae.filter(l => l.hp > 0).map(l => ({ to: idx(l), dmg: l.hp, hp: damage(l, l.hp) }));
@@ -791,9 +791,29 @@ window.GL = window.GL || {};
     }
 
     // ---------- Runden ----------
+    // C3: Duo-Momente sichtbar machen (nur Anzeige): Schlagen beide Duo-Partner in einer Runde dasselbe Ziel, gibt es eine kurze Szene.
+    const DUOS = !pvp && kind !== 'duel' && GL.effects && GL.effects.duos ? GL.effects.duos(crew) : [];
+    let duoFrom = events.length, duoShown = 0;
+    const duoSeen = {};
+    function duoCheck() {
+      if (!DUOS.length || duoShown >= 2) return;
+      const hitBy = {};
+      for (let k = duoFrom; k < events.length; k++) { const e = events[k]; if (e.k === 'hit' && e.side === 'crew' && !e.miss && e.dmg > 0 && crew[e.from]) (hitBy[e.to] = hitBy[e.to] || new Set()).add(crew[e.from].id); }
+      DUOS.forEach(d => {
+        if (duoShown >= 2 || duoSeen[d.a + d.b]) return;
+        const t = Object.keys(hitBy).find(x => hitBy[x].has(d.a) && hitBy[x].has(d.b));
+        if (t == null) return;
+        const A = crew.findIndex(u => u.id === d.a && u.hp > 0), B2 = crew.findIndex(u => u.id === d.b && u.hp > 0);
+        if (A < 0 || B2 < 0) return;
+        duoSeen[d.a + d.b] = true; duoShown++;
+        events.push({ k: 'duo', side: 'crew', a: A, b: B2, to: Number(t), name: d.name, text: d.text });
+      });
+    }
     while (alive(crew).length && rounds < C.battleRoundsMax && (alive(enemies).length || callWave())) {
+      if (rounds > 0) duoCheck();
       rounds++;
       events.push({ k: 'round', n: rounds });
+      duoFrom = events.length;
       // Boss holt aus: alle 3 Runden kündigt er einen schweren Schlag an, der in der nächsten Runde kommt.
       // Konter: Ausweichen zählt doppelt, Rüstung (Bollwerk) doppelt.
       if (!pvp && BF.windup) enemies.forEach(e => {
