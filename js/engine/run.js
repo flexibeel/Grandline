@@ -448,7 +448,7 @@ window.GL = window.GL || {};
     const H = riskH(run);
     const level = (run.step + (run.loopSteps || 0)) * C.enemyScale;
     const mult = (kind === 'elite' ? (gate && islandIndex(run) === 0 ? 1 : C.eliteMult) + H.eliteMult : 1) * (gate ? C.gateMult : 1);
-    const FA = (C.foeHit && C.foeHit.atk) || 1;   // GEGNER-WERTE: Ausgleich zum Treffer-Deckel (nur normale Gegner, Bosse haben eigene Werte)
+    const FA0 = C.foeHit && C.foeHit.atk, FA = (Array.isArray(FA0) ? FA0[Math.min(FA0.length - 1, islandIndex(run))] : FA0) || 1;   // GEGNER-WERTE: Ausgleich zum Treffer-Deckel (nur normale Gegner, Bosse haben eigene Werte)
 
     let boss = kind === 'boss' ? currentBoss(run) : null;
     if (kind === 'raid') {

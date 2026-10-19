@@ -326,7 +326,8 @@ window.GL = window.GL || {};
     // GEGNER-WERTE: Gegner-Treffer gegen die Crew gedeckelt (Anteil Max-Leben), Gegner-Krit etwas flacher. Nicht in Duellen/PvP.
     const FH = !pvp && kind !== 'duel' && C.foeHit ? C.foeHit : null;
     if (FH && FH.critMult) enemies.concat(reserve).forEach(e => { e.critMult = Math.min(e.critMult, FH.critMult); });
-    const foeCap = (t, d, big) => (FH && t && t.side === 'crew' && d > 0 ? Math.min(d, Math.max(1, Math.ceil(t.max * (big ? FH.capBig : FH.cap)))) : d);
+    const FHH = FH ? Math.min(20, run.heat || 0) * (FH.capHeat || 0) : 0;   // Kopfgeld-Stufen lockern den Deckel etwas (sonst würden höhere Stufen leichter)
+    const foeCap = (t, d, big) => (FH && t && t.side === 'crew' ? Math.max(1, Math.min(d, Math.ceil(t.max * Math.min(1, (big ? FH.capBig : FH.cap) + FHH)))) : d);   // auch: nie unter 1 (Rüstung nach Math.max konnte sonst negativ werden = heilen)
     // ---------- Wendepunkte: machen jeden Kampf zur kleinen Geschichte ----------
     //   Boss-Wut: Bosse und Raid-Bosse werden bei halbem Leben wütend (stärker, schneller, Ulti lädt)
     //   Letzter Wille: Fällt die Crew unter ein Drittel ihres Lebens, rafft sie sich einmal auf
