@@ -4033,7 +4033,7 @@ window.GL = window.GL || {};
           <button class="btn ghost" data-act="title-go" data-tab="album">Sammelalbum</button>
           <button class="btn ghost" data-act="intro-open">Anleitung</button>
         </div>
-        <button class="link ts-login" data-act="login-open">${st.anon === false && st.email ? 'Angemeldet ✓' : 'Anmelden'}</button>
+        <span class="ts-acc">${/* Konten-Sync: Cloud-Symbol */ GL.online && GL.online.badge && profile.nickname ? GL.online.badge() : ''}<button class="link ts-login" data-act="login-open">${st.anon === false && st.email ? 'Angemeldet ✓' : 'Anmelden'}</button></span>
         <div class="ts-small"><button class="link ts-notes" data-act="notes-open">Neuigkeiten${profile.nickname && profile.notesSeen !== GL.version ? ' <i class="new-dot"></i>' : ''}</button><button class="link ts-reload" data-act="reload">↻ Neu laden</button>${fsLink()}${streamToggle()}</div>
       </div>
       <p class="ts-foot">Inoffizielles Fanprojekt, kostenlos und ohne kommerzielle Absicht. One Piece gehört seinen Rechteinhabern. <a href="legal.html">Rechtliches &amp; Datenschutz</a></p>
