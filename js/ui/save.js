@@ -20,6 +20,7 @@ window.GL = window.GL || {};
       const run = read(RUN_KEY);
       if (!run || run.version !== GL.config.saveVersion) return null;
       GL.save.runAt = Math.max(GL.save.runAt || 0, run.savedAt || 0);
+      if (GL.save.runAt0 == null) GL.save.runAt0 = run.savedAt || 0;
       return run;
     },
     storeRun(run) { run.savedAt = GL.save.runAt = Date.now(); write(RUN_KEY, run); if (GL.online && GL.online.pushRun) GL.online.pushRun(); },
@@ -31,6 +32,8 @@ window.GL = window.GL || {};
       // Großer Neustart: alter Stand wird gesichert, alle starten frisch
       // Neue Saison: Fortschritt bleibt, es gibt einmal den Einspieler (frisch starten ist freiwillig)
       if (p && p.version === 1 && GL.season && GL.season.stale(p)) { p.season = GL.season.id(); p.launchIntro = true; write(PROFILE_KEY, p); }
+      // Stand beim Laden merken: der Cloud-Abgleich vergleicht damit (nicht mit Kleinkram der ersten Sekunden)
+      try { GL.save.loaded = p && p.version === 1 ? { at: p.savedAt || 0, sig: GL.cloudSync.sig(p), prog: GL.cloudSync.prog(p) } : null; } catch (e) { GL.save.loaded = null; }
       return p && p.version === 1 ? GL.meta.migrate(p) : GL.meta.newProfile();
     },
     storeProfile(p) { p.savedAt = Date.now(); write(PROFILE_KEY, p); if (GL.online) GL.online.pushSave(p); },
@@ -55,6 +58,56 @@ window.GL = window.GL || {};
     }
   };
 })();
+
+// Cloud-Abgleich: welcher Stand gilt? (reine Logik, ohne Netz; getestet in tools/sync-test.js)
+//  sig:  Fingerabdruck des Inhalts (ohne Zeitstempel), unabhängig von der Reihenfolge der Schlüssel
+//  base: Fingerabdruck beim letzten erfolgreichen Abgleich dieses Geräts ({ sig })
+//  Ergebnis: 'push' (hochladen), 'pull' (Cloud übernehmen), 'ask' (einmal fragen), 'same', 'none'
+GL.cloudSync = (function () {
+  const SKIP = { savedAt: 1, _runJ: 1, codeClaimed: 1 };
+  function stable(v) {
+    if (v == null || typeof v !== 'object') return JSON.stringify(v === undefined ? null : v);
+    if (Array.isArray(v)) return '[' + v.map(stable).join(',') + ']';
+    return '{' + Object.keys(v).filter(k => !SKIP[k] && v[k] !== undefined).sort().map(k => JSON.stringify(k) + ':' + stable(v[k])).join(',') + '}';
+  }
+  function sig(p) {
+    if (!p || typeof p !== 'object') return '0';
+    if (p.wiped) return 'wiped';
+    const s = stable(p);
+    let h = 2166136261;
+    for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); }
+    return (h >>> 0).toString(36) + '.' + s.length;
+  }
+  // Fortschritt grob als Zahl: Rang-EP plus ein bisschen pro Run
+  function prog(p) { return !p || p.wiped ? 0 : (Number(p.rankXp) || 0) + 10 * ((p.stats && Number(p.stats.runs)) || 0); }
+  const fresh = p => !p || !p.nickname || prog(p) === 0;
+  // a ist „deutlich weiter“ als b
+  const ahead = (a, b) => prog(a) > prog(b) * 1.05 + 30;
+  function decide(local, remote, o) {
+    o = o || {};
+    const lt = o.localT != null ? o.localT : (local && local.savedAt) || 0;
+    const rt = o.remoteT != null ? o.remoteT : (remote && remote.savedAt) || 0;
+    const ls = o.localSig || sig(local), rs = sig(remote);
+    if (!remote) return local && local.nickname ? 'push' : 'none';
+    if (!local || !local.nickname) return remote.wiped ? 'none' : 'pull';
+    if (ls === rs) return 'same';
+    if (remote.wiped && fresh(local)) return 'push';
+    if (fresh(local) && !remote.wiped) return 'pull';
+    // Anderes Konto als zuletzt auf diesem Gerät (gerade angemeldet): nie still hochladen
+    if (o.switched) return ahead(local, remote) ? 'ask' : 'pull';
+    const base = o.base;
+    if (base && base.sig) {
+      if (base.sig === rs) return 'push';                     // nur hier geändert
+      if (base.sig === ls) return rt >= lt || !ahead(local, remote) ? 'pull' : 'ask';   // nur in der Cloud geändert
+    }
+    // Beide geändert oder dieses Gerät kennt den Cloud-Stand nicht (neues Gerät, Browser geleert, gerade angemeldet)
+    if (rt > lt) return ahead(local, remote) ? 'ask' : 'pull';
+    if (lt > rt) return ahead(remote, local) ? 'ask' : 'push';
+    return ahead(remote, local) ? 'pull' : 'push';
+  }
+  return { sig, prog, decide, ahead };
+})();
+if (typeof module !== 'undefined') module.exports = GL;
 
 // Spielstand-Code: ganzes Profil als kurzer Text (gzip + base64), z. B. per Messenger aufs andere Gerät.
 // Funktioniert ohne Anmeldung und ohne Mail.

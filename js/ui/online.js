@@ -107,17 +107,18 @@ window.GL = window.GL || {};
   // ---------- Speicherort 1: Supabase ----------
   async function initSupabase(cfg) {
     client = window.supabase.createClient(cfg.url, cfg.key, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } });
-    const { data } = await client.auth.getSession();
-    let session = data && data.session;
-    if (!session) {
-      const res = await client.auth.signInAnonymously();
-      if (res.error) throw res.error;
-      session = res.data.session;
-    }
-    state.uid = session.user.id;
     state.backend = 'supabase';
-    state.anon = !!session.user.is_anonymous;
-    state.email = session.user.email || null;
+    await signIn();
+    // Anmeldung ändert sich (Mail-Link in anderem Tab, Token erneuert, Mail verknüpft): Stand passend abgleichen
+    client.auth.onAuthStateChange((ev, session) => {
+      token = session ? session.access_token : null;
+      if (!session || !session.user) return;
+      const u = session.user;
+      const changed = state.uid && u.id !== state.uid;
+      state.anon = !!u.is_anonymous; state.email = u.email || null;
+      if (changed) { state.uid = u.id; state.pulled = false; state.cloud = false; setTimeout(() => { try { sessionStorage.removeItem('gl.pulled'); } catch (e) { /* egal */ } pullSave(); }, 0); }
+      emit();
+    });
     await pullSave();
     await codeSync();
     // Saison: Einträge ohne Fahrt in der neuen Saison bleiben sichtbar (Freunde, online), zählen aber mit null
@@ -150,27 +151,84 @@ window.GL = window.GL || {};
     setInterval(() => { if (!document.hidden) store.refresh().catch(() => {}); }, 20000);
   }
 
+  // Sitzung holen oder anonym anlegen (klappt das nicht, z. B. offline: später bei resync nochmal)
+  async function signIn() {
+    const { data } = await client.auth.getSession();
+    let session = data && data.session;
+    if (!session) {
+      const res = await client.auth.signInAnonymously();
+      if (res.error) throw res.error;
+      session = res.data.session;
+    }
+    token = session.access_token || null;
+    state.uid = session.user.id;
+    state.anon = !!session.user.is_anonymous;
+    state.email = session.user.email || null;
+  }
+
   // ---------- Online-Spielstand (alle Geräte) ----------
-  // Tabelle saves: eine Zeile pro Spieler mit dem ganzen Profil
+  // Tabelle saves: eine Zeile pro Spieler mit dem ganzen Profil.
+  // Ablauf: beim Start (und nach Anmelden / Zurückkehren) erst HOLEN und entscheiden, dann erst HOCHLADEN.
+  // Vorher lädt dieses Gerät nichts hoch, damit ein alter Stand nie einen neueren in der Cloud überschreibt.
+  let dirty = false, token = null, retryTimer = null;
+  const sandboxed = () => !!(GL.sandbox && GL.sandbox.on());
+  function setSync(s) { if (state.sync === s) return; state.sync = s; emit(); }
+  const pulledFlag = () => { try { return !!sessionStorage.getItem('gl.pulled'); } catch (e) { return false; } };
+  const baseKey = k => 'grandline.syncBase.' + k;
+  function getBase(k) { try { return JSON.parse(localStorage.getItem(baseKey(k)) || 'null'); } catch (e) { return null; } }
+  function setBase(k, p) { try { localStorage.setItem(baseKey(k), JSON.stringify({ sig: GL.cloudSync.sig(p), at: Date.now() })); } catch (e) { /* egal */ } }
+  const localT = p => Math.max((p && p.savedAt) || 0, p === profileRef ? ((GL.save && GL.save.runAt) || 0) : 0);
+  const remoteT = r => (r && r.savedAt) || 0;
+
   async function pullSave() {
-    if (GL.sandbox && GL.sandbox.on()) return;
-    try {
-      const { data: d, error } = await client.from('saves').select('data,updated_at').eq('id', state.uid).maybeSingle();
-      if (error) return;
-      state.cloud = true;
-      const local = profileRef;
-      // Neues Konto auf diesem Gerät (z. B. gerade angemeldet): der Online-Spielstand hat immer Vorrang,
-      // sonst könnte ein frisch angelegter Pirat den echten Fortschritt überschreiben.
-      let lastUid = null;
-      try { lastUid = localStorage.getItem('grandline.uid'); localStorage.setItem('grandline.uid', state.uid); } catch (e) { /* egal */ }
-      const switched = !!lastUid && lastUid !== state.uid;
-      const remote = d && d.data && typeof d.data === 'object' && !d.data.wiped ? safeData(d.data, 0, true) : null;
-      const localAt = Math.max((local && local.savedAt) || 0, (GL.save && GL.save.runAt) || 0);
-      const remoteBetter = remote && (!local || switched || (remote.savedAt || 0) > localAt + 1000
-        || (!state.anon && (remote.rankXp || 0) > (local.rankXp || 0)));
-      if (remoteBetter && onRemote) onRemote(remote);
-      else if (local && local.nickname) pushSave(local);   // erster Upload von diesem Gerät
-    } catch (e) { /* ohne Tabelle läuft alles lokal weiter */ }
+    if (sandboxed() || !client || !state.uid) return;
+    if (state.hold) return;                              // Rückfrage läuft schon
+    setSync('wait');
+    let d = null, error = null;
+    try { ({ data: d, error } = await client.from('saves').select('data,updated_at').eq('id', state.uid).maybeSingle()); } catch (e) { error = e; }
+    if (error) { setSync('err'); return; }             // offline o. Ä.: nichts hochladen, später erneut
+    state.cloud = true;
+    const local = profileRef;
+    // Neues Konto auf diesem Gerät (z. B. gerade angemeldet): der Online-Spielstand dieses Kontos hat Vorrang.
+    let lastUid = null;
+    try { lastUid = localStorage.getItem('grandline.uid'); localStorage.setItem('grandline.uid', state.uid); } catch (e) { /* egal */ }
+    const switched = !!lastUid && lastUid !== state.uid;
+    const raw = d && d.data && typeof d.data === 'object' && !Array.isArray(d.data) ? d.data : null;
+    const remote = raw ? (raw.wiped ? { wiped: true, savedAt: Number(raw.savedAt) || 0 } : safeData(raw, 0, true)) : null;
+    const key = 'u:' + state.uid;
+    // Erster Abgleich nach dem Start: mit dem Stand beim Laden vergleichen. Kleine Speicherungen der ersten
+    // Sekunden (Hinweise gesehen o. Ä.) machen den Stand sonst künstlich „neuer“ als die Cloud.
+    const L0 = !state.pulled && GL.save && GL.save.loaded;
+    const opt = { switched, base: getBase(key), localT: localT(local), remoteT: remoteT(remote) };
+    if (L0) { opt.localSig = L0.sig; opt.localT = Math.max(L0.at || 0, GL.save.runAt0 || 0); }
+    let how = GL.cloudSync.decide(local, remote, opt);
+    // Gerade bewusst übernommen (Spielercode, Code-Import, Neustart, Auswahl im Konflikt-Fenster): dieser Stand gilt
+    if (pulledFlag() && !switched && (how === 'pull' || how === 'ask')) how = 'push';
+    route(how, key, local, remote, () => pushNow(true));
+  }
+  // Entscheidung umsetzen
+  function route(how, key, local, remote, push) {
+    if (how === 'pull') { setBase(key, remote); takeRemote(remote, false); return; }
+    if (how === 'ask') { askConflict(local, remote, key); return; }
+    state.pulled = true;
+    if (how === 'push') push();
+    else { if (how === 'same') setBase(key, local); state.syncAt = state.syncAt || Date.now(); setSync('ok'); }
+  }
+  // Cloud-Stand übernehmen (main.js führt zusammen und lädt neu). Der bisherige Stand bleibt als Sicherung auf dem Gerät.
+  function takeRemote(remote, chosen) {
+    try { const cur = localStorage.getItem('grandline.profile'); if (cur) localStorage.setItem('grandline.profile.vorher', cur); } catch (e) { /* egal */ }
+    if (remote && remote.wiped) {
+      state.leaving = true;
+      // Auf einem anderen Gerät wurde neu angefangen: Name und Aussehen bleiben, Fortschritt startet bei null
+      const p = profileRef || {};
+      const fresh = Object.assign(GL.meta.newProfile(), { nickname: p.nickname, char: p.char, cos: p.cos, playerCode: p.playerCode, codeClaimed: p.codeClaimed, savedAt: Date.now() });
+      try { ['grandline.run', 'grandline.best'].forEach(k => localStorage.removeItem(k)); localStorage.setItem('grandline.profile', JSON.stringify(fresh)); sessionStorage.setItem('gl.pulled', '1'); } catch (e) { /* egal */ }
+      location.reload();
+      return;
+    }
+    state.leaving = true;   // bis zum Neuladen nichts Altes mehr hochladen
+    if (chosen) { try { sessionStorage.removeItem('gl.pulled'); } catch (e) { /* egal */ } }
+    if (onRemote) onRemote(Object.assign({}, remote));
   }
   // Laufender Run reist mit (als Text), damit man am anderen Gerät mitten im Run weitermachen kann
   function withRun(profile) {
@@ -179,24 +237,213 @@ window.GL = window.GL || {};
     const at = Math.max(profile.savedAt || 0, (GL.save && GL.save.runAt) || 0);
     return Object.assign({}, profile, { savedAt: at, _runJ: runJ && runJ.length < 400000 ? runJ : null });
   }
-  // Sofort hochladen (z. B. wenn das Spiel in den Hintergrund geht), ohne die 3 Sekunden abzuwarten
-  function flushSave() {
-    if (GL.sandbox && GL.sandbox.on()) return;
-    if (!client || !state.uid || !state.cloud || !profileRef || !profileRef.nickname || !pushTimer) return;
+  const canPush = () => !sandboxed() && !state.leaving && client && state.uid && state.cloud && state.pulled && !state.hold && profileRef && profileRef.nickname;
+  // Jetzt hochladen (nicht entprellt). Fehler: Symbol ⚠, nach 20 s nochmal.
+  async function pushNow() {
+    if (!canPush()) return;
     clearTimeout(pushTimer); pushTimer = null;
-    try { client.from('saves').upsert({ id: state.uid, data: withRun(profileRef), updated_at: new Date().toISOString() }).then(() => {}, () => {}); } catch (e) { /* egal */ }
+    const p = profileRef;
+    setSync('wait');
+    let error = null;
+    try { ({ error } = await client.from('saves').upsert({ id: state.uid, data: withRun(p), updated_at: new Date().toISOString() })); } catch (e) { error = e; }
+    if (error) {
+      setSync('err');
+      clearTimeout(retryTimer); retryTimer = setTimeout(() => { if (dirty || state.sync === 'err') pushNow(); }, 20000);
+      return;
+    }
+    dirty = false; state.syncAt = Date.now();
+    setBase('u:' + state.uid, p);
+    setSync('ok');
+    codeSave(p);
+  }
+  // Sofort hochladen (Spiel geht in den Hintergrund / wird geschlossen). keepalive: kommt auch beim Schließen noch an.
+  function flushSave() {
+    if (!canPush() || !dirty) return;
+    clearTimeout(pushTimer); pushTimer = null;
+    const cfg = (GL.config && GL.config.online) || {};
+    let body = '';
+    try { body = JSON.stringify({ id: state.uid, data: withRun(profileRef), updated_at: new Date().toISOString() }); } catch (e) { return; }
+    if (token && cfg.url && window.fetch && body.length < 50000) {
+      const p = profileRef;
+      try {
+        fetch(cfg.url + '/rest/v1/saves?on_conflict=id', { method: 'POST', keepalive: true, body,
+          headers: { apikey: cfg.key, Authorization: 'Bearer ' + token, 'Content-Type': 'application/json', Prefer: 'resolution=merge-duplicates,return=minimal' } })
+          .then(r => { if (r.ok) { dirty = false; state.syncAt = Date.now(); setBase('u:' + state.uid, p); setSync('ok'); } else setSync('err'); }, () => setSync('err'));
+      } catch (e) { pushNow(); }
+    } else pushNow();
     codeSave(profileRef);
   }
   function pushSave(profile) {
-    if (GL.sandbox && GL.sandbox.on()) return;
+    if (sandboxed()) return;
+    if (profile && profile !== profileRef && profileRef == null) profileRef = profile;
+    dirty = true;
     if (!client || !state.uid) return;
+    if (!state.hold) pushLive(profile);
+    if (!state.pulled || state.hold) return;            // erst abgleichen, dann hochladen
     clearTimeout(pushTimer);
-    pushTimer = setTimeout(async () => {
-      if (state.cloud) { try { await client.from('saves').upsert({ id: state.uid, data: withRun(profile), updated_at: new Date().toISOString() }); } catch (e) { /* später erneut */ } }
-      codeSave(profile);
-    }, 3000);
-    pushLive(profile);
+    if (state.sync === 'ok') setSync('wait');
+    pushTimer = setTimeout(() => pushNow(), 3000);
   }
+
+  // ---------- Konflikt: EIN kleines Fenster „Dieses Gerät“ oder „Cloud“ ----------
+  const escH = s => String(s == null ? '' : s).replace(/[&<>"'`]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;', '`': '&#96;' }[c]));
+  function when(t) {
+    if (!t) return 'unbekannt';
+    const d = new Date(t), now = new Date();
+    const hm = d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+    if (d.toDateString() === now.toDateString()) return 'heute ' + hm;
+    if (d.toDateString() === new Date(now - 864e5).toDateString()) return 'gestern ' + hm;
+    return d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' }) + ' ' + hm;
+  }
+  function sideInfo(p, t) {
+    if (!p || p.wiped) return { head: 'Neu angefangen', sub: 'Auf einem anderen Gerät zurückgesetzt', at: when(t) };
+    let r = '';
+    try { const rp = GL.meta.rankProgress(p); r = 'Rang ' + (rp.i + 1) + ' · ' + rp.rank.name; } catch (e) { r = (p.rankXp || 0) + ' Rang-EP'; }
+    const runs = (p.stats && p.stats.runs) || 0;
+    return { head: r, sub: (p.nickname ? p.nickname + ' · ' : '') + runs + (runs === 1 ? ' Run' : ' Runs'), at: when(t) };
+  }
+  function conflictHtml() {
+    const c = state.conflict; if (!c) return '';
+    const L = sideInfo(c.local, localT(c.local)), R = sideInfo(c.remote, remoteT(c.remote));
+    const opt = (k, ico, name, i) => `<button class="sync-opt" data-sync="${k}"><span class="sync-opt-h">${ico} ${name}</span><b>${escH(i.head)}</b><small>${escH(i.sub)}</small><small>Stand: ${escH(i.at)}</small></button>`;
+    return `<div class="fpop-card sync-pop" role="dialog" aria-labelledby="fpop-t">
+      <span class="fpop-kicker">Spielstand</span>
+      <h3 id="fpop-t">Zwei Stände, ein Pirat</h3>
+      <p class="hint">Hier und in der Cloud liegt verschiedener Fortschritt. Welcher gilt ab jetzt?</p>
+      <div class="sync-pick">${opt('keep-local', '📱', 'Dieses Gerät', L)}${opt('take-cloud', '☁', 'Cloud', R)}</div>
+      <p class="sync-fine">Gleicher Pirat? Dann kommt die Beute aus dem anderen Stand mit. Der alte Stand bleibt auf diesem Gerät gesichert.</p>
+    </div>`;
+  }
+  function askConflict(local, remote, key) {
+    state.hold = true;
+    state.conflict = { local, remote, key };
+    setSync('ask');
+    const show = () => {
+      if (!state.conflict) return;
+      if (document.getElementById('fpop') || (GL.story && GL.story.active && GL.story.active())) { setTimeout(show, 1500); return; }
+      openPop(conflictHtml());
+    };
+    setTimeout(show, 600);
+  }
+  function resolve(choice) {
+    const c = state.conflict; if (!c) return;
+    closeOwnPop();
+    if (choice === 'take-cloud') { setBase(c.key, c.remote); takeRemote(c.remote, true); return; }
+    // Dieses Gerät gilt: gleicher Pirat → Beute aus der Cloud dazu, dann neu laden und hochladen
+    let p = c.local;
+    try { if (c.remote && !c.remote.wiped && c.remote.nickname && c.remote.nickname === p.nickname) p = GL.meta.mergeProfiles(p, c.remote); } catch (e) { p = c.local; }
+    p.savedAt = Date.now();
+    try { localStorage.setItem('grandline.profile', JSON.stringify(p)); sessionStorage.setItem('gl.pulled', '1'); } catch (e) { /* egal */ }
+    location.reload();
+  }
+
+  // ---------- Kleines Konto-Fenster (Sync-Symbol antippen) ----------
+  function badge() {
+    if (sandboxed()) return '';
+    const cfg = (GL.config && GL.config.online) || {};
+    if (!cfg.url) return '';
+    const s = state.sync || 'off';
+    const map = {
+      ok: ['☁', 's-ok', 'Spielstand ist in der Cloud gesichert'],
+      wait: ['⏳', 's-wait', 'Spielstand wird gesichert …'],
+      ask: ['⚠', 's-warn', 'Zwei Spielstände: bitte einmal auswählen'],
+      err: ['⚠', 's-warn', 'Gerade nicht gesichert (offline?)'],
+      off: ['⚠', 's-warn', 'Offline: Spielstand liegt nur auf diesem Gerät']
+    };
+    const [ico, cls, tip] = map[s] || map.off;
+    return `<button class="mu-btn sync-badge ${cls}" data-sync="open" aria-label="Konto und Cloud-Spielstand: ${tip}" title="${tip}">${ico}</button>`;
+  }
+  function accountHtml() {
+    const s = state.sync || 'off';
+    const cfg = (GL.config && GL.config.online) || {};
+    const head = s === 'ok' ? '☁ Alles gesichert' : s === 'wait' ? '⏳ Wird gesichert …' : '⚠ Gerade nicht gesichert';
+    const line = s === 'ok' ? `Dein Spielstand liegt in der Cloud. Stand: ${escH(when(state.syncAt))}.`
+      : s === 'wait' ? 'Einen Moment, der Stand geht gerade raus.'
+      : 'Kein Netz oder Server nicht erreichbar. Dein Stand liegt sicher auf diesem Gerät und wandert hoch, sobald es wieder geht.';
+    const mailed = !state.anon && state.email;
+    const streamer = GL.streamer && GL.streamer.on();
+    const mailShow = m => streamer ? '•••@•••' : escH(m);
+    let acct;
+    if (state.backend !== 'supabase') acct = '<p class="hint">Konten gehen nur auf der Website.</p>';
+    else if (mailed) acct = `<div class="sync-sec ok"><b>✓ Konto gesichert</b><small>${mailShow(state.email)}. Auf jedem Gerät mit dieser Mail anmelden, dein Spielstand ist dann einfach da.</small></div>`;
+    else if (state.mailSent && state.mailKind === 'link') acct = `<div class="sync-sec"><b>✉ Mail ist raus</b><small>An ${mailShow(state.mailSent)}. ${cfg.mailCode ? 'Code aus der Mail eintippen:' : 'Den Link in der Mail antippen, fertig. Am besten in diesem Browser.'}</small>
+        ${cfg.mailCode ? `<div class="sync-row"><input id="sync-otp" class="code-input" inputmode="numeric" autocomplete="one-time-code" maxlength="8" placeholder="123456" aria-label="Code aus der Mail"><button class="btn mini" data-sync="otp">OK</button></div>` : ''}
+        <button class="link" data-sync="mail-again">Andere Adresse</button></div>`;
+    else acct = `<div class="sync-sec"><b>Konto sichern</b><small>Gerade spielst du als Gast. Mit deiner Mail kommst du auf jedem Gerät an denselben Piraten. Kein Passwort.</small>
+        <div class="sync-row"><input id="sync-mail" type="${streamer ? 'password' : 'email'}" inputmode="email" autocomplete="email" placeholder="deine@email.de" aria-label="E-Mail-Adresse"><button class="btn mini" data-sync="mail-link">Sichern</button></div></div>`;
+    const other = state.backend === 'supabase' ? `<details class="sync-sec sync-other"><summary><b>Auf anderem Gerät anmelden</b></summary>
+        <small>Spielercode vom anderen Gerät eingeben (steht dort im Profil unter 🔑):</small>
+        <div class="sync-row"><input id="sync-code" class="code-input" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="9" placeholder="ABC-123" aria-label="Spielercode"><button class="btn mini" data-sync="code">Laden</button></div>
+        <small>Oder <button class="link" data-act="login-open">mit Mail anmelden</button>.</small></details>` : '';
+    return `<div class="fpop-card sync-acc" role="dialog" aria-labelledby="fpop-t">
+      <span class="fpop-kicker">Konto</span>
+      <h3 id="fpop-t">${head}</h3>
+      <p class="hint">${line}</p>
+      ${s === 'err' || s === 'off' ? '<button class="btn mini ghost" data-sync="retry">Nochmal versuchen</button>' : ''}
+      ${acct}${other}
+      <p class="sync-msg" id="sync-msg" aria-live="polite"></p>
+    </div>`;
+  }
+  let ownPop = null;
+  function openPop(html) {
+    const old = document.getElementById('fpop'); if (old) old.remove();
+    const el = document.createElement('div');
+    el.id = 'fpop'; el.className = 'fpop'; el.dataset.id = 'gear';
+    el.innerHTML = html;
+    el.addEventListener('click', e => { if (e.target === el) closeOwnPop(); });
+    document.body.appendChild(el);
+    ownPop = el;
+    requestAnimationFrame(() => el.classList.add('in'));
+  }
+  function closeOwnPop() {
+    const el = document.getElementById('fpop');
+    if (el) { el.classList.remove('in'); el.classList.add('out'); setTimeout(() => el.remove(), 260); }
+    ownPop = null;
+  }
+  function msg(t) { const m = document.getElementById('sync-msg'); if (m) m.textContent = t; }
+  function openAccount() { if (state.conflict) openPop(conflictHtml()); else openPop(accountHtml()); }
+  function refreshAccount() { const c = document.querySelector('#fpop .sync-acc'); if (c) { const keep = document.activeElement && document.activeElement.id; openPop(accountHtml()); if (keep) { const i = document.getElementById(keep); if (i) i.focus(); } } }
+  document.addEventListener('click', e => {
+    const t = e.target.closest && e.target.closest('[data-sync]');
+    if (!t) { if (e.target.closest && e.target.closest('.sync-acc [data-act="login-open"]')) closeOwnPop(); return; }
+    const k = t.dataset.sync;
+    if (k === 'open') { openAccount(); return; }
+    if (k === 'keep-local' || k === 'take-cloud') { resolve(k); return; }
+    if (k === 'retry') { msg('Versuche es …'); resync(true).then(() => refreshAccount()); return; }
+    if (k === 'mail-again') { state.mailSent = ''; refreshAccount(); return; }
+    if (k === 'mail-link') {
+      const v = ((document.getElementById('sync-mail') || {}).value || '').trim();
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)) { msg('Das sieht nicht nach einer Mail-Adresse aus.'); return; }
+      t.disabled = true; msg('Schicke Mail …');
+      linkEmail(v).then(r => { if (r.ok) refreshAccount(); else { t.disabled = false; msg(r.msg); } });
+      return;
+    }
+    if (k === 'otp') {
+      const v = ((document.getElementById('sync-otp') || {}).value || '').replace(/\D/g, '');
+      if (v.length < 6) { msg('Der Code aus der Mail hat 6 Ziffern.'); return; }
+      t.disabled = true; msg('Prüfe …');
+      verifyCode(v).then(r => { if (r.ok) { msg('Gesichert. Lädt neu …'); try { sessionStorage.removeItem('gl.pulled'); } catch (e2) { /* egal */ } setTimeout(() => location.reload(), 600); } else { t.disabled = false; msg(r.msg); } });
+      return;
+    }
+    if (k === 'code') {
+      const v = (document.getElementById('sync-code') || {}).value || '';
+      if (!GL.code || !GL.code.valid(v)) { msg('Der Code hat 6 Zeichen, z. B. K7Q-F9X.'); return; }
+      t.disabled = true; msg('Suche Spielstand …');
+      codeLoad(v).then(res => {
+        if (!res.ok || !res.data) { t.disabled = false; msg(res.ok ? 'Zu diesem Code gibt es keinen Spielstand. Tippfehler?' : res.msg); return; }
+        const p = res.data;
+        delete p._runJ;
+        p.playerCode = GL.code.format(v); p.codeClaimed = true; p.savedAt = Date.now();
+        try { const cur = localStorage.getItem('grandline.profile'); if (cur) localStorage.setItem('grandline.profile.vorher', cur); } catch (e2) { /* egal */ }
+        GL.save.replaceProfile(p);
+        try { localStorage.removeItem('grandline.run'); sessionStorage.setItem('gl.pulled', '1'); } catch (e2) { /* egal */ }
+        msg('Willkommen zurück, ' + (p.nickname || 'Pirat') + '. Lädt neu …');
+        setTimeout(() => location.reload(), 700);
+      }, err => { t.disabled = false; msg(String((err && err.message) || err)); });
+    }
+  });
+  // Live: Symbol im offenen Konto-Fenster mitziehen
+  listeners.push(() => { if (document.querySelector('#fpop .sync-acc') && !(document.activeElement && /^sync-/.test(document.activeElement.id || ''))) refreshAccount(); });
   // Ranglisten-Eintrag frisch halten: Rang, Stammcrew, Liga-Wertung, Vitrine … nicht erst am Ende eines Runs
   let liveTimer = null, liveSig = '';
   function pushLive(profile) {
@@ -236,6 +483,7 @@ window.GL = window.GL || {};
       const { error } = await client.rpc('code_save', { p_code: GL.code.key(profile.playerCode), p_name: profile.nickname || null, p_data: profile });
       if (error) { state.codeReady = false; state.codeError = codeMsg(error); emit(); return; }
       state.codeReady = true;
+      setBase('c:' + GL.code.key(profile.playerCode), profile);
     } catch (e) { /* später erneut */ }
   }
   async function codeLoad(code) {
@@ -247,18 +495,27 @@ window.GL = window.GL || {};
     return { ok: true, data: data && typeof data === 'object' && !Array.isArray(data) ? safeData(data, 0, true) : null };
   }
   // Beim Start: Code reservieren bzw. neueren Stand von einem anderen Gerät übernehmen
+  // Gleiche Regeln wie beim Cloud-Spielstand: nie blind überschreiben, im echten Zweifel einmal fragen.
   async function codeSync() {
-    if (GL.sandbox && GL.sandbox.on()) return;
+    if (sandboxed() || state.hold || state.leaving) return;
     const local = profileRef;
     if (!local || !local.nickname) return;
     try {
       GL.code.ensure(local);
       if (!local.codeClaimed) return codeClaim(local);
       const res = await codeLoad(local.playerCode);
-      if (res.ok && res.data && (res.data.savedAt || 0) > (local.savedAt || 0) + 1000 && onRemote) onRemote(res.data);
-      else if (res.ok && !res.data) { local.codeClaimed = false; codeClaim(local); }
-      else if (res.ok) codeSave(local);
-      else { state.codeReady = false; state.codeError = res.msg; emit(); }
+      if (state.hold || state.leaving) return;
+      if (res.ok && !res.data) { local.codeClaimed = false; codeClaim(local); return; }
+      if (!res.ok) { state.codeReady = false; state.codeError = res.msg; emit(); return; }
+      const remote = res.data;
+      delete remote._runJ;   // der Code-Speicher trägt keinen laufenden Run
+      const key = 'c:' + GL.code.key(local.playerCode);
+      let how = GL.cloudSync.decide(local, remote, { base: getBase(key), localT: localT(local), remoteT: remoteT(remote) });
+      if (pulledFlag() && (how === 'pull' || how === 'ask')) how = 'push';
+      if (how === 'pull') { setBase(key, remote); takeRemote(remote, false); }
+      else if (how === 'ask') askConflict(local, remote, key);
+      else if (how === 'push') codeSave(local);
+      else setBase(key, local);
     } catch (e) { /* egal */ }
   }
 
@@ -280,6 +537,9 @@ window.GL = window.GL || {};
   }
   // Abmelden: Sitzung beenden, dieses Gerät startet danach frisch (Fortschritt bleibt online im Konto)
   async function logout() {
+    // Vorher den letzten Stand sichern (sonst wäre Fortschritt seit dem letzten Upload weg)
+    if (dirty) { try { await pushNow(); } catch (e) { /* egal */ } }
+    state.leaving = true; state.pulled = false;
     clearTimeout(pushTimer);
     try { if (client) await client.auth.signOut(); } catch (e) { /* egal */ }
   }
@@ -326,13 +586,15 @@ window.GL = window.GL || {};
     profileRef = profile;
     const cfg = (GL.config && GL.config.online) || {};
     const c = window.claude;
+    state.sync = cfg.url && !sandboxed() ? 'wait' : 'off';
     try {
       if (cfg.url && cfg.key && window.supabase) { state.status = 'connecting'; emit(); await initSupabase(cfg); }
       else if (c && typeof c.use === 'function') { state.status = 'connecting'; emit(); await initClaude(c); }
-      else { state.status = 'local'; emit(); }
+      else { state.status = 'local'; if (state.sync === 'wait') state.sync = 'off'; emit(); }
     } catch (e) {
       state.status = 'unavailable';
       state.error = e && (e.code || e.message) ? String(e.code || e.message) : 'fehler';
+      if (state.sync !== 'ask') state.sync = 'off';
       emit();
     }
   }
@@ -562,6 +824,10 @@ window.GL = window.GL || {};
   async function wipe(full, keep) {
     if (GL.sandbox && GL.sandbox.on()) return;   // Zweitpirat: nur lokal löschen, nie den Hauptaccount
     clearTimeout(pushTimer);
+    // Danach nichts Altes mehr hochladen (auch nicht beim Neuladen über pagehide).
+    // Lädt die Seite nicht neu (Saison-Neustart), läuft der Abgleich nach ein paar Sekunden normal weiter.
+    state.leaving = true;
+    setTimeout(() => { if (!full) { state.leaving = false; if (dirty && profileRef) pushSave(profileRef); } }, 6000);
     if (state.backend === 'supabase' && client && state.uid) {
       const now = new Date().toISOString();
       try { await client.from('saves').upsert({ id: state.uid, data: { wiped: true, savedAt: Date.now() }, updated_at: now }); } catch (e) { /* egal */ }
@@ -586,12 +852,27 @@ window.GL = window.GL || {};
   }
 
   // Beim Zurückkehren in die App: neueren Stand von anderen Geräten holen
-  async function resync() {
-    if (!client || !state.uid || (GL.sandbox && GL.sandbox.on())) return;
-    try { await pullSave(); await codeSync(); if (store && store.refresh) await store.refresh(); } catch (e) { /* egal */ }
+  // Zuerst eigene ungesicherte Änderungen hochladen, dann schauen, ob ein anderes Gerät weiter ist.
+  async function resync(force) {
+    if (sandboxed() || state.hold) return;
+    const cfg = (GL.config && GL.config.online) || {};
+    // Start war offline: jetzt nochmal komplett verbinden
+    if (!client && cfg.url && cfg.key && window.supabase && profileRef) { await init(profileRef); return; }
+    if (!client) return;
+    try {
+      if (!state.uid) { await signIn(); if (!store) { await init(profileRef); return; } }
+      if (state.pulled && dirty) await pushNow();
+      if (!state.pulled || !dirty || force) await pullSave();
+      await codeSync();
+      if (store && store.refresh) await store.refresh();
+      if (state.status === 'unavailable') { state.status = 'ready'; emit(); }
+    } catch (e) { if (state.sync !== 'ask') setSync(state.cloud ? 'err' : 'off'); }
   }
   const refresh = () => (store && store.refresh ? store.refresh().catch(() => {}) : Promise.resolve());
   const pushRun = () => { if (profileRef && profileRef.nickname) pushSave(profileRef); };
+  // Wieder online: offene Änderungen nachschieben
+  window.addEventListener('online', () => { setTimeout(() => resync(), 1500); });
   GL.online = { flushSave, pushRun, pinboard, refresh, init, submit, rename, register, pushSave, resync, duelReport, duelInbox, bottleSend, bottleInbox, friendSend, friendInbox, sendFeedback, linkEmail, loginEmail, verifyCode, logout, wipe, liveFields, codeLoad, codeSave, codeClaim,
+    badge, openAccount,
     onRemoteProfile(fn) { onRemote = fn; }, state: () => state, onChange(fn) { listeners.push(fn); } };
 })();
