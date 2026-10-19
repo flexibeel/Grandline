@@ -35,6 +35,7 @@ window.GL = window.GL || {};
       const fresh = GL.meta.newProfile();
       Object.keys(fresh).forEach(k => { if (p[k] === undefined) p[k] = fresh[k]; });
       Object.keys(fresh.stats).forEach(k => { if (p.stats[k] === undefined) p.stats[k] = fresh.stats[k]; });
+      if (GL.mastery) GL.mastery.sync(p);
       return p;
     },
 
@@ -282,6 +283,7 @@ window.GL = window.GL || {};
         // Vertrautheit: bond_<id> je Figur und wie viele Figuren mindestens Vertraut 6 sind
         ...Object.fromEntries(Object.keys(profile.squadXp || {}).map(id => ['bond_' + id, GL.meta.squadBonus(profile.squadXp[id])])),
         bondFriends: Object.values(profile.squadXp || {}).filter(x => GL.meta.squadBonus(x) >= 6).length,
+        masters: GL.mastery ? GL.mastery.count(profile)[4] : 0,
         // Marken-Laden (Dungeon-Liga): gekaufte Optik schaltet frei
         ...Object.fromEntries((Array.isArray(profile.dlOwned) ? profile.dlOwned : []).map(id => ['dl_' + id, 1]))
       };
@@ -296,7 +298,7 @@ window.GL = window.GL || {};
     reqText(item) {
       const L = { rank: 'Rang', runs: 'Runs', wins: 'Siege', kos: 'K.o.s', maxHit: 'Schaden mit einem Schlag', bosses: 'Inselbosse besiegt',
         hunted: 'Kopfgeld-Ziele besiegt', raids: 'Raids gewonnen', artifacts: 'Artefakte gefunden', reached: 'Meer erreicht',
-        islands: 'verschiedene Inseln besucht', heat: 'Kopfgeld-Stufe', duels: 'Stammcrew-Duelle gewonnen', quests: 'Aufträge erledigt', prestige: 'Prestige-Stufe', invites: 'Freund eingeladen', veteran: '', launch: '' };
+        islands: 'verschiedene Inseln besucht', heat: 'Kopfgeld-Stufe', duels: 'Stammcrew-Duelle gewonnen', quests: 'Aufträge erledigt', prestige: 'Prestige-Stufe', invites: 'Freund eingeladen', veteran: '', launch: '', masters: 'Meister-Figuren' };
       const bondName = id => { const d = id === 'self' ? null : GL.data.crew.find(c => c.id === id); return d ? d.name : id; };
       return Object.keys(item.req || {}).map(k => k.startsWith('bond_') ? `Vertraut ${item.req[k]} mit ${bondName(k.slice(5))}` : k === 'bondFriends' ? `${item.req[k]} Figuren mit Vertraut 6` : k === 'heat' ? `Kopfgeld-Stufe ${item.req.heat}` : k === 'rank' ? `Rang ${item.req.rank}` : k === 'veteran' ? 'Vor dem großen Neustart gesegelt' : k === 'launch' ? 'Am Startabend (18./19.10.) gesegelt' : k.startsWith('dl_') ? 'Im Marken-Laden (Landgang)' : k === 'reached' ? `${GL.data.islands[item.req.reached].name} erreichen` : `${item.req[k]} ${L[k]}`).join(', ') || 'frei';
     },
@@ -874,7 +876,13 @@ window.GL = window.GL || {};
         profile.heatMax++;
         profile.heat = profile.heatMax;
         profile.lastHeatUnlock = profile.heatMax;
+        // Leiter-Belohnung: Berry sofort (Optik schaltet über req.heat frei)
+        const rw = GL.data.heatReward ? GL.data.heatReward(profile.heatMax) : null;
+        if (rw && rw.berry) profile.berry = (profile.berry || 0) + rw.berry;
+        profile.lastHeatReward = rw ? rw.berry || 0 : 0;
       }
+      // Figuren-Meisterschaft: alle Figuren dieses Runs sammeln Erfahrung
+      profile.lastMastery = GL.mastery ? GL.mastery.gain(profile, run) : [];
       // Ausrüstung aus dem Run kommt in die Truhe (mitgenommene kehren zurück)
       GL.meta.storeItems(profile, run);
       // Raid-Beute in die Vitrine

@@ -65,7 +65,13 @@ GL.data.cosmetics = {
     { id: 'glutkette',  name: 'Glühende Ankerkette', req: { kos: 3000 }, rare: true },
     { id: 'sturmband',  name: 'Sturmband',         req: { raids: 10 }, rare: true },
     { id: 'kompass',    name: 'Kompassrahmen',     req: { 'dl_fr-kompass': 1 }, rare: true },
-    { id: 'gewoelbe',   name: 'Gewölberahmen',     req: { 'dl_fr-dungeon': 1 }, rare: true }
+    { id: 'gewoelbe',   name: 'Gewölberahmen',     req: { 'dl_fr-dungeon': 1 }, rare: true },
+    // Kopfgeld-Leiter
+    { id: 'kupfer',     name: 'Kupferbeschlag',    req: { heat: 7 } },
+    { id: 'kopfgeldglut', name: 'Glühender Steckbrief', req: { heat: 10 }, rare: true },
+    { id: 'klinge',     name: 'Klingenrand',       req: { heat: 14 } },
+    { id: 'sturmglas',  name: 'Sturmglas',         req: { heat: 17 }, rare: true },
+    { id: 'weltende',   name: 'Ende der Welt',     req: { heat: 20 }, rare: true }
   ],
   animations: [
     { id: 'ruhig',      name: 'Ruhig',             req: {} },
@@ -128,6 +134,19 @@ GL.data.cosmetics = {
     { id: 'krakenbaendiger', name: 'Krakenbändiger', req: { bosses: 25 } },
     { id: 'laternenhueter', name: 'Hüter der Hafenlaterne', req: { runs: 100 } },
     { id: 'schwarzeflagge', name: 'Schrecken unter schwarzer Flagge', req: { wins: 25 } },
+    { id: 'gesucht',    name: 'Gesucht',           req: { heat: 1 } },
+    { id: 'lehrmeister', name: 'Lehrmeister',      req: { masters: 1 } },
+    { id: 'fuenfmeister', name: 'Meister von Fünf', req: { masters: 5 } },
+    { id: 'grossmeister', name: 'Großmeister der Bande', req: { masters: 15 }, rare: true },
+    { id: 'seebaer',    name: 'Seebär',            req: { heat: 6 } },
+    { id: 'yonkoanw',   name: 'Yonko-Anwärter',    req: { heat: 8 } },
+    { id: 'zehnsprossen', name: 'Schrecken der zehnten Sprosse', req: { heat: 10 }, rare: true },
+    { id: 'hafengebuehr', name: 'Zahlt keine Hafengebühr', req: { heat: 11 } },
+    { id: 'geizhals',   name: 'Geizhals der Grand Line', req: { heat: 13 } },
+    { id: 'kaiserjaeger', name: 'Kaiserjäger',     req: { heat: 15 }, rare: true },
+    { id: 'wuestenlaeufer', name: 'Wüstenläufer',  req: { heat: 16 } },
+    { id: 'sturmreiter', name: 'Sturmreiter',      req: { heat: 19 } },
+    { id: 'weltende',   name: 'Am Ende der Welt gewesen', req: { heat: 20 }, rare: true },
     // Vertrautheit: Titel für eine enge Freundschaft mit einer Figur
     { id: 'b-ruffy',   name: 'Ruffys Fleischpartner', req: { bond_ruffy: 10 } },
     { id: 'b-zorro',   name: 'Zorros Wegweiser',      req: { bond_zorro: 10 } },
@@ -159,7 +178,12 @@ GL.data.cosmetics = {
     { id: 'erstefahrt', name: 'Erste Fahrt',       req: { launch: 1 }, rare: true },
     { id: 'strohhut',   name: 'Strohhut-Totenkopf', req: { wins: 3 } },
     { id: 'kraken',     name: 'Kraken',            req: { runs: 60 } },
-    { id: 'schnurrbart', name: 'Weißer Schnurrbart', req: { bosses: 20 } }
+    { id: 'schnurrbart', name: 'Weißer Schnurrbart', req: { bosses: 20 } },
+    { id: 'leiter',     name: 'Strickleiter',      req: { heat: 5 } },
+    { id: 'zaeh',       name: 'Zähes Herz',        req: { heat: 9 } },
+    { id: 'kette',      name: 'Ankerkette',        req: { heat: 12 } },
+    { id: 'kaiser',     name: 'Vier Kronen',       req: { heat: 15 }, rare: true },
+    { id: 'schwarzesonne', name: 'Schwarze Sonne', req: { heat: 20 }, rare: true }
   ]
 };
 
@@ -214,6 +238,11 @@ GL.data.charLocks = {
     faust:     { cloth: '#5a3c26', rows: ['.............', '.............', '...WWWWWWW...', '..WW.W.W.WW..', '..WWWWWWWWW..', '..WWWWWWWWW..', '..WW.WWWWWW..', '...WWWWWWW...', '....WWWWW....', '....WWWWW....', '.............'] },
     freunde:   { cloth: '#b04470', rows: ['.............', '..YYY...YYY..', '.YYYYY.YYYYY.', '.YYYYYYYYYYY.', '.YYYYYYYYYYY.', '..YYYYYYYYY..', '...YYYYYYY...', '....YYYYY....', '.....YYY.....', '......Y......', '.............'] },
     erstefahrt: { cloth: '#1f3f6e', rows: ['......Y......', '.....YYY.....', '..Y..YYY..Y..', '......Y......', '...YYYYYYY...', '...Y..W..Y...', '.....WWW.....', '....WWWWW....', '..DDDDDDDDD..', '.W.W.W.W.W.W.', 'W.W.W.W.W.W.W'] },
+    leiter:    { cloth: '#5a3c26', rows: ['.............', '...D.....D...', '...DDDDDDD...', '...D.....D...', '...D.....D...', '...DDDDDDD...', '...D.....D...', '...D.....D...', '...DDDDDDD...', '...D.....D...', '.............'] },
+    zaeh:      { cloth: '#2a1a24', rows: ['.............', '..RRR...RRR..', '.RRRRR.RRRRR.', '.RRRRRWRRRRR.', '.RRRRWWWRRRR.', '..RRRRWRRRR..', '...RRRRRRR...', '....RRRRR....', '.....RRR.....', '......R......', '.............'] },
+    kette:     { cloth: '#2c3440', rows: ['.............', '..SSS........', '..S.S........', '..SSSSS......', '....S.S......', '....SSSSS....', '......S.S....', '......SSSSS..', '........S.S..', '........SSS..', '.............'] },
+    kaiser:    { cloth: '#3a1f12', rows: ['.............', '.G.G.G..G.G.G', '.GGGGG..GGGGG', '.GGGGG..GGGGG', '.............', '.............', '.G.G.G..G.G.G', '.GGGGG..GGGGG', '.GGGGG..GGGGG', '.............', '.............'] },
+    schwarzesonne: { cloth: '#7a2620', rows: ['......Y......', '..Y...Y...Y..', '...Y.....Y...', '.....WWW.....', '.Y..WSSSW..Y.', 'YY..WSSSW..YY', '.Y..WSSSW..Y.', '.....WWW.....', '...Y.....Y...', '..Y...Y...Y..', '......Y......'] },
     kraken:    { cloth: '#1d2a4a', rows: ['.............', '....PPPPP....', '...PPPPPPP...', '...PWPPPWP...', '...PPPPPPP...', '..P.P.P.P.P..', '.P..P.P.P..P.', '.P.P..P..P.P.', '..P...P...P..', '......P......', '.............'] }
   };
   const fcache = {};

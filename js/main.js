@@ -1326,6 +1326,7 @@
         // Im Run: eine ruhige Kajüte statt Aufklapp-Liste. Alles bleibt offen, bis man sich entschieden hat.
         if (run && document.body.classList.contains('in-run')) { openGearPop(runMenuHtml()); break; }
         const hd = document.querySelector('header'); const on = hd.classList.toggle('menu-open'); el.setAttribute('aria-expanded', on ? 'true' : 'false'); break; }
+      case 'heat-ladder': openGearPop(GL.ui.heatLadder(profile)); break;
       case 'rm-peek': closePop(); ui.peek = true; draw(); break;
       case 'rm-quit': {
         // Zweimal tippen, aber im selben Fenster: erst fragen, dann wirklich aufgeben
