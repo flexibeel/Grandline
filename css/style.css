@@ -9597,8 +9597,9 @@ em.type.t-technik { background: #5b86b3 !important; }
 .os-storm { all: unset; cursor: pointer; z-index: 4; position: absolute; transform: translate(-50%, -50%); width: 60px; height: 48px; display: grid; place-items: center; transition: left .7s ease-in-out, top .7s ease-in-out; }
 .os-storm svg { width: 58px; height: 40px; filter: drop-shadow(0 4px 0 rgba(20,30,40,.25)); animation: os-storm 2.2s ease-in-out infinite; animation-delay: var(--d, 0s); }
 @keyframes os-storm { 50% { transform: translateX(3px) translateY(-1px); } 52% { filter: brightness(1.35) drop-shadow(0 4px 0 rgba(20,30,40,.25)); } 56% { filter: drop-shadow(0 4px 0 rgba(20,30,40,.25)); } }
-.os-ghost { z-index: 2; position: absolute; transform: translate(-50%, -50%); width: 22px; pointer-events: none; opacity: .85; animation: os-blink 1.2s steps(2) infinite; }
-.os-ghost svg { width: 14px; height: 20px; display: block; margin: 0 auto; }
+.os-ghost { z-index: 2; position: absolute; transform: translate(-50%, -50%); width: 30px; height: 30px; display: grid; place-items: center; pointer-events: none;
+  border-radius: 8px; border: 2px dashed #ffe28a; background: rgba(43,29,20,.28); animation: os-blink 1.2s steps(2) infinite; }
+.os-ghost svg { width: 12px; height: 17px; display: block; }
 @keyframes os-blink { 50% { opacity: .35; } }
 /* Zielinsel */
 .os-dest { all: unset; box-sizing: border-box; cursor: pointer; position: absolute; right: 0; top: 0; bottom: 0; width: 17%; min-width: 64px; z-index: 3; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; transform: none !important; left: auto !important; }
@@ -9629,7 +9630,8 @@ em.type.t-technik { background: #5b86b3 !important; }
 /* Info-Leiste unten: Holzplakette, Daumen-Knöpfe */
 .os-panel { position: relative; display: flex; align-items: center; gap: 10px; min-height: 72px; padding: 10px 12px; background: var(--panel); border: 2px solid var(--line); border-radius: 12px; box-shadow: 0 3px 0 #dcc9a0; }
 .os-panel.sel { border-color: #d8b56e; padding-right: 44px; flex-wrap: wrap; }
-.os-panel .os-x { top: 6px; right: 6px; }
+.os .os-panel .pop-x.os-x { position: absolute; top: 6px; right: 6px; float: none; margin: 0; }
+.os-pi .os-coin, .os-pi .os-coin svg { width: 14px !important; height: 14px !important; }
 .os-pi { flex: none; width: 52px; height: 52px; border-radius: 10px; background: var(--panel-2); border: 2px solid var(--line); display: grid; place-items: center; position: relative; }
 .os-pi svg { width: 40px; height: 40px; } .os-pi .os-dest-art { width: 34px; height: auto; }
 .os-pi.k-pirates, .os-pi.k-monster { background: #fbe7dc; } .os-pi.k-wreck { background: #fff1cf; } .os-pi.k-merchant { background: #e6f4e2; }
@@ -9645,7 +9647,7 @@ em.type.t-technik { background: #5b86b3 !important; }
 .os-warn { display: inline-flex; align-items: center; gap: 3px; font: 700 .76rem 'Nunito', sans-serif; color: #9a2a22; }
 .os-bi { width: 8px; height: 11px; }
 .os-away { font-size: .76rem; color: var(--mute); }
-.os-go { flex: 1 0 100%; min-height: 48px; margin: 2px 0 0; font-size: 1rem; }
+.os-go { flex: 1 0 100%; width: 100%; max-width: none; min-height: 48px; margin: 2px 0 0; font-size: 1rem; justify-content: center; text-align: center; }
 .os-direct { flex: none; min-height: 48px; padding: 0 12px; margin: 0; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
 .os-dw { display: inline-flex; align-items: center; gap: 1px; font-style: normal; font-size: .8rem; color: #9a2a22; }
 .os-help-pop { text-align: left; } .os-help-pop h3 { margin: 2px 0 10px; text-align: center; } .os-help-pop .event-kicker { text-align: center; }
