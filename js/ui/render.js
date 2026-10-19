@@ -1690,19 +1690,20 @@ window.GL = window.GL || {};
           ${sb('spd', `+${P.spd} Tempo`)}
         </div>${rec ? `<p class="spend-why">${rec.why}</p>` : ''}</div>` : ''}
 
-      <div class="lbl">Kampfwerte mit allen Boni</div>
-      <div class="stats">
-        ${stat('Leben', `${u.hp} / ${u.max}`)}
-        ${stat('Angriff', unit.atk + diff(unit.atk, u.atk))}
-        ${stat('Tempo', unit.spd + diff(unit.spd, u.spd))}
-        ${unit.crit > 0 ? stat('Krit-Chance', pct(unit.crit)) : ''}
-        ${stat('Krit-Schaden', pct(unit.critMult))}
-        ${unit.armor > 0 ? stat('Rüstung', unit.armor) : ''}
-        ${unit.dodge > 0 ? stat('Ausweichen', pct(unit.dodge)) : ''}
-        ${unit.dmgPct > 0 ? stat('Schaden', '+' + pct(unit.dmgPct)) : ''}
-        ${unit.bossPct > 0 ? stat('Gegen Bosse', '+' + pct(unit.bossPct)) : ''}
-        ${unit.regen > 0 ? stat('Heilung pro Runde', unit.regen) : ''}
-      </div>
+      <div class="lbl">Kampfwerte mit allen Boni <small class="sx-hint">· antippen: woher?</small></div>
+      ${(X => { const sv = X.shown(unit), c = X.cell; /* STATS: antippbare Werte + Aufschlüsselung, Deckel wie im Kampf */ return `<div class="stats">
+        ${c('hp', 'Leben', `${u.hp} / ${u.max}`)}
+        ${c('atk', 'Angriff', unit.atk + diff(unit.atk, u.atk))}
+        ${c('spd', 'Tempo', unit.spd + diff(unit.spd, u.spd))}
+        ${c('crit', 'Krit-Chance', pct(sv.crit) + (sv.critOver > 0 ? ' <em class="sx-cap-tag">max</em>' : ''))}
+        ${c('critMult', 'Krit-Schaden', pct(sv.critMult))}
+        ${unit.armor > 0 ? c('armor', 'Rüstung', unit.armor) : ''}
+        ${unit.guard > 0 ? c('guard', 'Schutz', pct(unit.guard)) : ''}
+        ${unit.dodge > 0 ? c('dodge', 'Ausweichen', pct(sv.dodge) + (sv.dodgeOver ? ' <em class="sx-cap-tag">max</em>' : '')) : ''}
+        ${unit.dmgPct > 0 ? c('dmgPct', 'Schaden', '+' + pct(unit.dmgPct)) : ''}
+        ${unit.bossPct > 0 ? c('bossPct', 'Gegen Bosse', '+' + pct(unit.bossPct)) : ''}
+        ${unit.regen > 0 ? c('regen', 'Heilung pro Runde', unit.regen) : ''}
+      </div>${X.panel(run, i)}`; })(GL.statsUi)}
       ${sets.length ? `<div class="lbl">Aktive Boni für ${d.name}</div><ul class="sheet-sets">${sets.map(s =>
         `<li>${s.kind === 'faction' ? '<em class="set-tag">Set</em>' : ''}<b>${s.name} ${s.count}:</b> ${s.active.text}</li>`).join('')}</ul>` : ''}
       ${equipSection(run, i)}
@@ -5147,6 +5148,7 @@ window.GL = window.GL || {};
         <p class="kbd-only in-kbd"><kbd class="key inline">Leertaste</kbd> geht weiter, <kbd class="key inline">1</kbd>–<kbd class="key inline">9</kbd> wählt.</p>`
     }
   ];
+  if (GL.statsUi) INTRO.push({ get kicker() { return GL.statsUi.introCard(irow, badge).kicker; }, get title() { return GL.statsUi.introCard(irow, badge).title; }, get body() { return GL.statsUi.introCard(irow, badge).body; } });   // STATS: „Wie rechnen die Werte?“
 
   function intro(step) {
     const s = INTRO[step];

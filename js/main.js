@@ -2226,7 +2226,8 @@
       }
       case 'toggle-art': if (GL.meta.toggleArtifact(profile, el.dataset.id)) { saveProfile(); draw(); } break;
       case 'sheet': ui.sheet = i; draw(); break;
-      case 'sheet-close': ui.sheet = null; draw(); break;
+      case 'sheet-close': ui.sheet = null; if (GL.statsUi) GL.statsUi.close(); draw(); break;
+      case 'stat-why': if (GL.statsUi) { GL.statsUi.toggle(el.dataset.k); draw(); } break;   // STATS: Wert im Steckbrief aufschlüsseln
       case 'quest-claim': {
         const r = GL.meta.questClaim(profile, el.dataset.id);
         if (r) {
