@@ -33,8 +33,8 @@ GL.data.openSea = {
   txt: {
     kicker: ['Offene See', 'Open sea'],
     title: ['Kurs auf {d}', 'Heading for {d}'],
-    hint: ['Tippe ein Ziel auf der Karte. Symbole sind Funde, Wolken sind Ärger.', 'Tap a spot on the chart. Symbols are finds, clouds are trouble.'],
-    hint2: ['Weiter nach rechts, oder direkt zur Insel.', 'Keep heading right, or go straight to the island.'],
+    hint: ['Tippe aufs Wasser. Symbole sind Funde, Wolken sind Ärger.', 'Tap the water. Symbols are finds, clouds are trouble.'],
+    hint2: ['Weiter nach rechts. Oder gleich anlegen.', 'Keep heading right. Or land right away.'],
     go: ['Hinsegeln', 'Sail there'],
     direct: ['Direkt zur Insel', 'Straight to the island'],
     land: ['Anlegen', 'Make landfall'],

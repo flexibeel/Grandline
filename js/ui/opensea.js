@@ -155,7 +155,7 @@ window.GL = window.GL || {};
     next.forEach(x => { o += `<span class="os-ghost" style="${st(s, x.c, x.r)}" title="${esc(T('stormNext').replace('{p}', pct))}">${art('bolt')}</span>`; });
     // Zielinsel (rechts, über alle Reihen)
     const destReach = reach.some(p => p[0] >= s.cols - 1);
-    o += `<button class="os-dest${destReach ? ' can' : ''}" data-act="sea-tap" data-c="${s.cols - 1}" data-r="${s.ship[1]}" aria-label="${esc(s.dest)}">${destArt()}<b class="os-dest-name">${esc(s.dest)}</b></button>`;
+    o += `<button class="os-dest${destReach ? ' can' : ''}" data-act="sea-tap" data-c="${s.cols - 1}" data-r="${s.ship[1]}" aria-label="${esc(s.dest)}">${destArt()}<b class="os-dest-name" lang="${en() ? 'en' : 'de'}">${esc(s.dest)}</b></button>`;
     // Schiff
     const prev = s.path.length > 1 ? s.path[s.path.length - 2] : null;
     o += `<span class="os-ship" style="${st(s, s.ship[0], s.ship[1])}"${prev && !reduce ? ` data-from="${st(s, prev[0], prev[1])}"` : ''} aria-hidden="true"><i class="os-foam"></i>${GL.sprites.ship()}</span>`;
@@ -182,7 +182,7 @@ window.GL = window.GL || {};
         ${can ? `<button class="btn os-go" data-act="sea-go" data-c="${isDest ? s.cols - 1 : sel.c}" data-r="${isDest ? s.ship[1] : sel.r}">${esc(isDest ? T('land') : T('go'))}</button>` : ''}</div>`;
     } else {
       const dh = S.directHits(s);
-      panel = `<div class="os-panel"><span class="os-pt"><small class="os-hint">${esc(s.ship[0] === 0 ? T('hint') : T('hint2'))}</small><span class="os-pchips">${chips}</span></span>
+      panel = `<div class="os-panel" lang="${en() ? 'en' : 'de'}"><span class="os-pt"><small class="os-hint">${esc(s.ship[0] === 0 ? T('hint') : T('hint2'))}</small><span class="os-pchips">${chips}</span></span>
         <button class="btn ghost os-direct" data-act="sea-direct">${esc(destReach ? T('land') : T('direct'))}${dh ? `<i class="os-dw" title="${esc(T('stormRoute'))}">${art('bolt', 'os-bi')}${dh > 1 ? '×' + dh : ''}</i>` : ''}</button></div>`;
     }
     if (!reduce) requestAnimationFrame(mount);

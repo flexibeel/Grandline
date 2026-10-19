@@ -25,15 +25,17 @@ window.GL = window.GL || {};
     h = Math.imul(h ^ (h >>> 13), 3266489917) >>> 0;
     return ((h ^ (h >>> 16)) >>> 0);
   }
-  // Wird von genChart aufgerufen: macht in Reihe 1 einen gewöhnlichen Ort zur Offenen See
+  // Wird von genChart aufgerufen: macht in der ersten Reihe (immer alle wählbar) einen gewöhnlichen Ort zur Offenen See
   function place(run, rows) {
     if (!D() || run.daily) return;
     const k = (run.loop || 0) * 16 + Math.floor(run.step / GL.config.chapterSteps);
     const h = hash(run, 7000 + k);
     if ((h % 1000) / 1000 >= D().cfg.chance) return;
-    const row = rows[1];
-    if (!row) return;
-    const ok = row.map((n, i) => i).filter(i => ['battle', 'recruit', 'fruit', 'treasure'].includes(row[i].t));
+    const row = rows[0];
+    if (!row || rows.length < 3) return;
+    const battles = row.filter(n => n.t === 'battle').length;
+    // nie den einzigen Kampf der allerersten Etappe ersetzen
+    const ok = row.map((n, i) => i).filter(i => ['recruit', 'fruit', 'treasure'].includes(row[i].t) || (row[i].t === 'battle' && (run.step > 0 || battles > 1)));
     if (!ok.length) return;
     const i = ok[(h >>> 10) % ok.length];
     row[i].t = 'sea';

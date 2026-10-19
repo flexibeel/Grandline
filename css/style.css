@@ -9559,7 +9559,7 @@ em.type.t-technik { background: #5b86b3 !important; }
 .os-frame::before, .os-frame::after { content: ''; position: absolute; width: 6px; height: 6px; background: #e8c25a; box-shadow: 0 0 0 2px #5e3b1d; top: 3px; left: 3px; }
 .os-frame::after { left: auto; right: 3px; }
 .os-map { position: relative; width: 100%; aspect-ratio: 3 / 2; max-height: min(52vh, 430px); margin: 0 auto; overflow: hidden; border-radius: 4px; box-shadow: inset 0 0 0 2px #2b1d14; background: #4ea597; touch-action: manipulation; }
-@media (max-width: 560px) { .os-map { aspect-ratio: 4 / 5; max-height: 50vh; } }
+@media (max-width: 560px) { .os-map { aspect-ratio: 5 / 6; max-height: 46vh; } .os-head h2 { font-size: 1.05rem; } .os-frame { padding: 5px; } }
 .os-map.hit { animation: os-shake .45s ease-out; }
 @keyframes os-shake { 20% { transform: translateX(-4px); } 40% { transform: translateX(4px); } 60% { transform: translateX(-2px); } 80% { transform: translateX(2px); } }
 .os-sea { position: absolute; inset: 0; width: 100%; height: 100%; display: block; image-rendering: pixelated; }
@@ -9604,7 +9604,7 @@ em.type.t-technik { background: #5b86b3 !important; }
 /* Zielinsel */
 .os-dest { all: unset; box-sizing: border-box; cursor: pointer; position: absolute; right: 0; top: 0; bottom: 0; width: 17%; min-width: 64px; z-index: 3; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; transform: none !important; left: auto !important; }
 .os-dest-art { width: 100%; max-width: 76px; height: auto; filter: drop-shadow(0 3px 0 rgba(43,29,20,.35)); }
-.os-dest-name { font: 700 .66rem/1.1 'Nunito', sans-serif; text-align: center; color: #3a2a18; background: var(--os-cream); border: 2px solid #2b1d14; border-radius: 6px; padding: 2px 4px; max-width: 100%; overflow-wrap: anywhere; }
+.os-dest-name { position: relative; right: 6px; font: 700 .66rem/1.1 'Nunito', sans-serif; text-align: center; color: #3a2a18; background: var(--os-cream); border: 2px solid #2b1d14; border-radius: 6px; padding: 2px 5px; width: max-content; max-width: 96px; hyphens: auto; -webkit-hyphens: auto; overflow-wrap: normal; box-shadow: 0 2px 0 #2b1d14; }
 .os-dest.can .os-dest-art { animation: os-bob 1.6s ease-in-out infinite; }
 .os-dest.can .os-dest-name { box-shadow: 0 0 0 3px #ffe28a; }
 /* Schiff + Schaum */
@@ -9628,7 +9628,7 @@ em.type.t-technik { background: #5b86b3 !important; }
 .os-fish { width: 12px; top: 64%; left: 40%; animation: os-jump 7s ease-in-out infinite; } .os-fish svg { width: 12px; height: 7px; display: block; }
 @keyframes os-jump { 0%, 80%, 100% { opacity: 0; transform: translate(-50%, 0); } 86% { opacity: 1; transform: translate(-30%, -12px) rotate(-20deg); } 92% { opacity: 1; transform: translate(0, 0) rotate(30deg); } }
 /* Info-Leiste unten: Holzplakette, Daumen-Knöpfe */
-.os-panel { position: relative; display: flex; align-items: center; gap: 10px; min-height: 72px; padding: 10px 12px; background: var(--panel); border: 2px solid var(--line); border-radius: 12px; box-shadow: 0 3px 0 #dcc9a0; }
+.os-panel { position: relative; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; min-height: 64px; padding: 8px 12px; background: var(--panel); border: 2px solid var(--line); border-radius: 12px; box-shadow: 0 3px 0 #dcc9a0; }
 .os-panel.sel { border-color: #d8b56e; padding-right: 44px; flex-wrap: wrap; }
 .os .os-panel .pop-x.os-x { position: absolute; top: 6px; right: 6px; float: none; margin: 0; }
 .os-pi .os-coin, .os-pi .os-coin svg { width: 14px !important; height: 14px !important; }
@@ -9638,7 +9638,8 @@ em.type.t-technik { background: #5b86b3 !important; }
 .os-pt { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
 .os-pt > b { font: 700 .98rem/1.2 'Fredoka', 'Nunito', sans-serif; color: var(--ink); }
 .os-pt > small { font-size: .84rem; line-height: 1.35; color: var(--mute); }
-.os-hint { font-size: .86rem !important; color: var(--ink) !important; }
+.os-hint { font-size: .84rem !important; color: var(--ink) !important; }
+.os-panel:not(.sel) .os-pt { flex: 1 1 150px; }
 .os-pchips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
 .os-chip { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px 2px 4px; border-radius: 8px; background: var(--panel-2); border: 1px solid var(--line); font-size: .78rem; }
 .os-chip.bad { background: #f6dcd4; border-color: #e2a090; } .os-chip small { color: var(--mute); }
@@ -9648,7 +9649,7 @@ em.type.t-technik { background: #5b86b3 !important; }
 .os-bi { width: 8px; height: 11px; }
 .os-away { font-size: .76rem; color: var(--mute); }
 .os-go { flex: 1 0 100%; width: 100%; max-width: none; min-height: 48px; margin: 2px 0 0; font-size: 1rem; justify-content: center; text-align: center; }
-.os-direct { flex: none; min-height: 48px; padding: 0 12px; margin: 0; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+.os-direct { flex: 1 1 auto; justify-content: center; min-height: 48px; padding: 0 12px; margin: 0; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
 .os-dw { display: inline-flex; align-items: center; gap: 1px; font-style: normal; font-size: .8rem; color: #9a2a22; }
 .os-help-pop { text-align: left; } .os-help-pop h3 { margin: 2px 0 10px; text-align: center; } .os-help-pop .event-kicker { text-align: center; }
 .os-hl { list-style: none; margin: 0 0 14px; padding: 0; display: grid; gap: 10px; }
