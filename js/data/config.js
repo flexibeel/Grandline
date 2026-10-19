@@ -126,7 +126,7 @@ GL.config = {
   //   critMult = Krit-Faktor der Gegner (Crew behält critMult oben); nicht in Duellen/PvP
   //   capHeat = pro Kopfgeld-Stufe wird der Deckel um so viel lockerer (Stufe 20: +40 %, also Deckel 100 %)
   //   atk    = Ausgleich auf den Angriff normaler Gegner je Meer, damit die Kappung die Gesamt-Schwierigkeit nicht senkt
-  foeHit: { cap: 0.6, capBig: 0.8, capHeat: 0.02, critMult: 1.75, atk: [1.12, 1.2, 1.3] },
+  foeHit: { cap: 0.6, capBig: 0.8, capHeat: 0.02, critMult: 1.75, atk: [1.16, 1.22, 1.3] },
   // Kampfwetter (nur normale Kämpfe und Kopfgeldjäger): so oft kommt eins, und was es tut
   // Bosskampf: länger je Meer, Boss weicht manchmal aus und kontert
   // FIGHT: Bosse waren Pappkameraden (99 % Siege in 1,7 Runden). Jetzt mehr Leben und Biss, dazu Signatur-Angriffe.

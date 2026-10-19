@@ -15,7 +15,7 @@ GL.data.heat = [
   { lvl: 2,  icon: '👑', name: 'Wütende Bosse',        text: 'Bosse haben 25 % mehr Angriff.',             mod: { bossAtk: 0.25 } },
   { lvl: 3,  icon: '🍞', name: 'Knappe Vorräte',       text: 'Heilung nach Siegen halbiert.',              mod: { winHeal: -0.5 } },
   { lvl: 4,  icon: '⚔', name: 'Harte Kämpfer',        text: 'Gegner haben 15 % mehr Angriff.',            mod: { enemyAtk: 0.15 } },
-  { lvl: 5,  icon: '🎯', name: 'Profi-Jäger',          text: 'Kopfgeldjäger sind stärker, Gegner +5 % Leben.', mod: { eliteMult: 0.15, enemyHp: 0.05 } },   // GEGNER-WERTE: war 0.25 / 0.1 (Klippe von Stufe 4 auf 5)
+  { lvl: 5,  icon: '🎯', name: 'Profi-Jäger',          text: 'Kopfgeldjäger sind deutlich stärker, Gegner +5 % Leben.', mod: { eliteMult: 0.2, enemyHp: 0.05 } },   // GEGNER-WERTE: war 0.25 / 0.1 (Klippe von Stufe 4 auf 5)
   { lvl: 6,  icon: '🌊', name: 'Unruhige See',         text: 'Rast an Land heilt nur halb so viel.',       mod: { restHeal: -0.5 } },
   { lvl: 7,  icon: '🛡', name: 'Gestählte Bosse',      text: 'Bosse haben 25 % mehr Leben.',               mod: { bossHp: 0.25 } },
   { lvl: 8,  icon: '💨', name: 'Yonko-Kopfgeld',       text: 'Bosse haben einen Begleiter mehr, Gegner +1 Tempo.', mod: { bossEscort: 1, enemySpd: 1 } },
@@ -25,7 +25,7 @@ GL.data.heat = [
   { lvl: 12, icon: '⛓', name: 'Gepanzerte Marine',    text: 'Gegner haben 1 Rüstung.',                    mod: { enemyArmor: 1 } },
   { lvl: 13, icon: '🪙', name: 'Mageres Kopfgeld',     text: 'Siege bringen 20 % weniger Gold.',           mod: { goldMult: -0.2 } },
   { lvl: 14, icon: '🗡', name: 'Scharfe Klingen',      text: 'Gegner treffen öfter kritisch.',             mod: { enemyCrit: 0.08 } },
-  { lvl: 15, icon: '🏴', name: 'Kaiserliches Gefolge', text: 'Bosse: ein Begleiter mehr und 20 % mehr Leben, Kopfgeldjäger etwas stärker.', mod: { bossEscort: 1, bossHp: 0.2, eliteMult: 0.1 } },   // GEGNER-WERTE: Rest von Stufe 5
+  { lvl: 15, icon: '🏴', name: 'Kaiserliches Gefolge', text: 'Bosse: ein Begleiter mehr und 20 % mehr Leben, Kopfgeldjäger etwas stärker.', mod: { bossEscort: 1, bossHp: 0.2, eliteMult: 0.05 } },   // GEGNER-WERTE: Rest von Stufe 5
   { lvl: 16, icon: '🏜', name: 'Ausgedörrt',           text: 'Heilung nach Siegen noch einmal geringer.',  mod: { winHeal: -0.25 } },
   { lvl: 17, icon: '⚡', name: 'Flinke Gegner',        text: 'Gegner +1 Tempo.',                           mod: { enemySpd: 1 } },
   { lvl: 18, icon: '🔩', name: 'Stählerne Haut',       text: 'Gegner +1 Rüstung, +5 % Angriff und heilen sich mehr.',     mod: { enemyArmor: 1, enemyRegen: 0.02, enemyAtk: 0.05 } },
