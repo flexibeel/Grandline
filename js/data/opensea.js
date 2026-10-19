@@ -9,7 +9,7 @@ GL.data = GL.data || {};
 
 GL.data.openSea = {
   cfg: {
-    chance: 0.75,        // Anteil der Insel-Kapitel mit einer Offenen See
+    chance: 0,           // Anteil der Insel-Kapitel mit einer Offenen See
     finds: 3,            // Funde pro Strecke
     storms: 2,           // Sturmwolken pro Strecke
     stormHurt: 0.15,     // Leben, das ein Sturm der ganzen Crew nimmt (nie unter 1)

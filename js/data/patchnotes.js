@@ -1,6 +1,9 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-21g', date: '19.10.', title: 'Offene See macht Pause', items: [
+    '⛵ Die Offene See taucht vorerst nicht mehr als Routen-Wahl auf. Sie war im Grunde dieselbe Strecke, nur mit mehr Wasser drumherum. Laufende Seefahrten segeln ganz normal zu Ende',
+    '🗺 Die Seekarte kommt wieder, und zwar dort, wo sie hingehört: als Weg in die Landgänge' ] },
   { v: '2026-10-21f', date: '19.10.', title: 'Woher die Zahlen kommen', items: [
     '🔍 Werte im Steckbrief antippen: Jetzt steht da, woher jede Zahl kommt. Auch die peinlichen',
     '⛔ Krit-Chance hört bei 85 % auf. Was drüber liegt, wird Krit-Schaden. Verschenkt wird nichts mehr',
