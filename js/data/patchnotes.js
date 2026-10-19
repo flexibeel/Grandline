@@ -1,6 +1,10 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-20s', date: '19.10.', title: 'Ruhiger Einstieg, Freunde an Bord', items: [
+    '🧭 Neu an Bord? Der Hafen fängt jetzt klein an: Leinen los, Nächstes Ziel, Aufträge, Kapitän. Weitere Räume und Modi kommen nach und nach mit deinen ersten Fahrten dazu. Wer schon alles kennt, behält alles',
+    'Im ersten Run erklärt Nami in drei kurzen Sätzen das Nötigste: das Ziel, wie gekämpft wird und wozu Schätze gut sind. Mehr nicht. Sie hat auch noch anderes zu tun',
+    '🟢 Freunde an Bord: Spielt gerade jemand aus deiner Freundesliste, steht das im Hafen. Antippen zeigt seine Karte' ] },
   { v: '2026-10-20r', date: '19.10.', title: 'Hotfix: Leiste bleibt unten (iPhone)', items: [
     'iOS 26 hat einen Fehler, der feste Leisten unten verrutschen lässt, teils bis in die Bildschirmmitte. Auf dem iPhone heftet das Spiel die Leiste jetzt selbst an den sichtbaren unteren Rand' ] },
   { v: '2026-10-20q', date: '19.10.', title: 'Live-Seekarte, Duell-Kommandos, spürbare Stile', items: [

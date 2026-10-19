@@ -4,43 +4,44 @@
 //   tab   = HQ-Reiter, den die Freischaltung öffnet
 //   art   = kleines Bild im Pop-up (siehe featureArt in render.js)
 //   steps = zwei, drei kurze Sätze „So geht's“
+//   runs  = Neulings-Modus: erst nach so vielen abgeschlossenen Runs (bereits gesehene Freischaltungen bleiben immer offen)
 window.GL = window.GL || {};
 GL.data = GL.data || {};
 
 GL.data.features = [
-  { id: 'gemeinschaft', lvl: 1, tab: 'gemeinschaft', req: p => !!(GL.meta && GL.meta.squadUnlocked && GL.meta.squadUnlocked(p)), name: 'Gemeinschafts-Fahrt', art: 'trident', text: 'Deine Stammcrew und bis zu drei Crews deiner Segelkumpane gegen den Welt-Boss der Woche. Wer mehr Schaden macht, darf angeben.',
+  { id: 'gemeinschaft', runs: 4, lvl: 1, tab: 'gemeinschaft', req: p => !!(GL.meta && GL.meta.squadUnlocked && GL.meta.squadUnlocked(p)), name: 'Gemeinschafts-Fahrt', art: 'trident', text: 'Deine Stammcrew und bis zu drei Crews deiner Segelkumpane gegen den Welt-Boss der Woche. Wer mehr Schaden macht, darf angeben.',
     steps: ['Im Hafen unter „Gemeinschaft“', 'Bis zu 3 Kumpane oder Gast-Crews dazuholen', 'Drei Versuche am Tag, Beute beim ersten'] },
-  { id: 'gemuet',    lvl: 2, tab: 'gemuet', req: () => !GL.season || GL.season.started(), name: 'Gemütlichkeit', art: 'flag', text: 'Ein kleiner Skilltree für deine ganze Crew. Punkte kommen nebenbei: mit jedem Rang, mit Fahrten, Landgängen und Vertrautheit.',
+  { id: 'gemuet',    runs: 2, lvl: 2, tab: 'gemuet', req: () => !GL.season || GL.season.started(), name: 'Gemütlichkeit', art: 'flag', text: 'Ein kleiner Skilltree für deine ganze Crew. Punkte kommen nebenbei: mit jedem Rang, mit Fahrten, Landgängen und Vertrautheit.',
     steps: ['Im Hafen unter „Gemütlichkeit“', 'Knoten antippen, dann „Lernen“', 'Umskillen ist jederzeit kostenlos'] },
-  { id: 'quests',    lvl: 2, name: 'Aufträge',       art: 'scroll', text: 'Kleine Aufgaben für zwischendurch. Jeden Tag kommen neue.',
+  { id: 'quests',    runs: 1, lvl: 2, name: 'Aufträge',       art: 'scroll', text: 'Kleine Aufgaben für zwischendurch. Jeden Tag kommen neue.',
     steps: ['Steht oben im Hauptquartier', 'Erledigt sich nebenbei beim Spielen', 'Abholen bringt Berry und Rang-EP'] },
-  { id: 'schmiede',  lvl: 3, tab: 'schmiede', name: 'Die Schmiede', art: 'anvil', text: 'Ausrüstung aus deinen Runs landet hier. Du kannst sie verbessern und mit auf See nehmen.',
+  { id: 'schmiede',  runs: 2, lvl: 3, tab: 'schmiede', name: 'Die Schmiede', art: 'anvil', text: 'Ausrüstung aus deinen Runs landet hier. Du kannst sie verbessern und mit auf See nehmen.',
     steps: ['Ausrüstung findest du in Runs', 'Mit Berry eine Stufe höher schmieden', 'Antippen = beim nächsten Run dabei'] },
-  { id: 'lager',     lvl: 4, tab: 'lager', name: 'Das Lager', art: 'crate', text: 'Proviant und Hilfsmittel, die jeden Run etwas leichter machen.',
+  { id: 'lager',     runs: 3, lvl: 4, tab: 'lager', name: 'Das Lager', art: 'crate', text: 'Proviant und Hilfsmittel, die jeden Run etwas leichter machen.',
     steps: ['Beim Händler kaufen', 'Im Lager einpacken', 'Wirkt ab dem nächsten Run'] },
-  { id: 'haendler',  lvl: 4, tab: 'haendler', name: 'Der Händler', art: 'stall', text: 'Hier gibst du Berry für Proviant und Hilfsmittel aus.',
+  { id: 'haendler',  runs: 3, lvl: 4, tab: 'haendler', name: 'Der Händler', art: 'stall', text: 'Hier gibst du Berry für Proviant und Hilfsmittel aus.',
     steps: ['Berry gibt es für jeden Run', 'Gekauftes liegt im Lager'] },
-  { id: 'kammer',    lvl: 5, tab: 'kammer', name: 'Die Schatzkammer', art: 'chest', text: 'Artefakte von Bossen und Raids. Jedes wird stärker, je öfter du es findest.',
+  { id: 'kammer',    runs: 4, lvl: 5, tab: 'kammer', name: 'Die Schatzkammer', art: 'chest', text: 'Artefakte von Bossen und Raids. Jedes wird stärker, je öfter du es findest.',
     steps: ['Bosse lassen manchmal Artefakte fallen', 'Bis zu drei kommen mit auf See'],
     or: p => (p.artifacts && Object.keys(p.artifacts).length > 0) || Object.keys(p.vault || {}).length > 0 },
-  { id: 'daily',     lvl: 2, name: 'Tageskarte', art: 'scroll', text: 'Jeden Tag eine neue Karte. Alle starten gleich, ohne Ausbauten, egal welcher Rang. Ab dann entscheiden deine Wahl und das Glück.',
+  { id: 'daily',     runs: 1, lvl: 2, name: 'Tageskarte', art: 'scroll', text: 'Jeden Tag eine neue Karte. Alle starten gleich, ohne Ausbauten, egal welcher Rang. Ab dann entscheiden deine Wahl und das Glück.',
     steps: ['Jederzeit unter „Leinen los“ starten', 'Ein Versuch pro Tag', 'Punkte landen in der Tages-Rangliste'],
     or: p => p.stats && p.stats.runs >= 1 },
-  { id: 'rangliste', lvl: 2, tab: 'rangliste', name: 'Die Rangliste', art: 'podium', text: 'Ab jetzt stehst du sichtbar neben den anderen Piraten. Tipp auf einen Namen, um seine Karte zu sehen.',
+  { id: 'rangliste', runs: 1, lvl: 2, tab: 'rangliste', name: 'Die Rangliste', art: 'podium', text: 'Ab jetzt stehst du sichtbar neben den anderen Piraten. Tipp auf einen Namen, um seine Karte zu sehen.',
     steps: ['Jeder Run zählt für deinen Rang', 'Tipp auf Spieler für ihre Visitenkarte'] },
-  { id: 'landgang',  lvl: 3, name: 'Landgang', art: 'scroll', text: 'Kleine Abenteuer zum Durchklicken auf Inseln, die du schon kennst. Deine Stammcrew ist dabei und redet mit. Jederzeit wiederholbar.',
+  { id: 'landgang',  runs: 3, lvl: 3, name: 'Landgang', art: 'scroll', text: 'Kleine Abenteuer zum Durchklicken auf Inseln, die du schon kennst. Deine Stammcrew ist dabei und redet mit. Jederzeit wiederholbar.',
     steps: ['Im Hafen auf „Landgang“ tippen', 'Wählen, wer was versucht: passende Figuren haben bessere Chancen', 'Am Ende gibt es Beute und manchmal ein seltenes Fundstück'],
     req: p => GL.dungeonOpen ? GL.dungeonOpen(p) : false },
-  { id: 'jagd',      lvl: 6, tab: 'lager', name: 'Raid-Jagd', art: 'chest', text: 'Wähle vor dem Ablegen einen Raid-Boss als Ziel. Jeder hat zwei seltene Beutestücke für deine Vitrine.',
+  { id: 'jagd',      runs: 5, lvl: 6, tab: 'lager', name: 'Raid-Jagd', art: 'chest', text: 'Wähle vor dem Ablegen einen Raid-Boss als Ziel. Jeder hat zwei seltene Beutestücke für deine Vitrine.',
     steps: ['Ziel unter „Leinen los“ wählen', 'Ab dem zweiten Meer wartet der Raid', 'Beute landet in der Vitrine im Lager'] },
   { id: 'route',     lvl: 8, name: 'Neue Route: Thriller Bark', art: 'flag', text: 'Im dritten Meer kannst du jetzt zwischen zwei Routen wählen: Enies Lobby oder Thriller Bark mit neuen Bossen.',
     steps: ['Beim Kurs setzen im dritten Meer', 'Eine Insel aus jeder Route steht zur Wahl', 'Neue Gegner, neues Kopfgeld'] },
   { id: 'route2',    lvl: 12, name: 'Neue Route: Fischmenscheninsel', art: 'flag', text: 'Im zweiten Meer geht es jetzt auch nach unten: zur Fischmenscheninsel, zehntausend Meter unter dem Meer.',
     steps: ['Beim Kurs setzen im zweiten Meer', 'Eine Insel aus jeder Route steht zur Wahl', 'Neue Bosse: Hody Jones und Vander Decken'] },
-  { id: 'endlos',    lvl: 4, name: 'Endlos-Fahrt', art: 'flag', text: 'Segle ein Meer, das du geschafft hast, immer wieder. Jede Runde härter. Tiefere Meere bringen mehr Punkte und bessere Beute. Neue Kapitäne und Freischaltungen gibt es aber nur auf den normalen Routen.',
+  { id: 'endlos',    runs: 4, lvl: 4, name: 'Endlos-Fahrt', art: 'flag', text: 'Segle ein Meer, das du geschafft hast, immer wieder. Jede Runde härter. Tiefere Meere bringen mehr Punkte und bessere Beute. Neue Kapitäne und Freischaltungen gibt es aber nur auf den normalen Routen.',
     steps: ['Unter „Leinen los“: Endlos-Fahrt', 'Meer wählen, im Hafen die Crew anheuern', 'Wie viele Runden schaffst du?'],
     req: p => GL.meta.seasCleared(p).length > 0 },
-  { id: 'stammcrew', lvl: 5, tab: 'stammcrew', name: 'Deine Stammcrew', art: 'flag', text: 'Deine feste Crew für Duelle gegen andere Spieler. Bosse lassen ab jetzt Ausrüstung für sie fallen: Waffen, Kleidung und Schmuck mit zufälligen Werten.',
+  { id: 'stammcrew', runs: 3, lvl: 5, tab: 'stammcrew', name: 'Deine Stammcrew', art: 'flag', text: 'Deine feste Crew für Duelle gegen andere Spieler. Bosse lassen ab jetzt Ausrüstung für sie fallen: Waffen, Kleidung und Schmuck mit zufälligen Werten.',
     steps: ['Vier Figuren fest aufstellen', 'Ausrüstung von Bossen anlegen', 'Gegner ähnlicher Stärke herausfordern'],
     or: p => p.stats && p.stats.wins > 0 }
 ];

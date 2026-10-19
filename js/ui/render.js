@@ -3760,21 +3760,23 @@ window.GL = window.GL || {};
   // Erste Runs: kleine Hinweis-Sprechblase pro neuem Bildschirm, einmal, ohne Fenster
   const COACH = {
     starter: 'Dein Kapitän bleibt den ganzen Run. Jeder hat eine eigene Fähigkeit, tippe die Karte an und schau sie dir an.',
-    course: 'Wähle die nächste Insel. Am Ende jeder Insel wartet ein Bösewicht.',
+    course: 'Das Ziel: Auf jeder Insel wartet ein Bösewicht. Besieg ihn, dann geht es weiter. Mehr musst du fürs Erste nicht wissen.',
     map: 'Deine Route: ⚔ Kampf bringt Gold, die Taverne neue Crew, die Truhe einen Schatz. Rast heilt.',
     recruit: 'Gleiche Banden, Kampfstile und Rollen geben Boni (Leiste oben). „+ Bonus“ zeigt, wer einen freischaltet.',
-    prep: 'Die Aufstellung macht sich selbst: Brecher vorne, Helfer hinten. Achte auf den Kampfstil: Kraft schlägt Technik, Klinge schlägt Kraft, Technik schlägt Klinge.',
+    prep: 'Kämpfen tut die Crew von allein. Du suchst nur aus, wer mitfährt. Man nennt das Führungsstärke.',
     battle: 'Kämpfe laufen von allein. Mit dem Tempo-Knopf unten spulst du vor.',
-    treasure: 'Schätze wirken bis zum Ende des Runs. Tippe einen an, dann grün bestätigen.',
+    treasure: 'Schätze machen deine Crew bis zum Ende des Runs stärker. Nimm einen, der zu deinen Leuten passt. Alle auf einmal geht nicht, ich habe gefragt.',
     fruit: 'Eine Teufelsfrucht stärkt deine Crew dauerhaft für diesen Run.',
     event: 'Ereignis auf See: Jede Wahl hat ihren Preis, der Hinweis sagt dir, was passiert.'
   };
   function coach(run, profile) {
     // UX1: höchstens 3 Tipps im ersten Run, als kleine Sprechblase statt Kasten
-    if (!profile || (profile.stats.runs || 0) >= 2 || !COACH[run.phase] || !['map', 'recruit', 'prep'].includes(run.phase)) return '';
+    // Neulings-Modus: drei Sätze von Nami (Ziel, Kampf, Schätze), nur in den ersten zwei Runs
+    if (!profile || (profile.stats.runs || 0) >= 2 || !COACH[run.phase] || !['course', 'prep', 'treasure'].includes(run.phase)) return '';
     const seen = profile.coachSeen || [];
     if (seen.includes(run.phase)) return '';
-    return `<div class="coach coach-bubble ux-cb-${run.phase}"><i class="coach-ico">${PX_STAR}</i><span>${esc(COACH[run.phase])}</span><button class="coach-x" data-act="coach-ok" data-v="${run.phase}" aria-label="Verstanden">✓</button></div>`;
+    const nami = GL.data.crew.find(c => c.id === 'nami');
+    return `<div class="coach coach-bubble ux-cb-${run.phase}"><i class="coach-ico coach-who">${nami ? GL.sprites.render(nami) : PX_STAR}</i><span>${nami ? '<b class="coach-name">Nami</b> ' : ''}${esc(COACH[run.phase])}</span><button class="coach-x" data-act="coach-ok" data-v="${run.phase}" aria-label="Verstanden">✓</button></div>`;
   }
   // Pixel-Notenschlüssel als Musik-Schalter (an/aus)
   function musicBtn(cls) {
@@ -4253,7 +4255,7 @@ window.GL = window.GL || {};
     if (GL.meta.featureOpen(profile, 'endlos')) {
       const rec = profile.endlessRec;
       tiles.push(`<button class="ad-tile" data-act="endless-open"><i class="ad-ico">∞</i><b>Endlos</b><small>${rec ? `${rec.loops} Runden` : 'Wie weit?'}</small></button>`);
-    } else if (seas.length || GL.meta.level(profile) >= 3) {
+    } else if (((profile.stats && profile.stats.runs) || 0) >= 4 && (seas.length || GL.meta.level(profile) >= 3)) {
       tiles.push(`<button class="ad-tile locked" data-act="endless-open"><i class="ad-ico">∞</i><b>Endlos</b><small>🔒 ${!seas.length ? 'Boss East Blue' : 'Rang 4'}</small></button>`);
     }
     if (GL.meta.featureOpen(profile, 'daily')) {
@@ -4498,7 +4500,22 @@ window.GL = window.GL || {};
     </div>`;
   }
   // Ruhiger Hinweis auf die nächste Freischaltung
+  // Freunde, die gerade spielen (letzte 5 Minuten): kleine grüne Zeile im Hafen, antippen = Spielerkarte
+  function friendsOnline(profile) {
+    if (!GL.friends || !GL.friends.rowOf || !(profile.friends || []).length) return '';
+    const now = Date.now(), seen = new Set(), on = [];
+    (profile.friends || []).forEach(c => { const r = GL.friends.rowOf(c); const t = r && Date.parse(r.updated);
+      if (r && r.id && !seen.has(r.id) && isFinite(t) && now - t < 300000) { seen.add(r.id); on.push(r); } });
+    if (!on.length) return '';
+    const en = GL.i18n && GL.i18n.lang() === 'en';
+    const nm = r => esc(String(r.name || (en ? 'A friend' : 'Ein Freund')).slice(0, 16));
+    const chips = on.slice(0, 3).map(r => `<button class="fo-chip" data-act="lb-view" data-id="${esc(r.id)}"><i class="fo-dot"></i>${nm(r)}</button>`).join('');
+    const more = on.length > 3 ? `<em class="fo-more">+${on.length - 3}</em>` : '';
+    const verb = en ? (on.length === 1 ? 'is sailing right now' : 'are sailing right now') : (on.length === 1 ? 'segelt gerade' : 'segeln gerade');
+    return `<div class="fo-row" aria-label="${en ? 'Friends online' : 'Freunde online'}">${chips}${more}<small>${verb}</small></div>`;
+  }
   function featureNextLine(profile) {
+    if (((profile.stats && profile.stats.runs) || 0) < 6) return '';   // Neulings-Modus: keine Vorschau auf Gesperrtes
     const f = GL.meta.featureNext(profile);
     if (!f) return '';
     const R = GL.data.ranks, need = R[Math.min(R.length - 1, f.lvl - 1)].xp, prev = R[Math.max(0, GL.meta.rankIndex(profile))].xp;
@@ -4550,7 +4567,8 @@ window.GL = window.GL || {};
   // UX2: kurze Namen für die kleinen Handy-Kacheln
   const HUB_SHORT = { gemeinschaft: 'Koop', gemuet: 'Skills', kammer: 'Kammer', profil: 'Kapitän', stammcrew: 'Crew' };
   function hubTiles(profile, tab) {
-    const open = ROOMS.filter(r => GL.meta.featureOpen(profile, r.id));
+    const fresh = ((profile.stats && profile.stats.runs) || 0) < 1 && !(profile.seenFeatures || []).length;
+    const open = ROOMS.filter(r => GL.meta.featureOpen(profile, r.id) && !(fresh && r.id === 'werft'));
     return `<nav class="hub" aria-label="Räume im Hauptquartier"><span class="hub-lbl">Im Hafen</span><div class="hub-grid">${open.map(r =>
       `<button class="hub-tile" data-act="hq-tab" data-tab="${r.id}"><i class="hub-art">${roomArt(r.art)}</i><b class="ht-l">${r.name}</b><b class="ht-s">${HUB_SHORT[r.id] || r.name}</b>${r.sub(profile) ? `<small>${r.sub(profile)}</small>` : ''}${tabAlert(profile, r.id) ? '<i class="tab-dot" title="Hier gibt es etwas zu tun"></i>' : ''}</button>`).join('')}</div></nav>`;
   }
@@ -4695,7 +4713,7 @@ window.GL = window.GL || {};
         <button class="btn mini ghost" data-act="heat" data-d="-1" aria-label="Stufe senken"${profile.heat <= 0 ? ' disabled' : ''}>−</button>
         <b class="heat-num">${profile.heat}</b>
         <button class="btn mini ghost" data-act="heat" data-d="1" aria-label="Stufe erhöhen"${profile.heat >= profile.heatMax ? ' disabled' : ''}>+</button>
-      </div>` : GL.meta.level(profile) >= 3 ? `<div class="heat-pill locked" data-tip="Gewinne einen Run, dann kannst du die Schwierigkeit erhöhen: mehr Berry, mehr Punkte.">🔒 Kopfgeld-Stufen</div>` : '';
+      </div>` : GL.meta.level(profile) >= 3 && ((profile.stats && profile.stats.runs) || 0) >= 4 ? `<div class="heat-pill locked" data-tip="Gewinne einen Run, dann kannst du die Schwierigkeit erhöhen: mehr Berry, mehr Punkte.">🔒 Kopfgeld-Stufen</div>` : '';
 
     const rp = GL.meta.rankProgress(profile);
     const rankHtml = rankPanel(profile, rp, fmt);
@@ -4733,7 +4751,7 @@ window.GL = window.GL || {};
         <div class="sail-row">
           <button class="btn sail" data-act="sail">${pxIco('ship')}Leinen los! ${keyHint('Leertaste')}</button>
         </div>
-        ${GL.worldmap ? GL.worldmap.goalCard(profile) : ''}${actionDock(profile)}
+        ${friendsOnline(profile)}${GL.worldmap ? GL.worldmap.goalCard(profile) : ''}${actionDock(profile)}
         <div class="sail-meta">${atSeaBox()}${heatBox}${board.length ? `<span class="sail-board"><span class="sb-lbl">An Bord</span>${board.join('')}</span>` : ''}${buddyChip(profile)}</div>`}
       </div>`}
 

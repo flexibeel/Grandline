@@ -351,6 +351,8 @@ window.GL = window.GL || {};
       const f = (GL.data.features || []).find(x => x.id === id);
       if (!f) return true;
       if (f.req && !f.req(profile)) return false;
+      // Neulings-Modus: Systeme kommen nach und nach. Wer etwas schon kennt oder viel gespielt hat, behält alles.
+      if (f.runs && ((profile.stats && profile.stats.runs) || 0) < f.runs && (profile.stats && profile.stats.runs || 0) < 6 && !(profile.seenFeatures || []).includes(id)) return false;
       return GL.meta.level(profile) >= f.lvl || !!(f.or && f.or(profile));
     },
     // Nächste noch gesperrte Freischaltung (für den Hinweis „Ab Level X: …“)

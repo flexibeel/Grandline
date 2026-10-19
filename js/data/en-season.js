@@ -2,6 +2,10 @@
 window.GL = window.GL || {};
 GL.data = GL.data || {};
 GL.data.en = Object.assign(GL.data.en || {}, {
+  'Das Ziel: Auf jeder Insel wartet ein Bösewicht. Besieg ihn, dann geht es weiter. Mehr musst du fürs Erste nicht wissen.': 'The goal: every island has a villain. Beat them and sail on. That is all you need to know for now.',
+  'Kämpfen tut die Crew von allein. Du suchst nur aus, wer mitfährt. Man nennt das Führungsstärke.': 'Your crew fights on its own. You just pick who comes along. They call it leadership.',
+  'Schätze machen deine Crew bis zum Ende des Runs stärker. Nimm einen, der zu deinen Leuten passt. Alle auf einmal geht nicht, ich habe gefragt.': 'Treasures make your crew stronger until the run ends. Take one that suits your people. All at once is not allowed, I asked.',
+  'segeln gerade': 'are sailing right now', 'segelt gerade': 'is sailing right now',
   'Schläger': 'Thug',
   'Normale Gegner, normale Beute': 'Normal foes, normal loot', 'Gegner stärker': 'Stronger foes', 'Mehr Gold pro Sieg': 'More gold per win', 'Mehr Kopfgeld': 'More bounty', 'Bösewicht lässt oft einen Extra-Schatz fallen': 'The villain often drops an extra treasure',
   'Übungskampf: Ab 1100 zählt die Marine nicht mehr für die Liga.': 'Practice bout: above 1100 the Marines no longer count for the league.',

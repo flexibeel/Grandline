@@ -9150,3 +9150,17 @@ em.type.t-technik { background: #5b86b3 !important; }
 .bs-style.b-helfer { background: #ecf6e6; border-color: #a9cf96; }
 .bs-style.b-klinge { background: #fdf5d8; border-color: #e0c56a; }
 .bs-style.b-kraft, .bs-style.b-kaempfer { background: #fbe9e2; border-color: #deb09a; }
+
+/* ===== FIN: Freunde gerade an Bord + Nami-Tipps ===== */
+.fo-row { display: flex !important; flex-direction: row !important; flex-wrap: wrap; align-items: center; justify-content: flex-start; gap: 5px; margin: 2px 0 0; }
+.fo-row small { font-size: .74rem; color: #5b7a3a; font-weight: 700; }
+.fo-chip { display: inline-flex !important; flex: none !important; width: auto !important; min-height: 0 !important; margin: 0 !important; align-items: center; gap: 5px; padding: 3px 9px; border-radius: 999px; cursor: pointer; font: inherit; font-size: .78rem; font-weight: 800; color: #3a2a18;
+  background: #eef6df; border: 1.5px solid #9cbf6e; box-shadow: 0 2px 0 #7f9f55; }
+.fo-chip:active { transform: translateY(1px); box-shadow: 0 1px 0 #7f9f55; }
+.fo-dot { width: 7px; height: 7px; border-radius: 50%; background: #4caf50; box-shadow: 0 0 0 2px rgba(76,175,80,.25); animation: foPulse 2.4s ease-in-out infinite; }
+@keyframes foPulse { 50% { box-shadow: 0 0 0 4px rgba(76,175,80,.08); } }
+@media (prefers-reduced-motion: reduce) { .fo-dot { animation: none; } }
+.fo-more { font-style: normal; font-size: .72rem; font-weight: 800; color: #5b7a3a; }
+.coach-who { width: 30px !important; height: 34px !important; background: none !important; box-shadow: none !important; }
+.coach-who svg, .coach-who canvas { width: 100%; height: 100%; }
+.coach-name { color: #b5532b; font-weight: 800; margin-right: 2px; }
