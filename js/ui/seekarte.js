@@ -108,7 +108,8 @@ window.GL = window.GL || {};
     return o;
   }
 
-  const pos = (c, r) => { const C = D().cfg; return `left:${((c + 0.5) / C.cols * 100).toFixed(3)}%;top:${((r + 0.5) / C.rows * 100).toFixed(3)}%`; };
+  // Jedes Element liegt genau in seiner Kachel (.sk-t), nichts ragt in Nachbarfelder oder über den Rand
+  const pos = (c, r) => { const C = D().cfg; return `left:${(c / C.cols * 100).toFixed(3)}%;top:${(r / C.rows * 100).toFixed(3)}%`; };
 
   // ---------- Bühne ----------
   function html(profile) {
@@ -118,48 +119,46 @@ window.GL = window.GL || {};
     const reduce = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
     let o = seaBg();
     // Deko-Inseln (nur wo erkundet)
-    (D().isles || []).forEach(([c, r, k]) => { o += `<span class="sk-isle${S().clear(s, c, r) ? '' : ' fogged'}" style="${pos(c, r)}">${art(k)}</span>`; });
+    (D().isles || []).forEach(([c, r, k]) => { o += `<span class="sk-t sk-isle${S().clear(s, c, r) ? '' : ' fogged'}" style="${pos(c, r)}">${art(k)}</span>`; });
     // Treibgut (nur sichtbar, wo der Nebel weg ist oder in Reichweite)
     t.finds.forEach(f => {
       if (f.done) return;
       const vis = S().clear(s, f.c, f.r) || S().dist([f.c, f.r], t.ship) <= C.reach;
       if (!vis) return;
-      o += `<button class="sk-find k-${f.k}${isReach(f.c, f.r) ? ' can' : ''}${sel && sel.c === f.c && sel.r === f.r ? ' on' : ''}" data-act="sk-tap" data-c="${f.c}" data-r="${f.r}" style="${pos(f.c, f.r)}" aria-label="${esc(L(D().kinds[f.k].name))}">${art(f.k === 'storm' ? 'storm' : f.k)}</button>`;
+      o += `<button class="sk-t sk-find k-${f.k}${isReach(f.c, f.r) ? ' can' : ''}${sel && sel.c === f.c && sel.r === f.r ? ' on' : ''}" data-act="sk-tap" data-c="${f.c}" data-r="${f.r}" style="${pos(f.c, f.r)}" aria-label="${esc(L(D().kinds[f.k].name))}"><span>${art(f.k === 'storm' ? 'storm' : f.k)}</span></button>`;
     });
     o += fogLayer(s);
-    // Gebietsnamen wie auf alten Seekarten (sobald ein Feld des Gebiets erkundet ist)
-    Object.keys(D().regions).forEach(k => {
-      const cells = [];
-      D().map.forEach((row, r) => row.split('').forEach((ch, c) => { if (ch === k) cells.push([c, r]); }));
-      const g = D().regions[k], lp = g.label || cells[Math.floor(cells.length / 2)];
-      if (!S().clear(s, lp[0], lp[1])) return;
-      o += `<span class="sk-rname r-${g.id}" style="${pos(lp[0], lp[1])}">${esc(L(g.name))}</span>`;
-    });
     // Hafen
     const [hc, hr] = C.home;
-    o += `<button class="sk-harbour${t.ship[0] === hc && t.ship[1] === hr ? ' here' : ''}" data-act="sk-tap" data-c="${hc}" data-r="${hr}" style="${pos(hc, hr)}" aria-label="${esc(T('harbour'))}">${art('harbour')}</button>`;
+    o += `<button class="sk-t sk-harbour${t.ship[0] === hc && t.ship[1] === hr ? ' here' : ''}" data-act="sk-tap" data-c="${hc}" data-r="${hr}" style="${pos(hc, hr)}" aria-label="${esc(T('harbour'))}">${art('harbour')}</button>`;
     // Erreichbare Felder (Daumen-Ziele)
     reach.forEach(([c, r]) => {
       if (t.finds.some(f => f.c === c && f.r === r && !f.done)) return;
       if (c === hc && r === hr) return;
-      o += `<button class="sk-cell${sel && sel.c === c && sel.r === r ? ' on' : ''}" data-act="sk-tap" data-c="${c}" data-r="${r}" style="${pos(c, r)}" aria-label="${esc(T('water'))}"><i></i></button>`;
+      o += `<button class="sk-t sk-cell${sel && sel.c === c && sel.r === r ? ' on' : ''}" data-act="sk-tap" data-c="${c}" data-r="${r}" style="${pos(c, r)}" aria-label="${esc(T('water'))}"><i></i></button>`;
     });
-    // Landgang-Orte als Landmarken
+    // Landgang-Orte als Landmarken (Namensschild nur beim angetippten Ort, die Info-Leiste zeigt alles)
+    let plate = null;
     S().dgs().forEach(d => {
       const [c, r] = S().spot(d.id), st = S().status(profile, d);
       const near = S().dist([c, r], t.ship) <= C.see;
       const seen = s.seen.includes(d.id);
       const b = bossOf(d);
       if (st === 'found') {
-        o += `<button class="sk-lair found${sel && sel.c === c && sel.r === r ? ' on' : ''}" data-act="sk-tap" data-c="${c}" data-r="${r}" style="${pos(c, r)}" aria-label="${esc(tr(d.name))}">
+        o += `<button class="sk-t sk-lair found${sel && sel.c === c && sel.r === r ? ' on' : ''}" data-act="sk-tap" data-c="${c}" data-r="${r}" style="${pos(c, r)}" aria-label="${esc(tr(d.name))}">
           <span class="sk-lair-isle" style="--sky:${d.scene.sky};--ground:${d.scene.ground}">${pix(d.scene.deco)}</span>
-          <span class="sk-flag">${art('flag')}</span>${b ? `<span class="sk-boss">${GL.sprites.render(b)}</span>` : ''}
-          <b class="sk-name">${esc(tr(d.name))}</b></button>`;
+          <span class="sk-flag">${art('flag')}</span>${b ? `<span class="sk-boss">${GL.sprites.render(b)}</span>` : ''}</button>`;
+        if (sel && sel.c === c && sel.r === r) plate = { c, r, name: tr(d.name) };
       } else if (seen || near) {
-        o += `<button class="sk-lair ${st === 'locked' ? 'locked' : 'looming'}${seen ? ' seen' : ''}${sel && sel.c === c && sel.r === r ? ' on' : ''}" data-act="sk-tap" data-c="${c}" data-r="${r}" style="${pos(c, r)}" aria-label="${esc(T('looming'))}">
+        o += `<button class="sk-t sk-lair ${st === 'locked' ? 'locked' : 'looming'}${seen ? ' seen' : ''}${sel && sel.c === c && sel.r === r ? ' on' : ''}" data-act="sk-tap" data-c="${c}" data-r="${r}" style="${pos(c, r)}" aria-label="${esc(T('looming'))}">
           <span class="sk-lair-isle sil">${pix(d.scene.deco)}</span><span class="sk-flag">${art('flag')}</span>${b ? `<span class="sk-boss sil">${GL.sprites.render(b)}</span>` : ''}${st === 'locked' ? '<i class="sk-lock">🔒</i>' : '<i class="sk-q">?</i>'}</button>`;
       }
     });
+    if (plate) {
+      // Schild unter der Kachel (in der letzten Reihe darüber), seitlich in der Karte gehalten
+      const cx = Math.min(81.25, Math.max(18.75, (plate.c + 0.5) / C.cols * 100)), last = plate.r >= C.rows - 1;
+      o += `<b class="sk-name" style="left:${cx.toFixed(2)}%;${last ? `bottom:${(100 - plate.r / C.rows * 100).toFixed(2)}%` : `top:${((plate.r + 1) / C.rows * 100).toFixed(2)}%`}">${esc(plate.name)}</b>`;
+    }
     // Kielwasser vom letzten Feld
     if (t.prev) {
       const C2 = (c, r) => [((c + 0.5) / C.cols * 100).toFixed(2), ((r + 0.5) / C.rows * 100).toFixed(2)];
@@ -171,7 +170,7 @@ window.GL = window.GL || {};
     // Schiff (gleitet vom letzten Feld)
     const animate = !reduce && t.prev && lastTrip !== JSON.stringify([t.n, t.ship]);
     lastTrip = JSON.stringify([t.n, t.ship]);
-    o += `<span class="sk-ship" style="${pos(t.ship[0], t.ship[1])}"${animate ? ` data-from="${pos(t.prev[0], t.prev[1])}"` : ''} aria-hidden="true"><i class="sk-foam"></i>${GL.sprites.ship()}</span>`;
+    o += `<span class="sk-t sk-ship" style="${pos(t.ship[0], t.ship[1])}"${animate ? ` data-from="${pos(t.prev[0], t.prev[1])}"` : ''} aria-hidden="true"><span><i class="sk-foam"></i>${GL.sprites.ship()}</span></span>`;
     if (animate) requestAnimationFrame(mount);
 
     const reg = S().region(t.ship[0], t.ship[1]);
@@ -185,12 +184,20 @@ window.GL = window.GL || {};
         <button class="sk-help" data-act="sk-help" aria-label="${esc(T('help'))}">?</button></div>
       <div class="sk-bar"><span class="sk-prov" title="${esc(T('prov'))}"><small>🍙 ${esc(T('prov'))}</small><span class="sk-pips">${pips}</span></span>${comp}<span class="sk-count" title="${esc(T('charted'))}">⚑ ${nFound}/${nAll}</span></div>
       <div class="sk-frame"><div class="sk-map">${o}</div></div>
+      ${legend(s, t)}
       ${panel(profile)}
       <div class="sk-btns">${t.ship[0] === hc && t.ship[1] === hr
         ? `<button class="btn sk-tav" data-act="sk-tavern"${t.tav ? ' disabled' : ''}>🍺 ${esc(T('tavern'))}</button>`
         : `<button class="btn${t.prov <= 0 ? '' : ' ghost'} sk-home" data-act="sk-home">⚓ ${esc(T('home'))}</button>`}
         <button class="btn ghost sk-list" data-act="dg-list">☰ ${esc(T('list'))}</button></div>
     </div>`;
+  }
+  // Gebiete als kleine Legende unter der Karte (nur entdeckte, das aktuelle hervorgehoben)
+  function legend(s, t) {
+    const here = (D().map[t.ship[1]] || '')[t.ship[0]];
+    const items = Object.keys(D().regions).filter(k => D().map.some((row, r) => row.split('').some((ch, c) => ch === k && S().clear(s, c, r))));
+    if (!items.length) return '';
+    return `<div class="sk-legend">${items.map(k => { const g = D().regions[k]; return `<span class="${k === here ? 'on' : ''}"><i style="background:${g.sea[0]}"></i>${esc(L(g.name))}</span>`; }).join('')}</div>`;
   }
   // FLIP: Schiff startet auf dem alten Feld und gleitet ins neue
   function mount() {
