@@ -1,6 +1,10 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-21j', date: '19.10.', title: 'Seekarte aufgeräumt', items: [
+    '🧹 Seekarte aufgeräumt: Jedes Ding hat jetzt sein eigenes Feld. Keine Schilder mehr, die sich gegenseitig auf die Füße treten',
+    '🏷 Namen zeigt ein Antippen, die Gebiete stehen als kleine Legende unter der Karte. Das Schiff passt wieder in seinen Hafen',
+    '📱 Auf kleinen Handys bleibt das Fenster im Bild, auf dem PC sitzt alles gerade. Im dunklen Modus auch' ] },
   { v: '2026-10-21i', date: '19.10.', title: 'Seekarte der Gerüchte', items: [
     '🧭 Landgang hat jetzt eine Seekarte. Die Orte liegen nicht mehr auf einem Zettel, sondern irgendwo da draußen. Wo genau, weiß der Wirt. Ungefähr',
     '🍾 Flaschenpost, Wrackfetzen und ein Kompass, der „wärmer“ sagt, wenn er Lust hat. Wer neben einem Boss-Versteck ankert, hat es gefunden. Für immer',
