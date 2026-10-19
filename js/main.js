@@ -559,6 +559,8 @@
 
   function act(action) {
     if (!run) return;
+    // Gold und Kopfgeld erst nach der Kampfanimation zeigen (sonst verrät der Kopf den Ausgang)
+    if (action && action.type === 'fight') GL.ui.hold = { gold: run.gold || 0, bounty: run.bountyM || 0 };
     const bossesBefore = run.bounties || 0;
     const wasFinished = GL.run.isFinished(run);
     const bountyBefore = run.bountyM || 0;
@@ -825,7 +827,7 @@
     const b = document.querySelector('.fbar3 .fbar-ff[data-act=ff]');
     if (b && anim && !anim.done) b.outerHTML = GL.ui.ffButton(anim);
   }
-  function skipFight() { clearTimeout(anim.timer); anim.done = true; if (GL.sfx) GL.sfx.play(run && run.battle && run.battle.win ? 'win' : 'lose'); draw(); }
+  function skipFight() { clearTimeout(anim.timer); anim.done = true; GL.ui.hold = null; if (GL.sfx) GL.sfx.play(run && run.battle && run.battle.win ? 'win' : 'lose'); draw(); }
   // Drei Tempostufen statt Überspringen: Man sieht den Kampf immer, aber er quält nicht
   const SPEEDF = [1, 0.9, 0.55, 0.32, 0.18];
   const showSpeed = () => { const f = document.getElementById('field'); if (f && anim) f.dataset.speed = anim.speed; };
@@ -833,7 +835,7 @@
   function stepAnim() {
     if (!anim || anim.done) return;
     const ev = run.battle.events[anim.i++];
-    if (!ev) { anim.done = true; if (GL.sfx) GL.sfx.play(run.battle.win ? 'win' : 'lose'); draw(); if (GL.quips) { const r = run, hp = anim.crewHp.slice(); setTimeout(() => { if (run === r) GL.quips.end(r, hp); }, 120); } return; }
+    if (!ev) { anim.done = true; GL.ui.hold = null; if (GL.sfx) GL.sfx.play(run.battle.win ? 'win' : 'lose'); draw(); if (GL.quips) { const r = run, hp = anim.crewHp.slice(); setTimeout(() => { if (run === r) GL.quips.end(r, hp); }, 120); } return; }
     const setHp = (side, to, hp) => { (side === 'crew' ? anim.crewHp : anim.enemyHp)[to] = hp; };
     if (ev.k === 'hit') setHp(ev.side === 'crew' ? 'enemy' : 'crew', ev.to, ev.hp);
     else if (ev.list) ev.list.forEach(x => { if (x.hp !== undefined) setHp(ev.side, x.to, x.hp); });
@@ -943,6 +945,7 @@
   }
 
   function stopAnim() {
+    if (GL.ui) GL.ui.hold = null;
     if (anim) clearTimeout(anim.timer);
     anim = null;
   }

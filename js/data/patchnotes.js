@@ -1,6 +1,12 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-20v', date: '19.10.', title: 'Dungeon-Liga, Marken und Figuren aus einem Guss', items: [
+    '🏆 Dungeon-Liga: Rangpunkte gibt es jetzt für gewonnene Landgänge. Schwerer, schneller und mit mehr Leben = mehr Punkte, pro Ort und Stufe zählt der beste Lauf. Abzeichen von Planke bis Legende',
+    '🪙 Dungeon-Marken bei jedem Sieg, auch beim zehnten Mal: im Marken-Laden gegen Visitenkarten, Rahmen, Laternenmotte, Münzkrabbe, Flaggen und Skillpunkte tauschen',
+    'Feinschliff wächst weiter: Schaden, Leben und Tempo, sanft abflachend. Stammcrew-Duelle sind jetzt Freundschaftsduelle',
+    '🎨 Kampffiguren passen zur Kulisse: weiche Umrisse, Licht von links oben, Szenen-Tönung, Atmen, Ausfallschritt, liegendes K.O.',
+    'Gold und Kopfgeld erscheinen erst nach dem Kampf. Die Crew zählt das Geld nicht mehr, bevor der Gegner umgefallen ist' ] },
   { v: '2026-10-20u', date: '19.10.', title: 'Nichts ragt mehr raus, jede Figur zählt', items: [
     '🃏 Stammcrew-Karten zeigen jetzt die Fähigkeit jeder Figur (Symbol + Name, Tipp für Details) und „▲ Bonus“, wenn sie mit deiner Crew einen Bonus auslöst',
     '🔒 Noch freizuspielen: Gesperrte Figuren stehen als Silhouette mit ihrer Fähigkeit und dem Weg dorthin. Crocodile wartet. Ungeduldig, aber er wartet',
