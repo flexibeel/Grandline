@@ -1,6 +1,11 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-21f', date: '19.10.', title: 'Woher die Zahlen kommen', items: [
+    '🔍 Werte im Steckbrief antippen: Jetzt steht da, woher jede Zahl kommt. Auch die peinlichen',
+    '⛔ Krit-Chance hört bei 85 % auf. Was drüber liegt, wird Krit-Schaden. Verschenkt wird nichts mehr',
+    '💨 Ausweichen über 60 % wird Schutz. Wer nicht ausweichen kann, steckt wenigstens besser ein',
+    '🗡 Ultis und Konter halten sich jetzt an dieselben Krit-Regeln. Gleiches Recht für alle Klingen. Neu in der Anleitung: „Wie rechnen die Werte?“' ] },
   { v: '2026-10-21e', date: '19.10.', title: 'Offene See', items: [
     '⛵ Neuer Kurs: Offene See. Statt Station für Station segelst du über eine Seekarte zur nächsten Insel und entscheidest selbst, wohin',
     '🗺 Auf dem Wasser treiben Funde: Piratenschiffe, Seeungeheuer, Wracks, ein Händlerschiff und kleine Inseln. Antippen, „Hinsegeln“, fertig. Wer keine Lust hat: „Direkt zur Insel“',
