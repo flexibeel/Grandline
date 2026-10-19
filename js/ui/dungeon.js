@@ -30,6 +30,33 @@ window.GL = window.GL || {};
     bossAtk2:{ good: false, v: 0.12, txt: 'Boss ist wütend: mehr Angriff' }
   };
   const goodFx = { b: 'bossHp', s: 'atk', g: 'bossHp', h: 'heal' };
+  // FUN: Raum-Bedingung für den ganzen Landgang (gilt im Bosskampf, nutzt die Kampf-Launen der Engine)
+  const MODS = [
+    { id: 'dark', w: 'nebel', ico: '🌑', name: 'Dunkle Gänge', txt: 'Alle verfehlen öfter. Fackeln sind aus, Ausreden auch.' },
+    { id: 'flood', w: 'glitsch', ico: '🌊', name: 'Flut im Gang', txt: 'Nasse Planken: Wer zuerst dran ist, entscheidet das Glück.' },
+    { id: 'narrow', w: 'duell', ico: '⛓', name: 'Enge Gänge', txt: 'Kein Platz zum Ausweichen: Die Stärksten beharken sich.' },
+    { id: 'powder', w: 'pulver', ico: '🧨', name: 'Pulverkammer', txt: 'In Runde 2 knallt es vorne. Auf beiden Seiten.' },
+    { id: 'gold', w: 'jubel', ico: '✨', name: 'Schatzfieber', txt: 'Gold in der Luft: Deine Crew trifft härter.' }
+  ];
+  // FUN: Türen zwischen den Szenen. Links meist sicher, rechts meist riskant.
+  const DOORS = {
+    puzzle:   { ico: '❔', name: 'Rätselraum', txt: 'Eine Szene wie gewohnt' },
+    rest:     { ico: '✚', name: 'Rastplatz', txt: 'Wunden flicken, Laune heben' },
+    treasure: { ico: '🎁', name: 'Schatzkammer', txt: 'Ein Relikt für diesen Landgang' },
+    elite:    { ico: '⚔', name: 'Elite-Wache', txt: 'Kampf. Sieg: Relikt und Beute' },
+    trap:     { ico: '⚠', name: 'Fallengang', txt: '50:50 – große Beute oder blaue Flecken' }
+  };
+  // FUN: Landgang-Relikte (gelten bis zum Ende dieses Landgangs)
+  const RELICS = [
+    { id: 'rum', ico: '🍺', name: 'Rumfass', txt: '+12 % Angriff im Bosskampf', atk: 0.12 },
+    { id: 'bandage', ico: '🩹', name: 'Verbandskiste', txt: '+15 % Leben im Bosskampf', hp: 0.15 },
+    { id: 'compass', ico: '🧭', name: 'Alter Kompass', txt: '+1 Tempo für alle', spd: 1 },
+    { id: 'powder', ico: '🧨', name: 'Pulverhorn', txt: 'Boss startet mit −10 % Leben', bossHp: -0.1 },
+    { id: 'mirror', ico: '🪞', name: 'Spiegelschild', txt: 'Boss −8 % Angriff', bossAtk: -0.08 },
+    { id: 'coin', ico: '🪙', name: 'Glücksmünze', txt: '+10 % Krit für alle', crit: 0.1 },
+    { id: 'lantern', ico: '🏮', name: 'Sturmlaterne', txt: 'Hebt die Raum-Bedingung auf', nomod: true }
+  ];
+  const relicById = id => RELICS.find(r => r.id === id);
 
   // ---------- Profil ----------
   const state = (profile, id) => { profile.dungeons = profile.dungeons || {}; return (profile.dungeons[id] = profile.dungeons[id] || { clears: 0, day: null }); };
@@ -93,9 +120,13 @@ window.GL = window.GL || {};
     const X = D();
     return [].concat(X.hunted || [], X.bosses || [], X.crew || [], X.grunts || []).find(x => x.id === d.boss);
   }
+  // Aktive Raum-Bedingung (die Sturmlaterne hebt sie auf)
+  const modOf = () => (cur && cur.mod && !(cur.relics || []).includes('lantern') ? cur.mod : null);
   function fxChips() {
-    if (!cur || !cur.fx.length) return '';
-    return `<span class="dg-fx">${cur.fx.map(k => `<i class="${FX[k].good ? 'up' : 'down'}" title="${esc(T(FX[k].txt))}">${FX[k].good ? '▲' : '▼'}</i>`).join('')}</span>`;
+    if (!cur) return '';
+    const m = modOf(), R = (cur.relics || []).map(relicById).filter(Boolean);
+    if (!cur.fx.length && !m && !R.length) return '';
+    return `<span class="dg-fx">${m ? `<i class="mod" title="${esc(T(m.name) + ': ' + T(m.txt))}">${m.ico}</i>` : ''}${R.map(r => `<i class="rel" title="${esc(T(r.name) + ': ' + T(r.txt))}">${r.ico}</i>`).join('')}${cur.fx.map(k => `<i class="${FX[k].good ? 'up' : 'down'}" title="${esc(T(FX[k].txt))}">${FX[k].good ? '▲' : '▼'}</i>`).join('')}</span>`;
   }
   function scene(d, opts) {
     const o = opts || {};
@@ -250,6 +281,7 @@ window.GL = window.GL || {};
       <h3>${esc(T(d.name))}</h3>
       ${(() => { const lv = landgangLevel(cur.profile, d.id); return lv ? `<p class="dg-lvl"><b>${esc(T('Stufe'))} ${lv + 1}</b> · ${esc(T('Gegner'))} +${lv * 7} %${lv >= 1 ? ` · ${esc(T('mit Gefolge'))}` : ''}</p>` : ''; })()}
       <p class="dg-text">${esc(T(d.intro))}</p>
+      ${cur.mod ? `<p class="dg-mod"><i>${cur.mod.ico}</i><span><b>${esc(T(cur.mod.name))}</b><small>${esc(T(cur.mod.txt))}</small></span></p>` : ''}
       ${depthHtml(cur.profile, d)}
       ${statsHtml(cur.profile, d, cur.deep)}
       ${bubble(m, line(m, 'go'))}
@@ -288,26 +320,109 @@ window.GL = window.GL || {};
       <div class="fpop-btns"><button class="btn" data-act="dg-next">${o.boss ? '⚔ ' + esc(T('Zum Kampf')) : esc(T('Weiter'))}</button></div>`);
   }
 
+  // ---------- FUN: Türen, Elite-Wache, Relikte ----------
+  function rollDoors() {
+    const safe = ['puzzle', 'puzzle', 'rest', 'treasure'], risky = ['elite', 'elite', 'trap'];
+    let a = pick(safe), b = pick(risky);
+    if (a === 'treasure' && Math.random() < 0.5) a = 'puzzle';
+    return [a, b];
+  }
+  function doorsHtml() {
+    cur.doors = cur.doors && cur.doors.step === cur.i ? cur.doors : { step: cur.i, list: rollDoors() };
+    const m = pick(cur.crew);
+    const lines = { elite: 'Da drin klappert Rüstung. Viel Rüstung.', trap: 'Der Boden in dem Gang sieht verdächtig sauber aus.', rest: 'Hinter der linken Tür riecht es nach Suppe.', puzzle: 'Links steht „Bitte nicht klopfen“. Also klopfen wir.', treasure: 'Links glitzert etwas. Rechts auch, aber anders.' };
+    return card(`${scene(cur.d)}
+      <div class="dg-head"><span class="fpop-kicker">${esc(T('Zwei Türen'))}</span>${dots()}</div>
+      <div class="dg-doors">${cur.doors.list.map((k, i) => { const D0 = DOORS[k]; return `<button class="dg-door d-${k}" data-act="dg-door" data-i="${i}"><i class="dg-door-ico">${D0.ico}</i><b>${esc(T(D0.name))}</b><small>${esc(T(D0.txt))}</small></button>`; }).join('')}</div>
+      ${bubble(m, T(lines[cur.doors.list[1]] || lines.puzzle))}`, 'dg-doorcard');
+  }
+  function doorPick(i) {
+    if (!cur.doors || cur.doors.step !== cur.i) return stepHtml();
+    const k = cur.doors.list[i];
+    if (!k) return doorsHtml();
+    cur.doors.step = -1;
+    if (k === 'puzzle') { cur.plans = null; return stepHtml(); }
+    const m = pick(cur.crew);
+    let txt = '', gain = '', good = true, relics = false;
+    if (k === 'rest') {
+      const bad = cur.fx.findIndex(x => !FX[x].good);
+      if (bad >= 0) { cur.fx.splice(bad, 1); txt = T('Die Crew flickt sich zusammen. Ein Nachteil ist vergessen.'); }
+      else { cur.fx.push('heal'); txt = T('Suppe, Pause, ein Lied. Die Crew startet gestärkt in den Bosskampf.'); }
+      gain = give('h', false);
+    } else if (k === 'treasure') {
+      txt = T('Eine Kiste voller Krimskrams. Eins davon ist nützlich. Welches?');
+      relics = true;
+    } else if (k === 'trap') {
+      const helps = cur.crew.some(c => c.type === 'technik' || c.role === 'helfer');
+      if (Math.random() < 0.5 + (helps ? 0.15 : 0)) { gain = give('g', false); cur.fx.push('bossHp'); txt = T('Die Falle schnappt ins Leere. Dahinter: ein Vorrat, den der Boss sicher vermissen wird.'); }
+      else { cur.fx.push('hurt'); good = false; txt = T('Die Falle schnappt nicht ins Leere. Die Crew humpelt weiter.'); }
+    } else if (k === 'elite') {
+      const r = eliteFight();
+      if (r.win) { gain = give('b', false); txt = T('Die Elite-Wache liegt am Boden.') + ' ' + T('Runden') + ': ' + r.rounds + '. ' + T('Sie hatte etwas dabei.'); relics = true; }
+      else { cur.fx.push('hurt'); good = false; txt = T('Die Elite-Wache war zu viel. Rückzug in den nächsten Gang, mit Beulen.'); }
+    }
+    cur.last = { door: k, step: cur.i };
+    if (relics) cur.relicOffer = { step: cur.i, list: RELICS.filter(x => !(cur.relics || []).includes(x.id) && !(x.nomod && !cur.mod)).sort(() => Math.random() - 0.5).slice(0, 3).map(x => x.id) };
+    return card(`${scene(cur.d)}
+      <div class="dg-head"><span class="fpop-kicker">${DOORS[k].ico} ${esc(T(DOORS[k].name))}</span>${dots()}</div>
+      <p class="dg-text dg-res ${good ? 'ok' : 'no'}"><i class="dg-badge">${good ? '✓' : '✗'}</i>${esc(txt)}</p>
+      ${gain ? `<p class="dg-gain">${esc(gain)}</p>` : ''}
+      ${relics ? relicChoiceHtml() : `${bubble(m, line(m, good ? 'ok' : 'no'))}<div class="fpop-btns"><button class="btn" data-act="dg-next">${esc(T('Weiter'))}</button></div>`}`);
+  }
+  function relicChoiceHtml() {
+    const o = cur.relicOffer;
+    if (!o || !o.list.length) return `<div class="fpop-btns"><button class="btn" data-act="dg-next">${esc(T('Weiter'))}</button></div>`;
+    return `<p class="dg-kick2">${esc(T('Wähle ein Relikt (gilt bis zum Ende dieses Landgangs)'))}</p>
+      <div class="dg-relics">${o.list.map(id => { const r = relicById(id); return `<button class="dg-relic" data-act="dg-relic" data-v="${r.id}"><i>${r.ico}</i><b>${esc(T(r.name))}</b><small>${esc(T(r.txt))}</small></button>`; }).join('')}</div>`;
+  }
+  function relicPick(id) {
+    const o = cur.relicOffer;
+    if (!o || o.step !== cur.i || !o.list.includes(id)) return null;
+    cur.relics = (cur.relics || []).concat(id);
+    cur.relicOffer = null;
+    const r = relicById(id), m = pick(cur.crew);
+    return card(`${scene(cur.d)}
+      <div class="dg-head"><span class="fpop-kicker">${esc(T('Relikt eingepackt'))}</span>${dots()}</div>
+      <p class="dg-text dg-res ok"><i class="dg-badge">${r.ico}</i><b>${esc(T(r.name))}</b> · ${esc(T(r.txt))}</p>
+      ${bubble(m, line(m, 'ok'))}
+      <div class="fpop-btns"><button class="btn" data-act="dg-next">${esc(T('Weiter'))}</button></div>`);
+  }
+  // Elite-Wache: kurzer Kampf ohne Animation (gleiche Kampfregeln wie beim Boss, aber kleiner)
+  function eliteFight() {
+    const S = fightSetup(cur.profile, cur.d, { fx: cur.fx, deep: cur.deep, relics: cur.relics });
+    if (!S) return { win: false, rounds: 0 };
+    const X = D(), pool = (X.grunts || []).filter(g => !g.art || g.monster || true);
+    const g = pool[Math.floor(Math.random() * pool.length)] || {};
+    const e = { id: g.id || 'thug', name: T('Elite-Wache'), type: g.type || 'kraft', hp: Math.round(S.boss.max * 0.3), max: Math.round(S.boss.max * 0.3), atk: Math.max(2, Math.round(S.boss.atk * 0.75)), spd: S.boss.spd, mini: true };
+    const run = { rng: ((Date.now() ^ Math.floor(Math.random() * 1e9)) >>> 0) || 1, crew: S.me, relics: [], arts: [], items: [], crit: 0, bounties: 0, captain: S.me[0].id, mod: { atk: 0, hp: 0, spd: 0 } };
+    const res = GL.battle.simulate(run, S.me.map(r => Object.assign({}, r)), [e], 'elite', { weather: modOf() ? modOf().w : null });
+    return { win: res.win, rounds: res.events.reduce((m, ev) => (ev.k === 'round' && ev.n > m ? ev.n : m), 0) };
+  }
+
   // ---------- Bosskampf ----------
   // Kampf-Aufbau ohne Anzeige (auch für Vorschau und Gemeinschafts-Landgang nutzbar):
   //   fightSetup(profile, d, { fx: [...], deep: bool, lvl: n, me: [Crew-Refs] }) -> { me, boss, minions, special }
   function fightSetup(profile, d, opts) {
     const o = opts || {}, sea = d.sea || 0, fxl = o.fx || [];
     const has = k => fxl.filter(x => x === k).length;
+    const RL = (o.relics || []).map(relicById).filter(Boolean);
+    const rsum = k => RL.reduce((a, r) => a + (r[k] || 0), 0);
     const me = (o.me || GL.meta.squadRefs(profile)).map(r => {
       const x = Object.assign({}, r);
       if (x.id === 'self') { x.ability = 'rally'; x.power = r.rally || 1; }
-      x.max = Math.round(x.max * (1 + FX.heal.v * has('heal')));
-      x.atk = Math.round(x.atk * (1 + FX.atk.v * has('atk')));
+      x.max = Math.round(x.max * (1 + FX.heal.v * has('heal') + rsum('hp')));
+      x.atk = Math.round(x.atk * (1 + FX.atk.v * has('atk') + rsum('atk')));
+      if (rsum('spd')) x.spd = (x.spd || 0) + rsum('spd');
+      if (rsum('crit')) x.gb = Object.assign({}, x.gb || {}, { crit: ((x.gb && x.gb.crit) || 0) + rsum('crit') });
       x.hp = Math.max(1, Math.round(x.max * (1 + FX.hurt.v * has('hurt'))));
       return x;
     });
     if (!me.length) return null;
     const def = bossOf(d);
     const sumAtk = me.reduce((s, r) => s + r.atk, 0), sumHp = me.reduce((s, r) => s + r.max, 0);
-    const hpCut = 1 + FX.bossHp.v * has('bossHp') + FX.bossHp2.v * has('bossHp2');
-    const atkUp = 1 + FX.bossAtk.v * has('bossAtk') + FX.bossAtk2.v * has('bossAtk2');
-    const max = Math.round(sumAtk / (1 + FX.atk.v * has('atk')) * BOSS.rounds * (1 + BOSS.perSea * sea) * hpCut);
+    const hpCut = 1 + FX.bossHp.v * has('bossHp') + FX.bossHp2.v * has('bossHp2') + rsum('bossHp');
+    const atkUp = 1 + FX.bossAtk.v * has('bossAtk') + FX.bossAtk2.v * has('bossAtk2') + rsum('bossAtk');
+    const max = Math.round(sumAtk / (1 + FX.atk.v * has('atk') + rsum('atk')) * BOSS.rounds * (1 + BOSS.perSea * sea) * hpCut);
     // Wiederholte Landgänge werden schwerer und abwechslungsreicher: Stufe pro Sieg, ab Stufe 1 Gefolge
     const lvl = o.lvl != null ? o.lvl : landgangLevel(profile, d.id), mult = 1 + 0.07 * lvl;
     const nMin = lvl >= 8 ? 3 : lvl >= 4 ? 2 : lvl >= 1 ? 1 : 0;
@@ -328,7 +443,7 @@ window.GL = window.GL || {};
   }
   function buildFight(profile) {
     const d = cur.d, sea = d.sea || 0, X = D();
-    const S = fightSetup(profile, d, { fx: cur.fx, deep: cur.deep });
+    const S = fightSetup(profile, d, { fx: cur.fx, deep: cur.deep, relics: cur.relics });
     if (!S) return null;
     const { me, boss, minions, lvl, def } = S;
     const seed = (Date.now() ^ Math.floor(Math.random() * 1e9)) >>> 0;
@@ -336,7 +451,7 @@ window.GL = window.GL || {};
     // Startwerte merken, bevor die Simulation die Leben verändert (sonst startet die Anzeige mit dem Endstand)
     const startHp = me.map(r => r.hp), bossMax = boss.max;
     const foes = [boss].concat(minions);
-    const res = GL.battle.simulate(run, me.map(r => Object.assign({}, r)), foes.map(f => Object.assign({}, f)), 'boss', {});
+    const res = GL.battle.simulate(run, me.map(r => Object.assign({}, r)), foes.map(f => Object.assign({}, f)), 'boss', { weather: modOf() ? modOf().w : null });
     const per = GL.config.stepsPerIsland || 8;
     const dRun = { step: sea * per, seed: 1, alt: d.alt ? { [sea]: true } : {}, captain: me[0].id,
       crew: me.map(r => Object.assign({}, r, { def: r.id === 'self' ? { id: 'self', name: r.name, look: r.look, type: r.type } : null })),
@@ -424,7 +539,8 @@ window.GL = window.GL || {};
     if (own.length) steps.push(own.splice(Math.floor(Math.random() * own.length), 1)[0]);
     const rest = pool.filter(s => !steps.includes(s));
     while (steps.length < DEEP.steps && rest.length) steps.push(rest.splice(Math.floor(Math.random() * rest.length), 1)[0]);
-    cur = { d, steps, i: 0, nSteps: STEPS, deep: false, crew: members(profile), fresh: fresh(profile, d.id), loot: { berry: 0, shards: 0, gear: [], find: null }, fx: [], plans: null, last: null, won: false, profile };
+    cur = { d, steps, i: 0, nSteps: STEPS, deep: false, crew: members(profile), fresh: fresh(profile, d.id), loot: { berry: 0, shards: 0, gear: [], find: null }, fx: [], plans: null, last: null, won: false, profile,
+      mod: Math.random() < 0.7 ? pick(MODS) : null, relics: [], doors: null, relicOffer: null };
     return introHtml();
   }
   function choose(i) {
@@ -501,8 +617,13 @@ window.GL = window.GL || {};
           this.pending = 'fight';
           return fightHtml();
         }
-        cur.i += 1; cur.plans = null; return stepHtml();
+        cur.i += 1; cur.plans = null;
+        // Zwischen den Szenen: zwei Türen (erste Szene ist immer die eigene des Ortes)
+        if (cur.i >= 1 && cur.i < NS()) return doorsHtml();
+        return stepHtml();
       }
+      if (name === 'dg-door') return doorPick(Number(data.i));
+      if (name === 'dg-relic') return relicPick(data.v) || stepHtml();
       return null;
     },
     // Nach dem Einfügen ins Fenster: Kampf starten

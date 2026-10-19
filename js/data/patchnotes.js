@@ -1,6 +1,12 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-20y', date: '19.10.', title: 'Der Kapitän redet mit', items: [
+    '📣🛡💥 Kapitänsbefehle im Kampf: Drei Knöpfe laden sich Zug für Zug auf – Angriff, Schildwall und je nach Crew Breitseite, Flickpause oder Finte. Antippen wirkt ab dem nächsten Zug. Wer nichts drückt, kämpft wie bisher',
+    '🎯 Fokusziel: Gegner antippen (vor oder im Kampf), und die Crew geht zuerst auf ihn. Heiler zuerst ist selten falsch',
+    '🚪 Landgang mit Türen: Zwischen den Szenen wählst du Rätselraum, Rastplatz, Schatzkammer, Elite-Wache oder Fallengang. Sicher links, riskant rechts',
+    '🧭 Landgang-Relikte (1 aus 3): Rumfass, Verbandskiste, Kompass, Pulverhorn, Spiegelschild, Glücksmünze, Sturmlaterne. Gelten bis zum Ende des Landgangs',
+    '🌑 Raum-Bedingungen: Dunkle Gänge, Flut, enge Gänge, Pulverkammer oder Schatzfieber verändern den Bosskampf spürbar. Die Sturmlaterne knipst das Problem aus' ] },
   { v: '2026-10-20x', date: '19.10.', title: 'Kampf mit Tiefe, Statistik in Ruhe', items: [
     '📊 Nach dem Kampf geht es nicht mehr von selbst weiter. Die Team-Statistik zeigt je Figur Schaden als Balken, K.O.s ☠, geblockt 🛡 und geheilt 💚, der MVP trägt Krone. Weiter erst, wenn du tippst',
     '↪ Gegner schlagen nicht mehr nur die vorderste Figur: Klingen fallen dir in den Rücken, andere weichen auf die Flanke aus. Normale Gegner treffen härter und halten etwas weniger aus',

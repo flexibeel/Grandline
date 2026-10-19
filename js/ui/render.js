@@ -2088,11 +2088,13 @@ window.GL = window.GL || {};
         const foeRows = foes.map((e, i) => {
           const d = GL.data.foeDef(e) || enemyData(e.id);
           const fk = e.kind && GL.data.foeKind(e.kind);
-          return `${e.wave === 2 && !(foes[i - 1] && foes[i - 1].wave === 2) ? '<span class="pv-wsep" aria-hidden="true">Welle 2</span>' : ''}<div class="pv-u foe${e.boss ? ' boss' : ''}${fk ? ' special' : ''}${e.wave === 2 ? ' w2' : ''}${e.elite2 ? ' elite2' : ''}${i === 0 ? ' is-front' : ''}" tabindex="0"
+          const w1 = e.wave !== 2 ? foes.filter(x => x.wave !== 2).indexOf(e) : -1;
+          const fcs = w1 >= 0 && run.pending.focus === w1;
+          return `${e.wave === 2 && !(foes[i - 1] && foes[i - 1].wave === 2) ? '<span class="pv-wsep" aria-hidden="true">Welle 2</span>' : ''}<div class="pv-u foe${e.boss ? ' boss' : ''}${fk ? ' special' : ''}${e.wave === 2 ? ' w2' : ''}${e.elite2 ? ' elite2' : ''}${i === 0 ? ' is-front' : ''}${fcs ? ' focus' : ''}" tabindex="0"${w1 >= 0 ? ` data-act="foe-focus" data-i="${w1}"` : ''}
               data-tip="${esc(`${d.name}\n${e.hp} Leben · ${e.atk} Angriff${fk ? '\n' + fk.text : ''}${!fk && !e.boss && ability(e.id) ? '\n' + ability(e.id).name + ': ' + ability(e.id).text : ''}`)}">
             ${i === 0 ? '<i class="pv-front" aria-hidden="true"></i>' : ''}
             ${boss && !e.boss && !e.mini && e.wave !== 2 && foes.indexOf(boss) > i ? `<i class="pv-guard" aria-hidden="true" title="Schützt den Anführer">${PX_GUARD}</i>` : ''}${(e.boss || e.mini) && i > 0 ? '<i class="pv-lead" aria-hidden="true">★</i>' : ''}${GL.arena && GL.arena.intentHtml ? GL.arena.intentHtml(e, foes, {}, 'pv-int') : ''}
-            <span class="pv-s">${GL.sprites.render(d)}</span>
+            ${fcs ? '<i class="pv-focus" aria-hidden="true">🎯</i>' : ''}<span class="pv-s">${GL.sprites.render(d)}</span>
             ${fk ? `<em class="pv-m fk fk-${fk.key}">${fk.tag}</em>` : !e.boss && !e.mini && ability(e.id) && (d.art || d.monster) ? `<em class="pv-m fk">${esc(ability(e.id).name)}</em>` : ''}
             <i class="pv-hp"><b style="width:100%"></b></i>
             <small>${e.hp} ♥</small>
@@ -2119,7 +2121,7 @@ window.GL = window.GL || {};
           <div class="pv pz-pv isl-${GL.run.island(run).id}${kind === 'raid' ? ' raid' : ''}">
             <div class="pv-side"><span class="pv-label">Deine Crew</span><div class="pv-row">${crewRows}</div></div>
             <div class="pv-vs" aria-hidden="true">VS</div>
-            <div class="pv-side"><span class="pv-label">Gegner</span><div class="pv-row">${foeRows}</div></div>
+            <div class="pv-side"><span class="pv-label">Gegner<em class="pv-fhint" title="Antippen markiert ein Fokusziel: Deine Crew geht zuerst auf diesen Gegner.">🎯 ${run.pending.focus != null ? 'Fokus gesetzt' : 'antippen = Fokus'}</em></span><div class="pv-row">${foeRows}</div></div>
           </div>
           ${mech || counter ? `<div class="pz-info">${mech}${counter}</div>` : ''}
           <div class="dock pz-dock">${specialBtn(run)}<button class="btn" data-act="fight">${pxIco('swords')}Kampf starten ${keyHint('Leertaste')}</button></div>`;
@@ -2145,6 +2147,7 @@ window.GL = window.GL || {};
         const sty = GL.effects.build ? GL.effects.build(run.crew) : null;
         return `<div class="battle-head"><h2>${title}</h2>${sty ? `<span class="bh-style b-${sty.key}" title="${esc(sty.pitch)}">${sty.icon}<b>${esc(sty.name)}</b><small>${'★'.repeat(sty.tier)}</small></span>` : ''}${done ? `<span class="result ${b.win ? 'win' : 'lose'}">${b.win ? 'Sieg' : 'Niederlage'}</span>` : ''}</div>
           ${GL.arena.html(run, anim)}
+          ${done ? '' : rcBar(run, anim, done)}
           <div class="log" id="log" role="status" aria-live="polite">${log}</div>
           ${done && b.win ? battleSummary(run) : ''}
           <div class="dock">${controls}</div>`;
@@ -2800,6 +2803,23 @@ window.GL = window.GL || {};
     let lines = []; try { lines = GL.cgear.lines(it); } catch (e) { lines = []; }
     return `<div class="gtip cr-${GL.cgear.RID[it.r] || ''}"><b>${esc(GL.cgear.name(it))}</b><small>${GL.cgear.RNAME[it.r] || ''} · ⚔ ${GL.cgear.power(it)}</small>
       <div class="gc">${lines.map(l => `<span class="gc-row${l.main ? ' up' : ''}"><span>${esc(l.text)}</span></span>`).join('')}</div></div>`;
+  }
+  // FUN: Kapitänsbefehle im Run-Kampf (laden pro Zug, Antippen wirkt ab dem nächsten Zug)
+  function rcBar(run, anim, done) {
+    const en = GL.i18n && GL.i18n.lang() === 'en';
+    const bk = GL.battle.burstKind ? GL.battle.burstKind(run.crew) : 'strike';
+    const BK = { strike: ['💥', en ? 'Broadside' : 'Breitseite', en ? 'Your captain hits the focus target hard' : 'Dein Kapitän trifft das Fokusziel hart'],
+      mend: ['💚', en ? 'Patch-up' : 'Flickpause', en ? 'Heals the whole crew a bit' : 'Heilt die ganze Crew ein Stück'],
+      stun: ['💫', en ? 'Feint' : 'Finte', en ? 'Their strongest skips a turn' : 'Ihr Stärkster setzt einen Zug aus'],
+      wall: ['💥', en ? 'Broadside' : 'Breitseite', en ? 'Your captain hits the focus target hard' : 'Dein Kapitän trifft das Fokusziel hart'] }[bk];
+    const B = [['rally', '📣', en ? 'Charge' : 'Angriff', en ? 'Whole crew hits harder for a few turns' : 'Ganze Crew trifft ein paar Züge härter'],
+      ['guard', '🛡', en ? 'Shield wall' : 'Schildwall', en ? 'Whole crew takes less damage for a few turns' + (bk === 'wall' ? ' (Bulwark: even more)' : '') : 'Ganze Crew nimmt ein paar Züge weniger Schaden' + (bk === 'wall' ? ' (Bollwerk: noch mehr)' : '')],
+      ['burst', BK[0], BK[1], BK[2]]];
+    const C = (GL.config.runCmds || {}).charge || {}, rc = (anim && anim.rc) || {};
+    return `<div class="rc-bar${done ? ' is-done' : ''}" role="group" aria-label="${en ? 'Captain orders' : 'Kapitänsbefehle'}">${B.map(([c, i, t, d]) => {
+      const p = Math.min(1, (rc[c] || 0) / (C[c] || 6)), full = !done && p >= 1;
+      return `<button class="rc-btn${full ? ' full' : ''}" data-act="rc-cmd" data-c="${c}"${full ? '' : ' disabled'} title="${esc(d)}" style="--p:${p.toFixed(3)}"><i class="rc-ico">${i}</i><b>${esc(t)}</b><span class="rc-fill" aria-hidden="true"></span></button>`;
+    }).join('')}<small class="rc-hint">${en ? '🎯 Tap a foe = focus' : '🎯 Gegner antippen = Fokus'}</small></div>`;
   }
   // Duell-Kommandos: drei Holzknöpfe, die sich mit jedem Zug aufladen
   function dxBar() {

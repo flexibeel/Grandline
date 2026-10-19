@@ -319,7 +319,9 @@ window.GL = window.GL || {};
     if (!pvp) enemies.forEach(e => { if (e.boss || e.raid) e.dodge = (e.dodge || 0) + (BF.dodge || 0); });
     // ---------- Kampfwetter: manche Kämpfe bekommen eine Bedingung, damit sie sich nicht gleich anfühlen ----------
     const WX = C.weather || [];
-    const wx = !pvp && (kind === 'battle' || kind === 'elite') && WX.length && R.float(run) < (C.weatherChance || 0) ? WX[Math.floor(R.float(run) * WX.length)] : null;
+    // Landgang-Räume (FUN) können eine Bedingung fest vorgeben (o.weather), sonst entscheidet der Zufall wie bisher
+    const wx = o.weather && !pvp ? (WX.find(w => w.id === o.weather) || null)
+      : !pvp && (kind === 'battle' || kind === 'elite') && WX.length && R.float(run) < (C.weatherChance || 0) ? WX[Math.floor(R.float(run) * WX.length)] : null;
     const wxMiss = wx && wx.miss || 0, wxCrit = wx && wx.crit || 0, wxGain = wx && wx.gain || 1, wxDmg = wx && wx.crewDmg || 0;
     if (wx) {
       if (wx.crewSpd) crew.forEach(u => { u.spd += wx.crewSpd; });
@@ -610,16 +612,20 @@ window.GL = window.GL || {};
     // Duell-Kommandos (nur Stammcrew-Duell, nur mit o.duel): vor jedem Zug steht eine Zug-Marke im Protokoll.
     // Ein Kommando wirkt vor dem genannten Zug. Alles davor bleibt Ereignis für Ereignis gleich,
     // deshalb kann die Wiedergabe nach einem Tipp nahtlos mit dem neu gerechneten Verlauf weiterlaufen.
-    const DUEL = !!o.duel, CMDS = DUEL && Array.isArray(o.cmds) ? o.cmds : [];
-    const DK = C.duelCmds || {};
+    // FUN: Run-Kämpfe bekommen dieselben Zug-Marken (o.turns) und Kapitänsbefehle (o.cmds) plus ein Fokusziel (o.focus).
+    // Ohne Befehle und Fokus läuft alles wie vorher, nur mit Marken im Protokoll.
+    const DUEL = !!o.duel, TURNS = DUEL || !!o.turns, CMDS = TURNS && Array.isArray(o.cmds) ? o.cmds : [];
+    const DK = C.duelCmds || {}, RK = C.runCmds || {};
     const cmdBuff = [];
     let turnNo = 0;
+    let FOCUS = !DUEL && o.focus != null && enemies[o.focus] ? enemies[o.focus] : null;
     function cmdTurn() {
-      for (let k = cmdBuff.length - 1; k >= 0; k--) if (cmdBuff[k].until < turnNo) { const b = cmdBuff[k]; b.u.atk = Math.max(1, b.u.atk - b.add); cmdBuff.splice(k, 1); }
+      for (let k = cmdBuff.length - 1; k >= 0; k--) if (cmdBuff[k].until < turnNo) { const b = cmdBuff[k]; if (b.guard) b.u.guard = Math.max(0, (b.u.guard || 0) - b.guard); else b.u.atk = Math.max(1, b.u.atk - b.add); cmdBuff.splice(k, 1); }
       CMDS.forEach(c => {
         if (!c || c.at !== turnNo) return;
         const team = alive(crew), foes = alive(enemies);
         if (!team.length || !foes.length) return;
+        if (!DUEL) { runCmd(c, team, foes); return; }
         if (c.cmd === 'cheer') {
           team.forEach(u => { const add = Math.max(1, Math.round(u.atk * (DK.cheerAtk || 0.12))); u.atk += add; cmdBuff.push({ u, add, until: turnNo + (DK.cheerTurns || 5) }); });
           events.push({ k: 'cmd', cmd: 'cheer', side: 'crew', list: team.map(u => idx(u)) });
@@ -641,6 +647,38 @@ window.GL = window.GL || {};
           } else events.push({ k: 'cmd', cmd: 'dice', res: 'flop', side: 'crew' });
         }
       });
+    }
+
+    // Kapitänsbefehle im Run (FUN). Wirken vor dem genannten Zug.
+    function runCmd(c, team, foes) {
+      if (c.cmd === 'focus') {
+        const t = enemies[c.to];
+        if (t && t.hp > 0) { FOCUS = t; events.push({ k: 'cmd', cmd: 'focus', side: 'crew', to: idx(t) }); }
+      } else if (c.cmd === 'rally') {
+        const pct = RK.rallyAtk || 0.15;
+        team.forEach(u => { const add = Math.max(1, Math.round(u.atk * pct)); u.atk += add; cmdBuff.push({ u, add, until: turnNo + (RK.rallyTurns || 6) }); });
+        events.push({ k: 'cmd', cmd: 'rally', side: 'crew', list: team.map(u => idx(u)) });
+      } else if (c.cmd === 'guard') {
+        const g = (RK.guard || 0.25) + (o.burst === 'wall' ? 0.1 : 0);
+        team.forEach(u => { u.guard = (u.guard || 0) + g; cmdBuff.push({ u, guard: g, until: turnNo + (RK.guardTurns || 6) }); });
+        events.push({ k: 'cmd', cmd: 'guard', side: 'crew', list: team.map(u => idx(u)) });
+      } else if (c.cmd === 'burst') {
+        const kind = o.burst || 'strike';
+        if (kind === 'mend') {
+          const list = team.map(u => ({ to: idx(u), amount: heal(u, Math.round(u.max * (RK.mend || 0.2))), hp: u.hp })).filter(x => x.amount > 0);
+          events.push({ k: 'cmd', cmd: 'burst', res: 'mend', side: 'crew' });
+          if (list.length) events.push({ k: 'heal', side: 'crew', list, by: 'befehl' });
+        } else if (kind === 'stun') {
+          const fast = foes.reduce((a, b) => (b.atk > a.atk ? b : a)); fast.status.stun = true;
+          events.push({ k: 'cmd', cmd: 'burst', res: 'stun', side: 'crew', to: idx(fast) });
+        } else {
+          const cap = team[0];
+          const t = FOCUS && FOCUS.hp > 0 ? FOCUS : foes.reduce((a, b) => (b.hp < a.hp ? b : a));
+          const d = Math.max(1, Math.round(cap.atk * (RK.strike || 2.2) * typeMult(cap.type, t.type)));
+          events.push({ k: 'cmd', cmd: 'burst', res: 'strike', side: 'crew', from: idx(cap), to: idx(t) });
+          events.push({ k: 'dmg', side: 'enemy', list: [{ to: idx(t), dmg: Math.min(t.hp, d), hp: damage(t, d) }], by: 'kapitaensschlag' });
+        }
+      }
     }
 
     // ---------- Runden ----------
@@ -675,7 +713,7 @@ window.GL = window.GL || {};
 
       for (const u of queue) {
         if (!alive(enemies).length || !alive(crew).length) break;   // Kampf schon entschieden
-        if (DUEL) { turnNo++; events.push({ k: 'turn', t: turnNo }); if (CMDS.length) { cmdTurn(); if (!alive(enemies).length) break; } }
+        if (TURNS) { turnNo++; events.push({ k: 'turn', t: turnNo }); if (CMDS.length) { cmdTurn(); if (!alive(enemies).length) break; } }
         drama();
         if (u.hp <= 0) continue;
         if (u.status.stun) {
@@ -713,6 +751,8 @@ window.GL = window.GL || {};
           if (LX && LX.duel && (u === LX.duel[0] || u === LX.duel[1])) { const other = u === LX.duel[0] ? LX.duel[1] : LX.duel[0]; if (other.hp > 0 && living.includes(other)) target = other; }
           const taunter = target ? null : living.find(f => f.taunt > 0);
           if (taunter && (taunter.taunt >= 2 || (u.ability !== 'sniper' && u.ability !== 'bully'))) target = taunter;
+          // Fokusziel (Kapitän hat einen Gegner markiert): die Crew geht bevorzugt auf ihn
+          if (!target && FOCUS && u.side === 'crew' && FOCUS.hp > 0 && living.includes(FOCUS)) target = FOCUS;
           if (!target && inPlan(u) && PL.key === 'tiere' && u.ability !== 'sniper') {
             if (!PL.prey || PL.prey.hp <= 0 || !living.includes(PL.prey)) PL.prey = living.reduce((a, b) => (b.hp / b.max < a.hp / a.max ? b : a));
             target = PL.prey;
@@ -921,5 +961,11 @@ window.GL = window.GL || {};
     return { events, win, team: { crew: team.crew, enemy: team.enemy } };
   }
 
-  GL.battle = { typeMult, simulate };
+  // Welcher Kapitänsschlag passt zur Crew? (Lazarett heilt, Tempo/Schwertkunst betäuben, Bollwerk stärkt den Schildwall)
+  function burstKind(crewList) {
+    const b = GL.effects && GL.effects.build ? GL.effects.build(crewList || []) : null;
+    const k = b ? b.key : '';
+    return k === 'helfer' ? 'mend' : k === 'technik' ? 'stun' : k === 'brecher' ? 'wall' : 'strike';
+  }
+  GL.battle = { typeMult, simulate, burstKind };
 })();

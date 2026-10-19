@@ -1078,6 +1078,13 @@ window.GL = window.GL || {};
           run.pending.special = !run.pending.special;
           return true;
         }
+        // Fokusziel vor dem Kampf markieren: { type: 'focus', index } (nochmal tippen = aufheben)
+        if (a.type === 'focus') {
+          const n = a.index | 0, list = run.pending.enemies.filter(e => e.wave !== 2);
+          if (n < 0 || n >= list.length) return false;
+          run.pending.focus = run.pending.focus === n ? null : n;
+          return true;
+        }
         if (a.type === 'fight') {
           // Welle 1 kämpft sofort, Welle 2 wartet als Nachschub (gleiche Reihenfolge wie in der Anzeige)
           const all = run.pending.enemies.map(e => Object.assign({}, e));
@@ -1087,7 +1094,12 @@ window.GL = window.GL || {};
           const crewStart = run.crew.map(u => u.hp);
           const special = !!run.pending.special;
           if (special) run.charge = 0;
-          const res = GL.battle.simulate(run, run.crew, enemies.filter(e => e.wave !== 2), run.pending.kind, { special, reserve });
+          // FUN: Kapitänsbefehle und Fokusziel kommen mit der Aktion (Replays rechnen sie genauso nach)
+          const RC = ['rally', 'guard', 'burst', 'focus'];
+          const cmds = (Array.isArray(a.cmds) ? a.cmds : []).filter(c => c && RC.includes(c.cmd) && Number.isInteger(c.at) && c.at > 0 && c.at < 999).slice(0, 12)
+            .map(c => (c.cmd === 'focus' ? { at: c.at, cmd: 'focus', to: Math.max(0, Math.min(9, c.to | 0)) } : { at: c.at, cmd: c.cmd }));
+          const focus = run.pending.focus != null ? run.pending.focus : null;
+          const res = GL.battle.simulate(run, run.crew, enemies.filter(e => e.wave !== 2), run.pending.kind, { special, reserve, turns: true, cmds, focus, burst: GL.battle.burstKind ? GL.battle.burstKind(run.crew) : 'strike' });
           // Werte für die Rangliste: Schaden, härtester Treffer, K.o.s, Krits
           const S = run.stats || (run.stats = { dmg: 0, maxHit: 0, kos: 0, crits: 0, taken: 0, fights: 0 });
           S.fights++;

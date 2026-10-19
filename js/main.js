@@ -562,7 +562,11 @@
   function act(action) {
     if (!run) return;
     // Gold und Kopfgeld erst nach der Kampfanimation zeigen (sonst verrät der Kopf den Ausgang)
-    if (action && action.type === 'fight') GL.ui.hold = { gold: run.gold || 0, bounty: run.bountyM || 0 };
+    if (action && action.type === 'fight') {
+      GL.ui.hold = { gold: run.gold || 0, bounty: run.bountyM || 0 };
+      // FUN: Stand vor dem Kampf merken. Tippt man einen Kapitänsbefehl, wird der Kampf ab hier mit Befehl neu gerechnet.
+      try { ui.rf = { snap: JSON.stringify(run), cmds: [], turn: 0, at: Date.now() }; } catch (e) { ui.rf = null; }
+    }
     const bossesBefore = run.bounties || 0;
     const wasFinished = GL.run.isFinished(run);
     const bountyBefore = run.bountyM || 0;
@@ -834,6 +838,62 @@
   const SPEEDF = [1, 0.9, 0.55, 0.32, 0.18];
   const showSpeed = () => { const f = document.getElementById('field'); if (f && anim) f.dataset.speed = anim.speed; };
 
+  // FUN: Kapitänsbefehle im Run-Kampf. Laden pro Zug, wirken ab dem nächsten Zug.
+  // Der Kampf wird dann aus dem gemerkten Stand mit allen Befehlen neu gerechnet (gleiche Würfel bis dahin).
+  const RUN_CMDS = ['rally', 'guard', 'burst'];
+  function rcCharge() {
+    const C = (GL.config.runCmds || {}).charge || { rally: 4, guard: 6, burst: 9 };
+    RUN_CMDS.forEach(k => {
+      const b = document.querySelector(`.rc-btn[data-c="${k}"]`); if (!b) return;
+      const p = Math.min(1, ((anim && anim.rc && anim.rc[k]) || 0) / (C[k] || 6));
+      const live = !!(anim && !anim.done && ui.rf);
+      b.style.setProperty('--p', p.toFixed(3));
+      b.classList.toggle('full', p >= 1 && live);
+      b.disabled = !(p >= 1 && live);
+    });
+  }
+  function rcResim() {
+    try {
+      const r2 = JSON.parse(ui.rf.snap);
+      const ok = GL.run.act(r2, { type: 'fight', cmds: ui.rf.cmds.slice() });
+      if (!ok) return false;
+      Object.keys(run).forEach(k => { delete run[k]; });
+      Object.assign(run, r2);
+      if (profile.settings && profile.settings.autoTrain && run.crew.some(u => u.points > 0)) autoTrainAll(true);
+      GL.save.storeRun(run);
+      return true;
+    } catch (e) { return false; }
+  }
+  function rcCmd(k) {
+    if (!anim || anim.done || !ui.rf || !RUN_CMDS.includes(k)) return;
+    const C = (GL.config.runCmds || {}).charge || {};
+    anim.rc = anim.rc || {};
+    if ((anim.rc[k] || 0) < (C[k] || 6)) return;
+    ui.rf.cmds.push({ at: ui.rf.turn + 1, cmd: k });
+    anim.rc[k] = 0;
+    if (!rcResim()) { ui.rf.cmds.pop(); return; }
+    rcCharge();
+    const b = document.querySelector(`.rc-btn[data-c="${k}"]`); if (b) { b.classList.add('used'); setTimeout(() => b.classList.remove('used'), 500); }
+  }
+  // Gegner im laufenden Kampf antippen: Fokusziel ab dem nächsten Zug
+  function rcFocus(i) {
+    if (!anim || anim.done || !ui.rf || !run || !run.battle) return;
+    const e = run.battle.enemies[i];
+    if (!e || (anim.enemyHp[i] || 0) <= 0) return;
+    const last = ui.rf.cmds.filter(c => c.cmd === 'focus').pop();
+    if (last && last.to === i) return;
+    if (ui.rf.cmds.length >= 12) return;
+    ui.rf.cmds.push({ at: ui.rf.turn + 1, cmd: 'focus', to: i });
+    if (!rcResim()) { ui.rf.cmds.pop(); return; }
+    document.querySelectorAll('#field .fu-enemy.focus').forEach(x => x.classList.remove('focus'));
+    const u = document.querySelector(`#field .fu-enemy[data-i="${i}"]`); if (u) u.classList.add('focus');
+  }
+  document.addEventListener('click', e => {
+    const u = e.target.closest && e.target.closest('#field .fu-enemy');
+    if (!u || !anim || anim.done || !ui.rf) return;
+    if (e.target.closest('.int-i')) return;
+    rcFocus(Number(u.dataset.i));
+  });
   // BATTLE2: Gegnerzüge hintereinander überlappen leicht (weniger Leerlauf, Runde wirkt wie ein Schlagabtausch)
   function nextQuick(ev) {
     const nx = run && run.battle && run.battle.events[anim.i];
@@ -843,6 +903,9 @@
     if (!anim || anim.done) return;
     const ev = run.battle.events[anim.i++];
     if (!ev) { anim.done = true; GL.ui.hold = null; if (GL.sfx) GL.sfx.play(run.battle.win ? 'win' : 'lose'); draw(); if (GL.quips) { const r = run, hp = anim.crewHp.slice(); setTimeout(() => { if (run === r) GL.quips.end(r, hp); }, 120); } return; }
+    // Zug-Marke: Befehlsknöpfe laden, sonst nichts zu sehen
+    if (ev.k === 'turn') { if (ui.rf) ui.rf.turn = ev.t; anim.rc = anim.rc || { rally: 0, guard: 0, burst: 0 }; RUN_CMDS.forEach(k => { anim.rc[k] = (anim.rc[k] || 0) + 1; }); rcCharge(); anim.timer = setTimeout(stepAnim, 0); return; }
+    if (ev.k === 'cmd') { GL.arena.play(ev); anim.timer = setTimeout(stepAnim, Math.max(350, 700 * (SPEEDF[anim.speed] || 0.55))); return; }
     const setHp = (side, to, hp) => { (side === 'crew' ? anim.crewHp : anim.enemyHp)[to] = hp; };
     if (ev.k === 'hit') setHp(ev.side === 'crew' ? 'enemy' : 'crew', ev.to, ev.hp);
     else if (ev.list) ev.list.forEach(x => { if (x.hp !== undefined) setHp(ev.side, x.to, x.hp); });
@@ -1299,8 +1362,10 @@
       case 'up':   act({ type: 'swap', a: i, b: i - 1 }); break;
       case 'down': act({ type: 'swap', a: i, b: i + 1 }); break;
       case 'fight': startFight(); break;
+      case 'rc-cmd': rcCmd(el.dataset.c); break;
+      case 'foe-focus': if (run && run.phase === 'prep') { GL.run.act(run, { type: 'focus', index: Number(el.dataset.i) }); GL.save.storeRun(run); draw(); } break;
       case 'special': act({ type: 'special' }); break;
-      case 'continue': stopAnim(); act({ type: 'continue' }); break;
+      case 'continue': stopAnim(); ui.rf = null; act({ type: 'continue' }); break;
       case 'fast':
         if (anim) {
           anim.speed = anim.speed >= 4 ? 1 : anim.speed + 1; showSpeed();
@@ -1331,7 +1396,7 @@
       case 'endless-open': openGearPop(GL.ui.endlessPop(profile)); break;
       case 'hunt-open': openGearPop(GL.ui.huntPop(profile)); break;
       // Landgang: kleine Abenteuer im Fenster (js/ui/dungeon.js)
-      case 'dg-open': case 'dg-list': case 'dg-start': case 'dg-go': case 'dg-pick': case 'dg-next': case 'dg-fast': case 'dg-depth': {
+      case 'dg-open': case 'dg-list': case 'dg-start': case 'dg-go': case 'dg-pick': case 'dg-next': case 'dg-fast': case 'dg-depth': case 'dg-door': case 'dg-relic': {
         // Landgang mit Bosskampf der Stammcrew: Beute wird beim Kampfende gespeichert (onSave)
         GL.dungeon.onSave = () => { saveProfile(); ui.lastStage = null; draw(); };
         const h = GL.dungeon.act(type, el.dataset, profile);

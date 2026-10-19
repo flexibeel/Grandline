@@ -9392,3 +9392,52 @@ em.type.t-technik { background: #5b86b3 !important; }
 @media (prefers-reduced-motion: reduce) { .f-stage[class*="px-"] * { animation: none !important; } }
 .sea-lost { display: flex; align-items: center; gap: 6px; margin: 6px 2px 2px; font-size: .74rem; color: #4a6a78; font-style: italic; }
 .sea-lost i { font-style: normal; }
+
+/* ===== FUN: Kapitänsbefehle und Fokusziel im Run-Kampf ===== */
+.rc-bar { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin: 6px 0 6px; }
+.rc-bar.is-done { visibility: hidden; }
+.rc-hint { grid-column: 1 / -1; text-align: center; font-size: .66rem; color: #8a7458; margin-top: -1px; }
+.rc-btn { position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 46px; padding: 4px 4px 8px;
+  background: #f3e3c2; border: 2px solid #8a6238; border-radius: 9px; box-shadow: 0 3px 0 #6b4a2a; color: #4a3520; font: inherit; cursor: pointer; transition: transform .1s; }
+.rc-btn .rc-ico { font-style: normal; font-size: 1.15rem; line-height: 1; filter: grayscale(.7); opacity: .7; transition: filter .3s, opacity .3s; }
+.rc-btn b { font-size: .72rem; font-weight: 800; line-height: 1.05; text-align: left; }
+.rc-btn .rc-fill { position: absolute; left: 4px; right: 4px; bottom: 3px; height: 4px; border-radius: 3px; background: rgba(107,74,42,.18); }
+.rc-btn .rc-fill::after { content: ''; position: absolute; inset: 0; width: calc(var(--p, 0) * 100%); border-radius: 3px; background: #c99a3a; transition: width .2s linear; }
+.rc-btn:disabled { cursor: default; color: #8a7458; }
+.rc-btn.full { background: #fff4d4; border-color: #b4822a; box-shadow: 0 3px 0 #8a5a1a, 0 0 0 2px rgba(240,190,80,.35); animation: dxGlow 1.6s ease-in-out infinite alternate; }
+.rc-btn.full .rc-ico { filter: none; opacity: 1; }
+.rc-btn.full .rc-fill::after { background: #e0a92a; }
+.rc-btn.full:active { transform: translateY(2px); box-shadow: 0 1px 0 #8a5a1a; }
+.rc-btn.used { animation: dxUsed .45s ease; }
+@media (max-width: 380px) { .rc-btn b { font-size: .64rem; } .rc-btn { gap: 3px; } }
+@media (prefers-reduced-motion: reduce) { .rc-btn.full, .rc-btn.used { animation: none; } }
+/* Fokusziel: kleines Zielkreuz über dem Gegner, Gegner im Kampf antippbar */
+#field .fu-enemy { cursor: crosshair; }
+#field .fu-enemy.focus .fu-body::after { content: '🎯'; position: absolute; left: 50%; top: -14px; transform: translateX(-50%); font-size: 13px; line-height: 1; filter: drop-shadow(0 1px 0 rgba(0,0,0,.35)); pointer-events: none; }
+.pv-u.foe[data-act="foe-focus"] { cursor: pointer; }
+.pv-u.foe.focus { box-shadow: 0 0 0 2px #d9603a, 0 3px 0 rgba(107,74,42,.4) !important; }
+.pv-focus { position: absolute; top: -8px; right: -6px; z-index: 4; font-style: normal; font-size: 14px; line-height: 1; filter: drop-shadow(0 1px 0 rgba(0,0,0,.3)); }
+/* Landgang: Raum-Bedingung, Türen, Relikte */
+.dg-mod { display: flex; align-items: center; gap: 8px; margin: 6px 0; padding: 6px 9px; border-radius: 9px; background: #efe2c6; border: 1px dashed #b89458; }
+.dg-mod > i { font-style: normal; font-size: 1.3rem; }
+.dg-mod b { display: block; font-size: .82rem; color: #4a3520; }
+.dg-mod small { display: block; font-size: .72rem; color: #7a6248; line-height: 1.25; }
+.dg-fx i.mod, .dg-fx i.rel { font-style: normal; background: #fff6df; border-color: #c9a46a; }
+.dg-doors { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 8px 0; }
+.dg-door { position: relative; display: flex; flex-direction: column; align-items: center; gap: 3px; min-height: 118px; padding: 16px 8px 10px; cursor: pointer; font: inherit; color: #3a2a18;
+  background: linear-gradient(#a8743e, #8a5a2c); border: 2px solid #5a3a1a; border-radius: 46px 46px 8px 8px; box-shadow: inset 0 0 0 4px rgba(255,230,180,.18), 0 4px 0 #4a2e14; }
+.dg-door::after { content: ''; position: absolute; right: 14px; top: 58%; width: 6px; height: 6px; border-radius: 50%; background: #f2d27a; box-shadow: 0 1px 0 #6b4a1a; }
+.dg-door .dg-door-ico { font-style: normal; font-size: 1.5rem; width: 40px; height: 40px; display: grid; place-items: center; border-radius: 50%; background: #fff3d8; box-shadow: inset 0 -3px 0 #e0c48c; }
+.dg-door b { font-size: .84rem; color: #fff6e2; text-shadow: 0 1px 0 #3a220c; }
+.dg-door small { font-size: .7rem; color: #f6e2bc; text-align: center; line-height: 1.25; }
+.dg-door:active { transform: translateY(2px); box-shadow: inset 0 0 0 4px rgba(255,230,180,.18), 0 2px 0 #4a2e14; }
+.dg-door.d-elite, .dg-door.d-trap { background: linear-gradient(#8e4f3a, #6e3626); }
+.dg-kick2 { margin: 8px 0 4px; font-size: .74rem; font-weight: 800; color: #8a6d48; text-align: center; }
+.dg-relics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 4px; }
+.dg-relic { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px 4px; cursor: pointer; font: inherit; color: #3a2a18;
+  background: #fff8e6; border: 2px solid #c9a46a; border-radius: 10px; box-shadow: 0 3px 0 #b88a3a; }
+.dg-relic > i { font-style: normal; font-size: 1.4rem; }
+.dg-relic b { font-size: .74rem; }
+.dg-relic small { font-size: .64rem; color: #7a6248; text-align: center; line-height: 1.2; }
+.dg-relic:active { transform: translateY(2px); box-shadow: 0 1px 0 #b88a3a; }
+.pv-fhint { font-style: normal; font-weight: 700; font-size: .62rem; color: #a0583a; margin-left: 6px; letter-spacing: 0; text-transform: none; }

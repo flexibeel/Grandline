@@ -857,9 +857,24 @@ window.GL = window.GL || {};
           food: ['🍖', en ? 'Provisions!' : 'Proviant!', en ? 'Food helps. It usually does.' : 'Essen hilft. Meistens.'],
           salvo: ['🎲', en ? 'Lucky shot!' : 'Glückswurf: Volltreffer!', en ? 'Nobody aimed. Everybody hit.' : 'Keiner hat gezielt. Alle haben getroffen.'],
           trip: ['🎲', en ? 'Lucky roll: they trip!' : 'Glückswurf: Stolperfalle!', en ? 'Their strongest trips over a rope. Classic.' : 'Ihr Stärkster stolpert über ein Tau. Klassiker.'],
-          flop: ['🎲', en ? 'Lucky roll: nothing.' : 'Glückswurf: nichts.', en ? 'The die rolls overboard. Brave little die.' : 'Der Würfel ist über Bord gerollt. Tapferer kleiner Würfel.']
-        }[ev.cmd === 'dice' ? ev.res : ev.cmd] || ['✦', '', ''];
+          flop: ['🎲', en ? 'Lucky roll: nothing.' : 'Glückswurf: nichts.', en ? 'The die rolls overboard. Brave little die.' : 'Der Würfel ist über Bord gerollt. Tapferer kleiner Würfel.'],
+          // FUN: Kapitänsbefehle im Run
+          rally: ['📣', en ? 'Charge!' : 'Angriff!', en ? 'The captain shouts. The crew pretends it was their idea.' : 'Der Kapitän brüllt. Die Crew tut so, als wäre es ihre Idee.'],
+          guard: ['🛡', en ? 'Shield wall!' : 'Schildwall!', en ? 'Everyone ducks behind everyone else. It works.' : 'Alle ducken sich hinter alle anderen. Funktioniert.'],
+          strike: ['💥', en ? 'Broadside!' : 'Breitseite!', en ? 'Leadership, applied directly.' : 'Führungsqualität, direkt angewendet.'],
+          mend: ['💚', en ? 'Patch-up!' : 'Flickpause!', en ? 'Bandages for everyone. Nobody reads the instructions.' : 'Verband für alle. Die Packungsbeilage liest keiner.'],
+          stun: ['💫', en ? 'Feint!' : 'Finte!', en ? 'Their strongest swings at thin air.' : 'Ihr Stärkster schlägt ins Leere.']
+        }[ev.cmd === 'dice' || ev.cmd === 'burst' ? ev.res : ev.cmd] || ['✦', '', ''];
+        if (ev.cmd === 'focus') {
+          document.querySelectorAll('#field .fu-enemy.focus').forEach(x => x.classList.remove('focus'));
+          const f = fu('enemy', ev.to); if (f) f.classList.add('focus');
+          fieldFloat('enemy', ev.to, '🎯', 'buff');
+          return;
+        }
         banner('team dx-ban', `<small>${en ? 'Command' : 'Kommando'}</small><b>${T[0]} ${T[1]}</b><em>${T[2]}</em>`, 1300);
+        if (ev.cmd === 'rally' || ev.cmd === 'guard') (ev.list || []).forEach(i => { pulse(fu('crew', i), 'healed'); fieldFloat('crew', i, ev.cmd === 'rally' ? '⚔ +' : '🛡', 'buff'); });
+        if (ev.cmd === 'burst' && ev.res === 'stun' && ev.to != null) { pulse(fu('enemy', ev.to), 'hurt'); fieldFloat('enemy', ev.to, '💫', 'debuff'); }
+        if (ev.cmd === 'burst' && ev.res === 'strike') { pulse(root, 'shake'); if (ev.from != null) pulse(fu('crew', ev.from), 'atk'); }
         if (ev.cmd === 'cheer') (ev.list || []).forEach(i => { pulse(fu('crew', i), 'healed'); fieldFloat('crew', i, '⚔ +', 'buff'); });
         if (ev.cmd === 'dice' && ev.res === 'trip' && ev.to != null) { pulse(fu('enemy', ev.to), 'hurt'); fieldFloat('enemy', ev.to, en ? 'trips' : 'stolpert', 'debuff'); }
         if (ev.cmd === 'dice' && ev.res === 'salvo') pulse(root, 'shake');
