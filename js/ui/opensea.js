@@ -112,8 +112,10 @@ window.GL = window.GL || {};
 
   // ---------- Bühne ----------
   function stage(run, h) {
-    const s = run.sea;
-    if (!s) return '';
+    const s0 = run.sea;
+    if (!s0) return '';
+    // Zielname wie im Rest der Oberfläche übersetzen (steht hier mitten in einem Satz)
+    const s = Object.assign({}, s0, { dest: en() && GL.i18n && GL.i18n.t ? GL.i18n.t(s0.dest) : s0.dest });
     const S = GL.seaRun, key = run.seed + ':' + run.step;
     if (sel && sel.key !== key) sel = null;
     const reach = S.reach(s), next = S.stormsAfter(s, 1);
