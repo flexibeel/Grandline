@@ -9534,7 +9534,7 @@ em.type.t-technik { background: #5b86b3 !important; }
 @keyframes moDrop { 0%, 100% { transform: none; } 50% { transform: translateX(-2px); filter: saturate(0); } }
 @keyframes moFull { 0%, 100% { box-shadow: 0 0 0 2px #1a1424; } 30%, 70% { box-shadow: 0 0 0 2px #ffd84a, 0 0 8px rgba(255,216,74,.6); } }
 /* Blöße: kleine Raute über markierten Gegnern (Technik deckt sie auf, Klinge nutzt sie) */
-.fu-mark { display: none; position: absolute; left: 50%; top: -10px; width: 6px; height: 6px; margin-left: -3px; background: #ffe27a; box-shadow: 0 0 0 1px #6a4a10; transform: rotate(45deg); z-index: 5; pointer-events: none; }
+.fu-mark { display: none; position: absolute; left: 50%; bottom: -1px; width: 7px; height: 7px; margin-left: -38px; background: #ffe27a; box-shadow: 0 0 0 1px #6a4a10; transform: rotate(45deg); z-index: 5; pointer-events: none; }
 .fu.marked:not(.ko) .fu-mark { display: block; animation: mkBlink 1s steps(2) infinite; }
 @keyframes mkBlink { 50% { opacity: .45; } }
 /* Moralbruch: Gefolge duckt sich und wird blass, solange die Furcht hält */

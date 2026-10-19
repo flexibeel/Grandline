@@ -1386,6 +1386,7 @@ window.GL = window.GL || {};
     if (ev.k === 'status' && ev.cut && ev.list[0]) { const n = targetName(run, ev.side, ev.list[0].to); return EN ? `A clean cut: ${n} is bleeding. A heavy blow would tear it open.` : `Sauberer Schnitt: ${n} blutet. Ein Kraft-Schlag würde das aufreißen.`; }
     if (ev.k === 'dmg' && ev.rip && ev.list[0]) { const a = anyData(ev.by) ? anyData(ev.by).name : '', n = targetName(run, ev.side, ev.list[0].to); return EN ? `${a} tears the wound open: ${ev.list[0].dmg} at once from ${n}.` : `${a} reißt die Wunde auf: ${ev.list[0].dmg} Schaden auf einmal bei ${n}.`; }
     if (ev.k === 'hit' && ev.stand) { const n = targetName(run, 'crew', ev.to); return EN ? `${n} should be down. ${n} disagrees. 1 HP left.` : `${n} müsste eigentlich liegen. ${n} sieht das anders. 1 Leben übrig.`; }
+    if (ev.k === 'duo') return EN ? `Duo moment: ${ev.name}!` : `Duo-Moment: ${ev.name}!`;   // vorher fiel 'duo' (ohne list) unten in ev.list.map
     if (ev.k === 'hit' && ev.op && !ev.miss) { const a = crewData(run.crew[ev.from].id).name, n = targetName(run, 'enemy', ev.to); return EN ? `${a} uses the opening: critical hit on ${n} for ${ev.dmg}.` : `${a} nutzt die Blöße: kritisch, ${ev.dmg} Schaden an ${n}.`; }
     // /KAMPFTIEFE
     if (ev.k === 'sig') { const n = anyData(ev.by) ? anyData(ev.by).name : (EN ? 'The boss' : 'Der Boss'); return EN ? `${n} unleashes ${ev.en}${ev.strong ? ', stronger than before' : ''}! ${ev.tEn}` : `${n} entfesselt ${ev.name}${ev.strong ? ', stärker als zuvor' : ''}! ${ev.text}`; }
@@ -1439,6 +1440,7 @@ window.GL = window.GL || {};
         `${ev.hp <= 0 ? ' ' + target + ' ist besiegt.' : ''}`;
     }
 
+    if (!Array.isArray(ev.list) || !ev.list.length) return '';   // KAMPFTIEFE: Ereignisse ohne Liste (duo, team, teamCharge …) nicht abstürzen lassen
     const actor = SPECIAL[ev.by] || (anyData(ev.by) ? anyData(ev.by).name : '');
     const cm = run.crew.find(x => x.id === ev.by);
     const ulti = ev.ult ? ultiOf(ev.by, cm ? cm.role : 'foe') : null;
