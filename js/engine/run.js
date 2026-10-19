@@ -116,8 +116,9 @@ window.GL = window.GL || {};
     const t = byId(GL.data.traits, offer.trait) || {};
     const tb = t.base || {};
     const a = offer.alloc || { hp: 0, atk: 0, spd: 0 };
-    const max = Math.max(5, d.hp + star.hp + (tb.hp || 0) + run.mod.hp
+    const max0 = Math.max(5, d.hp + star.hp + (tb.hp || 0) + run.mod.hp
       + (offer.lvl - 1) * C.levelUp.hp + a.hp * C.point.hp);
+    const max = run.sk && run.sk.hpPct ? Math.round(max0 * (1 + run.sk.hpPct)) : max0;   // Feinschliff: Zähigkeit
     return {
       id: d.id, type: d.type, role: d.role, faction: d.faction,
       trait: offer.trait, stars: offer.stars, lvl: offer.lvl, xp: 0, points: 0,
@@ -1217,7 +1218,7 @@ window.GL = window.GL || {};
 
   // Skilltree-Boni säubern (nur bekannte Zahlen, gedeckelt), damit Replays und fremde Spielstände sicher sind
   function skillBonus(raw) {
-    const MAX = { hp: 20, atk: 3, spd: 2, restHeal: 0.5, winHeal: 0.2, luck: 1, xp: 0.5, choices: 1, gold: 8, points: 2, cannon: 10, berry: 0.3, rankXp: 0.3, bond: 0.5 };
+    const MAX = { hp: 20, atk: 3, spd: 2, restHeal: 0.5, winHeal: 0.2, luck: 1, xp: 0.5, choices: 1, gold: 8, points: 2, cannon: 10, berry: 0.3, rankXp: 0.3, bond: 0.5, goldPct: 0.15, dmgPct: 0.25, hpPct: 0.3 };
     const out = {};
     if (raw && typeof raw === 'object') Object.keys(MAX).forEach(k => { const v = Number(raw[k]); if (isFinite(v) && v > 0) out[k] = Math.min(MAX[k], v); });
     return out;

@@ -1,0 +1,38 @@
+// Englisch für die Dungeon-Liga und den Marken-Laden (ergänzt GL.data.en)
+window.GL = window.GL || {};
+GL.data = GL.data || {};
+GL.data.en = Object.assign(GL.data.en || {}, {
+  'Dungeon-Liga': 'Dungeon League', 'Punkte': 'points', 'Marken-Laden': 'Token Shop', 'Noch': 'Still', 'bis': 'to',
+  'Höchste Liga. Die Möwen verneigen sich.': 'Top league. The seagulls bow.',
+  'Pro Ort, Stufe und Tiefe zählt dein bester Lauf.': 'Your best run per place, level and depth counts.',
+  'Dungeon-Marken: im Marken-Laden eintauschen': 'Dungeon tokens: trade them in the Token Shop',
+  'Neuer Bestwert': 'New best', 'Kein neuer Bestwert': 'No new best', 'Basis: Ort, Stufe, Tiefe': 'Base: place, level, depth',
+  'Schaden pro Runde': 'Damage per round', 'Übrig gebliebenes Leben': 'Health left over', 'Liga': 'League', 'Bestwert hier': 'Best here', 'Aufstieg': 'Promoted',
+  'Für Leute, die gern wiederkommen': 'For people who like coming back', 'Marken': 'tokens',
+  'Jeder gewonnene Landgang bringt Marken, schwerere mehr. Keine Fristen, kein Stress.': 'Every shore leave you win pays tokens, harder ones more. No deadlines, no stress.',
+  'Zum Landgang': 'To shore leave',
+  'Pergament, Zirkel und ein Kaffeefleck in Form von Alabasta.': 'Parchment, compasses and a coffee stain shaped like Alabasta.',
+  'Warmes Licht, kalte Steine. Niemand weiß, wer die Laternen anzündet.': 'Warm light, cold stones. Nobody knows who lights the lanterns.',
+  'Schöner Ort. Die Vorbesitzer sind nicht mehr zu sprechen.': 'Lovely spot. The previous owners are unavailable for comment.',
+  'Holzvertäfelung, Goldkante, ein Stuhl, auf dem nur du sitzen darfst.': 'Wood panelling, gold trim, a chair only you may sit on.',
+  'Zeigt immer nach Norden. Also meistens auf dich.': 'Always points north. So, mostly at you.',
+  'Dunkler Stein, Moos in den Ecken. Riecht nach Abenteuer und Keller.': 'Dark stone, moss in the corners. Smells of adventure and cellar.',
+  'Folgt jedem Licht. Also dir, wenn du gut gelaunt bist.': 'Follows every light. So, you, when you are in a good mood.',
+  'Trägt eine Goldmünze auf dem Rücken und gibt sie nicht her.': 'Carries a gold coin on its back and will not give it up.',
+  'Für Leute, die Landgänge ernst nehmen. Etwas zu ernst.': 'For people who take shore leave seriously. Slightly too seriously.',
+  'Schwarz-violett. Die Möwen machen einen Bogen darum.': 'Black and violet. The seagulls give it a wide berth.',
+  'Ein zusätzlicher Skillpunkt. Wird mit jedem Kauf teurer.': 'One extra skill point. Gets pricier with every purchase.',
+  'Im Marken-Laden (Landgang)': 'In the Token Shop (shore leave)', 'Gibt es im Marken-Laden.': 'Available in the Token Shop.',
+  'Kartentisch': 'Chart Table', 'Laternengrotte': 'Lantern Grotto', 'Wrackbucht': 'Wreck Cove', 'Goldene Kajüte': 'Golden Cabin',
+  'Kompassrahmen': 'Compass Frame', 'Gewölberahmen': 'Vault Frame', 'Markenflagge': 'Token Flag', 'Gruftflagge': 'Crypt Flag',
+  'Laternenmotte': 'Lantern Moth', 'Münzkrabbe': 'Coin Crab',
+  '🤝 Freundschaftsduelle': '🤝 Friendly duels', 'Rang gibt es jetzt in der Dungeon-Liga (Landgang)': 'Ranking now lives in the Dungeon League (shore leave)',
+  '🤝 Freundschaftsduell · zählt nicht für die Liga': '🤝 Friendly duel · does not count for the league',
+  'Freundschaftsduelle': 'Friendly duels', 'Liga-Punkte aus Landgängen': 'league points from shore leave', 'Dungeon-Liga: Spitze': 'Dungeon League: top',
+  'Feinschliff: Schaden': 'Polish: Damage', 'Feinschliff: Zähigkeit': 'Polish: Toughness', 'Feinschliff: Tempo': 'Polish: Speed',
+  'Mehr Schaden für die ganze Crew, jeder Punkt etwas weniger (bis +25 %)': 'More damage for the whole crew, each point a bit less (up to +25 %)',
+  'Mehr Leben in Prozent, jeder Punkt etwas weniger (bis +30 %)': 'More health in percent, each point a bit less (up to +30 %)',
+  'Mehr Tempo: +1 ab 14 Punkten, +2 ab 28': 'More speed: +1 from 14 points, +2 from 28',
+  'Dafür reichen die Marken noch nicht.': 'Not enough tokens yet.',
+  'Duelle sind Freundschaftsspiele: Spaß, Taktik, kein Rang': 'Duels are friendly matches: fun, tactics, no ranking'
+});

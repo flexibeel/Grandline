@@ -1324,6 +1324,21 @@
         GL.dungeon.after();
         break;
       }
+      // Dungeon-Liga: Marken-Laden (js/ui/dliga.js)
+      case 'dl-shop': if (GL.dliga) openGearPop(GL.dliga.shopHtml(profile)); break;
+      case 'dl-buy': {
+        if (!GL.dliga) break;
+        const it = GL.dliga.buy(profile, el.dataset.id);
+        const en = GL.i18n && GL.i18n.lang() === 'en';
+        if (it) { saveProfile(); if (GL.sfx) GL.sfx.play('found'); ui.lastStage = null; draw(); }
+        const msg = !it ? (en ? 'Not enough tokens yet.' : 'Dafür reichen die Marken noch nicht.')
+          : it.kind === 'skill' ? (en ? '+1 skill point. Spend it in the Skills room.' : '+1 Skillpunkt. Ausgeben im Skills-Raum.')
+          : it.kind === 'pet' ? (en ? 'New companion! It already found your ship.' : 'Neuer Begleiter! Er hat dein Schiff schon gefunden.')
+          : it.kind === 'flag' ? (en ? 'New ship flag. Set it in the shipyard.' : 'Neue Schiffsflagge. Setzen in der Werft.')
+          : (en ? 'Unlocked! Choose it in your profile.' : 'Freigeschaltet! Auswählen im Profil.');
+        openGearPop(GL.dliga.shopHtml(profile, msg));
+        break;
+      }
       case 'daily-info': openGearPop(GL.ui.dailyPop(profile)); break;
       case 'hq': toHq(); break;
       case 'peek': ui.peek = true; draw(); break;

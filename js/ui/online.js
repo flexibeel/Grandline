@@ -54,7 +54,8 @@ window.GL = window.GL || {};
       if (Array.isArray(r.vaultTop)) r.vaultTop = r.vaultTop.filter(v => v && typeof v === 'object' && (GL.data.artifacts || []).some(a => a.id === v.id)).slice(0, 6).map(v => ({ id: v.id, lvl: num(v.lvl, 0, 99) }));
       if (Array.isArray(r.showcase)) r.showcase = r.showcase.filter(x => typeof x === 'string').slice(0, 3);
       if (Array.isArray(r.isles)) r.isles = r.isles.filter(x => typeof x === 'string').slice(0, 80);
-      ['score', 'rankXp', 'heatMax', 'artifacts', 'bestStep', 'pets', 'endlessBest', 'endlessLoops', 'seasDone', 'squadPower', 'squadW', 'squadRating', 'captains', 'invites', 'wins', 'runs', 'topBounty', 'bestDmg', 'maxHit', 'totalDmg', 'kos', 'crits', 'bossKills', 'landgang', 'landOrte'].forEach(k => { if (r[k] != null) r[k] = num(r[k], 0, 1e12); });
+      ['score', 'rankXp', 'heatMax', 'artifacts', 'bestStep', 'pets', 'endlessBest', 'endlessLoops', 'seasDone', 'squadPower', 'squadW', 'squadRating', 'dlRating', 'dlMarksTotal', 'captains', 'invites', 'wins', 'runs', 'topBounty', 'bestDmg', 'maxHit', 'totalDmg', 'kos', 'crits', 'bossKills', 'landgang', 'landOrte'].forEach(k => { if (r[k] != null) r[k] = num(r[k], 0, 1e12); });
+      if (r.dlRating != null) r.dlRating = num(r.dlRating, 0, 500000);
       r.squadTactic = GL.squad && GL.squad.tacOf ? GL.squad.tacOf(r.squadTactic) : null;   // nur bekannte Taktiken
       if (Array.isArray(r.squad)) r.squad = r.squad.filter(x => x && typeof x === 'object' && (x.id === 'self' || x.id === 'rival' || GL.data.crew.some(c => c.id === x.id))).slice(0, 4)
         .map(x => Object.assign(x, { lvl: num(x.lvl, 1, 999), max: num(x.max, 1, 1e6), hp: num(x.hp != null ? x.hp : x.max, 0, 1e6), atk: num(x.atk, 0, 1e5), spd: num(x.spd, 0, 1e4), gear: Array.isArray(x.gear) ? x.gear.filter(g => g && typeof g === 'object' && (GL.cgear ? (g.t ? GL.data.crewGear.trophyPerks[g.t] && Object.prototype.hasOwnProperty.call(GL.data.crewGear.trophyPerks, g.t) : GL.cgear.base(g.b)) : true)).slice(0, 4).map(g => { const A = (GL.data.crewGear || {}).affixes || {}, a = {}; Object.keys(g.a || {}).forEach(k => { if (Object.prototype.hasOwnProperty.call(A, k) && isFinite(+g.a[k])) a[k] = +g.a[k]; }); return Object.assign(g, { a, r: Math.max(0, Math.min(3, Math.round(+g.r || 0))), m: Object.prototype.hasOwnProperty.call(A, g.m) ? g.m : undefined }); }) : undefined }));
@@ -62,7 +63,7 @@ window.GL = window.GL || {};
     return rows;
   }
   GL.safeRows = safeRows;
-  const MAXF = ['score', 'wins', 'runs', 'topBounty', 'bestDmg', 'maxHit', 'totalDmg', 'kos', 'crits', 'bossKills', 'rankXp', 'artifacts', 'heatMax', 'captains', 'squadW', 'squadRating'];
+  const MAXF = ['score', 'wins', 'runs', 'topBounty', 'bestDmg', 'maxHit', 'totalDmg', 'kos', 'crits', 'bossKills', 'rankXp', 'artifacts', 'heatMax', 'captains', 'squadW', 'squadRating', 'dlRating'];
   function dedupe(rows) {
     const groups = {};
     const out = [];
@@ -396,6 +397,8 @@ window.GL = window.GL || {};
       squadOn: GL.meta.squadUnlocked(profile),
       squadRating: profile.squadRating == null ? 1000 : profile.squadRating,
       squadTactic: GL.squad && GL.squad.tacOf ? GL.squad.tacOf(profile.squadTactic) : null,
+      dlRating: GL.dliga ? GL.dliga.rating(profile) : 0,   // Dungeon-Liga (Summe der Bestwerte)
+      dlMarksTotal: Math.max(0, Math.min(1e8, Math.round(+profile.dlMarksTotal || 0))),
       captains: (profile.unlocked || []).length + GL.config.starters.length,
       landgang: Object.values(profile.dungeons || {}).reduce((n, d) => n + ((d && d.clears) || 0), 0),
       landOrte: Object.values(profile.dungeons || {}).filter(d => d && d.clears > 0).length,

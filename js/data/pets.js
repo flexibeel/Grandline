@@ -86,7 +86,16 @@ GL.data.pets = [
   { id: 'seekoenig', name: 'Mini-Seekönig', book: true,
     say: 'Der Schrecken der Meere. In klein. Frisst Fischstäbchen.', hint: 'Belohnung im Sammelalbum.',
     art: { c: { S: '#5aa0c8', s: '#3a7098', K: '#1a1a1a', W: '#f6eedc', R: '#d0473a' },
-      rows: ['....SSS.....', '...SKSSS....', '..RSSSSS....', '.WWSSSS.....', '.....SSs....', '......SSs...', '.SS....SSs..', 'SSSS....SSs.', '.SSSSSSSSSs.', '...sSSSSSs..'] } }
+      rows: ['....SSS.....', '...SKSSS....', '..RSSSSS....', '.WWSSSS.....', '.....SSs....', '......SSs...', '.SS....SSs..', 'SSSS....SSs.', '.SSSSSSSSSs.', '...sSSSSSs..'] } },
+  // Marken-Laden (Dungeon-Liga): nur für Landgang-Marken
+  { id: 'laternenmotte', name: 'Laternenmotte', shop: true,
+    say: 'Folgt jedem Licht. Also dir, wenn du gut gelaunt bist.', hint: 'Gibt es im Marken-Laden.',
+    art: { c: { Y: '#f6d64a', O: '#f29a2e', W: '#fff6d0', K: '#2a1a10', B: '#c9a86a' },
+      rows: ['............', '.WW......WW.', 'WYYW....WYYW', 'WYOYW..WYOYW', '.WYYYKKYYYW.', '..WYYKKYYW..', '...BBKKBB...', '..WYYKKYYW..', '.WYOYKKYOYW.', '.WYYW..WYYW.', '..WW....WW..', '............'] } },
+  { id: 'muenzkrabbe', name: 'Münzkrabbe', shop: true,
+    say: 'Trägt eine Goldmünze auf dem Rücken und gibt sie nicht her.', hint: 'Gibt es im Marken-Laden.',
+    art: { c: { R: '#d0483a', r: '#9a2a22', G: '#f2c94c', g: '#c08a20', K: '#1a1a1a', W: '#ffffff' },
+      rows: ['............', '....GGGG....', '...GgGGgG...', '....GGGG....', '.R..RRRR..R.', 'RR.RRRRRR.RR', 'R.RWKRRWKR.R', '..RRRRRRRR..', '..rRRRRRRr..', '.r.r.rr.r.r.', 'r..r....r..r', '............'] } }
 ];
 
 // Sammelbuch-Stufen: je mehr im Album entdeckt ist, desto mehr gibt es. at = Anteil aller Einträge

@@ -36,7 +36,12 @@ GL.data.cosmetics = {
     { id: 'sturmfahrt', name: 'Sturmfahrt',        req: { heat: 4, wins: 6 }, rare: true },
     { id: 'kraken',     name: 'Kraken-Tiefe',      req: { bosses: 25, reached: 2 }, rare: true },
     { id: 'schatzberg', name: 'Goldener Schatzberg', req: { artifacts: 11 }, rare: true },
-    { id: 'jollyroger', name: 'Unter schwarzer Flagge', req: { wins: 25 }, rare: true }
+    { id: 'jollyroger', name: 'Unter schwarzer Flagge', req: { wins: 25 }, rare: true },
+    // Marken-Laden (Dungeon-Liga): für Landgang-Marken eintauschen
+    { id: 'kartentisch', name: 'Kartentisch',      req: { 'dl_bg-kartentisch': 1 }, rare: true },
+    { id: 'laternengrotte', name: 'Laternengrotte', req: { 'dl_bg-laternengrotte': 1 }, rare: true },
+    { id: 'wrackbucht', name: 'Wrackbucht',        req: { 'dl_bg-wrackbucht': 1 }, rare: true },
+    { id: 'goldkajuete', name: 'Goldene Kajüte',   req: { 'dl_bg-goldkajuete': 1 }, rare: true }
   ],
   frames: [
     { id: 'holz',       name: 'Holz',              req: {} },
@@ -58,7 +63,9 @@ GL.data.cosmetics = {
     { id: 'freund',     name: 'Bande fürs Leben',  req: { invites: 1 } },
     { id: 'schatzglanz', name: 'Schatzglanz',      req: { wins: 15, artifacts: 9 }, rare: true },
     { id: 'glutkette',  name: 'Glühende Ankerkette', req: { kos: 3000 }, rare: true },
-    { id: 'sturmband',  name: 'Sturmband',         req: { raids: 10 }, rare: true }
+    { id: 'sturmband',  name: 'Sturmband',         req: { raids: 10 }, rare: true },
+    { id: 'kompass',    name: 'Kompassrahmen',     req: { 'dl_fr-kompass': 1 }, rare: true },
+    { id: 'gewoelbe',   name: 'Gewölberahmen',     req: { 'dl_fr-dungeon': 1 }, rare: true }
   ],
   animations: [
     { id: 'ruhig',      name: 'Ruhig',             req: {} },
@@ -348,6 +355,45 @@ GL.data.charLocks = {
       [[1, 8], [2, 10], [3, 12], [4, 14], [5, 16], [6, 18]].forEach(([x, y]) => r(x, y, 1, 1, '#2a1418'));
     }
   };
+  // Marken-Laden: Kartentisch, Laternengrotte, Wrackbucht, Goldene Kajüte
+  Object.assign(S, {
+    kartentisch: (r, b) => {
+      b([[0, 24, '#6a4428']]);
+      for (let y = 2; y < 24; y += 5) r(0, y, 24, 1, '#5a3820');
+      r(2, 3, 20, 17, '#e8d6a8'); r(2, 3, 20, 1, '#f4e6c0'); r(21, 3, 1, 17, '#c8b080'); r(2, 19, 20, 1, '#c8b080');
+      r(5, 6, 4, 3, '#c9a86a'); r(6, 5, 2, 1, '#c9a86a'); r(12, 10, 5, 3, '#c9a86a'); r(13, 13, 3, 1, '#c9a86a'); r(6, 14, 3, 2, '#c9a86a');
+      [[8, 9], [9, 10], [10, 10], [11, 11]].forEach(([x, y]) => r(x, y, 1, 1, '#b0402a'));
+      r(17, 6, 3, 3, '#8a6a3a'); r(18, 7, 1, 1, '#e8d6a8'); r(18, 5, 1, 1, '#b0402a', 'ca-tw1');
+      r(14, 15, 4, 3, 'rgba(120,70,30,.35)'); r(15, 14, 2, 1, 'rgba(120,70,30,.35)');
+      r(3, 20, 3, 3, '#3a3a44'); r(4, 21, 1, 1, '#f2c94c'); r(19, 20, 4, 2, '#8a2a2a'); r(19, 20, 4, 1, '#b04040');
+    },
+    laternengrotte: (r, b) => {
+      b([[0, 6, '#1a1a24'], [6, 14, '#22222e'], [14, 20, '#2a2a36'], [20, 24, '#163042']]);
+      [[0, 0, 5, 3], [6, 0, 3, 2], [13, 0, 4, 3], [19, 0, 5, 2], [2, 3, 2, 2], [15, 3, 1, 2]].forEach(([x, y, w, h]) => r(x, y, w, h, '#0e0e16'));
+      r(0, 17, 6, 3, '#34343e'); r(17, 16, 7, 4, '#34343e'); r(0, 16, 4, 1, '#44444e'); r(18, 15, 5, 1, '#44444e');
+      const lamp = (x, y, cls) => { r(x, y, 2, 2, '#f2a03a', cls); r(x, y + 2, 2, 1, '#8a4a20'); r(x - 1, y - 1, 4, 4, 'rgba(242,170,70,.18)', cls); };
+      lamp(3, 13, 'ca-flick'); lamp(19, 12, 'ca-flick2'); lamp(11, 6, 'ca-flick');
+      r(0, 20, 24, 1, '#2a5a78'); r(4, 21, 3, 1, '#f2a03a', 'ca-flick'); r(18, 22, 3, 1, '#f2a03a', 'ca-flick2'); r(10, 23, 2, 1, '#3a6a88');
+    },
+    wrackbucht: (r, b) => {
+      b([[0, 7, '#8ab8d8'], [7, 12, '#b4d4e8'], [12, 17, '#3f86b0'], [17, 24, '#e6cf96']]);
+      r(16, 2, 4, 4, '#fff4c8'); r(17, 1, 2, 1, '#fff4c8');
+      r(2, 10, 9, 4, '#5a3a24'); r(3, 9, 7, 1, '#6a4a2c'); r(1, 12, 2, 2, '#5a3a24'); r(6, 4, 1, 6, '#4a3020'); r(7, 5, 3, 2, '#d8ccb0'); r(7, 7, 2, 1, '#c8bca0');
+      r(3, 11, 1, 1, '#2a1a10'); r(8, 12, 1, 1, '#2a1a10');
+      r(0, 14, 24, 1, '#cfe8f5', 'ca-wave'); r(0, 16, 24, 1, '#a8d0e8', 'ca-wave2');
+      r(0, 17, 24, 7, '#e6cf96'); r(14, 19, 3, 2, '#8a6a3a'); r(14, 19, 3, 1, '#a8844a'); r(15, 18, 1, 1, '#f2c94c', 'ca-tw2');
+      r(20, 20, 2, 1, '#f0a0a0'); r(4, 21, 1, 1, '#f4efe2'); r(9, 22, 2, 1, '#c8b080');
+    },
+    goldkajuete: (r, b) => {
+      b([[0, 24, '#5a3220']]);
+      for (let x = 0; x < 24; x += 4) r(x, 0, 1, 18, '#4a2818');
+      r(0, 0, 24, 1, '#d8a83a'); r(0, 17, 24, 1, '#d8a83a'); r(0, 18, 24, 6, '#3a2014');
+      r(8, 3, 8, 7, '#2a4a6a'); r(8, 3, 8, 1, '#d8a83a'); r(8, 9, 8, 1, '#d8a83a'); r(8, 3, 1, 7, '#d8a83a'); r(15, 3, 1, 7, '#d8a83a'); r(11, 4, 1, 5, '#d8a83a');
+      r(10, 5, 1, 1, '#fff6d0', 'ca-tw1'); r(13, 6, 1, 1, '#fff6d0', 'ca-tw2');
+      r(3, 11, 4, 7, '#8a2a2a'); r(3, 10, 4, 1, '#d8a83a'); r(2, 14, 1, 4, '#6a1a1a'); r(7, 14, 1, 4, '#6a1a1a');
+      r(17, 13, 6, 1, '#d8a83a'); r(18, 14, 1, 4, '#8a5a2a'); r(21, 14, 1, 4, '#8a5a2a'); r(18, 12, 2, 1, '#f2c94c'); r(20, 11, 1, 2, '#e8e0d0'); r(20, 10, 1, 1, '#f2a03a', 'ca-flick');
+    }
+  });
   const bcache = {};
   GL.data.bgSvg = function (id) {
     if (bcache[id] !== undefined) return bcache[id];

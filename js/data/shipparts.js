@@ -29,7 +29,9 @@ GL.data.shipParts = {
     { id: 'schwarz', name: 'Klassisch',   c: '#1a1a1a', req: {} },
     { id: 'rot',     name: 'Rote Flagge', c: '#b83a2e', req: { hunted: 5 } },
     { id: 'gross',   name: 'Große Flagge', c: '#1a1a1a', big: true, req: { rank: 5 } },
-    { id: 'gold',    name: 'Goldflagge',  c: '#e0a030', big: true, req: { wins: 3 } }
+    { id: 'gold',    name: 'Goldflagge',  c: '#e0a030', big: true, req: { wins: 3 } },
+    { id: 'marke',   name: 'Markenflagge', c: '#2f7a8a', big: true, req: { 'dl_flag-marke': 1 } },
+    { id: 'gruft',   name: 'Gruftflagge',  c: '#5a2a7a', big: true, req: { 'dl_flag-gruft': 1 } }
   ],
   deco: [
     { id: 'keine',  name: 'Ohne',          req: {} },
