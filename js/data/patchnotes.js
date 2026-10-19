@@ -1,6 +1,11 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-21i', date: '19.10.', title: 'Seekarte der Gerüchte', items: [
+    '🧭 Landgang hat jetzt eine Seekarte. Die Orte liegen nicht mehr auf einem Zettel, sondern irgendwo da draußen. Wo genau, weiß der Wirt. Ungefähr',
+    '🍾 Flaschenpost, Wrackfetzen und ein Kompass, der „wärmer“ sagt, wenn er Lust hat. Wer neben einem Boss-Versteck ankert, hat es gefunden. Für immer',
+    '🍙 6 Proviant pro Fahrt, im Hafen gibt es neuen. Keine Uhr, keine Pflicht, nur eine Crew, die bei leerem Magen umdreht',
+    '☠ Totenkopf-Flaggen im Nebel: Wer da wohnt, sieht man erst von nahem. Schon bekannte Landgänge bleiben natürlich offen, die alte Liste liegt unter „☰ Liste“' ] },
   { v: '2026-10-21h', date: '19.10.', title: 'Weniger „Wer war das?“', items: [
     '🛡 Gegner treffen nicht mehr über 60 % deines Lebens auf einmal, angekündigte Brocken nicht über 80 %. Wer dich umhauen will, muss jetzt zweimal fragen',
     '🎯 Gegner-Krits ×1,75 statt ×2. Die Marine hat ihre Lupen abgegeben, die Fäuste hat sie behalten',
