@@ -197,7 +197,10 @@ GL.data.charParts = {
   hatColor: ['#e8c25a', '#222222', '#c0392b', '#f0f0f0', '#2f6fb0', '#3d6b46', '#7a4fc4', '#e8862a'],
   beard:  ['', '#1a1a1a', '#6b4a2a', '#c8a040', '#f0f0f0', '#c0392b'],
   nose:   ['', '#e0302a'],
-  acc:    ['', 'augenklappe', 'narbe', 'brille', 'ohrring', 'pfeife', 'blume']
+  acc:    ['', 'augenklappe', 'narbe', 'brille', 'ohrring', 'pfeife', 'blume'],
+  // PIRATIN: Frisuren und Gesichts-Details für alle, ohne Sperre
+  hairStyle: ['', 'lang', 'zopf', 'zoepfe', 'dutt', 'locken', 'undercut', 'glatze'],
+  eyes:   ['', 'wimpern', 'lidstrich', 'rouge', 'sommersprossen']
 };
 // Besondere Teile für den eigenen Piraten müssen erst verdient werden (Bedingungen wie bei der Kosmetik)
 GL.data.charLocks = {

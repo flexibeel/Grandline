@@ -1921,7 +1921,7 @@ window.GL = window.GL || {};
           const restMate = restHtml.replace('⚓ Ebenfalls in deiner Crew', '⚓ Warten am Steg').replace('Sie wechseln sich mit den Kapitänen oben ab. Nächster Run, neues Glück.', 'Nächstes Mal stehen andere als Maat bereit. Der Steg ist geduldig.').replace(/kommt in einem anderen Run zur Wahl/g, 'wartet auf die nächste Fahrt');
           return `<div class="capv-me">
               <span class="capv-spr">${GL.sprites.render(me)}<i class="capv-hat">⚓</i></span>
-              <span class="capv-txt"><small class="capv-k">Kapitän</small><b>${esc(me.name || 'Du')}</b>
+              <span class="capv-txt"><small class="capv-k">${GL.anrede.t('Kapitän')}</small><b>${esc(me.name || 'Du')}</b>
                 <span class="capv-tags">${me.crewName ? `<em class="capv-tag">⚑ ${esc(me.crewName)}</em>` : ''}${fr ? `<em class="capv-tag fr">${esc(fr.name)}</em>` : ''}<em class="capv-tag">♥ ${me.hp} · ⚔ ${me.atk} · ➶ ${me.spd}</em></span>
                 ${gr ? `<small class="capv-grow">Rang ${gr.rank}${gr.bond ? ` · Vertraut ${gr.bond}` : ''} → +${gr.hp} Leben, +${gr.atk} Angriff${gr.spd ? `, +${gr.spd} Tempo` : ''}</small>` : ''}</span>
             </div>
@@ -2373,11 +2373,11 @@ window.GL = window.GL || {};
   const onDot = x => isOnline(x) ? '<i class="on-dot" title="Gerade online" aria-label="online"></i>' : '';
   const yesterday = () => { const d = new Date(Date.now() - 864e5); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
   // Team und Fortschritt einer Tageskarte in einer Zeile
-  function dailyLine(e) {
+  function dailyLine(e, an) {
     if (!e) return '';
     const total = GL.run.totalSteps();
     const where = e.won ? 'Grand Line geschafft ✓' : `bis ${esc(e.island || '?')}${e.step ? ` · Etappe ${Math.min(e.step + 1, total)}/${total}` : ''}`;
-    const team = (e.team || []).map(r => `<i title="${esc((r.id === 'self' ? 'Eigener Pirat' : (crewData(r.id) || {}).name || r.id) + ' · Lv ' + (r.lvl || 1))}">${squadSprite(r)}<b>${r.lvl || 1}</b></i>`).join('');
+    const team = (e.team || []).map(r => `<i title="${esc((r.id === 'self' ? GL.anrede.t('Eigener Pirat', an || 'n') : (crewData(r.id) || {}).name || r.id) + ' · Lv ' + (r.lvl || 1))}">${squadSprite(r)}<b>${r.lvl || 1}</b></i>`).join('');
     return `<span class="dl-line"><span class="dl-team">${team}</span><small>${where}</small></span>`;
   }
   const LB_CATS = [
@@ -2950,8 +2950,8 @@ window.GL = window.GL || {};
         <div class="pc2-head">
           <span class="pc2-por">${x.look ? portrait(x.look, x.cos, 'lg') : cap ? GL.sprites.render(cap) : ''}</span>
           <div class="pc2-id">
-            <b class="pc2-name">${medal(GL.meta.rankIndex({ rankXp: x.rankXp || 0 }), 'small')} ${esc(x.name || 'Unbekannter Pirat')}${onDot(x)} ${badgeIcon(x.cos, true)}${isMe ? ' <em class="pc2-you">du</em>' : ''}</b>
-            <small class="pc2-sub">${x.cos && x.cos.title ? `<em class="pc2-title">${esc(titleName(x.cos.title))}</em>` : ''}${esc(x.rank || '')}</small>
+            <b class="pc2-name">${medal(GL.meta.rankIndex({ rankXp: x.rankXp || 0 }), 'small')} ${esc(x.name || 'Unbekannt')}${onDot(x)} ${badgeIcon(x.cos, true)}${isMe ? ' <em class="pc2-you">du</em>' : ''}</b>
+            <small class="pc2-sub">${x.cos && x.cos.title ? `<em class="pc2-title">${esc(isMe ? titleName(x.cos.title) : GL.anrede.title(x.cos.title, GL.anrede.ofRow(x)))}</em>` : ''}${esc(x.rank || '')}</small>
             ${x.crewName ? `<span class="pc2-crew"><i class="c3-jolly" aria-hidden="true"></i>${esc(x.crewName)}</span>` : ''}
             <span class="pc2-chips">${GL.dliga ? GL.dliga.chip(x.dlRating || 0, true) : ''}${lg ? `<em class="pc2-chip land">🏝 ${fmt(lg)} Landgänge</em>` : ''}${x.pets ? `<em class="pc2-chip">🐾 ${fmt(x.pets)}</em>` : ''}</span>
             ${x.cos && x.cos.star ? '<span class="admin-tag big">★ Entwickler · hat dieses Spiel gebaut</span>' : ''}
@@ -3039,8 +3039,8 @@ window.GL = window.GL || {};
       return `<li class="lb-row${x.id === st.uid ? ' me' : ''}${k < 3 ? ' top' + (k + 1) : ''}${x.cos && x.cos.bg ? ' rowbg-' + x.cos.bg : ''}" data-act="lb-view" data-id="${esc(x.id)}" tabindex="0" role="button">
         <span class="lb-pos">${k + 1}</span>
         <span class="lb-cap">${x.look ? portrait(x.look, x.cos, 'sm') : cap ? GL.sprites.render(cap) : ''}</span>
-        <span class="lb-who"><b>${medal(GL.meta.rankIndex({ rankXp: x.rankXp || 0 }), 'tiny')} ${esc(x.name || 'Unbekannter Pirat')}${x.crewName ? `<small class="lb-crewname" title="Bande">${esc(x.crewName)}</small>` : ''}${onDot(x)} ${badgeIcon(x.cos)}${x.id === st.uid ? ' <em>du</em>' : ''}${x.cos && x.cos.star ? ' <em class="admin-tag" title="Der Entwickler dieses Spiels. Unbesiegbar (fast).">★ Entwickler</em>' : ''}${(x.showcase || []).length ? `<span class="lb-show">${x.showcase.map(lootChip).join('')}</span>` : ''}</b>
-          ${isDaily ? dailyLine(x.duels[dailyCodeShown]) : isDl && GL.dliga ? `<span class="lb-crew">${GL.dliga.chip(x.dlRating || 0)}${x.landOrte ? `<small class="dl-orte">🏝 ${x.landOrte} Orte</small>` : ''}</span>` : isCrew && x.squadOn && (x.squad || []).length ? `<span class="lb-crew">${squadMini(x.squad)}</span>` : journey(x)}</span>
+        <span class="lb-who"><b>${medal(GL.meta.rankIndex({ rankXp: x.rankXp || 0 }), 'tiny')} ${esc(x.name || 'Unbekannt')}${x.crewName ? `<small class="lb-crewname" title="Bande">${esc(x.crewName)}</small>` : ''}${onDot(x)} ${badgeIcon(x.cos)}${x.id === st.uid ? ' <em>du</em>' : ''}${x.cos && x.cos.star ? ' <em class="admin-tag" title="Der Entwickler dieses Spiels. Unbesiegbar (fast).">★ Entwickler</em>' : ''}${(x.showcase || []).length ? `<span class="lb-show">${x.showcase.map(lootChip).join('')}</span>` : ''}</b>
+          ${isDaily ? dailyLine(x.duels[dailyCodeShown], GL.anrede.ofRow(x)) : isDl && GL.dliga ? `<span class="lb-crew">${GL.dliga.chip(x.dlRating || 0)}${x.landOrte ? `<small class="dl-orte">🏝 ${x.landOrte} Orte</small>` : ''}</span>` : isCrew && x.squadOn && (x.squad || []).length ? `<span class="lb-crew">${squadMini(x.squad)}</span>` : journey(x)}</span>
         <span class="lb-score"><b>${fmt(value)}</b><small>${unit}</small></span>
       </li>`;
     };
@@ -4092,7 +4092,7 @@ window.GL = window.GL || {};
         <div class="login-field"><input id="mail" type="${streamOn() ? 'password' : 'email'}" inputmode="email" placeholder="deine@email.de" autocomplete="email" aria-label="E-Mail-Adresse"></div>
         ${err}
         <button class="btn ghost login-main" data-act="mail-login">Link schicken</button>
-        ${profile.nickname ? `<p class="login-alt"><button class="link" data-act="mail-link">Diesen Piraten mit der Mail sichern</button></p>` : ''}
+        ${profile.nickname ? `<p class="login-alt"><button class="link" data-act="mail-link">${GL.anrede.t('Diesen Piraten mit der Mail sichern')}</button></p>` : ''}
         ${transferBox(profile, ui)}
       </details>
     </div>`;
@@ -4125,8 +4125,8 @@ window.GL = window.GL || {};
       </div>`;
     const tiles = list.length ? `<div class="sf-list">${list.map(f => `<button class="sf-fruit${cur && cur.id === f.id ? ' on' : ''}" data-act="self-fruit" data-v="${f.id}" title="${esc(f.name)}">
         <i class="sf-ico">${GL.sprites.icon('fruit', f.id)}</i><small>${esc(f.name.replace(/-Frucht$/, ''))}</small></button>`).join('')}</div>`
-      : `<p class="pe-note sf-empty">Iss im Run eine Teufelsfrucht. Danach kannst du sie hier deinem Piraten geben.</p>`;
-    return `<div class="sf-wrap">${slot}${tiles}<p class="pe-note">Wirkt, wenn dein Pirat Kapitän ist: wie eine gegessene Frucht am Start. Stufe Gewöhnlich, ab Rang 8 Selten. Erwachte Früchte und die Heil-Frucht gehen nicht.</p></div>`;
+      : `<p class="pe-note sf-empty">${GL.anrede.t('Iss im Run eine Teufelsfrucht. Danach kannst du sie hier deinem Piraten geben.')}</p>`;
+    return `<div class="sf-wrap">${slot}${tiles}<p class="pe-note">${GL.anrede.t('Wirkt, wenn dein Pirat Kapitän ist: wie eine gegessene Frucht am Start. Stufe Gewöhnlich, ab Rang 8 Selten. Erwachte Früchte und die Heil-Frucht gehen nicht.')}</p></div>`;
   }
   // Eigener Bandenname: nur für dich und dein Team, kein Set-Bonus
   function flagArt(profile) {
@@ -4142,6 +4142,15 @@ window.GL = window.GL || {};
         <button class="btn cn-go" data-act="crew-name">Taufen</button></div>
       ${ui.crewError ? `<p class="login-err">${esc(ui.crewError)}</p>` : ''}
       <p class="pe-note">Der Name steht auf deiner Kapitänskarte, im Steckbrief und auf deiner Spielerkarte in der Rangliste. Er gilt nur für deine eigene Crew.</p>
+    </div>`;
+  }
+  // PIRATIN: Anrede wählen (neue Spieler einmal beim Erstellen, sonst jederzeit hier)
+  function anredeRow(d, profile, ui) {
+    const a = d.char.anrede || (profile.nickname ? 'm' : null);
+    const ask = !profile.nickname;
+    return `<div class="pe-anrede${ask ? ' ask' : ''}${ui.anredeNeed ? ' need' : ''}" role="radiogroup" aria-label="Anrede">
+      ${ask ? '<small class="pe-an-q">Wie sollen wir dich nennen?</small>' : ''}
+      <span class="pe-an-btns">${GL.anrede.IDS.map(id => `<button class="pe-an${a === id ? ' on' : ''}" data-act="char-anrede" data-v="${id}" role="radio" aria-checked="${a === id}">${GL.anrede.LABEL[id]}</button>`).join('')}</span>
     </div>`;
   }
   function profileScreen(profile, ui) {
@@ -4161,9 +4170,9 @@ window.GL = window.GL || {};
     // Teile als kleine Kacheln mit Mini-Vorschau der Figur
     const HATS = { '': 'Ohne', straw: 'Strohhut', band: 'Kopftuch', cap: 'Mütze', hood: 'Kapuze', afro: 'Locken', tophat: 'Zylinder', tricorn: 'Dreispitz', ears: 'Tierohren' };
     const ACCS = { '': 'Ohne', augenklappe: 'Augenklappe', narbe: 'Narbe', brille: 'Brille', ohrring: 'Ohrring', pfeife: 'Pfeife', blume: 'Blume' };
-    const tiles = (act, key, list, names) => `<div class="pe-tiles">${list.map(id => {
+    const tiles = (act, key, list, names, prev) => `<div class="pe-tiles">${list.map(id => {
       const L = id ? lockOf(key + ':' + id) : null, on = (L0[key] || '') === id;
-      const look = Object.assign({}, L0, { [key]: id || undefined });
+      const look = Object.assign({}, L0, { [key]: id || undefined }, prev || {});   // PIRATIN: prev = Vorschau ohne Hut
       return `<button class="pe-tile${on ? ' on' : ''}${L ? ' locked' : ''}" data-act="${act}" data-v="${id}"${L ? ` disabled title="${esc(GL.meta.reqText(L))}"` : ''}>
         <i class="pe-mini">${GL.sprites.render({ id: 'self', look })}</i><small>${L ? '🔒 ' : ''}${esc(names[id] || id)}</small></button>`;
     }).join('')}</div>`;
@@ -4183,8 +4192,12 @@ window.GL = window.GL || {};
       return { cur, html: `<div class="pe-subs">${list.map(([id, n]) => `<button class="sqc-f${cur === id ? ' on' : ''}" data-act="pf-tab" data-v="${k}" data-s="${id}">${n}</button>`).join('')}</div>` }; };
     let body = '';
     if (tab === 'look') {
-      const s = subs('look', [['farbe', 'Farben'], ['hut', 'Hut'], ['extra', 'Extras']]);
+      const s = subs('look', [['farbe', 'Farben'], ['frisur', 'Frisur'], ['hut', 'Hut'], ['extra', 'Extras']]);   // PIRATIN: Frisur
+      const HAIRS = { '': 'Kurz', lang: 'Lang offen', zopf: 'Pferdeschwanz', zoepfe: 'Zöpfe', dutt: 'Dutt', locken: 'Lockig', undercut: 'Undercut', glatze: 'Glatze' };
+      const FACES = { '': 'Ohne', wimpern: 'Wimpern', lidstrich: 'Lidstrich', rouge: 'Rouge', sommersprossen: 'Sommersprossen' };
       body = s.html + (s.cur === 'farbe' ? `${sw('hair', P.hair)}${sw('skin', P.skin)}${sw('shirt', P.shirt)}${sw('pants', P.pants)}`
+        : s.cur === 'frisur' ? `${P.hairStyle ? tiles('char-hair', 'hairStyle', P.hairStyle, HAIRS, { hat: undefined, acc: undefined }) : ''}${L0.hat ? '<p class="pe-note">Mit Hut sieht man oben weniger Haar. Zopf, Zöpfe und lange Haare schauen trotzdem raus.</p>' : ''}
+          <span class="pe-h">Gesicht</span>${P.eyes ? tiles('char-eyes', 'eyes', P.eyes, FACES, { hat: undefined, acc: undefined }) : ''}<p class="pe-note">Alles frei kombinierbar, auch mit Bart. Die Grand Line fragt nicht nach.</p>`
         : s.cur === 'hut' ? `${tiles('char-hat', 'hat', P.hat, HATS)}${L0.hat ? sw('hatColor', P.hatColor) : ''}`
         : `${P.acc ? tiles('char-acc', 'acc', P.acc, ACCS) : ''}${P.beard ? sw('beard', P.beard, true) : ''}${P.nose ? sw('nose', P.nose, true) : ''}`);
     } else if (tab === 'kampf') {
@@ -4192,10 +4205,10 @@ window.GL = window.GL || {};
         return `<button class="pe-bt${cur === id ? ' on' : ''}" data-act="${act}" data-v="${id}"><i>${pxIcon(id, 'lg')}</i><b>${esc(x.name || id)}</b>${act === 'char-type' && x.strong ? `<small>stark gegen ${esc((src[x.strong] || {}).name || '')}</small>` : t ? `<small>${esc(t.text)}</small>` : ''}</button>`; }).join('')}</div>`;
       const s = subs('kampf', [['stil', 'Kampfstil'], ['frucht', 'Teufelsfrucht'], ['bande', 'Bande']]);
       const gw = GL.meta.selfGrowth ? GL.meta.selfGrowth(profile) : null;
-      const growLine = gw ? `<div class="capv-growbox"><b>⚓ Dein Pirat ist immer Kapitän</b><small>Rang ${gw.rank}${gw.bond ? ` · Vertraut ${gw.bond}` : ''} → +${gw.hp} Leben, +${gw.atk} Angriff${gw.spd ? `, +${gw.spd} Tempo` : ''}. Wächst mit jedem Rang und mit der Vertrautheit deiner Crew.</small></div>` : '';
+      const growLine = gw ? `<div class="capv-growbox"><b>${GL.anrede.t('⚓ Dein Pirat ist immer Kapitän', d.char.anrede)}</b><small>Rang ${gw.rank}${gw.bond ? ` · Vertraut ${gw.bond}` : ''} → +${gw.hp} Leben, +${gw.atk} Angriff${gw.spd ? `, +${gw.spd} Tempo` : ''}. Wächst mit jedem Rang und mit der Vertrautheit deiner Crew.</small></div>` : '';
       body = s.html + (s.cur === 'frucht' ? selfFruitBlock(profile) : s.cur === 'bande' ? crewNameBlock(profile, ui) : growLine + `<span class="pe-h">Kampfstil</span>${big('char-type', d.char.type, ['kraft', 'klinge', 'technik'], GL.data.types)}
         <span class="pe-h">Rolle</span>${big('char-role', d.char.role, ['kaempfer', 'brecher', 'helfer'], GL.data.roles)}
-        <p class="pe-note">Dein Pirat ist als Kapitän spielbar und wird mit jedem Piratenrang stärker.</p>`);
+        <p class="pe-note">${GL.anrede.t('Dein Pirat ist als Kapitän spielbar und wird mit jedem Piratenrang stärker.', d.char.anrede)}</p>`);
     } else if (tab === 'stil') {
       const s = subs('stil', [['bg', 'Hintergrund'], ['frame', 'Rahmen'], ['anim', 'Animation']]);
       body = s.html + cosGrid({ bg: 'backgrounds', frame: 'frames', anim: 'animations' }[s.cur], s.cur);
@@ -4212,9 +4225,10 @@ window.GL = window.GL || {};
         <div class="pe-head">
           <div class="pe-port">${portrait(L0, d.cos, 'xl')}</div>
           <div class="pe-id">
-            <span class="event-kicker">${profile.nickname ? 'Dein Pirat' : 'Erstelle deinen Piraten'}</span>
+            <span class="event-kicker">${profile.nickname ? GL.anrede.t('Dein Pirat', d.char.anrede || 'm') : GL.anrede.t('Erstelle deinen Piraten', d.char.anrede || 'n')}</span>
             <input id="pf-name" class="pe-name" maxlength="24" autocomplete="off" placeholder="Piratenname" aria-label="Piratenname" value="${esc(d.name || '')}">${ui.nameError ? `<p class="login-err">${esc(ui.nameError)}</p>` : ''}
-            <small class="pe-ttl">${esc(titleName(d.cos.title))}</small>
+            <small class="pe-ttl">${esc(GL.anrede.title(d.cos.title, d.char.anrede || 'm'))}</small>
+            ${anredeRow(d, profile, ui)}
             <div class="pe-stats"><span>❤ ${def.hp}</span><span>⚔ ${def.atk}</span><span>➤ ${def.spd}</span><span class="pe-ty">${pxIcon(d.char.type)}${pxIcon(d.char.role)}</span></div>
           </div>
         </div>
@@ -4321,7 +4335,7 @@ window.GL = window.GL || {};
             <span class="event-kicker">Piratenrang ${rp.i + 1} von ${R.length} · ${TIER_NAME[rankTier(rp.i)]}</span>
             <b class="rank-name">${rp.rank.name}</b>
             <div class="xpbar big rank-bar"><i style="width:${rp.next ? pct : Math.round(100 * rp.have / rp.need)}%"></i><span class="rank-bar-txt">${fmt(rp.have)} / ${fmt(rp.need)} EP</span></div>
-            <small>${rp.next ? `Nächster Rang: <b>${rp.next.name}</b>${rankReward(rp.next)}` : `<b>Prestige ${rp.prestige}</b>${rp.prestige ? '' : ' – du bist Piratenkönig!'} Weiter sammeln für Prestige ${rp.prestige + 1}.`}</small>
+            <small>${rp.next ? `Nächster Rang: <b>${rp.next.name}</b>${rankReward(rp.next)}` : `<b>Prestige ${rp.prestige}</b>${rp.prestige ? '' : ` – du bist ${esc(R[R.length - 1].name)}!`} Weiter sammeln für Prestige ${rp.prestige + 1}.`}</small>
           </div>
           <div class="rank-perk"><b>+${bonus} %</b><small>Berry pro Run<br>(+2 % je Rang)</small></div>
         </div>
@@ -4934,7 +4948,7 @@ window.GL = window.GL || {};
           <div><b>${best ? fmt(best.score) : '0'}</b><span>Bestwert</span></div>
           <div><b>${profile.unlocked.length + GL.config.starters.length}</b><span>Kapitäne</span></div>
         </div>
-        <button class="btn ghost" data-act="profile-edit">Pirat und Aussehen bearbeiten</button>
+        <button class="btn ghost" data-act="profile-edit">${GL.anrede.t('Pirat und Aussehen bearbeiten')}</button>
         ${codeBox(profile, uiRef)}
         ${accountLine()}
         ${slotsBox(uiRef)}

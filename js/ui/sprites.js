@@ -78,8 +78,9 @@ window.GL = window.GL || {};
     sommersprossen: [[4, 3, 'J'], [4, 8, 'J'], [3, 2, 'J'], [3, 9, 'J']]
   };
   function applyLook(grid, look) {
-    if (HAIR[look.hairStyle]) HAIR[look.hairStyle](grid);   // PIRATIN
-    { const E = EYES[look.eyes]; if (E) E.forEach(([y, x, ch]) => { grid[y][x] = ch; }); }   // PIRATIN
+    const own = (o, k) => k && Object.prototype.hasOwnProperty.call(o, k);   // PIRATIN: nur echte Einträge (Online-Daten)
+    if (own(HAIR, look.hairStyle)) HAIR[look.hairStyle](grid);
+    if (own(EYES, look.eyes)) EYES[look.eyes].forEach(([y, x, ch]) => { grid[y][x] = ch; });
     const hat = HATS[look.hat];
     if (hat) Object.keys(hat).forEach(y => { hat[y].split('').forEach((ch, x) => { if (ch !== '.') grid[y][x] = ch; }); });
     if (look.longHair) [2, 3, 4, 5].forEach(y => { grid[y][1] = 'H'; grid[y][10] = 'H'; });
