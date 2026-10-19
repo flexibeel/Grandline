@@ -336,6 +336,12 @@ window.GL = window.GL || {};
     node.classList.remove(cls);
     void node.offsetWidth;
     node.classList.add(cls);
+    // Kurze Posen der Figuren (Ausfallschritt, Zurückweichen): eigene Klasse, die nach dem Moment wieder verschwindet
+    if (cls === 'atk' || cls === 'hurt' || cls === 'hurt-crit') {
+      const k = 'spr-' + (cls === 'atk' ? 'atk' : 'hurt');
+      clearTimeout(node['_' + k]); node.classList.add(k);
+      node['_' + k] = setTimeout(() => node.classList.remove(k), cls === 'atk' ? 380 : 300);
+    }
   }
 
   function float(side, i, text, cls) {

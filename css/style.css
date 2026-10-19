@@ -9207,3 +9207,46 @@ em.type.t-technik { background: #5b86b3 !important; }
 .skp-it:disabled { opacity: .6; cursor: default; }
 .skp-it.max { border-color: #d9a43a; background: #fff6dc; }
 @media (max-width: 520px) { .atl-grid { grid-template-columns: 1fr; gap: 4px; } .atl-it { padding: 4px 8px; grid-template-columns: 28px 1fr auto; } .atl-art svg { width: 26px; height: 26px; } .atl-txt b { font-size: .8rem; } .atl-lead { font-size: .74rem; } }
+
+/* ===== SPR: Kampffiguren im Stil der Kulissen ===== */
+/* Bildfolgen im Figuren-SVG: Ruhe (atmend) und Ausfallschritt beim Angriff */
+.spr .sp-a { display: none; }
+.fu.spr-atk .spr .sp-a { display: inline; }
+.fu.spr-atk .spr .sp-i:has(+ .sp-a) { display: none; }
+/* Atmen: Oberkörper sinkt im Takt um genau einen Pixel (wie bei Stardew), Beine bleiben stehen */
+.field.v3 .fu-body .spr .sp-u { animation: sprBreath 1.8s steps(1) infinite; animation-delay: var(--d, 0s); }
+@keyframes sprBreath { 0%, 55% { transform: translateY(0); } 56%, 100% { transform: translateY(1px); } }
+/* Die alte weiche Skalierung passt nicht zu Pixeln: aus, Spiegelung der Gegner bleibt */
+.field.v3 .fu-body svg.spr { animation: none !important; transform: none; }
+.field.v3 .fu-enemy .fu-body svg.spr { transform: scaleX(-1); }
+/* Licht der Kulisse: Figuren leicht in die Farbwelt der Szene tönen */
+.field.v3 { --spr-tint: saturate(.9) brightness(1.01); --spr-rim: rgba(255,244,214,.35); }
+.field.v3.th-desert, .field.v3.th-beach { --spr-tint: sepia(.12) saturate(.92) brightness(1.03); --spr-rim: rgba(255,230,170,.45); }
+.field.v3.th-snow, .field.v3.th-sky { --spr-tint: saturate(.84) brightness(1.04) hue-rotate(-4deg); --spr-rim: rgba(220,236,255,.5); }
+.field.v3.th-grave { --spr-tint: saturate(.72) brightness(.9) hue-rotate(-8deg); --spr-rim: rgba(190,200,230,.3); }
+.field.v3.th-deep { --spr-tint: saturate(.8) brightness(.94) hue-rotate(-10deg); --spr-rim: rgba(150,220,240,.35); }
+.field.v3.th-fort { --spr-tint: saturate(.85) brightness(.96) sepia(.06); --spr-rim: rgba(255,200,140,.35); }
+.field.v3.th-town, .field.v3.th-pier, .field.v3.th-deck, .field.v3.th-meadow, .field.v3.th-jungle { --spr-tint: saturate(.9) brightness(1.02) sepia(.05); }
+/* Grundfilter + feine Lichtkante oben links (passend zur Sonne der Kulissen), Bosse behalten ihren Schein */
+.field.v3 .fu:not(.hurt):not(.hurt-crit):not(.ko):not(.ult-star):not(.raged) .fu-body svg.spr { filter: var(--spr-tint) drop-shadow(-1px -1px 0 var(--spr-rim)); }
+.field.v3 .fu.boss:not(.hurt):not(.hurt-crit):not(.ko):not(.ult-star):not(.raged) .fu-body svg.spr { filter: var(--spr-tint) drop-shadow(-1px -1px 0 var(--spr-rim)) drop-shadow(0 0 9px rgba(208,86,74,.45)); }
+.field.v3 .fu.mini:not(.hurt):not(.hurt-crit):not(.ko):not(.ult-star):not(.raged) .fu-body svg.spr { filter: var(--spr-tint) drop-shadow(-1px -1px 0 var(--spr-rim)) drop-shadow(0 0 7px rgba(217,166,60,.5)); }
+/* Bodenschatten: weich, oval, mit dunklem Kern direkt unter den Füßen – die Figur steht im Bild statt darauf */
+.field.v3 .fu-shadow { width: 50px !important; height: 10px !important; bottom: -4px !important; border-radius: 50% !important;
+  background: radial-gradient(ellipse at 50% 45%, rgba(40,24,10,.5) 0, rgba(40,24,10,.28) 38%, rgba(40,24,10,0) 72%) !important; box-shadow: none !important; filter: none !important; animation: sprShadow 1.8s steps(1) infinite; animation-delay: var(--d, 0s); }
+@keyframes sprShadow { 0%, 55% { transform: scaleX(1); } 56%, 100% { transform: scaleX(1.06); } }
+.field.v3 .fu.boss .fu-shadow { width: 64px !important; height: 12px !important; }
+.field.v3.th-grave .fu-shadow, .field.v3.th-deep .fu-shadow { background: radial-gradient(ellipse at 50% 45%, rgba(10,12,24,.55) 0, rgba(10,12,24,.3) 38%, rgba(10,12,24,0) 72%) !important; }
+/* Angriff: zusätzlich leicht nach vorn gelehnt (Pixel bleiben scharf, nur ein Hauch) */
+.field.v3 .fu-crew.spr-atk:not(.ko) .fu-body { transform: rotate(4deg); transform-origin: 50% 100%; }
+.field.v3 .fu-enemy.spr-atk:not(.ko) .fu-body { transform: rotate(-4deg); transform-origin: 50% 100%; }
+/* Treffer: kurz zurückgelehnt */
+.field.v3 .fu-crew.spr-hurt:not(.ko) .fu-body { transform: rotate(-5deg) translateX(-2px); transform-origin: 50% 100%; }
+.field.v3 .fu-enemy.spr-hurt:not(.ko) .fu-body { transform: rotate(5deg) translateX(2px); transform-origin: 50% 100%; }
+/* K.O.: liegt im Bild statt grauer Klotz – Farben bleiben erkennbar, nur müde */
+.field.v3 .fu.ko { opacity: 1 !important; }
+.field.v3 .fu.ko .fu-body { filter: none !important; }
+.field.v3 .fu.ko .fu-body svg.spr { filter: saturate(.55) brightness(.9) var(--spr-tint, none) !important; }
+.field.v3 .fu.ko .fu-body svg .sp-u { animation: none; }
+.field.v3 .fu.ko .fu-shadow { width: 64px !important; animation: none; }
+@media (prefers-reduced-motion: reduce) { .field.v3 .fu-body .spr .sp-u, .field.v3 .fu-shadow { animation: none !important; } }

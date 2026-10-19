@@ -114,24 +114,58 @@ window.GL = window.GL || {};
     const t = to === 'w' ? [255, 255, 255] : [20, 12, 8];
     return '#' + c.map((v, i) => Math.round(v + (t[i] - v) * k).toString(16).padStart(2, '0')).join('');
   };
+  // ---------- Kampffiguren im Stil der Kulissen (SPR) ----------
+  // Weicher Umriss in der dunkleren Farbe des Nachbar-Pixels („selektiver Umriss“ wie bei modernen Pixel-Künstlern),
+  // Licht von oben links in drei Stufen. Liefert Pixel als Liste, damit Ober- und Unterkörper getrennt atmen können.
+  function pixelsOf(grid, w, h, colorOf, noShade) {
+    const at = (x, y) => (y >= 0 && y < h && x >= 0 && x < w && grid[y][x]) || '.';
+    const px = [];
+    for (let y = -1; y <= h; y++) for (let x = -1; x <= w; x++) {
+      const ch = at(x, y);
+      if (ch !== '.') {
+        let col = colorOf(ch);
+        if (!noShade || !noShade.includes(ch)) {
+          const eR = at(x + 1, y) !== ch, eB = at(x, y + 1) !== ch, eL = at(x - 1, y) !== ch, eT = at(x, y - 1) !== ch;
+          if (eR && eB) col = mix(col, 'k', 0.3);
+          else if (eR || eB) col = mix(col, 'k', 0.16);
+          else if (eT && eL) col = mix(col, 'w', 0.22);
+          else if (eT || eL) col = mix(col, 'w', 0.12);
+        }
+        px.push([x, y, col]);
+        continue;
+      }
+      // Umriss: Farbe vom Nachbarn nehmen und abdunkeln; unten/rechts (Schattenseite) dunkler als oben/links
+      const nb = [[0, 1, 1], [1, 0, 1], [-1, 0, 0], [0, -1, 0]].find(([dx, dy]) => at(x + dx, y + dy) !== '.');
+      if (!nb) continue;
+      const src = colorOf(at(x + nb[0], y + nb[1]));
+      const shadowSide = x > w / 2 || y > h * 0.6;
+      px.push([x, y, mix(src, 'k', shadowSide ? 0.66 : 0.56), shadowSide ? 1 : 0.92]);
+    }
+    return px;
+  }
+  const rectsOf = list => list.map(([x, y, c, o]) => `<rect x="${x}" y="${y}" width="1" height="1" fill="${c}"${o && o < 1 ? ` fill-opacity="${o}"` : ''}/>`).join('');
+  // Angriffsbild: Oberkörper einen Pixel nach vorn, Ausfallschritt, Faust hoch
+  function lungeGrid(grid) {
+    const g = grid.map(r => r.slice());
+    for (let y = 0; y <= 10; y++) g[y] = ['.'].concat(grid[y].slice(0, 11));
+    const legs = { 11: '..PP.....PP.', 12: '.PP.......PP', 13: '.OO.......OO' };
+    Object.keys(legs).forEach(y => { g[y] = legs[y].split(''); });
+    if (g[8][11] === 'S') g[8][11] = '.';
+    if (g[6][11] === '.') g[6][11] = 'S';
+    return g;
+  }
   function svgShaded(look) {
     look = safeLook(look);
     const grid = BASE.map(r => r.split(''));
     applyLook(grid, look);
     const colors = Object.assign({ H: look.hair, S: look.skin, E: '#1a1a1a', C: look.shirt, P: look.pants, O: '#2a1f14', B: look.hatColor || look.hair, D: look.beard, N: look.nose }, ACC_COL, MASK_COL[look.mask] || {});
-    const at = (x, y) => (grid[y] && grid[y][x]) || '.';
-    let rects = outline(grid, 12, 14);
-    grid.forEach((row, y) => row.forEach((ch, x) => {
-      if (ch === '.') return;
-      let col = colors[ch];
-      if (!'EYTKRGWFQ'.includes(ch)) {
-        const edgeR = at(x + 1, y) !== ch, edgeB = at(x, y + 1) !== ch, edgeL = at(x - 1, y) !== ch, edgeT = at(x, y - 1) !== ch;
-        if (edgeR || edgeB) col = mix(col, 'k', edgeR && edgeB ? 0.3 : 0.18);
-        else if (edgeT || edgeL) col = mix(col, 'w', 0.16);
-      }
-      rects += `<rect x="${x}" y="${y}" width="1" height="1" fill="${col}"/>`;
-    }));
-    return `<svg viewBox="-1 -1 14 16" aria-hidden="true">${rects}</svg>`;
+    const colorOf = ch => colors[ch] || '#888888';
+    const NOSH = 'EYTKRGWFQ';
+    // Ruhebild: Oberkörper (bis Gürtel) und Beine getrennt, damit der Oberkörper beim Atmen um einen Pixel sinkt
+    const idle = pixelsOf(grid, 12, 14, colorOf, NOSH);
+    const up = idle.filter(p => p[1] <= 9), low = idle.filter(p => p[1] > 9);
+    const atk = pixelsOf(lungeGrid(grid), 12, 14, colorOf, NOSH);
+    return `<svg viewBox="-1 -1 14 16" aria-hidden="true" class="spr"><g class="sp-i"><g class="sp-l">${rectsOf(low)}</g><g class="sp-u">${rectsOf(up)}</g></g><g class="sp-a">${rectsOf(atk)}</g></svg>`;
   }
 
   // Eigene Pixelbilder (z. B. Tiere): rows + Farben, optional mit Licht und Schatten an den Kanten
@@ -142,21 +176,22 @@ window.GL = window.GL || {};
     // Gezeichnet mit Blick nach links; gespiegelt gespeichert, damit Gegner (im Kampf gespiegelt) zur Crew schauen
     const rows = art.rows.map(x => x.split('').reverse().join(''));
     const h = rows.length, w = Math.max(...rows.map(r => r.length));
-    const at = (x, y) => (rows[y] && rows[y][x]) || '.';
     const g2 = rows.map(row => row.padEnd(w, '.').split('').map(ch => art.c[ch] ? ch : '.'));
-    let r = outline(g2, w, h);
-    rows.forEach((row, y) => row.split('').forEach((ch, x) => {
-      const c0 = art.c[ch]; if (!c0) return;
-      let col = c0;
-      if (shaded) {
-        const edgeR = at(x + 1, y) !== ch, edgeB = at(x, y + 1) !== ch, edgeL = at(x - 1, y) !== ch, edgeT = at(x, y - 1) !== ch;
-        if (edgeR || edgeB) col = mix(c0, 'k', edgeR && edgeB ? 0.28 : 0.16);
-        else if (edgeT || edgeL) col = mix(c0, 'w', 0.18);
-      }
-      r += `<rect x="${x}" y="${y}" width="1" height="1" fill="${col}"/>`;
-    }));
-    // Pixel-Umriss: macht Tiere im Kampfbild klar lesbar
-    const svgOut = `<svg viewBox="-1 -1 ${w + 2} ${h + 2}" aria-hidden="true">${r}</svg>`;
+    let svgOut;
+    if (shaded) {
+      // Kampfbild: gleicher Stil wie die Figuren (weicher Farb-Umriss, Licht oben links, atmender Oberteil)
+      const px = pixelsOf(g2, w, h, ch => art.c[ch] || '#888888');
+      const cut = Math.round(h * 0.62);
+      svgOut = `<svg viewBox="-1 -1 ${w + 2} ${h + 2}" aria-hidden="true" class="spr"><g class="sp-i"><g class="sp-l">${rectsOf(px.filter(p => p[1] > cut))}</g><g class="sp-u">${rectsOf(px.filter(p => p[1] <= cut))}</g></g></svg>`;
+    } else {
+      let r = outline(g2, w, h);
+      rows.forEach((row, y) => row.split('').forEach((ch, x) => {
+        const c0 = art.c[ch]; if (!c0) return;
+        r += `<rect x="${x}" y="${y}" width="1" height="1" fill="${c0}"/>`;
+      }));
+      // Pixel-Umriss: macht Tiere im Kampfbild klar lesbar
+      svgOut = `<svg viewBox="-1 -1 ${w + 2} ${h + 2}" aria-hidden="true">${r}</svg>`;
+    }
     artCache.set(key, svgOut);
     return svgOut;
   }
