@@ -9345,3 +9345,10 @@ em.type.t-technik { background: #5b86b3 !important; }
 .fr-gewoelbe { border-color: #4a4a52 !important; border-style: double !important; box-shadow: 0 0 0 2px #2a2a30, inset 0 0 6px rgba(90,140,60,.45); }
 .bg-kartentisch { background: #e8d6a8; } .bg-laternengrotte { background: #22222e; } .bg-wrackbucht { background: #8ab8d8; } .bg-goldkajuete { background: #5a3220; }
 @media (max-width: 400px) { .dl-it { grid-template-columns: 38px 1fr auto; gap: 6px; } .dl-sw { width: 38px; height: 34px; } }
+
+/* K.O. am Handy: liegende Figur kleiner, damit sie Nachbarn nicht überdeckt */
+@media (max-width: 520px) {
+  .field.v3 .fu.ko .fu-body { transform: translate(8px, 24px) rotate(90deg) scale(.78) !important; }
+  .field.v3 .fu-enemy.ko .fu-body { transform: translate(-8px, 24px) rotate(-90deg) scale(.78) !important; }
+  .field.v3 .fu.ko .fu-shadow { width: 46px !important; }
+}
