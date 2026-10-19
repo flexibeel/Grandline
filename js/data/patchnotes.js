@@ -1,6 +1,11 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-21e', date: '19.10.', title: 'Offene See', items: [
+    '⛵ Neuer Kurs: Offene See. Statt Station für Station segelst du über eine Seekarte zur nächsten Insel und entscheidest selbst, wohin',
+    '🗺 Auf dem Wasser treiben Funde: Piratenschiffe, Seeungeheuer, Wracks, ein Händlerschiff und kleine Inseln. Antippen, „Hinsegeln“, fertig. Wer keine Lust hat: „Direkt zur Insel“',
+    '⛈ Zwei Gewitterwolken ziehen mit jedem Zug weiter. Wer darin landet, verliert 15 % Leben. Die gelben ⚡ zeigen, wo sie als Nächstes hinwollen',
+    '🎁 Jeder Fund erhöht die Chance auf Ausrüstung bei der Ankunft. Mut wird belohnt, Leichtsinn vom Wetter' ] },
   { v: '2026-10-21d', date: '19.10.', title: 'Dein Spielstand ist überall', items: [
     '☁ Dein Spielstand wird jetzt zuverlässig in der Cloud gesichert: kurz nach jeder Änderung und wenn du das Spiel schließt. Auf einem neuen Gerät ist er einfach da',
     '☁ ⏳ ⚠ Das Wölkchen neben „Anmelden“ und oben neben ☰ zeigt, ob alles gesichert ist. Antippen: Konto mit deiner Mail sichern oder auf einem anderen Gerät anmelden',
