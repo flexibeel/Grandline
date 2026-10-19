@@ -57,7 +57,29 @@ window.GL = window.GL || {};
     bear: { G: '#6a4a30', g: '#c89a70' },
     octo: { G: '#e88a9a', g: '#b85a6a' }
   };
+  // PIRATIN: Frisuren für alle (eigener Pirat, eigene Piratin, eigene*r Pirat*in). Wirken vor dem Hut,
+  // damit ein Hut die Haare oben überdeckt und der Rest (lang, Zöpfe, Zopf) darunter heraushängt.
+  // h = Haare dunkler (Struktur), Z = Haargummi (Farbe vom Oberteil), S = Haut
+  const set = (g, pts, ch) => pts.forEach(([y, x]) => { if (g[y]) g[y][x] = ch; });
+  const HAIR = {
+    lang:     g => { set(g, [[1, 1], [1, 10], [2, 1], [2, 10], [3, 1], [3, 10], [4, 1], [4, 10], [5, 1], [5, 10]], 'H'); set(g, [[6, 1], [6, 10]], 'h'); },
+    zopf:     g => { set(g, [[1, 1], [2, 0], [3, 0], [4, 0]], 'H'); set(g, [[5, 0]], 'h'); set(g, [[2, 1]], 'Z'); },
+    zoepfe:   g => { set(g, [[2, 1], [2, 10], [4, 1], [4, 10]], 'H'); set(g, [[3, 1], [3, 10], [5, 1], [5, 10]], 'h'); set(g, [[6, 1], [6, 10]], 'Z'); },
+    dutt:     g => { g[0] = '....hHHh....'.split(''); g[1] = '..HHHZZHHH..'.split(''); },
+    locken:   g => { g[0] = '..HHhHHhHH..'.split(''); g[1] = '.HhHHHHHHhH.'.split(''); set(g, [[2, 1], [2, 10], [3, 1], [3, 10]], 'H'); set(g, [[3, 1], [2, 10]], 'h'); },
+    undercut: g => { g[0] = '....HHHHHH..'.split(''); g[1] = '..hhHHHHHHH.'.split(''); set(g, [[2, 2]], 'h'); set(g, [[2, 9], [3, 10]], 'H'); },
+    glatze:   g => { g[0] = '....SSSS....'.split(''); g[1] = '..SSSSSSSS..'.split(''); set(g, [[2, 2], [2, 9]], 'S'); }
+  };
+  // PIRATIN: dezente Gesichts-Details, frei wählbar (M = Rouge, J = Sommersprossen)
+  const EYES = {
+    wimpern:   [[2, 4, 'E'], [2, 7, 'E']],
+    lidstrich: [[3, 3, 'E'], [3, 8, 'E']],
+    rouge:     [[4, 3, 'M'], [4, 8, 'M']],
+    sommersprossen: [[4, 3, 'J'], [4, 8, 'J'], [3, 2, 'J'], [3, 9, 'J']]
+  };
   function applyLook(grid, look) {
+    if (HAIR[look.hairStyle]) HAIR[look.hairStyle](grid);   // PIRATIN
+    { const E = EYES[look.eyes]; if (E) E.forEach(([y, x, ch]) => { grid[y][x] = ch; }); }   // PIRATIN
     const hat = HATS[look.hat];
     if (hat) Object.keys(hat).forEach(y => { hat[y].split('').forEach((ch, x) => { if (ch !== '.') grid[y][x] = ch; }); });
     if (look.longHair) [2, 3, 4, 5].forEach(y => { grid[y][1] = 'H'; grid[y][10] = 'H'; });
@@ -100,7 +122,7 @@ window.GL = window.GL || {};
     const colors = Object.assign({
       H: look.hair, S: look.skin, E: '#1a1a1a', C: look.shirt,
       P: look.pants, O: '#2a1f14', B: look.hatColor || look.hair, D: look.beard, N: look.nose
-    }, ACC_COL, MASK_COL[look.mask] || {});
+    }, hairCols(look), ACC_COL, MASK_COL[look.mask] || {});
     let rects = outline(grid, 12, 14);
     grid.forEach((row, y) => row.forEach((ch, x) => {
       if (ch !== '.') rects += `<rect x="${x}" y="${y}" width="1" height="1" fill="${colors[ch]}"/>`;
@@ -114,6 +136,10 @@ window.GL = window.GL || {};
     const t = to === 'w' ? [255, 255, 255] : [20, 12, 8];
     return '#' + c.map((v, i) => Math.round(v + (t[i] - v) * k).toString(16).padStart(2, '0')).join('');
   };
+  // PIRATIN: Zusatzfarben für Frisur und Gesicht
+  function hairCols(look) {
+    return { h: mix(look.hair || '#6b4a2a', 'k', 0.3), Z: look.shirt || '#e0483b', M: '#e8848e', J: mix(look.skin || '#f2c9a0', 'k', 0.32) };
+  }
   // ---------- Kampffiguren im Stil der Kulissen (SPR) ----------
   // Weicher Umriss in der dunkleren Farbe des Nachbar-Pixels („selektiver Umriss“ wie bei modernen Pixel-Künstlern),
   // Licht von oben links in drei Stufen. Liefert Pixel als Liste, damit Ober- und Unterkörper getrennt atmen können.
@@ -158,9 +184,9 @@ window.GL = window.GL || {};
     look = safeLook(look);
     const grid = BASE.map(r => r.split(''));
     applyLook(grid, look);
-    const colors = Object.assign({ H: look.hair, S: look.skin, E: '#1a1a1a', C: look.shirt, P: look.pants, O: '#2a1f14', B: look.hatColor || look.hair, D: look.beard, N: look.nose }, ACC_COL, MASK_COL[look.mask] || {});
+    const colors = Object.assign({ H: look.hair, S: look.skin, E: '#1a1a1a', C: look.shirt, P: look.pants, O: '#2a1f14', B: look.hatColor || look.hair, D: look.beard, N: look.nose }, hairCols(look), ACC_COL, MASK_COL[look.mask] || {});
     const colorOf = ch => colors[ch] || '#888888';
-    const NOSH = 'EYTKRGWFQ';
+    const NOSH = 'EYTKRGWFQMJ';   // PIRATIN: M, J
     // Ruhebild: Oberkörper (bis Gürtel) und Beine getrennt, damit der Oberkörper beim Atmen um einen Pixel sinkt
     const idle = pixelsOf(grid, 12, 14, colorOf, NOSH);
     const up = idle.filter(p => p[1] <= 9), low = idle.filter(p => p[1] > 9);
