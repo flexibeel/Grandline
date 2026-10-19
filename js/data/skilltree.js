@@ -77,7 +77,21 @@ GL.data.skilltree = {
     },
     earned(p) { const s = GL.skills.sources(p); return s.rank + s.runs + s.land + s.bond; },
     learned(p) { return (Array.isArray(p.skills) ? p.skills : []).filter(id => find(id)); },
-    spent(p) { return GL.skills.learned(p).reduce((s, id) => s + cost(find(id)), 0); },
+    spent(p) { return GL.skills.learned(p).reduce((s, id) => s + cost(find(id)), 0) + GL.skills.polishSpent(p); },
+    // Feinschliff (20t): wenn alle Pfade voll sind, fließen weitere Punkte in kleine, endlose Stufen (mit Deckel)
+    POLISH: [
+      { k: 'berry', icon: '🪙', name: 'Feinschliff: Berry', max: 15, per: 0.01, text: '+1 % Berry je Punkt' },
+      { k: 'goldPct', icon: '💰', name: 'Feinschliff: Gold', max: 15, per: 0.01, text: '+1 % Gold pro Sieg je Punkt' },
+      { k: 'hp', icon: '♥', name: 'Feinschliff: Leben', max: 8, per: 1, text: '+1 Leben für jede Figur je Punkt' }
+    ],
+    polish(p) { const o = (p.polish && typeof p.polish === 'object') ? p.polish : {}; const out = {}; GL.skills.POLISH.forEach(x => { out[x.k] = Math.max(0, Math.min(x.max, Math.floor(+o[x.k] || 0))); }); return out; },
+    polishSpent(p) { const o = GL.skills.polish(p); return Object.values(o).reduce((a, b) => a + b, 0); },
+    treeDone(p) { return T().paths.every(pa => pa.nodes.every(n => GL.skills.has(p, n.id))); },
+    polishUp(p, k) {
+      const x = GL.skills.POLISH.find(y => y.k === k), o = GL.skills.polish(p);
+      if (!x || !GL.skills.treeDone(p) || GL.skills.free(p) < 1 || o[k] >= x.max) return false;
+      o[k]++; p.polish = o; return true;
+    },
     free(p) { return Math.max(0, GL.skills.earned(p) - GL.skills.spent(p)); },
     has(p, id) { return GL.skills.learned(p).includes(id); },
     // Warum ein Knoten noch nicht geht (null = lernbar)
@@ -100,7 +114,7 @@ GL.data.skilltree = {
       return true;
     },
     // Umskillen: alles zurück, kostenlos
-    reset(p) { p.skills = []; },
+    reset(p) { p.skills = []; p.polish = {}; },
     // Summe aller Effekte (geht als run.start.skills in den Run)
     bonus(p) {
       const out = {};
@@ -110,6 +124,8 @@ GL.data.skilltree = {
         if (n.path === 'talent' && bondOf(p, n.who) < n.bond) return;
         Object.keys(n.eff).forEach(k => { out[k] = Math.round(((out[k] || 0) + n.eff[k]) * 1000) / 1000; });
       });
+      const po = GL.skills.polish(p);
+      GL.skills.POLISH.forEach(x => { if (po[x.k]) out[x.k] = Math.round(((out[x.k] || 0) + po[x.k] * x.per) * 1000) / 1000; });
       return out;
     }
   };

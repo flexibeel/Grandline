@@ -50,6 +50,10 @@ window.GL = window.GL || {};
     }
     // 2) Kleine Dinge, die sich gerade lohnen
     const extra = [];
+    if (GL.cgear && GL.cgear.wishes) { const w = GL.cgear.wishes(p)[0], sg = w && GL.cgear.sigById(w), wh = sg && GL.cgear.sigWhere(sg), bd = sg && (GL.data.bosses || []).find(x => x.id === sg.boss);
+      const enN = sg ? (GL.i18n && GL.i18n.t ? GL.i18n.t(sg.name) : sg.name) : '';
+      if (wh) extra.unshift({ k: 'wish', ico: '🎯', act: 'atlas-open', title: L(`Jage ${sg.name}`, `Hunt ${enN}`),
+        why: L(`Fällt bei ${bd ? bd.name : sg.boss}: ${wh.isl.name} (${wh.sea.name}). Bei der Kurswahl diese Insel nehmen.`, `Dropped by ${bd ? bd.name : sg.boss}: ${wh.isl.name} (${wh.sea.name}). Pick that island when setting course.`) }); }
     if (!p.crewName && ((p.stats && p.stats.runs) || 0) >= 2) extra.push({ k: 'crew', ico: '🏴', act: 'crew-name-open',
       title: L('Gib deiner Bande einen Namen', 'Name your crew'),
       why: L('Steht auf deiner Karte und in der Rangliste. Profil → Kampf → Bande.', 'Shows on your card and in the leaderboard. Profile → Combat → Crew.') });
@@ -77,7 +81,8 @@ window.GL = window.GL || {};
       if (f) extra.push({ k: 'next', ico: '⭐', act: null, title: L(`Ab Rang ${f.lvl}: ${f.name}`, `From rank ${f.lvl}: ${f.name}`),
         why: L('Jede Fahrt bringt Rang-Erfahrung, auch verlorene.', 'Every voyage gives rank XP, even lost ones.') });
     }
-    return out.concat(extra).slice(0, 2);
+    const wishG = extra.filter(g => g.k === 'wish');
+    return wishG.concat(out, extra.filter(g => g.k !== 'wish')).slice(0, 2);
   }
   function goalCard(p) {
     if (!p || !p.nickname) return '';

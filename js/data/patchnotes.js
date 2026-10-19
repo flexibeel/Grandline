@@ -1,6 +1,12 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-20t', date: '19.10.', title: 'Auf Epic-Jagd', items: [
+    '🎯 Beute-Atlas (Stammcrew): Jeder Meeres-Boss hütet ein eigenes Fundstück, zum Beispiel Smokers Jitte oder Kumas Bibelmantel. Es fällt nur bei ihm und nur als Episch oder Legendär',
+    'Wunschliste: Bis zu drei Fundstücke als gesucht markieren. Der Boss lässt dann immer etwas fallen, öfter Episches, und meistens genau das',
+    'Gesuchtes steht im „Nächsten Ziel“ und auf den Kurs-Postkarten (🎯). Noch nie gesehene Fundstücke zeigen 🎁. So weiß man, welche Insel man ansteuern muss',
+    'Epische und legendäre Funde schimmern am Run-Ende kurz und verraten, bei wem sie lagen',
+    '🔧 Feinschliff im Skillbaum: Sind alle Pfade voll, fließen weitere Punkte in kleine Stufen (+1 % Berry, +1 % Gold, +1 Leben)' ] },
   { v: '2026-10-20s', date: '19.10.', title: 'Ruhiger Einstieg, Freunde an Bord', items: [
     '🧭 Neu an Bord? Der Hafen fängt jetzt klein an: Leinen los, Nächstes Ziel, Aufträge, Kapitän. Weitere Räume und Modi kommen nach und nach mit deinen ersten Fahrten dazu. Wer schon alles kennt, behält alles',
     'Im ersten Run erklärt Nami in drei kurzen Sätzen das Nötigste: das Ziel, wie gekämpft wird und wozu Schätze gut sind. Mehr nicht. Sie hat auch noch anderes zu tun',

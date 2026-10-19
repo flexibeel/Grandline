@@ -2,6 +2,12 @@
 window.GL = window.GL || {};
 GL.data = GL.data || {};
 GL.data.en = Object.assign(GL.data.en || {}, {
+  'Beute-Atlas': 'Loot atlas', 'Jeder Boss hütet ein Fundstück': 'Every boss guards a keepsake', '✓ gefunden': '✓ found', '✦ legendär': '✦ legendary', '? noch nie gesehen': '? never seen',
+  '🔧 Feinschliff': '🔧 Fine-tuning', 'Alle Pfade voll. Weitere Punkte machen kleine Dinge etwas besser.': 'All paths full. More points make small things a bit better.',
+  '+1 % Berry je Punkt': '+1 % berry per point', '+1 % Gold pro Sieg je Punkt': '+1 % gold per win per point', '+1 Leben für jede Figur je Punkt': '+1 health for every member per point',
+  '🎁 Fundstück': '🎁 Keepsake', '🎯 Fundstück': '🎯 Keepsake',
+  'Smokers Jitte': "Smoker's Jitte", 'Arlongs Kiribachi': "Arlong's Kiribachi", 'Crocodiles Sandring': "Crocodile's Sand Ring", 'Enels Trommelamulett': "Enel's Drum Amulet", 'Hodys Haifischweste': "Hody's Shark Vest",
+  'Vanders Zielkompass': "Vander's Target Compass", 'Luccis Taubenhalstuch': "Lucci's Pigeon Scarf", 'Kakus Stierhorn-Klinge': "Kaku's Bull-Horn Blade", 'Morias Schattenkette': "Moria's Shadow Chain", 'Kumas Bibelmantel': "Kuma's Bible Coat",
   'Das Ziel: Auf jeder Insel wartet ein Bösewicht. Besieg ihn, dann geht es weiter. Mehr musst du fürs Erste nicht wissen.': 'The goal: every island has a villain. Beat them and sail on. That is all you need to know for now.',
   'Kämpfen tut die Crew von allein. Du suchst nur aus, wer mitfährt. Man nennt das Führungsstärke.': 'Your crew fights on its own. You just pick who comes along. They call it leadership.',
   'Schätze machen deine Crew bis zum Ende des Runs stärker. Nimm einen, der zu deinen Leuten passt. Alle auf einmal geht nicht, ich habe gefragt.': 'Treasures make your crew stronger until the run ends. Take one that suits your people. All at once is not allowed, I asked.',

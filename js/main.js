@@ -1769,6 +1769,20 @@
       // ---------- Crew-Ausrüstung ----------
       case 'cg-slot': openGearPop(GL.ui.gearPick(profile, el.dataset.id, el.dataset.slot)); break;
       case 'dress': ui.sqPick = null; showDress({ id: el.dataset.id, slot: null, uid: null }); break;
+      case 'sk-polish': if (GL.skills.polishUp(profile, el.dataset.k)) { saveProfile(); if (GL.sfx) GL.sfx.play('found'); ui.lastStage = null; draw(); } break;
+      case 'atlas-open': openGearPop(GL.ui.atlasPop(profile)); break;
+      case 'atlas-wish': {
+        const was = GL.cgear.wishes(profile).includes(el.dataset.id);
+        if (!GL.cgear.toggleWish(profile, el.dataset.id)) { toast(GL.i18n && GL.i18n.lang() === 'en' ? '<span><b>Wish list is full</b>Three at a time. Even pirates have limits.</span>' : '<span><b>Wunschliste voll</b>Drei auf einmal. Auch Piraten haben Grenzen.</span>'); break; }
+        saveProfile();
+        const sc = document.querySelector('#fpop .atl-grid'), y = sc ? sc.scrollTop : 0;
+        openGearPop(GL.ui.atlasPop(profile));
+        const f = document.getElementById('fpop'); if (f) f.classList.add('in');
+        const sc2 = document.querySelector('#fpop .atl-grid'); if (sc2) sc2.scrollTop = y;
+        if (!was) { const sg = GL.cgear.sigById(el.dataset.id), wh = sg && GL.cgear.sigWhere(sg); if (wh) toast(GL.i18n && GL.i18n.lang() === 'en' ? `<span><b>🎯 Hunting: ${GL.i18n.t(sg.name)}</b>Found at ${wh.isl.name} (${wh.sea.name}). Pick that island when setting course.</span>` : `<span><b>🎯 Gesucht: ${sg.name}</b>Liegt bei ${wh.isl.name} (${wh.sea.name}). Wähl die Insel bei der Kurswahl.</span>`); }
+        ui.lastStage = null; draw();
+        break;
+      }
       case 'dr-slot': showDress({ id: el.dataset.id, slot: el.dataset.slot || null, uid: null }); break;
       case 'dr-item': showDress({ uid: ui.dress && ui.dress.uid === el.dataset.uid ? null : el.dataset.uid }); break;
       case 'dr-on': {

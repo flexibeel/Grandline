@@ -219,7 +219,7 @@ window.GL = window.GL || {};
   // Gold nach einem Sieg: fester Betrag je Kampfart plus Zinsen (je 10 Gold 1, höchstens 3)
   function earnGold(run, kind) {
     const S = GL.config.shop;
-    const base = Math.round((S.win[kind] || 0) * (run.mood === 'goldrausch' ? 1.4 : 1) * Math.max(0, 1 + ((twistOf(run) || {}).goldX || 0) + (riskOf(run).gold || 0)));
+    const base = Math.round((S.win[kind] || 0) * (run.mood === 'goldrausch' ? 1.4 : 1) * Math.max(0, 1 + ((twistOf(run) || {}).goldX || 0) + (riskOf(run).gold || 0) + ((run.sk && run.sk.goldPct) || 0)));
     const interest = Math.min(S.interestMax, Math.floor((run.gold || 0) / 10));
     run.gold = (run.gold || 0) + base + interest;
     run.lastGold = { base, interest };

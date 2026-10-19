@@ -15,6 +15,7 @@ window.GL = window.GL || {};
     const heat = src.heat || 0, loop = src.loop || 0;
     w[2] += 2 * heat + 4 * loop + (src.raid ? 10 : 0);
     w[3] += 0.6 * heat + 2 * loop + (src.raid ? 5 : 0);
+    if (src.wish) { w[2] += 28; w[3] += 6; }   // Wunsch-Boss: legt sich mehr ins Zeug
     let x = Math.random() * w.reduce((a, b) => a + b, 0);
     for (let r = 0; r < w.length; r++) { x -= w[r]; if (x < 0) return r; }
     return 0;
@@ -24,20 +25,23 @@ window.GL = window.GL || {};
   function roll(src) {
     const C = D();
     const r = src.r != null ? src.r : rollRarity(src);
-    const b = C.bases[Math.floor(Math.random() * C.bases.length)];
+    // Fundstück des Bosses: nur episch/legendär, fester Grundteil und fester Zusatzwert
+    const sg = src.sig && r >= 2 && Math.random() < (src.wish ? C.sigChance.wish : C.sigChance.base) ? src.sig : null;
+    const b = sg ? base(sg.base) : C.bases[Math.floor(Math.random() * C.bases.length)];
     const q = (1 + C.perSea * (src.sea || 0) + 0.15 * (src.loop || 0)) * C.rarityMult[r];
     const a = {};
     const A = C.affixes[b.main];
     a[b.main] = round(b.main, between(A.min, A.max) * q * C.mainMult);
     const pool = Object.keys(C.affixes).filter(k => k !== b.main);
-    for (let i = 0; i < r && pool.length; i++) {
+    if (sg && sg.extra !== b.main && pool.includes(sg.extra)) { pool.splice(pool.indexOf(sg.extra), 1); const F = C.affixes[sg.extra]; a[sg.extra] = round(sg.extra, between(F.min, F.max) * q); }
+    for (let i = Object.keys(a).length - 1; i < r && pool.length; i++) {
       const k = pool.splice(Math.floor(Math.random() * pool.length), 1)[0];
       const F = C.affixes[k];
       a[k] = round(k, between(F.min, F.max) * q);
     }
     return {
       uid: 'g' + Date.now().toString(36) + Math.floor(Math.random() * 1e6).toString(36),
-      b: b.id, r, a, m: b.main,
+      b: b.id, r, a, m: b.main, ...(sg ? { s: sg.id } : {}),
       f: { boss: src.boss || null, name: src.name || null, sea: src.seaName || null, at: new Date().toISOString(), loop: src.loop || 0, raid: !!src.raid }
     };
   }
@@ -70,7 +74,7 @@ window.GL = window.GL || {};
     if (!Object.keys(a).length && !isT) return null;
     const it = { uid: 'p' + Date.now().toString(36) + Math.floor(Math.random() * 1e6).toString(36), r, a,
       f: { boss: null, name: (raw.f && raw.f.name) ? String(raw.f.name).slice(0, 24) : null, sea: null, at: new Date().toISOString(), loop: 0, raid: !!isT, gift: String(fromName || 'Pirat').slice(0, 24) } };
-    if (isT) it.t = raw.t; else { it.b = b.id; it.m = C.affixes[raw.m] ? raw.m : b.main; }
+    if (isT) it.t = raw.t; else { it.b = b.id; it.m = C.affixes[raw.m] ? raw.m : b.main; const sg = sigById(raw.s); if (sg && sg.base === b.id && r >= 2) it.s = sg.id; }
     return it;
   }
   function perk(it) { return it && it.t ? D().trophyPerks[it.t] || null : null; }
@@ -78,6 +82,8 @@ window.GL = window.GL || {};
     if (it.t) { const l = (GL.data.huntLoot || []).find(x => x.id === it.t); return l ? l.name : 'Trophäe'; }
     const b = base(it.b);
     if (!b) return 'Ausrüstung';
+    const sg = sigById(it.s);
+    if (sg) return sg.name;
     if (it.r >= 3 && it.f && it.f.name) return `${b.name} von ${it.f.name}`;
     const extra = Object.keys(it.a).filter(k => k !== it.m);
     if (!extra.length) return b.name;
@@ -208,10 +214,13 @@ window.GL = window.GL || {};
     run.gearSrc.slice(done).forEach(s => {
       const raid = (GL.data.raids || []).some(x => x.id === s.id);
       const chance = (raid ? C.dropChance.raid : C.dropChance.boss) + C.dropChance.perLoop * (s.loop || 0);
-      if (Math.random() >= chance) return;
       const d = (GL.data.raids || []).find(x => x.id === s.id) || GL.data.bosses.find(x => x.id === s.id) || {};
       const sea = GL.data.islands[s.sea] || {};
-      got.push(roll({ boss: s.id, name: d.name, sea: s.sea, seaName: sea.name, raid, loop: s.loop, heat: run.heat || 0 }));
+      const sg = sigOf(s.id), wish = !!(sg && wishes(profile).includes(sg.id));
+      if (!wish && Math.random() >= chance) return;   // Wunsch-Boss lässt immer etwas fallen
+      const it = roll({ boss: s.id, name: d.name, sea: s.sea, seaName: sea.name, raid, loop: s.loop, heat: run.heat || 0, sig: sg, wish });
+      if (it.s) { const A = atlas(profile); A[it.s] = Math.max(A[it.s] || 0, it.r); }
+      got.push(it);
     });
     const B = bag(profile);
     got.forEach(it => B.push(it));
@@ -225,5 +234,25 @@ window.GL = window.GL || {};
     return got;
   }
 
-  GL.cgear = { clean, reroll, trophy, perk, migrate, roll, name, lines, power, slotOf, from, base, bag, worn, wornBy, equip, unequip, scrap, totals, wornList, drops, upgrades, equipBest, RNAME, RID };
+  // ---------- Beute-Atlas und Wunschliste ----------
+  function sigs() { return D().sigs || []; }
+  function sigById(id) { return id ? sigs().find(x => x.id === id) || null : null; }
+  function sigOf(bossId) { return sigs().find(x => x.boss === bossId) || null; }
+  function atlas(profile) { return (profile.gearAtlas = profile.gearAtlas || {}); }
+  function wishes(profile) { return (profile.gearWish = (profile.gearWish || []).filter(id => sigById(id))); }
+  function toggleWish(profile, id) {
+    if (!sigById(id)) return false;
+    const W = wishes(profile), i = W.indexOf(id);
+    if (i >= 0) { W.splice(i, 1); return true; }
+    if (W.length >= (D().wishMax || 3)) return false;
+    W.push(id); return true;
+  }
+  // Wo liegt das Fundstück? Insel + Meer aus den Inseldaten
+  function sigWhere(sg) {
+    let out = null;
+    (GL.data.islands || []).forEach((sea, i) => [...(sea.big || []), ...((sea.alt && sea.alt.big) || [])].forEach(isl => { if (!out && isl.boss === sg.boss) out = { isl, sea, seaIdx: i }; }));
+    return out;
+  }
+
+  GL.cgear = { sigs, sigById, sigOf, atlas, wishes, toggleWish, sigWhere, clean, reroll, trophy, perk, migrate, roll, name, lines, power, slotOf, from, base, bag, worn, wornBy, equip, unequip, scrap, totals, wornList, drops, upgrades, equipBest, RNAME, RID };
 })();

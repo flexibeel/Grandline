@@ -1877,7 +1877,7 @@ window.GL = window.GL || {};
             ${i < 9 ? `<kbd class="key">${i + 1}</kbd>` : ''}
             <span class="co-scene">${cardStage({ id: 'isl-' + isl.id }, th)}
               <span class="co-boss"><i class="co-boss-sh" aria-hidden="true"></i>${GL.sprites.render(foe)}</span>
-              <span class="co-chips">${route ? `<span class="co-routechip">${esc(route)}</span>` : ''}${isNewIsl(isl) ? '<span class="new-chip co-new" title="Hier warst du noch nie">Neue Insel</span>' : ''}${pet}</span>
+              <span class="co-chips">${(() => { const sg = ch === 1 && GL.cgear && profRef ? GL.cgear.sigOf(isl.boss) : null; if (!sg) return ''; const wish = GL.cgear.wishes(profRef).includes(sg.id); return wish ? `<span class="co-wish" title="${esc(sg.name)}">🎯 ${esc(sg.name)}</span>` : (GL.cgear.atlas(profRef)[sg.id] == null ? `<span class="co-sig" title="Fundstück: ${esc(sg.name)}">🎁 Fundstück</span>` : ''); })()}${route ? `<span class="co-routechip">${esc(route)}</span>` : ''}${isNewIsl(isl) ? '<span class="new-chip co-new" title="Hier warst du noch nie">Neue Insel</span>' : ''}${pet}</span>
               <b class="co-name">${isl.name}</b></span>
             <span class="co-body">
               <small class="co-text">${isl.text}</small>
@@ -2170,7 +2170,7 @@ window.GL = window.GL || {};
           <span class="loot-grid">${newItems.map((x, i) => lootTile(GL.config.rarities[x.r].id, itemIcon(x), itemName(x), i, GL.config.rarities[x.r].name)).join('')}</span></div>` : '';
         const cgNew = ui.profile && ui.lastBerry != null && GL.cgear ? (ui.profile.lastGear || []).map(uid => GL.cgear.bag(ui.profile).find(x => x.uid === uid)).filter(Boolean) : [];
         const cgHtml = cgNew.length ? `<div class="trophy-sum cg-sum loot-sum"><span class="event-kicker">Beute für deine Stammcrew</span>
-          <span class="loot-grid">${cgNew.map((it, i) => lootTile(GL.cgear.RID[it.r], cgArt(it), GL.cgear.name(it), i)).join('')}</span></div>` : '';
+          <span class="loot-grid">${cgNew.map((it, i) => lootTile(GL.cgear.RID[it.r], cgArt(it), GL.cgear.name(it), i, `${GL.cgear.RNAME[it.r]}${it.f && it.f.name ? ' · gefunden bei ' + it.f.name : ''}${it.f && it.f.sea ? ' (' + it.f.sea + ')' : ''}${it.s ? '\nFundstück für den Beute-Atlas' : ''}`).replace('class="loot-tile', `class="loot-tile${it.r >= 2 ? ' lt-shine' : ''}${it.s ? ' lt-sig' : ''}`).replace('</small></span>', `</small>${it.s ? '<em class="lt-sigtag">🎯 Fundstück</em>' : it.r >= 2 && it.f && it.f.name ? `<em class="lt-from">${esc(it.f.name)}</em>` : ''}</span>`)).join('')}</span></div>` : '';
         const shardHtml = run.endlessSea != null && ui.lastBerry != null ? `<div class="trophy-sum"><span class="event-kicker">Endlos-Fahrt · ${esc((GL.data.islands[run.endlessSea] || {}).name || '')}</span>
           <span>${run.loop || 0} ${run.loop === 1 ? 'Runde' : 'Runden'} geschafft${ui.profile && ui.profile.lastShards ? ` · <b>+${ui.profile.lastShards} 🔹 Meersplitter</b> zum Neu-Würfeln von Ausrüstung` : ''}</span></div>` : '';
         const tro = (run.trophies || []).map(id => (GL.data.artifacts || []).find(a => a.id === id)).filter(Boolean);
@@ -2552,7 +2552,8 @@ window.GL = window.GL || {};
         : `<p class="sq-tip">Karte antippen zum Ankleiden. Aus der Sammlung eine Karte auf einen Platz ziehen oder antippen. <b>Vorne</b> steht, wer zuerst getroffen wird.</p>`}
       <button class="btn squad-match" data-act="squad-match">${pxIco('swords')}Gegner suchen <small>ähnliche Stärke</small></button>
       ${GL.cgear && GL.cgear.upgrades && refs.some(x => Object.keys(GL.cgear.upgrades(profile, x.id)).length) ? `<div class="sq-best-hint">${PX_UPG}<b>${refs.reduce((n, x) => n + Object.keys(GL.cgear.upgrades(profile, x.id)).length, 0)} Verbesserungen in der Truhe</b><small>Grüne Pfeile zeigen, wer etwas Besseres tragen kann. Antippen zum Ankleiden.</small></div>` : ''}
-      ${GL.cgear ? `<button class="sq-chest" data-act="dress" data-id="${esc((refs[0] || {}).id || 'self')}"><i class="sq-chest-ico">${pxIco('chest')}</i><span><b>Truhe & Ankleiden</b><small>${bag.length}/${GL.data.crewGear.bagMax} Teile · 🔹 ${profile.shards || 0}${(profile.gearNew || []).length ? ` · <em class="sq-new">${profile.gearNew.length} neu</em>` : ''}</small></span><span class="sq-chest-go">›</span></button>` : ''}
+      ${GL.cgear ? `<button class="sq-chest" data-act="dress" data-id="${esc((refs[0] || {}).id || 'self')}"><i class="sq-chest-ico">${pxIco('chest')}</i><span><b>Truhe & Ankleiden</b><small>${bag.length}/${GL.data.crewGear.bagMax} Teile · 🔹 ${profile.shards || 0}${(profile.gearNew || []).length ? ` · <em class="sq-new">${profile.gearNew.length} neu</em>` : ''}</small></span><span class="sq-chest-go">›</span></button>
+        <button class="sq-chest sq-atlas" data-act="atlas-open"><i class="sq-chest-ico">🎯</i><span><b>Beute-Atlas</b><small>${Object.keys(GL.cgear.atlas(profile)).length}/${GL.cgear.sigs().length} Fundstücke${GL.cgear.wishes(profile).length ? ` · 🎯 ${GL.cgear.wishes(profile).length} gesucht` : ''}</small></span><span class="sq-chest-go">›</span></button>` : ''}
       <div class="sqc-head"><b>Deine Karten</b><small>${cards.length} Figuren · ${ids.length}/${N} dabei</small></div>
       ${filt}
       <div class="sqc-grid">${coll}</div>
@@ -2615,6 +2616,29 @@ window.GL = window.GL || {};
     const who = crewId === 'self' ? (profile.nickname || 'Du') : (crewData(crewId) || {}).name || '';
     return `<div class="gtip cr-${GL.cgear.RID[it.r]}"><b>${esc(GL.cgear.name(it))}</b><small>${GL.cgear.RNAME[it.r]} · ⚔ ${GL.cgear.power(it)}</small>
       ${mine ? `<span class="gc-sum eq">Trägt ${esc(who)} gerade</span>${gearCompare(it, null).replace('<span class="gc-sum up">Platz ist noch frei</span>', '')}` : gearCompare(it, cur)}${crewId && !mine ? `<small class="gtip-who">Vergleich für ${esc(who)}</small>` : ''}</div>`;
+  }
+  // Beute-Atlas: alle Fundstücke der Meeres-Bosse, gefunden oder nicht, mit Fundort. Tipp = auf die Wunschliste
+  function atlasPop(profile) {
+    const A = GL.cgear.atlas(profile), W = GL.cgear.wishes(profile), C = GL.data.crewGear, max = C.wishMax || 3;
+    const rows = GL.cgear.sigs().map(sg => {
+      const got = A[sg.id], wh = GL.cgear.sigWhere(sg), on = W.includes(sg.id);
+      const b = GL.cgear.base(sg.base) || {}, boss = enemyData(sg.boss) || {};
+      const fake = { b: sg.base, r: got != null ? got : 2, a: {} };
+      const where = wh ? `${wh.isl.name} · ${wh.sea.name}` : '';
+      const tip = `${sg.name}\n${sg.text}\nHauptwert: ${(C.affixes[b.main] || {}).name || ''} · fest dazu: ${(C.affixes[sg.extra] || {}).name || ''}\nFällt nur bei ${boss.name || sg.boss} (${where}), als Episch oder Legendär.`;
+      return `<button class="atl-it${got != null ? ' got cr-' + GL.cgear.RID[got] : ' unk'}${on ? ' wish' : ''}" data-act="atlas-wish" data-id="${sg.id}" data-tip="${esc(tip)}">
+        <i class="atl-art">${cgArt(fake)}</i>
+        <span class="atl-txt"><b>${got != null ? esc(sg.name) : esc(sg.name)}</b><small>${esc(boss.name || sg.boss)} · ${esc(wh ? wh.isl.name : '')}</small></span>
+        <em class="atl-st">${on ? '🎯' : got != null ? (got >= 3 ? '✦' : '✓') : '?'}</em></button>`;
+    }).join('');
+    return `<div class="fpop-card atlas-pop" role="dialog" aria-labelledby="fpop-t">
+      <button class="dr-x" data-act="pop-close" aria-label="Schließen">✕</button>
+      <span class="fpop-kicker">Beute-Atlas</span>
+      <h3 id="fpop-t">Jeder Boss hütet ein Fundstück</h3>
+      <p class="atl-lead">${GL.i18n && GL.i18n.lang() === 'en' ? `Tap a piece to hunt it (🎯 up to ${max}). That boss then always drops something, more often epic, and usually exactly that.` : `Tipp ein Teil an, um es zu suchen (🎯 höchstens ${max}). Der Boss lässt dann immer etwas fallen, öfter Episches, und meistens genau das.`}</p>
+      <div class="atl-grid">${rows}</div>
+      <p class="atl-leg"><span>✓ gefunden</span><span>✦ legendär</span><span>🎯 ${GL.i18n && GL.i18n.lang() === 'en' ? 'hunted' : 'gesucht'} ${W.length}/${max}</span><span>? noch nie gesehen</span></p>
+    </div>`;
   }
   // Ankleidemenü: Figur in der Mitte, vier Plätze drumherum, Truhe darunter
   function dressRoom(profile, st) {
@@ -4657,6 +4681,9 @@ window.GL = window.GL || {};
         return `<div class="sk-intro"><i class="sk-intro-face">${fr ? GL.sprites.render(fr) : '⚓'}</i><span><b>Franky</b>SUUUPER, du bist da! Hier baust du Schiff und Crew gemütlicher aus. Punkte kommen nebenbei: pro Rang, durch Fahrten, Landgänge und Vertrautheit. Tipp auf einen hellen Knoten, dann „Lernen ✦“. Gilt für jede kommende Fahrt, Umskillen kostet nix.</span></div>`; })()}
       ${info}
       <div class="sk-tree">${paths}</div>
+      ${S.treeDone && S.treeDone(profile) ? (() => { const po = S.polish(profile);
+        return `<div class="sk-polish"><div class="sk-tal-h"><b>🔧 Feinschliff</b><small>Alle Pfade voll. Weitere Punkte machen kleine Dinge etwas besser.</small></div>
+          <div class="skp-row">${S.POLISH.map(x => `<button class="skp-it${po[x.k] >= x.max ? ' max' : ''}" data-act="sk-polish" data-k="${x.k}"${free < 1 || po[x.k] >= x.max ? ' disabled' : ''} title="${esc(x.text)}"><i>${x.icon}</i><b>${po[x.k]}/${x.max}</b><small>${esc(x.text)}</small></button>`).join('')}</div></div>`; })() : ''}
       <div class="sk-tal-h"><b>✨ Talente</b><small>Ab Vertraut 2 mit der Figur</small></div>
       <div class="sk-tals">${tal}</div>
       <div class="sk-foot"><small>Gilt für alle kommenden Fahrten. Umskillen ist kostenlos.</small>${S.learned(profile).length ? `<button class="btn mini ghost" data-act="sk-reset">${uiRef && uiRef.skArmed ? 'Sicher? Nochmal tippen' : '↺ Umskillen'}</button>` : ''}</div>
@@ -5078,7 +5105,7 @@ window.GL = window.GL || {};
     gearTipItem,
     kumpanPop,
     kumpanInPop,
-    dressRoom,
+    dressRoom, atlasPop,
     setPins: l => { pinData = l; },
     newsPop,
     setStatsSort: k => { uiStats.sort = k; },
