@@ -1696,7 +1696,7 @@ window.GL = window.GL || {};
         ${c('atk', 'Angriff', unit.atk + diff(unit.atk, u.atk))}
         ${c('spd', 'Tempo', unit.spd + diff(unit.spd, u.spd))}
         ${c('crit', 'Krit-Chance', pct(sv.crit) + (sv.critOver > 0 ? ' <em class="sx-cap-tag">max</em>' : ''))}
-        ${c('critMult', 'Krit-Schaden', pct(sv.critMult))}
+        ${c('critMult', 'Krit-Schaden', X.mult(sv.critMult))}
         ${unit.armor > 0 ? c('armor', 'Rüstung', unit.armor) : ''}
         ${unit.guard > 0 ? c('guard', 'Schutz', pct(unit.guard)) : ''}
         ${unit.dodge > 0 ? c('dodge', 'Ausweichen', pct(sv.dodge) + (sv.dodgeOver ? ' <em class="sx-cap-tag">max</em>' : '')) : ''}

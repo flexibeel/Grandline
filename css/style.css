@@ -9717,10 +9717,12 @@ em.type.t-technik { background: #5b86b3 !important; }
 /* ---------- END OFFENE SEE ---------- */
 
 /* ---------- STATS: Werte im Steckbrief antippen → Aufschlüsselung (js/ui/stats.js) ---------- */
-.sx-hint { font-weight: 400; color: var(--mute); text-transform: none; letter-spacing: 0; }
+.sx-hint { font-weight: 400; font-size: .72rem; color: var(--mute); text-transform: none; letter-spacing: 0; white-space: nowrap; }
 .st.sx-st { all: unset; box-sizing: border-box; display: flex; justify-content: space-between; align-items: baseline; gap: 6px; cursor: pointer;
-  border-bottom: 1px dashed var(--line); padding: 3px 4px; font-size: .92rem; border-radius: 4px; }
-.st.sx-st span { color: var(--mute); }
+  border-bottom: 1px dashed var(--line); padding: 3px 4px; font-size: .92rem; border-radius: 4px; min-width: 0; }
+.st.sx-st span { color: var(--mute); min-width: 0; hyphens: manual; }
+.st.sx-st b { white-space: nowrap; flex: none; text-align: right; }
+.st.sx-st b .sx-cap-tag { margin-left: 2px; font-size: .56rem; padding: 0 3px; }
 .st.sx-st b::after { content: ' ›'; color: var(--mute); font-weight: 400; font-size: .8em; }
 .st.sx-st:hover, .st.sx-st:focus-visible { background: color-mix(in srgb, var(--gold) 12%, transparent); outline: none; }
 .st.sx-st.on { background: color-mix(in srgb, var(--gold) 20%, transparent); border-bottom-color: var(--gold); }

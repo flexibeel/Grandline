@@ -10,5 +10,8 @@ GL.data.en = Object.assign(GL.data.en || {}, {
   'Schutz': 'Guard',
   'Gegen Bosse': 'Vs bosses',
   'Heilung pro Runde': 'Heal per round',
-  'max': 'max'
+  'max': 'max',
+  'Früchte & Ereignisse': 'Fruits & events',
+  'Feinschliff': 'Fine-tuning',
+  'Crew-Ausrüstung': 'Crew gear'
 });

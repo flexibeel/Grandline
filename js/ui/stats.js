@@ -69,7 +69,7 @@ window.GL = window.GL || {};
     const out = [{ ico: '👤', name: L('Grundwert', 'Base'), v: base }];
     if (mod) out.push({ ico: '⚓', name: L('Hafen & Start', 'Harbor & start'), v: mod });
     const rest = now - base - mod - gear;
-    if (rest) out.push({ ico: '★', name: L('Level, Training & Erlebtes', 'Levels, training & events'), v: rest });
+    if (rest) out.push({ ico: '★', name: L('Level, Training & Würfelglück', 'Levels, training & dice luck'), v: rest });
     if (gear) out.push({ ico: '⚙', name: L('Ausrüstung', 'Gear'), v: gear });
     return out;
   }
@@ -86,7 +86,7 @@ window.GL = window.GL || {};
     const u = unitOf(run, i);
     if (!u) return null;
     const C = GL.config, K = C.caps || {}, d = DEF[k];
-    const fmt = v => d.pct ? (k === 'critMult' ? '×' + N(v) : P(v)) : N(v);
+    const fmt = v => d.pct ? (k === 'critMult' ? GL.statsUi.mult(v) : P(v)) : N(v);
     const fmtD = v => d.pct ? (k === 'critMult' ? sgn(v, x => P(x)) : sgn(v, P)) : sgn(v, N);
     let lines = [], total, cap = null, over = null, note = null;
     if (k === 'hp' || k === 'atk' || k === 'spd') {
@@ -172,7 +172,7 @@ window.GL = window.GL || {};
         ${irow('⚔', L('Schaden', 'Damage'), L('Angriff × Stil-Vorteil × Boni. Dann zieht die Rüstung ab, 20 % kommen immer durch.', 'Attack × style edge × bonuses. Then armor subtracts; 20 % always gets through.'))}
         ${irow('🗡', L('Krit', 'Crit'), L(`Krit-Chance sagt ob, Krit-Schaden wie hart. Start: ${P(C.baseCrit)} und ${x(C.critMult)}.`, `Crit chance says if, crit damage how hard. Start: ${P(C.baseCrit)} and ${x(C.critMult)}.`))}
         ${irow('⛔', L('Deckel', 'Caps'), L(`Krit höchstens ${P(K.crit)}, Ausweichen ${P(K.dodge)}. Darüber verfällt nichts: Krit wird Krit-Schaden, Ausweichen wird Schutz.`, `Crit at most ${P(K.crit)}, dodge ${P(K.dodge)}. Nothing above is wasted: crit becomes crit damage, dodge becomes guard.`))}
-        ${irow(badge('kraft'), L('Stil-Dreieck', 'Style triangle'), `${badge('kraft')} › ${badge('technik')} › ${badge('klinge')} › ${badge('kraft')} ${L(`${x(C.typeStrong)} Schaden, andersrum ${x(C.typeWeak)}.`, `${x(C.typeStrong)} damage, the other way ${x(C.typeWeak)}.`)}`)}
+        ${irow((GL.ui && GL.ui.pxIcon && GL.ui.pxIcon('kraft')) || '△', L('Stil-Dreieck', 'Style triangle'), `${badge('kraft')} › ${badge('technik')} › ${badge('klinge')} › ${badge('kraft')} ${L(`${x(C.typeStrong)} Schaden, andersrum ${x(C.typeWeak)}.`, `${x(C.typeStrong)} damage, the other way ${x(C.typeWeak)}.`)}`)}
         ${irow('🔍', L('Nachsehen', 'Look it up'), L('Im Steckbrief einen Wert antippen: Er zeigt, woher jede Zahl kommt.', 'Tap a stat on the wanted poster: it shows where every number comes from.'))}</div>`
     };
   }
@@ -181,6 +181,7 @@ window.GL = window.GL || {};
     toggle(k) { S.open = S.open === k || !DEF[k] ? null : k; },
     close() { S.open = null; },
     isOpen: () => S.open,
+    mult: v => '×' + String(Math.round(v * 100) / 100).replace('.', en() ? '.' : ','),
     panel, cell, shown, breakdown, introCard
   };
 })();
