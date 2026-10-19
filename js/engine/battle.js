@@ -100,6 +100,7 @@ window.GL = window.GL || {};
         events.push({ k: 'revive', side: 'crew', list, by: 'vivre' });
       }
       if (PL) planFall();
+      if (KT) routCheck();
     }
 
     // ---------- Zustände (halten mehrere Runden) ----------
@@ -437,6 +438,55 @@ window.GL = window.GL || {};
     const FM = Object.assign({ on: true, ranged: 0.75, foeFocus: true, rally: 0.12, call: 0.35 }, C.formation || {});
     const isLead = f => !!(f.boss || f.mini || f.raid);
     let rallied = false, called = false;
+    // ---------- KAMPFTIEFE: Stil-Ketten, Schwung, Moralbruch, Standhaft (nur Crew gegen KI, keine Duelle) ----------
+    //   Technik markiert (Blöße) -> Klinge trifft markierte Ziele sicher kritisch. Klinge-Krits schneiden (Blutung).
+    //   Kraft reißt Blutung auf (Restschaden sofort). Technik nutzt Geschwächt/Betäubt (Schwachstelle: Rüstung egal).
+    //   Schwung: Krits, K.O.s und Ketten füllen eine Leiste, voll = Crew in Fahrt (Ulti-Energie, kurz mehr Angriff).
+    //   Fällt ein Anführer, wankt sein Gefolge (Furcht). Brecher stehen einen tödlichen Treffer pro Kampf durch.
+    const CH = Object.assign({ on: true, cut: 0.3, cutRounds: 2, rip: 1.5, expose: 0.2, routRounds: 2, moNeed: 6, surgeEn: 35, surgeAtk: 0.12, surgeMax: 2 }, C.chain || {});
+    const KT = !!CH.on && C.chain !== false && !pvp && kind !== 'duel';
+    const isChief = f => isLead(f) || !!(f.ref && f.ref.elite2);
+    const blades = () => crew.some(c => c.hp > 0 && c.type === 'klinge');
+    const MO = { n: 0, de: 0, dc: 0, fired: 0, buff: null };
+    function moAdd(k) {
+      if (!KT || !k || MO.fired >= CH.surgeMax) return;
+      MO.n = Math.max(0, Math.min(CH.moNeed, MO.n + k));
+      if (events.length) events[events.length - 1].mo = MO.n;
+      if (MO.n >= CH.moNeed) surge();
+    }
+    function moDeaths() {
+      if (!KT) return;
+      const de = enemies.filter(f => f.hp <= 0).length, dc = crew.filter(f => f.hp <= 0).length;
+      const gain = Math.max(0, de - MO.de), loss = Math.max(0, dc - MO.dc);
+      MO.de = de; MO.dc = dc;
+      if (gain || loss) moAdd(gain - 2 * loss);
+    }
+    function surge() {
+      MO.n = 0;
+      const a = alive(crew);
+      if (!a.length || !alive(enemies).length) return;
+      MO.fired++;
+      const buff = [];
+      const list = a.map(u => {
+        if (u.ult) u.energy = Math.min(U.max, u.energy + CH.surgeEn);
+        const add = Math.max(1, Math.round(u.atk * CH.surgeAtk)); u.atk += add; buff.push({ u, add });
+        return { to: idx(u), en: u.ult ? u.energy : null };
+      });
+      if (MO.buff) MO.buff.list.forEach(b => { b.u.atk = Math.max(1, b.u.atk - b.add); });
+      MO.buff = { list: buff, until: rounds + 1 };
+      events.push({ k: 'surge', side: 'crew', list, mo: 0, n: MO.fired });
+    }
+    function routCheck() {
+      if (!KT) return;
+      enemies.forEach(l => {
+        if (l.hp > 0 || l.routed || !isChief(l)) return;
+        l.routed = true;
+        const gs = alive(enemies).filter(f => !isChief(f));
+        if (!gs.length || !alive(crew).length) return;
+        const got = gs.map(g => { g.spd -= 1; return addStatus(g, 'fear', CH.routRounds); }).filter(Boolean);
+        if (got.length) { events.push({ k: 'status', side: 'enemy', list: got, by: l.id, rout: idx(l) }); moAdd(1); }
+      });
+    }
     function pickTarget(u, living) {
       const tank = living.find(f => f.ability === 'taunt');
       if (tank) return tank;
@@ -905,7 +955,12 @@ window.GL = window.GL || {};
           if (u.side === 'crew') dmg *= 1 + wxDmg;
           if (isDuelPair(u, target)) dmg *= 1 + (LX.wx.duel || 0);
           const critCh = Math.min(0.85, (u.crit || 0) + (C.baseCrit || 0) + wxCrit);   // Deckel: nie Dauer-Krit
-          const crit = critCh > 0 && R.float(run) < critCh;
+          let crit = critCh > 0 && R.float(run) < critCh;
+          // KAMPFTIEFE: Blöße (von Technik markiert) -> Klinge trifft sicher kritisch. Schwachstelle: Technik gegen Geschwächt/Betäubt
+          const opening = KT && u.side === 'crew' && u.type === 'klinge' && !!target.mark;
+          if (opening) { crit = true; target.mark = false; }
+          const expose = KT && u.side === 'crew' && u.type === 'technik' && !!(target.status.weak || target.status.stun);
+          if (expose) dmg *= 1 + CH.expose;
           if (crit) dmg *= u.critMult;
           if (u.status.fear) dmg *= 0.65;
           if (target.status.weak) dmg *= 1.25;
@@ -914,7 +969,7 @@ window.GL = window.GL || {};
           const heavy = u.wind === 2 && u.side === 'enemy';
           if (heavy) { dmg *= BF.windup; u.wind = 0; }
           const rawDmg = Math.max(1, Math.round(dmg));
-          { const base = Math.round(dmg * (1 - Math.min(0.6, target.guard || 0))); dmg = Math.max(1, Math.round(base * 0.2), base - target.armor * (heavy ? 2 : 1)); }   // Rüstung schluckt höchstens 80 %
+          { const base = Math.round(dmg * (1 - Math.min(0.6, target.guard || 0))); dmg = Math.max(1, Math.round(base * 0.2), base - (expose ? 0 : target.armor) * (heavy ? 2 : 1)); }   // Rüstung schluckt höchstens 80 %
           const absorbed = rawDmg - dmg;   // nur Anzeige: was Rüstung/Schutz geschluckt hat
 
           let blocked = false;
@@ -925,13 +980,19 @@ window.GL = window.GL || {};
           // Volltreffer: seltener Glücksschlag der eigenen Crew
           let lucky = false;
           if (dmg > 0 && u.side === 'crew' && R.float(run) < (C.luckyHit || 0)) { lucky = true; dmg = Math.round(dmg * 2.5); }
+          // KAMPFTIEFE: Standhaft – ein Brecher der Crew übersteht einmal pro Kampf einen tödlichen Treffer mit 1 Leben
+          let stand = false;
+          if (KT && dmg > 0 && target.side === 'crew' && target.role === 'brecher' && !target.stood && target.hp > 1 && dmg >= target.hp) { dmg = target.hp - 1; target.stood = true; stand = true; }
           damage(target, dmg);
           charge(u, U.gainHit);
           if (dmg > 0) charge(target, U.gainHurt);
           const eff = mult > 1 ? 'strong' : mult < 1 ? 'weak' : '';
           const flank = u.flank; u.flank = undefined;
           events.push({ k: 'hit', side: u.side, from: idx(u), to, dmg, crit: crit && dmg > 0, lucky, eff, blocked, miss, hp: target.hp, heavy: heavy || undefined, flank: flank || undefined,
-            ea: u.ult ? u.energy : null, et: target.ult ? target.energy : null, ab: !miss && !blocked && absorbed > 0 ? absorbed : undefined });
+            ea: u.ult ? u.energy : null, et: target.ult ? target.energy : null, ab: !miss && !blocked && absorbed > 0 ? absorbed : undefined,
+            op: opening && dmg > 0 || undefined, xp: expose && dmg > 0 || undefined, stand: stand || undefined, mk: KT && u.side === 'crew' && u.type === 'technik' && dmg > 0 && target.hp > 0 && blades() || undefined });
+          if (KT && u.side === 'crew' && crit && dmg > 0) moAdd(1);
+          if (stand) moAdd(1);
 
           // „Für den Boss!“: Trifft die Crew den Anführer, wird sein Gefolge einmal pro Kampf wütend
           if (!pvp && FM.on && !rallied && dmg > 0 && u.side === 'crew' && isLead(target)) {
@@ -970,6 +1031,19 @@ window.GL = window.GL || {};
           // Fähigkeiten nach einem Treffer
           if (dmg > 0) {
             if (FX) FX.onHit(u, target, dmg);
+            // KAMPFTIEFE: Stil-Ketten der Crew
+            if (KT && u.side === 'crew' && target.hp > 0) {
+              if (u.type === 'technik' && blades()) target.mark = true;
+              if (u.type === 'kraft' && target.status.bleed) {
+                const b = target.status.bleed, d = Math.max(1, Math.round((b.value || 2) * Math.max(1, b.rounds) * CH.rip));
+                delete target.status.bleed;
+                events.push({ k: 'dmg', side: target.side, list: [{ to, dmg: Math.min(target.hp, d), hp: damage(target, d) }], by: u.id, rip: true, from: idx(u) });
+                moAdd(1);
+              } else if (u.type === 'klinge' && crit) {
+                const got = addStatus(target, 'bleed', CH.cutRounds, Math.max(2, Math.round(u.atk * CH.cut)));
+                if (got) events.push({ k: 'status', side: target.side, list: [got], by: u.id, cut: true });
+              }
+            }
             // Wucht: harte Treffer brechen die Rüstung (Geschwächt: +25 % Schaden)
             if (u.armorBreak > 0 && target.hp > 0 && !target.status.weak && R.float(run) < u.armorBreak) {
               const got = addStatus(target, 'weak', 2);
@@ -1016,6 +1090,7 @@ window.GL = window.GL || {};
 
           checkRevives();
         }
+        moDeaths();
       }
 
       // ---------- Rundenende ----------
@@ -1030,6 +1105,8 @@ window.GL = window.GL || {};
         if (list.length) events.push({ k: 'dmg', side, list, by: 'bleed' });
       });
       checkRevives();
+      moDeaths();
+      if (MO.buff && rounds >= MO.buff.until) { MO.buff.list.forEach(b => { b.u.atk = Math.max(1, b.u.atk - b.add); }); MO.buff = null; }
       if (FX) FX.roundEnd();
       // Konter: jeder Helfer entfernt einen schlechten Zustand im eigenen Team (Furcht zuerst)
       [crew, enemies].forEach(team => alive(team).filter(u => u.role === 'helfer').forEach(h => {
@@ -1088,7 +1165,7 @@ window.GL = window.GL || {};
       if ((e.k === 'hit' && e.side === 'crew' && e.hp === 0) || (e.k === 'dmg' && e.side === 'enemy' && e.list.some(x => x.hp === 0))) { e.final = true; break; }
     }
     if (team.crew && kind !== 'duel') run.teamBar = { f: team.crew.faction, n: team.crew.n };
-    return { events, win, team: { crew: team.crew, enemy: team.enemy } };
+    return { events, win, team: { crew: team.crew, enemy: team.enemy }, mo: KT ? { need: CH.moNeed, fired: MO.fired } : null };
   }
 
   // Welcher Kapitänsschlag passt zur Crew? (Lazarett heilt, Tempo/Schwertkunst betäuben, Bollwerk stärkt den Schildwall)
