@@ -1,6 +1,12 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-21c', date: '19.10.', title: 'Stile greifen ineinander', items: [
+    '🔗 Stile greifen ineinander: Technik deckt Blößen auf, Klinge trifft dort sicher kritisch und lässt bluten, Kraft reißt die Wunde auf. Wer mischt, haut doppelt zu. Wer nicht mischt, haut auch zu, nur einfacher',
+    '⚡ Schwung: Krits, K.O.s und Ketten füllen die Leiste unter dem Kampfbild. Voll heißt, die Crew ist in Fahrt. Eigene K.O.s kosten Schwung, Stolz auch',
+    '🚩 Anführer haben jetzt ein Fähnchen. Fällt er, fällt dem Gefolge plötzlich ein Termin woanders ein',
+    '🛡 Brecher stehen einmal pro Kampf einen tödlichen Treffer durch. Mit 1 Leben und viel Meinung',
+    '⚖ Technik und Klinge auf Stufe 1 etwas stärker. Das Kampf-Log stolpert nicht mehr über Duo-Momente' ] },
   { v: '2026-10-21b', date: '19.10.', title: 'Befehle im Landgang, Duo-Momente', items: [
     '📣🛡💥 Kapitänsbefehle jetzt auch im Landgang-Bosskampf. Sie laden dort etwas langsamer, weil Bosse länger durchhalten als ihr Ruf',
     '🤝 Duo-Momente: Schlagen zwei befreundete Figuren (z. B. Kapitän & Vize, Brüder) dasselbe Ziel, springen sie kurz gemeinsam ins Bild. Die Crew-Zusammenstellung sieht man jetzt im Kampf',
