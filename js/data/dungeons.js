@@ -248,3 +248,23 @@ GL.data.dungeonSpecials = {
   koralle: { kind: 'burn',      power: 0.25, tag: 'aoe',    name: 'Acht Gift-Klingen', text: 'Acht Arme, acht Schwerter: jeder Treffer streift die ganze Crew (25 %).' },
   impel:   { kind: 'burn',      power: 0.35, tag: 'aoe',    name: 'Nasenpopel-Bombe', text: 'Explodiert alles, was er anfasst: 35 % Flächenschaden. Ja, wirklich mit der Nase.' }
 };
+
+// NEXT: Endgegner-Mechanik je Landgang-Ort und die Kampfpläne, mit denen man sie kontert.
+// crack = Hinweis in der Einleitung (verrät die Lösung nicht wörtlich, aber deutlich genug)
+GL.data.dungeonMechs = {
+  zirkus:  { id: 'drummer', ico: '🥁', name: 'Trommelwirbel', en: 'Drumroll', counter: 'focus', txt: 'Ein Trommler gibt den Takt vor. Solange er spielt, prallt fast alles an Buggy ab.', tEn: 'A drummer keeps the beat. While he plays, almost everything bounces off Buggy.', crack: 'Wer den Takt angibt, sollte zuerst Pause machen.', cEn: 'Whoever sets the beat should take a break first.' },
+  drumm:   { id: 'feast', ico: '🍖', name: 'Fressattacke', en: 'Feeding frenzy', counter: 'feint', txt: 'Alle drei Runden frisst Wapol sich gesund. Mit Besteck.', tEn: 'Every third round Wapol eats himself healthy. With cutlery.', crack: 'Wer zum Biss ansetzt, lässt sich gern ablenken.', cEn: 'Anyone about to bite is easy to distract.' },
+  graeber: { id: 'whirl', ico: '🌀', name: 'Klingenwirbel', en: 'Blade whirl', counter: 'guard', txt: 'Alle drei Runden wirbelt Mr. 1 durch die ganze Crew.', tEn: 'Every third round Mr. 1 whirls through the whole crew.', crack: 'Gegen Klingen von allen Seiten hilft nur eine Wand aus Schilden.', cEn: 'Against blades from all sides only a wall of shields helps.' },
+  ruinen:  { id: 'storm', ico: '⚡', name: 'Gewitterwolke', en: 'Thundercloud', counter: 'spread', txt: 'Alle drei Runden schlägt ein Blitz in die Vordersten ein.', tEn: 'Every third round lightning strikes the front line.', crack: 'Blitze lieben Grüppchen. Steht nicht so eng.', cEn: 'Lightning loves huddles. Don’t stand so close.' },
+  kanaele: { id: 'tekkai', ico: '🛡', name: 'Tekkai', en: 'Tekkai', counter: 'feint', txt: 'Alle drei Runden wird Fukuro zu Eisen und ist unverwundbar.', tEn: 'Every third round Fukuro turns to iron and is invulnerable.', crack: 'Wer zu früh hart wird, muss wieder weich werden.', cEn: 'Whoever hardens too early has to soften again.' },
+  gruft:   { id: 'vanish', ico: '👻', name: 'Unsichtbar', en: 'Invisible', counter: 'focus', txt: 'Absalom verschwindet jede zweite Runde. Was man nicht sieht, trifft man schlecht.', tEn: 'Absalom vanishes every second round. What you can’t see, you can’t hit.', crack: 'Wer ihn nie aus den Augen lässt, verliert ihn auch nicht.', cEn: 'Never take your eyes off him and you won’t lose him.' },
+  koralle: { id: 'flood', ico: '🌊', name: 'Flutwelle', en: 'Flood wave', counter: 'guard', txt: 'Alle drei Runden rollt eine Flutwelle über die Crew.', tEn: 'Every third round a flood wave rolls over the crew.', crack: 'Wasser kommt in Wellen. Schilde auch.', cEn: 'Water comes in waves. So do shields.' },
+  impel:   { id: 'powder', ico: '🧨', name: 'Pulverfässer', en: 'Powder kegs', counter: 'spread', txt: 'Jeder Treffer auf Mr. 5 kann ein Fass hochgehen lassen. Alle in der Nähe fliegen mit.', tEn: 'Every hit on Mr. 5 may set off a keg. Everyone nearby goes flying.', crack: 'Bei Explosionen hilft Abstand mehr als Mut.', cEn: 'With explosions, distance helps more than courage.' }
+};
+GL.data.dungeonPlans = {
+  focus:  { ico: '🎯', name: 'Fokus', en: 'Focus', txt: 'Das Wichtigste nie aus den Augen lassen', tEn: 'Never lose sight of what matters' },
+  guard:  { ico: '🛡', name: 'Schildwall', en: 'Shield wall', txt: 'Etwas weniger Schaden, Schilde im richtigen Moment', tEn: 'A bit less damage, shields at the right time' },
+  feint:  { ico: '💫', name: 'Finte', en: 'Feint', txt: 'Den Boss gleich zu Beginn aus dem Tritt bringen', tEn: 'Throw the boss off right at the start' },
+  clear:  { ico: '🧹', name: 'Aufräumen', en: 'Tidy up', txt: 'Kleine Gegner zuerst', tEn: 'Small foes first' },
+  spread: { ico: '↔', name: 'Abstand halten', en: 'Spread out', txt: 'Nicht alle auf einem Haufen stehen', tEn: 'Don’t all stand in one spot' }
+};

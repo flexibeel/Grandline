@@ -1016,11 +1016,11 @@ window.GL = window.GL || {};
           const SHORT = { netz: ['Netz!', 'Net!'], anlegen: ['legt an …', 'takes aim …'], salve: ['Salve!', 'Volley!'], rudel: ['Rudeljagd!', 'Pack hunt!'],
             ebbe: ['Ebbe …', 'Ebb …'], welle: ['Welle!', 'Wave!'], surren: ['surrt …', 'whirs …'], schuss: ['Strahl!', 'Beam!'], kuehlen: ['kühlt ab', 'cools down'],
             auf: ['steht wieder auf', 'gets back up'], rausch: ['Rausch! +15 %', 'Frenzy! +15 %'], letzter: ['Allein: doppelt!', 'Alone: twice!'], start: [P.name || '', P.en || ''] };
-          const s = (SHORT[ev.step] || [P.name || '', P.en || ''])[en ? 1 : 0];
+          const s = (ev.short || SHORT[ev.step] || [P.name || '', P.en || ''])[en ? 1 : 0];
           // Kurzes Schild ohne Fließtext (der steht schon im Kampf-Log darunter)
-          if (ev.big) banner('them plan', `<small>${String((en ? P.en : P.name) || '').replace(/[<>&"]/g, '')}</small><b>${String(s).replace(/[<>&"]/g, '')}</b>`, 1300);
+          if (ev.big) banner('them plan', `<small>${String((ev.title ? ev.title[en ? 1 : 0] : en ? P.en : P.name) || '').replace(/[<>&"]/g, '')}</small><b>${String(s).replace(/[<>&"]/g, '')}</b>`, 1300);
           if (ev.to != null) { tagAt('enemy', ev.to, s, 'debuff', 60); pulse(fu('enemy', ev.to), 'atk'); }
-          if (ev.step === 'salve' || ev.step === 'welle' || ev.step === 'schuss') pulse($('#field'), 'boss-slam');
+          if (ev.step === 'salve' || ev.step === 'welle' || ev.step === 'schuss' || (ev.plan === 'mech' && ev.big && ev.step !== 'start' && ev.step !== 'takt' && ev.step !== 'leer')) pulse($('#field'), 'boss-slam');
         }
       } else if (ev.k === 'sig') {
         const en = GL.i18n && GL.i18n.lang() === 'en';

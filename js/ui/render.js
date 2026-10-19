@@ -2632,8 +2632,8 @@ window.GL = window.GL || {};
     return `<section class="hq-sec squad-sec sq2">
       <div class="squad-head">
         <div><span class="event-kicker">Deine Stammcrew</span>
-          <b class="squad-power">⚔ ${GL.meta.squadPower(refs)} Stärke</b>
-          <small>Level ${GL.meta.squadLevel(profile)} · ${w} Siege, ${l} Niederlagen</small></div>
+          <b class="squad-power">⚔ ${GL.meta.squadPower(refs)} ${GL.i18n && GL.i18n.lang() === 'en' ? 'power' : 'Stärke'}</b>
+          <small>${GL.i18n && GL.i18n.lang() === 'en' ? `Level ${GL.meta.squadLevel(profile)} · ${w} ${w === 1 ? 'win' : 'wins'}, ${l} ${l === 1 ? 'loss' : 'losses'}` : `Level ${GL.meta.squadLevel(profile)} · ${w} Siege, ${l} Niederlagen`}</small></div>
         <div class="sq-league"><em class="league-chip lg-friend" title="Duelle sind Freundschaftsspiele: Spaß, Taktik, kein Rang">🤝 Freundschaftsduelle</em><small>Rang gibt es jetzt in der Dungeon-Liga (Landgang)</small></div>
       </div>
       <div class="sqd-deck${pick ? ' picking' : ''}">${deck}</div>
@@ -2891,7 +2891,7 @@ window.GL = window.GL || {};
     }
     const meOn = GL.meta.squadUnlocked(ui && ui.profile ? ui.profile : {});
     const sq = (x.squadOn || x.npc) && (x.squad || []).length
-      ? `<div class="pcard-sec"><b>Stammcrew ${GL.dliga ? GL.dliga.chip(x.dlRating || 0, true) : ''} ${x.squadPower ? `<small>⚔ ${x.squadPower} Stärke</small>` : ''}</b>${squadMinis(x)}
+      ? `<div class="pcard-sec"><b>Stammcrew ${GL.dliga ? GL.dliga.chip(x.dlRating || 0, true) : ''} ${x.squadPower ? `<small>⚔ ${x.squadPower} ${GL.i18n && GL.i18n.lang() === 'en' ? 'power' : 'Stärke'}</small>` : ''}</b>${squadMinis(x)}
           ${isMe ? '' : meOn ? `<button class="btn pcard-duel" data-act="squad-fight" data-id="${esc(x.id)}">⚔ ${res ? 'Nochmal herausfordern' : 'Herausfordern'}</button>` : '<small class="muted">Herausfordern geht nach deinem ersten gewonnenen Run oder ab Rang 5.</small>'}</div>`
       : '';
     if (res) return `<div class="pcard-bg" data-act="lb-view-close"><div class="pcard" data-act="noop">

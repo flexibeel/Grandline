@@ -110,9 +110,14 @@ window.GL = window.GL || {};
       if (x.cannon) f.cannon += x.cannon;
       if (x.effBonus) f.effBonus += x.effBonus;
       if (x.crewLimit) f.crewLimit += x.crewLimit;
-      if (x.healBonus) f.healMult *= 1 + x.healBonus;
+      if (x.healBonus) f.healMult += x.healBonus;   // additiv statt multiplikativ (vorher bis ×3,9)
       if (x.reviveWin) f.reviveWin = Math.max(f.reviveWin || 0, x.reviveWin);
     });
+    // NEXT: Deckel für Sonderregeln
+    f.healMult = Math.min(f.healMult, 2);
+    f.winHeal = Math.min(f.winHeal, 0.5);
+    f.bossStartCut = Math.min(f.bossStartCut, 0.35);
+    f.effBonus = Math.min(f.effBonus, 0.8);
     return f;
   }
 
@@ -180,6 +185,15 @@ window.GL = window.GL || {};
       const sm = synergyMods(enemyRefs);
       enemies.forEach(u => sm.forEach(m => { if (applies(m.scope, u)) applyMod(u, m, run); }));
     }
+    // NEXT: Deckel gegen Stapel-Explosionen (sonst wird aus vielen kleinen Boni Unsterblichkeit oder ein 4×-Krit)
+    crew.concat(enemies).forEach(u => {
+      u.critMult = Math.min(u.critMult, 3);
+      u.dmgPct = Math.min(u.dmgPct, 1);
+      u.bossPct = Math.min(u.bossPct, 1);
+      u.guard = Math.min(u.guard, 0.6);
+      u.regen = Math.min(u.regen, Math.max(2, Math.round((u.max || 0) * 0.1)));
+      u.killChain = Math.min(u.killChain, 0.75);
+    });
     return { crew, enemies, flags: flags(run) };
   }
 

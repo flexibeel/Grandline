@@ -9491,3 +9491,19 @@ em.type.t-technik { background: #5b86b3 !important; }
 .hl-rung.lock .hl-rw em, .hl-rung.next .hl-rw em { color: #8a6d48; }
 .heat-pill .hl-open { padding: 0 6px !important; }
 .heat-unlock .hl-rw { color: #7a5a12; }
+
+/* ===== NEXT: Landgang-Endgegner und Kampfplan ===== */
+.dg-mech { display: flex; gap: 10px; align-items: flex-start; margin: 8px 0; padding: 8px 10px; border-radius: 10px; background: #f6ecd6; border: 2px solid #c9a46a; box-shadow: 0 2px 0 #b88a3a; }
+.dg-mech > i { font-style: normal; font-size: 1.5rem; line-height: 1; flex: none; width: 30px; text-align: center; }
+.dg-mech > span { display: flex; flex-direction: column; gap: 2px; line-height: 1.25; }
+.dg-mech b { font-size: .92rem; color: #5a2e14; }
+.dg-mech small { font-size: .78rem; color: #6b5640; }
+.dg-mech em { font-style: normal; font-size: .76rem; color: #3d6a3a; font-weight: 700; }
+.dg-mech.big { background: #fbe9dc; border-color: #c98a6a; }
+.dg-plans { display: grid; gap: 7px; margin-top: 8px; }
+.dg-plan { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 54px; padding: 8px 12px; text-align: left; cursor: pointer; font: inherit; color: #3a2a18;
+  background: #fff8e6; border: 2px solid #c9a46a; border-radius: 10px; box-shadow: 0 3px 0 #b88a3a; }
+.dg-plan:active { transform: translateY(2px); box-shadow: 0 1px 0 #b88a3a; }
+.dg-plan > i { font-style: normal; font-size: 1.35rem; width: 30px; text-align: center; flex: none; }
+.dg-plan > span { display: flex; flex-direction: column; line-height: 1.2; }
+.dg-plan b { font-size: .95rem; } .dg-plan small { font-size: .76rem; color: #7a6248; margin-top: 2px; }

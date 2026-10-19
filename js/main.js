@@ -1397,7 +1397,7 @@
       case 'endless-open': openGearPop(GL.ui.endlessPop(profile)); break;
       case 'hunt-open': openGearPop(GL.ui.huntPop(profile)); break;
       // Landgang: kleine Abenteuer im Fenster (js/ui/dungeon.js)
-      case 'dg-open': case 'dg-list': case 'dg-start': case 'dg-go': case 'dg-pick': case 'dg-next': case 'dg-fast': case 'dg-depth': case 'dg-door': case 'dg-relic': {
+      case 'dg-open': case 'dg-list': case 'dg-start': case 'dg-go': case 'dg-pick': case 'dg-next': case 'dg-fast': case 'dg-depth': case 'dg-door': case 'dg-relic': case 'dg-plan': {
         // Landgang mit Bosskampf der Stammcrew: Beute wird beim Kampfende gespeichert (onSave)
         GL.dungeon.onSave = () => { saveProfile(); ui.lastStage = null; draw(); };
         const h = GL.dungeon.act(type, el.dataset, profile);

@@ -44,8 +44,19 @@ window.GL = window.GL || {};
     let FX = null;   // Teufelsfrucht-Mechaniken (js/engine/fruitfx.js)
     let PL = null;   // FIGHT: Plan der Gegnergruppe (GL.data.foePlans), höchstens einer pro Kampf
     let LX = null;   // FIGHT: Kampf-Laune (Kampfwetter mit eigener Mechanik)
+    let M = null;    // NEXT: Landgang-Endgegner mit Mechanik (o.mech, nur Landgang)
 
     function damage(u, amount) {
+      // NEXT: Trommler (Boss nimmt kaum Schaden, solange der Takt läuft) und Tekkai-Runde (gar keinen)
+      if (M && u === M.boss && amount > 0) {
+        if (M.id === 'drummer' && M.drum && M.drum.hp > 0) amount = Math.max(1, Math.round(amount * 0.3));
+        if (M.id === 'tekkai' && M.iron) amount = Math.max(1, Math.round(amount * 0.25));
+        if (M.id === 'vanish' && M.hidden) amount = Math.max(1, Math.round(amount * (M.c ? 0.8 : 0.3)));
+        if (M.id === 'powder') M.hits = (M.hits || 0) + 1;
+        if (M.id === 'larvae' && M.larvae.some(l => l.hp > 0)) amount = Math.max(1, Math.round(amount * 0.35));
+      }
+      // Unsichtbare Gehilfen: schwer zu treffen, solange niemand gezielt aufräumt
+      if (M && M.id === 'larvae' && !M.c && u.ref && u.ref.larva && amount > 0) amount = Math.max(1, Math.round(amount * 0.35));
       u.hp = Math.max(0, u.hp - amount);
       return u.hp;
     }
@@ -514,7 +525,7 @@ window.GL = window.GL || {};
       events.push({ k: 'plan', side: 'enemy', plan: PL.key, step, to: u ? idx(u) : null, by: u ? u.id : null, text, en, big: big || undefined });
     }
     function pickPlan() {
-      if (pvp || kind === 'duel' || C.plans === false) return null;
+      if (pvp || kind === 'duel' || C.plans === false || o.mech) return null;   // Landgang-Endgegner haben ihre eigene Mechanik
       const cnt = {};
       enemies.concat(reserve).forEach(u => { if (isLead(u)) return; const k = GL.data.foePlanOf ? GL.data.foePlanOf(u.id) : null; if (k) cnt[k] = (cnt[k] || 0) + 1; });
       const keys = Object.keys(cnt).filter(k => cnt[k] >= (PD[k].min || 1)).sort((a, b) => cnt[b] - cnt[a]);
@@ -608,6 +619,103 @@ window.GL = window.GL || {};
       }
     }
     PL = pickPlan();
+    // ---------- NEXT: Landgang-Endgegner mit Mechanik ----------
+    // o.mech = { id, countered, plan }. Nur der Landgang setzt das, Runs und Duelle bleiben unberührt.
+    function mechSetup() {
+      if (!o.mech || !o.mech.id) return null;
+      const boss = enemies.find(e => e.boss) || enemies[0];
+      if (!boss) return null;
+      const m = { id: o.mech.id, c: !!o.mech.countered, plan: o.mech.plan || null, boss };
+      m.drum = enemies.find(e => e.ref && e.ref.drummer) || null;
+      m.larvae = enemies.filter(e => e.ref && e.ref.larva);
+      // Ausgleich: Wer eine Mechanik hat, hat etwas weniger Masse
+      boss.max = Math.round(boss.max * 0.92); boss.hp = Math.min(boss.hp, boss.max);
+      // Kleiner Nutzen jeder Wahl, auch wenn sie nicht kontert
+      if (m.plan === 'focus' && m.drum) FOCUS = m.drum;
+      if (m.plan === 'clear' && m.larvae.length) FOCUS = m.larvae[0];
+      if (m.plan === 'guard') crew.forEach(u => { u.guard = (u.guard || 0) + 0.03; });
+      if (m.plan === 'feint') boss.status.stun = true;
+      return m;
+    }
+    function mechEv(step, u, de, en, big, short) {
+      events.push({ k: 'plan', side: 'enemy', plan: 'mech', step, to: u ? idx(u) : null, by: u ? u.id : null, text: de, en, big: big || undefined, short, title: [M.name || '', M.en || ''] });
+    }
+    function hitCrew(list, pct, by) {
+      const out = list.filter(u => u.hp > 0).map(u => { const d = Math.max(1, Math.round(u.max * pct * (1 - Math.min(0.6, u.guard || 0)))); return { to: idx(u), dmg: Math.min(u.hp, d), hp: damage(u, d) }; });
+      if (out.length) events.push({ k: 'dmg', side: 'crew', list: out, by });
+    }
+    function mechRound(r) {
+      const B = M.boss, team = alive(crew);
+      if (B.hp <= 0 || !team.length) return;
+      const nm = nameOf(B);
+      if (r === 1) {
+        const intro = {
+          drummer: ['Trommelwirbel! Solange der Trommler spielt, prallt fast alles an ' + nm + ' ab.', 'Drumroll! While the drummer plays, almost everything bounces off ' + nm + '.'],
+          feast: [nm + ' hat Hunger. Alle drei Runden frisst er sich gesund.', nm + ' is hungry. Every third round he eats himself healthy.'],
+          whirl: [nm + ' wetzt die Klingen. Alle drei Runden wirbelt er durch die ganze Crew.', nm + ' sharpens his blades. Every third round he whirls through the whole crew.'],
+          storm: ['Über ' + nm + ' braut sich ein Gewitter zusammen. Wer vorne steht, wird gegrillt.', 'A storm gathers above ' + nm + '. Whoever stands in front gets grilled.'],
+          tekkai: [nm + ' kann sich in Eisen verwandeln. Alle drei Runden ist er unverwundbar.', nm + ' can turn to iron. Every third round he is invulnerable.'],
+          vanish: [nm + ' verschwindet jede zweite Runde. Wen man nicht sieht, trifft man schlecht.', nm + ' vanishes every second round. What you can’t see, you can’t hit.'],
+          larvae: [nm + ' hat Gehilfen dabei. Jede Runde, die sie leben, macht ihn stärker.', nm + ' brought helpers. Every round they live makes him stronger.'],
+          flood: ['Das Wasser steigt. Alle drei Runden rollt eine Flutwelle über die Crew.', 'The water rises. Every third round a flood wave rolls over the crew.'],
+          powder: ['Überall Pulverfässer. Jeder Treffer auf ' + nm + ' kann eins hochgehen lassen.', 'Powder kegs everywhere. Every hit on ' + nm + ' may set one off.']
+        }[M.id];
+        if (intro) mechEv('start', B, intro[0], intro[1], true, [M.name || '', M.en || '']);
+        if (M.c) mechEv('konter', B, 'Euer Plan passt: Die Mechanik ist durchschaut.', 'Your plan fits: the mechanic is seen through.', false, ['Konter!', 'Counter!']);
+      }
+      const third = r % 3 === 0, before = r % 3 === 2;
+      if (M.id === 'drummer') {
+        if (M.drum && M.drum.hp <= 0 && !M.drumDown) { M.drumDown = true; mechEv('takt', B, 'Der Trommler liegt. Ohne Takt ist ' + nm + ' nur noch ein Clown.', 'The drummer is down. Without the beat ' + nm + ' is just a clown.', true, ['Takt weg!', 'Beat gone!']); }
+      } else if (M.id === 'feast') {
+        if (before) mechEv('kaut', B, nm + ' kaut schon vor …', nm + ' is already chewing …', false, ['kaut …', 'chews …']);
+        if (third) {
+          if (M.c) { B.status.stun = true; mechEv('finte', B, 'Finte! ' + nm + ' beißt ins Leere und verschluckt sich.', 'Feint! ' + nm + ' bites thin air and chokes.', true, ['Ins Leere!', 'Missed!']); }
+          else { const a = heal(B, Math.round(B.max * 0.07)); if (a > 0) { events.push({ k: 'heal', side: 'enemy', list: [{ to: idx(B), amount: a, hp: B.hp }], by: 'mech' }); mechEv('frisst', B, nm + ' frisst sich satt: +' + a + ' Leben.', nm + ' eats his fill: +' + a + ' health.', true, ['Frisst!', 'Feasts!']); } }
+        }
+      } else if (M.id === 'whirl' || M.id === 'flood') {
+        if (before) mechEv('vor', B, M.id === 'whirl' ? nm + ' dreht sich ein …' : 'Das Wasser zieht sich zurück …', M.id === 'whirl' ? nm + ' winds up …' : 'The water draws back …', false, M.id === 'whirl' ? ['dreht sich …', 'winds up …'] : ['Ebbe …', 'Ebb …']);
+        if (third) {
+          const pct = M.c ? 0.03 : 0.08;
+          mechEv('los', B, M.c ? 'Schildwall genau rechtzeitig. Es rauscht, aber es hält.' : (M.id === 'whirl' ? 'Klingenwirbel durch die ganze Crew!' : 'Flutwelle!'), M.c ? 'Shield wall just in time. It roars, but it holds.' : (M.id === 'whirl' ? 'Blade whirl through the whole crew!' : 'Flood wave!'), true, M.id === 'whirl' ? ['Wirbel!', 'Whirl!'] : ['Flut!', 'Flood!']);
+          hitCrew(team, pct, 'mech');
+        }
+      } else if (M.id === 'storm') {
+        if (before) mechEv('vor', B, 'Es knistert über der Crew …', 'It crackles above the crew …', false, ['knistert …', 'crackles …']);
+        if (third) {
+          const tgt = M.c ? team.slice(0, 1) : team.slice(0, 2);
+          mechEv('blitz', B, M.c ? 'Abstand gehalten: Der Blitz findet nur einen.' : 'Blitz! Die Vordersten glühen.', M.c ? 'Spread out: the bolt finds only one.' : 'Lightning! The front glows.', true, ['Blitz!', 'Bolt!']);
+          hitCrew(tgt, M.c ? 0.06 : 0.12, 'mech');
+        }
+      } else if (M.id === 'tekkai') {
+        M.iron = false;
+        if (r % 3 === 1 && r > 1) mechEv('vor', B, nm + ' spannt jeden Muskel an …', nm + ' tenses every muscle …', false, ['spannt an …', 'tenses …']);
+        if (before) {
+          if (M.c) mechEv('finte', B, 'Finte! ' + nm + ' wird zu früh zu Eisen und muss wieder lockerlassen.', 'Feint! ' + nm + ' turns to iron too early and has to let go.', true, ['Verpufft!', 'Fizzled!']);
+          else { M.iron = true; mechEv('eisen', B, 'Tekkai! ' + nm + ' ist diese Runde aus Eisen.', 'Tekkai! ' + nm + ' is made of iron this round.', true, ['Eisen!', 'Iron!']); }
+        }
+      } else if (M.id === 'vanish') {
+        M.hidden = r % 2 === 0;
+        if (M.hidden) mechEv('weg', B, M.c ? nm + ' wird unsichtbar – aber ihr habt ihn im Blick.' : nm + ' wird unsichtbar. Die Crew schlägt ins Leere.', M.c ? nm + ' turns invisible – but you keep him in sight.' : nm + ' turns invisible. The crew swings at nothing.', r <= 2, ['unsichtbar …', 'invisible …']);
+      } else if (M.id === 'larvae') {
+        if (r === 1 && M.c) {
+          const list = M.larvae.filter(l => l.hp > 0).map(l => ({ to: idx(l), dmg: l.hp, hp: damage(l, l.hp) }));
+          if (list.length) { mechEv('raus', B, 'Aufgeräumt! Die Gehilfen fliegen raus, bevor sie helfen können.', 'Tidied up! The helpers are thrown out before they can help.', true, ['Raus!', 'Out!']); events.push({ k: 'dmg', side: 'enemy', list, by: 'mech' }); }
+        }
+        const n = M.larvae.filter(l => l.hp > 0).length;
+        if (n && r > 1) { const add = Math.max(1, Math.round(B.atk * 0.05 * n)); B.atk += add; M.gain = (M.gain || 0) + add; mechEv('stark', B, n + ' Gehilfen jubeln ' + nm + ' zu: +' + add + ' Angriff.', n + ' helpers cheer ' + nm + ' on: +' + add + ' attack.', false, ['+' + add + ' ⚔', '+' + add + ' ⚔']); }
+        if (!n && !M.cleared && M.larvae.length) { M.cleared = true; B.atk = Math.max(1, Math.round((B.atk - (M.gain || 0)) * 0.85)); mechEv('leer', B, 'Keine Gehilfen mehr. ' + nm + ' wirkt plötzlich sehr allein.', 'No helpers left. ' + nm + ' suddenly looks very alone.', true, ['Allein!', 'Alone!']); }
+        if (M.plan === 'clear') { const nx = M.larvae.find(l => l.hp > 0); FOCUS = nx || B; }
+      } else if (M.id === 'powder') {
+        const hits = M.hits || 0; M.hits = 0;
+        let booms = 0; for (let k = 0; k < hits; k++) if (R.float(run) < 0.3) booms++;
+        booms = Math.min(1, booms);
+        for (let k = 0; k < booms; k++) {
+          const tgt = M.c ? [team[Math.floor(R.float(run) * team.length)]] : team;
+          mechEv('bumm', B, M.c ? 'Ein Fass geht hoch – aber ihr steht weit genug auseinander.' : 'Ein Pulverfass geht hoch! Alle in der Nähe fliegen mit.', M.c ? 'A keg blows – but you stand far enough apart.' : 'A powder keg blows! Everyone nearby goes flying.', true, ['Bumm!', 'Boom!']);
+          hitCrew(tgt, M.c ? 0.04 : 0.05, 'mech');
+        }
+      }
+    }
     let rounds = 0;
     // Duell-Kommandos (nur Stammcrew-Duell, nur mit o.duel): vor jedem Zug steht eine Zug-Marke im Protokoll.
     // Ein Kommando wirkt vor dem genannten Zug. Alles davor bleibt Ereignis für Ereignis gleich,
@@ -619,6 +727,7 @@ window.GL = window.GL || {};
     const cmdBuff = [];
     let turnNo = 0;
     let FOCUS = !DUEL && o.focus != null && enemies[o.focus] ? enemies[o.focus] : null;
+    M = mechSetup();
     function cmdTurn() {
       for (let k = cmdBuff.length - 1; k >= 0; k--) if (cmdBuff[k].until < turnNo) { const b = cmdBuff[k]; if (b.guard) b.u.guard = Math.max(0, (b.u.guard || 0) - b.guard); else b.u.atk = Math.max(1, b.u.atk - b.add); cmdBuff.splice(k, 1); }
       CMDS.forEach(c => {
@@ -698,6 +807,7 @@ window.GL = window.GL || {};
         if (st && st.when === 'every' && rounds % st.n === 0) spreadStatus(u, st);
       });
       if (PL) planRound(rounds);
+      if (M) mechRound(rounds);
       launeRound(rounds);
       if (!alive(crew).length) break;
       const queue = crew.concat(enemies).filter(u => u.hp > 0);
@@ -784,7 +894,7 @@ window.GL = window.GL || {};
           const heavy = u.wind === 2 && u.side === 'enemy';
           if (heavy) { dmg *= BF.windup; u.wind = 0; }
           const rawDmg = Math.max(1, Math.round(dmg));
-          dmg = Math.max(1, Math.round(dmg * (1 - target.guard)) - target.armor * (heavy ? 2 : 1));
+          { const base = Math.round(dmg * (1 - Math.min(0.6, target.guard || 0))); dmg = Math.max(1, Math.round(base * 0.2), base - target.armor * (heavy ? 2 : 1)); }   // Rüstung schluckt höchstens 80 %
           const absorbed = rawDmg - dmg;   // nur Anzeige: was Rüstung/Schutz geschluckt hat
 
           let blocked = false;

@@ -57,6 +57,22 @@ window.GL = window.GL || {};
     { id: 'lantern', ico: '🏮', name: 'Sturmlaterne', txt: 'Hebt die Raum-Bedingung auf', nomod: true }
   ];
   const relicById = id => RELICS.find(r => r.id === id);
+  // NEXT: Endgegner-Mechanik und Kampfplan
+  const EN = () => !!(GL.i18n && GL.i18n.lang && GL.i18n.lang() === 'en');
+  const mechOf = d => (D().dungeonMechs || {})[d && d.id] || null;
+  function planHtml() {
+    const d = cur.d, mm = mechOf(d), P = D().dungeonPlans || {};
+    if (!cur.planOpts) {
+      const others = Object.keys(P).filter(k => k !== mm.counter).sort(() => Math.random() - 0.5).slice(0, 2);
+      cur.planOpts = [mm.counter].concat(others).sort(() => Math.random() - 0.5);
+    }
+    const m = pick(cur.crew);
+    return card(`${scene(d, { boss: true })}
+      <div class="dg-head"><span class="fpop-kicker">${esc(T('Kampfplan'))}</span>${dots()}</div>
+      <p class="dg-mech big"><i>${mm.ico}</i><span><b>${esc(EN() ? mm.en : mm.name)}</b><small>${esc(EN() ? mm.tEn : mm.txt)}</small></span></p>
+      ${bubble(m, EN() ? 'Captain, how do we handle this?' : 'Käpt’n, wie gehen wir das an?')}
+      <div class="dg-plans">${cur.planOpts.map(k => `<button class="dg-plan" data-act="dg-plan" data-v="${k}"><i>${P[k].ico}</i><span><b>${esc(EN() ? P[k].en : P[k].name)}</b><small>${esc(EN() ? P[k].tEn : P[k].txt)}</small></span></button>`).join('')}</div>`, 'is-boss');
+  }
 
   // ---------- Profil ----------
   const state = (profile, id) => { profile.dungeons = profile.dungeons || {}; return (profile.dungeons[id] = profile.dungeons[id] || { clears: 0, day: null }); };
@@ -281,6 +297,7 @@ window.GL = window.GL || {};
       <h3>${esc(T(d.name))}</h3>
       ${(() => { const lv = landgangLevel(cur.profile, d.id); return lv ? `<p class="dg-lvl"><b>${esc(T('Stufe'))} ${lv + 1}</b> · ${esc(T('Gegner'))} +${lv * 7} %${lv >= 1 ? ` · ${esc(T('mit Gefolge'))}` : ''}</p>` : ''; })()}
       <p class="dg-text">${esc(T(d.intro))}</p>
+      ${mechOf(d) ? (mm => `<p class="dg-mech"><i>${mm.ico}</i><span><b>${esc(EN() ? mm.en : mm.name)}</b><small>${esc(EN() ? mm.tEn : mm.txt)}</small><em>💡 ${esc(EN() ? mm.cEn : mm.crack)}</em></span></p>`)(mechOf(d)) : ''}
       ${cur.mod ? `<p class="dg-mod"><i>${cur.mod.ico}</i><span><b>${esc(T(cur.mod.name))}</b><small>${esc(T(cur.mod.txt))}</small></span></p>` : ''}
       ${depthHtml(cur.profile, d)}
       ${statsHtml(cur.profile, d, cur.deep)}
@@ -445,13 +462,17 @@ window.GL = window.GL || {};
     const d = cur.d, sea = d.sea || 0, X = D();
     const S = fightSetup(profile, d, { fx: cur.fx, deep: cur.deep, relics: cur.relics });
     if (!S) return null;
-    const { me, boss, minions, lvl, def } = S;
+    const { me, boss, lvl, def } = S;
+    let minions = S.minions;
+    const mm = mechOf(d);
+    if (mm && mm.id === 'drummer') minions = [{ id: 'thug', name: EN() ? 'Drummer' : 'Trommler', type: 'technik', hp: Math.round(boss.max * 0.16), max: Math.round(boss.max * 0.16), atk: Math.max(2, Math.round(boss.atk * 0.3)), spd: Math.max(1, boss.spd - 2), drummer: true }].concat(minions);
+    if (mm && mm.id === 'larvae') minions = minions.concat([0, 1].map(k => ({ id: 'thug', name: EN() ? 'Helper' : 'Gehilfe', type: 'klinge', hp: Math.round(boss.max * 0.06), max: Math.round(boss.max * 0.06), atk: Math.max(2, Math.round(boss.atk * 0.2)), spd: boss.spd, larva: true })));
     const seed = (Date.now() ^ Math.floor(Math.random() * 1e9)) >>> 0;
     const run = { rng: seed || 1, crew: me, relics: [], arts: [], items: [], crit: 0, bounties: 0, captain: me[0].id, mod: { atk: 0, hp: 0, spd: 0 } };
     // Startwerte merken, bevor die Simulation die Leben verändert (sonst startet die Anzeige mit dem Endstand)
     const startHp = me.map(r => r.hp), bossMax = boss.max;
     const foes = [boss].concat(minions);
-    const res = GL.battle.simulate(run, me.map(r => Object.assign({}, r)), foes.map(f => Object.assign({}, f)), 'boss', { weather: modOf() ? modOf().w : null });
+    const res = GL.battle.simulate(run, me.map(r => Object.assign({}, r)), foes.map(f => Object.assign({}, f)), 'boss', { weather: modOf() ? modOf().w : null, mech: mm ? { id: mm.id, plan: cur.plan || null, countered: cur.plan === mm.counter } : null });
     const per = GL.config.stepsPerIsland || 8;
     const dRun = { step: sea * per, seed: 1, alt: d.alt ? { [sea]: true } : {}, captain: me[0].id,
       crew: me.map(r => Object.assign({}, r, { def: r.id === 'self' ? { id: 'self', name: r.name, look: r.look, type: r.type } : null })),
@@ -485,7 +506,8 @@ window.GL = window.GL || {};
     if (!ev) { f.done = true; f.timer = setTimeout(() => endFight(false), 1100); return; }
     try { GL.arena.play(ev); } catch (e) { /* nur Anzeige */ }
     const crewM = () => pick(cur.crew);
-    if (ev.k === 'rage' && ev.side === 'enemy') say(crewM(), T(pick(ev.phase === 3 ? DRAMA.final : DRAMA.rage)));
+    if (ev.k === 'plan' && ev.plan === 'mech') say(null, (EN() && ev.en) ? ev.en : ev.text);
+    else if (ev.k === 'rage' && ev.side === 'enemy') say(crewM(), T(pick(ev.phase === 3 ? DRAMA.final : DRAMA.rage)));
     else if (ev.k === 'ult') say(null, `⚡ ${T(ev.name || '')}!`);
     else if (ev.k === 'hit' && ev.side === 'enemy' && ev.hp === 0) {
       const down = f.me[ev.to]; const left = f.dRun.crew.length;
@@ -610,6 +632,7 @@ window.GL = window.GL || {};
       if (name === 'dg-fast') { if (cur.fight) { cur.fight.fast = !cur.fight.fast; } return undefined; }
       if (name === 'dg-next') {
         if (cur.done) return listHtml(profile);
+        if (cur.last && cur.last.boss && mechOf(cur.d) && !cur.plan) return planHtml();
         if (cur.last && cur.last.boss) {
           cur.fight = buildFight(profile);
           if (!cur.fight) return listHtml(profile);
@@ -621,6 +644,16 @@ window.GL = window.GL || {};
         // Zwischen den Szenen: zwei Türen (erste Szene ist immer die eigene des Ortes)
         if (cur.i >= 1 && cur.i < NS()) return doorsHtml();
         return stepHtml();
+      }
+      if (name === 'dg-plan') {
+        const P = D().dungeonPlans || {};
+        if (!cur.last || !cur.last.boss || !P[data.v]) return stepHtml();
+        cur.plan = data.v;
+        cur.fight = buildFight(profile);
+        if (!cur.fight) return listHtml(profile);
+        cur.i = NS() + 1;
+        this.pending = 'fight';
+        return fightHtml();
       }
       if (name === 'dg-door') return doorPick(Number(data.i));
       if (name === 'dg-relic') return relicPick(data.v) || stepHtml();
