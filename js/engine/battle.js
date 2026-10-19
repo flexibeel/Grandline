@@ -443,7 +443,7 @@ window.GL = window.GL || {};
     //   Kraft reißt Blutung auf (Restschaden sofort). Technik nutzt Geschwächt/Betäubt (Schwachstelle: Rüstung egal).
     //   Schwung: Krits, K.O.s und Ketten füllen eine Leiste, voll = Crew in Fahrt (Ulti-Energie, kurz mehr Angriff).
     //   Fällt ein Anführer, wankt sein Gefolge (Furcht). Brecher stehen einen tödlichen Treffer pro Kampf durch.
-    const CH = Object.assign({ on: true, cut: 0.3, cutRounds: 2, rip: 1.5, expose: 0.2, routRounds: 2, moNeed: 6, surgeEn: 35, surgeAtk: 0.12, surgeMax: 2 }, C.chain || {});
+    const CH = Object.assign({ on: true, open: 0.25, cut: 0.3, cutRounds: 2, rip: 1.5, expose: 0.2, routRounds: 2, moNeed: 6, surgeEn: 35, surgeAtk: 0.12, surgeMax: 2 }, C.chain || {});
     const KT = !!CH.on && C.chain !== false && !pvp && kind !== 'duel';
     const isChief = f => isLead(f) || !!(f.ref && f.ref.elite2);
     const blades = () => crew.some(c => c.hp > 0 && c.type === 'klinge');
@@ -958,10 +958,9 @@ window.GL = window.GL || {};
           let crit = critCh > 0 && R.float(run) < critCh;
           // KAMPFTIEFE: Blöße (von Technik markiert) -> Klinge trifft sicher kritisch. Schwachstelle: Technik gegen Geschwächt/Betäubt
           const opening = KT && u.side === 'crew' && u.type === 'klinge' && !!target.mark;
-          if (opening) { crit = true; target.mark = false; }
+          if (opening) { crit = true; target.mark = false; dmg *= 1 + CH.open; }
           const expose = KT && u.side === 'crew' && u.type === 'technik' && !!(target.status.weak || target.status.stun);
-          if (expose) dmg *= 1 + CH.expose;
-          if (crit) dmg *= u.critMult;
+          if (expose) dmg *= 1 + CH.expose;          if (crit) dmg *= u.critMult;
           if (u.status.fear) dmg *= 0.65;
           if (target.status.weak) dmg *= 1.25;
           if (FX) dmg *= FX.dmgMult(u, target);
@@ -982,7 +981,7 @@ window.GL = window.GL || {};
           if (dmg > 0 && u.side === 'crew' && R.float(run) < (C.luckyHit || 0)) { lucky = true; dmg = Math.round(dmg * 2.5); }
           // KAMPFTIEFE: Standhaft – ein Brecher der Crew übersteht einmal pro Kampf einen tödlichen Treffer mit 1 Leben
           let stand = false;
-          if (KT && dmg > 0 && target.side === 'crew' && target.role === 'brecher' && !target.stood && target.hp > 1 && dmg >= target.hp) { dmg = target.hp - 1; target.stood = true; stand = true; }
+          if (KT && CH.stand !== false && dmg > 0 && target.side === 'crew' && target.role === 'brecher' && !target.stood && target.hp > 1 && target.hp >= target.max * (CH.standAt || 0) && dmg >= target.hp) { dmg = target.hp - 1; target.stood = true; stand = true; }
           damage(target, dmg);
           charge(u, U.gainHit);
           if (dmg > 0) charge(target, U.gainHurt);

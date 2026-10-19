@@ -96,7 +96,7 @@ GL.config = {
   // FUN: Kapitänsbefehle im Run-Kampf (Ladung in Zügen; ein Zug = eine Figur ist dran)
   runCmds: { charge: { rally: 4, guard: 6, burst: 9 }, rallyAtk: 0.18, rallyTurns: 6, guard: 0.25, guardTurns: 6, strike: 2, mend: 0.2 },
   duelCmds: { charge: { cheer: 10, food: 13, dice: 18 }, cheerAtk: 0.08, cheerTurns: 5, food: 0.2, salvoP: 0.3, salvo: 0.22, tripP: 0.28 },
-  enemyScale: 0.89,         // wie schnell normale Gegner pro Etappe stärker werden (längere Insel-Kapitel -> langsamer hochskalieren)
+  enemyScale: 0.9,        // wie schnell normale Gegner pro Etappe stärker werden (längere Insel-Kapitel -> langsamer hochskalieren)
   eliteMult: 1.3,         // Kopfgeldjäger sind um diesen Faktor stärker
   // Mehr Leben, etwas weniger Angriff: Kämpfe dauern etwas länger, ohne insgesamt härter zu werden
   grunt: { hpBase: 13, hpPerLevel: 3.6, atkBase: 4.8, atkPerLevel: 1.38, spdMin: 3, spdMax: 7 },
@@ -125,6 +125,10 @@ GL.config = {
   // Biss (Blutungs-Chance), Welle (Anteil Ø-Angriff an alle), Strahl (Faktor Angriff), Untot (Leben beim Aufstehen)
   plan: { salvo: 0.45, frenzy: 0.1, bite: 0.18, wave: 0.55, beam: 1.6, undead: 0.3 },
   sig: { final: 1.3 },   // Boss-Signatur in der Endphase: so viel stärker
+  // KAMPFTIEFE: Stil-Ketten und Schwung (battle.js). cut = Blutung nach Klinge-Krit (Anteil Angriff, Runden),
+  //   rip = Kraft reißt Blutung auf (Restschaden × rip), expose = Technik gegen Geschwächt/Betäubt (+Schaden, Rüstung egal),
+  //   rout = Furcht-Runden fürs Gefolge, wenn der Anführer fällt, moNeed = Schwung bis „in Fahrt“ (surgeEn Ulti, surgeAtk Angriff, max surgeMax pro Kampf)
+  chain: { on: true, open: 0.25, cut: 0.45, cutRounds: 3, rip: 1, expose: 0.2, routRounds: 2, moNeed: 6, surgeEn: 35, surgeAtk: 0.12, surgeMax: 2 },
   riposteMult: 0.7,      // Schwertkunst-Konter: Anteil des eigenen Angriffs (kann kritisch sein)
   // FIGHT: dazu Kampf-Launen mit eigener Mechanik (Pulverfass, Möwen, glitschiges Deck, Zweikampf). Höchstens eine pro Kampf.
   weatherChance: 0.4,
