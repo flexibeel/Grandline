@@ -97,7 +97,7 @@ GL.config = {
   enemyScale: 0.935,         // wie schnell normale Gegner pro Etappe stärker werden (längere Insel-Kapitel -> langsamer hochskalieren)
   eliteMult: 1.3,         // Kopfgeldjäger sind um diesen Faktor stärker
   // Mehr Leben, etwas weniger Angriff: Kämpfe dauern etwas länger, ohne insgesamt härter zu werden
-  grunt: { hpBase: 16, hpPerLevel: 4.4, atkBase: 3.7, atkPerLevel: 1.06, spdMin: 3, spdMax: 7 },
+  grunt: { hpBase: 14, hpPerLevel: 3.9, atkBase: 4.2, atkPerLevel: 1.2, spdMin: 3, spdMax: 7 },
   maxGrunts: 4,
   // Besondere Gegner (Sanitäter, Schildträger …): Chance pro normalem Gegner, wächst pro Meer; höchstens max pro Kampf
   foeKinds: { base: 0.14, perSea: 0.09, cap: 0.45, max: 2, fromStep: 2 },

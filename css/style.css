@@ -9370,3 +9370,25 @@ em.type.t-technik { background: #5b86b3 !important; }
 .fu.duelist::before { content: ''; position: absolute; left: 50%; bottom: -3px; width: 78%; height: 8px; transform: translateX(-50%); border-radius: 50%;
   border: 2px solid rgba(232, 184, 74, .9); box-shadow: 0 0 6px rgba(232, 184, 74, .5); pointer-events: none; }
 @media (prefers-reduced-motion: reduce) { .fu.sigwarn .int-sig { animation: none; } }
+
+/* ===== BATTLE2: Team-Statistik am Kampfende ===== */
+.bs-tile .bs-dbar { display: block; width: 100%; height: 6px; margin-top: 2px; border-radius: 3px; background: #ead9b6; box-shadow: inset 0 1px 0 rgba(90,60,25,.25); overflow: hidden; }
+.bs-tile .bs-dbar i { display: block; height: 100%; background: linear-gradient(#e8a24a, #c46a2a); border-radius: 3px; }
+.bs-tile.mvp .bs-dbar i { background: linear-gradient(#f6d266, #d49a2a); }
+.bs-tile .bs-dmg { font-size: .72rem; font-weight: 800; color: #5a3d1c; }
+.bs-tile .bs-ic { display: flex; flex-wrap: wrap; justify-content: center; gap: 2px 4px; min-height: 12px; }
+.bs-tile .bs-ic em { font-style: normal; font-size: .58rem; font-weight: 800; color: #6b5233; line-height: 1.2; white-space: nowrap; }
+.bs-tile .bs-crown { color: #d49a2a; text-shadow: 0 1px 0 #7a4f12; }
+/* Weiter-Knopf ohne Auto-Balken */
+.ux-auto::after { display: none !important; }
+/* BATTLE2: Parallax – Kulisse schwenkt leicht mit, je weiter weg, desto weniger */
+.f-stage.px-enemy .b3-cloud, .f-stage.px-enemy .f-clouds { animation: px-l-far .6s ease-out; }
+.f-stage.px-crew .b3-cloud, .f-stage.px-crew .f-clouds { animation: px-r-far .6s ease-out; }
+.f-stage.px-enemy .b3-props, .f-stage.px-enemy .f-horizon { animation: px-l-mid .6s ease-out; }
+.f-stage.px-crew .b3-props, .f-stage.px-crew .f-horizon { animation: px-r-mid .6s ease-out; }
+@keyframes px-l-far { 40% { translate: -2px 0; } } @keyframes px-r-far { 40% { translate: 2px 0; } }
+@keyframes px-l-mid { 40% { translate: -4px 0; } } @keyframes px-r-mid { 40% { translate: 4px 0; } }
+.fu .flank, .ftag.flank { background: #f6d9cc; color: #8e2f1c; }
+@media (prefers-reduced-motion: reduce) { .f-stage[class*="px-"] * { animation: none !important; } }
+.sea-lost { display: flex; align-items: center; gap: 6px; margin: 6px 2px 2px; font-size: .74rem; color: #4a6a78; font-style: italic; }
+.sea-lost i { font-style: normal; }

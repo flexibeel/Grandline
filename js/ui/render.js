@@ -1445,6 +1445,14 @@ window.GL = window.GL || {};
       }
     });
     const mvp = dealt.indexOf(Math.max(...dealt));
+    // Team-Statistik je Figur: K.O.s, geblockt (Rüstung/Schutz beim Einstecken), geheilt (eigene Heilungen)
+    const kos = run.crew.map(() => 0), blk = run.crew.map(() => 0), hld = run.crew.map(() => 0);
+    b.events.forEach(ev => {
+      if (ev.k === 'hit' && ev.side === 'crew' && ev.dmg > 0 && ev.hp <= 0 && kos[ev.from] != null) kos[ev.from]++;
+      if (ev.k === 'hit' && ev.side === 'enemy' && blk[ev.to] != null) blk[ev.to] += (ev.ab || 0);
+      if (ev.k === 'heal' && ev.side === 'crew') { const i = run.crew.findIndex(u => u.id === ev.by); if (i >= 0) hld[i] += (ev.list || []).reduce((a, x) => a + (x.amount || 0), 0); }
+    });
+    const dMax = Math.max(1, ...dealt);
     const rows = run.crew.map((u, i) => {
       const d = crewData(u.id);
       const xp = b.xp && b.xp[i];
@@ -1460,7 +1468,9 @@ window.GL = window.GL || {};
         <span class="bs-name">${esc(d.name)}</span>
         <span class="bs-lvrow"><em class="lv">Lv <span class="lvnum">${before.lvl}</span></em><span class="lvup" hidden>▲</span></span>
         <span class="xpbar"><i class="xpfill" style="width:${fromPct}%" data-to="${toPct}" data-levels="${levels}" data-newlv="${u.lvl}"></i></span>
+        <span class="bs-dbar" aria-hidden="true"><i style="width:${Math.round(100 * dealt[i] / dMax)}%"></i></span>
         <small class="bs-dmg">${dealt[i]}</small>
+        <span class="bs-ic">${kos[i] ? `<em title="K.O.">☠${kos[i]}</em>` : ''}${blk[i] >= 3 ? `<em title="geblockt">🛡${blk[i]}</em>` : ''}${hld[i] ? `<em title="geheilt">💚${hld[i]}</em>` : ''}</span>
       </div>`;
     }).join('');
     const g = run.lastGold && b.win ? `<span class="bs-chip gold" title="+${run.lastGold.base} Gold${run.lastGold.interest ? ' +' + run.lastGold.interest + ' Zinsen' : ''}">${GL.sprites.coin()}<b>+${run.lastGold.base}</b>${run.lastGold.interest ? `<small>+${run.lastGold.interest}</small>` : ''}</span>` : '';
@@ -3313,9 +3323,10 @@ window.GL = window.GL || {};
   }
   // UX2: Logbuch und Hafengerücht in einem Rahmen. Erste Logbuch-Zeile sichtbar, der Rest klappt auf.
   function harborNews(profile) {
+    const lost = GL.social && GL.social.seaLostLine ? GL.social.seaLostLine(profile) : '';
     const log = GL.social ? GL.social.logbook(profile) : '';
     const hook = hookLines(profile);
-    if (!log) return hook;
+    if (!log) return lost + hook;
     const parts = log.split('<div class="soc-row">');
     let head = parts[0], rows = parts.slice(1).map(r => '<div class="soc-row">' + r);
     // letztes Stück enthält das schließende </div> des Logbuch-Rahmens
@@ -3323,7 +3334,7 @@ window.GL = window.GL || {};
     if (rows.length) rows[rows.length - 1] = last.replace(/<\/div>\s*$/, '');
     const more = rows.length > 1 ? `<details class="soc-more"><summary>+${rows.length - 1}</summary>${rows.slice(1).join('')}</details>` : '';
     const hookInner = hook ? hook.replace(/^<div class="hook-box pxf">/, '').replace(/<\/div>\s*$/, '') : '';
-    return `${head}${rows[0] || ''}${more}${hookInner ? `<div class="soc-hook">${hookInner}</div>` : ''}</div>`;
+    return `${lost}${head}${rows[0] || ''}${more}${hookInner ? `<div class="soc-hook">${hookInner}</div>` : ''}</div>`;
   }
   // Crew-Leben: ein Satz einer Figur (Hafen, Sieg, Niederlage). Wechselt alle 10 Minuten bzw. pro Run
   function lifeLine(profile, id, kind, vars) {

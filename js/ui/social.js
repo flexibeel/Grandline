@@ -161,5 +161,29 @@ window.GL = window.GL || {};
     return `<span><b>⛵ ${same ? L(`${n} kreuzt in der Ferne`, `${n} passes in the distance`) : L(`Teleschnecke: ${n} ist auch auf See`, `Den Den Mushi: ${n} is out at sea too`)}</b>${cn ? L(`Flagge: „${cn}“. `, `Flag: “${cn}”. `) : ''}${same ? L('Man winkt. Höflich, aber knapp.', 'You wave. Politely, but briefly.') : L(`Gerade irgendwo bei ${esc(clean(r.pos.sea))}. Grüße werden ausgerichtet.`, `Somewhere near ${esc(clean(r.pos.sea))}. Regards will be passed on.`)}</span>`;
   }
 
-  GL.social = { ships, note, logbook, cheer, passBy, _others: others };
+  // BATTLE2: „Auf offener See geblieben“ – gescheiterte Runs aller Spieler seit heute früh (Tages-Schnappschuss runs−wins)
+  function seaLost(profile) {
+    const s = st();
+    if (!profile || s.backend !== 'supabase' || !(s.rows || []).length) return 0;
+    const so = profile.social = profile.social || {};
+    const day = new Date().toISOString().slice(0, 10);
+    if (!so.lost || so.lost.d !== day) so.lost = { d: day, m: {} };
+    const m = so.lost.m; let n = 0;
+    (s.rows || []).forEach(r => {
+      if (!r || !r.id || r.npc) return;
+      const lost = Math.max(0, (Number(r.runs) || 0) - (Number(r.wins) || 0));
+      if (m[r.id] == null) m[r.id] = lost; else n += Math.max(0, lost - m[r.id]);
+    });
+    const ids = Object.keys(m); if (ids.length > 80) ids.slice(0, ids.length - 80).forEach(k => delete m[k]);
+    return n;
+  }
+  function seaLostLine(profile) {
+    const n = seaLost(profile);
+    if (!n) return '';
+    const en = GL.i18n && GL.i18n.lang && GL.i18n.lang() === 'en';
+    const t = en ? (n === 1 ? '1 brave sailor stayed out on the open sea today. The gulls send their regards.' : `${n} brave sailors stayed out on the open sea today. The gulls send their regards.`)
+      : (n === 1 ? '1 tapferer Segler ist heute auf offener See geblieben. Die Möwen lassen grüßen.' : `${n} tapfere Segler sind heute auf offener See geblieben. Die Möwen lassen grüßen.`);
+    return `<div class="sea-lost"><i>🌊</i><span>${t}</span></div>`;
+  }
+  GL.social = { ships, note, logbook, cheer, passBy, seaLostLine, _others: others };
 })();

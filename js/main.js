@@ -37,7 +37,7 @@
     draw();
   }
 
-  const SPEED = { normal: 430, special: 820, ult: 900, fast: 90 };
+  const SPEED = { normal: 360, special: 700, ult: 820, fast: 90 };   // BATTLE2: etwas flotter
 
   const esc2 = t => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   let keyPick = false;   // Auswahl per Taste 1-9: ohne Bestätigung
@@ -62,6 +62,8 @@
   // UX1: Nach einem gewonnenen Kampf ohne offene Entscheidung kurz verweilen, dann von selbst weiter zur Route (Tippen überspringt)
   let autoGoT = null, autoGoKey = null;
   function autoGo() {
+    // Felix 19.10.: Kein Auto-Weiter mehr – nach dem Kampf in Ruhe die Team-Statistik ansehen, dann selbst „Weiter“ tippen
+    if (true) { clearTimeout(autoGoT); autoGoT = null; autoGoKey = null; const b0 = document.querySelector('.ux-auto'); if (b0) b0.classList.remove('ux-auto'); return; }
     const ok = run && run.phase === 'battle' && run.battle && run.battle.win && anim && anim.done && !document.getElementById('fpop')
       && !(GL.story && GL.story.active()) && document.querySelector('#stage [data-act="continue"]');
     const key = ok ? (run.seed + ':' + (run.step || 0)) : null;
@@ -832,6 +834,11 @@
   const SPEEDF = [1, 0.9, 0.55, 0.32, 0.18];
   const showSpeed = () => { const f = document.getElementById('field'); if (f && anim) f.dataset.speed = anim.speed; };
 
+  // BATTLE2: Gegnerzüge hintereinander überlappen leicht (weniger Leerlauf, Runde wirkt wie ein Schlagabtausch)
+  function nextQuick(ev) {
+    const nx = run && run.battle && run.battle.events[anim.i];
+    return !!(nx && nx.k === 'hit' && ev.side === 'enemy' && nx.side === 'enemy' && !ev.heavy && !ev.crit && !nx.heavy);
+  }
   function stepAnim() {
     if (!anim || anim.done) return;
     const ev = run.battle.events[anim.i++];
@@ -851,7 +858,7 @@
     const f = (SPEEDF[anim.speed] || 0.55) * (anim.rn >= 7 ? 0.65 : anim.rn >= 4 ? 0.82 : 1);
     const big = ev.k === 'rage' || ev.k === 'windup' || ev.heavy || ev.k === 'will' || ev.k === 'weather' || ev.k === 'wave' || ev.final || ev.k === 'sig' || (ev.k === 'plan' && (ev.big || ev.plan === 'sig')) || (ev.k === 'revive' && (ev.by === 'vivre' || ev.by === 'doc'));   // Wendepunkte bekommen immer etwas Zeit
     const wait = ev.k === 'special' ? Math.max(900, 1800 * f) : ev.k === 'ult' ? Math.max(500, SPEED.ult * f)
-      : ev.k === 'revive' && ev.by === 'vivre' ? Math.max(1700, 2600 * f) : big ? Math.max(900, 1500 * f) : ev.k === 'hit' ? SPEED.normal * f : SPEED.special * f;
+      : ev.k === 'revive' && ev.by === 'vivre' ? Math.max(1700, 2600 * f) : big ? Math.max(900, 1500 * f) : ev.k === 'hit' ? SPEED.normal * f * (nextQuick(ev) ? 0.6 : 1) : SPEED.special * f;
     anim.timer = setTimeout(stepAnim, wait);
   }
 

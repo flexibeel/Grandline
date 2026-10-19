@@ -424,8 +424,8 @@ window.GL = window.GL || {};
   // Crew vorne links auf ihrer Plattform, Gegner hinten rechts. Die Liste darunter
   // bleibt als Anzeige für Leben und Zustände, das Feld zeigt die Bewegung.
   // Alle stehen auf einer gemeinsamen Bodenlinie: vorne Reihe 1, dahinter versetzt Reihe 2
-  const CREW_SLOTS = [[38, 8], [24, 10], [10, 12], [45, 19], [31, 21], [17, 23], [5, 25]];
-  const FOE_SLOTS  = [[62, 8], [76, 10], [90, 12], [55, 19], [69, 21], [83, 23]];
+  const CREW_SLOTS = [[38, 6], [25, 10], [12, 14], [44, 20], [31, 23], [18, 26], [6, 28]];   // BATTLE2: stärker gestaffelt = mehr Tiefe
+  const FOE_SLOTS  = [[62, 6], [75, 10], [88, 14], [56, 20], [69, 23], [82, 26]];
   // Kulisse je Insel (sonst nach Meer)
   const THEME = {
     'shells-town': 'town', 'orange-town': 'town', 'loguetown': 'town', 'whisky-peak': 'town',
@@ -464,7 +464,7 @@ window.GL = window.GL || {};
     const slots = side === 'crew' ? CREW_SLOTS : FOE_SLOTS;
     const backLead = side === 'enemy' && i === leadAt && i > 0;
     const [x, y] = backLead ? [79, 20] : slots[Math.min(i, slots.length - 1)];
-    const depth = 1.04 - y / 140;
+    const depth = 1.06 - y / 105;   // hinten deutlich kleiner
     const scale = (unit.boss ? 1.6 : unit.mini ? 1.15 : 1) * depth;
     const pct = Math.max(0, 100 * hp / unit.max);
     return `<div class="fu fu-${side}${hp <= 0 ? ' ko' : ''}${side === 'enemy' && leadAt > 0 && i < leadAt && !unit.wave ? ' guard' : ''}${backLead ? ' lead-back' : ''}${unit.boss ? ' boss' : ''}${unit.mini ? ' mini' : ''}${unit.elite2 ? ' elite2' : ''}${waitW2(side, i, unit) ? ' w2-wait' : ''}" data-side="${side}" data-i="${i}"
@@ -657,6 +657,8 @@ window.GL = window.GL || {};
     att.style.setProperty('--dy', ((T.y - A.y) * reach).toFixed(0) + 'px');
     pulse(att, 'atk');
     cam(tside);
+    const pfx = document.querySelector('#field .f-stage'); if (pfx) { pfx.classList.remove('px-crew', 'px-enemy'); void pfx.offsetWidth; pfx.classList.add('px-' + tside); }
+    if (ev.flank && !ev.miss && sigCalm('fl' + ev.to, 2600)) tagAt(tside, ev.to, ev.flank === 'back' ? (GL.i18n && GL.i18n.lang() === 'en' ? '↩ From behind!' : '↩ Von hinten!') : (GL.i18n && GL.i18n.lang() === 'en' ? '↪ Flank!' : '↪ Flanke!'), 'debuff flank', 58);
     const fast = document.body.classList.contains('fast');
     const impact = () => {
       if (ev.heavy) { const b = fu('enemy', ev.from); if (b) b.classList.remove('windup'); }

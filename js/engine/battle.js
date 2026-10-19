@@ -434,6 +434,14 @@ window.GL = window.GL || {};
       if (!pvp && FM.on && FM.foeFocus && u.side === 'enemy' && !isLead(u) && u.type === 'technik') {
         return living.reduce((a, b) => (b.hp / b.max < a.hp / a.max ? b : a));
       }
+      // BATTLE2: Gegner kämpfen nicht mehr nur gegen die vorderste Figur. Klingen flankieren nach hinten,
+      // alle anderen weichen gelegentlich auf eine Nachbarfigur aus (Zufall aus dem Run-Strom, Replays bleiben gleich)
+      const FL = C.flank || { back: 0.3, side: 0.3 };
+      if (!pvp && kind !== 'duel' && u.side === 'enemy' && living.length > 1 && FL) {
+        const r = R.float(run);
+        if (u.type === 'klinge' && r < FL.back) { u.flank = 'back'; return living[living.length - 1]; }
+        if (r < (u.type === 'klinge' ? FL.back : 0) + FL.side) { u.flank = 'side'; return living[1 + Math.floor(R.float(run) * (living.length - 1))]; }
+      }
       return living[0];
     }
     // Schutz: Schüsse über das Gefolge hinweg verlieren etwas Wucht
@@ -751,7 +759,8 @@ window.GL = window.GL || {};
           charge(u, U.gainHit);
           if (dmg > 0) charge(target, U.gainHurt);
           const eff = mult > 1 ? 'strong' : mult < 1 ? 'weak' : '';
-          events.push({ k: 'hit', side: u.side, from: idx(u), to, dmg, crit: crit && dmg > 0, lucky, eff, blocked, miss, hp: target.hp, heavy: heavy || undefined,
+          const flank = u.flank; u.flank = undefined;
+          events.push({ k: 'hit', side: u.side, from: idx(u), to, dmg, crit: crit && dmg > 0, lucky, eff, blocked, miss, hp: target.hp, heavy: heavy || undefined, flank: flank || undefined,
             ea: u.ult ? u.energy : null, et: target.ult ? target.energy : null, ab: !miss && !blocked && absorbed > 0 ? absorbed : undefined });
 
           // „Für den Boss!“: Trifft die Crew den Anführer, wird sein Gefolge einmal pro Kampf wütend
