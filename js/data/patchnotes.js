@@ -1,6 +1,12 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-20w', date: '19.10.', title: 'Jeder Kampf hat einen Plan', items: [
+    '⚓ Gegnergruppen kämpfen mit Plan: Die Marine wirft Netze und feuert Salven, Piraten werden mit jedem Verlust wütender, Rudel jagen gemeinsam, Seewesen rollen Wellen heran, Zombies stehen einmal wieder auf, Roboter blenden ihr stärkstes Ziel',
+    '👑 Alle Bosse haben eine Signatur-Attacke, angekündigt eine Aktion vorher, in der Endphase stärker. Bosse sind keine Pappkameraden mehr',
+    '🎲 Neue Kampf-Launen: Pulverfass, Möwenangriff, Glitschiges Deck, Zweikampf (höchstens eine pro Kampf)',
+    'Stile ändern die Taktik: Tempo gibt Extra-Züge, Schwertkunst kontert, Wucht bricht Rüstung, Sturmtrupp setzt nach, Bollwerk zieht Angriffe auf sich, Lazarett belebt früher wieder',
+    'Krit, Ausweichen, Extra-Zug und Konter haben jetzt Obergrenzen, damit sich nichts ins Absurde stapelt' ] },
   { v: '2026-10-20v', date: '19.10.', title: 'Dungeon-Liga, Marken und Figuren aus einem Guss', items: [
     '🏆 Dungeon-Liga: Rangpunkte gibt es jetzt für gewonnene Landgänge. Schwerer, schneller und mit mehr Leben = mehr Punkte, pro Ort und Stufe zählt der beste Lauf. Abzeichen von Planke bis Legende',
     '🪙 Dungeon-Marken bei jedem Sieg, auch beim zehnten Mal: im Marken-Laden gegen Visitenkarten, Rahmen, Laternenmotte, Münzkrabbe, Flaggen und Skillpunkte tauschen',
