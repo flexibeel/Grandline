@@ -1,6 +1,11 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-21d', date: '19.10.', title: 'Dein Spielstand ist überall', items: [
+    '☁ Dein Spielstand wird jetzt zuverlässig in der Cloud gesichert: kurz nach jeder Änderung und wenn du das Spiel schließt. Auf einem neuen Gerät ist er einfach da',
+    '☁ ⏳ ⚠ Das Wölkchen neben „Anmelden“ und oben neben ☰ zeigt, ob alles gesichert ist. Antippen: Konto mit deiner Mail sichern oder auf einem anderen Gerät anmelden',
+    '📱 Liegt auf zwei Geräten verschiedener Fortschritt, fragt das Spiel einmal kurz, welcher gilt. Überschrieben wird nichts mehr heimlich, der alte Stand bleibt als Sicherung auf dem Gerät',
+    'Behoben: Ein älterer Stand konnte beim Wechsel aufs zweite Gerät einen neueren überschreiben. Wer offline startet, verbindet sich jetzt später von selbst' ] },
   { v: '2026-10-21c', date: '19.10.', title: 'Stile greifen ineinander', items: [
     '🔗 Stile greifen ineinander: Technik deckt Blößen auf, Klinge trifft dort sicher kritisch und lässt bluten, Kraft reißt die Wunde auf. Wer mischt, haut doppelt zu. Wer nicht mischt, haut auch zu, nur einfacher',
     '⚡ Schwung: Krits, K.O.s und Ketten füllen die Leiste unter dem Kampfbild. Voll heißt, die Crew ist in Fahrt. Eigene K.O.s kosten Schwung, Stolz auch',
