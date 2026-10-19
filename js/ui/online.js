@@ -107,8 +107,8 @@ window.GL = window.GL || {};
   // ---------- Speicherort 1: Supabase ----------
   async function initSupabase(cfg) {
     client = window.supabase.createClient(cfg.url, cfg.key, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } });
-    state.backend = 'supabase';
     await signIn();
+    state.backend = 'supabase';   // erst nach geglückter Anmeldung (sonst zeigt der Login-Screen Wege, die nicht gehen)
     // Anmeldung ändert sich (Mail-Link in anderem Tab, Token erneuert, Mail verknüpft): Stand passend abgleichen
     client.auth.onAuthStateChange((ev, session) => {
       token = session ? session.access_token : null;
