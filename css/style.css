@@ -9352,3 +9352,21 @@ em.type.t-technik { background: #5b86b3 !important; }
   .field.v3 .fu-enemy.ko .fu-body { transform: translate(-8px, 24px) rotate(-90deg) scale(.78) !important; }
   .field.v3 .fu.ko .fu-shadow { width: 46px !important; }
 }
+/* ===== FIGHT: Pläne, Signaturen, Kampf-Launen ===== */
+/* Spruchband eines Gegner-Plans: kleiner und kürzer als Boss-Wut, sitzt oben */
+.ult-call.plan { top: 12%; padding: 4px 14px 6px; background: linear-gradient(180deg, #f3e2c4, #d9b98a); color: #3a2410; border-color: #fff1d6; box-shadow: 0 6px 16px -6px rgba(60,40,15,.5); }
+.ult-call.plan small { color: #7a4a22; }
+.ult-call.plan b { font-size: 1.05rem; color: #5a2a14; }
+.ult-call.plan em { display: block; font-style: normal; font-size: .68rem; font-weight: 700; color: #6b4a2a; max-width: 260px; margin: 2px auto 0; }
+/* Boss-Signatur: Holzrahmen wie Boss-Wut, Name in Violett, damit man den Angriff wiedererkennt */
+.ult-call.rage.sig b { color: #4e1f72 !important; }
+.ult-call.rage.sig small { color: #6a3a8a; }
+.ult-call.rage.sig em { max-width: 260px; margin: 2px auto 0; }
+/* Angekündigte Signatur: Stern-Absicht leuchtet sanft, Boss schimmert violett */
+.fu.sigwarn .int-sig { background: #f3e2ff; border-color: #6a3a8a; animation: intWind .7s ease-in-out infinite alternate; }
+.fu.sigwarn .f-sprite, .fu.sigwarn svg.spr { filter: drop-shadow(0 0 5px rgba(170, 110, 230, .85)); }
+.int-sig { background: #f6ecff; border-color: #6a3a8a; }
+/* Zweikampf: die beiden Duellanten tragen einen kleinen goldenen Ring */
+.fu.duelist::before { content: ''; position: absolute; left: 50%; bottom: -3px; width: 78%; height: 8px; transform: translateX(-50%); border-radius: 50%;
+  border: 2px solid rgba(232, 184, 74, .9); box-shadow: 0 0 6px rgba(232, 184, 74, .5); pointer-events: none; }
+@media (prefers-reduced-motion: reduce) { .fu.sigwarn .int-sig { animation: none; } }

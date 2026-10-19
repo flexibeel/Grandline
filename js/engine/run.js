@@ -475,10 +475,13 @@ window.GL = window.GL || {};
       // Bosskämpfe dauern länger, je weiter man kommt (mehr Leben, etwas weniger Angriff: länger mitfiebern, nicht unfairer)
       const BF = C.bossFight || { hp: 0, hpPerSea: 0, atk: 1 };
       const len = 1 + BF.hp + BF.hpPerSea * islandIndex(run);
-      const hp = Math.round(boss.hp * (1 + H.enemyHp + H.bossHp) * len);
+      // FIGHT: Untergrenze je Etappe, damit ein Boss nie schwächer ist als sein eigenes Gefolge
+      const gHp = g.hpBase + level * g.hpPerLevel, gAtk = g.atkBase + level * g.atkPerLevel;
+      const si = Math.min(2, islandIndex(run)), fl = (v) => (Array.isArray(v) ? v[si] : v) || 0;
+      const hp = Math.round(Math.max(boss.hp * len, gHp * fl(BF.hpFloor)) * (1 + H.enemyHp + H.bossHp));
       enemies.unshift({
         id: boss.id, type: boss.type, boss: true, raid: !!boss.raid, hp, max: hp,
-        atk: Math.round(boss.atk * (1 + H.enemyAtk + H.bossAtk) * BF.atk), spd: boss.spd + H.enemySpd
+        atk: Math.round(Math.max(boss.atk * BF.atk, gAtk * fl(BF.atkFloor)) * (1 + H.enemyAtk + H.bossAtk)), spd: boss.spd + H.enemySpd
       });
     }
     // Gegnerwellen: normale Kämpfe ab einer bestimmten Etappe bekommen Nachschub (Welle 2), Raids dauern länger
