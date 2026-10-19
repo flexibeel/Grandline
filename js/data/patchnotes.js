@@ -1,6 +1,10 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-20z', date: '19.10.', title: 'Die Leiter nach oben', items: [
+    '🪜 Kopfgeld-Leiter mit 20 Stufen: Jede Sprosse bringt eine neue Gemeinheit (Gegner heilen sich, Tavernen werden gierig, Bosse bringen Freunde mit) und für den ersten Sieg darauf Berry, Titel, Rahmen oder Flaggen. Stufe 20 heißt „Am Ende der Welt“. Das ist nicht übertrieben',
+    '🏅 Figuren-Meisterschaft: Jede Figur steigt mit dir auf, Bronze, Silber (neues Outfit), Gold (stärkere Fähigkeit), Meister. Übersicht im Kapitänsbuch',
+    'Aktive Leiter-Regeln stehen im Run unter „Lage“' ] },
   { v: '2026-10-20y', date: '19.10.', title: 'Der Kapitän redet mit', items: [
     '📣🛡💥 Kapitänsbefehle im Kampf: Drei Knöpfe laden sich Zug für Zug auf – Angriff, Schildwall und je nach Crew Breitseite, Flickpause oder Finte. Antippen wirkt ab dem nächsten Zug. Wer nichts drückt, kämpft wie bisher',
     '🎯 Fokusziel: Gegner antippen (vor oder im Kampf), und die Crew geht zuerst auf ihn. Heiler zuerst ist selten falsch',
