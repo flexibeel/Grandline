@@ -170,9 +170,13 @@ window.GL = window.GL || {};
   // Tabelle saves: eine Zeile pro Spieler mit dem ganzen Profil.
   // Ablauf: beim Start (und nach Anmelden / Zurückkehren) erst HOLEN und entscheiden, dann erst HOCHLADEN.
   // Vorher lädt dieses Gerät nichts hoch, damit ein alter Stand nie einen neueren in der Cloud überschreibt.
-  let dirty = false, token = null, retryTimer = null;
+  let dirty = false, token = null, retryTimer = null, firstCode = true;
   const sandboxed = () => !!(GL.sandbox && GL.sandbox.on());
-  function setSync(s) { if (state.sync === s) return; state.sync = s; emit(); }
+  function setSync(s) {
+    if (state.sync === s) return; state.sync = s;
+    try { document.querySelectorAll('.sync-badge').forEach(b => { if (b.closest('#sync-slot')) return; const t = document.createElement('div'); t.innerHTML = badge(b.classList.contains('head') ? 'head' : ''); if (t.firstElementChild) b.replaceWith(t.firstElementChild); }); } catch (e) { /* egal */ }
+    emit();
+  }
   const pulledFlag = () => { try { return !!sessionStorage.getItem('gl.pulled'); } catch (e) { return false; } };
   const baseKey = k => 'grandline.syncBase.' + k;
   function getBase(k) { try { return JSON.parse(localStorage.getItem(baseKey(k)) || 'null'); } catch (e) { return null; } }
@@ -203,7 +207,10 @@ window.GL = window.GL || {};
     if (L0) { opt.localSig = L0.sig; opt.localT = Math.max(L0.at || 0, GL.save.runAt0 || 0); }
     let how = GL.cloudSync.decide(local, remote, opt);
     // Gerade bewusst übernommen (Spielercode, Code-Import, Neustart, Auswahl im Konflikt-Fenster): dieser Stand gilt
-    if (pulledFlag() && !switched && (how === 'pull' || how === 'ask')) how = 'push';
+    // (gilt nur für den ersten Abgleich nach dem Neuladen, danach zählt wieder nur der Inhalt)
+    if (!state.pulled && pulledFlag() && !switched && (how === 'pull' || how === 'ask')) how = 'push';
+    // Mitten im Run nicht einfach neu laden: lieber einmal fragen
+    if (how === 'pull' && state.pulled && GL.save && Date.now() - (GL.save.runAt || 0) < 15 * 60e3) how = 'ask';
     route(how, key, local, remote, () => pushNow(true));
   }
   // Entscheidung umsetzen
@@ -211,7 +218,7 @@ window.GL = window.GL || {};
     if (how === 'pull') { setBase(key, remote); takeRemote(remote, false); return; }
     if (how === 'ask') { askConflict(local, remote, key); return; }
     state.pulled = true;
-    if (how === 'push') push();
+    if (how === 'push' || (how === 'same' && dirty)) push();
     else { if (how === 'same') setBase(key, local); state.syncAt = state.syncAt || Date.now(); setSync('ok'); }
   }
   // Cloud-Stand übernehmen (main.js führt zusammen und lädt neu). Der bisherige Stand bleibt als Sicherung auf dem Gerät.
@@ -227,7 +234,8 @@ window.GL = window.GL || {};
       return;
     }
     state.leaving = true;   // bis zum Neuladen nichts Altes mehr hochladen
-    if (chosen) { try { sessionStorage.removeItem('gl.pulled'); } catch (e) { /* egal */ } }
+    // main.js übernimmt nur ohne diese Marke (Schleifenschutz); sie wird dort gleich wieder gesetzt
+    try { sessionStorage.removeItem('gl.pulled'); } catch (e) { /* egal */ }
     if (onRemote) onRemote(Object.assign({}, remote));
   }
   // Laufender Run reist mit (als Text), damit man am anderen Gerät mitten im Run weitermachen kann
@@ -338,7 +346,7 @@ window.GL = window.GL || {};
   }
 
   // ---------- Kleines Konto-Fenster (Sync-Symbol antippen) ----------
-  function badge() {
+  function badge(cls) {
     if (sandboxed()) return '';
     const cfg = (GL.config && GL.config.online) || {};
     if (!cfg.url) return '';
@@ -350,8 +358,8 @@ window.GL = window.GL || {};
       err: ['⚠', 's-warn', 'Gerade nicht gesichert (offline?)'],
       off: ['⚠', 's-warn', 'Offline: Spielstand liegt nur auf diesem Gerät']
     };
-    const [ico, cls, tip] = map[s] || map.off;
-    return `<button class="mu-btn sync-badge ${cls}" data-sync="open" aria-label="Konto und Cloud-Spielstand: ${tip}" title="${tip}">${ico}</button>`;
+    const [ico, st, tip] = map[s] || map.off;
+    return `<button class="mu-btn sync-badge ${st}${cls ? ' ' + cls : ''}" data-sync="open" aria-label="Konto und Cloud-Spielstand: ${tip}" title="${tip}">${ico}</button>`;
   }
   function accountHtml() {
     const s = state.sync || 'off';
@@ -401,8 +409,15 @@ window.GL = window.GL || {};
     ownPop = null;
   }
   function msg(t) { const m = document.getElementById('sync-msg'); if (m) m.textContent = t; }
-  function openAccount() { if (state.conflict) openPop(conflictHtml()); else openPop(accountHtml()); }
-  function refreshAccount() { const c = document.querySelector('#fpop .sync-acc'); if (c) { const keep = document.activeElement && document.activeElement.id; openPop(accountHtml()); if (keep) { const i = document.getElementById(keep); if (i) i.focus(); } } }
+  function openAccount() { if (state.conflict) openPop(conflictHtml()); else { accLast = accountHtml(); openPop(accLast); } }
+  // Offenes Konto-Fenster nur dann neu füllen, wenn sich wirklich etwas geändert hat (kein Flackern)
+  let accLast = '';
+  function refreshAccount() {
+    const c = document.querySelector('#fpop .sync-acc'); if (!c) return;
+    const h = accountHtml(); if (h === accLast) return; accLast = h;
+    const tmp = document.createElement('div'); tmp.innerHTML = h;
+    const fresh = tmp.firstElementChild; c.replaceWith(fresh);
+  }
   document.addEventListener('click', e => {
     const t = e.target.closest && e.target.closest('[data-sync]');
     if (!t) { if (e.target.closest && e.target.closest('.sync-acc [data-act="login-open"]')) closeOwnPop(); return; }
@@ -442,6 +457,16 @@ window.GL = window.GL || {};
       }, err => { t.disabled = false; msg(String((err && err.message) || err)); });
     }
   });
+  // Sync-Symbol oben in der Kopfzeile (eigener Platz vor dem ☰, auf dem Handy immer sichtbar)
+  function placeBadge() {
+    const box = document.querySelector('header .head-actions'); if (!box) return;
+    let slot = document.getElementById('sync-slot');
+    if (!slot) { slot = document.createElement('span'); slot.id = 'sync-slot'; box.insertBefore(slot, box.firstChild); }
+    const h = badge('head');
+    if (slot.dataset.h !== h) { slot.innerHTML = h; slot.dataset.h = h; }
+    slot.hidden = !h;
+  }
+  listeners.push(placeBadge);
   // Live: Symbol im offenen Konto-Fenster mitziehen
   listeners.push(() => { if (document.querySelector('#fpop .sync-acc') && !(document.activeElement && /^sync-/.test(document.activeElement.id || ''))) refreshAccount(); });
   // Ranglisten-Eintrag frisch halten: Rang, Stammcrew, Liga-Wertung, Vitrine … nicht erst am Ende eines Runs
@@ -511,7 +536,8 @@ window.GL = window.GL || {};
       delete remote._runJ;   // der Code-Speicher trägt keinen laufenden Run
       const key = 'c:' + GL.code.key(local.playerCode);
       let how = GL.cloudSync.decide(local, remote, { base: getBase(key), localT: localT(local), remoteT: remoteT(remote) });
-      if (pulledFlag() && (how === 'pull' || how === 'ask')) how = 'push';
+      if (firstCode && pulledFlag() && (how === 'pull' || how === 'ask')) how = 'push';
+      firstCode = false;
       if (how === 'pull') { setBase(key, remote); takeRemote(remote, false); }
       else if (how === 'ask') askConflict(local, remote, key);
       else if (how === 'push') codeSave(local);

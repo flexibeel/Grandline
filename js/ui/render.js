@@ -4014,7 +4014,7 @@ window.GL = window.GL || {};
     const pulse = day ? `<div class="ts-pulse" title="Spieler, die gerade spielen und in den letzten 24 Stunden aktiv waren"><i class="tp-dot"></i><b>${live}</b> gerade auf See <span>·</span> <b>${day}</b> heute an Bord</div>`
       : st.status === 'connecting' ? `<div class="ts-pulse wait"><i class="tp-dot"></i>Funk zur Flotte <span class="tp-dots"><i></i><i></i><i></i></span></div>` : '';
     return `<div class="ts-inner">
-      <div class="ts-top">${profile.nickname ? profileChip(profile) : '<span></span>'}<span class="ts-tbtn"><button class="mu-btn lang-btn" data-act="lang" aria-label="Sprache wechseln" title="Deutsch / English">${GL.i18n && GL.i18n.lang() === 'en' ? 'DE' : 'EN'}</button><button class="mu-btn wk-btn${profile.wikiSeen ? '' : ' fresh'}" data-act="wiki-open" aria-label="Wiki" title="Wiki: Nachschlagen und Meta">${GL.ui.wikiIcon}</button>${musicBtn()}${sfxBtn()}</span></div>
+      <div class="ts-top">${profile.nickname ? profileChip(profile) : '<span></span>'}<span class="ts-tbtn">${/* Konten-Sync */ GL.online && GL.online.badge ? GL.online.badge() : ''}<button class="mu-btn lang-btn" data-act="lang" aria-label="Sprache wechseln" title="Deutsch / English">${GL.i18n && GL.i18n.lang() === 'en' ? 'DE' : 'EN'}</button><button class="mu-btn wk-btn${profile.wikiSeen ? '' : ' fresh'}" data-act="wiki-open" aria-label="Wiki" title="Wiki: Nachschlagen und Meta">${GL.ui.wikiIcon}</button>${musicBtn()}${sfxBtn()}</span></div>
       <div class="ts-logo"><b>${esc(W)}</b><small>Ein Piraten-Roguelike</small></div>
       <div class="ts-scene" aria-hidden="true">
         <div class="ts-sun"></div>

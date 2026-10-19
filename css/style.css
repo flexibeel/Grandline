@@ -9543,3 +9543,46 @@ em.type.t-technik { background: #5b86b3 !important; }
 .int-lead { background: #f3e2c0; border-color: #8a5a2a; }
 @media (prefers-reduced-motion: reduce) { .mo-bar.tick, .mo-bar.drop .mo-segs, .mo-bar.full, .fu.marked .fu-mark { animation: none !important; } .fu.routed .fu-body { transition: none; } }
 /* ===== /KAMPFTIEFE ===== */
+
+/* ===== Konten-Sync (js/ui/online.js): Cloud-Symbol, Konto-Fenster, Konflikt-Wahl ===== */
+.sync-badge { font-size: 15px; line-height: 1; font-family: inherit; }
+.sync-badge.s-ok { background: #3f7a52; }
+.sync-badge.s-wait { background: #8a5a32; }
+.sync-badge.s-warn { background: #b4572c; animation: syncPulse 2.4s ease-in-out infinite; }
+@keyframes syncPulse { 50% { filter: brightness(1.18); } }
+#sync-slot { display: inline-flex; align-items: center; }
+#sync-slot[hidden] { display: none !important; }
+#sync-slot .sync-badge.head { width: 30px; height: 28px; margin: 0 4px; font-size: 13px; }
+@media (max-width: 560px) {
+  header:not(.menu-open) .head-actions > #sync-slot:not([hidden]) { display: inline-flex !important; vertical-align: top; margin-right: 6px; }
+  header .head-actions > #sync-slot .sync-badge.head { width: 32px; height: 30px; }
+}
+.sync-acc, .sync-pop { text-align: left; }
+.sync-acc > .fpop-kicker, .sync-acc > h3, .sync-acc > .hint, .sync-pop > .fpop-kicker, .sync-pop > h3, .sync-pop > .hint { display: block; text-align: center; }
+.sync-acc > .btn.mini { display: flex; margin: 4px auto 8px; }
+.sync-sec { display: grid; gap: 6px; margin-top: 10px; padding: 10px 12px; border-radius: 10px; border: 2px dashed #e0cba2; background: #fffdf6; }
+.sync-sec.ok { border-style: solid; border-color: #7fb08a; background: #f3fbf2; }
+.sync-sec small { color: #7a6448; line-height: 1.4; }
+.sync-other summary { cursor: pointer; list-style: none; }
+.sync-other summary::-webkit-details-marker { display: none; }
+.sync-other summary::after { content: ' ›'; color: #b08a4a; }
+.sync-other[open] summary::after { content: ' ⌄'; }
+.sync-row { display: flex; gap: 6px; align-items: stretch; }
+.sync-row input { flex: 1; min-width: 0; font: inherit; font-size: 1rem; padding: 9px 11px; border-radius: 9px; border: 2px solid #e0cba2; background: #fff; color: #3a2a18; }
+.sync-row input:focus { outline: none; border-color: #c9a46a; }
+.sync-row .code-input { font-family: var(--px, monospace); letter-spacing: .18em; text-align: center; text-transform: uppercase; }
+.sync-row .btn.mini { flex: 0 0 auto; }
+.sync-msg { min-height: 1.2em; margin: 8px 0 0; font-size: .85rem; color: #9a4a22; text-align: center; }
+.sync-msg:empty { display: none; }
+.sync-pick { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+.sync-opt { all: unset; box-sizing: border-box; cursor: pointer; display: grid; gap: 3px; align-content: start; padding: 10px; border-radius: 12px; text-align: center;
+  background: linear-gradient(#fff6e0, #f0dcb0); border: 2px solid #8a5a2a; box-shadow: 0 3px 0 #6b4422; color: #4a3218; }
+.sync-opt:hover { background: linear-gradient(#fffaf0, #f6e4c0); }
+.sync-opt:active { transform: translateY(2px); box-shadow: 0 1px 0 #6b4422; }
+.sync-opt:focus-visible { outline: 3px solid #2f6fb0; outline-offset: 2px; }
+.sync-opt-h { font-size: .72rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: #9a7038; }
+.sync-opt b { font-size: .95rem; }
+.sync-opt small { font-size: .78rem; color: #7a6448; }
+.sync-fine { margin: 10px 0 0; font-size: .78rem; color: #8a7458; text-align: center; }
+@media (prefers-reduced-motion: reduce) { .sync-badge.s-warn { animation: none; } }
+/* ===== Ende Konten-Sync ===== */

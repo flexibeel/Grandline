@@ -98,7 +98,8 @@ GL.cloudSync = (function () {
     const base = o.base;
     if (base && base.sig) {
       if (base.sig === rs) return 'push';                     // nur hier geändert
-      if (base.sig === ls) return rt >= lt || !ahead(local, remote) ? 'pull' : 'ask';   // nur in der Cloud geändert
+      // Nur in der Cloud geändert: übernehmen, außer die Cloud ist klar leerer (z. B. altes Gerät, Zurücksetzen woanders)
+      if (base.sig === ls) return ahead(local, remote) ? 'ask' : 'pull';
     }
     // Beide geändert oder dieses Gerät kennt den Cloud-Stand nicht (neues Gerät, Browser geleert, gerade angemeldet)
     if (rt > lt) return ahead(local, remote) ? 'ask' : 'pull';
