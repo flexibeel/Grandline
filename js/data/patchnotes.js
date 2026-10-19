@@ -1,6 +1,11 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-20u', date: '19.10.', title: 'Nichts ragt mehr raus, jede Figur zählt', items: [
+    '🃏 Stammcrew-Karten zeigen jetzt die Fähigkeit jeder Figur (Symbol + Name, Tipp für Details) und „▲ Bonus“, wenn sie mit deiner Crew einen Bonus auslöst',
+    '🔒 Noch freizuspielen: Gesperrte Figuren stehen als Silhouette mit ihrer Fähigkeit und dem Weg dorthin. Crocodile wartet. Ungeduldig, aber er wartet',
+    '📱 Handy: Profil-Chip und Sprechblasen am Steg bleiben im Rahmen',
+    '📲 iPad: Im Run steckt alles in der Kapitänskajüte (☰), der Kopf ist schlanker, quer passt der Kampf ohne Scrollen. Größere Daumen-Knöpfe, Infos als feste Blase' ] },
   { v: '2026-10-20t', date: '19.10.', title: 'Auf Epic-Jagd', items: [
     '🎯 Beute-Atlas (Stammcrew): Jeder Meeres-Boss hütet ein eigenes Fundstück, zum Beispiel Smokers Jitte oder Kumas Bibelmantel. Es fällt nur bei ihm und nur als Episch oder Legendär',
     'Wunschliste: Bis zu drei Fundstücke als gesucht markieren. Der Boss lässt dann immer etwas fallen, öfter Episches, und meistens genau das',

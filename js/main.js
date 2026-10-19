@@ -47,7 +47,18 @@
     const m = (GL.config.moods || []).find(x => x.id === run.mood);
     if (m) setTimeout(() => toast(`<span><b>${m.icon} Laune der See: ${m.name}</b>${m.text}</span>`), 600);
   }
-  function draw() { autoArrange(); moodNote(); GL.ui.render(run, anim, ui); featureCheck(); livePos(); musicMode(); if (ui.petQueue && ui.petQueue.length) setTimeout(showPets, 450); autoGo(); }
+  function draw() { autoArrange(); moodNote(); GL.ui.render(run, anim, ui); featureCheck(); livePos(); musicMode(); if (ui.petQueue && ui.petQueue.length) setTimeout(showPets, 450); autoGo(); requestAnimationFrame(clampSay); }
+  setInterval(() => { if (document.querySelector('.sail-stage .ss-say')) clampSay(); }, 1200);
+  // FIX2: Sprechblasen der Crew am Steg bleiben im Bild (schmale Handys schoben sie links/rechts raus)
+  function clampSay() {
+    document.querySelectorAll('.sail-stage .ss-say').forEach(b => {
+      const st = b.closest('.sail-stage'); if (!st) return;
+      b.style.marginLeft = '0px';
+      const R = st.getBoundingClientRect(), r = b.getBoundingClientRect();
+      const dx = r.left < R.left + 4 ? R.left + 4 - r.left : r.right > R.right - 4 ? R.right - 4 - r.right : 0;
+      if (dx) b.style.marginLeft = Math.round(dx) + 'px';
+    });
+  }
   // UX1: Nach einem gewonnenen Kampf ohne offene Entscheidung kurz verweilen, dann von selbst weiter zur Route (Tippen überspringt)
   let autoGoT = null, autoGoKey = null;
   function autoGo() {
@@ -942,7 +953,7 @@
     document.querySelectorAll('.tt-open').forEach(x => { if (x !== tip) x.classList.remove('tt-open'); });
     if (tip) tip.classList.toggle('tt-open');
     // Touch: Info als feste Blase im Bildschirm statt CSS-Tooltip (der ragte am Handy aus der Seite und verschob die Leiste unten)
-    if (window.matchMedia && window.matchMedia('(hover: none)').matches) tapTip(tip && tip.classList.contains('tt-open') ? tip : null);
+    if (window.matchMedia && window.matchMedia('(hover: none), (pointer: coarse)').matches) tapTip(tip && tip.classList.contains('tt-open') ? tip : null);
   });
   // iOS 26: feste Leisten unten verrutschen (WebKit-Fehler nach Tastatur/Toolbar-Wechsel, teils bis zur Bildschirmmitte).
   // Umweg: die Leiste per JavaScript an den unteren Rand des SICHTBAREN Bereichs (visualViewport) heften.

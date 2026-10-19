@@ -2533,10 +2533,23 @@ window.GL = window.GL || {};
     const types = ['all'].concat(Object.keys(GL.data.types));
     const filt = `<div class="sqc-filter" role="tablist">${types.map(t => `<button class="sqc-f${flt === t ? ' on' : ''}" data-act="sq-filter" data-v="${t}">${t === 'all' ? 'Alle' : `${pxIcon(t)}${esc(GL.data.types[t].name)}`}</button>`).join('')}</div>`;
     const LIM = 12, all = uiRef && uiRef.sqAll, cut = !all && shown.length > LIM + 2;
+    // Was kann die Figur? Fähigkeit als Symbol + Name, und ob sie mit deiner Crew einen Bonus auslöst (FIX2)
+    const abIco = ab => { const m = (ab && ab.mods || []).reduce((o, x) => Object.assign(o, x), {});
+      return ab && ab.status ? '💫' : m.guard || m.armor ? '🛡' : m.dodge ? '💨' : m.crit || m.critMult ? '🗡' : m.regen || m.heal ? '✚' : m.bossPct ? '👑' : m.spd ? '➤' : m.dmgPct || m.atk ? '💥' : '✦'; };
+    const sqUnits = refs.map(r => { const d = dOf(r.id) || {}; return { id: r.id, type: r.id === 'self' ? profile.char.type : d.type, role: d.role || r.role, faction: d.faction || null }; });
+    const outU = weakest ? sqUnits.find(u => u.id === weakest.id) : null;
+    const fitOf = x => { if (x.on || x.id === 'self') return null; try { const g = gainList({ crew: sqUnits }, x.d, sqUnits.length >= (typeof N === 'function' ? N(profile) : N) ? outU : null).filter(g => g.st === 'up'); return g.length ? g : null; } catch (e) { return null; } };
+    const abLine = x => { const ab = x.id === 'self' ? null : GL.data.abilities[x.id]; if (!ab) return '';
+      const f = fitOf(x);
+      return `<span class="sqc-ab" data-act="noop" data-tip="${esc(ab.name + '\n' + ab.text + (x.d.faction && GL.data.factions[x.d.faction] ? '\nBande: ' + GL.data.factions[x.d.faction].name : '') + (f ? '\n▲ ' + f.map(g => g.x ? g.name : g.s.name).join(', ') : ''))}"><i>${abIco(ab)}</i>${esc(ab.name)}</span>${f ? '<em class="sqc-fit">▲ Bonus</em>' : ''}`; };
+    // Gesperrte Figuren als Silhouette mit Weg zum Freispielen
+    const lockedSq = (GL.data.unlocks || []).filter(u => !profile.unlocked.includes(u.unlock) && dOf(u.unlock)).slice(0, all ? 99 : 6);
+    const lockHtml = lockedSq.length ? `<div class="sqc-head sqc-lock-h"><b>🔒 Noch freizuspielen</b><small>${(GL.data.unlocks || []).filter(u => !profile.unlocked.includes(u.unlock)).length} Figuren</small></div><div class="sqc-grid sqc-locks">${lockedSq.map(u => { const d = dOf(u.unlock), ab = GL.data.abilities[u.unlock], pr = GL.meta.progress ? GL.meta.progress(profile, u) : { have: 0, need: 1 };
+      return `<div class="sqc locked" data-act="noop" data-tip="${esc(d.name + (ab ? ' · ' + ab.name + '\n' + ab.text : '') + '\nFreispielen: ' + u.text)}"><i class="sqc-spr">${GL.sprites.render(d)}</i><b>${esc(d.name)}</b>${ab ? `<span class="sqc-ab"><i>${abIco(ab)}</i>${esc(ab.name)}</span>` : ''}<small class="sqc-how">${esc(u.text)}${pr.need > 1 ? ` <em>${pr.have}/${pr.need}</em>` : ''}</small></div>`; }).join('')}</div>` : '';
     const coll = (cut ? shown.slice(0, LIM) : shown).map(x => `<button class="sqc${x.on ? ' on' : ''}${pick === x.id ? ' picked' : ''}${weakest && weakest.id === x.id ? ' weak' : ''}" data-act="sq-pick" data-id="${esc(x.id)}" data-sqcard="${esc(x.id)}">
         ${x.on ? '<span class="sqc-on">Dabei</span>' : delta(x)}${x.on && GL.cgear && GL.cgear.upgrades ? (n => n ? `<span class="up-badge sm" title="Bessere Ausrüstung in der Truhe">${PX_UPG}<b>${n}</b></span>` : '')(Object.keys(GL.cgear.upgrades(profile, x.id)).length) : ''}
         <i class="sqc-spr">${GL.sprites.render(x.d)}</i><b>${esc(x.d.name)}</b>
-        <span class="sqc-ty">${pxIcon(typeOf(x))}<small>♥${x.r.max} ⚔${x.r.atk}</small></span></button>`).join('') + (cut ? `<button class="sqc-more" data-act="sq-all">Alle ${shown.length} Karten zeigen</button>` : '');
+        <span class="sqc-ty">${pxIcon(typeOf(x))}<small>♥${x.r.max} ⚔${x.r.atk}</small></span>${abLine(x)}</button>`).join('') + (cut ? `<button class="sqc-more" data-act="sq-all">Alle ${shown.length} Karten zeigen</button>` : '');
     const w = profile.squadW || 0, l = profile.squadL || 0;
     const r0 = profile.squadRating == null ? 1000 : profile.squadRating, nx = GL.meta.leagues.find(x => x.min > r0);
     const pd = pick ? dOf(pick) : null;
@@ -2557,6 +2570,7 @@ window.GL = window.GL || {};
       <div class="sqc-head"><b>Deine Karten</b><small>${cards.length} Figuren · ${ids.length}/${N} dabei</small></div>
       ${filt}
       <div class="sqc-grid">${coll}</div>
+      ${lockHtml}
       <p class="hint">Freunde fordern deine Stammcrew in der Rangliste heraus, auch wenn du offline bist. Wer in einem Run, Duell oder Landgang dabei ist, wird vertrauter und bekommt Extra-Level (♥). ▲/▼ zeigt, wie viel stärker oder schwächer eine Karte als deine schwächste Figur wäre.</p>
     </section>`;
   }
