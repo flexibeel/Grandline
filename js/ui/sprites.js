@@ -269,6 +269,13 @@ window.GL = window.GL || {};
     '...HHHHHHHHHH...'
   ];
 
+  // Figuren-Meisterschaft Silber: zweites Outfit, nur für die Crew-Figur selbst (nicht für Gegner mit gleicher id)
+  function mlook(entry) {
+    const look = entry.look || {};
+    if (!GL.mastery || !GL.mastery.alt(entry.id)) return look;
+    const d = (GL.data.crew || []).find(c => c.id === entry.id);
+    return d && d === entry ? GL.mastery.altLook(look) : look;
+  }
   GL.sprites = {
     // Schiff mit eigenen Teilen (look = { sail, hull, flag, deco } aus GL.data.shipParts); ohne Angabe: das eigene Schiff
     ship(look) {
@@ -344,8 +351,9 @@ window.GL = window.GL || {};
       if (entry.art) return artSvg(entry.art, true);
       if (entry.monster && GL.art && GL.art.monsterArt) { const ma = GL.art.monsterArt(entry.monster); if (ma) return artSvg(ma, true); }
       if (entry.image) return `<img src="${entry.image}" alt="" class="sprite-img">`;
-      const key = 'sh:' + entry.id + ':' + JSON.stringify(entry.look || {});
-      if (!cache[key]) cache[key] = svgShaded(entry.look || {});
+      const lk = mlook(entry);
+      const key = 'sh:' + entry.id + ':' + JSON.stringify(lk);
+      if (!cache[key]) cache[key] = svgShaded(lk);
       return cache[key];
     },
     render(entry) {
@@ -355,8 +363,9 @@ window.GL = window.GL || {};
       if (entry.image) return `<img src="${entry.image}" alt="" class="sprite-img">`;
       // Der eigene Pirat kann sein Aussehen ändern: Aussehen gehört mit zum Schlüssel
       // Schlüssel mit Aussehen: Figuren mit gleicher id (z. B. Buggy als Gegner und als Crew) bleiben getrennt
-      const key = entry.id + ':' + JSON.stringify(entry.look || {});
-      if (!cache[key]) cache[key] = svg(entry.look || {});
+      const lk = mlook(entry);
+      const key = entry.id + ':' + JSON.stringify(lk);
+      if (!cache[key]) cache[key] = svg(lk);
       return cache[key];
     }
   };

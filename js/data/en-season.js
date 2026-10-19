@@ -64,3 +64,38 @@ Object.assign(GL.data.en, {
 });
 Object.assign(GL.data.en, { 'Kurs setzen': 'Set course', 'Automatisch verteilen': 'Distribute automatically' });
 Object.assign(GL.data.en, { 'Deine Crew ist gerade gesund': 'Your crew is healthy right now' });
+
+// END: Kopfgeld-Leiter und Meisterschaft
+Object.assign(GL.data.en, {
+  'Kopfgeld-Leiter': 'Bounty ladder', 'Wie hoch traust du dich?': 'How high do you dare?', 'Zurück an Deck': 'Back on deck',
+  'Gewinne auf deiner höchsten Stufe, dann wartet die nächste Sprosse. Jede Stufe legt eine Regel drauf und zahlt Berry. Die Marine führt Buch.': 'Win on your highest level and the next rung awaits. Every level adds a rule and pays Berry. The Marines keep records.',
+  'Meisterschaft': 'Mastery', 'Zähes Pack': 'Tough Crowd', 'Gegner heilen sich jede Runde ein wenig.': 'Enemies heal a little every round.',
+  'Nachschub ohne Ende': 'Endless Reinforcements', 'Gegnerwellen bringen einen Gegner mehr, Gegner +8 % Angriff.': 'Enemy waves bring one more foe, enemies +8 % attack.',
+  'Teure Häfen': 'Pricey Harbors', 'Die Taverne verlangt 25 % mehr.': 'The tavern charges 25 % more.',
+  'Gepanzerte Marine': 'Armored Marines', 'Gegner haben 1 Rüstung.': 'Enemies have 1 armor.',
+  'Mageres Kopfgeld': 'Lean Bounties', 'Siege bringen 20 % weniger Gold.': 'Wins pay 20 % less gold.',
+  'Scharfe Klingen': 'Sharp Blades', 'Gegner treffen öfter kritisch.': 'Enemies crit more often.',
+  'Kaiserliches Gefolge': 'Imperial Retinue', 'Bosse: ein Begleiter mehr und 20 % mehr Leben.': 'Bosses: one more escort and 20 % more health.',
+  'Ausgedörrt': 'Parched', 'Heilung nach Siegen noch einmal geringer.': 'Healing after wins drops even further.',
+  'Flinke Gegner': 'Nimble Foes', 'Gegner +1 Tempo.': 'Enemies +1 speed.',
+  'Stählerne Haut': 'Steel Skin', 'Gegner +1 Rüstung, +5 % Angriff und heilen sich mehr.': 'Enemies +1 armor, +5 % attack and heal more.',
+  'Sturmsaison': 'Storm Season', 'Gegner +20 % Leben und +12 % Angriff.': 'Enemies +20 % health and +12 % attack.',
+  'Ende der Welt': 'End of the World', 'Alle Gegner +20 % Leben, Bosse +25 % Leben und Angriff, noch mehr Nachschub.': 'All enemies +20 % health, bosses +25 % health and attack, even more reinforcements.',
+  'Kupferbeschlag': 'Copper Trim', 'Glühender Steckbrief': 'Glowing Wanted Poster', 'Klingenrand': 'Blade Edge', 'Sturmglas': 'Storm Glass',
+  'Gesucht': 'Wanted', 'Seebär': 'Old Salt', 'Yonko-Anwärter': 'Emperor Hopeful', 'Schrecken der zehnten Sprosse': 'Terror of the Tenth Rung',
+  'Zahlt keine Hafengebühr': 'Pays No Harbor Fees', 'Geizhals der Grand Line': 'Miser of the Grand Line', 'Kaiserjäger': 'Emperor Hunter',
+  'Wüstenläufer': 'Desert Walker', 'Sturmreiter': 'Storm Rider', 'Am Ende der Welt gewesen': 'Been to the End of the World',
+  'Lehrmeister': 'Mentor', 'Meister von Fünf': 'Master of Five', 'Großmeister der Bande': 'Grandmaster of the Crew',
+  'Strickleiter': 'Rope Ladder', 'Zähes Herz': 'Tough Heart', 'Ankerkette': 'Anchor Chain', 'Vier Kronen': 'Four Crowns', 'Schwarze Sonne': 'Black Sun',
+  'Meister-Figuren': 'master characters', 'Silber': 'Silver', 'Meister': 'Master'
+});
+GL.i18nExtraP = (GL.i18nExtraP || []).concat([
+  [/^Figuren sammeln Meisterschaft, wenn sie im Run dabei sind\. Bronze: Rahmen · Silber: zweites Outfit · Gold: Fähigkeit \+15 % · Meister: Titel\.$/, 'Characters gain mastery by joining runs. Bronze: frame · Silver: second outfit · Gold: ability +15 % · Master: title.'],
+  [/^Bronze: Rahmen · Silber: zweites Outfit · Gold: Fähigkeit \+15 % · Meister: Titel\.$/, 'Bronze: frame · Silver: second outfit · Gold: ability +15 % · Master: title.'],
+  [/^(Silber|Gold|Meister|Bronze)( · .+)?$/, (m, t, rest) => ({ Silber: 'Silver', Meister: 'Master', Gold: 'Gold', Bronze: 'Bronze' })[t] + (rest || '').replace(' · zweites Outfit', ' · second outfit').replace(' · Fähigkeit +15 %', ' · ability +15 %')],
+  [/^(.+) ist jetzt Meister\. Es hat sich nichts verändert, aber alle grüßen anders\.$/, '$1 is a master now. Nothing has changed, but everyone greets differently.'],
+  [/^(.+) hat ausgelernt\. Behauptet (.+)\.$/, '$1 has nothing left to learn. Says $2.'],
+  [/^Meister (.+)\. Die Möwen nicken anerkennend\.$/, 'Master $1. The gulls nod approvingly.'],
+  [/^(.+) ist Meister\. Das Abzeichen glänzt mehr als nötig\.$/, '$1 is a master. The badge shines more than necessary.'],
+  [/^Stufe (\d+)$/, 'Level $1']
+]);

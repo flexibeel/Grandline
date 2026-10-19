@@ -540,7 +540,8 @@ window.GL = window.GL || {};
     const R = GL.data.roles && GL.data.roles[d.role];
     const T = GL.data.types && GL.data.types[d.type];
     const rare = (o.stars || 0) >= 3;
-    return `<span class="card-face cf3 fac-${d.faction || 'none'} ty-${d.type}${o.gold ? ' frame-gold' : ''}${rare ? ' shiny' : ''}">
+    const mt = GL.mastery && profRef ? GL.mastery.tier(profRef, d.id) : 0;
+    return `<span class="card-face cf3 fac-${d.faction || 'none'} ty-${d.type}${o.gold ? ' frame-gold' : ''}${rare ? ' shiny' : ''}${mt ? ' ms-t' + mt : ''}">${mt ? `<span class="ms-corner">${masteryChip(profRef, d.id)}</span>` : ''}
       <span class="c3-top">
         <span class="c3-head"><span class="c3-fac${!fac && d.crewName ? ' own' : ''}">${fac ? pxIcon(d.faction, 'sm') + esc(FAC_SHORT[d.faction] || fac.name) : d.crewName ? '<i class="c3-jolly" aria-hidden="true"></i>' + esc(d.crewName) : 'Ohne Bande'}</span>${o.stars ? stars(o.stars) : ''}</span>
         ${cardStage(d)}
@@ -1127,6 +1128,51 @@ window.GL = window.GL || {};
 
   // ---------- Lage & Wetter: alles, was gerade auf der ganzen Etappe wirkt, in einem Abzeichen ----------
   const LAGE_SKY = { regen: { weather: 'rain' }, nebel: { weather: 'fog' }, schnee: { weather: 'snow' }, gewitter: { weather: 'storm' }, sturm: { weather: 'storm' }, vollmond: { time: 'night' }, abendrot: { time: 'dusk' }, ruhig: { time: 'night' } };
+  // ---------- END: Figuren-Meisterschaft ----------
+  const MS_COL = ['', '#c07a3a', '#aab4c2', '#e8c25a', '#9a5ad8'];
+  function masteryBadge(t) {
+    if (!t) return '';
+    const c = MS_COL[t], hi = t === 4 ? '#f2d24a' : '#fff8e6';
+    return `<i class="ms-b t${t}" aria-hidden="true"><svg viewBox="0 0 7 8" shape-rendering="crispEdges"><rect x="1" y="0" width="2" height="2" fill="#b8342a"/><rect x="4" y="0" width="2" height="2" fill="#2f5aa8"/><rect x="1" y="2" width="5" height="5" fill="${c}"/><rect x="0" y="3" width="7" height="3" fill="${c}"/><rect x="2" y="3" width="1" height="1" fill="${hi}"/><rect x="1" y="7" width="5" height="1" fill="rgba(0,0,0,.3)"/></svg></i>`;
+  }
+  function masteryChip(profile, id) {
+    if (!GL.mastery || !profile) return '';
+    const t = GL.mastery.tier(profile, id);
+    if (!t) return '';
+    const T = GL.mastery.TIERS[t - 1];
+    return `<span class="ms-chip t${t}" data-tip="${esc('Meisterschaft: ' + T.name + '\n' + GL.mastery.xpOf(profile, id) + ' EP' + (t < 4 ? ' · nächste Stufe bei ' + GL.mastery.TIERS[t].xp : ''))}">${masteryBadge(t)}</span>`;
+  }
+  const MASTER_LINES = ['{n} ist jetzt Meister. Es hat sich nichts verändert, aber alle grüßen anders.', '{n} hat ausgelernt. Behauptet {n}.', 'Meister {n}. Die Möwen nicken anerkennend.', '{n} ist Meister. Das Abzeichen glänzt mehr als nötig.'];
+  function masterLine(n) { let h = 0; for (const ch of String(n)) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return MASTER_LINES[h % MASTER_LINES.length].replace(/\{n\}/g, n); }
+  function masteryBook(profile) {
+    if (!GL.mastery) return '';
+    const c = GL.mastery.count(profile), total = GL.data.crew.filter(d => !d.hidden).length;
+    const any = c.slice(1).reduce((a, b) => a + b, 0);
+    const list = Object.keys(profile.mastery || {}).map(id => ({ id, d: GL.data.crew.find(x => x.id === id), t: GL.mastery.tier(profile, id), xp: GL.mastery.xpOf(profile, id) }))
+      .filter(x => x.d && x.t).sort((a, b) => b.xp - a.xp).slice(0, 12);
+    return `<h4 class="stb-sec">Meisterschaft <small>${c[4]}/${total} Meister</small></h4>
+      <div class="ms-book"><div class="ms-sum">${[1, 2, 3, 4].map(t => `<span class="ms-s t${t}">${masteryBadge(t)}<b>${c[t]}</b><small>${GL.mastery.TIERS[t - 1].name}</small></span>`).join('')}</div>
+      ${list.length ? `<div class="ms-list">${list.map(x => `<span class="ms-it" data-tip="${esc(x.d.name + ' · ' + x.xp + ' EP')}"><i>${GL.sprites.render(x.d)}</i>${masteryBadge(x.t)}</span>`).join('')}</div>` : ''}
+      <small class="ms-how">${any ? '' : 'Figuren sammeln Meisterschaft, wenn sie im Run dabei sind. '}Bronze: Rahmen · Silber: zweites Outfit · Gold: Fähigkeit +15 % · Meister: Titel.</small></div>`;
+  }
+  // ---------- END: Kopfgeld-Leiter ----------
+  function heatLadder(profile) {
+    const H = GL.data.heat || [], max = profile.heatMax || 0, cur = profile.heat || 0;
+    const C = GL.data.cosmetics || {};
+    const rewards = lvl => ['titles', 'frames', 'flags', 'backgrounds'].flatMap(k => (C[k] || []).filter(x => x.req && x.req.heat === lvl && Object.keys(x.req).length === 1).map(x => ({ k, name: x.name })));
+    const rwIco = { titles: '🏷', frames: '🖼', flags: '🏴', backgrounds: '🌅' };
+    const rows = H.slice().reverse().map(h => {
+      const st = h.lvl <= max ? (h.lvl === cur ? 'cur' : 'ok') : h.lvl === max + 1 ? 'next' : 'lock';
+      const rw = rewards(h.lvl), b = GL.data.heatReward ? GL.data.heatReward(h.lvl).berry : 0;
+      return `<div class="hl-rung ${st}${h.lvl % 5 === 0 ? ' big' : ''}" data-tip="${esc(h.name + '\n' + h.text + '\nBelohnung: ' + b + ' Berry' + (rw.length ? ', ' + rw.map(r => r.name).join(', ') : ''))}">
+        <b class="hl-n">${h.lvl}</b><i class="hl-ico">${h.icon || '🔥'}</i><span class="hl-name">${esc(h.name)}</span>
+        <span class="hl-rw">${rw.map(r => `<i title="${esc(r.name)}">${rwIco[r.k]}</i>`).join('')}${st === 'ok' || st === 'cur' ? '<em>✓</em>' : st === 'next' ? '<em>▲</em>' : '<em>🔒</em>'}</span></div>`;
+    }).join('');
+    return `<div class="fpop-card hl-pop"><span class="event-kicker">Kopfgeld-Leiter</span><h3>Wie hoch traust du dich?</h3>
+      <p class="hl-sub">Gewinne auf deiner höchsten Stufe, dann wartet die nächste Sprosse. Jede Stufe legt eine Regel drauf und zahlt Berry. Die Marine führt Buch.</p>
+      <div class="hl-mast"><div class="hl-rope" aria-hidden="true"></div>${rows}</div>
+      <div class="fpop-btns"><button class="btn" data-act="pop-close">Zurück an Deck</button></div></div>`;
+  }
   function lageItems(run) {
     if (!run || GL.run.isFinished(run)) return [];
     const en = GL.i18n && GL.i18n.lang() === 'en', out = [];
@@ -1136,6 +1182,8 @@ window.GL = window.GL || {};
     if (tw) out.push({ k: 'twist', icon: tw.icon, kick: en ? 'On this island' : 'Auf dieser Insel', name: en && tw.en ? tw.en[0] : tw.name, text: en && tw.en ? tw.en[1] : tw.text, raw: !!(en && tw.en) });
     const ep = run.epi && run.epi.part ? (GL.data.crewEpisodes || []).find(e => e.id === run.epi.id) : null;
     if (ep) out.push({ k: 'ep', icon: '📜', kick: en ? 'Episode' : 'Folge', name: (en ? ep.title[1] : ep.title[0]) + ' (' + Math.min(3, run.epi.part) + '/3)', text: en ? 'Your choices pay off before the villain.' : 'Deine Entscheidungen zahlen sich vor dem Bösewicht aus.', raw: true });
+    if (run.heat) { const HH = (GL.data.heat || []).filter(h => h.lvl <= run.heat);
+      out.push({ k: 'heat', icon: '🔥', kick: en ? 'Bounty ladder' : 'Kopfgeld-Leiter', name: (en ? 'Level ' : 'Stufe ') + run.heat, text: HH.map(h => (h.icon || '') + ' ' + h.name).join(' · '), raw: true }); }
     if (run.risk && GL.run.riskOf) { const R = GL.run.riskOf(run), P = v => Math.round(v * 100);
       out.push({ k: 'risk', icon: run.risk >= 2 ? '🌶' : '🧭', kick: en ? 'Your course' : 'Dein Kurs', name: run.risk >= 2 ? (en ? 'Rough island' : 'Ungemütliche Insel') : (en ? 'Lively island' : 'Ordentlich was los'),
         text: en ? `Foes +${P(R.foe)} %, gold and bounty +${P(R.gold)} %${R.drop ? ', the villain often drops an extra treasure' : ''}.` : `Gegner +${P(R.foe)} %, Gold und Kopfgeld +${P(R.gold)} %${R.drop ? ', der Bösewicht lässt oft einen Extra-Schatz fallen' : ''}.`, raw: true }); }
@@ -2171,7 +2219,9 @@ window.GL = window.GL || {};
           ? `<p><b>Neuer Bestwert: ${score} Punkte.</b></p>`
           : `<p>${score} Punkte.${best ? ` Dein Bestwert: ${best.score} Punkte.` : ''}</p>`;
         const heatUp = ui.profile && ui.profile.lastHeatUnlock
-          ? `<div class="heat-unlock"><span class="event-kicker">Neu freigeschaltet</span><b>Kopfgeld-Stufe ${ui.profile.lastHeatUnlock}: ${GL.data.heat[ui.profile.lastHeatUnlock - 1].name}</b><small>${GL.data.heat[ui.profile.lastHeatUnlock - 1].text} Dafür mehr Berry.</small></div>` : '';
+          ? `<div class="heat-unlock"><span class="event-kicker">Neu freigeschaltet</span><b>Kopfgeld-Stufe ${ui.profile.lastHeatUnlock}: ${GL.data.heat[ui.profile.lastHeatUnlock - 1].name}</b><small>${GL.data.heat[ui.profile.lastHeatUnlock - 1].text} Dafür mehr Berry.${ui.profile.lastHeatReward ? ` <b class="hl-rw">${GL.sprites.coin()} +${ui.profile.lastHeatReward}</b>` : ''}</small></div>` : '';
+        const mUps = (ui.profile && ui.profile.lastMastery) || [];
+        const mastHtml = mUps.length && GL.mastery ? `<div class="ms-ups">${mUps.map(m => `<span class="ms-up t${m.tier}">${masteryBadge(m.tier)}<b>${esc(m.name)}</b><small>${GL.mastery.TIERS[m.tier - 1].name}${m.tier === 4 ? ' · ' + esc(masterLine(m.name)) : m.tier === 2 ? ' · zweites Outfit' : m.tier === 3 ? ' · Fähigkeit +15 %' : ''}</small></span>`).join('')}</div>` : '';
         const berry = ui.lastBerry != null
           ? `<div class="berry-gain">${GL.sprites.coin()} <b>+${ui.lastBerry}</b> Berry für das Hauptquartier${(run.bestStreak || 0) >= 3 ? `<small class="streak-note">${PX_FLAME} Längste Kopfgeld-Serie: ${run.bestStreak} Siege (+${(run.bestStreak - 2) * 3} Berry)</small>` : ''}</div>` : '';
         const lr = ui.profile && ui.profile.lastRank;
@@ -2251,7 +2301,7 @@ window.GL = window.GL || {};
         const uxRew = (ui.runRewards || []).length ? `<details class="ux-rew"><summary>🎁 ${ui.runRewards.length} Profil-Belohnungen in diesem Run</summary><div class="ux-rew-list">${ui.runRewards.map(h => `<div class="toast ux-rew-it">${h}</div>`).join('')}</div></details>` : '';
         const uxActs = `<div class="end-actions ux-end-top">${canEndless ? `<button class="btn" data-act="endless">${pxIco('ship')}Weitersegeln</button>` : ''}<button class="btn big${canEndless ? ' ghost' : ''}" data-act="again">${pxIco('loop')}${run.daily ? 'Neuer Run' : run.duel ? 'Normaler Run' : 'Nochmal!'} ${keyHint('Leertaste')}</button>
           <button class="btn ghost" data-act="hq">${pxIco('anchor')}Hauptquartier ${keyHint('H')}</button></div>`;
-        return `<div class="ux-end">${head}${uxActs}${uxWhy}${uxNextHtml}</div><div class="ux-end-rest">${record}${berry}${rankHtml}${heatUp}${buildEnd}${duelHtml}${endlessHtml}${uxRew}${bond}${shardHtml}${cgHtml}${troHtml}${itemSum}${goals}</div>`;
+        return `<div class="ux-end">${head}${uxActs}${uxWhy}${uxNextHtml}</div><div class="ux-end-rest">${record}${berry}${rankHtml}${heatUp}${mastHtml}${buildEnd}${duelHtml}${endlessHtml}${uxRew}${bond}${shardHtml}${cgHtml}${troHtml}${itemSum}${goals}</div>`;
       }
     }
     return '';
@@ -2571,7 +2621,7 @@ window.GL = window.GL || {};
       return `<div class="sqc locked" data-act="noop" data-tip="${esc(d.name + (ab ? ' · ' + ab.name + '\n' + ab.text : '') + '\nFreispielen: ' + u.text)}"><i class="sqc-spr">${GL.sprites.render(d)}</i><b>${esc(d.name)}</b>${ab ? `<span class="sqc-ab"><i>${abIco(ab)}</i>${esc(ab.name)}</span>` : ''}<small class="sqc-how">${esc(u.text)}${pr.need > 1 ? ` <em>${pr.have}/${pr.need}</em>` : ''}</small></div>`; }).join('')}</div>` : '';
     const coll = (cut ? shown.slice(0, LIM) : shown).map(x => `<button class="sqc${x.on ? ' on' : ''}${pick === x.id ? ' picked' : ''}${weakest && weakest.id === x.id ? ' weak' : ''}" data-act="sq-pick" data-id="${esc(x.id)}" data-sqcard="${esc(x.id)}">
         ${x.on ? '<span class="sqc-on">Dabei</span>' : delta(x)}${x.on && GL.cgear && GL.cgear.upgrades ? (n => n ? `<span class="up-badge sm" title="Bessere Ausrüstung in der Truhe">${PX_UPG}<b>${n}</b></span>` : '')(Object.keys(GL.cgear.upgrades(profile, x.id)).length) : ''}
-        <i class="sqc-spr">${GL.sprites.render(x.d)}</i><b>${esc(x.d.name)}</b>
+        <i class="sqc-spr">${GL.sprites.render(x.d)}</i><b>${esc(x.d.name)}${masteryChip(profile, x.id)}</b>
         <span class="sqc-ty">${pxIcon(typeOf(x))}<small>♥${x.r.max} ⚔${x.r.atk}</small></span>${abLine(x)}</button>`).join('') + (cut ? `<button class="sqc-more" data-act="sq-all">Alle ${shown.length} Karten zeigen</button>` : '');
     const w = profile.squadW || 0, l = profile.squadL || 0;
     const r0 = profile.squadRating == null ? 1000 : profile.squadRating, nx = GL.meta.leagues.find(x => x.min > r0);
@@ -2628,7 +2678,7 @@ window.GL = window.GL || {};
     }).join('')}</div>` : '';
     return `<div class="fpop-card story-book" role="dialog"><span class="fpop-kicker">${en ? 'Story' : 'Story'}</span><h3 id="fpop-t">${en ? 'The Recipe from the End of the World' : 'Das Rezept vom Ende der Welt'}</h3>
       <p class="hint">${en ? 'Little scenes with your crew. A new chapter comes with your progress.' : 'Kleine Szenen mit deiner Crew. Mit deinem Fortschritt kommt ein neues Kapitel.'}</p>
-      <div class="stb-list">${rows}</div>${clipRows}
+      <div class="stb-list">${rows}</div>${clipRows}${masteryBook(profile)}
       <div class="fpop-btns"><button class="btn ghost" data-act="pop-close">${en ? 'Close' : 'Schließen'}</button></div></div>`;
   }
   // Vergleich zweier Teile Wert für Wert (neu gegen angelegt)
@@ -4773,11 +4823,12 @@ window.GL = window.GL || {};
     const H = GL.data.heat;
     // Kopfgeld-Stufe als kompakte Pille (Details im Tooltip)
     const heatTip = profile.heat ? H.filter(h => h.lvl <= profile.heat).map(h => `${h.name}: ${h.text}`).join(' · ') + ` · Dafür +${Math.round(profile.heat * GL.config.heatBonus.berry * 100)} % Berry, +${Math.round(profile.heat * GL.config.heatBonus.score * 100)} % Punkte` : 'Normale Schwierigkeit. Höher = schwerer, aber mehr Berry und Punkte.';
-    const heatBox = profile.heatMax > 0 ? `<div class="heat-pill" data-tip="${esc(heatTip)}">
-        <span>🔥 Kopfgeld-Stufe</span>
+    const heatBox = profile.heatMax > 0 ? `<div class="heat-pill">
+        <span data-tip="${esc(heatTip)}">🔥 Kopfgeld-Stufe</span>
         <button class="btn mini ghost" data-act="heat" data-d="-1" aria-label="Stufe senken"${profile.heat <= 0 ? ' disabled' : ''}>−</button>
         <b class="heat-num">${profile.heat}</b>
         <button class="btn mini ghost" data-act="heat" data-d="1" aria-label="Stufe erhöhen"${profile.heat >= profile.heatMax ? ' disabled' : ''}>+</button>
+        <button class="btn mini ghost hl-open" data-act="heat-ladder" aria-label="Kopfgeld-Leiter" title="Kopfgeld-Leiter">🪜</button>
       </div>` : GL.meta.level(profile) >= 3 && ((profile.stats && profile.stats.runs) || 0) >= 4 ? `<div class="heat-pill locked" data-tip="Gewinne einen Run, dann kannst du die Schwierigkeit erhöhen: mehr Berry, mehr Punkte.">🔒 Kopfgeld-Stufen</div>` : '';
 
     const rp = GL.meta.rankProgress(profile);
@@ -5137,6 +5188,7 @@ window.GL = window.GL || {};
   }
 
   GL.ui = {
+    heatLadder, masteryBook, masteryChip,
     cardStage, petArt,
     lagePop, lageSky,
     ffButton,

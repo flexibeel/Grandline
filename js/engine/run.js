@@ -119,13 +119,25 @@ window.GL = window.GL || {};
     const max0 = Math.max(5, d.hp + star.hp + (tb.hp || 0) + run.mod.hp
       + (offer.lvl - 1) * C.levelUp.hp + a.hp * C.point.hp);
     const max = run.sk && run.sk.hpPct ? Math.round(max0 * (1 + run.sk.hpPct)) : max0;   // Feinschliff: Zähigkeit
-    return {
+    const m = {
       id: d.id, type: d.type, role: d.role, faction: d.faction,
       trait: offer.trait, stars: offer.stars, lvl: offer.lvl, xp: 0, points: 0,
       hp: max, max,
       atk: Math.max(1, d.atk + star.atk + (tb.atk || 0) + run.mod.atk + a.atk * C.point.atk),
-      spd: Math.max(1, d.spd + (offer.jitter || 0) + (tb.spd || 0) + run.mod.spd + a.spd * C.point.spd)
+      spd: Math.max(1, d.spd + (offer.jitter || 0) + (tb.spd || 0) + run.mod.spd + a.spd * C.point.spd),
+      ...masterPower(run, d)
     };
+    if (m.masterAtk) { m.atk += m.masterAtk; delete m.masterAtk; }
+    return m;
+  }
+  // Meisterschaft Gold: Fähigkeit dieser Figur wirkt 15 % stärker (Wert aus abilities.js)
+  function masterPower(run, d) {
+    const M = run.start && run.start.masters;
+    if (!M || !M.includes(d.id)) return {};
+    const ab = GL.data.abilities && GL.data.abilities[d.id];
+    // Anteile (z. B. 0.3) werden 15 % stärker; ganze Zahlen (Anzahl, Runden) bleiben, dafür +1 Angriff
+    if (ab && typeof ab.value === 'number' && !Number.isInteger(ab.value)) return { power: Math.round(ab.value * 1.15 * 1000) / 1000, master: true };
+    return { master: true, masterAtk: 1 };
   }
 
   // Erfahrung nach einem Sieg verteilen. Gibt die Ergebnisse für die Anzeige zurück.
@@ -163,7 +175,8 @@ window.GL = window.GL || {};
     const S = GL.config.shop;
     if (run.shopFree) return 0;
     const d = byId(GL.data.crew, offer.id);
-    return S.base + S.perStar * ((offer.stars || 1) - 1) + S.perLevel * ((offer.lvl || 1) - 1) + (d && d.locked ? S.locked : 0);
+    const hc = 1 + ((run.H && run.H.shopCost) || 0);   // Kopfgeld-Leiter: teure Häfen
+    return Math.round((S.base + S.perStar * ((offer.stars || 1) - 1) + S.perLevel * ((offer.lvl || 1) - 1) + (d && d.locked ? S.locked : 0)) * hc);
   }
   function sellValue(u) {
     const S = GL.config.shop;
@@ -220,7 +233,7 @@ window.GL = window.GL || {};
   // Gold nach einem Sieg: fester Betrag je Kampfart plus Zinsen (je 10 Gold 1, höchstens 3)
   function earnGold(run, kind) {
     const S = GL.config.shop;
-    const base = Math.round((S.win[kind] || 0) * (run.mood === 'goldrausch' ? 1.4 : 1) * Math.max(0, 1 + ((twistOf(run) || {}).goldX || 0) + (riskOf(run).gold || 0) + ((run.sk && run.sk.goldPct) || 0)));
+    const base = Math.round((S.win[kind] || 0) * (run.mood === 'goldrausch' ? 1.4 : 1) * Math.max(0, 1 + ((twistOf(run) || {}).goldX || 0) + (riskOf(run).gold || 0) + ((run.sk && run.sk.goldPct) || 0) + ((run.H && run.H.goldMult) || 0)));
     const interest = Math.min(S.interestMax, Math.floor((run.gold || 0) / 10));
     run.gold = (run.gold || 0) + base + interest;
     run.lastGold = { base, interest };
@@ -394,7 +407,8 @@ window.GL = window.GL || {};
     return f ? Object.assign({}, H0, { enemyHp: H0.enemyHp + f, enemyAtk: H0.enemyAtk + f }) : H0;
   }
   function heatMods(level) {
-    const out = { enemyHp: 0, enemyAtk: 0, bossAtk: 0, bossHp: 0, enemySpd: 0, eliteMult: 0, bossEscort: 0, winHeal: 0, restHeal: 0 };
+    const out = { enemyHp: 0, enemyAtk: 0, bossAtk: 0, bossHp: 0, enemySpd: 0, eliteMult: 0, bossEscort: 0, winHeal: 0, restHeal: 0,
+      enemyRegen: 0, enemyArmor: 0, enemyCrit: 0, waveExtra: 0, shopCost: 0, goldMult: 0 };
     (GL.data.heat || []).filter(h => h.lvl <= level).forEach(h => {
       Object.keys(h.mod).forEach(k => { out[k] += h.mod[k]; });
     });
@@ -489,7 +503,7 @@ window.GL = window.GL || {};
     const waveOn = W && !gate && ((kind === 'battle' || kind === 'elite') ? !boss && (run.step || 0) >= (W.fromStep || 2) : kind === 'raid');
     if (waveOn) {
       const sea = islandIndex(run);
-      const n2 = kind === 'raid' ? (W.raidExtra || 2) : (W.extra || 2);
+      const n2 = (kind === 'raid' ? (W.raidExtra || 2) : (W.extra || 2)) + (H.waveExtra || 0);
       if (kind === 'raid') enemies.forEach(e => { if (e.boss) { e.max = e.hp = Math.round(e.max * (W.raidHp || 1)); } });
       let gp = gruntPool(run, sea);
       for (let i = 0; i < n2; i++) {
@@ -504,6 +518,14 @@ window.GL = window.GL || {};
         });
       }
     }
+    // Kopfgeld-Leiter: Rüstung, Krit und Selbstheilung der Gegner (wirkt über gb wie Ausrüstung)
+    if (H.enemyRegen || H.enemyArmor || H.enemyCrit) enemies.forEach(e => {
+      const gb = Object.assign({}, e.gb || {});
+      if (H.enemyRegen) gb.regen = (gb.regen || 0) + Math.max(1, Math.round(e.max * H.enemyRegen));
+      if (H.enemyArmor) gb.armor = (gb.armor || 0) + H.enemyArmor;
+      if (H.enemyCrit) gb.crit = (gb.crit || 0) + H.enemyCrit;
+      e.gb = gb;
+    });
     // Formation: das Gefolge steht vorne und schützt den Anführer (Boss / Kopfgeld-Ziel steht hinten)
     if (C.formation !== false) {
       const lead = enemies.filter(e => (e.boss || e.mini) && e.wave !== 2);
@@ -1279,7 +1301,9 @@ window.GL = window.GL || {};
           endlessSea: Number.isInteger(p.endlessSea) ? p.endlessSea : null,
           arts: (p.arts || []).map(a => ({ id: a.id, lvl: a.lvl })),
           items: (p.items || []).map(x => ({ uid: x.uid, id: x.id, r: x.r, lvl: x.lvl || 0 })),
-          skills: skillBonus(p.skills)
+          skills: skillBonus(p.skills),
+          // Figuren-Meisterschaft Gold+: Fähigkeit etwas stärker (nur ids, aus dem Profil)
+          masters: Array.isArray(p.masters) ? p.masters.filter(x => typeof x === 'string').slice(0, 80) : []
         },
         bonus: {
           restHeal: upgradeTotal(up, 'restHeal'), choices: upgradeTotal(up, 'choices'),
