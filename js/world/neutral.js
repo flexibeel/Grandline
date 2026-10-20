@@ -65,6 +65,7 @@ GL.worlds.neutral = {
     'CP9': 'Schattenkorps',
     // ---------- Crew ----------
     'Ruffys': 'Rafes', 'Ruffy': 'Rafe',
+    'Zorros': 'Sorens', 'Namis': 'Nelas', 'Lysops': 'Lasses', 'Sanjis': 'Santos', 'Choppers': 'Pipos', 'Robins': 'Rubinas', 'Frankys': 'Bolzens', 'Brooks': 'Brunos', 'Vivis': 'Vinas', 'Jinbeis': 'Jonahs', 'Aces': 'Aschs',
     'Zorro': 'Soren', 'Nami': 'Nela', 'Lysop': 'Lasse', 'Sanji': 'Santo', 'Chopper': 'Pipo',
     'Robin': 'Rubina', 'Franky': 'Bolzen', 'Brook': 'Bruno', 'Garp': 'Grimm', 'Hina': 'Hilde',
     'Tashigi': 'Tessa', 'Koby': 'Kian', 'Kalifa': 'Kalina', 'Kumadori': 'Kordo', 'Blueno': 'Blaun',

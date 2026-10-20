@@ -1,6 +1,10 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-21n', date: '20.10.', title: 'Willkommen auf der Great Line', items: [
+    '🗺 Unsere eigene Welt: Das Spiel heißt jetzt The Great Line. Neue Namen für Crew, Inseln, Bösewichte und Früchte. Dein Fortschritt bleibt komplett',
+    '⛵ Schneller rein: Neue Piraten wählen erst nur Aussehen und Namen, die Einführung ist kürzer, und die ersten Kämpfe starten direkt',
+    '💡 Namis Tipps verdecken am Handy nichts mehr, und das Level-up erklärt nur noch, was man wirklich tun muss' ] },
   { v: '2026-10-21m', date: '20.10.', title: 'Besuch von ganz oben', items: [
     '✨ Wer schon dabei war, bekommt Besuch am Steg. Von wem, verraten wir nicht. Er verrät es auch nur ungefähr',
     '⛵ Neuer Ladescreen: Ein kleines Schiff schaukelt, bis alles bereit ist. Zorro sucht derweil den Hafen',
