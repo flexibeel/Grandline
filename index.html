@@ -30,8 +30,56 @@
   // Vorerst nur das helle Clean-Design (Dunkelmodus war nur halb umgebaut). Alte Einstellung entfernen.
   try { localStorage.removeItem('grandline.theme'); } catch (e) {}
 </script>
+<style>
+  /* Ladescreen: steht im HTML, damit er sofort da ist, und verschwindet, sobald das Spiel geladen ist (keine künstliche Wartezeit) */
+  #boot { position: fixed; inset: 0; z-index: 99999; display: grid; place-items: center; background: linear-gradient(#bfe3f2 0, #e9f5f8 55%, #f6efe2 55%); transition: opacity .35s ease; font-family: "Pixelify Sans", "Fredoka", system-ui, sans-serif; color: #4a2e16; }
+  #boot.gone { opacity: 0; pointer-events: none; }
+  #boot .bt-box { display: grid; justify-items: center; gap: 10px; padding: 16px; text-align: center; }
+  #boot .bt-sea { position: relative; width: 168px; height: 92px; overflow: hidden; }
+  #boot .bt-ship { position: absolute; left: 50%; bottom: 14px; width: 84px; margin-left: -42px; animation: btBob 1.6s ease-in-out infinite; image-rendering: pixelated; }
+  #boot .bt-wave { position: absolute; left: 0; bottom: 0; width: 336px; height: 20px; animation: btWave 2.4s linear infinite; image-rendering: pixelated; }
+  #boot b { font-size: 1.6rem; font-weight: 600; letter-spacing: .02em; }
+  #boot small { font: 600 .82rem/1.3 "Nunito", system-ui, sans-serif; color: #8a6a44; min-height: 1.3em; max-width: 300px; }
+  #boot .bt-dots i { display: inline-block; width: 6px; height: 6px; margin: 0 3px; background: #c8964a; animation: btDot 1s steps(2) infinite; }
+  #boot .bt-dots i:nth-child(2) { animation-delay: .2s; } #boot .bt-dots i:nth-child(3) { animation-delay: .4s; }
+  @keyframes btBob { 0%, 100% { transform: translateY(0) rotate(-2deg); } 50% { transform: translateY(-4px) rotate(2deg); } }
+  @keyframes btWave { to { transform: translateX(-168px); } }
+  @keyframes btDot { 50% { opacity: .25; } }
+  @media (prefers-reduced-motion: reduce) { #boot .bt-ship, #boot .bt-wave, #boot .bt-dots i { animation: none; } }
+</style>
 </head>
 <body>
+<div id="boot" role="status" aria-live="polite">
+  <div class="bt-box">
+    <div class="bt-sea" aria-hidden="true">
+      <svg class="bt-ship" viewBox="0 0 28 24" shape-rendering="crispEdges">
+        <rect x="13" y="1" width="1" height="16" fill="#4a2e16"/><rect x="14" y="1" width="4" height="3" fill="#c0392b"/>
+        <path fill="#fffaf0" d="M7 4h6v11H5v-2h1v-3h1z"/><path fill="#e8dcc0" d="M5 13h8v2H5z"/>
+        <path fill="#8a5a2a" d="M2 16h24v2h-1v2h-1v1H5v-1H4v-2H3v-2H2z"/><path fill="#6b4422" d="M4 19h20v1h-1v1H5v-1H4z"/>
+        <rect x="7" y="17" width="1" height="1" fill="#f2d24a"/><rect x="12" y="17" width="1" height="1" fill="#f2d24a"/><rect x="17" y="17" width="1" height="1" fill="#f2d24a"/>
+      </svg>
+      <svg class="bt-wave" viewBox="0 0 48 3" preserveAspectRatio="none" shape-rendering="crispEdges">
+        <path fill="#5aa9d6" d="M0 1h3V0h3v1h6V0h3v1h6V0h3v1h6V0h3v1h6V0h3v1h3v2H0z"/><path fill="#3f8cc0" d="M0 2h48v1H0z"/>
+      </svg>
+    </div>
+    <b>Grand Line</b>
+    <small id="boot-tip">Die Crew macht das Schiff klar …</small>
+    <span class="bt-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+  </div>
+</div>
+<script>
+  (function () {
+    var tips = ['Die Crew macht das Schiff klar …', 'Zorro sucht noch den Weg zum Hafen …', 'Nami zählt die Berry nach. Zweimal …', 'Ruffy hat den Proviant gefunden. Das war der Proviant …', 'Kalle sortiert die Zeitungen nach Klatsch …', 'Die Möwen werden gefüttert …'];
+    var en = /^en/i.test(navigator.language || '') && !/^de/i.test(navigator.language || '');
+    if (en) tips = ['The crew is getting the ship ready …', 'Zoro is still looking for the harbor …', 'Nami is counting the berries. Twice …', 'Luffy found the supplies. Those were the supplies …'];
+    var el = document.getElementById('boot-tip'), k = Math.floor(Math.random() * tips.length);
+    el.textContent = tips[k];
+    var t = setInterval(function () { k = (k + 1) % tips.length; el.textContent = tips[k]; }, 2200);
+    function hide() { var b = document.getElementById('boot'); if (!b || b.classList.contains('gone')) return; clearInterval(t); b.classList.add('gone'); setTimeout(function () { b.remove(); }, 400); }
+    window.addEventListener('load', hide);
+    setTimeout(hide, 12000);   // Sicherheitsnetz, falls ein Bild oder eine Schrift hängt
+  })();
+</script>
 <main>
   <header>
     <h1>Grand Line</h1>
