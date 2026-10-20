@@ -12,7 +12,7 @@ begin
     where is_anonymous = true
       and coalesce(last_sign_in_at, created_at) < now() - interval '60 days'
   ), del as (
-    delete from public.scores s using old where s.id = old.id::text returning 1
+    delete from public.scores s using old where s.id = old.id returning 1
   )
   select count(*) into n from del;
   delete from auth.users where is_anonymous = true and coalesce(last_sign_in_at, created_at) < now() - interval '60 days';
