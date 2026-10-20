@@ -1132,8 +1132,12 @@ window.GL = window.GL || {};
           if (special) run.charge = 0;
           // FUN: Kapitänsbefehle und Fokusziel kommen mit der Aktion (Replays rechnen sie genauso nach)
           const RC = ['rally', 'guard', 'burst', 'focus'];
-          const cmds = (Array.isArray(a.cmds) ? a.cmds : []).filter(c => c && RC.includes(c.cmd) && Number.isInteger(c.at) && c.at > 0 && c.at < 999).slice(0, 12)
-            .map(c => (c.cmd === 'focus' ? { at: c.at, cmd: 'focus', to: Math.max(0, Math.min(9, c.to | 0)) } : { at: c.at, cmd: c.cmd }));
+          const okCmd = c => c && Number.isInteger(c.at) && c.at > 0 && c.at < 999;
+          const all0 = Array.isArray(a.cmds) ? a.cmds : [];
+          // SKILL: Paraden (Tippen im richtigen Moment) zählen extra, damit sie keine Befehle verdrängen
+          const cmds = all0.filter(c => okCmd(c) && RC.includes(c.cmd)).slice(0, 12)
+            .map(c => (c.cmd === 'focus' ? { at: c.at, cmd: 'focus', to: Math.max(0, Math.min(9, c.to | 0)) } : { at: c.at, cmd: c.cmd }))
+            .concat(all0.filter(c => okCmd(c) && c.cmd === 'parry').slice(0, 12).map(c => ({ at: c.at, cmd: 'parry', q: c.q === 2 ? 2 : 1 })));
           const focus = run.pending.focus != null ? run.pending.focus : null;
           const res = GL.battle.simulate(run, run.crew, enemies.filter(e => e.wave !== 2), run.pending.kind, { special, reserve, turns: true, cmds, focus, burst: GL.battle.burstKind ? GL.battle.burstKind(run.crew) : 'strike' });
           // Werte für die Rangliste: Schaden, härtester Treffer, K.o.s, Krits

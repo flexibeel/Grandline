@@ -784,6 +784,9 @@ window.GL = window.GL || {};
     const cmdBuff = [];
     let turnNo = 0;
     let FOCUS = !DUEL && o.focus != null && enemies[o.focus] ? enemies[o.focus] : null;
+    // SKILL: Parade. Tippt der Spieler im richtigen Moment, fängt die Crew den angekündigten schweren Schlag ab.
+    // q 2 = perfekt (kein Schaden, Boss taumelt), q 1 = knapp (Schaden stark gedämpft). Gilt nur für den Zug, in dem der Schlag kommt.
+    let PARRY = null;
     M = mechSetup();
     function cmdTurn() {
       for (let k = cmdBuff.length - 1; k >= 0; k--) if (cmdBuff[k].until < turnNo) { const b = cmdBuff[k]; if (b.guard) b.u.guard = Math.max(0, (b.u.guard || 0) - b.guard); else b.u.atk = Math.max(1, b.u.atk - b.add); cmdBuff.splice(k, 1); }
@@ -817,6 +820,7 @@ window.GL = window.GL || {};
 
     // Kapitänsbefehle im Run (FUN). Wirken vor dem genannten Zug.
     function runCmd(c, team, foes) {
+      if (c.cmd === 'parry') { PARRY = { t: turnNo, q: c.q === 2 ? 2 : 1 }; return; }
       if (c.cmd === 'focus') {
         const t = enemies[c.to];
         if (t && t.hp > 0) { FOCUS = t; events.push({ k: 'cmd', cmd: 'focus', side: 'crew', to: idx(t) }); }
@@ -974,6 +978,7 @@ window.GL = window.GL || {};
           if (FX) dmg *= FX.dmgMult(u, target);
           if (behindGuards(u, target)) dmg *= FM.ranged;
           const heavy = u.wind === 2 && u.side === 'enemy';
+          const parried = heavy && PARRY && PARRY.t === turnNo ? PARRY.q : 0;
           if (heavy) { dmg *= BF.windup; u.wind = 0; }
           const rawDmg = Math.max(1, Math.round(dmg));
           { const base = Math.round(dmg * (1 - Math.min(0.6, target.guard || 0))); dmg = Math.max(1, Math.round(base * 0.2), base - (expose ? 0 : target.armor) * (heavy ? 2 : 1)); }   // Rüstung schluckt höchstens 80 %
@@ -982,6 +987,7 @@ window.GL = window.GL || {};
           let blocked = false;
           let miss = false;
           if (u.side === 'enemy' && firstBlock > 0) { blocked = true; firstBlock--; dmg = 0; }
+          else if (parried === 2) dmg = 0;
           else if ((target.dodge || 0) + wxMiss > 0 && R.float(run) < Math.min(DCAP, ((target.dodge || 0) + wxMiss) * (heavy ? 2 : 1))) { miss = true; dmg = 0; }   // Deckel: höchstens 60 % Ausweichen (STATS: config.caps.dodge, Überlauf = Schutz, siehe effects.js)
 
           // Volltreffer: seltener Glücksschlag der eigenen Crew
@@ -989,6 +995,7 @@ window.GL = window.GL || {};
           if (dmg > 0 && u.side === 'crew' && R.float(run) < (C.luckyHit || 0)) { lucky = true; dmg = Math.round(dmg * 2.5); }
           // KAMPFTIEFE: Standhaft – ein Brecher der Crew übersteht einmal pro Kampf einen tödlichen Treffer mit 1 Leben
           if (u.side === 'enemy' && dmg > 0) dmg = foeCap(target, dmg, heavy);   // GEGNER-WERTE: kein Einzeltreffer über den Deckel (Ankündigung darf mehr)
+          if (parried === 1 && dmg > 0) dmg = Math.max(1, Math.round(dmg * (BF.parryKeep != null ? BF.parryKeep : 0.35)));
           let stand = false;
           if (KT && CH.stand !== false && dmg > 0 && target.side === 'crew' && target.role === 'brecher' && !target.stood && target.hp > 1 && target.hp >= target.max * (CH.standAt || 0) && dmg >= target.hp) { dmg = target.hp - 1; target.stood = true; stand = true; }
           damage(target, dmg);
@@ -996,11 +1003,21 @@ window.GL = window.GL || {};
           if (dmg > 0) charge(target, U.gainHurt);
           const eff = mult > 1 ? 'strong' : mult < 1 ? 'weak' : '';
           const flank = u.flank; u.flank = undefined;
-          events.push({ k: 'hit', side: u.side, from: idx(u), to, dmg, crit: crit && dmg > 0, lucky, eff, blocked, miss, hp: target.hp, heavy: heavy || undefined, flank: flank || undefined,
+          events.push({ k: 'hit', side: u.side, from: idx(u), to, dmg, crit: crit && dmg > 0, lucky, eff, blocked, miss, hp: target.hp, heavy: heavy || undefined, par: parried || undefined, flank: flank || undefined,
             ea: u.ult ? u.energy : null, et: target.ult ? target.energy : null, ab: !miss && !blocked && absorbed > 0 ? absorbed : undefined,
             op: opening && dmg > 0 || undefined, xp: expose && dmg > 0 || undefined, stand: stand || undefined, mk: KT && u.side === 'crew' && u.type === 'technik' && dmg > 0 && target.hp > 0 && blades() || undefined });
           if (KT && u.side === 'crew' && crit && dmg > 0) moAdd(1);
           if (stand) moAdd(1);
+          // Perfekte Parade: der Boss taumelt (setzt einen Zug aus) und ist kurz geschwächt, der Pariernde lädt seine Ulti
+          if (parried) {
+            PARRY = null;
+            if (parried === 2 && u.hp > 0) {
+              u.status.stun = true;
+              const got = addStatus(u, 'weak', BF.parryWeak || 2);
+              if (got) events.push({ k: 'status', side: 'enemy', list: [got], by: target.id, par: true });
+              if (target.hp > 0) charge(target, U.gainHit);
+            }
+          }
 
           // „Für den Boss!“: Trifft die Crew den Anführer, wird sein Gefolge einmal pro Kampf wütend
           if (!pvp && FM.on && !rallied && dmg > 0 && u.side === 'crew' && isLead(target)) {
