@@ -1,6 +1,13 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-21o', date: '20.10.', title: 'Klar Schiff', items: [
+    '🍈 Frucht-Wege: Findest du eine Frucht ein zweites Mal, wählst du einen von zwei Wegen. Flächenbrand oder Glut? Deine Entscheidung',
+    '★ Legendäre Ausrüstung hat jetzt eigene Effekte mit Namen, vom Zweischneidigen Säbel bis zur Bordküche. Beim Fund glänzt es kurz golden',
+    '💬 Duo-Partner in der Crew reden jetzt zu Kampfbeginn miteinander. Nicht immer klug, aber immer ehrlich',
+    '⚔ Aufgeräumte Kampfbühne: Kampfwetter als kleine Plakette, Rundenschild aus Holz, niemand steht mehr übereinander, Porträts in den Kärtchen',
+    '🧭 Im ersten Meer wächst die Crew Schritt für Schritt (3, 4, 5, dann 6). Die ersten Minuten bleiben spannend',
+    '🎨 Pirat-Editor mit Pixel-Farbfeldern, Boni-Fenster klarer, Hinweise warten, bis Fenster zu sind, ein paar Texte neu geschrieben' ] },
   { v: '2026-10-21n', date: '20.10.', title: 'Willkommen auf der Great Line', items: [
     '🗺 Unsere eigene Welt: Das Spiel heißt jetzt The Great Line. Neue Namen für Crew, Inseln, Bösewichte und Früchte. Dein Fortschritt bleibt komplett',
     '⛵ Schneller rein: Neue Piraten wählen erst nur Aussehen und Namen, die Einführung ist kürzer, und die ersten Kämpfe starten direkt',
