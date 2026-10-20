@@ -5290,6 +5290,7 @@ window.GL = window.GL || {};
       const titleEl = $('#title');
       titleEl.hidden = !ui.screen;
       document.body.classList.toggle('on-title', !!ui.screen);
+      document.body.classList.toggle('in-battle', !!(run && run.phase === 'battle' && !ui.screen));
       seenRef = ui.profile && ui.profile.seen; profRef = ui.profile || null;
       document.body.classList.toggle('in-room', !run && !ui.screen && !!ui.hqRoom && !!ui.profile && GL.meta.featureOpen(ui.profile, ui.hqRoom));
       // Feste Leiste unten (nur im Hauptquartier): Hafen, Aufträge, Stammcrew, Rangliste, Kapitänsbuch

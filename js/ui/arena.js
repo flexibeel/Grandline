@@ -439,8 +439,9 @@ window.GL = window.GL || {};
   // Crew vorne links auf ihrer Plattform, Gegner hinten rechts. Die Liste darunter
   // bleibt als Anzeige für Leben und Zustände, das Feld zeigt die Bewegung.
   // Alle stehen auf einer gemeinsamen Bodenlinie: vorne Reihe 1, dahinter versetzt Reihe 2
-  const CREW_SLOTS = [[38, 6], [25, 10], [12, 14], [44, 20], [31, 23], [18, 26], [6, 28]];   // BATTLE2: stärker gestaffelt = mehr Tiefe
-  const FOE_SLOTS  = [[62, 6], [75, 10], [88, 14], [56, 20], [69, 23], [82, 26]];
+  // Kampfbühne: vordere Reihe weiter auseinander (je 15 %), damit sich am Handy niemand mehr überlappt
+  const CREW_SLOTS = [[40, 6], [25, 12], [10, 18], [46, 22], [32, 25], [18, 28], [6, 30]];
+  const FOE_SLOTS  = [[60, 6], [75, 12], [90, 18], [54, 22], [68, 25], [82, 28]];
   // Kulisse je Insel (sonst nach Meer)
   const THEME = {
     'shells-town': 'town', 'orange-town': 'town', 'loguetown': 'town', 'whisky-peak': 'town',
@@ -633,6 +634,22 @@ window.GL = window.GL || {};
     const c = document.createElement('div');
     c.className = 'ult-call ' + cls; c.innerHTML = html;
     field.appendChild(c); setTimeout(() => c.remove(), ms || 1600);
+  }
+  // Kampfbühne: Kampfwetter als kleine Plakette oben rechts statt Spruchband über den Figuren.
+  // Zu Beginn kurz aufgeklappt, danach nur der Name; Antippen klappt die Erklärung auf und zu.
+  function wxChip(field, ev, peek) {
+    const esc = s => String(s == null ? '' : s).replace(/[<>&"]/g, '');
+    let c = field.querySelector('.f-wx');
+    if (!c) {
+      c = document.createElement('button');
+      c.type = 'button'; c.className = 'f-wx';
+      c.addEventListener('click', e => { e.stopPropagation(); const o = !c.classList.contains('open'); c.classList.toggle('open', o); c.setAttribute('aria-expanded', o ? 'true' : 'false'); });
+      field.appendChild(c);
+    }
+    c.innerHTML = `<i class="wx-ico" aria-hidden="true"></i><span class="wx-txt"><small>Kampfwetter</small><b>${esc(ev.name)}</b><em>${esc(ev.text)}</em></span>`;
+    c.setAttribute('aria-expanded', peek ? 'true' : 'false');
+    c.classList.toggle('open', !!peek);
+    if (peek) setTimeout(() => { if (c.isConnected) { c.classList.remove('open'); c.setAttribute('aria-expanded', 'false'); } }, 2600);
   }
   // Der letzte Treffer: kurzes Einfrieren, Zoom, großes K.O.
   function finale(side, i) {
@@ -881,6 +898,8 @@ window.GL = window.GL || {};
       window.__glRun = run;
       // Einlauf-Animation nur einmal pro Kampf
       const fieldEl = $('#field');
+      // Kampfbühne: nach dem Kampf (oder beim Neuzeichnen) bleibt die Wetter-Plakette zugeklappt sichtbar
+      if (run.battle && fieldEl && waveDone) { const wev = (run.battle.events || []).find(e => e.k === 'weather'); if (wev) wxChip(fieldEl, wev, false); }
       if (run.battle && fieldEl && !run.battle.shown) {
         run.battle.shown = true;
         waveIn.clear();
@@ -1049,8 +1068,7 @@ window.GL = window.GL || {};
         fx('fx-slash', center(fu('crew', ev.to)), 500); pulse(fu('crew', ev.to), 'hurt');
         fieldFloat('crew', ev.to, '-' + ev.dmg, 'crit'); setHp('crew', ev.to, ev.hp);
       } else if (ev.k === 'weather') {
-        banner('us wx', `<small>Kampfwetter</small><b>${ev.name}</b><em>${ev.text}</em>`, 1900);
-        const fld = $('#field'); if (fld) fld.classList.add('wx-' + ev.id);
+        const fld = $('#field'); if (fld) { fld.classList.add('wx-' + ev.id); wxChip(fld, ev, true); }
       } else if (ev.k === 'rage' && ev.phase === 3) {
         const d = enemyData(ev.by) || crewData(ev.by);
         banner('them rage final', `<small>Endphase</small><b>${d ? d.name : 'Der Boss'} setzt alles auf eine Karte!</b><em>Ulti voll geladen</em>`, 1800);

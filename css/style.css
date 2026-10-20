@@ -9943,3 +9943,27 @@ em.type.t-technik { background: #5b86b3 !important; }
 }
 /* Erster Run: Kapitänsbefehle im Kampf noch ausgeblendet, die Crew kämpft allein. Ab Run 2 sind sie da. */
 body.gl-newbie .rc-bar { display: none; }
+/* ===== Kampfbühne (Probestück 20.10.): Rundenschild aus Holz, Wetter-Plakette oben rechts, kein Hinweistext im Kampf ===== */
+#field .f-round { top: 8px; left: 8px; padding: 3px 9px 4px; border-radius: 3px; background: #6b4226; border: 2px solid #4a2d18;
+  box-shadow: 0 2px 0 #4a2d18; color: #fff3d6; font-family: "Pixelify Sans", var(--px); font-weight: 600; font-size: .8rem;
+  letter-spacing: .04em; text-transform: uppercase; line-height: 1.2; }
+#field .f-wx { position: absolute; top: 8px; right: 8px; z-index: 460; display: flex; align-items: flex-start; gap: 6px;
+  max-width: min(58%, 260px); min-height: 28px; padding: 5px 9px 5px 7px; margin: 0; border-radius: 3px; background: #fffdf6;
+  border: 2px solid #4a2d18; box-shadow: 0 2px 0 #4a2d18; color: #332a21; text-align: left; cursor: pointer; font: inherit; }
+#field .f-wx .wx-ico { flex: none; width: 16px; height: 10px; margin-top: 3px; image-rendering: pixelated;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 5' shape-rendering='crispEdges'%3E%3Crect x='0' y='0' width='2' height='1' fill='%234a5560'/%3E%3Crect x='6' y='0' width='2' height='1' fill='%234a5560'/%3E%3Crect x='1' y='1' width='2' height='1' fill='%234a5560'/%3E%3Crect x='5' y='1' width='2' height='1' fill='%234a5560'/%3E%3Crect x='3' y='2' width='2' height='1' fill='%234a5560'/%3E%3Crect x='3' y='3' width='2' height='1' fill='%23f2c94c'/%3E%3C/svg%3E") center / contain no-repeat; }
+#field .f-wx .wx-txt { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+#field .f-wx small { display: none; font-family: "Pixelify Sans", var(--px); font-weight: 600; font-size: .66rem; letter-spacing: .06em; text-transform: uppercase; color: #7a5a1e; }
+#field .f-wx b { font-family: "Pixelify Sans", var(--px); font-weight: 600; font-size: .8rem; line-height: 1.2; }
+#field .f-wx em { display: none; font-style: normal; font-weight: 700; font-size: .74rem; line-height: 1.3; color: #5c4f3e; }
+#field .f-wx.open small, #field .f-wx.open em { display: block; }
+#field .f-wx:focus-visible { outline: 2px solid #f2c94c; outline-offset: 2px; }
+@media (min-width: 900px) { #field .f-round { font-size: .9rem; } #field .f-wx b { font-size: .9rem; } #field .f-wx em { font-size: .8rem; } }
+/* Figuren pixelgenau, ohne Weichzeichnen */
+#field .fu-body svg, #arena .spr { shape-rendering: crispEdges; image-rendering: pixelated; }
+/* Im Kampf lenkt der Hinweis unten nur ab */
+body.in-battle footer.fan { display: none; }
+/* Tempo steht schon unten in der Holzleiste, das Schild im Feld würde die Wetter-Plakette verdecken */
+#field[data-speed]::after { display: none !important; }
+/* Kampf-Log: genau eine Zeile, ohne dass die zweite halb durchscheint */
+.stage:has(#field) #log { display: block; height: 1.35em; line-height: 1.35; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
