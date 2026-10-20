@@ -134,6 +134,7 @@ GL.data.storyLaunch = [
       ['dev', 'Ich bin …', 'I am …', '', 'dramatic'],
       ['dev', '… ich.', '… me.', ''],
       ['zorro', 'Sehr hilfreich.', 'Very helpful.', '💦'],
+      ['dev', 'Flex. Für Freunde: Flex. Für Feinde: auch Flex. Ich hab mir nur einen Namen gemerkt.', 'Flex. Friends call me Flex. Enemies also call me Flex. I only memorized one name.', '😎'],
       ['dev', 'Ich hab dieses Spiel gebaut. Die Inseln, die Crew, die Kanonen. Und ehrlich gesagt auch die meisten Fehler.', 'I built this game. The islands, the crew, the cannons. And honestly, most of the bugs too.', '', 'zoom'],
       ['zorro', 'Dann bist du also schuld, dass ich mich auf der Karte ständig verlaufe.', 'So you are the reason I keep getting lost on the map.', '?'],
       ['dev', 'Nein. Das schaffst du ganz allein.', 'No. You manage that all by yourself.', '😏'],

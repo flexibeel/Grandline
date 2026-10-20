@@ -11,7 +11,7 @@ window.GL = window.GL || {};
   function who(profile, id) {
     if (id === 'self') { const s = GL.meta.selfDef(profile) || { name: '', look: {} }; return { name: profile.nickname || (en() ? 'You' : 'Du'), spr: GL.sprites.render({ id: 'self', name: s.name, look: s.look }) }; }
     // Der Spielmacher: fliegt in der Update-Szene ein (Dreispitz, Brille, Kapitänsrock)
-    if (id === 'dev') return { name: en() ? 'The Game Maker' : 'Der Spielmacher', spr: GL.sprites.render({ id: 'dev', name: 'Spielmacher', look: { hair: '#3a2a1a', skin: '#f0c8a0', shirt: '#24357a', pants: '#1c1c2a', hat: 'tricorn', hatColor: '#1a1410', acc: 'brille' } }) };
+    if (id === 'dev') return { name: en() ? 'Flex, the Game Maker' : 'Flex, der Spielmacher', spr: GL.sprites.render({ id: 'dev', name: 'Spielmacher', look: { hair: '#3a2a1a', skin: '#f0c8a0', shirt: '#24357a', pants: '#1c1c2a', hat: 'tricorn', hatColor: '#1a1410', acc: 'brille' } }) };
     if (id === 'kalle') { const p = (GL.data.pets || []).find(x => x.id === 'moewe'); return { name: en() ? 'Kalle the News Coo' : 'Kalle, die Zeitungsmöwe', spr: p ? GL.sprites.renderShaded({ id: 'pet-moewe', art: p.art }) : '' }; }
     const d = GL.data.crew.find(c => c.id === id);
     return d ? { name: d.name, spr: GL.sprites.renderShaded ? GL.sprites.renderShaded(d) : GL.sprites.render(d) } : { name: id, spr: '' };
