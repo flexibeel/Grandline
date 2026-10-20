@@ -14,6 +14,27 @@ window.GL = window.GL || {};
   const listeners = [];
   let store = null;     // { get(uid), set(uid, body), refresh() }
   let pending = null;
+  // Die Datenbank lehnt Ranglisten-Einträge ab 60 KB ab (tools/sicherheit-2026-10-18.sql, gl_scores_size).
+  // Lange, gute Runs haben große Wiederholungen: dann zuerst die Aktionsliste weglassen, dann Listen stutzen.
+  const SCORE_MAX = 52000;
+  const sizeOf = o => { try { return JSON.stringify(o).length; } catch (e) { return 0; } };
+  function fitScore(d) {
+    if (sizeOf(d) <= SCORE_MAX) return d;
+    d = Object.assign({}, d);
+    if (d.best && d.best.replay) d.best = Object.assign({}, d.best, { replay: { seed: d.best.replay.seed, start: d.best.replay.start, cut: true } });
+    if (d.duels) { const du = {}; Object.keys(d.duels).forEach(k => { du[k] = Object.assign({}, d.duels[k], { team: undefined }); }); d.duels = du; }
+    if (sizeOf(d) > SCORE_MAX && Array.isArray(d.runLog)) d.runLog = d.runLog.slice(0, 10);
+    if (sizeOf(d) > SCORE_MAX && Array.isArray(d.isles)) d.isles = d.isles.slice(0, 30);
+    if (sizeOf(d) > SCORE_MAX && Array.isArray(d.runLog)) d.runLog = d.runLog.slice(0, 3);
+    return d;
+  }
+  // Alle Schreibvorgänge auf den eigenen Ranglisten-Eintrag laufen nacheinander (sonst überschreibt ein
+  // älterer Stand einen frischeren Bestwert). Ein nicht gesendeter Run wird gemerkt und später nachgeholt.
+  let writeChain = Promise.resolve();
+  const serial = fn => { const p = writeChain.then(fn, fn); writeChain = p.catch(() => {}); return p; };
+  const PENDING_KEY = 'grandline.pendingScore';
+  const keepPending = e => { try { if (e) localStorage.setItem(PENDING_KEY, JSON.stringify(e)); else localStorage.removeItem(PENDING_KEY); } catch (x) { /* egal */ } };
+  try { const raw = localStorage.getItem(PENDING_KEY); if (raw) pending = JSON.parse(raw); } catch (e) { pending = null; }
   let registered = false;
   let profileRef = null;
 
@@ -101,7 +122,8 @@ window.GL = window.GL || {};
     // Neu eintragen, oder einmal aktualisieren, wenn dem Eintrag noch neue Felder fehlen (z. B. Stammcrew)
     // In die Rangliste erst nach dem ersten abgeschlossenen Run (nicht schon beim Anlegen)
     if (profile.nickname && (profile.stats && profile.stats.runs > 0) && !registered && (!mine || (mineRow && !mineRow.squad))) { registered = true; register(profile); }
-    if (pending == null && !mine && profile.onlineBest) { pending = profile.onlineBest; flush(profile); }
+    if (pending) flush(profile);                              // liegengebliebener Run (offline, Fehler, Tab zu)
+    else if (!mine && profile.onlineBest) { pending = profile.onlineBest; flush(profile); }
   }
 
   // ---------- Speicherort 1: Supabase ----------
@@ -135,7 +157,7 @@ window.GL = window.GL || {};
       },
       async set(uid, body) {
         const { name, score, ...rest } = body;
-        const { error } = await client.from('scores').upsert({ id: uid, name, score: Math.round(score || 0), data: rest, updated_at: new Date().toISOString() });
+        const { error } = await client.from('scores').upsert({ id: uid, name, score: Math.round(score || 0), data: fitScore(rest), updated_at: new Date().toISOString() });
         if (error) throw error;
         await store.refresh();
       },
@@ -282,12 +304,21 @@ window.GL = window.GL || {};
     const cfg = (GL.config && GL.config.online) || {};
     let body = '';
     try { body = JSON.stringify({ id: state.uid, data: withRun(profileRef), updated_at: new Date().toISOString() }); } catch (e) { return; }
+    // keepalive-Anfragen dürfen höchstens 64 KB groß sein. Ist der Stand mit laufendem Run zu groß,
+    // geht wenigstens der Fortschritt ohne den Run raus (der Run bleibt lokal und folgt beim nächsten Upload).
+    let partial = false;
+    if (body.length >= 50000) {
+      try {
+        const b2 = JSON.stringify({ id: state.uid, data: Object.assign(withRun(profileRef), { _runJ: null }), updated_at: new Date().toISOString() });
+        if (b2.length < 50000) { body = b2; partial = true; }
+      } catch (e) { /* dann normaler Upload */ }
+    }
     if (token && cfg.url && window.fetch && body.length < 50000) {
       const p = profileRef;
       try {
         fetch(cfg.url + '/rest/v1/saves?on_conflict=id', { method: 'POST', keepalive: true, body,
           headers: { apikey: cfg.key, Authorization: 'Bearer ' + token, 'Content-Type': 'application/json', Prefer: 'resolution=merge-duplicates,return=minimal' } })
-          .then(r => { if (r.ok) { dirty = false; state.syncAt = Date.now(); setBase('u:' + state.uid, p); setSync('ok'); } else setSync('err'); }, () => setSync('err'));
+          .then(r => { if (r.ok) { if (partial) return; dirty = false; state.syncAt = Date.now(); setBase('u:' + state.uid, p); setSync('ok'); } else setSync('err'); }, () => setSync('err'));
       } catch (e) { pushNow(); }
     } else pushNow();
     codeSave(profileRef);
@@ -490,10 +521,12 @@ window.GL = window.GL || {};
         const lf = liveFields(profile);
         const sig = JSON.stringify(Object.assign({}, lf, { updated: 0, pos: 0 }));
         if (sig === liveSig) return;                       // nichts Wichtiges geändert
-        const old = await store.get(state.uid);
-        if (!old) return;                                   // Erst-Eintrag macht register()
-        await store.set(state.uid, Object.assign({}, old, lf, { score: old.score }));
-        liveSig = sig;
+        await serial(async () => {
+          const old = await store.get(state.uid);
+          if (!old) return;                                 // Erst-Eintrag macht register()
+          await store.set(state.uid, Object.assign({}, old, lf, { score: old.score }));
+          liveSig = sig;
+        });
       } catch (e) { /* nächster Versuch beim nächsten Speichern */ }
     }, 4000);
   }
@@ -657,7 +690,7 @@ window.GL = window.GL || {};
       dpf: Math.round((S.dmg || 0) / Math.max(1, S.fights || 1))
     };
     if (!profile.onlineBest || entry.score > profile.onlineBest.score) profile.onlineBest = entry;
-    pending = entry;
+    pending = entry; keepPending(entry);
     return flush(profile);
   }
 
@@ -718,8 +751,8 @@ window.GL = window.GL || {};
   async function flush(profile) {
     if (!store || !state.uid || state.readOnly || !pending) return false;
     const entry = pending;
-    pending = null;
-    try {
+    try { return await serial(async () => {
+      if (pending !== entry) return 'saved';               // schon von einem anderen Aufruf gesendet
       let old = await store.get(state.uid);
       // Saison: Bestwert und Zähler beginnen mit der ersten Fahrt der neuen Saison bei null
       const sid = GL.season && GL.season.started() ? GL.season.id() : null;
@@ -752,8 +785,16 @@ window.GL = window.GL || {};
         runLog: [{ t: (entry.team || []).map(x => x.id), c: entry.captain, w: entry.won ? 1 : 0, s: entry.step, h: entry.heat || 0, d: entry.date, e: entry.duel && /^T/.test(entry.duel) ? 1 : 0, r: entry.pu ? entry.pu.r : undefined, f: entry.pu ? entry.pu.f : undefined, a: entry.pu ? entry.pu.a : undefined, b: entry.bk || undefined, m: entry.dpf || undefined }]
           .concat(Array.isArray(o.runLog) ? o.runLog : []).slice(0, 25)
       }));
+      pending = null; keepPending(null);
       return better ? 'best' : 'saved';
-    } catch (e) { return fail(e); }
+    }); } catch (e) {
+      // Nachholen: beim nächsten Verbindungsaufbau oder in 30 s (außer der Eintrag ist gesperrt)
+      const r = fail(e);
+      entry._try = (entry._try || 0) + 1;
+      if (!state.readOnly && entry._try < 6) setTimeout(() => { if (pending === entry) flush(profileRef || profile); }, 30000 * entry._try);
+      else { pending = null; keepPending(null); }
+      return r;
+    }
   }
 
   // ---------- Feedback (Tabelle feedback, siehe tools/update-2026-10-17.sql) ----------
@@ -844,7 +885,7 @@ window.GL = window.GL || {};
   async function register(profile) {
     if (GL.sandbox && GL.sandbox.on()) return false;
     if (!store || !state.uid || state.readOnly) return false;
-    try {
+    try { return await serial(async () => {
       const old = await store.get(state.uid);
       const best = GL.save.best();
       const base = old || {
@@ -853,7 +894,7 @@ window.GL = window.GL || {};
       };
       await store.set(state.uid, Object.assign({}, base, liveFields(profile)));
       return true;
-    } catch (e) { return fail(e); }
+    }); } catch (e) { return fail(e); }
   }
 
   // Account zurücksetzen (full = false: Name und Aussehen bleiben) oder ganz löschen (full = true).
