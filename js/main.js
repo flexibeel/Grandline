@@ -49,7 +49,16 @@
     const m = (GL.config.moods || []).find(x => x.id === run.mood);
     if (m) setTimeout(() => toast(`<span><b>${m.icon} Laune der See: ${m.name}</b>${m.text}</span>`), 600);
   }
-  function draw() { autoArrange(); moodNote(); GL.ui.render(run, anim, ui); featureCheck(); livePos(); musicMode(); if (ui.petQueue && ui.petQueue.length) setTimeout(showPets, 450); autoGo(); requestAnimationFrame(clampSay); }
+  function draw() { autoArrange(); moodNote(); GL.ui.render(run, anim, ui); featureCheck(); livePos(); musicMode(); if (ui.petQueue && ui.petQueue.length) setTimeout(showPets, 450); autoGo(); autoPrep(); requestAnimationFrame(clampSay); }
+  // Neulinge (erste zwei Runs): Auf der ersten Insel startet ein normaler Kampf direkt, ohne Aufstellungs-Bildschirm.
+  // Gleiche Aktion wie der Knopf „Kampf starten“, Replays bleiben also gleich. Bosse und Kopfgeldjäger zeigen die Aufstellung weiter.
+  let prepAuto = null;
+  function autoPrep() {
+    if (!run || run.phase !== 'prep' || !run.pending || run.pending.kind !== 'battle' || run.pending.rival || anim) return;
+    if (((profile.stats && profile.stats.runs) || 0) >= 2 || GL.run.islandIndex(run) !== 0 || prepAuto === run.pending) return;
+    const p = run.pending; prepAuto = p;
+    setTimeout(() => { if (run && run.phase === 'prep' && run.pending === p && !anim && !document.getElementById('fpop')) startFight(); else prepAuto = null; }, 500);
+  }
   setInterval(() => { if (document.querySelector('.sail-stage .ss-say')) clampSay(); }, 1200);
   // FIX2: Sprechblasen der Crew am Steg bleiben im Bild (schmale Handys schoben sie links/rechts raus)
   function clampSay() {
@@ -1463,14 +1472,14 @@
         updateThemeButton();
         break;
       }
-      case 'intro-open': ui.intro = 0; draw(); break;
+      case 'intro-open': GL.ui.introShort = false; ui.intro = 0; draw(); break;
       case 'intro-next': ui.intro = Math.min(ui.intro + 1, GL.ui.introSteps - 1); draw(); break;
       case 'intro-prev': ui.intro = Math.max(ui.intro - 1, 0); draw(); break;
       case 'title-play':
         // Erster Start: erst Profil anlegen, dann kurze Anleitung
         if (!profile.nickname) { openProfile(); break; }
         ui.screen = null;
-        if (!(profile.tips && profile.tips.intro)) ui.intro = 0;
+        if (!(profile.tips && profile.tips.intro)) { GL.ui.introShort = true; ui.intro = 0; }
         draw();
         break;
       case 'title-go': if (!GL.meta.featureOpen(profile, el.dataset.tab)) { toast('<span><b>Noch ein bisschen segeln</b>Die Rangliste öffnet sich nach deinem ersten Run.</span>'); break; }
@@ -1801,7 +1810,7 @@
         profile.nickname = name.slice(0, 24);
         saveProfile();
         ui.screen = null;
-        if (!(profile.tips && profile.tips.intro)) ui.intro = 0;
+        if (!(profile.tips && profile.tips.intro)) { GL.ui.introShort = true; ui.intro = 0; }
         ui.lastStage = null;
         draw();
         break;

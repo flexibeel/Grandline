@@ -5150,16 +5150,20 @@ window.GL = window.GL || {};
   ];
   if (GL.statsUi) INTRO.push({ get kicker() { return GL.statsUi.introCard(irow, badge).kicker; }, get title() { return GL.statsUi.introCard(irow, badge).title; }, get body() { return GL.statsUi.introCard(irow, badge).body; } });   // STATS: „Wie rechnen die Werte?“
 
+  // Erster Start: nur die ersten zwei Karten (Willkommen, So läuft ein Run). Die volle Anleitung gibt es über „Anleitung“.
+  const introLen = () => (GL.ui && GL.ui.introShort ? Math.min(2, INTRO.length) : INTRO.length);
   function intro(step) {
+    const N = introLen();
+    step = Math.min(step, N - 1);
     const s = INTRO[step];
-    const last = step === INTRO.length - 1;
+    const last = step === N - 1;
     return `<div class="intro-card" role="dialog" aria-modal="true" aria-labelledby="intro-title">
       <div class="intro-ship" aria-hidden="true">${GL.sprites.ship()}</div>
       <span class="event-kicker">${s.kicker}</span>
       <h2 id="intro-title">${s.title}</h2>
       <div class="intro-body">${s.body}</div>
       <div class="intro-foot">
-        <span class="intro-dots">${INTRO.map((_, i) => `<i class="${i === step ? 'on' : ''}"></i>`).join('')}</span>
+        <span class="intro-dots">${INTRO.slice(0, N).map((_, i) => `<i class="${i === step ? 'on' : ''}"></i>`).join('')}</span>
         ${step > 0 ? '<button class="btn ghost mini" data-act="intro-prev">Zurück</button>' : '<button class="link" data-act="intro-close">Überspringen</button>'}
         <button class="btn" data-act="${last ? 'intro-close' : 'intro-next'}">${last ? 'Los geht\'s' : 'Weiter'} ${keyHint('Leertaste')}</button>
       </div>
@@ -5248,7 +5252,7 @@ window.GL = window.GL || {};
     cgArtOf: it => cgArt(it),
     gearTip,
     pxIcon,
-    introSteps: INTRO.length,
+    get introSteps() { return introLen(); },
     weekPop,
     // Kleines Freunde-Symbol (zwei Pixel-Köpfe) für die Ecke oben
     friendsIcon: '<svg viewBox="0 0 11 8" shape-rendering="crispEdges" aria-hidden="true"><path fill="currentColor" d="M2 0h3v1h1v2h-1v1h-3v-1h-1v-2h1zM1 5h5v1h1v2h-7v-2h1zM7 1h2v1h1v2h-1v1h-2zM8 5h2v1h1v2h-3v-2h-1z"/></svg>',
