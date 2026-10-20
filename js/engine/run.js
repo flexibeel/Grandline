@@ -1234,6 +1234,17 @@ window.GL = window.GL || {};
         run.crew.push(makeMember(run, offer)); autoEquip(run);
         return true;
       }
+      case 'fpath': {
+        // Frucht-Weg wählen: { type: 'pick', index }
+        if (a.type !== 'pick') return false;
+        const w = run.pool[a.index];
+        if (!w || !run.fpathOf) return false;
+        run.fpath = Object.assign({}, run.fpath, { [run.fpathOf]: w.id });
+        run.fpathOf = null; run.pool = [];
+        if (run.fpathEvent) { run.fpathEvent = false; run.phase = 'map'; return true; }
+        advance(run);
+        return true;
+      }
       case 'fruit':
       case 'treasure':
       case 'awaken': {
@@ -1256,7 +1267,18 @@ window.GL = window.GL || {};
           if (!item) return false;
           if (run.phase === 'recruit') { run.crew.push(makeMember(run, item)); autoEquip(run); }
           else if (run.phase === 'treasure') run.relics.push(item);
-          else { applyEffect(run, GL.loot.fruit(item).effect); run.eaten.push(item.id); }
+          else {
+            const baseOf = id => (GL.fruitFx ? GL.fruitFx.baseOf(id) : id);
+            const base = baseOf(item.id), again = run.eaten.some(id => baseOf(id) === base);
+            applyEffect(run, GL.loot.fruit(item).effect); run.eaten.push(item.id);
+            // Frucht-Wege: beim zweiten Fund derselben Frucht einen von zwei Wegen wählen (nur neue Runs)
+            const P = (GL.data.fruitPaths || {})[base];
+            if (run.ramp && again && P && !(run.fpath && run.fpath[base])) {
+              run.fpathOf = base; run.fpathEvent = !!run.fromEvent; run.fromEvent = false;
+              run.phase = 'fpath'; run.pool = P.map(w => Object.assign({ fruit: base }, w));
+              return true;
+            }
+          }
         }
         // Auswahl aus einem Ereignis: zurück zur Route, ohne weiterzusegeln
         if (run.fromEvent) { run.fromEvent = false; run.phase = 'map'; run.pool = []; return true; }

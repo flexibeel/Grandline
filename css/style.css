@@ -9989,3 +9989,7 @@ body:has(#fpop) .toasts .toast:not(.out) { visibility: hidden; }
 .battle3d .hud .f-sprite svg { width: 28px !important; height: 32px !important; shape-rendering: crispEdges; }
 .battle3d .hud .fighter.ko .f-sprite { opacity: .45; filter: grayscale(1); }
 @media (max-width: 380px) { .battle3d .hud .f-sprite, .battle3d .hud .f-sprite svg { width: 21px !important; height: 24px !important; } }
+/* Großes Update: Frucht-Wege */
+.fp-why { margin: 2px 0 10px; color: var(--mute); font-weight: 700; font-size: .9rem; }
+.fp-opts .fp-opt { border-width: 2px; }
+.fp-q { display: block; font-size: .7em; color: var(--mute); }

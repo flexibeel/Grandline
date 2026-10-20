@@ -57,3 +57,26 @@ GL.data.fruitFams = {
   zoan:      { name: 'Zoan',      icon: '🐾', text: 'Tierkräfte: Wut, Doktor, Phönix.',
     tiers: [{ n: 2, text: 'Tierkräfte 75 % stärker.' }, { n: 3, text: 'Wut schon unter 60 % Leben, ganze Crew +1 Tempo und +10 % Schaden.' }] }
 };
+
+// Frucht-Wege (großes Update): Findet man eine Frucht im Run ein zweites Mal, wählt man einen von zwei Wegen.
+// Er verändert ihre Eigenheit bis zum Run-Ende (Logik in js/engine/fruitfx.js, Wahl in run.fpath).
+GL.data.fruitPaths = {
+  'mera-mera': [{ id: 'a', name: 'Flächenbrand', text: 'Brand springt auf einen zweiten Gegner über.' },
+                { id: 'b', name: 'Glut', text: 'Brand hält eine Runde länger und brennt heißer.' }],
+  'hie-hie':   [{ id: 'a', name: 'Spröde', text: 'Eingefrorene Gegner nehmen 25 % mehr Schaden.' },
+                { id: 'b', name: 'Eiswand', text: 'Dein Vorderster startet jeden Kampf mit +2 Rüstung.' }],
+  'suna-suna': [{ id: 'a', name: 'Ausdörren', text: 'Austrocknen kommt doppelt so oft.' },
+                { id: 'b', name: 'Sandsturm', text: 'Die ganze Crew weicht 5 % der Angriffe aus.' }],
+  'gum-gum':   [{ id: 'a', name: 'Mehr Federung', text: 'Rückprall wirft doppelt so viel Schaden zurück.' },
+                { id: 'b', name: 'Gummi-Sprung', text: 'Rückprall kommt doppelt so oft.' }],
+  'hana-hana': [{ id: 'a', name: 'Noch ein Arm', text: 'Extra-Arme erwischen einen dritten Gegner.' },
+                { id: 'b', name: 'Festhalten', text: 'Wen ein Extra-Arm trifft, der setzt manchmal eine Runde aus.' }],
+  'zoan':      [{ id: 'a', name: 'Berserker', text: 'Wut schon ab 60 % Leben.' },
+                { id: 'b', name: 'Raserei', text: 'In Wut schlägt die Crew doppelt so stark zu.' }],
+  'bara-bara': [{ id: 'a', name: 'Glitschig', text: 'Ausweichen steigt auf 10 %.' },
+                { id: 'b', name: 'Flink', text: 'Die ganze Crew bekommt +1 Tempo.' }],
+  'hito-hito': [{ id: 'a', name: 'Notarzt', text: 'Der Verletzteste wird doppelt so stark geflickt.' },
+                { id: 'b', name: 'Rundumversorgung', text: 'Alle Verletzten werden am Rundenende ein bisschen geflickt.' }],
+  'tori-tori': [{ id: 'a', name: 'Zwei Flammen', text: 'Die ersten zwei Gefallenen stehen wieder auf.' },
+                { id: 'b', name: 'Blaues Feuer', text: 'Wer wieder aufsteht, heilt die ganze Crew ein wenig.' }]
+};

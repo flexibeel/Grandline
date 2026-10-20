@@ -2226,6 +2226,15 @@ window.GL = window.GL || {};
           <div class="dock">${controls}</div>`;
       }
 
+      case 'fpath': {
+        // Frucht-Weg: zweiter Fund derselben Frucht, zwei Wege zur Wahl
+        const f = GL.data.fruits.find(x => x.id === run.fpathOf) || {};
+        const ico = GL.sprites.icon ? GL.sprites.icon('fruit', f.id) : '';
+        return `${crewHpStrip(run)}<span class="event-kicker">Zweiter Fund</span><h2>${esc(f.name || 'Frucht')} <small class="fp-q">Welcher Weg?</small></h2>
+          <p class="fp-why">${f.mech ? esc(f.mech) + ' ' : ''}Deine Wahl gilt bis zum Ende dieser Fahrt.</p>
+          <div class="opts fp-opts">${run.pool.map((w, i) => button('pick', i, esc(w.name), esc(w.text), 'fp-opt', ico)).join('')}</div>`;
+      }
+
       case 'awaken': {
         const A = GL.config.awaken;
         return `<h2>Kopfgeld kassiert</h2>
