@@ -1802,7 +1802,7 @@
         { const ci = document.getElementById('pf-crew'); if (ci) { const v = ci.value.replace(/[<>"'`&\\]/g, '').replace(/\s+/g, ' ').trim().slice(0, 20); if (!v) profile.crewName = null; else if (GL.nameCheck(v).ok) profile.crewName = v; } }
         // Neue Piraten kennen das alte Spiel nicht: Die „Großes Update“-Tour ist nur für Bestandsspieler
         if (!profile.nickname && GL.data.news) profile.newsSeen = GL.data.news.v;
-        if (!profile.nickname) profile.devIntroNew = true;
+        if (!profile.nickname) { profile.devIntroNew = true; GL.online.count && GL.online.count('neuer_pirat'); }
         profile.nickname = name.slice(0, 24);
         if (GL.friends && GL.friends.applyRef(profile)) setTimeout(() => toast('<span><b>Willkommen an Bord!</b>Ein Freund hat dich eingeladen: +150 Berry als Geschenk.</span>'), 1200);
         GL.run.registerSelf(selfNow());

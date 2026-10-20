@@ -194,6 +194,32 @@ window.GL = window.GL || {};
   // Vorher lädt dieses Gerät nichts hoch, damit ein alter Stand nie einen neueren in der Cloud überschreibt.
   let dirty = false, token = null, retryTimer = null, firstCode = true;
   const sandboxed = () => !!(GL.sandbox && GL.sandbox.on());
+
+  // ---------- Besucher zählen (anonym) ----------
+  // Gespeichert wird nur, WAS passiert ist ('besuch' oder 'neuer_pirat') und WOHER jemand kam
+  // (z. B. 'reddit' aus ?von=reddit, sonst die Seite davor wie 'reddit.com', sonst 'direkt').
+  // Keine Kennung, kein Name, nichts auf dem Gerät. Nur auf thegreatline.de, nicht lokal oder im Test.
+  // Tabelle: tools/besuche.sql. Fehlt sie, passiert einfach nichts.
+  const quelle = (function () {
+    try {
+      const u = new URL(location.href);
+      let q = u.searchParams.get('von') || u.searchParams.get('utm_source');
+      if (q) { u.searchParams.delete('von'); u.searchParams.delete('utm_source'); history.replaceState(null, '', u.pathname + u.search + u.hash); }
+      else if (document.referrer) {
+        const h = new URL(document.referrer).hostname.replace(/^(www|old|new|m|l|lm)\./, '');
+        q = h === location.hostname ? 'intern' : h;
+      }
+      return String(q || 'direkt').toLowerCase().replace(/[^a-z0-9.\-]/g, '').slice(0, 32) || 'direkt';
+    } catch (e) { return 'direkt'; }
+  })();
+  const gezaehlt = {};
+  async function count(ereignis, versuch) {
+    if (gezaehlt[ereignis] || sandboxed() || location.hostname !== 'thegreatline.de') return;
+    if (!client) { if ((versuch || 0) < 5) setTimeout(() => count(ereignis, (versuch || 0) + 1), 3000); return; }   // Verbindung steht noch nicht
+    if (ereignis === 'besuch' && quelle === 'intern') return;   // nur zurück von „Rechtliches“, kein neuer Besuch
+    gezaehlt[ereignis] = true;
+    try { await client.from('besuche').insert({ ereignis, quelle }); } catch (e) { /* ohne Tabelle egal */ }
+  }
   function setSync(s) {
     if (state.sync === s) return; state.sync = s;
     try { document.querySelectorAll('.sync-badge').forEach(b => { if (b.closest('#sync-slot')) return; const t = document.createElement('div'); t.innerHTML = badge(b.classList.contains('head') ? 'head' : ''); if (t.firstElementChild) b.replaceWith(t.firstElementChild); }); } catch (e) { /* egal */ }
@@ -658,7 +684,7 @@ window.GL = window.GL || {};
     const c = window.claude;
     state.sync = cfg.url && !sandboxed() ? 'wait' : 'off';
     try {
-      if (cfg.url && cfg.key && window.supabase) { state.status = 'connecting'; emit(); await initSupabase(cfg); }
+      if (cfg.url && cfg.key && window.supabase) { state.status = 'connecting'; emit(); await initSupabase(cfg); count('besuch'); }
       else if (c && typeof c.use === 'function') { state.status = 'connecting'; emit(); await initClaude(c); }
       else { state.status = 'local'; if (state.sync === 'wait') state.sync = 'off'; emit(); }
     } catch (e) {
@@ -950,7 +976,7 @@ window.GL = window.GL || {};
   const pushRun = () => { if (profileRef && profileRef.nickname) pushSave(profileRef); };
   // Wieder online: offene Änderungen nachschieben
   window.addEventListener('online', () => { setTimeout(() => resync(), 1500); });
-  GL.online = { flushSave, pushRun, pinboard, refresh, init, submit, rename, register, pushSave, resync, duelReport, duelInbox, bottleSend, bottleInbox, friendSend, friendInbox, sendFeedback, linkEmail, loginEmail, verifyCode, logout, wipe, liveFields, codeLoad, codeSave, codeClaim,
+  GL.online = { count, flushSave, pushRun, pinboard, refresh, init, submit, rename, register, pushSave, resync, duelReport, duelInbox, bottleSend, bottleInbox, friendSend, friendInbox, sendFeedback, linkEmail, loginEmail, verifyCode, logout, wipe, liveFields, codeLoad, codeSave, codeClaim,
     badge, openAccount,
     onRemoteProfile(fn) { onRemote = fn; }, state: () => state, onChange(fn) { listeners.push(fn); } };
 })();
