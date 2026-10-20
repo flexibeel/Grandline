@@ -3360,7 +3360,7 @@ window.GL = window.GL || {};
   function devicesBox() {
     const st = GL.online ? GL.online.state() : {};
     if (GL.sandbox.on()) return '';
-    if (st.backend !== 'supabase') return `<div class="dev-box"><b>Auf allen Geräten spielen</b><small>Geht auf der Website (flexibeel.github.io/Grandline).</small></div>`;
+    if (st.backend !== 'supabase') return `<div class="dev-box"><b>Auf allen Geräten spielen</b><small>Geht auf der Website (thegreatline.de).</small></div>`;
     if (!st.anon && st.email) return `<div class="dev-box ok"><b>Account ✓</b><small>Angemeldet als ${mailOut(st.email)}. Dein Fortschritt ist auf allen Geräten da.</small></div>`;
     return `<div class="dev-box"><b>Auf allen Geräten spielen</b>
       <small>Mit einer E-Mail spielst du auf Handy und PC mit demselben Piraten weiter. Kein Passwort nötig.</small>
@@ -4056,7 +4056,7 @@ window.GL = window.GL || {};
     if (st.backend !== 'supabase') {
       return `<div class="ts-inner login-card">${back}
         <div class="login-icon">⚓</div><h2>Anmelden</h2>
-        <p class="hint">Geht nur auf der Website: flexibeel.github.io/Grandline</p></div>`;
+        <p class="hint">Geht nur auf der Website: thegreatline.de</p></div>`;
     }
     if (!st.anon && st.email) {
       return `<div class="ts-inner login-card">${back}
