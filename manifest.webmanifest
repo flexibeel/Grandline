@@ -1,18 +1,35 @@
 {
-  "name": "Grand Line",
-  "short_name": "Grand Line",
-  "description": "Ein cozy Piraten-Roguelike (inoffizielles Fanprojekt).",
+  "name": "The Great Line",
+  "short_name": "Great Line",
+  "description": "Gemütliches Piraten-Roguelike im Pixel-Look. Kostenlos und ohne Werbung.",
   "start_url": "./",
   "scope": "./",
   "display": "fullscreen",
-  "display_override": ["fullscreen", "standalone"],
+  "display_override": [
+    "fullscreen",
+    "standalone"
+  ],
   "orientation": "any",
   "background_color": "#f6efe2",
   "theme_color": "#f6efe2",
   "lang": "de",
   "icons": [
-    { "src": "img/icon-192.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "img/icon-512.png", "sizes": "512x512", "type": "image/png" },
-    { "src": "img/icon-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
-  ]
+    {
+      "src": "img/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "img/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "img/icon-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "id": "/"
 }

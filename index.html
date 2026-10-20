@@ -3,24 +3,49 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-<title>Grand Line</title>
-<meta name="description" content="Ein gemütliches Piraten-Roguelike im Pixel-Look. Crew sammeln, Inseln erkunden, Schätze finden. Kostenloses Fanprojekt.">
+<title>The Great Line – Piraten-Roguelike im Pixel-Look, kostenlos im Browser</title>
+<meta name="description" content="Gemütliches Piraten-Roguelike im Pixel-Look. Stell deine Crew zusammen, segle von Insel zu Insel und besiege die Bösewichte. Kostenlos, ohne Werbung, direkt im Browser und am Handy. A cozy pixel pirate roguelike, free in your browser.">
+<link rel="canonical" href="https://thegreatline.de/">
+<meta name="robots" content="index, follow">
 <meta property="og:type" content="website">
-<meta property="og:site_name" content="Grand Line">
-<meta property="og:title" content="Grand Line ⛵ Großes Update, Live-Start heute 18 Uhr">
-<meta property="og:description" content="Gemütliches Piraten-Roguelike im Pixel-Look. Segel mit deinen Kumpanen los und sei der Erste mit der tollsten Beute!">
-<meta property="og:image" content="https://thegreatline.de/img/og-launch.png">
+<meta property="og:site_name" content="The Great Line">
+<meta property="og:locale" content="de_DE">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="og:title" content="The Great Line ⛵ Gemütliches Piraten-Roguelike">
+<meta property="og:description" content="Crew sammeln, Inseln erkunden, Bösewichte besiegen. Kostenlos und ohne Werbung, direkt im Browser.">
+<meta property="og:image" content="https://thegreatline.de/img/og-greatline.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Ein Pixel-Piratenschiff im Sonnenuntergang, davor sechs Crew-Mitglieder und der Schriftzug The Great Line">
 <meta property="og:url" content="https://thegreatline.de/">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://thegreatline.de/img/og-launch.png">
+<meta name="twitter:title" content="The Great Line ⛵ Gemütliches Piraten-Roguelike">
+<meta name="twitter:description" content="Crew sammeln, Inseln erkunden, Bösewichte besiegen. Kostenlos und ohne Werbung, direkt im Browser.">
+<meta name="twitter:image" content="https://thegreatline.de/img/og-greatline.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "VideoGame",
+  "name": "The Great Line",
+  "url": "https://thegreatline.de/",
+  "image": "https://thegreatline.de/img/og-greatline.png",
+  "description": "Gemütliches Piraten-Roguelike im Pixel-Look: Crew zusammenstellen, von Insel zu Insel segeln, Bösewichte besiegen. Kostenlos und ohne Werbung im Browser.",
+  "genre": ["Roguelike", "Strategie", "Pixel-Art"],
+  "gamePlatform": ["Webbrowser", "Android", "iOS"],
+  "applicationCategory": "Game",
+  "operatingSystem": "Any",
+  "inLanguage": ["de", "en"],
+  "isAccessibleForFree": true,
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" },
+  "author": { "@type": "Person", "name": "Felix" }
+}
+</script>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#f6efe2">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="Grand Line">
+<meta name="apple-mobile-web-app-title" content="Great Line">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
 <link rel="icon" type="image/png" href="img/icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -62,16 +87,16 @@
         <path fill="#5aa9d6" d="M0 1h3V0h3v1h6V0h3v1h6V0h3v1h6V0h3v1h6V0h3v1h3v2H0z"/><path fill="#3f8cc0" d="M0 2h48v1H0z"/>
       </svg>
     </div>
-    <b>Grand Line</b>
+    <b>The Great Line</b>
     <small id="boot-tip">Die Crew macht das Schiff klar …</small>
     <span class="bt-dots" aria-hidden="true"><i></i><i></i><i></i></span>
   </div>
 </div>
 <script>
   (function () {
-    var tips = ['Die Crew macht das Schiff klar …', 'Zorro sucht noch den Weg zum Hafen …', 'Nami zählt die Berry nach. Zweimal …', 'Ruffy hat den Proviant gefunden. Das war der Proviant …', 'Kalle sortiert die Zeitungen nach Klatsch …', 'Die Möwen werden gefüttert …'];
+    var tips = ['Die Crew macht das Schiff klar …', 'Soren sucht noch den Weg zum Hafen …', 'Nela zählt die Taler nach. Zweimal …', 'Rafe hat den Proviant gefunden. Das war der Proviant …', 'Kalle sortiert die Zeitungen nach Klatsch …', 'Die Möwen werden gefüttert …'];
     var en = /^en/i.test(navigator.language || '') && !/^de/i.test(navigator.language || '');
-    if (en) tips = ['The crew is getting the ship ready …', 'Zoro is still looking for the harbor …', 'Nami is counting the berries. Twice …', 'Luffy found the supplies. Those were the supplies …'];
+    if (en) tips = ['The crew is getting the ship ready …', 'Soren is still looking for the harbor …', 'Nela is counting the coins. Twice …', 'Rafe found the supplies. Those were the supplies …'];
     var el = document.getElementById('boot-tip'), k = Math.floor(Math.random() * tips.length);
     el.textContent = tips[k];
     var t = setInterval(function () { k = (k + 1) % tips.length; el.textContent = tips[k]; }, 2200);
