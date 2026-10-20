@@ -49,7 +49,7 @@
     const m = (GL.config.moods || []).find(x => x.id === run.mood);
     if (m) setTimeout(() => toast(`<span><b>${m.icon} Laune der See: ${m.name}</b>${m.text}</span>`), 600);
   }
-  function draw() { autoArrange(); moodNote(); GL.ui.render(run, anim, ui); featureCheck(); livePos(); musicMode(); if (ui.petQueue && ui.petQueue.length) setTimeout(showPets, 450); autoGo(); autoPrep(); requestAnimationFrame(clampSay); }
+  function draw() { autoArrange(); moodNote(); GL.ui.render(run, anim, ui); featureCheck(); livePos(); musicMode(); if (ui.petQueue && ui.petQueue.length) setTimeout(showPets, 450); autoGo(); autoPrep(); document.body.classList.toggle('gl-newbie', !((profile.stats && profile.stats.runs) || 0)); requestAnimationFrame(clampSay); }
   // Neulinge (erste zwei Runs): Auf der ersten Insel startet ein normaler Kampf direkt, ohne Aufstellungs-Bildschirm.
   // Gleiche Aktion wie der Knopf „Kampf starten“, Replays bleiben also gleich. Bosse und Kopfgeldjäger zeigen die Aufstellung weiter.
   let prepAuto = null;
@@ -638,7 +638,10 @@
       const leveled = run.battle.xp && run.battle.xp.some(x => x.to.lvl > x.from.lvl);
       if (leveled && !(profile.tips && profile.tips.level)) {
         profile.tips = Object.assign(profile.tips || {}, { level: true });
-        setTimeout(() => toast(`<i>${GL.sprites.coin()}</i><span><b>Level-up!</b>Jedes Level bringt 2 Statuspunkte. Klicke auf eine Figur oder auf „Punkte verteilen“, um sie auf Leben, Angriff oder Tempo zu setzen.</span>`), 2500);
+        const autoT = profile.settings && profile.settings.autoTrain;
+        setTimeout(() => toast(autoT
+          ? `<i>${GL.sprites.coin()}</i><span><b>Level-up!</b>Deine Crew trainiert von selbst. Wer lieber selbst Punkte verteilt: Figur antippen.</span>`
+          : `<i>${GL.sprites.coin()}</i><span><b>Level-up!</b>Jedes Level bringt 2 Statuspunkte. Klicke auf eine Figur oder auf „Punkte verteilen“, um sie auf Leben, Angriff oder Tempo zu setzen.</span>`), 2500);
       }
     }
     if (!wasFinished && GL.run.isFinished(run)) {

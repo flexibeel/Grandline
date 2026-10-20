@@ -4148,7 +4148,7 @@ window.GL = window.GL || {};
     const d = ui.draft;
     const P = GL.data.charParts;
     const vals = GL.meta.progressValues(profile);
-    const tab = ui.editTab || 'look';
+    const tab = profile.nickname ? (ui.editTab || 'look') : 'look';
     const L0 = d.char.look;
     // Gesperrte Teile zeigen ein Schloss und die Bedingung
     const lockOf = key => { const L = (GL.data.charLocks || {})[key]; return L && !GL.meta.cosmeticUnlocked(profile, L, vals) ? L : null; };
@@ -4177,8 +4177,10 @@ window.GL = window.GL || {};
         ${prev}${kind === 'titles' ? '' : `<small>${esc(it.name)}</small>`}${ok ? '' : `<em class="pe-req">🔒 ${esc(GL.meta.reqText(it))}</em>`}</button>`;
     }).join('')}</div>`;
     const def = GL.meta.selfDef(Object.assign({}, profile, { nickname: d.name || 'Pirat', char: d.char }));
-    const TABS = [['look', 'Aussehen', pxIco('anchor')], ['kampf', 'Kampf', pxIco('swords')], ['stil', 'Stil', pxIco('chest')], ['titel', 'Titel & Flagge', pxIco('coin')]]
-      .concat(profile.nickname ? [['schiff', 'Schiff', pxIco('ship')], ['konto', 'Konto', pxIco('loop')]] : []);
+    // Neuer Pirat: erst nur Aussehen und Name. Kampf, Stil, Titel & Flagge kommen später im Hafen unter „Kapitän“.
+    const TABS = profile.nickname
+      ? [['look', 'Aussehen', pxIco('anchor')], ['kampf', 'Kampf', pxIco('swords')], ['stil', 'Stil', pxIco('chest')], ['titel', 'Titel & Flagge', pxIco('coin')], ['schiff', 'Schiff', pxIco('ship')], ['konto', 'Konto', pxIco('loop')]]
+      : [['look', 'Aussehen', pxIco('anchor')]];
     const subs = (k, list) => { const cur = ui.editSub && list.some(x => x[0] === ui.editSub) ? ui.editSub : list[0][0];
       return { cur, html: `<div class="pe-subs">${list.map(([id, n]) => `<button class="sqc-f${cur === id ? ' on' : ''}" data-act="pf-tab" data-v="${k}" data-s="${id}">${n}</button>`).join('')}</div>` }; };
     let body = '';
@@ -4218,7 +4220,7 @@ window.GL = window.GL || {};
             <div class="pe-stats"><span>❤ ${def.hp}</span><span>⚔ ${def.atk}</span><span>➤ ${def.spd}</span><span class="pe-ty">${pxIcon(d.char.type)}${pxIcon(d.char.role)}</span></div>
           </div>
         </div>
-        <nav class="pe-tabs n${TABS.length}" role="tablist">${TABS.map(([id, n, ic]) => `<button class="pe-tab${tab === id ? ' on' : ''}" data-act="pf-tab" data-v="${id}" role="tab" aria-selected="${tab === id}">${ic}<span>${n}</span></button>`).join('')}</nav>
+        ${TABS.length > 1 ? `<nav class="pe-tabs n${TABS.length}" role="tablist">${TABS.map(([id, n, ic]) => `<button class="pe-tab${tab === id ? ' on' : ''}" data-act="pf-tab" data-v="${id}" role="tab" aria-selected="${tab === id}">${ic}<span>${n}</span></button>`).join('')}</nav>` : ''}
         <div class="pe-body">${body}</div>
         <div class="pf-actions pe-actions">
           ${profile.nickname ? '<button class="btn ghost" data-act="title-back">Zurück</button>' : ''}

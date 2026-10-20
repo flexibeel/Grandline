@@ -9941,3 +9941,5 @@ em.type.t-technik { background: #5b86b3 !important; }
   .coach.coach-bubble { position: relative; right: auto; top: auto; max-width: none; margin: 0 0 10px; box-shadow: 0 3px 0 rgba(50, 30, 10, .18); }
   .coach.coach-bubble::after { display: none; }
 }
+/* Erster Run: Kapitänsbefehle im Kampf noch ausgeblendet, die Crew kämpft allein. Ab Run 2 sind sie da. */
+body.gl-newbie .rc-bar { display: none; }
