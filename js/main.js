@@ -460,8 +460,20 @@
     if (REWARD_RX.test(String(html))) { if (!rewardBuf.length) setTimeout(flushRewards, 80); rewardBuf.push(html); return; }
     toastNow(html);
   }
+  let popWait = null;
+  function waitPop() {
+    if (popWait) return;
+    popWait = setInterval(() => {
+      if (document.getElementById('fpop')) return;
+      clearInterval(popWait); popWait = null;
+      const box = document.getElementById('toasts');
+      if (toastQ.length && box && !box.querySelector('.toast:not(.out)')) toastNow(toastQ.shift());
+    }, 500);
+  }
   function toastNow(html) {
     const box = document.getElementById('toasts');
+    // Klar Schiff: immer nur eine Meldung zur Zeit. Ist gerade ein Fenster offen, wartet der Hinweis, bis es zu ist.
+    if (document.getElementById('fpop')) { if (toastQ.length < 12) toastQ.push(html); waitPop(); return; }
     // Im Run höchstens ein Hinweis gleichzeitig (Handy: sonst ist die halbe Route zugedeckt)
     if (box.querySelectorAll('.toast:not(.out)').length >= (inRun() ? 1 : 2)) { if (toastQ.length < 12) toastQ.push(html); return; }
     const t = document.createElement('div');

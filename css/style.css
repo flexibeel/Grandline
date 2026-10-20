@@ -9967,3 +9967,10 @@ body.in-battle footer.fan { display: none; }
 #field[data-speed]::after { display: none !important; }
 /* Kampf-Log: genau eine Zeile, ohne dass die zweite halb durchscheint */
 .stage:has(#field) #log { display: block; height: 1.35em; line-height: 1.35; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* Klar Schiff: ist ein Fenster offen, liegen keine Hinweise darüber (sie kommen danach) */
+body:has(#fpop) .toasts .toast:not(.out) { visibility: hidden; }
+/* Klar Schiff: Boni-Fenster mit klaren Überschriften, Hinweis statt leerem Kasten */
+.tm-sub { font-family: "Pixelify Sans", var(--px); font-weight: 600; font-size: .72rem; letter-spacing: .06em; text-transform: uppercase; color: #6b5a44; margin: 2px 0 4px; }
+.tm-none { margin: 4px 0; font-size: .85rem; font-weight: 700; color: var(--mute); grid-column: 1 / -1; }
+.tm-detail:has(> small:only-child) { min-height: 0; background: none; border: 0; padding: 2px 0; justify-content: center; text-align: center; }
+.syn-pop .event-kicker { font-family: "Pixelify Sans", var(--px); }

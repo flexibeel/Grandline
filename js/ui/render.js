@@ -1246,9 +1246,10 @@ window.GL = window.GL || {};
     const E = teamEmblems(run);
     if (!E.on.length && !E.near.length) return '';
     return `<div class="tm-wrap${wide ? ' wide' : ''}">
-      <div class="tm-grid">${E.on.join('') || '<span class="tm-none">—</span>'}</div>
-      ${E.near.length ? `<div class="tm-grid near">${E.near.join('')}</div>` : ''}
-      <div class="tm-detail" aria-live="polite"><small>Antippen für Details</small></div></div>`;
+      ${wide && E.on.length ? '<div class="tm-sub">Aktiv</div>' : ''}
+      <div class="tm-grid">${E.on.join('') || '<p class="tm-none">Noch kein Bonus aktiv. Gleiche Banden, Stile oder Rollen schalten welche frei.</p>'}</div>
+      ${E.near.length ? `${wide ? '<div class="tm-sub">Fast geschafft</div>' : ''}<div class="tm-grid near">${E.near.join('')}</div>` : ''}
+      <div class="tm-detail" aria-live="polite"><small>Tippe auf einen Bonus, um zu sehen, was er bringt.</small></div></div>`;
   }
 
   function traitRail(run) {
