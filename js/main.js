@@ -239,13 +239,18 @@
     if (!profile.nickname || isAppMode() || !isPhone() || ui.instOpen === false) return false;
     if (GL.meta.featuresNew && GL.meta.featuresNew(profile).length) return false;
     const runs = (profile.stats && profile.stats.runs) || 0, n = profile.installAsked || 0;
+    // Neue Adresse: wer schon gefragt wurde (altes Icon von github.io), bekommt einmal den Hinweis, es neu anzulegen
+    if (movedDue()) return true;
     return (n === 0 && runs >= 1) || (n === 1 && runs >= 5);
   }
+  function movedDue() { return location.protocol === 'https:' && location.hostname === 'thegreatline.de' && !profile.installMoved && (profile.installAsked || 0) > 0; }
   function openInstall() {
+    const moved = movedDue(); if (moved) profile.installMoved = 1;
     const ios = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
     const el = document.createElement('div');
     el.id = 'fpop'; el.className = 'fpop'; el.dataset.id = 'install';
     el.innerHTML = GL.ui.installPop(ios ? 'ios' : installEvt ? 'prompt' : 'android');
+    if (moved) { const card = el.firstElementChild; if (card) card.insertAdjacentHTML('afterbegin', `<p class="inst-moved"><b>${GL.i18n && GL.i18n.lang() === 'en' ? 'New address: thegreatline.de' : 'Neue Adresse: thegreatline.de'}</b><br>${GL.i18n && GL.i18n.lang() === 'en' ? 'Your old home screen icon still points to the old link. Delete it and add the game again, then fullscreen works as before.' : 'Dein altes Icon auf dem Startbildschirm zeigt noch auf den alten Link. Lösch es und leg das Spiel neu an, dann klappt auch das Vollbild wieder.'}</p>`); }
     document.body.appendChild(el);   // kein Wegtippen über den Rand: bewusst „Verstanden“ oder „Später“ wählen
     requestAnimationFrame(() => el.classList.add('in'));
   }

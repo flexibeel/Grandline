@@ -1,6 +1,11 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-21m', date: '20.10.', title: 'Besuch von ganz oben', items: [
+    '✨ Wer schon dabei war, bekommt Besuch am Steg. Von wem, verraten wir nicht. Er verrät es auch nur ungefähr',
+    '⛵ Neuer Ladescreen: Ein kleines Schiff schaukelt, bis alles bereit ist. Zorro sucht derweil den Hafen',
+    '🏠 Neue Adresse: thegreatline.de. Wer das Spiel auf dem Handy-Startbildschirm hatte, legt es am besten neu an',
+    '📝 Die Frage nach deiner Meinung kommt jetzt einmal nach 2 Fahrten oder 10 Minuten. Danach nie wieder, versprochen' ] },
   { v: '2026-10-21l', date: '20.10.', title: 'Sprechblasen aus Pixeln', items: [
     '💬 Die Crew redet im Kampf jetzt in echten Pixel-Sprechblasen. Buchstabe für Buchstabe, damit auch Zorro mitkommt',
     '🟥 Gegner sprechen in Rot. Freundlicher werden sie dadurch nicht',

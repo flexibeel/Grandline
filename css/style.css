@@ -9934,3 +9934,5 @@ em.type.t-technik { background: #5b86b3 !important; }
 }
 @keyframes stDevDust { 0%, 60% { opacity: 0; transform: scaleX(.3); } 75% { opacity: 1; } 100% { opacity: 0; transform: scaleX(1.6); } }
 @media (prefers-reduced-motion: reduce) { .st-who.late.arrived { animation: none !important; } .st-who.late.arrived::before { display: none; } }
+/* Hinweis „Neue Adresse“ im Startbildschirm-Fenster (Design wird später poliert) */
+.inst-moved { margin: 0 0 10px; padding: 8px 10px; border: 2px dashed #c8964a; border-radius: 8px; background: #fff6df; font-size: .82rem; line-height: 1.35; color: #4a2e16; }
