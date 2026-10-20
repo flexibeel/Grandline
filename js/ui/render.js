@@ -210,9 +210,12 @@ window.GL = window.GL || {};
 
   // ---------- Ausrüstung ----------
   const STAT_NAMES = { atk: 'Angriff', hp: 'Leben', spd: 'Tempo', crit: 'Krit', armor: 'Rüstung', dmgPct: 'Schaden', regen: 'Heilung/Runde' };
-  function itemStatText(it) {
+  function itemStatText(it, plain) {
     const s = GL.run.itemStats(it);
-    return Object.keys(s).filter(k => s[k]).map(k => `+${['crit', 'dmgPct'].includes(k) ? Math.round(s[k] * 100) + ' %' : s[k]} ${STAT_NAMES[k]}`).join(', ');
+    const base = Object.keys(s).filter(k => s[k]).map(k => `+${['crit', 'dmgPct'].includes(k) ? Math.round(s[k] * 100) + ' %' : s[k]} ${STAT_NAMES[k]}`).join(', ');
+    const lg = it.r === 3 && (GL.data.itemLegends || {})[it.id];
+    if (!lg) return base;
+    return plain ? `${base}\n★ ${lg.name}: ${lg.text}` : `${base}<span class="lg-line"><i aria-hidden="true">★</i> <b>${esc(lg.name)}</b> <span>${esc(lg.text)}</span></span>`;
   }
   function itemName(it) {
     const d = GL.data.items.find(x => x.id === it.id);
@@ -2870,7 +2873,7 @@ window.GL = window.GL || {};
   function chestTile(it) {
     const d = (GL.data.items || []).find(x => x.id === it.id) || {};
     const R = GL.config.rarities[Math.max(0, it.r)] || {};
-    const tip = `${d.name || it.id}${it.lvl ? ' +' + it.lvl : ''} · ${R.name || ''}${itemStatText(it) ? '\n' + itemStatText(it) : ''}`;
+    const tip = `${d.name || it.id}${it.lvl ? ' +' + it.lvl : ''} · ${R.name || ''}${itemStatText(it, true) ? '\n' + itemStatText(it, true) : ''}`;
     return `<span class="pc2-ic ir-${R.id || ''}" data-tip="${esc(tip)}" tabindex="0">${itemIcon(it)}${it.lvl ? `<em class="pc2-lv">+${it.lvl}</em>` : ''}</span>`;
   }
   // Stammcrew eines anderen Spielers: Mini-Karten mit Ausrüstung (Seltenheitsfarbe, Tooltip beim Darüberfahren, Antippen öffnet die Karte)

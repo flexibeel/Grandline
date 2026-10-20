@@ -625,7 +625,9 @@
       const R = GL.config.rarities[it.r];
       const wearer = it.auto && run.crew.find(u => u.item === it.uid);
       const wName = wearer ? ((GL.data.crew.find(c => c.id === wearer.id) || {}).name || wearer.name || 'Crew') : '';
-      setTimeout(() => toast(`<span class="toast-item ir-${R.id}"><b>${R.name}: ${d.name}</b><span>${wearer ? `Automatisch angelegt bei ${esc2(wName)}. Antippen einer Figur hängt um.` : 'Liegt in der Truhe. Figur antippen, „Ausrüstung“ wählen.'}</span></span>`), 900);
+      const LG = run.ramp && it.r === 3 && (GL.data.itemLegends || {})[it.id];
+      if (LG) { if (GL.sfx) GL.sfx.play('found'); document.body.classList.add('legend-drop'); setTimeout(() => document.body.classList.remove('legend-drop'), 1600); }
+      setTimeout(() => toast(`<span class="toast-item ir-${R.id}${LG ? ' ir-legend-fx' : ''}"><b>${R.name}: ${d.name}</b>${LG ? `<span class="lg-line"><i aria-hidden="true">★</i> <b>${LG.name}</b> <span>${LG.text}</span></span>` : ''}<span>${wearer ? `Automatisch angelegt bei ${esc2(wName)}. Antippen einer Figur hängt um.` : 'Liegt in der Truhe. Figur antippen, „Ausrüstung“ wählen.'}</span></span>`), 900);
     }
     // Artefakt gefunden: nach dem Kopfgeld-Steckbrief einblenden
     if ((run.trophies || []).length > trophiesBefore) {

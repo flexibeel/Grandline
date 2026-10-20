@@ -9993,3 +9993,13 @@ body:has(#fpop) .toasts .toast:not(.out) { visibility: hidden; }
 .fp-why { margin: 2px 0 10px; color: var(--mute); font-weight: 700; font-size: .9rem; }
 .fp-opts .fp-opt { border-width: 2px; }
 .fp-q { display: block; font-size: .7em; color: var(--mute); }
+/* Großes Update: legendärer Effekt auf Ausrüstung */
+.lg-line { display: block; margin-top: 2px; color: #8a5a10; font-weight: 700; }
+.lg-line i { font-style: normal; color: var(--legend); }
+.lg-line b { font-family: "Pixelify Sans", var(--px); font-weight: 600; }
+/* Legendärer Fund: kurzer goldener Moment */
+body.legend-drop::after { content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 1050;
+  background: radial-gradient(circle at 50% 40%, rgba(242, 201, 76, .35), transparent 60%); animation: lgFlash 1.6s ease-out both; }
+@keyframes lgFlash { 0% { opacity: 0; } 15% { opacity: 1; } 100% { opacity: 0; } }
+.toast .ir-legend-fx, .toast-item.ir-legend-fx { box-shadow: 0 0 0 2px #f2c94c, 0 0 18px rgba(242, 201, 76, .6); }
+@media (prefers-reduced-motion: reduce) { body.legend-drop::after { animation: none; display: none; } }

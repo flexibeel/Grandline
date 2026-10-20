@@ -3,6 +3,20 @@ window.GL = window.GL || {};
 GL.data = GL.data || {};
 GL.data.en = Object.assign(GL.data.en || {}, {
   // Klar Schiff: neue Texte
+  'Zweischneidig': 'Double-edged', '25 % Chance auf einen Extra-Zug.': '25 % chance of an extra turn.',
+  'Rüstungsbrecher': 'Armor breaker', 'Treffer brechen oft die Rüstung des Ziels.': 'Hits often break the target’s armor.',
+  'Erster Schuss': 'First shot', 'Zu Kampfbeginn ein Schuss auf alle Gegner.': 'A shot at all enemies when the battle starts.',
+  'Prellbock': 'Bumper', 'Der erste gegnerische Treffer pro Kampf prallt ab.': 'The first enemy hit each battle bounces off.',
+  'Köder': 'Decoy', 'Zieht die Angriffe auf sich und blockt 10 % ab.': 'Draws attacks and blocks 10 %.',
+  'Vorbild': 'Role model', 'Nach einem K.O. schlägt der Träger oft gleich nochmal zu.': 'After a K.O. the wearer often strikes again.',
+  'Rückenwind': 'Tailwind', '+3 Tempo, handelt fast immer zuerst.': '+3 speed, almost always acts first.',
+  'Glückspilz': 'Lucky devil', 'Kritische Treffer richten 50 % mehr Schaden an.': 'Critical hits deal 50 % more damage.',
+  'Kurs halten': 'Hold course', 'Weicht 8 % der Angriffe aus.': 'Dodges 8 % of attacks.',
+  'Schwachstelle': 'Weak spot', '+25 % Schaden gegen Bosse.': '+25 % damage against bosses.',
+  'Zweite Portion': 'Second helping', 'Heilt sich jede Runde um 2.': 'Heals 2 every round.',
+  'Monster-Punkt': 'Monster point', '25 % Chance, einen Angriff zu kontern.': '25 % chance to counter an attack.',
+  'Leichtfüßig': 'Light-footed', 'Weicht 10 % der Angriffe aus.': 'Dodges 10 % of attacks.',
+  'Bordküche': 'Galley', 'Nach jedem Sieg heilt die ganze Crew 10 %.': 'After every win the whole crew heals 10 %.',
   'Zweiter Fund': 'Found again',
   'Welcher Weg?': 'Which way?',
   'Deine Wahl gilt bis zum Ende dieser Fahrt.': 'Your choice lasts until the end of this voyage.',

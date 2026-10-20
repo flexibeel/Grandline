@@ -113,6 +113,12 @@ window.GL = window.GL || {};
       if (x.healBonus) f.healMult += x.healBonus;   // additiv statt multiplikativ (vorher bis ×3,9)
       if (x.reviveWin) f.reviveWin = Math.max(f.reviveWin || 0, x.reviveWin);
     });
+    // Legendäre Ausrüstung mit Sonderregel (Muskete, Weste, Schürze), nur neue Runs
+    if (run.ramp) (run.crew || []).forEach(m => {
+      const it = m.item && (run.items || []).find(x => x.uid === m.item);
+      const lg = it && it.r === 3 && (GL.data.itemLegends || {})[it.id];
+      if (lg && lg.flags) Object.keys(lg.flags).forEach(k => { f[k] = (f[k] || 0) + lg.flags[k]; });
+    });
     // NEXT: Deckel für Sonderregeln
     f.healMult = Math.min(f.healMult, 2);
     f.winHeal = Math.min(f.winHeal, 0.5);
@@ -211,6 +217,9 @@ window.GL = window.GL || {};
       const s = GL.run.itemStats(it);
       const def = (GL.data.items || []).find(x => x.id === it.id);
       Object.keys(s).forEach(k => { if (k !== 'hp' && k in u) { u[k] += s[k]; note(u, k, { ico: '⚙', name: def ? def.name : 'Ausrüstung' }, s[k]); } });
+      // Legendärer Effekt des Teils (nur neue Runs)
+      const lg = run.ramp && it.r === 3 && (GL.data.itemLegends || {})[it.id];
+      if (lg && lg.mods) Object.keys(lg.mods).forEach(k => { if (k in u) { u[k] += lg.mods[k]; note(u, k, { ico: '★', name: lg.name }, lg.mods[k]); } });
     });
     // Crew-Ausrüstung der Stammcrew (Duelle): Zusatzwerte wie Krit, Ausweichen, Rüstung
     crew.concat(enemies).forEach(u => { const g = u.ref.gb; if (g) Object.keys(g).forEach(k => { if (k !== 'ultStart' && k in u) { u[k] += g[k]; note(u, k, { ico: '⚙', name: 'Crew-Ausrüstung' }, g[k]); } }); });

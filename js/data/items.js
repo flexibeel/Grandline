@@ -28,3 +28,24 @@ GL.data.items = [
   { id: 'schuerze',   name: 'Kochschürze',       icon: 'fleisch',    stats: { hp: [3, 5, 7, 10], regen: [1, 1, 2, 2] },             up: { hp: 2 },
     px: ['..H..H..', '..H..H..', '.XXXXXX.', '.XXXXXX.', '.XHHHHX.', '.XXXXXX.', '.XXXXXX.', '..XXXX..'] }
 ];
+
+// Legendäre Effekte (großes Update): Jedes Teil in Legendär bekommt einen eigenen Effekt mit Namen.
+//   mods  = Kampfwerte nur für den Träger (Namen wie in effects.js STATS)
+//   flags = Sonderregeln für die ganze Crew wie bei Schätzen (cannon, firstBlock, winHeal)
+// Gilt nur in neuen Runs (run.ramp), damit alte Replays gleich bleiben.
+GL.data.itemLegends = {
+  saebel:     { name: 'Zweischneidig',    text: '25 % Chance auf einen Extra-Zug.',              mods: { extraTurn: 0.25 } },
+  schlagring: { name: 'Rüstungsbrecher',  text: 'Treffer brechen oft die Rüstung des Ziels.',        mods: { armorBreak: 0.3 } },
+  muskete:    { name: 'Erster Schuss',    text: 'Zu Kampfbeginn ein Schuss auf alle Gegner.',        flags: { cannon: 6 } },
+  weste:      { name: 'Prellbock',        text: 'Der erste gegnerische Treffer pro Kampf prallt ab.', flags: { firstBlock: 1 } },
+  panzer:     { name: 'Köder',            text: 'Zieht die Angriffe auf sich und blockt 10 % ab.',   mods: { taunt: 1, guard: 0.1 } },
+  mantel:     { name: 'Vorbild',          text: 'Nach einem K.O. schlägt der Träger oft gleich nochmal zu.', mods: { killChain: 0.35 } },
+  stiefel:    { name: 'Rückenwind',       text: '+3 Tempo, handelt fast immer zuerst.',              mods: { spd: 3 } },
+  anhaenger:  { name: 'Glückspilz',       text: 'Kritische Treffer richten 50 % mehr Schaden an.',   mods: { critMult: 0.5 } },
+  amulett:    { name: 'Kurs halten',      text: 'Weicht 8 % der Angriffe aus.',                      mods: { dodge: 0.08 } },
+  fernrohr:   { name: 'Schwachstelle',    text: '+25 % Schaden gegen Bosse.',                        mods: { bossPct: 0.25 } },
+  knochen:    { name: 'Zweite Portion',   text: 'Heilt sich jede Runde um 2.',                       mods: { regen: 2 } },
+  rumbleball: { name: 'Monster-Punkt',    text: '25 % Chance, einen Angriff zu kontern.',                    mods: { riposte: 0.25 } },
+  sandalen:   { name: 'Leichtfüßig',      text: 'Weicht 10 % der Angriffe aus.',                     mods: { dodge: 0.1 } },
+  schuerze:   { name: 'Bordküche',        text: 'Nach jedem Sieg heilt die ganze Crew 10 %.',        flags: { winHeal: 0.1 } }
+};
