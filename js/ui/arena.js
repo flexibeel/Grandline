@@ -754,8 +754,19 @@ window.GL = window.GL || {};
     const a = f.getBoundingClientRect(), r = u.querySelector('.fu-body').getBoundingClientRect();
     const n = document.createElement('span');
     n.className = 'cq-bubble' + (side === 'enemy' ? ' them' : '');
-    n.textContent = text;
+    // Volle Breite zuerst messen, dann Buchstabe für Buchstabe einblenden (der Rest bleibt unsichtbar, nichts springt)
+    const seen = document.createElement('span'), rest = document.createElement('span');
+    rest.className = 'cq-rest'; rest.textContent = text;
+    n.appendChild(seen); n.appendChild(rest);
     box.appendChild(n);
+    const calm = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (calm) { seen.textContent = text; rest.textContent = ''; }
+    else {
+      let k = 0;
+      const step = Math.max(14, Math.min(34, 900 / text.length));
+      const tick = () => { if (!n.isConnected) return; k = Math.min(text.length, k + 1); seen.textContent = text.slice(0, k); rest.textContent = text.slice(k); if (k < text.length) setTimeout(tick, step); };
+      setTimeout(tick, 120);
+    }
     const w = n.offsetWidth || 120, cx = r.left + r.width / 2 - a.left;
     const x = Math.max(w / 2 + 4, Math.min(a.width - w / 2 - 4, cx));
     n.style.left = x + 'px';

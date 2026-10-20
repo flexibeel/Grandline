@@ -2205,7 +2205,7 @@ window.GL = window.GL || {};
         let log, controls;
         // Feste Daumen-Leiste: links Tempo, rechts ein großer Knopf (⏩ Turbo → ⏭ Ende → Weiter), immer am selben Platz
         const sp = done ? 0 : (anim.speed || 2);
-        const seg = [1, 2, 3, 4].map(n => `<button class="fbar-sp${sp === n ? ' on' : ''}" data-act="speed" data-v="${n}" aria-label="Tempo ${n}" title="${['', 'Gemütlich', 'Zügig', 'Schnell', 'Turbo'][n]}"${done ? ' disabled' : ''}>${'▸'.repeat(n === 4 ? 3 : n)}${n === 4 ? '<i>⚡</i>' : ''}</button>`).join('');
+        const seg = [1, 2, 3, 4].map(n => `<button class="fbar-sp${sp === n ? ' on' : ''}" data-act="speed" data-v="${n}" aria-label="Tempo ${n}" title="${['', 'Gemütlich', 'Zügig', 'Schnell', 'Turbo'][n]}"${done ? ' disabled' : ''}><span class="sp-ch" aria-hidden="true">${'<svg viewBox="0 0 4 7" shape-rendering="crispEdges"><path d="M0 0h1v1h1v1h1v1h1v1h-1v1h-1v1h-1v1h-1z"/></svg>'.repeat(n)}</span><b class="sp-x">×${n}</b></button>`).join('');
         if (done) {
           log = b.win ? 'Sieg! Die Gegner sind besiegt.'
             : b.kind === 'raid' ? 'Der Raid ist gescheitert. Deine Crew entkommt mit letzter Kraft.'
