@@ -762,7 +762,7 @@
     const retry = profile.daily && profile.daily.d === day && profile.daily.score == null;
     stopAnim();
     ui.sheet = null; ui.album = null;
-    run = GL.run.create(GL.daily.seed(day), { heat: 0, self: selfNow() });
+    run = GL.run.create(GL.daily.seed(day), { heat: 0, self: selfNow(), ramp: true });
     run.duel = GL.daily.code(day);
     run.daily = day;
     // Serie: gestern auch gespielt?
@@ -794,7 +794,8 @@
       altOpen: GL.meta.featureOpen(profile, 'route'),
       altOpen1: GL.meta.featureOpen(profile, 'route2'),
       buddy: GL.meta.squadUnlocked(profile) && profile.buddy && GL.meta.squadIds(profile).includes(profile.buddy) && profile.buddy !== 'self' ? profile.buddy : null,
-      endlessSea: Number.isInteger(endlessSea) && GL.meta.seasCleared(profile).includes(endlessSea) ? endlessSea : undefined
+      endlessSea: Number.isInteger(endlessSea) && GL.meta.seasCleared(profile).includes(endlessSea) ? endlessSea : undefined,
+      ramp: true
     });
     ui.newBest = false;
     ui.lastBerry = null; ui.runRewards = [];

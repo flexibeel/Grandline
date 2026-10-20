@@ -15,6 +15,8 @@ GL.config = {
   chapterSteps: 4,        // Etappen pro Insel-Kapitel
   gateMult: 1.1,          // Bösewicht am Ende einer kleinen Insel: so viel stärker als ein Kopfgeldjäger
   maxCrew: 6,
+  // Crew-Bremse im ersten Meer: Etappe 1–2 höchstens 3, 3–4 höchstens 4, 5–6 höchstens 5, danach maxCrew
+  crewRamp: { start: 3, per: 2, steps: 6 },
   starters: ['ruffy', 'zorro', 'nami'],   // wählbare Kapitäne zu Beginn eines Runs
   choicesPerPick: 3,      // wie viele Optionen bei Rekrutierung/Teufelsfrucht
   captainChoices: 3,      // so viele Kapitäne stehen beim Start zur Wahl (plus dein eigener Pirat)

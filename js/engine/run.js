@@ -240,7 +240,11 @@ window.GL = window.GL || {};
   }
 
   function crewLimit(run) {
-    return GL.config.maxCrew + GL.effects.flags(run).crewLimit;
+    const base = GL.config.maxCrew + GL.effects.flags(run).crewLimit;
+    // Crew-Bremse: im ersten Meer wächst die Crew langsamer (sonst ist sie nach zwei Etappen schon voll)
+    const r = GL.config.crewRamp;
+    if (r && run.ramp && !run.loop && run.endlessSea == null && run.step < r.steps) return Math.min(base, r.start + Math.floor(run.step / r.per));
+    return base;
   }
 
   // Figuren, die in diesem Run auftauchen können (Grundliste + Freischaltungen)
@@ -1315,6 +1319,8 @@ window.GL = window.GL || {};
         altOpen1: !!p.altOpen1,
         buddy: typeof p.buddy === 'string' && p.buddy !== 'self' ? p.buddy : null,   // Vertrauter aus der Stammcrew
         endlessSea: Number.isInteger(p.endlessSea) && p.endlessSea >= 0 && p.endlessSea < GL.data.islands.length ? p.endlessSea : null,
+        // Crew-Bremse: nur wenn der Start es mitgibt (alte Replays haben das Feld nicht und laufen wie damals)
+        ramp: !!p.ramp,
         alt: {},
         loot: [],
         // Stand der Freischaltungen beim Start, für ein exaktes Replay:
@@ -1323,6 +1329,7 @@ window.GL = window.GL || {};
           unlocked: (p.unlocked || []).slice(), epics: (p.epics || []).slice(),
           upgrades: Object.assign({}, up), gear: Array.isArray(p.gear) ? p.gear.slice() : [], heat: p.heat || 0, hunt: p.hunt || null, altOpen: !!p.altOpen, altOpen1: !!p.altOpen1, buddy: typeof p.buddy === 'string' && p.buddy !== 'self' ? p.buddy : null,
           endlessSea: Number.isInteger(p.endlessSea) ? p.endlessSea : null,
+          ramp: !!p.ramp,
           arts: (p.arts || []).map(a => ({ id: a.id, lvl: a.lvl })),
           items: (p.items || []).map(x => ({ uid: x.uid, id: x.id, r: x.r, lvl: x.lvl || 0 })),
           skills: skillBonus(p.skills),
