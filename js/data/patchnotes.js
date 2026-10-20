@@ -1,6 +1,11 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-21k', date: '20.10.', title: 'Kein Run geht mehr über Bord', items: [
+    '🏆 Lange, richtig gute Runs landen jetzt auch in der Rangliste. Bisher war ausgerechnet deren Logbuch zu dick für den Briefkasten',
+    '📮 Klappt das Senden mal nicht, merkt sich das Spiel den Run und schickt ihn später nochmal. Auch wenn du den Tab schon zugemacht hast',
+    '☁ Der Cloud-Spielstand kommt beim Schließen zuverlässiger an, auch mitten im Run',
+    '🌱 Neue Piraten werden nicht mehr mit der Update-Tour für alte Hasen begrüßt' ] },
   { v: '2026-10-21j', date: '19.10.', title: 'Seekarte aufgeräumt', items: [
     '🧹 Seekarte aufgeräumt: Jedes Ding hat jetzt sein eigenes Feld. Keine Schilder mehr, die sich gegenseitig auf die Füße treten',
     '🏷 Namen zeigt ein Antippen, die Gebiete stehen als kleine Legende unter der Karte. Das Schiff passt wieder in seinen Hafen',
