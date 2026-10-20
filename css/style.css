@@ -9983,3 +9983,9 @@ body:has(#fpop) .toasts .toast:not(.out) { visibility: hidden; }
 .pe-c:active { transform: translateY(1px); box-shadow: inset 2px 2px 0 rgba(255,255,255,.28), inset -2px -2px 0 rgba(0,0,0,.18); }
 .pe-c:focus-visible { outline: 3px solid #f2c94c; outline-offset: 2px; }
 @media (max-width: 560px) { .pe-c { width: 30px; height: 30px; } }
+/* Klar Schiff: Crew- und Gegner-Kärtchen unter der Bühne mit kleinem Porträt (2× Pixel, wie im Entwurf) */
+.battle3d .hud .fighter, .battle3d .hud .side-enemy .fighter { grid-template-columns: auto minmax(0, 1fr) auto !important; grid-template-areas: 'spr name hp' 'spr bar bar' !important; column-gap: 7px !important; }
+.battle3d .hud .f-sprite { display: block !important; grid-area: spr; width: 28px; height: 32px; align-self: center; }
+.battle3d .hud .f-sprite svg { width: 28px !important; height: 32px !important; shape-rendering: crispEdges; }
+.battle3d .hud .fighter.ko .f-sprite { opacity: .45; filter: grayscale(1); }
+@media (max-width: 380px) { .battle3d .hud .f-sprite, .battle3d .hud .f-sprite svg { width: 21px !important; height: 24px !important; } }
