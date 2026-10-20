@@ -1,6 +1,10 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-21l', date: '20.10.', title: 'Sprechblasen aus Pixeln', items: [
+    '💬 Die Crew redet im Kampf jetzt in echten Pixel-Sprechblasen. Buchstabe für Buchstabe, damit auch Zorro mitkommt',
+    '🟥 Gegner sprechen in Rot. Freundlicher werden sie dadurch nicht',
+    '⏩ Die Tempo-Leiste zeigt Pfeile statt Zeichensalat: ein Pfeil gemütlich, vier Pfeile Turbo' ] },
   { v: '2026-10-21k', date: '20.10.', title: 'Kein Run geht mehr über Bord', items: [
     '🏆 Lange, richtig gute Runs landen jetzt auch in der Rangliste. Bisher war ausgerechnet deren Logbuch zu dick für den Briefkasten',
     '📮 Klappt das Senden mal nicht, merkt sich das Spiel den Run und schickt ihn später nochmal. Auch wenn du den Tab schon zugemacht hast',
