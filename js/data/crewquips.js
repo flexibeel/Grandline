@@ -150,6 +150,7 @@ GL.data.crewQuipsRole = {
   function alive(exclude) {
     return [...document.querySelectorAll('#field .fu-crew:not(.ko)')].map(x => Number(x.dataset.i)).filter(i => i !== exclude && st.run && st.run.crew[i] && st.run.crew[i].id !== 'self');
   }
+  const duoMemo = { seed: null, said: {} };
   function fire(kind, i, n) {
     if (st.used || st.speed >= 3) return false;
     const u = st.run && st.run.crew[i];
@@ -186,6 +187,20 @@ GL.data.crewQuipsRole = {
       if (!up.length) return;
       const mate = up.find(i => run.crew[i].id === run.mate);
       setTimeout(() => fire(kind, mate != null ? mate : pick(up)), 350);
+    },
+    // Großes Update: Duo-Wortwechsel zu Kampfbeginn (ab und zu, jedes Duo einmal pro Run)
+    duo(run) {
+      if (st.used || st.speed >= 3 || !run || !run.battle || run.battle.kind === 'duel' || !GL.effects || !GL.effects.duos) return;
+      const Q = GL.data.duoQuips || {};
+      if (duoMemo.seed !== run.seed) { duoMemo.seed = run.seed; duoMemo.said = {}; }
+      const list = GL.effects.duos(run.crew).map(d => d.a + '+' + d.b).filter(k => Q[k] && !duoMemo.said[k]);
+      if (!list.length || Math.random() > 0.35) return;
+      const key = pick(list), conv = pick(Q[key]);
+      const en = GL.i18n && GL.i18n.lang && GL.i18n.lang() === 'en';
+      const idx = id => run.crew.findIndex(u => u.id === id && u.hp > 0);
+      if (conv.some(l => idx(l[0]) < 0)) return;
+      duoMemo.said[key] = true; st.used = true;
+      conv.forEach((l, k) => setTimeout(() => { if (GL.arena && GL.arena.say) GL.arena.say('crew', idx(l[0]), en ? l[2] : l[1], 1700); }, 900 + k * 1600));
     },
     speed(v) { st.speed = v || 2; },
     line: lineFor

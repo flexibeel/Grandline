@@ -852,7 +852,7 @@
     document.body.classList.toggle('fast', anim.speed >= 3);
     anim.rn = 0;
     setTimeout(showSpeed, 50);
-    if (GL.quips) GL.quips.start(run, anim.speed);
+    if (GL.quips) { GL.quips.start(run, anim.speed); if (GL.quips.duo) { try { GL.quips.duo(run); } catch (e) { /* nur Deko */ } } }
     anim.timer = setTimeout(stepAnim, SPEED.normal * SPEEDF[anim.speed]);
   }
   function setSpeed(v) {
