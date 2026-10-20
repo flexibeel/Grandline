@@ -1436,6 +1436,8 @@ window.GL = window.GL || {};
         : unitName(run.battle.enemies[ev.from]);
       const target = targetName(run, ev.side === 'crew' ? 'enemy' : 'crew', ev.to);
       if (ev.blocked) return `${attacker} greift ${target} an, aber der Impact Dial wehrt ab.`;
+      if (ev.heavy && ev.par === 2) return EN ? `${target} parries ${attacker}'s heavy blow perfectly. ${attacker} staggers!` : `${target} pariert den schweren Schlag von ${attacker} perfekt. ${attacker} taumelt!`;
+      if (ev.heavy && ev.par && !ev.miss) return EN ? `${target} catches the heavy blow just in time: only ${ev.dmg} damage.` : `${target} fängt den schweren Schlag gerade noch ab: nur ${ev.dmg} Schaden.`;
       if (ev.miss && ev.heavy) return `${target} duckt sich unter dem schweren Schlag von ${attacker} weg. Elegant. Fast.`;
       if (ev.miss) return `${target} weicht ${attacker} aus.`;
       if (ev.heavy) return `${attacker} landet den schweren Schlag: ${ev.dmg} Schaden an ${target}.${ev.hp <= 0 ? ' Autsch.' : ''}`;

@@ -36,7 +36,7 @@ window.GL = window.GL || {};
     return (team || []).filter(f => !(f.boss || f.mini || f.raid) && P.ids.includes(f.id)).length >= (P.min || 1);
   }
   const INT_TXT = {
-    wind: ['Holt aus', 'Alle 3 Runden kündigt er einen schweren Schlag an. Ausweichen und Rüstung helfen dagegen doppelt.', 'Winds up', 'Every 3 rounds he announces a heavy blow. Dodge and armor count double against it.'],
+    wind: ['Holt aus', 'Alle 3 Runden kündigt er einen schweren Schlag an. Tippe, wenn sich der Ring schließt, dann pariert deine Crew. Ausweichen und Rüstung helfen doppelt.', 'Winds up', 'Every 3 rounds he announces a heavy blow. Tap when the ring closes and your crew parries. Dodge and armor count double against it.'],
     call: ['Ruft Verstärkung', 'Wird er wütend, pfeift er einen gefallenen Gefolgsmann zurück. Schnell sein lohnt sich.', 'Calls for help', 'Once enraged, he whistles a fallen henchman back up. Speed pays off.'],
     healBoss: ['Flickt den Boss', 'Heilt jede Runde, am liebsten den Anführer. Zuerst ausschalten.', 'Patches up the boss', 'Heals every round, the leader first. Take it out early.'],
     heal: ['Heiler', 'Heilt jede Runde den Angeschlagensten seiner Truppe.', 'Healer', 'Heals the most battered ally every round.'],
@@ -695,6 +695,14 @@ window.GL = window.GL || {};
     const impact = () => {
       if (ev.heavy) { const b = fu('enemy', ev.from); if (b) b.classList.remove('windup'); }
       const sk = sigKey();
+      // SKILL: perfekte Parade. Die Figur fängt den Schlag sauber ab, der Boss taumelt zurück
+      if (ev.par === 2) {
+        pulse(tgt, 'dodge'); fx('fx-block', T, 600); if (!fast) fx('fx-ring', T, 700);
+        pulse($('#field'), 'knudge');
+        fieldFloat(tside, ev.to, 'Perfekte Parade!', 'crit');
+        const b = fu('enemy', ev.from); if (b) { pulse(b, 'hurt'); tagAt('enemy', ev.from, 'Taumelt!', 'debuff', 60); }
+        return;
+      }
       if (ev.miss) {
         // Tempo-Stil: deine Figur wischt sichtbar zur Seite, mit Stil-Zeichen
         if (tside === 'crew' && sk === 'technik') {
@@ -715,7 +723,7 @@ window.GL = window.GL || {};
       const big = bigNum(tside, ev.to, ev.dmg);
       if (type === 'kraft' && !fast) fx('kfx-dust', { x: T.x, y: T.y + 22 }, 520);
       if ((type === 'kraft' && big === ' huge') || ev.heavy) pulse($('#field'), 'knudge');
-      if (ev.heavy) { fx('kfx-heavy', T, 650); tagAt(tside, ev.to, 'Schwerer Schlag!', 'debuff', 60); }
+      if (ev.heavy) { fx('kfx-heavy', T, 650); tagAt(tside, ev.to, ev.par ? 'Abgefangen!' : 'Schwerer Schlag!', ev.par ? 'buff' : 'debuff', 60); }
       if (ev.eff === 'strong') fx('fx-ring', T, 700);
       pulse(tgt, ev.crit ? 'hurt-crit' : 'hurt');
       if (GL.arenaFx) try { GL.arenaFx.hit(ev, A, T, type, fast); } catch (e) { /* nur Deko */ }

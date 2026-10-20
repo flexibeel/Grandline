@@ -10003,3 +10003,24 @@ body.legend-drop::after { content: ''; position: fixed; inset: 0; pointer-events
 @keyframes lgFlash { 0% { opacity: 0; } 15% { opacity: 1; } 100% { opacity: 0; } }
 .toast .ir-legend-fx, .toast-item.ir-legend-fx { box-shadow: 0 0 0 2px #f2c94c, 0 0 18px rgba(242, 201, 76, .6); }
 @media (prefers-reduced-motion: reduce) { body.legend-drop::after { animation: none; display: none; } }
+
+/* SKILL: Konter-Tippen. Ein Ring schließt sich um die getroffene Figur, Tippen im richtigen Moment pariert */
+.parry-win { position: absolute; inset: 0; z-index: 60; cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+.parry-ring { position: absolute; width: 64px; height: 64px; margin: -32px 0 0 -32px; pointer-events: none; }
+.parry-ring::before { content: ''; position: absolute; inset: 0; border: 4px solid #fff3d6; box-shadow: 0 0 0 3px #2a1a10, inset 0 0 0 3px #2a1a10; border-radius: 50%; opacity: .55; }
+.parry-ring i { position: absolute; inset: 0; border: 4px solid #e0a020; box-shadow: 0 0 0 3px #2a1a10; border-radius: 50%;
+  animation: parry-close var(--pc, 900ms) linear forwards; }
+@keyframes parry-close { from { transform: scale(2.8); opacity: .35; } 85% { opacity: 1; } to { transform: scale(1); opacity: 1; } }
+.parry-ring.p-top::before { border-color: #ffd34a; opacity: 1; }
+.parry-ring.p-ok::before { border-color: #8fd18f; opacity: 1; }
+.parry-ring.p-miss::before { border-color: #c0392b; opacity: .9; }
+.parry-ring.p-top i, .parry-ring.p-ok i, .parry-ring.p-miss i { animation: none; opacity: 0; }
+.parry-ring em { position: absolute; left: 50%; top: -14px; transform: translate(-50%, -100%); white-space: nowrap; font: 700 13px/1 "Pixelify Sans", var(--px, monospace);
+  font-style: normal; color: #fff; padding: 4px 7px 5px; background: #e0a020; text-shadow: 0 1px 0 rgba(0,0,0,.45);
+  box-shadow: 0 -2px 0 #2a1a10, 0 2px 0 #2a1a10, -2px 0 0 #2a1a10, 2px 0 0 #2a1a10; }
+.parry-ring.p-ok em { background: #4f9a5a; }
+.parry-ring.p-miss em { background: #c0392b; }
+.parry-hint { position: absolute; left: 50%; bottom: 10px; transform: translateX(-50%); white-space: nowrap; pointer-events: none;
+  font: 700 12px/1 "Pixelify Sans", var(--px, monospace); color: #3a2008; background: #fff3d6; padding: 6px 9px 7px;
+  box-shadow: 0 -2px 0 #2a1a10, 0 2px 0 #2a1a10, -2px 0 0 #2a1a10, 2px 0 0 #2a1a10; }
+@media (prefers-reduced-motion: reduce) { .parry-ring i { animation-timing-function: steps(6, end); } }

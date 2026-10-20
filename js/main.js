@@ -909,6 +909,61 @@
     rcCharge();
     const b = document.querySelector(`.rc-btn[data-c="${k}"]`); if (b) { b.classList.add('used'); setTimeout(() => b.classList.remove('used'), 500); }
   }
+  // SKILL: Konter-Tippen. Kommt in diesem Zug der angekündigte schwere Schlag, hält die Wiedergabe kurz an.
+  // Ein Ring schließt sich um die getroffene Figur. Tippt man genau dann, pariert die Crew:
+  // perfekt (kein Schaden, Boss taumelt) oder knapp (Schaden gedämpft). Zu früh getippt = verpatzt.
+  // Der Tipp kommt als Befehl in die Aktion, der Kampf wird ab hier neu gerechnet (Replays stimmen).
+  const PARRY = { close: 900, perfect: 110, good: 260 };
+  function parryOpen(t) {
+    if (!anim || anim.done || !ui.rf || !run || !run.battle) return false;
+    anim.pt = anim.pt || {};
+    if (anim.pt[t]) return false;
+    const evs = run.battle.events;
+    let hit = null;
+    for (let j = anim.i; j < evs.length && evs[j].k !== 'turn'; j++) if (evs[j].k === 'hit' && evs[j].heavy && evs[j].side === 'enemy') { hit = evs[j]; break; }
+    if (!hit || hit.par) return false;
+    const field = document.getElementById('field');
+    const tgt = field && field.querySelector(`.fu[data-side="crew"][data-i="${hit.to}"]`);
+    if (!tgt) return false;
+    anim.pt[t] = 1;
+    const fr = field.getBoundingClientRect(), r = tgt.getBoundingClientRect();
+    const w = document.createElement('div');
+    w.className = 'parry-win';
+    const n = (profile.parryN || 0);
+    w.innerHTML = `<span class="parry-ring" style="left:${r.left + r.width / 2 - fr.left}px;top:${r.top + r.height / 2 - fr.top}px;--pc:${PARRY.close}ms"><i></i></span>`
+      + (n < 3 ? `<b class="parry-hint">${GL.i18n && GL.i18n.lang() === 'en' ? 'Tap when the ring closes!' : 'Tippen, wenn sich der Ring schließt!'}</b>` : '');
+    field.appendChild(w);
+    const me = anim, t0 = performance.now();
+    let over = false;
+    const done = dt => {
+      if (over) return; over = true;
+      clearTimeout(tm);
+      w.removeEventListener('pointerdown', onTap); document.removeEventListener('keydown', onKey, true);
+      if (anim !== me || anim.done) { w.remove(); return; }
+      const ad = dt == null ? null : Math.abs(dt);
+      const q = ad == null ? 0 : ad <= PARRY.perfect ? 2 : ad <= PARRY.good ? 1 : 0;
+      const ring = w.querySelector('.parry-ring');
+      if (ring) { ring.classList.add(q === 2 ? 'p-top' : q === 1 ? 'p-ok' : 'p-miss'); }
+      const lab = q === 2 ? 'Perfekt!' : q === 1 ? 'Gut!' : dt != null && dt < 0 ? 'Zu früh!' : '';
+      if (lab && ring) { const l = document.createElement('em'); l.textContent = GL.i18n && GL.i18n.t ? GL.i18n.t(lab) : lab; ring.appendChild(l); }
+      if (q) {
+        ui.rf.cmds.push({ at: t, cmd: 'parry', q });
+        if (!rcResim()) ui.rf.cmds.pop();
+        if (GL.sfx) GL.sfx.play(q === 2 ? 'crit' : 'block', anim.speed);
+      }
+      if (dt != null) { profile.parryN = n + 1; saveProfile(); }
+      setTimeout(() => w.remove(), 450);
+      anim.timer = setTimeout(stepAnim, q ? 160 : 60);
+    };
+    const onTap = e => { e.preventDefault(); e.stopPropagation(); done(performance.now() - t0 - PARRY.close); };
+    const onKey = e => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); e.stopPropagation(); done(performance.now() - t0 - PARRY.close); } };
+    w.addEventListener('pointerdown', onTap);
+    w.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); });   // das Feld selbst heißt sonst „schneller“
+    document.addEventListener('keydown', onKey, true);
+    const tm = setTimeout(() => done(null), PARRY.close + PARRY.good);
+    return true;
+  }
+
   // Gegner im laufenden Kampf antippen: Fokusziel ab dem nächsten Zug
   function rcFocus(i) {
     if (!anim || anim.done || !ui.rf || !run || !run.battle) return;
@@ -938,7 +993,7 @@
     const ev = run.battle.events[anim.i++];
     if (!ev) { anim.done = true; GL.ui.hold = null; if (GL.sfx) GL.sfx.play(run.battle.win ? 'win' : 'lose'); draw(); if (GL.quips) { const r = run, hp = anim.crewHp.slice(); setTimeout(() => { if (run === r) GL.quips.end(r, hp); }, 120); } return; }
     // Zug-Marke: Befehlsknöpfe laden, sonst nichts zu sehen
-    if (ev.k === 'turn') { if (ui.rf) ui.rf.turn = ev.t; anim.rc = anim.rc || { rally: 0, guard: 0, burst: 0 }; RUN_CMDS.forEach(k => { anim.rc[k] = (anim.rc[k] || 0) + 1; }); rcCharge(); anim.timer = setTimeout(stepAnim, 0); return; }
+    if (ev.k === 'turn') { if (ui.rf) ui.rf.turn = ev.t; anim.rc = anim.rc || { rally: 0, guard: 0, burst: 0 }; RUN_CMDS.forEach(k => { anim.rc[k] = (anim.rc[k] || 0) + 1; }); rcCharge(); if (parryOpen(ev.t)) return; anim.timer = setTimeout(stepAnim, 0); return; }
     if (ev.k === 'cmd') { GL.arena.play(ev); anim.timer = setTimeout(stepAnim, Math.max(350, 700 * (SPEEDF[anim.speed] || 0.55))); return; }
     const setHp = (side, to, hp) => { (side === 'crew' ? anim.crewHp : anim.enemyHp)[to] = hp; };
     if (ev.k === 'hit') setHp(ev.side === 'crew' ? 'enemy' : 'crew', ev.to, ev.hp);
