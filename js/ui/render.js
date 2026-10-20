@@ -1346,7 +1346,7 @@ window.GL = window.GL || {};
       <span class="event-kicker">Deine Boni</span>
       <div class="syn-pop-list">${teamGrid(run, true) || '<p class="tr-empty">Noch keine Boni.</p>'}</div>
       <p class="tm-legend"><i class="tm-l on"></i>aktiv <i class="tm-l"></i>fast <em>+1</em> fehlt noch</p>
-      <div class="fpop-btns"><button class="btn ghost" data-act="wiki-open" data-v="boni">Alle Banden im Wiki</button><button class="btn" data-act="pop-close">Alles klar</button></div></div>`;
+      <div class="fpop-btns"><button class="btn ghost" data-act="wiki-open" data-v="boni">Alle Boni ansehen</button><button class="btn" data-act="pop-close">Alles klar</button></div></div>`;
   }
 
   // ---------- Kampftexte ----------
@@ -1926,7 +1926,7 @@ window.GL = window.GL || {};
                 ${gr ? `<small class="capv-grow">Rang ${gr.rank}${gr.bond ? ` · Vertraut ${gr.bond}` : ''} → +${gr.hp} Leben, +${gr.atk} Angriff${gr.spd ? `, +${gr.spd} Tempo` : ''}</small>` : ''}</span>
             </div>
             <h2 class="capv-h">Wähle deinen Ersten Maat</h2>
-            <p class="hint">Der Maat kommt sofort an Bord. Seine Heuer ist dein Startgold, er ist es wert. Meistens.</p>
+            <p class="hint">Dein Erster Maat heuert sofort an. Kostet dein Startgold. Lohnt sich. Meistens.</p>
             <div class="cards">${run.pool.map((o, i) => offerButton(run, o, i, 'cap mate' + (crewData(o.id).locked ? ' unlocked-cap' : '') + (run.buddy === o.id ? ' buddy-cap' : ''), false)).join('')}</div>${run.buddy && run.pool.some(o => o.id === run.buddy) ? `<p class="hint buddy-hint">♥ ${esc(crewData(run.buddy).name)} ist dein Vertrauter und steht extra zur Wahl.</p>` : ''}${restMate}${lockedHtml}`;
         }
         return `<h2>Wähle deinen Kapitän</h2>
@@ -4719,7 +4719,7 @@ window.GL = window.GL || {};
     { id: 'kammer', name: 'Schatzkammer', art: 'chest', sub: p => `${p.artLoadout.length}/${GL.meta.artSlots(p)} dabei` },
     { id: 'lager', name: 'Lager', art: 'crate', sub: p => `${p.loadout.length}/${GL.meta.slots(p)} dabei` },
     { id: 'haendler', name: 'Händler', art: 'stall', sub: () => 'Proviant' },
-    { id: 'profil', name: 'Kapitänsbuch', art: 'scroll', sub: () => 'Rang, Code, Konto' }
+    { id: 'profil', name: 'Kapitänsbuch', art: 'scroll', sub: () => 'Rang & Konto' }
   ];
   const roomArt = a => a === 'ship' ? GL.sprites.ship() : featureArt(a);
   // UX2: kurze Namen für die kleinen Handy-Kacheln
@@ -5128,7 +5128,7 @@ window.GL = window.GL || {};
     {
       kicker: 'Willkommen an Bord',
       title: 'Auf zur Grand Line',
-      body: `<p class="in-lead">Crew sammeln, Inseln erobern, den Boss umhauen. Ein Run dauert etwa 20 Minuten. Scheitern gehört dazu: Mit jeder Fahrt wirst du stärker.</p>
+      body: `<p class="in-lead">Crew sammeln, Inseln erobern, den Boss umhauen. Eine Fahrt dauert etwa 20 Minuten. Scheitern gehört dazu: Mit jeder Fahrt wirst du stärker.</p>
         <div class="intro-note"><b>Inoffizielles Fanprojekt.</b> Kostenlos, ohne Werbung, nicht verbunden mit Eiichiro Oda, Shueisha oder Toei Animation.</div>`
     },
     {

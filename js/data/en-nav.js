@@ -37,7 +37,7 @@ Object.assign(GL.data.en, {
 // Fork V: Du bist Kapitän
 Object.assign(GL.data.en, {
   'Kapitän': 'Captain', 'Wähle deinen Ersten Maat': 'Pick your First Mate',
-  'Der Maat kommt sofort an Bord. Seine Heuer ist dein Startgold, er ist es wert. Meistens.': 'Your mate comes aboard right away. Their wage is your starting gold. Worth it. Usually.',
+  'Dein Erster Maat heuert sofort an. Kostet dein Startgold. Lohnt sich. Meistens.': 'Your first mate signs on right away. Costs your starting gold. Worth it. Mostly.',
   '⚓ Warten am Steg': '⚓ Waiting on the dock', 'Nächstes Mal stehen andere als Maat bereit. Der Steg ist geduldig.': 'Next time others are ready to sign on. The dock is patient.',
   '⚓ Dein Pirat ist immer Kapitän': '⚓ Your pirate is always captain'
 });

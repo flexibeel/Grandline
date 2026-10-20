@@ -640,7 +640,7 @@
         profile.tips = Object.assign(profile.tips || {}, { level: true });
         const autoT = profile.settings && profile.settings.autoTrain;
         setTimeout(() => toast(autoT
-          ? `<i>${GL.sprites.coin()}</i><span><b>Level-up!</b>Deine Crew trainiert von selbst. Wer lieber selbst Punkte verteilt: Figur antippen.</span>`
+          ? `<i>${GL.sprites.coin()}</i><span><b>Level-up!</b>Deine Crew trainiert jetzt allein. Lieber selbst verteilen? Figur antippen.</span>`
           : `<i>${GL.sprites.coin()}</i><span><b>Level-up!</b>Jedes Level bringt 2 Statuspunkte. Klicke auf eine Figur oder auf „Punkte verteilen“, um sie auf Leben, Angriff oder Tempo zu setzen.</span>`), 2500);
       }
     }

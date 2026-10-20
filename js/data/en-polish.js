@@ -2,9 +2,13 @@
 window.GL = window.GL || {};
 GL.data = GL.data || {};
 GL.data.en = Object.assign(GL.data.en || {}, {
+  // Klar Schiff: neue Texte
+  'Deine Crew trainiert jetzt allein. Lieber selbst verteilen? Figur antippen.': 'Your crew trains on autopilot. Want to pick? Tap a pirate.',
+  'Alle Boni ansehen': 'See all bonuses',
+  'Rang & Konto': 'Rank & account',
   'Willkommen an Bord': 'Welcome aboard',
   'Auf zur Grand Line': 'Off to the Grand Line',
-  'Crew sammeln, Inseln erobern, den Boss umhauen. Ein Run dauert etwa 20 Minuten. Scheitern gehört dazu: Mit jeder Fahrt wirst du stärker.': 'Gather a crew, conquer islands, knock out the boss. A run takes about 20 minutes. Failing is part of it: every voyage makes you stronger.',
+  'Crew sammeln, Inseln erobern, den Boss umhauen. Eine Fahrt dauert etwa 20 Minuten. Scheitern gehört dazu: Mit jeder Fahrt wirst du stärker.': 'Gather a crew, conquer islands, knock out the boss. A voyage takes about 20 minutes. Failing is part of it: every voyage makes you stronger.',
   'Inoffizielles Fanprojekt.': 'Unofficial fan project.',
   'Kostenlos, ohne Werbung, nicht verbunden mit Eiichiro Oda, Shueisha oder Toei Animation.': 'Free, no ads, not affiliated with Eiichiro Oda, Shueisha or Toei Animation.',
   'So läuft ein Run': 'How a run works',
