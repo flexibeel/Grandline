@@ -9918,3 +9918,5 @@ em.type.t-technik { background: #5b86b3 !important; }
 .fbar3 .fbar-sp:not(.on):not(:disabled):hover { background: rgba(255, 220, 160, .12); color: #fff3d6 !important; }
 .fbar3 .fbar-sp:focus-visible { outline: 2px solid #ffe58a; outline-offset: 1px; }
 @media (max-width: 380px) { .fbar-sp .sp-x { display: none; } }
+/* Hinweis „Neue Adresse“ im Startbildschirm-Fenster (Design wird später poliert) */
+.inst-moved { margin: 0 0 10px; padding: 8px 10px; border: 2px dashed #c8964a; border-radius: 8px; background: #fff6df; font-size: .82rem; line-height: 1.35; color: #4a2e16; }
