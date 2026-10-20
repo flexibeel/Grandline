@@ -121,5 +121,26 @@ GL.data.storyLaunch = [
       ['self', 'Und was gewinnt, wer zuerst die beste Beute hat?', 'And what does whoever gets the best loot first win?', '?'],
       ['ruffy', 'Ruhm! Ehre! Und den besten Platz am Tisch, wenn wir danach alle zusammen essen!', 'Glory! Honor! And the best seat at the table when we all eat together afterwards!', '🍖', 'jump'],
       ['ruffy', 'LEINEN LOS! AUF DIE GRAND LINE!', 'CAST OFF! TO THE GRAND LINE!', '!', 'flash']
+    ] },
+  // Update-Szene für Rückkehrer: Der Spielmacher fliegt ein (late = erscheint erst bei seinem ersten Satz).
+  // Den Schlachtruf (Zeile mit 'ARRR') kann man frei austauschen.
+  { id: 'u-spielmacher', no: 0, bg: 'hafen', late: ['dev'], kicker: ['Update', 'Update'],
+    title: ['Besuch von ganz oben', 'A visitor from above'], need: ['Nach dem Update', 'After the update'],
+    lines: [
+      ['ruffy', 'Da bist du ja wieder! Wir haben hier auf dem Steg gewartet. Die ganze Zeit. Ohne Essen.', 'There you are again! We waited right here on the pier. The whole time. Without food.', '!', 'jump'],
+      ['nami', 'Er hat zwei Fässer Fleisch gegessen. „Ohne Essen“ ist eine kühne Behauptung.', 'He ate two barrels of meat. “Without food” is a bold claim.', '💢'],
+      ['kalle', 'KRAA! Da oben! Ist das ein Vogel? Ein Schiff? Eine Möwe mit Ambitionen?!', 'KRAA! Up there! Is it a bird? A ship? A seagull with ambitions?!', '!', 'dramatic'],
+      ['dev', 'ARRR! Macht Platz, ihr Landratten! Hier landet der Kerl mit dem Schlüssel zum Code!', 'ARRR! Make way, landlubbers! Here lands the guy with the key to the code!', '✨', 'flash'],
+      ['dev', 'Ich bin …', 'I am …', '', 'dramatic'],
+      ['dev', '… ich.', '… me.', ''],
+      ['zorro', 'Sehr hilfreich.', 'Very helpful.', '💦'],
+      ['dev', 'Ich hab dieses Spiel gebaut. Die Inseln, die Crew, die Kanonen. Und ehrlich gesagt auch die meisten Fehler.', 'I built this game. The islands, the crew, the cannons. And honestly, most of the bugs too.', '', 'zoom'],
+      ['zorro', 'Dann bist du also schuld, dass ich mich auf der Karte ständig verlaufe.', 'So you are the reason I keep getting lost on the map.', '?'],
+      ['dev', 'Nein. Das schaffst du ganz allein.', 'No. You manage that all by yourself.', '😏'],
+      ['dev', 'Hört zu, Piraten: Ab jetzt kommen regelmäßig Updates. Und ihr bestimmt mit, wohin die Reise geht.', 'Listen up, pirates: updates will keep coming. And you help decide where the voyage goes.', '', 'zoom'],
+      ['dev', 'Nervt euch was? Fehlt was? Unten im Hafen unter „★ Feedback“ landet alles direkt bei mir. Ich lese wirklich jeden Zettel.', 'Something annoying? Something missing? Down in the harbor under “★ Feedback” it all lands right with me. I really read every note.', '♥', 'sparkle'],
+      ['robin', 'Sogar die mit den Rechtschreibfehlern. Er korrigiert sie nur nicht.', 'Even the ones with spelling mistakes. He just does not correct them.'],
+      ['dev', 'Das Spiel bleibt kostenlos. Wer etwas Gutes tun will: Das nächste Tierheim freut sich mehr als ich.', 'The game stays free. If you want to do something nice: your local animal shelter needs it more than I do.', '🐾'],
+      ['ruffy', 'Verstanden! Also: ESSEN! Äh … ich meine: LEINEN LOS!', 'Got it! So: FOOD! Uh … I mean: CAST OFF!', '🍖', 'jump']
     ] }
 ];

@@ -263,7 +263,7 @@
     // Nur ein einziges Mal fragen (Felix: einmal reicht, weggeklickt bleibt weg)
     const runs = (profile.stats && profile.stats.runs) || 0, fb = profile.fb || {};
     if (fb.shown || fb.asked || fb.sent) return false;
-    return runs >= 3;
+    return runs >= 2 || (profile.playMin || 0) >= 10;
   }
   // ☰ im Run: Kapitänskajüte mit großen Daumen-Knöpfen
   function runMenuHtml() {
@@ -1785,6 +1785,7 @@
         { const ci = document.getElementById('pf-crew'); if (ci) { const v = ci.value.replace(/[<>"'`&\\]/g, '').replace(/\s+/g, ' ').trim().slice(0, 20); if (!v) profile.crewName = null; else if (GL.nameCheck(v).ok) profile.crewName = v; } }
         // Neue Piraten kennen das alte Spiel nicht: Die „Großes Update“-Tour ist nur für Bestandsspieler
         if (!profile.nickname && GL.data.news) profile.newsSeen = GL.data.news.v;
+        if (!profile.nickname) profile.devIntroNew = true;
         profile.nickname = name.slice(0, 24);
         if (GL.friends && GL.friends.applyRef(profile)) setTimeout(() => toast('<span><b>Willkommen an Bord!</b>Ein Freund hat dich eingeladen: +150 Berry als Geschenk.</span>'), 1200);
         GL.run.registerSelf(selfNow());
@@ -2587,6 +2588,20 @@
         GL.story.play(profile, 'launch', () => { saveProfile(); ui.newsShown = false; ui.lastStage = null; draw(); });
       };
       setTimeout(playLaunch, 1200);
+    }
+    // Spielminuten zählen (nur sichtbarer Tab), für die einmalige Feedback-Frage nach 10 Minuten
+    setInterval(() => { if (profile.nickname && document.visibilityState === 'visible' && (profile.playMin || 0) < 100000) profile.playMin = (profile.playMin || 0) + 1; }, 60000);
+    // Update-Szene „Besuch von ganz oben“: einmal für alle, die schon vorher gespielt haben
+    if (!profile.launchIntro && profile.nickname && ((profile.stats && profile.stats.runs) || 0) > 0 && ((profile.story = profile.story || {}).seen = profile.story.seen || []) && !profile.story.seen.includes('u-spielmacher')) {
+      if (profile.devIntroNew) { profile.story.seen.push('u-spielmacher'); }
+      else {
+        ui.storyShown = true; ui.newsShown = true;
+        const playDev = () => {
+          if (!GL.story || GL.story.active() || document.getElementById('fpop') || run) { setTimeout(playDev, 1500); return; }
+          GL.story.play(profile, 'u-spielmacher', () => { saveProfile(); ui.newsShown = false; ui.lastStage = null; draw(); });
+        };
+        setTimeout(playDev, 1400);
+      }
     }
     if (profile.seasonWipe) {
       const doWipe = (k) => {
