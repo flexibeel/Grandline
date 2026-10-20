@@ -10,6 +10,8 @@ window.GL = window.GL || {};
 
   function who(profile, id) {
     if (id === 'self') { const s = GL.meta.selfDef(profile) || { name: '', look: {} }; return { name: profile.nickname || (en() ? 'You' : 'Du'), spr: GL.sprites.render({ id: 'self', name: s.name, look: s.look }) }; }
+    // Der Spielmacher: fliegt in der Update-Szene ein (Dreispitz, Brille, Kapitänsrock)
+    if (id === 'dev') return { name: en() ? 'Flex, the Game Maker' : 'Flex, der Spielmacher', spr: GL.sprites.render({ id: 'dev', name: 'Spielmacher', look: { hair: '#3a2a1a', skin: '#f0c8a0', shirt: '#24357a', pants: '#1c1c2a', hat: 'tricorn', hatColor: '#1a1410', acc: 'brille' } }) };
     if (id === 'kalle') { const p = (GL.data.pets || []).find(x => x.id === 'moewe'); return { name: en() ? 'Kalle the News Coo' : 'Kalle, die Zeitungsmöwe', spr: p ? GL.sprites.renderShaded({ id: 'pet-moewe', art: p.art }) : '' }; }
     const d = GL.data.crew.find(c => c.id === id);
     return d ? { name: d.name, spr: GL.sprites.renderShaded ? GL.sprites.renderShaded(d) : GL.sprites.render(d) } : { name: id, spr: '' };
@@ -60,7 +62,7 @@ window.GL = window.GL || {};
     el.setAttribute('role', 'dialog');
     el.innerHTML = `<div class="st-sky"><i class="st-sun"></i><i class="st-cloud a"></i><i class="st-cloud b"></i><i class="st-stars"></i></div>
       ${ch.home && GL.ui && GL.ui.cardStage ? `<div class="st-home">${GL.ui.cardStage({ id: ch.home })}</div>` : ''}<div class="st-sea">${['hafen', 'schiff', 'insel', 'nacht'].includes(ch.bg) ? `<span class="st-ship">${GL.sprites.ship ? GL.sprites.ship((profile.cos && profile.cos.ship) || undefined) : ''}</span>` : ''}</div><div class="st-ground">${props(ch.bg)}</div><i class="st-bird a"></i><i class="st-bird b"></i>
-      <div class="st-cast">${cast.map((c, i) => `<span class="st-who" data-w="${esc(c)}" style="--i:${i};--n:${cast.length};--from:${i < cast.length / 2 ? -1 : 1}"><i class="st-emote"></i><i class="st-spr">${W[c].spr}</i><i class="st-shadow"></i></span>`).join('')}</div>
+      <div class="st-cast">${cast.map((c, i) => `<span class="st-who${(ch.late || []).includes(c) ? ' late' : ''}" data-w="${esc(c)}" style="--i:${i};--n:${cast.length};--from:${i < cast.length / 2 ? -1 : 1}"><i class="st-emote"></i><i class="st-spr">${W[c].spr}</i><i class="st-shadow"></i></span>`).join('')}</div>
       <div class="st-bar top"></div><div class="st-bar bot"></div>
       <div class="st-title"><small>${ch.kicker ? esc(L(ch.kicker)) : ch.home ? (en() ? 'Crew moment' : 'Crew-Moment') : (en() ? 'Chapter' : 'Kapitel') + ' ' + ch.no}</small><b>${esc(L(ch.title))}</b></div>
       <div class="st-ctl"><button class="st-auto${auto ? ' on' : ''}" data-st="auto">${en() ? 'Auto' : 'Auto'} ▶</button><button class="st-skip" data-st="skip">${en() ? 'Skip' : 'Überspringen'} ⏭</button></div>
@@ -94,6 +96,7 @@ window.GL = window.GL || {};
     const text = en() ? eng : de;
     c.el.querySelectorAll('.st-who').forEach(s => { s.classList.toggle('talk', s.dataset.w === w); s.classList.remove('hop'); });
     const me = c.el.querySelector(`.st-who[data-w="${CSS.escape(w)}"]`);
+    if (me && me.classList.contains('late') && !me.classList.contains('arrived')) { me.classList.add('arrived'); setTimeout(() => { if (cur === c) { c.el.classList.remove('fx-shake'); void c.el.offsetWidth; c.el.classList.add('fx-shake'); } }, 700); }
     if (me) { void me.offsetWidth; me.classList.add('hop'); const e = me.querySelector('.st-emote'); e.textContent = emo || ''; e.classList.remove('pop'); if (emo) { void e.offsetWidth; e.classList.add('pop'); } }
     fx(c, fxName, me);
     const box = c.el.querySelector('.st-box');

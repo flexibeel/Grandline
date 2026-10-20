@@ -9918,3 +9918,19 @@ em.type.t-technik { background: #5b86b3 !important; }
 .fbar3 .fbar-sp:not(.on):not(:disabled):hover { background: rgba(255, 220, 160, .12); color: #fff3d6 !important; }
 .fbar3 .fbar-sp:focus-visible { outline: 2px solid #ffe58a; outline-offset: 1px; }
 @media (max-width: 380px) { .fbar-sp .sp-x { display: none; } }
+
+/* ===== Update-Szene: Der Spielmacher fliegt ein ===== */
+.st-who.late { visibility: hidden; }
+.story.go .st-who.late:not(.arrived) { animation: none; opacity: 0; }
+.st-who.late.arrived { visibility: visible; opacity: 1; animation: stDevFly .9s cubic-bezier(.25, .9, .3, 1.15) both !important; }
+.st-who.late.arrived .st-spr { filter: drop-shadow(0 0 6px rgba(255, 214, 90, .9)) drop-shadow(0 0 14px rgba(255, 190, 60, .55)); }
+.st-who.late.arrived::before { content: ''; position: absolute; left: 50%; bottom: -4px; width: 90px; height: 16px; margin-left: -45px; border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(255, 220, 120, .65), transparent); animation: stDevDust .9s ease-out both; pointer-events: none; }
+@keyframes stDevFly {
+  0% { opacity: 0; transform: translate(60vw, -70vh) rotate(-25deg) scale(.6); }
+  55% { opacity: 1; transform: translate(-50%, -30px) rotate(8deg) scale(1.1); }
+  75% { transform: translate(-50%, 0) scaleX(1.18) scaleY(.82); }
+  100% { opacity: 1; transform: translateX(-50%) scale(1); }
+}
+@keyframes stDevDust { 0%, 60% { opacity: 0; transform: scaleX(.3); } 75% { opacity: 1; } 100% { opacity: 0; transform: scaleX(1.6); } }
+@media (prefers-reduced-motion: reduce) { .st-who.late.arrived { animation: none !important; } .st-who.late.arrived::before { display: none; } }
