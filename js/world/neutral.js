@@ -11,13 +11,17 @@ window.GL = window.GL || {};
 
 GL.worlds = GL.worlds || {};
 GL.worlds.neutral = {
-  title: 'Sturmsegel',
+  title: 'The Great Line',
   footer: 'Ein Indie-Spiel. Alle Figuren, Namen und Orte sind frei erfunden.',
   map: {
     // ---------- Spiel und Welt ----------
-    'Grand Line': 'Große Strömung',
+    'Grand Line': 'Great Line',
     'One-Piece-Fanprojekt': 'Indie-Spiel',
     'One Piece': 'Großer Schatz',
+    'Kostenlos, ohne Werbung, nicht verbunden mit Eiichiro Oda, Shueisha oder Toei Animation.': 'Kostenlos und ohne Werbung. Alle Figuren, Namen und Orte sind frei erfunden.',
+    'Inoffizielles Fanprojekt, kostenlos und ohne kommerzielle Absicht. One Piece gehört seinen Rechteinhabern.': 'Ein kostenloses Indie-Spiel ohne Werbung. Alle Figuren, Namen und Orte sind frei erfunden.',
+    'Tori-Tori-Frucht (Phönix)': 'Phönix-Frucht', 'Hie-Hie-Frucht': 'Frost-Frucht', 'Hito-Hito-Frucht': 'Menschen-Frucht',
+    'Paramecia': 'Wunder', 'Logia': 'Element', 'Zoan': 'Tiergestalt',
     'Inoffizielles Fanprojekt': 'Indie-Spiel',
     'Fanprojekt': 'Indie-Spiel',
     'Berry': 'Taler',
@@ -56,6 +60,7 @@ GL.worlds.neutral = {
     'Turm des Gerichts': 'Turm des Urteils',
     // ---------- Banden ----------
     'Strohhutbande': 'Sturmmöwen',
+    'Strohhut': 'Sturmmöwe',
     'Baroque Works': 'Barock-Bund',
     'CP9': 'Schattenkorps',
     // ---------- Crew ----------
@@ -71,6 +76,7 @@ GL.worlds.neutral = {
     'Rob Lucci': 'Lux Varo', 'Luccis': 'Lux’', 'Lucci': 'Lux', 'Kakus': 'Kalos', 'Kaku': 'Kalo',
     'Admiral Kizaru': 'Admiral Glanz', 'Kizarus': 'Glanz’', 'Kizaru': 'Glanz',
     'Doflamingos': 'Dorians', 'Doflamingo': 'Dorian',
+    'Jangos': 'Jonkos', 'Jango': 'Jonko', 'Kuroobi': 'Schwarzgurt',
     'Buggys': 'Bunkos', 'Buggy': 'Bunko', 'Kuro': 'Kral', 'Don Kriegs': 'Kapitän Kregs', 'Don Krieg': 'Kapitän Kreg',
     'Axt-Hand Morgan': 'Axt-Hand Morten', 'Morgan': 'Morten',
     'Wapols': 'Wansts', 'Wapol': 'Wanst', 'Bellamy': 'Bello', 'Fukuro': 'Fugo', 'Spandam': 'Spanner',
