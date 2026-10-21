@@ -1,6 +1,9 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-22f', date: '22.10.', title: 'Zurück an Deck', items: [
+    '⚓ Die 3D-Beta „Neue Welt“ ist erstmal eingemottet. Sie hat zu viele Handys ins Schwitzen gebracht',
+    '🗺 Volle Kraft fürs Hauptspiel: Als Nächstes wird der Kampf spannender, mit Ultis zum Selbstauslösen und Heilern, die wirklich heilen' ] },
   { v: '2026-10-22e', date: '22.10.', title: 'Kiki mit der Schleuder', items: [
     '🎯 Neue Welt: Kiki heuert im Heimathafen an (Werft → Crew, 250 Gold). Sie kämpft aus der Ferne, läuft vor Nahkämpfern weg und ihre Steine prallen an Deckung ab',
     '🌧 Kikis Ulti „Kugelhagel“ trifft alle Gegner im weiten Kreis. Du entscheidest, ob sie statt Brakk oder Nele an Land geht. Perlas Panzer mag Steine übrigens gar nicht',

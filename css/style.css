@@ -2203,8 +2203,6 @@ body.on-title { overflow: hidden; }
 @keyframes ts-hop { 30% { transform: translateY(-10px); } 60% { transform: translateY(0); } }
 .ts-menu { width: 100%; display: grid; gap: 10px; }
 .ts-play { font-size: 1.4rem; padding: 16px; animation: ts-pulse 1.6s steps(2) infinite; }
-.ts-beta { display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; background: #2f4a7a; color: #fbf6ea; }
-.ts-beta small { font-size: .7rem; background: #d8433a; padding: 2px 6px; border-radius: 2px; transform: rotate(-4deg); }
 @keyframes ts-pulse { 50% { box-shadow: 0 3px 0 var(--btnedge), 0 0 0 4px rgba(242,182,50,.45); } }
 .ts-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
 .ts-row .btn { padding: 10px 6px; font-size: .95rem; }
