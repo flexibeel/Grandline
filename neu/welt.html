@@ -32,7 +32,15 @@ body.title .ui *{pointer-events:none!important}
 #menu .btn{width:100%;background:#d9cfbc;color:var(--wood);text-shadow:none;text-align:left}
 #menu .btn.sel{background:var(--gold)}
 #menu small{font-weight:400;opacity:.75}
-#log{position:fixed;left:12px;top:calc(env(safe-area-inset-top) + 58px);font:700 11px/1.35 var(--px);text-shadow:1px 1px 0 var(--wood),0 0 3px rgba(43,29,20,.6);pointer-events:none}
+#topL{position:fixed;left:10px;top:calc(env(safe-area-inset-top) + 56px);right:10px;display:flex;flex-direction:column;align-items:flex-start;gap:6px;pointer-events:none}
+#goal{max-width:100%;box-sizing:border-box;padding:5px 9px;font:700 12px/1.25 var(--px);white-space:normal;pointer-events:none}
+#goal b{color:#ffe28a;flex:none;font-size:14px}
+#goal.new{animation:gIn .5s steps(4)}
+@keyframes gIn{0%{transform:translateY(-6px) scale(1.06);box-shadow:0 3px 0 var(--wood),0 0 0 4px rgba(255,226,138,.7)}}
+.lg{display:grid;grid-template-columns:18px 1fr;gap:5px 7px;align-items:center;font:400 11px/1.25 var(--px)}
+.lg i{width:10px;height:10px;border:2px solid var(--wood);transform:rotate(45deg);margin-left:2px;background:#ffe28a}
+.lg i.bl{animation:blink .6s steps(2) infinite}
+#log{margin-left:2px;font:700 11px/1.35 var(--px);text-shadow:1px 1px 0 var(--wood),0 0 3px rgba(43,29,20,.6);pointer-events:none}
 #marks{position:fixed;inset:0;pointer-events:none}
 .mk{position:absolute;width:0;height:0}
 .mk i{position:absolute;left:-9px;top:-9px;width:12px;height:12px;border:3px solid var(--wood);background:#ffe28a;transform:rotate(45deg);box-shadow:0 0 0 2px rgba(255,226,138,.35)}
@@ -98,12 +106,19 @@ body.title .ui *{pointer-events:none!important}
   <div class="plank" id="comp" title="Kompass: zeigt nach Hause"><canvas id="compC" width="13" height="13"></canvas></div>
   <button class="btn" id="menuB" aria-label="Menü">☰</button>
 </div>
-<div id="log" class="ui"></div>
+<div id="topL" class="ui"><div id="goal" class="plank"><b id="goalI">◆</b><span id="goalT"></span></div>
+<div id="log"></div></div>
 <div id="menu">
   <div>Neue Welt · Beta</div>
   <button class="btn" data-m="titel">Zum Titelbild<br><small>Fahrt wird gemerkt</small></button>
   <button class="btn" data-m="neu">Neue Seekarte<br><small>Neue Inseln, Beute weg</small></button>
   <button class="btn" data-m="ruhig" id="mRuhig">Ruhige Kamera: aus<br><small>Weniger Bewegung, kein Wackeln</small></button>
+  <div class="lg"><span style="grid-column:1/3">Zeichen am Rand</span>
+    <i class="bl"></i><span>Unentdeckte Insel: hinfahren!</span>
+    <i></i><span>Insel mit Beute</span>
+    <i style="background:#b48ae0"></i><span>Bucht: Landgang = Kampf an Land</span>
+    <i style="background:#9be27a;border-radius:2px"></i><span>Heimathafen: Beute sichern</span>
+    <i class="bl" style="background:var(--red)"></i><span>Gegner jagt dich</span></div>
   <small id="mInfo"></small>
 </div>
 <div id="joy" class="ui"><canvas id="wheel" width="46" height="46"></canvas><div id="knob"><canvas id="knobC" width="16" height="16"></canvas></div></div>
@@ -549,18 +564,39 @@ function toScreen(x,y,z){pv.set(x,y,z).project(cam);const r=cv.getBoundingClient
 function pop(x,z,txt,cls){const[sx,sy]=toScreen(x,1.6,z);const d=document.createElement('div');d.className='pop '+(cls||'');d.textContent=txt;d.style.left=sx+'px';d.style.top=sy+'px';document.body.appendChild(d);setTimeout(()=>d.remove(),950);}
 function banner(t,sub){const d=document.createElement('div');d.className='ban';d.innerHTML=t+(sub?'<small>'+sub+'</small>':'');document.body.appendChild(d);setTimeout(()=>d.remove(),2300);}
 let tipT=0;
-function tip(id,txt,sec){if(S.tips[id]||S.tips['_'+id])return;$('tip').innerHTML=txt;$('tip').classList.add('on');tipT=sec||6;S.tips['_'+id]=1;}
-function tipDone(id){if(S.tips['_'+id]&&!S.tips[id]){S.tips[id]=1;$('tip').classList.remove('on');save();}}
+const tipQ=[];
+function tip(id,txt,sec){if(S.tips[id]||S.tips['_'+id])return;if(tipT>0){if(!tipQ.some(q=>q[0]===id))tipQ.push([id,txt,sec]);return;}$('tip').innerHTML=txt;$('tip').classList.add('on');tipT=sec||6;S.tips['_'+id]=1;}
+function tipDone(id){if(S.tips['_'+id]&&!S.tips[id]){S.tips[id]=1;$('tip').classList.remove('on');tipT=0;save();
+  if(id==='lenk')setTimeout(()=>tip('ziel','Oben links steht immer dein <b>nächstes Ziel</b>.',6),1200);}}
+function tipNext(){$('tip').classList.remove('on');tipT=0;const q=tipQ.shift();if(q)setTimeout(()=>{if(mode==='sail')tip(q[0],q[1],q[2]);},700);}
 function setGold(){$('gold').textContent=S.gold;const g=$('gold');g.classList.remove('bump');void g.offsetWidth;g.classList.add('bump');}
 function hudHp(){$('hpB').style.width=Math.max(0,S.hp)+'%';$('hpBox').classList.toggle('low',S.hp<35);}
 function logLine(){const f=WORLD.L.filter(I=>I.id&&S.found.includes(I.id)).length,n=WORLD.L.length-1,b=S.beaten.length;
   $('log').innerHTML='Entdeckt '+f+'/'+n+(b?' · Versenkt '+b+'/'+WORLD.E.length:'')+(S.bank?'<br><span style="color:#ffe28a">Im Hafen: '+S.bank+' Gold</span>':'');}
 
+// ---------- Ziel-Zeile: was als Nächstes? ----------
+let goalK='';
+function goalOf(){
+  const L=WORLD.L,f=L.filter(I=>I.id&&S.found.includes(I.id)),n=L.length-1;
+  const ch=WORLD.E.find(E=>!E.dead&&E.chase>0);
+  if(ch){tip('jagd','<b>Rote Raute</b> = '+ch.name+' jagt dich. Lass ihn ran für einen Seekampf oder segel davon.',7);return['☠',ch.name+' jagt dich! Kämpfen oder abhauen'];}
+  if(S.hp<35)return['⚓','Rumpf leck! Zurück in den Hafen (grüne Raute)'];
+  if(S.gold>0)tip('beute','Gold an Bord ist nicht sicher! Bring es in den <b>Heimathafen</b> (grüne Raute).',7);
+  const sc=f.find(I=>I.k==='schatz'&&!I.done);if(sc)return['✦','Heb den Schatz auf '+sc.name];
+  if(S.gold>=150)return['⚓','Bring '+S.gold+' Gold heim in den Hafen'];
+  const b=f.find(I=>I.k==='bucht'&&!I.done);if(b)return['⚔','Landgang in '+b.name+' (lila Fahne)'];
+  if(f.length<n)return['◆','Finde Inseln: folge den Rauten ('+f.length+'/'+n+')'];
+  if(S.gold>0)return['⚓','Bring die Beute heim in den Hafen'];
+  const e=WORLD.E.find(E=>!E.dead);if(e)return['☠','Versenke '+e.name+' ('+S.beaten.length+'/'+WORLD.E.length+')'];
+  return['★','Alles geschafft! Neue Seekarte im Menü ☰'];}
+function goal(){const[i,t]=goalOf(),k=i+t;if(k===goalK)return;const g=$('goal'),neu=goalK!=='';goalK=k;
+  $('goalI').textContent=i;$('goalT').textContent=t;if(neu){g.classList.remove('new');void g.offsetWidth;g.classList.add('new');}}
+
 // ---------- Kanten-Zeichen: blinkende Ziele ausserhalb des Bildes ----------
 const marks=new Map();
 function mark(key,cls){let m=marks.get(key);if(!m){m=document.createElement('div');m.className='mk '+cls;m.innerHTML='<i></i><em></em>';$('marks').appendChild(m);marks.set(key,m);}m.className='mk '+cls;return m;}
 function updMarks(){
-  const seen=new Set(),w=innerWidth,h=innerHeight,top=64,bot=h-24,pad=24;
+  const seen=new Set(),w=innerWidth,h=innerHeight,top=118,bot=h-24,pad=24;
   const want=[];
   for(const I of WORLD.L){const d=Math.hypot(I.x-sh.x,I.z-sh.z);
     if(I.k==='hafen'){if(d>24)want.push(['i0',I.x,I.z,'home']);continue;}
@@ -572,7 +608,7 @@ function updMarks(){
   for(const[key,x,z,cls]of want){const[sx,sy]=toScreen(x,0,z);
     if(sx>pad&&sx<w-pad&&sy>top&&sy<bot)continue;
     const dx=sx-cx,dy=sy-cy,k=Math.min(Math.abs((w/2-pad)/(dx||1e-6)),Math.abs(((bot-top)/2-6)/(dy||1e-6)));
-    const m=mark(key,cls);seen.add(key);m.style.left=(cx+dx*k)+'px';m.style.top=(cy+dy*k)+'px';
+    const m=mark(key,cls);seen.add(key);if(cls.includes('blink')&&!cls.includes('foe'))tip('zeichen','Blinkende <b>Raute am Rand</b> = unentdeckte Insel in dieser Richtung. Alle Zeichen: Menü ☰',7);m.style.left=(cx+dx*k)+'px';m.style.top=(cy+dy*k)+'px';
     m.lastChild.style.transform='rotate('+Math.atan2(dy,dx)+'rad) translateX(12px)';}
   for(const[k,m]of marks)if(!seen.has(k)){m.remove();marks.delete(k);}
 }
@@ -589,6 +625,7 @@ function interact(){
     if(I.k==='hafen'){if(S.gold>0||S.hp<100){on=true;a.classList.remove('fight');$('actI').textContent='⚓';$('actT').textContent=S.gold?'Beute sichern':'Rasten';}}
     else if(!I.done){on=true;const f=I.k==='bucht';a.classList.toggle('fight',f);$('actI').textContent=f?'⚔':I.k==='schatz'?'✦':'⚓';$('actT').textContent=f?'Landgang':I.k==='schatz'?'Schatz heben':'An Land';}}
   a.classList.toggle('on',on);
+  if(on&&near.k==='schatz')tip('heben','Nah genug! Tipp auf <b>Schatz heben</b>.',5);
   if(on&&near.k==='bucht')tip('bucht','Eine Bucht mit lila Fahne. <b>Landgang</b> startet einen Kampf an Land.',7);
 }
 function doAct(){
@@ -684,7 +721,7 @@ function frame(now){
   mvS.x+=(w.x-mvS.x)*(1-Math.exp(-dt*10));mvS.z+=(w.z-mvS.z)*(1-Math.exp(-dt*10));
   sh.px=sh.x;sh.pz=sh.z;sh.ph=sh.h;
   const n=Math.max(1,Math.ceil(dt/(1/60)));for(let i=0;i<n;i++)shipStep(dt/n,mvS.x,mvS.z);
-  if(mode==='sail'){wheelFx(dt,w);foes(dt);floats(dt);interact();if(tipT>0&&(tipT-=dt)<=0)$('tip').classList.remove('on');}
+  if(mode==='sail'){wheelFx(dt,w);foes(dt);floats(dt);interact();if(tipT>0&&(tipT-=dt)<=0)tipNext();goal();}
   if((saveT-=dt)<=0){saveT=5;if(mode==='sail')save();}
   if((todT-=dt)<=0){todT=30;hour=clockH();applyTOD(hour);}
   visual(dt);render();

@@ -1,6 +1,11 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-21u', date: '21.10.', title: 'Klarer Kurs', items: [
+    '🎯 Neue Welt: Oben links steht jetzt immer dein nächstes Ziel. Kein Rätselraten mehr, wohin die Reise geht',
+    '💬 Kleine Tipps Schritt für Schritt, einer nach dem anderen statt alle auf einmal',
+    '◆ Was die Rauten am Rand bedeuten, steht jetzt im Menü ☰',
+    '🔥 Vor dem ersten Seekampf erklärt eine Karte Feuersturm, Konter und die roten Ringe. Nochmal lesen: Zahnrad im Kampf' ] },
   { v: '2026-10-21t', date: '21.10.', title: 'Ruhige See', items: [
     '🌊 Neue Welt: Das Wasser schwimmt nicht mehr mit dem Bildschirm mit und bewegt sich gemächlicher. Gut für empfindliche Mägen',
     '🎥 Kamera folgt sanfter, mit weniger Vorlauf und kaum noch Wackeln. Im Menü gibt es jetzt „Ruhige Kamera“',
