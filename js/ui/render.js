@@ -4562,7 +4562,8 @@ window.GL = window.GL || {};
   function installPop(kind) {
     const shareIco = `<svg viewBox="0 0 24 24" class="ip-share" aria-hidden="true"><path d="M12 3v12M7.5 7.5 12 3l4.5 4.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 11H5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1h-1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>`;
     const steps = kind === 'ios'
-      ? `<ol class="fpop-steps"><li>Unten in Safari auf ${shareIco} <b>Teilen</b> tippen</li><li><b>„Zum Home-Bildschirm“</b> wählen</li><li>Grand Line wie eine App öffnen</li></ol>`
+      ? `<ol class="fpop-steps"><li>Unten in Safari auf ${shareIco} <b>Teilen</b> tippen</li><li><b>„Zum Home-Bildschirm“</b> wählen</li><li>Schalter <b>„Als Web-App öffnen“</b> anlassen, sonst wird es nur ein Lesezeichen</li><li>Grand Line wie eine App öffnen</li></ol>
+        <p class="ip-note">Die App hat ihr eigenes Logbuch. Deinen Piraten holst du dort per Mail-Code: <b>Code eintippen</b>, nicht den Link in der Mail antippen (der öffnet Safari).</p>`
       : kind === 'prompt' ? ''
       : `<ol class="fpop-steps"><li>Oben rechts im Browser auf <b>⋮</b> tippen</li><li><b>„Zum Startbildschirm hinzufügen“</b> wählen</li><li>Grand Line wie eine App öffnen</li></ol>`;
     return `<div class="fpop-card ip-card" role="dialog" aria-labelledby="ip-t">

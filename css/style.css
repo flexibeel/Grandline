@@ -2940,8 +2940,8 @@ body.streamer .acc-line b { filter: none; }
 .scene-wave { width: 72px; margin: -6px auto 2px; animation: ship-bob-s 2.4s ease-in-out infinite; }
 .scene-wave svg { width: 100%; height: auto; }
 @keyframes ship-bob-s { 50% { transform: translateY(-3px) rotate(-2deg); } }
-/* Schrift: rund und ruhig statt Pixel-Fett */
-:root { --px: "Fredoka", "Nunito", ui-rounded, system-ui, sans-serif; }
+/* Schrift: Pixelschrift für Titel und Zahlen (Gewicht 600, ruhig statt Pixel-Fett), Fredoka als Ersatz */
+:root { --px: "Pixelify Sans", "Fredoka", "Nunito", ui-rounded, system-ui, sans-serif; }
 h1, h2, h3, .rank-name, .my-name, .duel-head b, .poster h3, .card-name, .tp-name,
 .sp-text b, .stop-banner b, .scene-card h2, .lb-pos, .medal-num, .acard b, .rank-up b, .hq-sec h3 {
   font-family: var(--px) !important; font-weight: 600 !important; letter-spacing: -.005em !important;
@@ -10003,3 +10003,9 @@ body.legend-drop::after { content: ''; position: fixed; inset: 0; pointer-events
 @keyframes lgFlash { 0% { opacity: 0; } 15% { opacity: 1; } 100% { opacity: 0; } }
 .toast .ir-legend-fx, .toast-item.ir-legend-fx { box-shadow: 0 0 0 2px #f2c94c, 0 0 18px rgba(242, 201, 76, .6); }
 @media (prefers-reduced-motion: reduce) { body.legend-drop::after { animation: none; display: none; } }
+
+/* iPhone-App: Statusleiste ist durchsichtig (black-translucent), dahinter ein Holzstreifen, damit die weiße Uhrzeit lesbar bleibt */
+html:has(> body.is-app)::after { content: ""; position: fixed; left: 0; right: 0; top: 0; height: env(safe-area-inset-top); background: var(--btn); z-index: 9999; pointer-events: none; }
+/* Verdeckter Tab bzw. App im Hintergrund: Animationen anhalten */
+html.gl-hidden *, html.gl-hidden *::before, html.gl-hidden *::after { animation-play-state: paused !important; }
+.ip-note { font-size: .82rem; color: var(--mute); margin: 8px 0 0; line-height: 1.35; }

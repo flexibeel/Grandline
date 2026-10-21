@@ -59,7 +59,7 @@
     const p = run.pending; prepAuto = p;
     setTimeout(() => { if (run && run.phase === 'prep' && run.pending === p && !anim && !document.getElementById('fpop')) startFight(); else prepAuto = null; }, 500);
   }
-  setInterval(() => { if (document.querySelector('.sail-stage .ss-say')) clampSay(); }, 1200);
+  setInterval(() => { if (!document.hidden && document.querySelector('.sail-stage .ss-say')) clampSay(); }, 1200);
   // FIX2: Sprechblasen der Crew am Steg bleiben im Bild (schmale Handys schoben sie links/rechts raus)
   function clampSay() {
     document.querySelectorAll('.sail-stage .ss-say').forEach(b => {
@@ -1083,7 +1083,7 @@
     window.addEventListener('orientationchange', () => setTimeout(q, 300));
     document.addEventListener('focusout', () => setTimeout(q, 350));
     new MutationObserver(q).observe(document.getElementById('tabbar') || document.body, { attributes: true, childList: true });
-    setInterval(q, 1500);   // Sicherheitsnetz, falls iOS ein Ereignis verschluckt
+    setInterval(() => { if (!document.hidden) q(); }, 1500);   // Sicherheitsnetz, falls iOS ein Ereignis verschluckt
     q();
   })();
   let tapBubble = null, tapT = null;
@@ -2749,8 +2749,8 @@
       });
     };
     setTimeout(checkKumpan, 9500);
-    setInterval(checkKumpan, 300000);
-    setInterval(checkBottles, 300000);
+    setInterval(() => { if (!document.hidden) checkKumpan(); }, 300000);
+    setInterval(() => { if (!document.hidden) checkBottles(); }, 300000);
     // App wieder vorne: neuere Version laden bzw. Spielstand vom anderen Gerät holen
     let lastSync = Date.now();
     const backToApp = () => {
@@ -2767,6 +2767,8 @@
       if (idle) { try { sessionStorage.removeItem('gl.pulled'); } catch (e2) { /* egal */ } GL.online.resync && GL.online.resync(); }
     };
     document.addEventListener('visibilitychange', backToApp);
+    // Verdeckt: CSS-Animationen anhalten (spart Akku und Daten-Neuzeichnen)
+    document.addEventListener('visibilitychange', () => document.documentElement.classList.toggle('gl-hidden', document.hidden));
     // Spiel geht in den Hintergrund oder wird geschlossen: Stand sofort hochladen (dann klappt der Wechsel aufs Handy)
     let hiddenAt = 0;
     document.addEventListener('visibilitychange', () => {
