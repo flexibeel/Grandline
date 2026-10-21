@@ -1,6 +1,11 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-21x', date: '21.10.', title: 'Tiefe Höhlen', items: [
+    '⛏ Neue Welt: Die Höhlen sind offen! Kammern voller Fledermäuse, Krabben und Schleim, Gitter, Kisten und Truhen. Ganz hinten wartet ein Boss: Marlo, Tropfstein-Toni oder Muschelkönigin Perla',
+    '🎒 Beutejagd: Höhlen, Buchten und Seekämpfe lassen Ausrüstung fallen. Waffe, Kleidung, Schmuck in vier Seltenheiten, auf jeder Seekarte stärker. „Besser für Nele!“ heißt: sofort anlegen',
+    '⛵ Seekämpfe ohne Bretter vor den Augen: gleiches Meer, gleiche Richtung. Wird es brenzlig, segel aus dem Ring und hau ab (kostet etwas Gold)',
+    '🛡 Flinke Boote und Panzerkähne haben jetzt die Lebenspunkte, die zu ihnen passen. Panzer heißt jetzt wirklich Panzer' ] },
   { v: '2026-10-21w', date: '21.10.', title: 'Neuer Anstrich', items: [
     '🐛 Neue Welt: Anlegen, Schatz heben und Landgang gehen jetzt auch per Tippen. Vorher nur mit Taste, sorry Handy-Piraten',
     '💣 Werft-Upgrades sieht man jetzt am Schiff: mehr Kanonen (Stufe 3 in Messing), größere Segel mit Topsegel und Wimpel',
