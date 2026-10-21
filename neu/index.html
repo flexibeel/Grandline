@@ -80,7 +80,8 @@ addEventListener('message',e=>{
         const q=new URLSearchParams({embed:'1',seed:String(m.seed>>>0)});
         if(see){q.set('hp',String(m.hp|0));if(m.mhp)q.set('mhp',String(m.mhp|0));if(m.bhp)q.set('bhp',String(m.bhp|0));q.set('name',m.name||'');if(m.look)q.set('look',m.look);
           q.set('up',/^[0-3]\.[0-3]\.[0-3]$/.test(m.up||'')?m.up:'0.0.0');q.set('tier',String(Math.max(0,m.tier|0)));}
-        else if(cave){q.set('mode','hoehle');q.set('boss',m.boss||'marlo');q.set('tier',String(Math.max(0,m.tier|0)));q.set('name',m.name||'');}
+        if(!see&&/^[0-3]\.[0-3]\.[0-3]$/.test(m.up||''))q.set('up',m.up);
+        if(cave){q.set('mode','hoehle');q.set('boss',m.boss||'marlo');q.set('tier',String(Math.max(0,m.tier|0)));q.set('name',m.name||'');}
         kampf=document.createElement('iframe');kampf.id='kampf';kampf.title='Kampf';kampf.src=(see?'seekampf.html?':'landgang.html?')+q;document.body.appendChild(kampf);
       },420);}
   }else if(kampf&&e.source===kampf.contentWindow){

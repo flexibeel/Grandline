@@ -1,6 +1,25 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-21w', date: '21.10.', title: 'Neuer Anstrich', items: [
+    '🐛 Neue Welt: Anlegen, Schatz heben und Landgang gehen jetzt auch per Tippen. Vorher nur mit Taste, sorry Handy-Piraten',
+    '💣 Werft-Upgrades sieht man jetzt am Schiff: mehr Kanonen (Stufe 3 in Messing), größere Segel mit Topsegel und Wimpel',
+    '🪵 Der Rumpf bekommt neue Planken, Nägel und Eisenbänder. Der Holzwurm zieht aus',
+    '🛡 Rumpf-Upgrade wirkt jetzt auch im Landgang: +10 % Leben pro Stufe für Kapitän und Maats. Die Planken tragen sie als Schild. Irgendwie' ] },
+  { v: '2026-10-21v', date: '21.10.', title: 'Werft', items: [
+    '⚒ Neue Welt: Im Heimathafen gibt es jetzt eine Werft. Dort gibst du dein gesichertes Gold aus',
+    '🪵 Rumpf, 💣 Kanonen und ⛵ Segel in je drei Stufen: mehr Leben, mehr Schaden im Seekampf, mehr Tempo auf See',
+    '🎨 Jedes Upgrade mit eigenem kleinen Pixelbild. Die Crew hat beim Malen geholfen (leider)' ] },
+  { v: '2026-10-21u', date: '21.10.', title: 'Klarer Kurs', items: [
+    '🎯 Neue Welt: Oben links steht jetzt immer dein nächstes Ziel. Kein Rätselraten mehr, wohin die Reise geht',
+    '💬 Kleine Tipps Schritt für Schritt, einer nach dem anderen statt alle auf einmal',
+    '◆ Was die Rauten am Rand bedeuten, steht jetzt im Menü ☰',
+    '🔥 Vor dem ersten Seekampf erklärt eine Karte Feuersturm, Konter und die roten Ringe. Nochmal lesen: Zahnrad im Kampf' ] },
+  { v: '2026-10-21t', date: '21.10.', title: 'Ruhige See', items: [
+    '🌊 Neue Welt: Das Wasser schwimmt nicht mehr mit dem Bildschirm mit und bewegt sich gemächlicher. Gut für empfindliche Mägen',
+    '🎥 Kamera folgt sanfter, mit weniger Vorlauf und kaum noch Wackeln. Im Menü gibt es jetzt „Ruhige Kamera“',
+    '🌑 Schiffsschatten mit weichem Rand',
+    '🪵 Lebensanzeigen in Seekampf und Landgang als Holzplanken, mit Bild, Name und Zahl. Am PC nicht mehr quer über den ganzen Bildschirm' ] },
   { v: '2026-10-21s', date: '21.10.', title: 'Neue Welt (Beta)', items: [
     '🧭 Neue Welt testen: Auf dem Startbildschirm wartet ein neuer Knopf. Dahinter liegt eine offene See in 3D, mit Inseln, Treibgut und einem sehr nervösen Hafenhund',
     '⚔ Begegnungen auf See werden zum Fahrenden Kampf, lila Fahnen zum Landgang. Tageszeit wie bei dir zu Hause',
