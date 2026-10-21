@@ -5,7 +5,8 @@ GL.patchNotes = [
     '🐛 Neue Welt: Anlegen, Schatz heben und Landgang gehen jetzt auch per Tippen. Vorher nur mit Taste, sorry Handy-Piraten',
     '💣 Werft-Upgrades sieht man jetzt am Schiff: mehr Kanonen (Stufe 3 in Messing), größere Segel mit Topsegel und Wimpel',
     '🪵 Der Rumpf bekommt neue Planken, Nägel und Eisenbänder. Der Holzwurm zieht aus',
-    '🛡 Rumpf-Upgrade wirkt jetzt auch im Landgang: +10 % Leben pro Stufe für Kapitän und Maats. Die Planken tragen sie als Schild. Irgendwie' ] },
+    '🛡 Rumpf-Upgrade wirkt jetzt auch im Landgang: +10 % Leben pro Stufe für Kapitän und Maats. Die Planken tragen sie als Schild. Irgendwie',
+    '💣 Kanonen und ⛵ Segel wirken auch an Land: +10 % Schaden und +5 % Tempo pro Stufe für die ganze Crew. Wer Kanonen putzt, haut härter zu' ] },
   { v: '2026-10-21v', date: '21.10.', title: 'Werft', items: [
     '⚒ Neue Welt: Im Heimathafen gibt es jetzt eine Werft. Dort gibst du dein gesichertes Gold aus',
     '🪵 Rumpf, 💣 Kanonen und ⛵ Segel in je drei Stufen: mehr Leben, mehr Schaden im Seekampf, mehr Tempo auf See',
