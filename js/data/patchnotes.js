@@ -1,6 +1,8 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-22a', date: '22.10.', title: 'Fäden in Reichweite', items: [
+    '🕸 Fadennetz von Marlo: Die Fäden hängen jetzt tiefer, direkt über deiner Crew. Kein Hochfummeln unter die Leiste mehr, und die Knoten lassen sich leichter antippen' ] },
   { v: '2026-10-21z', date: '21.10.', title: 'Scharfe Sicht', items: [
     '🖥 Neue Welt: Der Seekampf am PC ist nicht mehr grob verpixelt. Schiffe, Felsen und Wellen sind jetzt genauso fein wie auf der offenen See' ] },
   { v: '2026-10-21y', date: '21.10.', title: 'Ausbau überall', items: [

@@ -1049,7 +1049,7 @@ function placeLine(m,a,b){tv3.subVectors(b,a);const l=tv3.length();m.position.co
 function thEnds(t,out0,out1){
   const f=figs[t.u],o=t.a-1,base=t.u===1?-1.4:t.u===2?1.4:0;
   out0.set(f.position.x,0.8*f.userData.sc,f.position.z);
-  out1.set(f.position.x+o*1.5+base+Math.sin(wall*1.6+t.a+t.u)*0.15,7.2,f.position.z-2.2-Math.abs(o)*0.5);
+  out1.set(f.position.x+o*0.9+base*0.3+Math.sin(wall*1.6+t.a+t.u)*0.15,3.4,f.position.z-0.7-Math.abs(o)*0.3);
 }
 
 // ---------- Partikel (wie Seekampf) ----------
@@ -1266,8 +1266,8 @@ const tapOK=p=>!p.back&&p.w===0;
 function pickPearl(cx,cy){let best=null,bd=48;for(const p of st.pearls){if(!tapOK(p))continue;const[sx,sy]=toScreen(p.x,0.7,p.z),d=Math.hypot(sx-cx,sy-cy);if(d<bd){bd=d;best=p;}}return best;}
 function tapNearest(){const c=st.u[0];let best=null,bd=1e9;for(const p of st.pearls){if(!tapOK(p))continue;const d=Math.hypot(p.x-c.x,p.z-c.z);if(d<bd){bd=d;best=p;}}if(best)input('tap',{k:best.id});return !!best;}
 function segD(px,py,ax,ay,bx,by){const dx=bx-ax,dy=by-ay,t=Math.max(0,Math.min(1,((px-ax)*dx+(py-ay)*dy)/(dx*dx+dy*dy||1)));return Math.hypot(px-ax-dx*t,py-ay-dy*t);}
-function thScreen(k){const t=thr[k];thEnds(t,tv,tv2);const a=toScreen(tv.x,tv.y,tv.z);tv.lerp(tv2,0.32);const b=toScreen(tv.x,tv.y,tv.z);thEnds(t,tv,tv2);tv.lerp(tv2,0.75);return[a,b,toScreen(tv.x,tv.y,tv.z)];}
-function cutAt(cx,cy){let best=-1,bd=34;thr.forEach((t,k)=>{if(t.cut)return;const[a,b,c]=thScreen(k);const d=Math.min(Math.hypot(cx-b[0],cy-b[1])-6,segD(cx,cy,a[0],a[1],c[0],c[1]));if(d<bd){bd=d;best=k;}});if(best>=0)input('cut',{k:best});}
+function thScreen(k){const t=thr[k];thEnds(t,tv,tv2);const a=toScreen(tv.x,tv.y,tv.z);tv.lerp(tv2,0.6);const b=toScreen(tv.x,tv.y,tv.z);thEnds(t,tv,tv2);tv.lerp(tv2,0.95);return[a,b,toScreen(tv.x,tv.y,tv.z)];}
+function cutAt(cx,cy){let best=-1,bd=46;thr.forEach((t,k)=>{if(t.cut)return;const[a,b,c]=thScreen(k);const d=Math.min(Math.hypot(cx-b[0],cy-b[1])-6,segD(cx,cy,a[0],a[1],c[0],c[1]));if(d<bd){bd=d;best=k;}});if(best>=0)input('cut',{k:best});}
 const wrapEl=$('wrap');
 wrapEl.addEventListener('pointerdown',e=>{
   $('set').classList.remove('on');
@@ -1421,7 +1421,7 @@ function visual(dt,a){
   // Faeden
   for(let k=0;k<thr.length;k++){const t=thr[k];if(t.cut){t.ct+=dt;t.m.visible=false;t.b.visible=false;continue;}
     t.in=Math.min(1,t.in+dt*3);thEnds(t,tv,tv2);tv.lerp(tv2,1-t.in);placeLine(t.m,tv,tv2);
-    if(t.b.visible){thEnds(t,tv,tv2);t.b.position.copy(tv.lerp(tv2,0.32));t.b.rotation.y+=dt*3;t.b.scale.setScalar(1+0.25*(Math.floor(wall*5+k)%2));}}
+    if(t.b.visible){thEnds(t,tv,tv2);t.b.position.copy(tv.lerp(tv2,0.6));t.b.rotation.y+=dt*3;t.b.scale.setScalar(1+0.25*(Math.floor(wall*5+k)%2));}}
   // Gefahrenring beim Ausholen
   windRing.visible=bs.st==='wind'&&!U[BI].dead;
   if(windRing.visible){const sc=(bs.wr||K.wind.r)/K.wind.r;windRing.scale.set(sc,1,sc);windRing.position.set(bx,0.05,bz);windRing.material.opacity=Math.floor(wall*8)%2?0.95:0.45;}
