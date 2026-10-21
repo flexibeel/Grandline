@@ -287,7 +287,7 @@ function makeShip(o){
   const jg=new THREE.BufferGeometry();jg.setAttribute('position',new THREE.Float32BufferAttribute([0.95,1.95,0,2.35,0.68,0,0.98,0.55,0],3));jg.computeVertexNormals();
   body.add(mesh(jg,M(o.boss?C.R:C.W,{side:THREE.DoubleSide})));
   const fl=flag(o.flag);fl.position.set(0.05,2.95,0);body.add(fl);
-  const gm=M(C.T);for(const z of[-1,1])for(const x of[-0.55,0.05,0.65]){const c=add(body,mesh(cyl(0.05,0.065,0.34,5),gm),x,0.26,z*0.5);c.rotation.x=Math.PI/2;}
+  if(!o.noGuns){const gm=M(C.T);for(const z of[-1,1])for(const x of[-0.55,0.05,0.65]){const c=add(body,mesh(cyl(0.05,0.065,0.34,5),gm),x,0.26,z*0.5);c.rotation.x=Math.PI/2;}}
   root.scale.setScalar(o.scale||1);
   root.userData={body,lan,sails:ss,roll:0,rv:0,heel:0};
   return root;
@@ -304,7 +304,25 @@ function deckFig(o){
   const arms=[];for(const sd of[-1,1]){const a=add(b,new THREE.Group(),0,0.43,sd*0.18);add(a,mesh(box(0.09,0.22,0.09),bod),0,-0.1,0);add(a,mesh(box(0.09,0.07,0.09),skin),0,-0.23,0);arms.push(a);}
   g.userData={b,arms,jump:0,cheer:0,ph:Math.random()*6};return g;
 }
-const player=makeShip({sail:C.w,flag:C.r,bulw:C.B,band2:C.d});scene.add(player);
+const player=makeShip({sail:C.w,flag:C.r,bulw:C.B,band2:C.d,noGuns:true});scene.add(player);
+// Werft-Upgrades sichtbar am Schiff: Rumpf = Planken/Nägel/Eisenbänder, Kanonen = mehr Rohre (Stufe 3 Messing), Segel = größer, Topsegel, Wimpel
+let upG=null;const upSail=[];
+function shipUp(){
+  const U=S.up||{},r=U.r|0,k=U.k|0,s=U.s|0,body=player.userData.body;
+  if(upG){body.remove(upG);upG.traverse(o=>{if(o.geometry)o.geometry.dispose();});}
+  for(const m of upSail){body.remove(m);const i=sails.indexOf(m);if(i>=0)sails.splice(i,1);}upSail.length=0;
+  upG=new THREE.Group();body.add(upG);
+  const n=3+k,gm=M(k>=3?C.y:C.T);
+  for(const z of[-1,1])for(let i=0;i<n;i++){const x=-0.7+1.45*(n>1?i/(n-1):0.5),c=add(upG,mesh(cyl(0.05,0.065,0.34,5),gm),x,0.26,z*0.5);c.rotation.x=Math.PI/2;}
+  if(r>=1){const pl=M(C.j);for(const z of[-1,1])for(const[x,y,w]of[[-0.35,0.06,0.42],[0.55,-0.04,0.36]])add(upG,mesh(box(w,0.07,0.02),pl),x,y,z*(0.535-Math.abs(x)*0.04));}
+  if(r>=2){const nm=M(C.k);for(const z of[-1,1])for(let i=0;i<6;i++)add(upG,mesh(box(0.03,0.03,0.02),nm,false),-1.05+i*0.38,0.15,z*0.56);}
+  if(r>=3){const im=M(C.t||'#5d6575');for(const z of[-1,1])for(const x of[-0.9,0.1,1.0])add(upG,mesh(box(0.06,0.5,0.02),im),x,-0.02,z*(0.55-Math.abs(x)*0.05));}
+  const sc=1+0.1*s;for(const m of player.userData.sails)m.scale.set(1,sc,sc);
+  if(s>=2){const t=sail(0.8,0.5,C.w,0.2);t.position.set(0.96,2.62,0);body.add(t);upSail.push(t);
+    const y=add(upG,mesh(cyl(0.02,0.02,0.9,4),M(C.d)),0.96,2.64,0);y.rotation.x=Math.PI/2;add(upG,mesh(cyl(0.03,0.035,0.7),M(C.d)),0.92,2.45,0);}
+  if(s>=3){const w=flag(C.y);w.scale.set(0.8,0.6,1);w.position.set(0.92,2.85,0);upG.add(w);}
+}
+
 const crew=[[{body:'#a8302a',hat:'tri',hc:C.k},-0.78,0.25,0,0],[{body:'#3a64b0',leg:C.d,hat:'cap',hc:'#24447a'},0.5,0.17,0.2,1.2],[{body:'#e8dcc0',leg:C.k,hat:'band',hc:'#2f8a3e'},1.32,0.22,-0.05,-0.4]].map(([o,x,y,z,r])=>{
   const f=deckFig(o);f.position.set(x,y,z);f.rotation.y=r;player.userData.body.add(f);return f;});
 {const wh=add(player.userData.body,mesh(new THREE.TorusGeometry(0.12,0.025,4,8),M(C.d)),-0.6,0.42,0);wh.rotation.y=Math.PI/2;}
@@ -735,7 +753,7 @@ function werftDraw(){
     const b=document.createElement('button');b.className='btn';
     if(lv>=3){b.textContent='Voll';b.disabled=true;}
     else{b.innerHTML='<span class="coin"></span>'+pr;b.disabled=S.bank<pr;b.onclick=()=>{if(S.bank<pr)return;S.bank-=pr;S.up[u.k]=lv+1;
-      if(u.k==='r')S.hp=maxHp();save();hudHp();logLine();werftDraw();crewJump(2);flash=0.08;};}
+      if(u.k==='r')S.hp=maxHp();save();hudHp();logLine();shipUp();werftDraw();crewJump(2);flash=0.08;};}
     row.appendChild(b);box.appendChild(row);}
   $('wNote').textContent=S.gold?'Erst die Beute an Bord sichern, dann kann sie hier ausgegeben werden.':'Bezahlt wird mit dem Gold im Hafen.';
 }
@@ -743,6 +761,10 @@ function werftOpen(){if(mode!=='sail'||lock>0||trOn)return;wOn=true;lock=99;joyE
 function werftClose(){wOn=false;$('werft').classList.remove('on');lock=0.4;}
 $('werftB').addEventListener('click',e=>{e.stopPropagation();werftOpen();});
 $('wGo').addEventListener('click',werftClose);
+// Aktionsknopf (Anlegen, Schatz heben, Landgang, Beute sichern) auch per Tippen/Klick
+$('act').addEventListener('pointerdown',e=>e.stopPropagation());
+$('act').addEventListener('click',e=>{e.stopPropagation();doAct();});
+shipUp();
 
 // ---------- Menue ----------
 function closeMenu(){$('menu').classList.remove('on');}

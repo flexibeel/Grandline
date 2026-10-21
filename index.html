@@ -26,7 +26,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400..700&family=Pixelify+Sans:wght@400..700&family=Nunito:wght@400..800&family=Pirata+One&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.min.css?v=2026-10-21v">
+<link rel="stylesheet" href="css/style.min.css?v=2026-10-21w">
 <script>
   // Vorerst nur das helle Clean-Design (Dunkelmodus war nur halb umgebaut). Alte Einstellung entfernen.
   try { localStorage.removeItem('grandline.theme'); } catch (e) {}
@@ -121,10 +121,10 @@
 
 <!-- Reihenfolge ist wichtig: erst Daten, dann Spiellogik, dann Oberfläche -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<!-- BUNDLE core: bump-version.py bündelt alle js/-Skripte zwischen den Markern (Liste in tools/bundles.json). Neue Skripte einfach zwischen die Marker schreiben. --><script src="js/build/core.min.js?v=2026-10-21v"></script><!-- /BUNDLE -->
+<!-- BUNDLE core: bump-version.py bündelt alle js/-Skripte zwischen den Markern (Liste in tools/bundles.json). Neue Skripte einfach zwischen die Marker schreiben. --><script src="js/build/core.min.js?v=2026-10-21w"></script><!-- /BUNDLE -->
 <!-- Englisch nur laden, wenn Englisch aktiv ist (gleiche Regel wie js/ui/i18n.js) -->
 <script>(function(){var l="de";try{l=localStorage.getItem("grandline.lang")||(/^de/i.test(navigator.language||"de")?"de":"en")}catch(e){}if(l==="de")return;
-document.write('<!-- BUNDLE en --><script src="js/build/en.min.js?v=2026-10-21v"><\/script><!-- /BUNDLE -->');})();</script>
-<!-- BUNDLE tail --><script src="js/build/tail.min.js?v=2026-10-21v"></script><!-- /BUNDLE -->
+document.write('<!-- BUNDLE en --><script src="js/build/en.min.js?v=2026-10-21w"><\/script><!-- /BUNDLE -->');})();</script>
+<!-- BUNDLE tail --><script src="js/build/tail.min.js?v=2026-10-21w"></script><!-- /BUNDLE -->
 </body>
 </html>
