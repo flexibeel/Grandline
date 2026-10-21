@@ -931,7 +931,7 @@ addEventListener('keydown',e=>{if($('eq').classList.contains('on')&&performance.
 
 // ---------- Werft im Heimathafen ----------
 let wfOn=false,wfT=0;
-const WF=[['r','pl','Rumpf','Mehr Rumpf: +25 Lebenspunkte'],['k','ei','Kanonen','Mehr Wumms: +15 % Schaden'],['s','se','Segel','Mehr Wind: +8 % Tempo, auch auf der Fahrt']];
+const WF=[['r','pl','Rumpf','Mehr Rumpf: +25 Lebenspunkte, an Land +10 % Crew-Leben'],['k','ei','Kanonen','Mehr Wumms: +15 % Schaden, an Land +10 %'],['s','se','Segel','Mehr Wind: +8 % Tempo, an Land +5 % Crew-Tempo']];
 function werft(){wfOn=true;wfT=performance.now();lock=99;joyEnd();keys.clear();$('act').classList.remove('on');$('tip').classList.remove('on');wfDraw();$('werft').classList.add('on');}
 const wPxC={};function wPx(u){if(!wPxC[u]){const c=document.createElement('canvas');c.width=c.height=16;pixel(c,WUP.find(x=>x.k===u).px);wPxC[u]=c.toDataURL();}return wPxC[u];}
 function wfDraw(){

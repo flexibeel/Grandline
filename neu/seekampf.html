@@ -514,7 +514,7 @@ function makeShip(o){
   body.add(mesh(jg,M(o.boss?C.R:C.W,{side:THREE.DoubleSide})));
   const fl=flag(o.flag);fl.position.set(0.05,2.95,0);body.add(fl);
   }
-  const gm=M(C.T),xs=fl_?[-0.45,0.35]:pz_?[-1.05,-0.45,0.15,0.75]:o.boss?[-0.75,-0.25,0.25,0.75]:[-0.55,0.05,0.65];
+  const gm=M(C.T),xs=o.noGuns?[]:fl_?[-0.45,0.35]:pz_?[-1.05,-0.45,0.15,0.75]:o.boss?[-0.75,-0.25,0.25,0.75]:[-0.55,0.05,0.65];
   for(const z of[-1,1])for(const x of xs){const c=mesh(cyl(0.05,0.065,0.34,5),gm);c.rotation.x=Math.PI/2;c.position.set(x,0.26,z*(o.B?o.B*0.86:0.5));body.add(c);}
   let fire=null;
   if(fl_){
@@ -545,7 +545,7 @@ function makeShip(o){
   root.userData={body,lan,mats,fire,roll:0,rv:0,flash:0};
   return root;
 }
-const player=makeShip({sail:C.w,flag:C.r,bulw:C.B,band2:C.d}),boss=
+const S0=sails.length,player=makeShip({sail:C.w,flag:C.r,bulw:C.B,band2:C.d,noGuns:1}),PS=sails.slice(S0),boss=
   LOOK==='lila'?makeShip({sail:'#b48ae0',flag:C.k,bulw:C.B,band2:'#5e3a8a',scale:1.2,boss:true}):
   LOOK==='flink'?makeShip({kind:'flink',L:2.6,B:0.44,sheer:0.24,sail:'#4fc0ae',sail2:'#fbf6ea',flag:C.y,bulw:'#2f8a7a',band2:'#f2c94c',scale:0.95}):
   LOOK==='panzer'?makeShip({kind:'panzer',L:3.6,B:0.86,sheer:0.06,sail:'#7d8456',flag:C.k,bulw:C.t,band2:C.T,cab:C.T,roof:C.e,scale:1.5,boss:true}):
@@ -553,6 +553,17 @@ const player=makeShip({sail:C.w,flag:C.r,bulw:C.B,band2:C.d}),boss=
 // Schatten/Schaumring des Gegners im Wasser passend zur Groesse
 const EK={flink:[0.6,0.6],panzer:[1.15,1.4]}[LOOK]||[1,1];
 scene.add(player,boss);
+// ---------- Werft-Ausbau sichtbar am Spielerschiff (wie shipUp in welt.html, nur Grafik) ----------
+{const u=(OPT.up||'').split('.'),i3=v=>Math.max(0,Math.min(3,Math.floor(+v||0))),r=i3(u[0]),k=i3(u[1]),s=i3(u[2]),body=player.userData.body;
+  const ad=(m,x,y,z)=>{m.position.set(x,y,z);body.add(m);return m;},n=3+k,gm=M(k>=3?C.y:C.T);
+  for(const z of[-1,1])for(let i=0;i<n;i++){const c=ad(mesh(cyl(0.05,0.065,0.34,5),gm),-0.7+1.45*(n>1?i/(n-1):0.5),0.26,z*0.5);c.rotation.x=Math.PI/2;}
+  if(r>=1){const pl=M(C.j);for(const z of[-1,1])for(const[x,y,w]of[[-0.35,0.06,0.42],[0.55,-0.04,0.36]])ad(mesh(box(w,0.07,0.02),pl),x,y,z*(0.535-Math.abs(x)*0.04));}
+  if(r>=2){const nm=M(C.k);for(const z of[-1,1])for(let i=0;i<6;i++)ad(mesh(box(0.03,0.03,0.02),nm,false),-1.05+i*0.38,0.15,z*0.56);}
+  if(r>=3){const im=M(C.t);for(const z of[-1,1])for(const x of[-0.9,0.1,1.0])ad(mesh(box(0.06,0.5,0.02),im),x,-0.02,z*(0.55-Math.abs(x)*0.05));}
+  const sc=1+0.1*s;for(const m of PS)m.scale.set(1,sc,sc);
+  if(s>=2){ad(sail(0.8,0.5,C.w,0.2),0.96,2.62,0);const y=ad(mesh(cyl(0.02,0.02,0.9,4),M(C.d)),0.96,2.64,0);y.rotation.x=Math.PI/2;ad(mesh(cyl(0.03,0.035,0.7),M(C.d)),0.92,2.45,0);}
+  if(s>=3){const w=flag(C.y);w.scale.set(0.8,0.6,1);ad(w,0.92,2.85,0);}
+  player.traverse(m=>{if(m.isMesh&&m.material.emissive&&!player.userData.mats.includes(m.material)){m.material=m.material.clone();player.userData.mats.push(m.material);}});}
 // ---------- Crew an Deck: kleine Figuren, die mitschaukeln und sich freuen ----------
 function deckFig(o){
   const g=new THREE.Group(),b=new THREE.Group();g.add(b);const skin=M(o.skin||'#e9b48a'),bod=M(o.body),leg=M(o.leg||C.D),dark=M(C.k),hat=M(o.hc);

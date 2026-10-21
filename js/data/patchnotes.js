@@ -1,6 +1,9 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-21y', date: '21.10.', title: 'Ausbau überall', items: [
+    '🔧 Neue Welt: Dein Werft-Ausbau ist jetzt auch im Seekampf zu sehen. Mehr Kanonen, Planken, Eisenbänder, Topsegel und der goldene Wimpel fahren mit in die Schlacht',
+    '⚔ An Land zählt die Werft mit: Kanonen geben der Crew +10 % Schaden, Segel +5 % Tempo pro Stufe. In der Bucht und in der Höhle' ] },
   { v: '2026-10-21x', date: '21.10.', title: 'Tiefe Höhlen', items: [
     '⛏ Neue Welt: Die Höhlen sind offen! Kammern voller Fledermäuse, Krabben und Schleim, Gitter, Kisten und Truhen. Ganz hinten wartet ein Boss: Marlo, Tropfstein-Toni oder Muschelkönigin Perla',
     '🎒 Beutejagd: Höhlen, Buchten und Seekämpfe lassen Ausrüstung fallen. Waffe, Kleidung, Schmuck in vier Seltenheiten, auf jeder Seekarte stärker. „Besser für Nele!“ heißt: sofort anlegen',

@@ -190,14 +190,17 @@ function mk(s,side,kind,style,x,z,hm){const c=K.u[kind],mh=Math.round(c.hp*(hm||
 function wear(s,g){if(typeof g!=='string'||!/^(\d{1,3}\.\d{1,3}\.\d{1,3}\|){2}\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(g))return;
   g.split('|').forEach((p,i)=>{const[a,h,u]=p.split('.').map(v=>Math.min(200,+v)),U=s.u[i];if(!U)return;U.hp=U.max=Math.round(U.max*(1+h/100));U.am=1+a/100;U.um=1+u/100;
     let x=s.hash;for(const v of[a,h,u]){x^=v;x=Math.imul(x,16777619)>>>0;}s.hash=x;});}
-// Werft-Rumpf (0-3): +10 % Leben pro Stufe fuer Kapitaen und Maats
+// Werft (0-3): Kanonen +10 % Schaden, Segel +5 % Tempo pro Stufe fuer Kapitaen und Maats (ohne Ausbau unveraendert)
+function yard(s,o){const k=Math.max(0,Math.min(3,o.kan|0)),g=Math.max(0,Math.min(3,o.segel|0));if(!k&&!g)return;
+  for(const U of s.u)if(U.side==='p'){if(k)U.am=(U.am||1)*(1+0.1*k);if(g)U.vm=1+0.05*g;}}
+// Werft-Rumpf (0-3): +10 % Leben pro Stufe fuer Kapitaen und Maats; Kanonen/Segel siehe yard()
 function create(seed,o){
   seed=seed>>>0;o=o||{};const hm=1+0.1*Math.max(0,Math.min(3,o.rumpf|0));
   const s={seed,r:seed,step:0,over:false,winner:null,u:[],rings:[],shots:[],ob:OB.map(o=>Object.assign({},o)),nid:1,ev:[],hash:2166136261,focus:-1,ph:1,net:null,tx:0,tz:6.2,mv:0,mx:0,mz:0,kcd:0,
     bs:{st:'move',pt:0,ring:100,wind:0,shot:K.shot.first,aa:[]},stats:{ults:0,cuts:0,net:'-',counters:0,slams:0,shots:0,blocked:0,shotHits:0,crates:0}};
   mk(s,'p','cap',0,0,6.2,hm);mk(s,'p','mate',1,-1.4,7.2,hm);mk(s,'p','mate',2,1.4,7.2,hm);
   mk(s,'e','boss',1,0,-3.6);mk(s,'e','grunt',0,-2.8,-1.8);mk(s,'e','grunt',2,2.8,-1.8);
-  wear(s,o.g);return s;
+  wear(s,o.g);yard(s,o);return s;
 }
 const reach=(a,t)=>K.u[a.kind].rng+K.u[t.kind].rad;
 function near(s,u,side,maxd){let best=null,bd=maxd;for(const t of s.u){if(t.dead||t.side!==side)continue;const d=dist(u,t);if(d<bd){bd=d;best=t;}}return best;}
@@ -213,6 +216,7 @@ function around(s,u,wx,wz){
 }
 function accel(u,wx,wz,v){const a=v*9*DT;u.vx+=cl(wx-u.vx,-a,a);u.vz+=cl(wz-u.vz,-a,a);u.x+=u.vx*DT;u.z+=u.vz*DT;if(u.vx*u.vx+u.vz*u.vz>0.09)u.h=Math.atan2(u.vz,u.vx);}
 function moveTo(s,u,tx,tz,v,stop){
+  if(u.vm)v*=u.vm;
   const dx=tx-u.x,dz=tz-u.z,d=Math.hypot(dx,dz);let w=[0,0];
   if(d>stop){const sp=v*Math.min(1,(d-stop)/0.5+0.15);w=around(s,u,dx/d*sp,dz/d*sp);}
   accel(u,w[0],w[1],v);
@@ -368,7 +372,7 @@ function step(s,inputs){
   else{
     if(s.kcd>0)s.kcd--;
     for(const u of U){if(u.dead)continue;if(u.cd>0)u.cd--;if(u.bound>0&&--u.bound===0)s.ev.push({k:'free',id:u.id});}
-    if(!cap.bound){const v=K.u.cap.v;if(s.mv)accel(cap,s.mx*v,s.mz*v,v);else moveTo(s,cap,s.tx,s.tz,v,0.08);
+    if(!cap.bound){const v=K.u.cap.v;if(s.mv){const w=v*(cap.vm||1);accel(cap,s.mx*w,s.mz*w,w);}else moveTo(s,cap,s.tx,s.tz,v,0.08);
       const f=s.focus>=0?U[s.focus]:null,t=f&&dist(cap,f)<=reach(cap,f)?f:near(s,cap,'e',1.7);if(t)tryAtk(s,cap,t);else tryCrate(s,cap);}
     mateAI(s,U[1]);mateAI(s,U[2]);gruntAI(s,U[4]);gruntAI(s,U[5]);bossAI(s);
     swings(s);shots(s);rings(s);separate(s);
@@ -395,7 +399,7 @@ function simulate(seed,inputs,o){
   while(!s.over){const now=[];while(ip<list.length&&list[ip].step===s.step)now.push(list[ip++]);while(ip<list.length&&list[ip].step<s.step)ip++;step(s,now);}
   return summary(s);
 }
-return {HZ,DT,K,OB,sdn,ray,hide,mult,create,step,simulate,summary,r2,X:{rnd,around,accel,moveTo,cl,dist,brake,wear}};
+return {HZ,DT,K,OB,sdn,ray,hide,mult,create,step,simulate,summary,r2,X:{rnd,around,accel,moveTo,cl,dist,brake,wear,yard}};
 })();
 if(typeof module!=='undefined')module.exports=LK;
 /*END*/
@@ -405,7 +409,7 @@ if(typeof module!=='undefined')module.exports=LK;
 // Eingaben wie LK, dazu {step,type:'tap',k} (Perle zurueckwerfen).
 var HK=(function(){
 'use strict';
-const L=LK.K,{rnd,around,accel,moveTo,cl,dist,brake,wear}=LK.X,sdn=LK.sdn,mult=LK.mult,r2=LK.r2,HZ=30,DT=1/HZ,MAXSTEP=HZ*240;
+const L=LK.K,{rnd,around,accel,moveTo,cl,dist,brake,wear,yard}=LK.X,sdn=LK.sdn,mult=LK.mult,r2=LK.r2,HZ=30,DT=1/HZ,MAXSTEP=HZ*240;
 const U0={bat:{hp:34,atk:4,cd:24,rng:0.8,v:3.2,rad:0.3,st:2,g:2},crab:{hp:62,atk:6,cd:32,rng:0.85,v:1.9,rad:0.38,st:0,g:3},
   slime:{hp:44,atk:5,cd:40,rng:0.8,v:1.1,rad:0.42,st:1,g:3},
   marlo:{hp:1300,atk:11,cd:48,rng:1.05,v:1.8,rad:0.65,st:1},toni:{hp:1400,atk:13,cd:54,rng:1.15,v:1.45,rad:0.75,st:0},
@@ -483,7 +487,7 @@ function create(seed,o){
     focus:-1,ph:1,net:null,tx:0,tz:0,mv:0,mx:0,mz:0,kcd:0,bi:-1,
     bs:{st:'move',pt:0,pd:1,ring:100,wind:0,shot:L.shot.first,aa:[],ao:null,t1:0,t2:0,t3:0,back:0,called:0,rained:0},
     loot:{gold:0,pl:0,ei:0,se:0,chests:0,pots:0},stats:{ults:0,cuts:0,net:'-',counters:0,slams:0,shots:0,blocked:0,shotHits:0,crates:0,kills:0,back:0}};
-  gen(s);wear(s,o.g);return s;}
+  gen(s);wear(s,o.g);yard(s,o);return s;}
 function near(s,u,side,maxd,act){let best=null,bd=maxd;for(const t of s.u){if(t.dead||t.side!==side||(act&&!t.act))continue;const d=dist(u,t);if(d<bd){bd=d;best=t;}}return best;}
 function wake(s,i){const q=s.R[i];if(!q||q.act)return;q.act=true;for(const u of s.u)if(u.side==='e'&&u.room===i)u.act=true;s.ev.push({k:'room',i,boss:i===s.R.length-1});}
 function addLoot(s,l,x,z){const g=s.loot;if(l.g)g.gold+=l.g;for(const m of['pl','ei','se'])if(l[m])g[m]+=l[m];
@@ -685,7 +689,7 @@ function step(s,inputs){
   else{
     if(s.kcd>0)s.kcd--;
     for(const u of U){if(u.dead)continue;if(u.cd>0)u.cd--;if(u.bound>0&&--u.bound===0)s.ev.push({k:'free',id:u.id});}
-    if(!cap.bound){const v=L.u.cap.v;if(s.mv)accel(cap,s.mx*v,s.mz*v,v);else go(s,cap,s.tx,s.tz,v,0.08);
+    if(!cap.bound){const v=L.u.cap.v;if(s.mv){const w=v*(cap.vm||1);accel(cap,s.mx*w,s.mz*w,w);}else go(s,cap,s.tx,s.tz,v,0.08);
       const f=s.focus>=0?U[s.focus]:null,t=f&&!f.dead&&dist(cap,f)<=reach(cap,f)?f:near(s,cap,'e',1.7);if(t)tryAtk(s,cap,t);else tryCrate(s,cap);}
     mateAI(s,U[1]);mateAI(s,U[2]);
     for(let i=3;i<U.length;i++){const u=U[i];if(u.dead||!u.act)continue;if(i===s.bi)(s.boss==='toni'?toniAI:s.boss==='perla'?perlaAI:marloAI)(s,u);else monAI(s,u);}
@@ -715,7 +719,7 @@ if(!window.THREE){document.getElementById('hint').textContent='three.js konnte n
 const TAU=Math.PI*2,PITCH=36*Math.PI/180,VIEWW=6.6,K=LK.K;
 let WPP=0.05;
 const hex=c=>new THREE.Color(c),$=id=>document.getElementById(id);
-const QS0=new URLSearchParams(location.search),EMB=QS0.has('embed'),OPT={rumpf:+QS0.get('rumpf')||+((QS0.get('up')||'').split('.')[0])||0};
+const QS0=new URLSearchParams(location.search),EMB=QS0.has('embed'),UP0=(QS0.get('up')||'').split('.'),OPT={rumpf:+QS0.get('rumpf')||+UP0[0]||0,kan:+QS0.get('kan')||+UP0[1]||0,segel:+QS0.get('segel')||+UP0[2]||0};
 // Hoehle (Vertrag 21t): ?mode=hoehle&boss=marlo|toni|perla&tier=..&name=..
 if(QS0.get('g'))OPT.g=QS0.get('g');
 const CAVE=QS0.get('mode')==='hoehle',BOSSK=['marlo','toni','perla'].includes(QS0.get('boss'))?QS0.get('boss'):'marlo',G=CAVE?HK:LK;
