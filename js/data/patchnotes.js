@@ -1,6 +1,11 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-21p', date: '21.10.', title: 'Leichter Wind', items: [
+    '📱 iPhone-App: Kein heller Balken mehr oben, dafür ein Holzstreifen. Der Hinweis erklärt den Schalter „Als Web-App öffnen“ (ab iOS 26)',
+    '🔑 In der App anmelden: Mail-Code eintippen statt Link antippen, dann landet dein Pirat auch wirklich in der App',
+    '🔤 Überschriften wieder in Pixelschrift',
+    '⚡ Spiel lädt schneller: weniger Dateien, Animationen ruhen, wenn das Spiel im Hintergrund ist' ] },
   { v: '2026-10-21o', date: '20.10.', title: 'Klar Schiff', items: [
     '🍈 Frucht-Wege: Findest du eine Frucht ein zweites Mal, wählst du einen von zwei Wegen. Flächenbrand oder Glut? Deine Entscheidung',
     '★ Legendäre Ausrüstung hat jetzt eigene Effekte mit Namen, vom Zweischneidigen Säbel bis zur Bordküche. Beim Fund glänzt es kurz golden',
