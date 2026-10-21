@@ -87,6 +87,10 @@ body.drag #joy{display:none}
 .hb.e b{background:var(--red)}.hb.boss{width:40px;margin-left:-22px}.hb.boss b{background:#9b6fd1}
 .hb.bd{border-color:#c9a8ef}
 #fc{position:absolute;display:none;width:0;height:0;margin-left:-8px;border:8px solid transparent;border-top:10px solid #ffe28a;border-bottom:0;filter:drop-shadow(0 2px 0 #2b1d14)}
+.say{position:fixed;z-index:4;max-width:150px;background:#fbf6ea;color:#2b1d14;border:3px solid #2b1d14;border-radius:4px;box-shadow:0 3px 0 #2b1d14;padding:4px 7px;font:600 11px/1.25 var(--px);pointer-events:none;transform:translate(-50%,-100%);text-align:center;animation:sayIn .18s steps(3)}
+.say:after{content:'';position:absolute;left:50%;bottom:-9px;margin-left:-5px;border:5px solid transparent;border-top:6px solid #2b1d14}
+.say.out{opacity:0;transition:opacity .25s steps(3)}
+@keyframes sayIn{from{transform:translate(-50%,-80%) scale(.6)}to{transform:translate(-50%,-100%) scale(1)}}
 .pop{position:fixed;z-index:3;font:700 13px var(--px);color:var(--gold);text-shadow:1px 1px 0 #b8862a,2px 2px 0 var(--wood);pointer-events:none;transform:translate(-50%,-50%);animation:up .6s steps(4) forwards}
 .pop.big{font-size:22px;color:#ffe28a;z-index:4}
 .pop.me{color:#fbf6ea;text-shadow:1px 1px 0 var(--red),2px 2px 0 var(--wood)}
@@ -1157,7 +1161,7 @@ const CALM=(()=>{try{return localStorage.getItem('gl.ruhig')==='1';}catch(e){ret
 let tilt=0,st,rec,ip,mode,acc=0,hs=0,shake=0,flash=0,lastSum=null,winds=0,wall=0,dimT=0,todT=0,hour=clockH();
 const prev=[];const camT=new THREE.Vector3();let camInit=false;
 function start(seed,inputs){
-  st=G.create(seed,OPT);rec=inputs||[];ip=0;mode=inputs?'replay':'live';acc=0;hs=0;winds=0;
+  st=G.create(seed,OPT);rec=inputs||[];ip=0;mode=inputs?'replay':'live';lowSaid=[0,0,0];sayT=0;sayCd=0;idleT=9;if(sayEl){sayEl.remove();sayEl=null;}if(!inputs)setTimeout(()=>sayAny('start'),1600);acc=0;hs=0;winds=0;
   if(CAVE){BI=st.bi;dropFigs(3);for(const c of covers)c.g.parent&&c.g.parent.remove(c.g);buildCave(st);covers=st.ob.map((o,i)=>mkCover(o,i,caveG));
     for(const m of pearlMesh.values())scene.remove(m);pearlMesh.clear();document.body.classList.add('cave','noboss');$('bN').textContent=BNAME;lootK='';}
   syncFigs();
@@ -1188,6 +1192,39 @@ function pop(x,y,z,txt,cls,key,n,pre,suf){const[sx,sy]=toScreen(x,y,z);if(sy<hud
   const q={el:d,x:sx,y:py,t:wall,key,cls,n};pops.push(q);q.to=setTimeout(()=>d.remove(),650);}
 // Banner nacheinander zeigen statt uebereinander
 let banQ=0;
+// ---------- Crew-Sprechblasen (nur Darstellung, Zufall hier erlaubt) ----------
+// Je Figur eigene Sprüche; eine Blase zur Zeit, kurze Pause dazwischen. Wichtige Anlässe (prio) drängeln vor.
+const SAY={
+ cap:{start:['Leinen los, Crew! Äh. Füße los!','Wer zuerst die Truhe findet, kriegt den Keks.','Alle bei mir bleiben. Wirklich. Bei mir.'],
+  room:['Leise jetzt… WER HAT GEHUSTET?','Riecht nach Abenteuer. Und nach Pilzen.','Hier war schon lange keiner. Gut so.'],
+  boss:['Das ist er. Haltet euch an mir fest!','Groß. Hässlich. Machbar.'],loot:['Ha! Meins! Unser! Meins.','Das kommt in die Hafenkasse.'],
+  ko:['{n}! Steh auf, wir sind noch nicht fertig!','Das bezahlst du, du Klotz!'],low:['Nur ein Kratzer. Viele Kratzer.','Ich brauch kurz… nein, weiter!'],
+  win:['Gewonnen! Wer hat Hunger?','So macht man das. Glaub ich.'],idle:['Hört ihr das Tropfen? Ich hör Tropfen.','Ich führ uns. Ich weiß genau wohin. Fast.','Schön dunkel hier. Gemütlich fast.']},
+ brakk:{start:['Ich hab meinen Stab poliert. Für nix.','Ich geh hinten. Hinten ist sicher.'],room:['Ich zähl die Gegner. Viele. Ich hör auf zu zählen.','Mein Stab kribbelt. Das ist nie gut.'],
+  boss:['Oh. Oh nein. Oh doch.','Den hau ich mal vorsichtig.'],loot:['Ist das Gold? Darf ich halten?'],ko:['{n}! Ich bin dabei! Gleich! Jetzt!'],
+  low:['Mir ist schwindelig. Normal schwindelig.'],win:['Ich hab mitgeholfen! Oder?','Mein Stab und ich sind stolz.'],idle:['Wer hat eigentlich die Karte?','Ich hab Angst vor Fledermäusen. Und Krabben. Und Schleim.']},
+ nele:{start:['Klinge scharf, Laune auch.','Bleibt locker. Ich schneid uns durch.'],room:['Drei vorne, einer links. Meiner.','Endlich was zu tun.'],
+  boss:['Na endlich, ein Großer.','Der hat zu viele Fäden im Kopf.'],loot:['Glänzt. Nehm ich.'],ko:['{n}! Ich räch dich. Danach Kuchen.'],
+  low:['Tut weh. Macht mich wütend.'],win:['Sauber. Nächste Höhle?','Zu einfach. Fast.'],idle:['Wenn noch einer „Sind wir da?“ fragt…','Leise. Da hinten bewegt sich was. Oder nix.']},
+ kiki:{start:['Taschen voller Kiesel. Wir können.','Ich treff alles. Außer manchmal.'],room:['Ich bleib hinten. Hinten ist meine Lieblingsseite.','Ziel gesucht, Ziel gefunden.'],
+  boss:['Großes Ziel! Endlich!','Der ist so groß, den verfehl ich nicht. Hoffentlich.'],loot:['Kiesel! Ach nee, Gold. Auch gut.'],ko:['{n}! Ich deck dich! Von weit weg!'],
+  low:['Abstand! Ich brauch Abstand!'],win:['Zwölf Treffer! Elf. Na gut, neun.','Wer hat gezählt? Ich hab gezählt.'],idle:['Ich hab hier schon dreimal einen Stein verloren.','Psst. Echo! …Echo?']}};
+const sayKey=i=>i===0?'cap':FIG[i]&&FIG[i].n==='Kiki'?'kiki':i===1?'brakk':'nele';
+let sayEl=null,sayU=-1,sayT=0,sayCd=2,lowSaid=[0,0,0],idleT=9;
+function say(i,kind,prio,n){
+  const u=st&&st.u[i];if(!u||u.dead||mode!=='live'||st.over&&kind!=='win')return;
+  if(!prio&&(sayT>0||sayCd>0))return;const L=SAY[sayKey(i)][kind];if(!L)return;
+  if(sayEl)sayEl.remove();sayEl=document.createElement('div');sayEl.className='say';sayEl.textContent=L[Math.floor(Math.random()*L.length)].replace('{n}',n||'');document.body.appendChild(sayEl);
+  sayU=i;sayT=2.6;sayCd=0;idleT=10+Math.random()*8;figs[i].userData.hop=0.35;placeSay();}
+function sayAny(kind,prio,n,not){const a=[0,1,2].filter(i=>i!==not&&st.u[i]&&!st.u[i].dead);if(a.length)say(a[Math.floor(Math.random()*a.length)],kind,prio,n);}
+function placeSay(){if(!sayEl)return;const f=figs[sayU];if(!f){sayEl.remove();sayEl=null;return;}const[x,y]=toScreen(f.position.x,1.75*f.userData.sc,f.position.z);
+  sayEl.style.left=Math.max(80,Math.min(innerWidth-80,x))+'px';sayEl.style.top=Math.max(hudB+40,y)+'px';}
+function sayTick(dt){
+  if(sayT>0){sayT-=dt;placeSay();if(sayT<=0&&sayEl){const e=sayEl;e.classList.add('out');setTimeout(()=>e.remove(),300);sayEl=null;sayCd=3.5;}}
+  else if(sayCd>0)sayCd-=dt;
+  if(!st||st.over||mode!=='live'||st.net)return;
+  for(let i=0;i<3;i++){const u=st.u[i];if(!lowSaid[i]&&!u.dead&&u.hp<u.max*0.3){lowSaid[i]=1;say(i,'low',1);}}
+  if(CAVE&&(idleT-=dt)<=0){idleT=12+Math.random()*10;const busy=st.u.some(u=>u.side==='e'&&u.act&&!u.dead&&Math.hypot(u.x-st.u[0].x,u.z-st.u[0].z)<6);if(!busy)sayAny('idle');}}
 function popScreen(txt,y,ban){if(ban){const now=performance.now(),at=Math.max(now,banQ);banQ=at+1250;if(at>now){setTimeout(()=>popShow(txt,y,ban),at-now);return;}}popShow(txt,y,ban);}
 function popShow(txt,y,ban){const d=document.createElement('div');d.className='pop big'+(ban?' ban':'');d.textContent=txt;d.style.left='50%';d.style.top=(y||36)+'%';document.body.appendChild(d);setTimeout(()=>d.remove(),ban?1500:650);}
 function onEvent(e){
@@ -1199,7 +1236,7 @@ function onEvent(e){
       sparks(e.x,0.7*f.userData.sc,e.z,e.k==='hit'?1:2,e.k==='rhit'?C.q:null);
       {const cl=me?'me':e.m>1?'ef':e.m<1?'wk':'',sf=e.m>1?'!':'';pop(e.x,top,e.z,'-'+e.n+sf,cl,e.id,e.n,'-',sf);}if(e.k!=='hit')splash(e.x,e.z,6);
       if(me&&e.id===0){shake=Math.max(shake,0.1);}if(e.k!=='hit'){hs=Math.max(hs,0.06);shake=Math.max(shake,0.15);}break;}
-    case 'down':dust(U[e.id].x,U[e.id].z,14);if(e.id<3)pop(U[e.id].x,top,U[e.id].z,'K.o.','me big');break;
+    case 'down':dust(U[e.id].x,U[e.id].z,14);if(e.id<3){pop(U[e.id].x,top,U[e.id].z,'K.o.','me big');sayAny('ko',1,FIG[e.id].n,e.id);}break;
     case 'boom':if(e.kind==='drop'){dust(e.x,e.z,14,1.6);for(let i=0;i<10;i++)emit(e.x,0.3,e.z,R(-2,2),R(1.5,3.5),R(-2,2),0.7,4,3,'#a89cb8','#6a5e74',-12,0.3,0);shake=Math.max(shake,0.1);break;}
       dust(e.x,e.z,10,1.4);splash(e.x,e.z,10);for(let i=0;i<10;i++){const a=i/10*TAU;emit(e.x,0.15,e.z,Math.cos(a)*2.4,0.3,Math.sin(a)*2.4,0.35,2,1,'#efe2ff',C.q,0,4,0);}shake=Math.max(shake,0.08);break;
     case 'ult':{const u=U[e.id],m=new THREE.Mesh(ultG,new THREE.MeshBasicMaterial({color:hex(SC[u.style]),transparent:true,depthWrite:false,depthTest:false}));
@@ -1217,13 +1254,13 @@ function onEvent(e){
     case 'aim':figs[BI].userData.fl=0.12;break;
     case 'shot':flashL.position.set(U[BI].x,1.2,U[BI].z);flashL.color.set(e.t==='rock'?C.e:e.t==='pearl'?'#fff4fa':C.q);flashL.intensity=2;if(e.t==='rock')shake=Math.max(shake,0.1);break;
     // --- Hoehle ---
-    case 'room':if(e.i>0){if(e.boss){document.body.classList.remove('noboss');popScreen(BNAME+'!',28,1);
+    case 'room':if(e.i>0){if(!e.boss)setTimeout(()=>sayAny('room'),900);else setTimeout(()=>say(0,'boss',1),1400);if(e.boss){document.body.classList.remove('noboss');popScreen(BNAME+'!',28,1);
         const tipB={marlo:'Ringe meiden, Fäden antippen,<br>beim Ausholen <b>Konter</b>!',toni:'Hinter <b>Säulen</b> vor Felsen verstecken.<br>Holt er aus: <b>Konter</b>!',perla:'Die Schale schützt sie: zuhauen, wenn sie <b>offen</b> ist.<br>Perlen antippen = zurückschmettern!'};
         if(mode==='live'){$('hint').innerHTML=tipB[st.boss];$('hint').style.display='block';setTimeout(()=>{if(mode==='live')$('hint').style.display='none';},6500);}}
       }break;
     case 'clear':popScreen('Kammer frei!',32,1);break;
     case 'gate':{const c=covers[e.i];if(c){c.g.visible=false;c.gone=1;const o=c.o;dust(o.x,o.z,18,1.6);sparks(o.x,0.8,o.z,2,C.s);}break;}
-    case 'chest':{const c=covers[e.i];if(c){c.g.visible=false;c.gone=1;}popScreen('Truhe geknackt!',40);flash=0.06;
+    case 'chest':{const c=covers[e.i];if(c){c.g.visible=false;c.gone=1;}popScreen('Truhe geknackt!',40);flash=0.06;sayAny('loot',1);for(let j=0;j<3;j++)if(figs[j])figs[j].userData.hop=0.4;
       for(let i=0;i<26;i++)emit(e.x,0.5,e.z,R(-2.5,2.5),R(3,6),R(-2.5,2.5),1.1,4,3,C.f,C.y,-12,0.3,0);break;}
     case 'loot':{const l=e.l;let y=1.3;if(l.g){pop(e.x,y,e.z,'+'+l.g+' Gold','loot');y+=0.35;for(let i=0;i<Math.min(10,l.g/3);i++)emit(e.x,0.4,e.z,R(-1.5,1.5),R(2,4),R(-1.5,1.5),0.8,3,2,C.f,C.y,-12,0.3,0);}
       for(const q of['pl','ei','se'])if(l[q]){pop(e.x,y,e.z,'+'+l[q]+' '+MATN[q],'mat');y+=0.35;}break;}
@@ -1251,7 +1288,7 @@ function onEvent(e){
     case 'counter':hs=0.1;shake=0.2;flash=0.07;popScreen('Konter!');$('kTip').style.display='none';break;
     case 'kmiss':popScreen(winds?'Zu früh! Warte aufs „!!“':'Erst wenn er ausholt!',44);break;
     case 'slam':dust(e.x,e.z,30,2.6);splash(e.x,e.z,18);shake=0.3;hs=0.1;for(let i=0;i<24;i++){const a=i/24*TAU;emit(e.x,0.2,e.z,Math.cos(a)*7,0.4,Math.sin(a)*7,0.4,3,1,C.f,C.o,0,5,0);}break;
-    case 'end':hs=0.15;shake=0.3;setTimeout(showEnd,1300);break;
+    case 'end':hs=0.15;shake=0.3;if(e.winner==='p'){sayAny('win',1);for(let j=0;j<3;j++)if(figs[j])figs[j].userData.hop=0.5;}setTimeout(showEnd,1300);break;
   }
 }
 const MATN={pl:'Planke',ei:'Eisen',se:'Segeltuch'};
@@ -1366,7 +1403,7 @@ function frame(now){
   if(hs>0)hs-=dt;
   else{acc+=dt;let n=0;while(acc>=LK.DT&&!st.over&&n<6){if(mode==='live')flushMove();tick();acc-=LK.DT;n++;}if(st.over)acc=0;}
   const a=st.over?1:Math.min(1,acc/LK.DT);
-  visual(dt,a);render();
+  visual(dt,a);render();sayTick(dt);
   requestAnimationFrame(frame);
 }
 const lerpA=(a,b,t)=>a+Math.atan2(Math.sin(b-a),Math.cos(b-a))*t;
@@ -1399,6 +1436,7 @@ function animFig(i,f,u,dt,x,z){
   if(mv>1.5&&!u.dead&&!frozen&&Math.random()<dt*9)emit(x-u.vx*0.08+R(-.1,.1),0.06,z-u.vz*0.08,R(-.3,.3),R(0.3,0.7),R(-.3,.3),R(0.35,0.6),2,R(3,5),'#f4e4b8','#d8c08a',0,3,1);
   if(i===BI&&bs.st==='stun'){d.b.rotation.x=0.15*Math.sin(wall*9);if(Math.random()<0.3)emit(x+R(-.5,.5),2.4,z+R(-.4,.4),0,0.6,0,0.5,2,2,C.f,C.y,0,0,1);}
   d.arms[0].rotation.set(lx,0,l);d.arms[1].rotation.set(rx,0,r);
+  if(d.hop>0&&!u.dead){d.hop-=dt;d.b.position.y+=Math.sin(Math.max(0,d.hop)/0.4*Math.PI)*0.22;}
   if(d.ult>0){d.ult-=dt;d.b.rotation.y=(1-d.ult/0.5)*TAU;d.b.position.y+=Math.sin(d.ult/0.5*Math.PI)*0.35;}
   if(u.dead){d.fall=Math.min(1,d.fall+dt*3);if(i>2&&i!==BI){d.dt+=dt;if(d.dt>2.2&&f.visible){f.visible=false;dust(x,z,12);}}d.b.rotation.set(0,0,d.fall*1.45);d.b.position.y=-0.1*d.fall;d.arms[0].rotation.x=0.6;d.arms[1].rotation.x=-0.6;}
   d.fl-=dt;const em=d.fl>0?1:i===BI&&bs.st==='wind'?0.25+0.25*(Math.floor(wall*10)%2):0;
