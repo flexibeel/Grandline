@@ -1,6 +1,9 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-22e', date: '22.10.', title: 'Kiki mit der Schleuder', items: [
+    '🎯 Neue Welt: Kiki heuert im Heimathafen an (Werft → Crew, 250 Gold). Sie kämpft aus der Ferne, läuft vor Nahkämpfern weg und ihre Steine prallen an Deckung ab',
+    '🌧 Kikis Ulti „Kugelhagel“ trifft alle Gegner im weiten Kreis. Du entscheidest, ob sie statt Brakk oder Nele an Land geht. Perlas Panzer mag Steine übrigens gar nicht' ] },
   { v: '2026-10-22d', date: '22.10.', title: 'Beste Kapitäne', items: [
     '🏆 Neue Welt: Rangliste auf dem Titelbild, gesamt und für diese Woche. Punkte gibt es für Seekarten, besiegte Bosse und gesichertes Gold. Dein Name lässt sich dort ändern' ] },
   { v: '2026-10-22c', date: '22.10.', title: 'Schmuck fürs Schiff', items: [

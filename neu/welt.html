@@ -164,7 +164,7 @@ body.wf #hud,body.wf #goal,body.wf #log,body.wf #joy,body.wf #act,body.wf #tip,b
   <button class="btn" data-m="neu">Karte neu würfeln<br><small>Neue Inseln, Bord-Gold weg. Werft bleibt.</small></button>
   <small id="mInfo"></small>
 </div>
-<div id="werft"><div id="wHint">↔ Ziehen zum Drehen</div><div class="wbox"><h3>⚒ Werft</h3><div class="wtab"><button class="btn" data-t="aus">⚒ Ausbau</button><button class="btn" data-t="sch">🎨 Schmuck</button></div><div class="wk" id="wKasse"></div><div id="wRows" style="display:grid;gap:6px"></div><div id="wMap"></div><button class="btn" id="wGo">Ablegen</button></div></div>
+<div id="werft"><div id="wHint">↔ Ziehen zum Drehen</div><div class="wbox"><h3>⚒ Werft</h3><div class="wtab"><button class="btn" data-t="aus">⚒ Ausbau</button><button class="btn" data-t="sch">🎨 Schmuck</button><button class="btn" data-t="crew">🧭 Crew</button></div><div class="wk" id="wKasse"></div><div id="wRows" style="display:grid;gap:6px"></div><div id="wMap"></div><button class="btn" id="wGo">Ablegen</button></div></div>
 <div id="joy" class="ui"><canvas id="wheel" width="46" height="46"></canvas><div id="knob"><canvas id="knobC" width="16" height="16"></canvas></div></div>
 <button class="btn ui" id="act"><b id="actI">⚓</b><span id="actT">Anlegen</span><span class="key">E / Enter</span></button>
 <div id="tip" class="ui"></div>
@@ -196,7 +196,8 @@ function fresh(){return {v:1,seed:(Math.random()*4294967296)>>>0,x:1.9,z:8.4,h:M
 function fix(v){v.eq=Array.isArray(v.eq)&&v.eq.length===3?v.eq.map(e=>Object.assign({w:null,k:null,s:null},e)):[{w:null,k:null,s:null},{w:null,k:null,s:null},{w:null,k:null,s:null}];v.bag=Array.isArray(v.bag)?v.bag.slice(0,24):[];
   v.mats=Object.assign({pl:0,ei:0,se:0},v.mats);v.up=Object.assign({r:0,k:0,s:0},v.up);v.tier=Math.max(0,v.tier|0);
   for(const k in v.mats)v.mats[k]=Math.max(0,v.mats[k]|0);for(const k in v.up)v.up[k]=cl(v.up[k]|0,0,3);v.tips=v.tips||{};
-  v.look=window.GLS?GLS.parse(v.look):{sail:'weiss',hull:'eiche',flag:'rot',deco:'keine'};v.rk=Object.assign({gold:0,boss:0},v.rk);v.rk.gold=Math.max(0,v.rk.gold|0);v.rk.boss=Math.max(0,v.rk.boss|0);v.own=Array.isArray(v.own)?v.own.filter(x=>typeof x==='string').slice(0,64):[];return v;}
+  v.look=window.GLS?GLS.parse(v.look):{sail:'weiss',hull:'eiche',flag:'rot',deco:'keine'};v.rk=Object.assign({gold:0,boss:0},v.rk);v.rk.gold=Math.max(0,v.rk.gold|0);v.rk.boss=Math.max(0,v.rk.boss|0);v.own=Array.isArray(v.own)?v.own.filter(x=>typeof x==='string').slice(0,64):[];
+  v.kiki=v.kiki?1:0;v.kslot=v.kiki?cl(v.kslot|0,0,2):0;return v;}
 function load(){try{const v=JSON.parse(localStorage.getItem(SK)||'null');if(v&&v.v===1&&typeof v.seed==='number')return fix(Object.assign(fresh(),v));}catch(e){}return null;}
 let S=load()||fix(fresh());
 const mhp=()=>100+25*S.up.r,upStr=()=>S.up.r+'.'+S.up.k+'.'+S.up.s,tierK=()=>1+0.25*S.tier;
@@ -787,10 +788,10 @@ function fight(o){
   if(lock>0)return;lock=99;fightCtx=o;sh.v*=0.3;joyEnd();keys.clear();$('act').classList.remove('on');
   banner(o.art==='see'?o.name+' greift an!':o.art==='hoehle'?'Ab in die Höhle!':'Landgang!',o.art==='see'?'Kanonen klar!':o.name+(o.art==='hoehle'?' wartet im Dunkeln.':' wartet schon.'));
   setTimeout(()=>{S.fights++;save();
-    if(o.art==='hoehle')tell({t:'kampf',art:'hoehle',seed:o.seed>>>0,boss:o.boss,tier:S.tier,name:o.name,up:upStr(),g:gStr()});
+    if(o.art==='hoehle')tell({t:'kampf',art:'hoehle',seed:o.seed>>>0,boss:o.boss,tier:S.tier,name:o.name,up:upStr(),g:gStr(),kiki:S.kslot});
     else if(o.art==='see'){const E=WORLD.E.find(e=>e.id===o.foe),ba=E?Math.atan2(E.z-sh.z,E.x-sh.x):0;
       tell({t:'kampf',art:'see',seed:(o.seed^(S.fights*0x9E3779B1))>>>0,hp:S.hp,mhp:mhp(),bhp:o.bhp||0,name:o.name,look:o.look||'',up:upStr(),sk:window.GLS?GLS.str(S.look):'',tier:S.tier,fl:1,ba:Math.round(ba*100)/100,ph:Math.round(sh.h*100)/100});}
-    else tell({t:'kampf',art:'land',seed:(o.seed^(S.fights*0x9E3779B1))>>>0,name:o.name,up:upStr(),g:gStr()});
+    else tell({t:'kampf',art:'land',seed:(o.seed^(S.fights*0x9E3779B1))>>>0,name:o.name,up:upStr(),g:gStr(),kiki:S.kslot});
     if(!EMB){paused=false;lock=0;}},900);
 }
 function afterFight(res){
@@ -947,6 +948,26 @@ function eqDraw(){
 $('eGo').addEventListener('click',eqClose);
 addEventListener('keydown',e=>{if($('eq').classList.contains('on')&&performance.now()-wfT>400&&e.code==='Escape'){e.preventDefault();eqClose();}});
 
+// ---------- Crew: Kiki (Fernkampf, Schleuder) anheuern und einteilen ----------
+// kslot: 0 = bleibt im Hafen, 1 = ersetzt Brakk, 2 = ersetzt Nele. Ausrüstung bleibt am Platz (Kiki trägt dann die Sachen vom ersetzten Maat).
+const KIKI_P=250,KSLOT=['Kiki bleibt im Hafen','Kiki statt Brakk','Kiki statt Nele'];
+function crewNames(v){CREW[1]=v.kslot===1?'Kiki':'Brakk';CREW[2]=v.kslot===2?'Kiki':'Nele';}
+crewNames(S);
+function crewDraw(){
+  const has=S.kiki;
+  $('wRows').innerHTML='<div class="wr" style="grid-template-columns:40px 1fr"><canvas id="kikiPic" width="16" height="16" style="grid-row:1/4;width:40px;height:40px;image-rendering:pixelated;background:#7fb0d8;border:2px solid var(--wood);box-sizing:border-box"></canvas><div><b>Kiki</b> <small>Schleuder · Technik</small></div>'+
+    '<small>Schießt aus 4 Feldern Abstand, läuft vor Nahkämpfern weg. Steine prallen an Deckung ab. Ulti „Kugelhagel“ trifft alle in weitem Kreis. Weniger Leben als Brakk und Nele.</small>'+
+    (has?'<small>'+['Wartet im Hafen und poliert Kiesel.','Kämpft statt Brakk. Brakk passt aufs Schiff auf.','Kämpft statt Nele. Nele hält ein Nickerchen.'][S.kslot]+'</small>':
+      '<button class="btn" id="kHire"'+(S.bank>=KIKI_P?'':' disabled')+'>Anheuern · '+KIKI_P+' Gold'+(S.bank>=KIKI_P?'':'<br><small>Noch '+(KIKI_P-S.bank)+' Gold sammeln</small>')+'</button>')+'</div>'+
+    (has?'<div class="wcat">'+KSLOT.map((t,i)=>'<button class="btn'+(i===S.kslot?' on':'')+'" data-k="'+i+'">'+['Hafen','statt Brakk','statt Nele'][i]+'</button>').join('')+'</div><small style="text-align:center;font-weight:400">Gilt für Landgang und Höhle. Ausrüstung bleibt am Platz.</small>':'');
+  kikiPic($('kikiPic'));
+  const h=$('kHire');if(h)h.addEventListener('click',()=>{if(S.kiki||S.bank<KIKI_P)return;S.bank-=KIKI_P;S.kiki=1;S.kslot=2;crewNames(S);save();logLine();crewJump(2);flash=0.08;banner('Kiki heuert an!','„Ich treff alles. Außer manchmal.“');wfDraw();});
+  for(const b of $('wRows').querySelectorAll('[data-k]'))b.addEventListener('click',()=>{S.kslot=+b.dataset.k;crewNames(S);save();wfDraw();});
+}
+// Kiki als kleines Pixelbild (Kopftuch rot, Weste orange, Schleuder)
+function kikiPic(cv){const x=cv.getContext('2d'),P={k:'#2b1d14',r:'#d8433a',s:'#e9b48a',o:'#e8a23a',O:'#b8621e',b:'#5e3b1d',w:'#8a5a30'};
+  ['................','.....kkkkk......','....krrrrrk.....','...krrrrrrrk....','...ksssssssk....','...kskssksk.....','...ksssssssk....','....ksssssk...k.','...kOooooOk..kwk','..kOOooooOOk.kw.','..kskOooOksk.kw.','...k.kookk..kw..','.....kbbbk......','.....kb.bk......','....kkk.kkk.....','................'].forEach((r,y)=>{for(let i=0;i<16;i++){const c=r[i];if(c!=='.'){x.fillStyle=P[c];x.fillRect(i,y,1,1);}}});}
+
 // ---------- Werft im Heimathafen ----------
 let wfOn=false,wfT=0,wfView=false,wTab='aus',wCat='sail',PV=null,wfRot=0,wfDrag=null,wfIdle=0;
 const WF=[['r','pl','Rumpf','Mehr Rumpf: +25 Lebenspunkte, an Land +10 % Crew-Leben'],['k','ei','Kanonen','Mehr Wumms: +15 % Schaden, an Land +10 %'],['s','se','Segel','Mehr Wind: +8 % Tempo, an Land +5 % Crew-Tempo']];
@@ -988,6 +1009,7 @@ function wfDraw(){
   for(const b of document.querySelectorAll('.wtab [data-t]'))b.classList.toggle('on',b.dataset.t===wTab);
   $('wKasse').innerHTML='<span><span class="coin"></span>'+S.bank+' Gold im Hafen</span><span>'+['pl','ei','se'].map(k=>'<span class="mt '+k+'"></span>'+S.mats[k]).join(' ')+'</span>';
   if(wTab==='sch'&&window.GLS){$('wMap').innerHTML='';schDraw();return;}
+  if(wTab==='crew'){$('wMap').innerHTML='';crewDraw();return;}
   $('wRows').innerHTML=WF.map(([u,m,t,d])=>{const n=S.up[u]+1,max=S.up[u]>=3,ok=!max&&S.bank>=120*n&&S.mats[m]>=n;
     return '<div class="wr"><img alt="" src="'+wPx(u)+'"><div><b>'+t+'</b><span class="pips">'+[1,2,3].map(i=>'<i class="'+(i<=S.up[u]?'on':'')+'"></i>').join('')+'</span></div><small>'+d+'</small>'+
       '<small>'+(u==='r'?'Rumpf jetzt: '+mhp():u==='k'?'Schaden jetzt: ×'+(1+0.15*S.up.k).toFixed(2):'Tempo jetzt: ×'+(1+0.08*S.up.s).toFixed(2))+'</small>'+
