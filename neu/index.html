@@ -52,7 +52,7 @@ iframe{position:fixed;inset:0;width:100%;height:100%;border:0;display:block;back
     <div id="tod"></div>
     <button class="btn go" id="bGo" disabled>Leinen los!</button>
     <a class="btn ghost" href="../">‹ Zurück ins alte Spiel</a>
-    <div class="note">Testversion: offene See, Seekampf, Landgang.<br>Spielstand nur auf diesem Gerät · lädt ca. 0,8 MB</div>
+    <div class="note">Testversion: offene See mit Höhlen-Bossen, Werft und neuen Seekarten, dazu Seekampf und Landgang.<br>Spielstand nur auf diesem Gerät · lädt ca. 0,8 MB</div>
   </div>
 </div>
 <div id="wipe"><div class="pl l"></div><div class="pl r"></div><div id="wT"></div></div>
@@ -74,11 +74,13 @@ addEventListener('message',e=>{
     if(m.t==='bereit'){ready=true;$('bGo').disabled=false;$('bGo').textContent=m.save?'Weitersegeln':'Leinen los!';}
     else if(m.t==='titel'){$('title').classList.remove('off');$('bGo').textContent='Weitersegeln';}
     else if(m.t==='kampf'&&!busy){busy=true;
-      const see=m.art==='see';
-      wipe(true,see?'⚔ '+m.name+'!':'⚓ Landgang','<span class="dots"><i></i><i></i><i></i></span>');
+      const see=m.art==='see',cave=m.art==='hoehle',dots='<span class="dots"><i></i><i></i><i></i></span>';
+      wipe(true,see?'⚔ '+m.name+'!':cave?'⛏ Höhle':'⚓ Landgang',cave&&m.name?m.name+' wartet… '+dots:dots);
       setTimeout(()=>{send(welt,{t:'pause'});
         const q=new URLSearchParams({embed:'1',seed:String(m.seed>>>0)});
-        if(see){q.set('hp',String(m.hp|0));if(m.bhp)q.set('bhp',String(m.bhp|0));q.set('name',m.name||'');if(m.look)q.set('look',m.look);}
+        if(see){q.set('hp',String(m.hp|0));if(m.mhp)q.set('mhp',String(m.mhp|0));if(m.bhp)q.set('bhp',String(m.bhp|0));q.set('name',m.name||'');if(m.look)q.set('look',m.look);
+          q.set('up',/^[0-3]\.[0-3]\.[0-3]$/.test(m.up||'')?m.up:'0.0.0');q.set('tier',String(Math.max(0,m.tier|0)));}
+        else if(cave){q.set('mode','hoehle');q.set('boss',m.boss||'marlo');q.set('tier',String(Math.max(0,m.tier|0)));q.set('name',m.name||'');}
         kampf=document.createElement('iframe');kampf.id='kampf';kampf.title='Kampf';kampf.src=(see?'seekampf.html?':'landgang.html?')+q;document.body.appendChild(kampf);
       },420);}
   }else if(kampf&&e.source===kampf.contentWindow){
