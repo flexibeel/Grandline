@@ -20,13 +20,13 @@ Welt übergibt an Kämpfe: `up` = "r.k.s" (Rumpf, Kanonen, Segel, je 0–3) und 
 ## Nachricht welt → index (`tell({t:'kampf', ...})`)
 - Seekampf: `{art:'see', seed, hp, mhp, bhp, name, look, up, tier}`
   - `look`: 'lila' | 'boss' | 'flink' | 'panzer' (flink/panzer neu)
-- Bucht (wie bisher): `{art:'land', seed, name}`
-- Höhle/Dungeon (neu): `{art:'hoehle', seed, boss, tier, name}`
+- Bucht: `{art:'land', seed, name, up}`
+- Höhle/Dungeon: `{art:'hoehle', seed, boss, tier, name, up}` (Logik `HK` in landgang.html, Bot: `node tools/hoehle-bot.js`)
   - `boss`: 'marlo' | 'toni' | 'perla'
 index baut daraus die URL:
 - `seekampf.html?embed=1&seed&hp&mhp&bhp&name&look&up&tier`
-- `landgang.html?embed=1&seed` (Bucht, unverändert)
-- `landgang.html?embed=1&seed&mode=hoehle&boss&tier&name`
+- `landgang.html?embed=1&seed&up` (Bucht; `up` nur für den Rumpf: +10 % Crew-Leben pro Stufe)
+- `landgang.html?embed=1&seed&up&mode=hoehle&boss&tier&name`
 
 ## Nachricht Kampf → index → welt (`{t:'ende', ...}`, kommt in welt als `res`)
 - see: `{art:'see', win, hp, ...}` (wie bisher, `hp` = Rest-HP absolut, max = mhp)

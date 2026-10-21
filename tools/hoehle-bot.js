@@ -1,4 +1,4 @@
-// Bot fuer die Hoehle: laeuft durch, haut, kontert, schneidet, wirft Perlen zurueck
+// Bot fuer die Hoehle (Logik steckt in neu/landgang.html zwischen /*HLOGIC*/ und /*HEND*/): laeuft durch, haut, kontert, schneidet, wirft Perlen zurueck
 const fs=require('fs');
 function load(f){const src=fs.readFileSync(f,'utf8');const a=src.slice(src.indexOf('/*LOGIC*/'),src.indexOf('/*END*/'));
   const hk=f.endsWith('.js')?src:src.slice(src.indexOf('/*HLOGIC*/'),src.indexOf('/*HEND*/'));return a;}
