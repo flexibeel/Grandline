@@ -164,7 +164,7 @@ window.GL = window.GL || {};
     };
     function doUlt(u, spark) {
       const ult = u.ult;
-      u.energy = 0; u.ultWait = 0;
+      u.energy = 0; u.ultWait = 0; u.held = 0;
       u.ultCount = (u.ultCount || 0) + 1;
       const roll = R.float(run);
       const tier = roll < UV.perfect ? 'perfect' : roll < UV.perfect + UV.bonus ? 'bonus' : '';
@@ -783,6 +783,10 @@ window.GL = window.GL || {};
     const DK = C.duelCmds || {}, RK = C.runCmds || {};
     const cmdBuff = [];
     let turnNo = 0;
+    // ULTI-KLICK: Mit o.manualUlt zündet die Crew ihre Ulti nicht selbst, sie hält sie bereit, bis man das Porträt antippt
+    // (Befehl 'ult' mit who). Wer nach U.holdMax eigenen Zügen noch wartet, zündet von allein, damit keine Ulti verfällt.
+    // Halten zieht keinen Würfel, darum bleibt alles vor einem Tipp gleich. 'auto'/'hand' schalten mitten im Kampf um.
+    let MU = !DUEL && !!o.manualUlt;
     let FOCUS = !DUEL && o.focus != null && enemies[o.focus] ? enemies[o.focus] : null;
     M = mechSetup();
     function cmdTurn() {
@@ -817,6 +821,12 @@ window.GL = window.GL || {};
 
     // Kapitänsbefehle im Run (FUN). Wirken vor dem genannten Zug.
     function runCmd(c, team, foes) {
+      if (c.cmd === 'ult') {
+        const u = crew[c.who];
+        if (u && u.hp > 0 && u.ult && u.energy >= U.max) doUlt(u);
+        return;
+      }
+      if (c.cmd === 'auto' || c.cmd === 'hand') { MU = c.cmd === 'hand'; return; }
       if (c.cmd === 'focus') {
         const t = enemies[c.to];
         if (t && t.hp > 0) { FOCUS = t; events.push({ k: 'cmd', cmd: 'focus', side: 'crew', to: idx(t) }); }
@@ -914,7 +924,9 @@ window.GL = window.GL || {};
         if (u.sigPending && u.side === 'enemy' && SIG[u.id]) { doSig(u); continue; }
         // Ulti: Bei voller Leiste zündet sie mit etwas Glück sofort, spätestens im übernächsten Zug.
         // Selten springt schon bei halb voller Leiste ein Funke über (Glücks-Ulti).
-        if (u.ult && u.energy >= U.max) {
+        if (MU && u.side === 'crew' && u.ult) {
+          if (u.energy >= U.max) { u.held = (u.held || 0) + 1; if (u.held > (U.holdMax || 4)) { doUlt(u); continue; } }
+        } else if (u.ult && u.energy >= U.max) {
           if ((u.ultWait || 0) >= (U.maxWait || 2) || R.float(run) < (U.fireChance || 0.6)) { doUlt(u); continue; }
           u.ultWait = (u.ultWait || 0) + 1;
         } else if (u.ult && u.energy >= U.max * 0.5 && R.float(run) < (U.spark || 0)) { doUlt(u, true); continue; }

@@ -1491,6 +1491,17 @@ window.GL = window.GL || {};
     const ch = n => `<svg class="ff-px" viewBox="0 0 ${n * 5} 7" shape-rendering="crispEdges" aria-hidden="true">${Array.from({ length: n }, (_, k) => `<path transform="translate(${k * 5} 0)" d="M0 0h1v1h1v1h1v1h1v1h-1v1h-1v1h-1v1h-1z"/>`).join('')}${turbo ? `<rect x="${n * 5 - 1}" y="0" width="1" height="7"/>` : ''}</svg>`;
     return `<button class="fbar-ff${turbo ? ' end' : ''}${turbo && !ready ? ' wait' : ''}" data-act="ff" aria-label="${turbo ? 'Zum Ergebnis springen' : 'Turbo'}"><b>${turbo ? 'Ende' : 'Turbo'}</b><small>${turbo ? 'zum Ergebnis' : 'schneller'}</small><i class="ff-ico">${ch(turbo ? 2 : 2)}</i></button>`;
   }
+  function tempoBtn(anim, done) {
+    const en = GL.i18n && GL.i18n.lang() === 'en';
+    const two = !done && (anim.speed || 2) >= 3;
+    const ch = on => `<svg class="tp-ch${on ? ' on' : ''}" viewBox="0 0 4 7" shape-rendering="crispEdges" aria-hidden="true"><path d="M0 0h1v1h1v1h1v1h1v1h-1v1h-1v1h-1v1h-1z"/></svg>`;
+    return `<button class="tempo${two ? ' x2' : ''}" data-act="tempo" aria-pressed="${two}" aria-label="${en ? 'Speed' : 'Tempo'} ×${two ? 2 : 1}"${done ? ' disabled' : ''}><span class="tp-arr">${ch(true)}${ch(two)}</span><b>×${two ? 2 : 1}</b></button>`;
+  }
+  function ultModeBtn(profile) {
+    const en = GL.i18n && GL.i18n.lang() === 'en';
+    const auto = !!(profile && profile.settings && profile.settings.autoUlt);
+    return `<button class="ult-mode${auto ? '' : ' hand'}" data-act="ult-mode" aria-pressed="${!auto}" title="${en ? 'Fire ultimates yourself or let the crew do it' : 'Ultis selbst zünden oder der Crew überlassen'}">⚡ <b>${auto ? (en ? 'Ults: auto' : 'Ultis: auto') : (en ? 'Ults: you' : 'Ultis: du')}</b></button>`;
+  }
   function speedLabel(n) {
     // Pixel-Vorspulpfeile: je schneller, desto mehr Pfeile leuchten
     const chev = on => `<svg class="spd-ch${on ? ' on' : ''}" viewBox="0 0 4 7" shape-rendering="crispEdges" aria-hidden="true"><path d="M0 0h1v1h1v1h1v1h1v1h-1v1h-1v1h-1v1h-1z"/></svg>`;
@@ -2208,16 +2219,16 @@ window.GL = window.GL || {};
         const done = !anim || anim.done;
         let log, controls;
         // Feste Daumen-Leiste: links Tempo, rechts ein großer Knopf (⏩ Turbo → ⏭ Ende → Weiter), immer am selben Platz
-        const sp = done ? 0 : (anim.speed || 2);
-        const seg = [1, 2, 3, 4].map(n => `<button class="fbar-sp${sp === n ? ' on' : ''}" data-act="speed" data-v="${n}" aria-label="Tempo ${n}" title="${['', 'Gemütlich', 'Zügig', 'Schnell', 'Turbo'][n]}"${done ? ' disabled' : ''}><span class="sp-ch" aria-hidden="true">${'<svg viewBox="0 0 4 7" shape-rendering="crispEdges"><path d="M0 0h1v1h1v1h1v1h1v1h-1v1h-1v1h-1v1h-1z"/></svg>'.repeat(n)}</span><b class="sp-x">×${n}</b></button>`).join('');
+        // TEMPO2: nur noch ×1 und ×2 als kleiner Pfeil-Knopf, kein Überspringen (intern Stufe 2 und 3)
+        const seg = tempoBtn(anim, done);
         if (done) {
           log = b.win ? 'Sieg! Die Gegner sind besiegt.'
             : b.kind === 'raid' ? 'Der Raid ist gescheitert. Deine Crew entkommt mit letzter Kraft.'
             : 'Niederlage. Deine Crew ist gefallen.';
-          controls = `<div class="fbar fbar3 is-done"><div class="fbar-seg" role="group" aria-label="Tempo">${seg}</div>${sfxBtn('fc-sfx')}<button class="fbar-ff go" data-act="continue"><b>Weiter</b><small>zur Route</small><i class="ff-ico"><svg class="ff-px" viewBox="0 0 5 7" shape-rendering="crispEdges" aria-hidden="true"><path d="M0 0h1v1h1v1h1v1h1v1h-1v1h-1v1h-1v1h-1z"/></svg></i></button></div>`;
+          controls = `<div class="fbar fbar3 is-done">${seg}${sfxBtn('fc-sfx')}<button class="fbar-ff go" data-act="continue"><b>Weiter</b><small>zur Route</small><i class="ff-ico"><svg class="ff-px" viewBox="0 0 5 7" shape-rendering="crispEdges" aria-hidden="true"><path d="M0 0h1v1h1v1h1v1h1v1h-1v1h-1v1h-1v1h-1z"/></svg></i></button></div>`;
         } else {
           log = anim.log;
-          controls = `<div class="fbar fbar3"><div class="fbar-seg" role="group" aria-label="Tempo">${seg}</div>${sfxBtn('fc-sfx')}${ffButton(anim)}</div>`;
+          controls = `<div class="fbar fbar3">${seg}${sfxBtn('fc-sfx')}</div>`;
         }
         const title = b.kind === 'raid' ? 'Raid' : b.kind === 'boss' ? 'Bosskampf' : run.pending && run.pending.rival ? 'Begegnung: ' + esc(run.pending.rival.name) : 'Kampf';
         const sty = GL.effects.build ? GL.effects.build(run.crew) : null;
@@ -2906,7 +2917,7 @@ window.GL = window.GL || {};
     return `<div class="rc-bar${done ? ' is-done' : ''}" role="group" aria-label="${en ? 'Captain orders' : 'Kapitänsbefehle'}">${B.map(([c, i, t, d]) => {
       const p = Math.min(1, (rc[c] || 0) / (C[c] || 6)), full = !done && p >= 1;
       return `<button class="rc-btn${full ? ' full' : ''}" data-act="rc-cmd" data-c="${c}"${full ? '' : ' disabled'} title="${esc(d)}" style="--p:${p.toFixed(3)}"><i class="rc-ico">${i}</i><b>${esc(t)}</b><span class="rc-fill" aria-hidden="true"></span></button>`;
-    }).join('')}<small class="rc-hint">${en ? '🎯 Tap a foe = focus' : '🎯 Gegner antippen = Fokus'}</small></div>`;
+    }).join('')}<small class="rc-hint">${en ? '🎯 Tap a foe = focus' : '🎯 Gegner antippen = Fokus'}<span class="rc-ulthint">${en ? ' · ⚡ glowing pirate = ult' : ' · ⚡ leuchtende Figur = Ulti'}</span> ${ultModeBtn(profRef)}</small></div>`;
   }
   // Duell-Kommandos: drei Holzknöpfe, die sich mit jedem Zug aufladen
   function dxBar() {
@@ -5305,6 +5316,8 @@ window.GL = window.GL || {};
     cardStage, petArt,
     lagePop, lageSky,
     ffButton,
+    tempoBtn,
+    ultModeBtn,
     gearTipItem,
     kumpanPop,
     kumpanInPop,

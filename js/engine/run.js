@@ -1131,11 +1131,16 @@ window.GL = window.GL || {};
           const special = !!run.pending.special;
           if (special) run.charge = 0;
           // FUN: Kapitänsbefehle und Fokusziel kommen mit der Aktion (Replays rechnen sie genauso nach)
-          const RC = ['rally', 'guard', 'burst', 'focus'];
-          const cmds = (Array.isArray(a.cmds) ? a.cmds : []).filter(c => c && RC.includes(c.cmd) && Number.isInteger(c.at) && c.at > 0 && c.at < 999).slice(0, 12)
-            .map(c => (c.cmd === 'focus' ? { at: c.at, cmd: 'focus', to: Math.max(0, Math.min(9, c.to | 0)) } : { at: c.at, cmd: c.cmd }));
+          const RC = ['rally', 'guard', 'burst', 'focus'], UC = ['ult', 'auto', 'hand'];
+          const okAt = c => c && Number.isInteger(c.at) && c.at > 0 && c.at < 999;
+          const raw = Array.isArray(a.cmds) ? a.cmds : [];
+          // ULTI-KLICK: Ulti-Tipps zählen nicht zu den 12 Befehlen, haben aber eine eigene Grenze
+          const cmds = raw.filter(c => okAt(c) && RC.includes(c.cmd)).slice(0, 12)
+            .map(c => (c.cmd === 'focus' ? { at: c.at, cmd: 'focus', to: Math.max(0, Math.min(9, c.to | 0)) } : { at: c.at, cmd: c.cmd }))
+            .concat(raw.filter(c => okAt(c) && UC.includes(c.cmd)).slice(0, 40).map(c => (c.cmd === 'ult' ? { at: c.at, cmd: 'ult', who: Math.max(0, Math.min(9, c.who | 0)) } : { at: c.at, cmd: c.cmd })))
+            .sort((x, y) => x.at - y.at);
           const focus = run.pending.focus != null ? run.pending.focus : null;
-          const res = GL.battle.simulate(run, run.crew, enemies.filter(e => e.wave !== 2), run.pending.kind, { special, reserve, turns: true, cmds, focus, burst: GL.battle.burstKind ? GL.battle.burstKind(run.crew) : 'strike' });
+          const res = GL.battle.simulate(run, run.crew, enemies.filter(e => e.wave !== 2), run.pending.kind, { special, reserve, turns: true, cmds, focus, manualUlt: !!a.mu, burst: GL.battle.burstKind ? GL.battle.burstKind(run.crew) : 'strike' });
           // Werte für die Rangliste: Schaden, härtester Treffer, K.o.s, Krits
           const S = run.stats || (run.stats = { dmg: 0, maxHit: 0, kos: 0, crits: 0, taken: 0, fights: 0 });
           S.fights++;

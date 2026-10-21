@@ -10040,3 +10040,30 @@ html.gl-hidden *, html.gl-hidden *::before, html.gl-hidden *::after { animation-
 @media (max-width: 380px) { .sec-mini { flex-direction: column; align-items: stretch; } }
 @media (prefers-reduced-motion: no-preference) { .sec-sign:not(.ok):not(:has(input)) { animation: sec-sway 4s ease-in-out infinite; transform-origin: 50% -28px; } }
 @keyframes sec-sway { 50% { transform: rotate(.7deg); } }
+
+/* ---------- TEMPO2: kleiner Pfeil-Knopf ×1/×2 statt Tempo-Leiste und Ende-Knopf ---------- */
+.fbar3 .tempo { flex: 0 0 auto; height: 40px; min-width: 76px; padding: 0 12px; display: inline-flex; align-items: center; gap: 8px; border: 3px solid #3a2410; border-radius: 9px; cursor: pointer; color: #f2dcb4; font: inherit; font-weight: 900; font-size: .85rem; background: linear-gradient(#7a5028, #5a3a1c); box-shadow: inset 0 2px 0 rgba(255,220,160,.18), 0 4px 0 #2a1a0c; transition: transform .1s, filter .2s; }
+.fbar3 .tempo:active { transform: translateY(3px); box-shadow: 0 1px 0 #2a1a0c; }
+.fbar3 .tempo:disabled { opacity: .35; cursor: default; }
+.tempo .tp-arr { display: inline-flex; gap: 2px; }
+.tempo .tp-ch { width: 8px; height: 14px; fill: #f2dcb4; opacity: .3; transition: opacity .2s, fill .2s; }
+.tempo .tp-ch.on { opacity: 1; }
+.tempo.x2 { color: #ffe58a; }
+.tempo.x2 .tp-ch.on { fill: #ffe58a; animation: tp-run .9s steps(2) infinite; }
+.tempo.x2 .tp-ch.on + .tp-ch.on { animation-delay: .45s; }
+@keyframes tp-run { 50% { transform: translateX(2px); } }
+.fbar3 .fc-sfx { margin-left: auto; }
+.fbar3.is-done .fbar-ff { margin-left: 8px; }
+
+/* ---------- ULTI-KLICK: volle Ulti antippen ---------- */
+body.ult-hand #arena .fighter[data-side=crew].charged, body.ult-hand #field .fu-crew.charged { cursor: pointer; }
+body.ult-hand #arena .fighter[data-side=crew].charged { animation: ult-ready 1s steps(2) infinite; }
+body.ult-hand #field .fu-crew.charged::after { content: '⚡'; position: absolute; left: 50%; top: -14px; transform: translateX(-50%); font-size: 14px; pointer-events: none; animation: ult-bob .8s steps(2) infinite; }
+@keyframes ult-ready { 50% { box-shadow: 0 0 0 3px #ffe27a, 0 0 18px rgba(255,210,74,.8) !important; } }
+@keyframes ult-bob { 50% { transform: translate(-50%, -3px); } }
+.ult-go { animation: ult-go .6s ease-out !important; }
+@keyframes ult-go { 0% { filter: brightness(2.2); } 100% { filter: none; } }
+.rc-ulthint { display: none; }
+body.ult-hand .rc-ulthint { display: inline; }
+.ult-mode { margin-left: 6px; border: 2px solid #c9a46a; border-radius: 99px; background: #fbf3e2; color: #6b4422; font: inherit; font-size: .66rem; padding: 1px 8px; cursor: pointer; vertical-align: middle; }
+.ult-mode.hand { background: #ffe58a; border-color: #b8801a; color: #4a2e16; }

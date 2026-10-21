@@ -593,7 +593,10 @@
     if (action && action.type === 'fight') {
       GL.ui.hold = { gold: run.gold || 0, bounty: run.bountyM || 0 };
       // FUN: Stand vor dem Kampf merken. Tippt man einen Kapitänsbefehl, wird der Kampf ab hier mit Befehl neu gerechnet.
-      try { ui.rf = { snap: JSON.stringify(run), cmds: [], turn: 0, at: Date.now() }; } catch (e) { ui.rf = null; }
+      // ULTI-KLICK: Ultis von Hand ist Standard, der Schalter steht in profile.settings.autoUlt
+      if (!(profile.settings && profile.settings.autoUlt) && ((profile.stats && profile.stats.runs) || 0) > 0) action.mu = 1;   // erste Fahrt: automatisch
+      try { ui.rf = { snap: JSON.stringify(run), cmds: [], turn: 0, at: Date.now(), mu: !!action.mu }; } catch (e) { ui.rf = null; }
+      document.body.classList.toggle('ult-hand', !!action.mu);
     }
     const bossesBefore = run.bounties || 0;
     const wasFinished = GL.run.isFinished(run);
@@ -843,7 +846,7 @@
       crewHp: b.crewStart.slice(),
       enemyHp: b.enemies.map(e => e.hp),
       log: 'Der Kampf beginnt!',
-      speed: (profile.settings && profile.settings.speed) || 2,
+      speed: Math.max(2, Math.min(3, (profile.settings && profile.settings.speed) || 2)),   // TEMPO2: nur ×1 (2) und ×2 (3)
       done: b.events.length === 0,
       timer: null,
       t0: Date.now()
@@ -856,7 +859,7 @@
     anim.timer = setTimeout(stepAnim, SPEED.normal * SPEEDF[anim.speed]);
   }
   function setSpeed(v) {
-    anim.speed = Math.max(1, Math.min(4, v)); showSpeed(); if (GL.quips && GL.quips.speed) GL.quips.speed(anim.speed);
+    anim.speed = Math.max(2, Math.min(3, v)); showSpeed(); if (GL.quips && GL.quips.speed) GL.quips.speed(anim.speed);
     profile.settings = Object.assign({}, profile.settings, { speed: anim.speed }); saveProfile();
     document.body.classList.toggle('fast', anim.speed >= 3);
     document.querySelectorAll('.fbar-sp').forEach(b => b.classList.toggle('on', Number(b.dataset.v) === anim.speed));
@@ -889,7 +892,7 @@
   function rcResim() {
     try {
       const r2 = JSON.parse(ui.rf.snap);
-      const ok = GL.run.act(r2, { type: 'fight', cmds: ui.rf.cmds.slice() });
+      const ok = GL.run.act(r2, Object.assign({ type: 'fight', cmds: ui.rf.cmds.slice() }, ui.rf.mu ? { mu: 1 } : {}));
       if (!ok) return false;
       Object.keys(run).forEach(k => { delete run[k]; });
       Object.assign(run, r2);
@@ -909,6 +912,33 @@
     rcCharge();
     const b = document.querySelector(`.rc-btn[data-c="${k}"]`); if (b) { b.classList.add('used'); setTimeout(() => b.classList.remove('used'), 500); }
   }
+  // ULTI-KLICK: volle Ulti antippen, sie zündet ab dem nächsten Zug (Kampf wird mit dem Tipp neu gerechnet)
+  function rcUlt(i) {
+    if (!anim || anim.done || !ui.rf || !run || !run.battle) return;
+    if (!document.body.classList.contains('ult-hand')) return;
+    if ((anim.crewHp[i] || 0) <= 0) return;
+    if (ui.rf.cmds.some(c => c.cmd === 'ult' && c.who === i && c.at > ui.rf.turn)) return;   // schon bestellt
+    ui.rf.cmds.push({ at: ui.rf.turn + 1, cmd: 'ult', who: i });
+    if (!rcResim()) { ui.rf.cmds.pop(); return; }
+    document.querySelectorAll(`#arena .fighter[data-side=crew][data-i="${i}"], #field .fu-crew[data-i="${i}"]`).forEach(x => { x.classList.add('ult-go'); setTimeout(() => x.classList.remove('ult-go'), 700); });
+    if (GL.sfx) GL.sfx.play('level');
+  }
+  // Ulti-Schalter: wirkt sofort, auch mitten im Kampf (als Befehl ab dem nächsten Zug)
+  function ultMode() {
+    const auto = !(profile.settings && profile.settings.autoUlt);
+    profile.settings = Object.assign({}, profile.settings, { autoUlt: auto }); saveProfile();
+    document.body.classList.toggle('ult-hand', !auto);
+    if (anim && !anim.done && ui.rf) {
+      ui.rf.cmds.push({ at: ui.rf.turn + 1, cmd: auto ? 'auto' : 'hand' });
+      if (!rcResim()) ui.rf.cmds.pop();
+    }
+    const b = document.querySelector('.ult-mode'); if (b) b.outerHTML = GL.ui.ultModeBtn(profile);
+  }
+  document.addEventListener('click', e => {
+    const u = e.target.closest && e.target.closest('#arena .fighter[data-side=crew].charged, #field .fu-crew.charged');
+    if (!u || !anim || anim.done || !ui.rf) return;
+    rcUlt(Number(u.dataset.i));
+  });
   // Gegner im laufenden Kampf antippen: Fokusziel ab dem nächsten Zug
   function rcFocus(i) {
     if (!anim || anim.done || !ui.rf || !run || !run.battle) return;
@@ -1398,25 +1428,25 @@
       case 'down': act({ type: 'swap', a: i, b: i + 1 }); break;
       case 'fight': startFight(); break;
       case 'rc-cmd': rcCmd(el.dataset.c); break;
+      case 'ult-mode': ultMode(); break;
       case 'foe-focus': if (run && run.phase === 'prep') { GL.run.act(run, { type: 'focus', index: Number(el.dataset.i) }); GL.save.storeRun(run); draw(); } break;
       case 'special': act({ type: 'special' }); break;
       case 'continue': stopAnim(); ui.rf = null; act({ type: 'continue' }); break;
       case 'fast':
         if (anim) {
-          anim.speed = anim.speed >= 4 ? 1 : anim.speed + 1; showSpeed();
+          anim.speed = anim.speed >= 3 ? 2 : 3; showSpeed();
           profile.settings = Object.assign({}, profile.settings, { speed: anim.speed }); saveProfile();
           document.body.classList.toggle('fast', anim.speed >= 3);
           const b = document.querySelector('[data-act=fast]'); if (b) b.innerHTML = GL.ui.speedLabel(anim.speed);
         }
         break;
       case 'speed': if (anim && !anim.done) setSpeed(Number(el.dataset.v) || 2); break;
-      case 'faster': if (anim && !anim.done) setSpeed(Math.min(4, (anim.speed || 2) + 1)); break;
+      case 'tempo': if (anim && !anim.done) { setSpeed((anim.speed || 2) >= 3 ? 2 : 3); const t = document.querySelector('.tempo'); if (t) t.outerHTML = GL.ui.tempoBtn(anim, false); } break;
+      case 'faster': if (anim && !anim.done) setSpeed(3); break;
       case 'ff':
         // Daumen-Knopf: erst Turbo, beim zweiten Tipp zum Ergebnis (frühestens nach 1,5 s, damit Boss-Auftritte sichtbar bleiben)
         if (!anim || anim.done) break;
-        if ((anim.speed || 2) < 4) { setSpeed(4); break; }
-        if (Date.now() - (anim.t0 || 0) < 1500) { el.classList.add('nudge'); setTimeout(() => el.classList.remove('nudge'), 300); break; }
-        skipFight(); break;
+        setSpeed(3); break;   // TEMPO2: kein Springen zum Ergebnis mehr
       case 'skip': if (anim && !anim.done) skipFight(); break;
       case 'sail': sail(); break;
       case 'ship-pick': {
@@ -2464,18 +2494,18 @@
     if ((e.key === 'Enter' || e.key === ' ') && !(e.target.matches && e.target.matches('button, .member, .crewmini'))) {
       e.preventDefault();
       if (anim && !anim.done) {
-        stage.querySelector('[data-act=ff]')?.click();
+        if ((anim.speed || 2) < 3) stage.querySelector('[data-act=tempo]')?.click();
         return;
       }
       const main = stage.querySelector('[data-act=continue], [data-act=fight], [data-act=sail], [data-act=again], [data-act=hq], [data-act=leave]');
       if (main) main.click();
       return;
     }
-    if ((e.key === 'f' || e.key === 'F') && anim && !anim.done) { setSpeed(Math.min(4, (anim.speed || 2) + 1)); return; }
+    if ((e.key === 'f' || e.key === 'F') && anim && !anim.done) { setSpeed((anim.speed || 2) >= 3 ? 2 : 3); const t = document.querySelector('.tempo'); if (t) t.outerHTML = GL.ui.tempoBtn(anim, false); return; }
     if ((e.key === 'h' || e.key === 'H') && !anim) { stage.querySelector('[data-act=hq]')?.click(); return; }
     if ((e.key === 'r' || e.key === 'R') && !anim) { stage.querySelector('[data-act=reroll]:not([disabled])')?.click(); return; }
     if ((e.key === 'q' || e.key === 'Q') && !anim) { stage.querySelector('[data-act=special]')?.click(); return; }
-    if ((e.key === 's' || e.key === 'S') && anim && !anim.done) { if (Date.now() - (anim.t0 || 0) >= 1500) skipFight(); return; }
+    // TEMPO2: Taste S springt nicht mehr zum Ergebnis
     // Crew-Karten sind keine echten Buttons, daher Enter/Leertaste selbst auswerten
     if ((e.key === 'Enter' || e.key === ' ') && e.target.matches && e.target.matches('.member, .crewmini')) {
       e.preventDefault();

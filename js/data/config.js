@@ -115,7 +115,7 @@ GL.config = {
   // Glücksfund nach gewonnenen Kämpfen: Goldtruhe mit mindestens seltener Ausrüstung + Gold (Glücksmünze erhöht die Chance)
   luck: { battle: 0.06, elite: 0.12, boss: 0.2, raid: 0.25, gold: 15 },
   // Ultis: Energie pro eigenem Treffer / eingestecktem Treffer, bei max feuert die Ulti. Bosse starten mit etwas Energie.
-  ult: { max: 100, gainHit: 40, gainHurt: 20, start: 20, bossStart: 40, fireChance: 0.6, maxWait: 2, spark: 0.05 },
+  ult: { max: 100, gainHit: 40, gainHurt: 20, start: 20, bossStart: 40, fireChance: 0.6, maxWait: 2, spark: 0.05, holdMax: 4 },   // holdMax: Ulti-Klick, so viele eigene Züge wartet eine volle Ulti auf den Tipp
   critMult: 2,
   // STATS: Deckel für Krit-Chance und Ausweichen. Was darüber liegt, verfällt nicht, sondern wird umgewandelt:
   //   critOver: je 1 % Krit-Chance über dem Deckel +critOver % Krit-Schaden (0.5 → 20 % drüber = +10 % Krit-Schaden)
