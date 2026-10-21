@@ -1,6 +1,10 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-21v', date: '21.10.', title: 'Werft', items: [
+    '⚒ Neue Welt: Im Heimathafen gibt es jetzt eine Werft. Dort gibst du dein gesichertes Gold aus',
+    '🪵 Rumpf, 💣 Kanonen und ⛵ Segel in je drei Stufen: mehr Leben, mehr Schaden im Seekampf, mehr Tempo auf See',
+    '🎨 Jedes Upgrade mit eigenem kleinen Pixelbild. Die Crew hat beim Malen geholfen (leider)' ] },
   { v: '2026-10-21u', date: '21.10.', title: 'Klarer Kurs', items: [
     '🎯 Neue Welt: Oben links steht jetzt immer dein nächstes Ziel. Kein Rätselraten mehr, wohin die Reise geht',
     '💬 Kleine Tipps Schritt für Schritt, einer nach dem anderen statt alle auf einmal',

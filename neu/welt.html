@@ -32,6 +32,22 @@ body.title .ui *{pointer-events:none!important}
 #menu .btn{width:100%;background:#d9cfbc;color:var(--wood);text-shadow:none;text-align:left}
 #menu .btn.sel{background:var(--gold)}
 #menu small{font-weight:400;opacity:.75}
+#werftB{position:fixed;right:calc(env(safe-area-inset-right) + 16px);bottom:calc(env(safe-area-inset-bottom) + 122px);display:none;padding:7px 11px;font-size:12px}
+#werftB.on{display:block}
+#werft{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(24,22,48,.72);z-index:30;padding:16px}
+#werft.on{display:flex}
+#werft .pn{background:#fbf6ea;color:var(--wood);border:3px solid var(--wood);border-radius:4px;box-shadow:0 4px 0 var(--wood);padding:12px;width:min(320px,100%);box-sizing:border-box;display:grid;gap:9px;font:700 12px/1.3 var(--px)}
+#werft h3{margin:0;font-size:18px;display:flex;justify-content:space-between;align-items:center}
+#werft h3 span{display:flex;align-items:center;gap:6px;font-size:14px}
+#werft .row{display:grid;grid-template-columns:48px 1fr auto;gap:9px;align-items:center;background:#ece2cf;border:2px solid var(--wood);border-radius:3px;padding:6px}
+#werft canvas{width:48px;height:48px;image-rendering:pixelated;background:#7fb0d8;border:2px solid var(--wood);border-radius:2px;box-sizing:border-box}
+#werft small{font-weight:400;opacity:.8;display:block}
+#werft .pip{display:inline-block;width:8px;height:8px;border:2px solid var(--wood);margin-right:2px;background:#d9cfbc;vertical-align:middle}
+#werft .pip.f{background:var(--gold)}
+#werft .row .btn{padding:6px 8px;font-size:12px;display:flex;align-items:center;gap:5px}
+#werft .row .btn:disabled{opacity:.5}
+#werft .note{font-weight:400;font-size:11px;opacity:.8;text-align:center}
+
 #topL{position:fixed;left:10px;top:calc(env(safe-area-inset-top) + 56px);right:10px;display:flex;flex-direction:column;align-items:flex-start;gap:6px;pointer-events:none}
 #goal{max-width:100%;box-sizing:border-box;padding:5px 9px;font:700 12px/1.25 var(--px);white-space:normal;pointer-events:none}
 #goal b{color:#ffe28a;flex:none;font-size:14px}
@@ -123,6 +139,10 @@ body.title .ui *{pointer-events:none!important}
 </div>
 <div id="joy" class="ui"><canvas id="wheel" width="46" height="46"></canvas><div id="knob"><canvas id="knobC" width="16" height="16"></canvas></div></div>
 <button class="btn ui" id="act"><b id="actI">⚓</b><span id="actT">Anlegen</span><span class="key">E / Enter</span></button>
+<button class="btn ui" id="werftB">⚒ Werft</button>
+<div id="werft"><div class="pn"><h3>⚒ Werft<span><span class="coin"></span><span id="wBank">0</span></span></h3>
+  <div id="wRows"></div><div class="note" id="wNote"></div>
+  <button class="btn" id="wGo">Leinen los</button></div></div>
 <div id="tip" class="ui"></div>
 <div id="warn">!</div>
 <div id="truhe"><div id="rays"></div><div id="chest"><canvas id="chB" width="32" height="16"></canvas><canvas id="chL" width="32" height="8"></canvas></div>
@@ -145,9 +165,10 @@ function rng(seed){let s=seed>>>0;return()=>{s=(s+0x6D2B79F5)>>>0;let t=s;t=Math
 
 // ---------- Spielstand (nur auf diesem Gerät) ----------
 const SK='gl.neu.v1';
-function fresh(){return {v:1,seed:(Math.random()*4294967296)>>>0,x:1.9,z:8.4,h:Math.PI/2,hp:100,gold:0,bank:0,found:[0],done:[],beaten:[],trips:0,fights:0,tips:{}};}
+function fresh(){return {v:1,seed:(Math.random()*4294967296)>>>0,x:1.9,z:8.4,h:Math.PI/2,hp:100,gold:0,bank:0,found:[0],done:[],beaten:[],trips:0,fights:0,tips:{},up:{r:0,k:0,s:0}};}
 function load(){try{const v=JSON.parse(localStorage.getItem(SK)||'null');if(v&&v.v===1&&typeof v.seed==='number')return Object.assign(fresh(),v);}catch(e){}return null;}
 let S=load()||fresh();
+function maxHp(){return 100+20*((S.up&&S.up.r)|0);}
 function save(){S.x=Math.round(sh.x*100)/100;S.z=Math.round(sh.z*100)/100;S.h=Math.round(sh.h*1000)/1000;try{localStorage.setItem(SK,JSON.stringify(S));}catch(e){}}
 
 // ---------- Renderer: kleine Aufloesung, Pixel-Filter ----------
@@ -486,7 +507,7 @@ try{calm=localStorage.getItem('gl.ruhig')==='1';}catch(e){}
 const camT=new THREE.Vector3();
 function shipStep(dt,mx,mz){
   const m=Math.min(1,Math.hypot(mx,mz));let tv=0,dh=0;
-  if(m>0.05){dh=wrapA(Math.atan2(mz,mx)-sh.h);tv=SP.vmax*m*(1-0.55*Math.min(1,Math.abs(dh)/Math.PI));}
+  if(m>0.05){dh=wrapA(Math.atan2(mz,mx)-sh.h);tv=SP.vmax*(1+0.08*((S.up&&S.up.s)|0))*m*(1-0.55*Math.min(1,Math.abs(dh)/Math.PI));}
   const tw=cl(dh*SP.gain,-SP.turn,SP.turn);sh.w+=cl(tw-sh.w,-SP.tacc*dt,SP.tacc*dt);sh.h=wrapA(sh.h+sh.w*dt);
   sh.v+=cl(tv-sh.v,-SP.dec*dt,SP.acc*dt);
   sh.x+=Math.cos(sh.h)*sh.v*dt;sh.z+=Math.sin(sh.h)*sh.v*dt;
@@ -570,7 +591,7 @@ function tipDone(id){if(S.tips['_'+id]&&!S.tips[id]){S.tips[id]=1;$('tip').class
   if(id==='lenk')setTimeout(()=>tip('ziel','Oben links steht immer dein <b>nächstes Ziel</b>.',6),1200);}}
 function tipNext(){$('tip').classList.remove('on');tipT=0;const q=tipQ.shift();if(q)setTimeout(()=>{if(mode==='sail')tip(q[0],q[1],q[2]);},700);}
 function setGold(){$('gold').textContent=S.gold;const g=$('gold');g.classList.remove('bump');void g.offsetWidth;g.classList.add('bump');}
-function hudHp(){$('hpB').style.width=Math.max(0,S.hp)+'%';$('hpBox').classList.toggle('low',S.hp<35);}
+function hudHp(){$('hpB').style.width=Math.max(0,S.hp/maxHp()*100)+'%';$('hpBox').classList.toggle('low',S.hp<maxHp()*0.35);}
 function logLine(){const f=WORLD.L.filter(I=>I.id&&S.found.includes(I.id)).length,n=WORLD.L.length-1,b=S.beaten.length;
   $('log').innerHTML='Entdeckt '+f+'/'+n+(b?' · Versenkt '+b+'/'+WORLD.E.length:'')+(S.bank?'<br><span style="color:#ffe28a">Im Hafen: '+S.bank+' Gold</span>':'');}
 
@@ -580,7 +601,7 @@ function goalOf(){
   const L=WORLD.L,f=L.filter(I=>I.id&&S.found.includes(I.id)),n=L.length-1;
   const ch=WORLD.E.find(E=>!E.dead&&E.chase>0);
   if(ch){tip('jagd','<b>Rote Raute</b> = '+ch.name+' jagt dich. Lass ihn ran für einen Seekampf oder segel davon.',7);return['☠',ch.name+' jagt dich! Kämpfen oder abhauen'];}
-  if(S.hp<35)return['⚓','Rumpf leck! Zurück in den Hafen (grüne Raute)'];
+  if(S.hp<maxHp()*0.35)return['⚓','Rumpf leck! Zurück in den Hafen (grüne Raute)'];
   if(S.gold>0)tip('beute','Gold an Bord ist nicht sicher! Bring es in den <b>Heimathafen</b> (grüne Raute).',7);
   const sc=f.find(I=>I.k==='schatz'&&!I.done);if(sc)return['✦','Heb den Schatz auf '+sc.name];
   if(S.gold>=150)return['⚓','Bring '+S.gold+' Gold heim in den Hafen'];
@@ -622,16 +643,18 @@ function interact(){
     if(d<3.6&&d<best){best=d;near=I;}}
   const a=$('act');let on=false;
   if(near&&!lock){const I=near;
-    if(I.k==='hafen'){if(S.gold>0||S.hp<100){on=true;a.classList.remove('fight');$('actI').textContent='⚓';$('actT').textContent=S.gold?'Beute sichern':'Rasten';}}
+    if(I.k==='hafen'){if(S.gold>0||S.hp<maxHp()){on=true;a.classList.remove('fight');$('actI').textContent='⚓';$('actT').textContent=S.gold?'Beute sichern':'Rasten';}}
     else if(!I.done){on=true;const f=I.k==='bucht';a.classList.toggle('fight',f);$('actI').textContent=f?'⚔':I.k==='schatz'?'✦':'⚓';$('actT').textContent=f?'Landgang':I.k==='schatz'?'Schatz heben':'An Land';}}
   a.classList.toggle('on',on);
+  $('werftB').classList.toggle('on',!!(near&&near.k==='hafen'&&!lock));
+  if(near&&near.k==='hafen'&&!lock)tip('werft','In der <b>Werft</b> gibst du das Gold aus dem Hafen aus: Rumpf, Kanonen, Segel.',7);
   if(on&&near.k==='schatz')tip('heben','Nah genug! Tipp auf <b>Schatz heben</b>.',5);
   if(on&&near.k==='bucht')tip('bucht','Eine Bucht mit lila Fahne. <b>Landgang</b> startet einen Kampf an Land.',7);
 }
 function doAct(){
   if(!near||lock>0||mode!=='sail')return;const I=near;$('act').classList.remove('on');
   if(I.k==='hafen'){
-    const g=S.gold;S.bank+=g;S.gold=0;S.hp=100;S.trips++;save();hudHp();setGold();logLine();
+    const g=S.gold;S.bank+=g;S.gold=0;S.hp=maxHp();S.trips++;save();hudHp();setGold();logLine();
     if(g>0)truhe('Beute gesichert!','Die Crew feiert im Hafen. Rumpf geflickt.',g,0);else{banner('Kurze Rast','Rumpf geflickt, Tee getrunken.');crewJump(1);}
   }else if(I.k==='schatz'){
     const g=60+Math.floor(rng(I.s)()*70);I.done=true;S.done.push(I.id);S.gold+=g;save();
@@ -649,7 +672,7 @@ let fightCtx=null;
 function fight(o){
   if(lock>0)return;lock=99;fightCtx=o;sh.v*=0.3;joyEnd();keys.clear();$('act').classList.remove('on');
   banner(o.art==='see'?o.name+' greift an!':'Landgang!',o.art==='see'?'Kanonen klar!':o.name+' wartet schon.');
-  setTimeout(()=>{S.fights++;save();tell({t:'kampf',art:o.art,seed:(o.seed^(S.fights*0x9E3779B1))>>>0,hp:S.hp,bhp:o.bhp||0,name:o.name,look:o.look||''});
+  setTimeout(()=>{S.fights++;save();tell({t:'kampf',art:o.art,seed:(o.seed^(S.fights*0x9E3779B1))>>>0,hp:S.hp,max:maxHp(),kan:(S.up&&S.up.k)|0,bhp:o.bhp||0,name:o.name,look:o.look||''});
     if(!EMB){paused=false;lock=0;}},900);
 }
 function afterFight(res){
@@ -661,7 +684,7 @@ function afterFight(res){
       if(E.look==='boss')setTimeout(()=>truhe('Krähenbart versenkt!','Der Schrecken der Meere geht baden. Sein Gold nicht.',g,1),400);
       else{setGold();banner('+'+g+' Gold',E.name+' geht baden.');crewJump(2);}
       E.g.visible=false;splash(E.x,E.z,20);}
-    else{const lost=Math.ceil(S.gold/2);S.gold-=lost;S.hp=100;sh.x=1.9;sh.z=8.4;sh.h=Math.PI/2;sh.v=0;sh.w=0;camInit=false;E.chase=0;E.cool=20;save();hudHp();setGold();
+    else{const lost=Math.ceil(S.gold/2);S.gold-=lost;S.hp=maxHp();sh.x=1.9;sh.z=8.4;sh.h=Math.PI/2;sh.v=0;sh.w=0;camInit=false;E.chase=0;E.cool=20;save();hudHp();setGold();
       for(const v of wakeP)v.set(sh.x,sh.z,99,0);fadeIn();banner('Heimgeschleppt',lost?'Die Hälfte der Beute ist weg ('+lost+' Gold).':'Wenigstens war nichts an Bord.');}
   }else{
     const I=WORLD.L.find(x=>x.id===o.island);
@@ -691,6 +714,35 @@ function truhe(t,sub,gold,big){
   },600);
 }
 $('tGo').addEventListener('click',()=>{if(!$('truhe').classList.contains('done'))return;$('truhe').className='';trOn=false;lock=0.4;setGold();logLine();save();});
+
+// ---------- Werft ----------
+const WUP=[
+ {k:'r',n:'Rumpf',d:'+20 Rumpf pro Stufe',j:['Dicke Planken. Der Holzwurm ist beleidigt.','Doppelt genagelt hält besser.','Jetzt mit Eisenbeschlag. Fast unsinkbar. Fast.'],
+  px:['','','','kkkkkkkkkkkkkkkk','kjjjjjjjjjjjjjjk','kbbbBbbbbbBbbbbk','kBBBBBBBBBBBBBBk','.kbbbbkkkkbbbbk.','.kBBBkyyyykBBBk.','..kbbkyYYykbbk..','..kBBBkkkkBBBk..','...kddddddddk...','....kkkkkkkk....','..ww.....ww....w','wwwwwwwwwwwwwwww','aaaaaaaaaaaaaaaa']},
+ {k:'k',n:'Kanonen',d:'+10 % Schaden im Seekampf',j:['Frisch geputzt. Und lauter.','Schwerere Kugeln, gleicher Spaß.','Die Möwen fliegen freiwillig weg.'],
+  px:['','','............ww..','...........wwwww','............www.','.kkkkkkkkkk.....','kTTTTTTTTTkk....','kttttttttttk....','kTTTTTTTTTkk....','.kkkkkkkkkk.....','..kbbbbbbbk.....','.kBBBBBBBBBk....','.kkkkkkkkkkk....','.kdyk...kdyk....','..kk.....kk.....','aaaaaaaaaaaaaaaa']},
+ {k:'s',n:'Segel',d:'+8 % Tempo auf See',j:['Neues Tuch, alter Wind.','Ein Segel mehr. Die Crew murrt nur kurz.','Fliegt fast. Bitte anschnallen.'],
+  px:['....kk..........','....krrk........','....kkk.........','....kkkkkkk.....','....kwwwWwwk....','....kwwwwWwwk...','....kwwwwwWwwk..','....kwwwwwWwwk..','....kwwwwwWwwk..','....kwwwwWwwk...','....kkkkkkkk....','....kBk.........','.kkkkkkkkkkkkk..','.kjbbbbbbbbbbk..','..kBBBBBBBBBk...','aaaaaaaaaaaaaaaa']}];
+const PREIS=[150,300,500];
+const PAL=Object.assign({},C,{w:'#fbf6ea',W:'#d9cfbc',a:'#5b8fc4',t:'#5d6575',T:'#363a4e'});
+function pixel(cv,rows){const x=cv.getContext('2d');x.clearRect(0,0,16,16);rows.forEach((r,y)=>{for(let i=0;i<16;i++){const ch=r[i];if(ch&&ch!=='.'){x.fillStyle=PAL[ch]||'#f0f';x.fillRect(i,y,1,1);}}});}
+let wOn=false;
+function werftDraw(){
+  if(!S.up)S.up={r:0,k:0,s:0};$('wBank').textContent=S.bank;const box=$('wRows');box.innerHTML='';
+  for(const u of WUP){const lv=S.up[u.k]|0,pr=PREIS[lv],row=document.createElement('div');row.className='row';
+    const cv=document.createElement('canvas');cv.width=16;cv.height=16;pixel(cv,u.px);row.appendChild(cv);
+    const t=document.createElement('div');t.innerHTML=u.n+' <span>'+[0,1,2].map(i=>'<i class="pip'+(i<lv?' f':'')+'"></i>').join('')+'</span><small>'+(lv?u.j[lv-1]:u.d)+'</small>';row.appendChild(t);
+    const b=document.createElement('button');b.className='btn';
+    if(lv>=3){b.textContent='Voll';b.disabled=true;}
+    else{b.innerHTML='<span class="coin"></span>'+pr;b.disabled=S.bank<pr;b.onclick=()=>{if(S.bank<pr)return;S.bank-=pr;S.up[u.k]=lv+1;
+      if(u.k==='r')S.hp=maxHp();save();hudHp();logLine();werftDraw();crewJump(2);flash=0.08;};}
+    row.appendChild(b);box.appendChild(row);}
+  $('wNote').textContent=S.gold?'Erst die Beute an Bord sichern, dann kann sie hier ausgegeben werden.':'Bezahlt wird mit dem Gold im Hafen.';
+}
+function werftOpen(){if(mode!=='sail'||lock>0||trOn)return;wOn=true;lock=99;joyEnd();keys.clear();sh.v=0;$('act').classList.remove('on');$('werftB').classList.remove('on');werftDraw();$('werft').classList.add('on');}
+function werftClose(){wOn=false;$('werft').classList.remove('on');lock=0.4;}
+$('werftB').addEventListener('click',e=>{e.stopPropagation();werftOpen();});
+$('wGo').addEventListener('click',werftClose);
 
 // ---------- Menue ----------
 function closeMenu(){$('menu').classList.remove('on');}
@@ -739,7 +791,7 @@ function foes(dt){
 }
 function floats(dt){
   for(const F of WORLD.F){if(F.got)continue;if(Math.hypot(F.x-sh.x,F.z-sh.z)<1.7){F.got=true;S.done.push(1000+F.id);F.g.visible=false;splash(F.x,F.z,8);
-    if(F.kind==='rum'){const n=Math.min(18,100-S.hp);S.hp+=n;hudHp();pop(F.x,F.z,n?'+'+n+' Rumpf':'Rum! Prost.','hl');}
+    if(F.kind==='rum'){const n=Math.min(18,maxHp()-S.hp);S.hp+=n;hudHp();pop(F.x,F.z,n?'+'+n+' Rumpf':'Rum! Prost.','hl');}
     else{S.gold+=F.n;setGold();pop(F.x,F.z,'+'+F.n+' Gold','');sparkle(F.x,0.5,F.z,10);}
     crewJump(0.6);save();tip('fass','Treibgut! Fässer geben <b>Gold</b> oder <b>Rum</b> für den Rumpf.',5);}}
 }

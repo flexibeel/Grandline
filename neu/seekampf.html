@@ -169,9 +169,9 @@ function turn(sh,dh,c){const tw=cl(dh*c.gain,-c.turn,c.turn);sh.w+=cl(tw-sh.w,-c
 const cl=(v,a,b)=>v<a?a:v>b?b:v;
 const r2=v=>Math.round(v*100)/100;
 function create(seed,o){
-  seed=seed>>>0;o=o||{};const php=Math.max(1,Math.min(K.p.hp,o.php|0||K.p.hp)),bhp=Math.max(1,o.bhp|0||K.b.hp);
-  const s0={seed,r:seed,f:(seed^0x9E3779B9)>>>0,fass:null,ft:0,step:0,over:false,winner:null,nid:1,balls:[],ev:[],hash:2166136261,stats:{pShots:0,pHits:0,bShots:0,bHits:0,counters:0,slams:0},
-    p:{x:0,z:7,h:-Math.PI/2,v:0,w:0,tx:0,tz:7,mv:false,mx:0,mz:0,boost:0,hp:php,max:K.p.hp,cd:30,ab:60,kcd:0},
+  seed=seed>>>0;o=o||{};const pmax=Math.max(K.p.hp,Math.min(200,o.pmax|0||K.p.hp)),php=Math.max(1,Math.min(pmax,o.php|0||pmax)),km=1+0.1*Math.max(0,Math.min(3,o.kan|0)),bhp=Math.max(1,o.bhp|0||K.b.hp);
+  const s0={km,seed,r:seed,f:(seed^0x9E3779B9)>>>0,fass:null,ft:0,step:0,over:false,winner:null,nid:1,balls:[],ev:[],hash:2166136261,stats:{pShots:0,pHits:0,bShots:0,bHits:0,counters:0,slams:0},
+    p:{x:0,z:7,h:-Math.PI/2,v:0,w:0,tx:0,tz:7,mv:false,mx:0,mz:0,boost:0,hp:php,max:pmax,cd:30,ab:60,kcd:0},
     b:{x:0,z:-5,h:0,v:0,w:0,hp:bhp,max:bhp,cd:75,ph:'move',pt:0,st:150,orb:1}};
   s0.stats.loot=0;s0.ft=K.fa.first+Math.floor(rndF(s0)*K.fa.firstr);
   return s0;
@@ -219,7 +219,7 @@ function shoot(s,o,x0,z0,tgt,lead,spread,dmg,delay){
   const a=rnd(s)*Math.PI*2,m=Math.sqrt(rnd(s))*spread;
   const x1=tgt.x+Math.cos(tgt.h)*tgt.v*T+Math.cos(a)*m,z1=tgt.z+Math.sin(tgt.h)*tgt.v*T+Math.sin(a)*m;
   const d=Math.hypot(x1-x0,z1-z0);
-  s.balls.push({id:s.nid++,o,x0,z0,x1,z1,t:-delay,dur:flight(d),arc:0.6+d*0.07,dmg});
+  if(o==='p'&&s.km)dmg=Math.round(dmg*s.km);s.balls.push({id:s.nid++,o,x0,z0,x1,z1,t:-delay,dur:flight(d),arc:0.6+d*0.07,dmg});
   if(o==='p')s.stats.pShots++;else s.stats.bShots++;
 }
 function inHull(sh,c,x,z){
@@ -332,7 +332,7 @@ const C={k:'#2b1d14',w:'#fbf6ea',W:'#d9cfbc',V:'#a9a2b4',j:'#d9a35c',b:'#b07a44'
   r:'#d8433a',R:'#9a2a22',x:'#5e1f2a',f:'#ffe28a',y:'#f2c94c',Y:'#b8862a',o:'#f08a24',t:'#5d6575',T:'#363a4e',e:'#7a7a7a',sand:'#e9d6a0',g:'#5aa24a'};
 const $=id=>document.getElementById(id);
 // Einbettung in die Neue Welt: ?embed&seed=..&hp=..&bhp=..&name=..&look=lila
-const QS=new URLSearchParams(location.search),EMB=QS.has('embed'),OPT={php:+QS.get('hp')||0,bhp:+QS.get('bhp')||0},BN=(QS.get('name')||'Krähenbart').slice(0,24),LOOK=QS.get('look')||'boss';
+const QS=new URLSearchParams(location.search),EMB=QS.has('embed'),OPT={php:+QS.get('hp')||0,pmax:+QS.get('max')||0,kan:+QS.get('kan')||0,bhp:+QS.get('bhp')||0},BN=(QS.get('name')||'Krähenbart').slice(0,24),LOOK=QS.get('look')||'boss';
 $('bName').textContent=BN;
 function por(id,rows,pal){const c=$(id);if(!c)return;const x=c.getContext('2d');x.clearRect(0,0,12,12);rows.forEach((r,y)=>[...r].forEach((ch,i)=>{if(ch!=='.'){x.fillStyle=pal[ch];x.fillRect(i,y,1,1);}}));}
 const SHIPP=['.....k......','....kwk.....','...kwwwk....','..kwwwwwk...','..kwwwwwk...','.kwwwwwwwk..','.....k......','kkkkkkkkkkkk','kbbbbbbbbbbk','.kbBbBbBbbk.','..kkkkkkkk..','ssssssssssss'];
