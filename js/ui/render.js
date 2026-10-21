@@ -1403,6 +1403,16 @@ window.GL = window.GL || {};
       return '';
     }
     if (ev.k === 'note') return ev.text;
+    if (ev.k === 'reaction') {
+      const n = targetName(run, ev.side, ev.to);
+      const T = { boom: EN ? `Explosion! Fire meets poison at ${n}, everyone around takes damage.` : `Explosion! Brand trifft Gift bei ${n}, alle drumherum nehmen Schaden.`,
+        shatter: EN ? `Shatter! Frost and shock burst on ${n}.` : `Zersplittern! Frost und Schock brechen bei ${n} auf.`,
+        steam: EN ? `Steam! Fire meets frost at ${n}, everyone on that side is blinded.` : `Dampf! Brand trifft Frost bei ${n}, die ganze Seite sieht nichts mehr.`,
+        panic: EN ? `Panic! ${n} is weakened and afraid and skips a turn.` : `Panik! ${n} ist geschwächt und verängstigt und setzt einen Zug aus.` };
+      return T[ev.r] || '';
+    }
+    if (ev.by === 'reaktion') return '';
+    if (ev.k === 'heal' && ev.hl) { const a = anyData(ev.by) ? anyData(ev.by).name : ''; const n = Math.max(...ev.list.map(x => x.amount)); return EN ? `${a} patches up ${targetName(run, ev.side, ev.list[0].to)} for ${n}.` : `${a} verarztet ${targetName(run, ev.side, ev.list[0].to)}: +${n} Leben.`; }
     if (ev.k === 'round') return '';
     if (ev.k === 'special') return `Spezialangriff: ${ev.name}!`;
     if (ev.k === 'ult') return `${anyData(ev.by) ? anyData(ev.by).name : ''} entfesselt die Ulti: ${ev.name}!${ev.tier === 'perfect' ? ' Perfekt, alles stärker!' : ev.bonus ? ` Bonus: ${ev.bonus}.` : ''}`;

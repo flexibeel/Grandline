@@ -327,3 +327,15 @@ Object.assign(GL.data.en, {
   'Volltreffer, Stolperfalle … oder nichts': 'Bullseye, tripwire … or nothing',
   '📣 Kommando:': '📣 Command:', '🍖 Kommando:': '🍖 Command:', '🎲 Glückswurf:': '🎲 Lucky roll:', 'Volltreffer': 'Bullseye', 'Stolperfalle': 'Tripwire', 'nichts': 'nothing'
 });
+// KAMPF-UPDATE: neue Zustände, Reaktionen und Ultis
+GL.data.en = Object.assign(GL.data.en || {}, {
+  'Frost': 'Frost', 'Schock': 'Shock', 'Blind': 'Blinded', 'Frost!': 'Frost!', 'Schock!': 'Shock!', 'Blind!': 'Blinded!',
+  'Frost weg': 'Frost gone', 'Schock weg': 'Shock gone', 'Blind weg': 'Sight back',
+  'Langsamer. Mit Schock: Zersplittern, mit Brand: Dampf.': 'Slower. With shock: shatter, with burning: steam.',
+  'Springt beim nächsten Treffer auf einen Nachbarn. Mit Frost: Zersplittern.': 'Jumps to a neighbour on the next hit. With frost: shatter.',
+  '25 % der Angriffe verfehlen.': '25 % of attacks miss.',
+  'Blitz auf alle Gegner (100 %), der Vorderste ist betäubt, alle unter Schock.': 'Lightning on all enemies (100 %), the front one is stunned, all are shocked.',
+  'Gewaltiger Blitz auf alle (90 %), alle unter Schock.': 'Massive lightning on all (90 %), all are shocked.',
+  'Friert alle ein: Treffer (80 %), der Vorderste ist betäubt, alle bekommen Frost.': 'Freezes everyone: hit (80 %), the front one is stunned, all get frost.',
+  'Lichtkugeln auf alle (100 %), alle geblendet.': 'Light orbs on all (100 %), all blinded.'
+});

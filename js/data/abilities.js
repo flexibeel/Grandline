@@ -224,7 +224,11 @@ GL.data.statuses = {
   poison: { name: 'Gift',       icon: '~', good: false, text: 'Verliert am Rundenende Leben.' },
   burning: { name: 'Brand',     icon: '^', good: false, text: 'Verliert am Rundenende Leben.' },
   weak:  { name: 'Geschwächt',  icon: 'v', good: false, text: 'Nimmt 25 % mehr Schaden.' },
-  brave: { name: 'Mut',         icon: '+', good: true,  text: 'Immun gegen Furcht und Betäubung.' }
+  brave: { name: 'Mut',         icon: '+', good: true,  text: 'Immun gegen Furcht und Betäubung.' },
+  // VERTIEFUNG: neue Zustände für Reaktionen (Brand + Gift = Explosion, Frost + Schock = Zersplittern, Brand + Frost = Dampf, Geschwächt + Furcht = Panik)
+  frost: { name: 'Frost',       icon: '*', good: false, text: 'Langsamer. Mit Schock: Zersplittern, mit Brand: Dampf.' },
+  shock: { name: 'Schock',      icon: '%', good: false, text: 'Springt beim nächsten Treffer auf einen Nachbarn. Mit Frost: Zersplittern.' },
+  blind: { name: 'Blind',       icon: 'o', good: false, text: '25 % der Angriffe verfehlen.' }
 };
 
 // Spezialangriff des Kapitäns: lädt sich in Kämpfen auf, einsetzbar gegen Inselbosse und Raids

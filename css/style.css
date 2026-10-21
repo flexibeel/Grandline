@@ -10067,3 +10067,8 @@ body.ult-hand #field .fu-crew.charged::after { content: '⚡'; position: absolut
 body.ult-hand .rc-ulthint { display: inline; }
 .ult-mode { margin-left: 6px; border: 2px solid #c9a46a; border-radius: 99px; background: #fbf3e2; color: #6b4422; font: inherit; font-size: .66rem; padding: 1px 8px; cursor: pointer; vertical-align: middle; }
 .ult-mode.hand { background: #ffe58a; border-color: #b8801a; color: #4a2e16; }
+
+/* ===== KAMPF-UPDATE: neue Zustände ===== */
+.st-chip.st-frost { background: #d8eef8; color: #1f5a78; }
+.st-chip.st-shock { background: #fbf0c4; color: #7a5a10; }
+.st-chip.st-blind { background: #e2e2e6; color: #3a3d46; }

@@ -1,6 +1,11 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-22h', date: '22.10.', title: 'Heiler und Reaktionen', items: [
+    '⚡ Ultis kommen seltener, treffen dafür 1,6-mal so hart. Das Antippen lohnt sich jetzt richtig',
+    '💚 Helfer heilen auch ohne Ulti: Ist jemand unter 50 % Leben, verarzten sie ihn statt anzugreifen',
+    '💥 Reaktionen: Brand + Gift = Explosion, Frost + Schock = Zersplittern, Brand + Frost = Dampf, Geschwächt + Furcht = Panik',
+    '❄ Neue Zustände Frost, Schock und Blind. Zum Start bei Aokiji, Nami, Enel und Kizaru' ] },
   { v: '2026-10-22g', date: '22.10.', title: 'Ulti auf Zuruf', items: [
     '⚡ Ultis zündest du jetzt selbst: Leuchtet eine Figur, tippst du sie an und die Ulti kommt im nächsten Zug. Wer zu lange wartet, dem nimmt die Crew das nach ein paar Zügen ab',
     '🔁 Lieber zuschauen? Unter der Arena schaltest du „Ultis: auto“ ein, auch mitten im Kampf',
