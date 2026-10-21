@@ -752,7 +752,8 @@ function fight(o){
   banner(o.art==='see'?o.name+' greift an!':o.art==='hoehle'?'Ab in die Höhle!':'Landgang!',o.art==='see'?'Kanonen klar!':o.name+(o.art==='hoehle'?' wartet im Dunkeln.':' wartet schon.'));
   setTimeout(()=>{S.fights++;save();
     if(o.art==='hoehle')tell({t:'kampf',art:'hoehle',seed:o.seed>>>0,boss:o.boss,tier:S.tier,name:o.name,up:upStr()});
-    else if(o.art==='see')tell({t:'kampf',art:'see',seed:(o.seed^(S.fights*0x9E3779B1))>>>0,hp:S.hp,mhp:mhp(),bhp:o.bhp||0,name:o.name,look:o.look||'',up:upStr(),tier:S.tier});
+    else if(o.art==='see'){const E=WORLD.E.find(e=>e.id===o.foe),ba=E?Math.atan2(E.z-sh.z,E.x-sh.x):0;
+      tell({t:'kampf',art:'see',seed:(o.seed^(S.fights*0x9E3779B1))>>>0,hp:S.hp,mhp:mhp(),bhp:o.bhp||0,name:o.name,look:o.look||'',up:upStr(),tier:S.tier,fl:1,ba:Math.round(ba*100)/100,ph:Math.round(sh.h*100)/100});}
     else tell({t:'kampf',art:'land',seed:(o.seed^(S.fights*0x9E3779B1))>>>0,name:o.name,up:upStr()});
     if(!EMB){paused=false;lock=0;}},900);
 }
@@ -765,6 +766,9 @@ function afterFight(res){
       if(E.look==='boss')setTimeout(()=>truhe('Krähenbart versenkt!','Der Schrecken der Meere geht baden. Sein Gold nicht.',g,1),400);
       else{setGold();banner('+'+g+' Gold',E.name+' geht baden.');crewJump(2);}
       E.g.visible=false;splash(E.x,E.z,20);}
+    else if(res.flee){const lost=Math.ceil(S.gold*0.15);S.gold-=lost;S.hp=cl(res.hp|0,1,mhp());E.chase=0;E.cool=25;
+      {const dx=E.x-sh.x,dz=E.z-sh.z,l=Math.hypot(dx,dz)||1;E.x+=dx/l*6;E.z+=dz/l*6;}sh.v=Math.max(sh.v,2.5);save();hudHp();setGold();
+      banner('Entkommen!',lost?lost+' Gold über Bord geworfen, damit ihr schneller seid.':'Puh. Weiter geht\'s.');}
     else{const lost=Math.ceil(S.gold/2);S.gold-=lost;S.hp=mhp();sh.x=1.9;sh.z=8.4;sh.h=Math.PI/2;sh.v=0;sh.w=0;camInit=false;E.chase=0;E.cool=20;save();hudHp();setGold();
       for(const v of wakeP)v.set(sh.x,sh.z,99,0);fadeIn();banner('Heimgeschleppt',lost?'Die Hälfte der Beute ist weg ('+lost+' Gold).':'Wenigstens war nichts an Bord.');}
   }else if(o.art==='hoehle'){

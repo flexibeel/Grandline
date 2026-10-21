@@ -91,6 +91,8 @@ canvas{position:absolute;left:0;top:0;image-rendering:pixelated;image-rendering:
 #erk .ic{width:48px;height:48px;border:3px solid var(--wood);border-radius:6px;box-shadow:0 3px 0 var(--wood);display:grid;place-items:center;font:700 10px/1.05 var(--px);color:var(--ink);text-shadow:1px 1px 0 var(--wood);text-align:center}
 #erk b{font-weight:700}
 #erk .btn{display:block;margin:10px auto 0;min-height:44px;min-width:150px;background:var(--gold);color:var(--wood);text-shadow:none}
+#flee{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 96px);transform:translateX(-50%);font:700 13px/1.3 var(--px);background:#fbf6ea;color:var(--wood);border:3px solid var(--wood);border-radius:4px;box-shadow:0 3px 0 var(--wood);padding:5px 10px;pointer-events:none;display:none;white-space:nowrap}
+#flee i{display:block;height:5px;background:var(--wood);margin-top:4px}#flee i b{display:block;height:100%;background:#9be27a}
 #ov{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(33,30,60,.55);padding:16px}
 #card{background:#fbf6ea;color:var(--wood);border:3px solid var(--wood);border-radius:6px;box-shadow:0 5px 0 var(--wood);padding:16px;width:min(320px,100%);text-align:center}
 #card h1{margin:0 0 4px;font:700 26px var(--px)}
@@ -110,6 +112,7 @@ canvas{position:absolute;left:0;top:0;image-rendering:pixelated;image-rendering:
 </div>
 <div id="meWrap"><div class="plank" id="meBox"><canvas id="pfP" width="16" height="16"></canvas><div class="mid"><div class="top"><span class="nm">Wellenreiter</span><span class="num" id="nP">100</span></div><i><u id="hgP"></u><b id="hpP"></b></i></div></div></div>
 <div id="rp">REPLAY</div>
+<div id="flee"></div>
 <div id="warn">!!</div>
 <div id="kTip"></div>
 <div id="fTip"></div>
@@ -155,7 +158,7 @@ canvas{position:absolute;left:0;top:0;image-rendering:pixelated;image-rendering:
 var FK=(function(){
 'use strict';
 const HZ=30,DT=1/HZ,MAXSTEP=HZ*90;
-const K={R:15,
+const K={R:15,flee:36,
   p:{hp:100,vmax:3.6,acc:2.6,dec:3.4,turn:2.1,tacc:7.5,gain:2.8,half:1.3,rad:0.6},
   b:{hp:480,vmax:2.3,acc:1.4,dec:2.2,turn:1.0,tacc:3.2,gain:2.4,half:2.0,rad:0.9,orbit:7.5},
   bs:{cd:66,range:9.5,arc:0.8,n:3,dmg:8,spread:1.4},          // Breitseite Spieler
@@ -188,7 +191,9 @@ function opts(o){
   o=o||{};const i3=v=>cl(Math.floor(+v||0),0,3);let u=o.up;
   if(typeof u==='string'){const a=u.split('.');u={r:a[0],k:a[1],s:a[2]};}u=u||{};
   const look=LOOKS.includes(o.look)?o.look:'boss';
-  return {r:i3(u.r),k:i3(u.k),s:i3(u.s),tier:cl(Math.floor(+o.tier||0),0,9),look,mhp:Math.max(0,Math.floor(+o.mhp||0))};
+  // fl=1: Abhauen erlaubt (aus dem Ring segeln); ba/ph: Richtung zum Gegner und Kurs aus der offenen See
+  const num=v=>v===undefined||v===null||v===''||!isFinite(+v)?null:r2(wrap(+v));
+  return {r:i3(u.r),k:i3(u.k),s:i3(u.s),tier:cl(Math.floor(+o.tier||0),0,9),look,mhp:Math.max(0,Math.floor(+o.mhp||0)),fl:+o.fl===1?1:0,ba:num(o.ba),ph:num(o.ph)};
 }
 function rnd(s){s.r=(s.r+0x6D2B79F5)>>>0;let t=s.r;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);return((t^(t>>>14))>>>0)/4294967296;}
 function rndF(s){s.f=(s.f+0x6D2B79F5)>>>0;let t=s.f;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);return((t^(t>>>14))>>>0)/4294967296;}
@@ -206,8 +211,10 @@ function create(seed,o0){
     b:{x:0,z:-5,h:0,v:0,w:0,hp:bhp,max:bhp,cd:75,ph:'move',pt:0,st:150,orb:1}};
   s0.stats.loot=0;s0.ft=K.fa.first+Math.floor(rndF(s0)*K.fa.firstr);
   s0.o=o;s0.c=c;
+  if(o.ba!==null){const dx=Math.cos(o.ba),dz=Math.sin(o.ba);Object.assign(s0.p,{x:r2(-dx*6),z:r2(-dz*6),tx:r2(-dx*6),tz:r2(-dz*6),h:o.ph!==null?o.ph:o.ba});Object.assign(s0.b,{x:r2(dx*5),z:r2(dz*5),h:r2(wrap(o.ba+Math.PI/2))});}
+  if(o.fl){s0.p.lim=K.R+3;s0.p.out=0;}
   // Optionen gehen in die Pruefsumme ein (Standard-Kampf bleibt unveraendert)
-  if(o.r||o.k||o.s||o.tier||o.look==='flink'||o.look==='panzer'||pmax!==K.p.hp){let h=s0.hash;for(const v of[o.r,o.k,o.s,o.tier,LOOKS.indexOf(o.look),pmax,bhp]){h^=v|0;h=Math.imul(h,16777619)>>>0;}s0.hash=h;}
+  if(o.r||o.k||o.s||o.tier||o.fl||o.ba!==null||o.look==='flink'||o.look==='panzer'||pmax!==K.p.hp){let h=s0.hash;for(const v of[o.r,o.k,o.s,o.tier,LOOKS.indexOf(o.look),pmax,bhp,o.fl,Math.round((o.ba||0)*100),Math.round((o.ph||0)*100)]){h^=v|0;h=Math.imul(h,16777619)>>>0;}s0.hash=h;}
   return s0;
 }
 // Richtung statt Zielpunkt: Laenge des Vektors = Anteil der Hoechstfahrt
@@ -244,7 +251,7 @@ function drive(sh,tx,tz,c){
 function coast(sh,tv,c){
   sh.v+=cl(tv-sh.v,-c.dec*DT,c.acc*DT);
   sh.x+=Math.cos(sh.h)*sh.v*DT;sh.z+=Math.sin(sh.h)*sh.v*DT;
-  const r=Math.hypot(sh.x,sh.z);if(r>K.R){sh.x*=K.R/r;sh.z*=K.R/r;sh.v*=0.9;}
+  const r=Math.hypot(sh.x,sh.z),lim=sh.lim||K.R;if(r>lim){sh.x*=lim/r;sh.z*=lim/r;sh.v*=0.9;}
 }
 function flight(d,f){return Math.round((14+d*2.6)*(f||1));}
 function shoot(s,o,x0,z0,tgt,lead,spread,dmg,delay){
@@ -339,7 +346,9 @@ function step(s,inputs){
     }
   }
   s.step++;
-  if(p.hp<=0||b.hp<=0||s.step>=MAXSTEP){s.over=true;s.winner=b.hp<=0&&p.hp>0?'p':'b';s.ev.push({k:'end',winner:s.winner});}
+  if(p.lim&&!s.over){const r=Math.hypot(p.x,p.z);if(r>K.R+0.3)p.out++;else p.out=Math.max(0,p.out-2);
+    if(p.out>=K.flee&&p.hp>0&&b.hp>0){s.over=true;s.winner='flee';s.ev.push({k:'end',winner:'flee'});}}
+  if(!s.over&&(p.hp<=0||b.hp<=0||s.step>=MAXSTEP)){s.over=true;s.winner=b.hp<=0&&p.hp>0?'p':'b';s.ev.push({k:'end',winner:s.winner});}
   // Pruefsumme ueber den ganzen Verlauf
   let h=s.hash;for(const v of[p.x,p.z,p.h,b.x,b.z,b.h,p.hp,b.hp,s.balls.length,s.r]){h^=Math.round(v*1e4)|0;h=Math.imul(h,16777619)>>>0;}s.hash=h;
   return s;
@@ -369,7 +378,7 @@ const $=id=>document.getElementById(id);
 // Einbettung in die Neue Welt: ?embed&seed=..&hp=..&bhp=..&name=..&look=lila
 // neu (Vertrag 21t): &mhp=..&up=r.k.s&tier=..&look=lila|boss|flink|panzer
 const QS=new URLSearchParams(location.search),EMB=QS.has('embed'),BN=(QS.get('name')||'Krähenbart').slice(0,24),LOOK=FK.LOOKS.includes(QS.get('look'))?QS.get('look'):'boss';
-const OPT={php:+QS.get('hp')||0,bhp:+QS.get('bhp')||0,mhp:+QS.get('mhp')||0,up:QS.get('up')||'',tier:+QS.get('tier')||0,look:LOOK};
+const OPT={php:+QS.get('hp')||0,bhp:+QS.get('bhp')||0,mhp:+QS.get('mhp')||0,up:QS.get('up')||'',tier:+QS.get('tier')||0,look:LOOK,fl:+QS.get('fl')||0,ba:QS.get('ba'),ph:QS.get('ph')};
 let RUHIG=false;try{RUHIG=!!(JSON.parse(localStorage.getItem('gl.neu.opt')||'{}')||{}).ruhig;}catch(e){}
 let TIP={};try{TIP=JSON.parse(localStorage.getItem('gl.neu.tip')||'{}')||{};}catch(e){TIP={};}
 function tipDone(k){TIP[k]=1;try{localStorage.setItem('gl.neu.tip',JSON.stringify(TIP));}catch(e){}}
@@ -771,7 +780,7 @@ function onEvent(e){
     case 'fsmash':hitFx(e.x,0.1,e.z,false);pop(e.x,e.z,'Fass zerschellt','');break;
     case 'fgone':splash(e.x,e.z);break;
     case 'slammiss':pop(st.b.x,st.b.z,'daneben','');break;
-    case 'end':hs=0.12;shake=0.2;if(e.winner==='p')crewJump(3);setTimeout(showEnd,1400);break;
+    case 'end':if(e.winner==='flee'){setTimeout(showEnd,500);break;}hs=0.12;shake=0.2;if(e.winner==='p')crewJump(3);setTimeout(showEnd,1400);break;
   }
 }
 const pv=new THREE.Vector3();
@@ -781,14 +790,15 @@ function popScreen(txt){const d=document.createElement('div');d.className='pop b
 function showEnd(){
   const s=st,win=s.winner==='p',t=(s.step/FK.HZ).toFixed(1).replace('.',',');
   lastSum=mode==='live'?FK.summary(s):lastSum;
-  $('ovT').textContent=win?'Sieg!':'Versenkt!';
-  $('ovP').innerHTML=(win?BN+' geht baden.':(s.step>=FK.HZ*90?'Zeit um. '+BN+' segelt davon.':'Der Wellenreiter liegt auf Grund.'))+
+  const fled=s.winner==='flee';
+  $('ovT').textContent=win?'Sieg!':fled?'Entkommen!':'Versenkt!';
+  $('ovP').innerHTML=(win?BN+' geht baden.':fled?'Volle Fahrt durch die Felsen. '+BN+' schimpft hinterher.':(s.step>=FK.HZ*90?'Zeit um. '+BN+' segelt davon.':'Der Wellenreiter liegt auf Grund.'))+
     '<br>'+t+' s · Rumpf '+s.p.hp+' · Boss '+s.b.hp+'<br>Treffer '+s.stats.pHits+'/'+s.stats.pShots+' · Konter '+s.stats.counters+'/'+s.stats.slams+' · Fässer '+s.stats.loot+' · Eingaben '+rec.length;
   if(EMB){$('bAgain').style.display=$('bView').style.display=$('bChk').style.display='none';$('bGo').style.display='';
-    $('bGo').textContent=win?'Beute einsammeln':'Zurück in den Hafen';}
+    $('bGo').textContent=win?'Beute einsammeln':fled?'Weitersegeln':'Zurück in den Hafen';}
   $('ov').style.display='flex';
 }
-$('bGo').onclick=()=>{$('bGo').disabled=true;const s=st;tell({t:'ende',art:'see',win:s.winner==='p',hp:s.p.hp,sec:Math.round(s.step/FK.HZ),loot:s.stats.loot,counters:s.stats.counters,seed:s.seed,n:rec.length,hash:FK.summary(s).hash});};
+$('bGo').onclick=()=>{$('bGo').disabled=true;const s=st;tell({t:'ende',art:'see',win:s.winner==='p',flee:s.winner==='flee',hp:s.p.hp,sec:Math.round(s.step/FK.HZ),loot:s.stats.loot,counters:s.stats.counters,seed:s.seed,n:rec.length,hash:FK.summary(s).hash});};
 $('bAgain').onclick=()=>start((Math.random()*4294967296)>>>0);
 $('bView').onclick=()=>start(st.seed,rec.slice());
 $('bChk').onclick=()=>{
@@ -945,7 +955,7 @@ function visual(dt,a){
   const bx=prev.bx+(b.x-prev.bx)*a,bz=prev.bz+(b.z-prev.bz)*a,bh=lerpA(prev.bh,b.h,a);
   placeShip(player,px,pz,ph,dt,0,p.w,p.v);placeShip(boss,bx,bz,bh,dt,2,b.w,b.v);crewFx(dt);
   // Untergang: sinkt langsam
-  if(st.over){const g=st.winner==='p'?boss:player;g.position.y-=dt*0.5;g.userData.body.rotation.z+=dt*0.15;if(g.position.y<-2.5)g.userData.body.visible=false;}
+  if(st.over&&st.winner!=='flee'){const g=st.winner==='p'?boss:player;g.position.y-=dt*0.5;g.userData.body.rotation.z+=dt*0.15;if(g.position.y<-2.5)g.userData.body.visible=false;}
   marker.position.x=p.tx;marker.position.z=p.tz;marker.visible=!p.mv&&Math.hypot(p.tx-px,p.tz-pz)>0.8&&!st.over;
   wheelFx(dt);fassFx(dt,a);marker.rotation.y+=dt*2;
   for(const s of sails)updSail(s,wall,1);for(const f of flags)updFlag(f,wall);
@@ -1004,7 +1014,13 @@ function visual(dt,a){
   rangeFx(dt);hud();
 }
 let hudKey='';
+let fleeK='';
+function fleeHud(){const p=st.p;if(!p.lim||st.over||mode!=='live'){if(fleeK){fleeK='';$('flee').style.display='none';}return;}
+  const r=Math.hypot(p.x,p.z),k=p.out>0?'o'+Math.floor(p.out/4):r>FK.K.R-2.5?'n':'';if(k===fleeK)return;fleeK=k;const el=$('flee');
+  if(!k){el.style.display='none';return;}el.style.display='block';
+  el.innerHTML=p.out>0?'Abhauen…<i><b style="width:'+Math.min(100,p.out/FK.K.flee*100)+'%"></b></i>':'Raus aus dem Ring = <b>abhauen</b>';}
 function hud(){
+  fleeHud();
   const p=st.p,b=st.b,K=st.c;
   const inR=Math.hypot(b.x-p.x,b.z-p.z)<=K.ab.range;
   const key=[p.hp,b.hp,Math.floor(st.step/3),b.ph,p.ab>0,p.kcd>0,inR,p.boost>0].join();if(key===hudKey)return;hudKey=key;

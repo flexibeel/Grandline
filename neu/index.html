@@ -14,6 +14,7 @@
 html,body{margin:0;height:100%;background:#1a284c;overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none;font-family:var(--px);color:var(--ink)}
 iframe{position:fixed;inset:0;width:100%;height:100%;border:0;display:block;background:#1a284c}
 #kampf{z-index:5}
+#kampf.fade{opacity:0;transition:opacity .4s ease}#kampf.fade.in{opacity:1}
 #title{position:fixed;inset:0;z-index:10;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:calc(env(safe-area-inset-top) + 26px) 16px calc(env(safe-area-inset-bottom) + 20px);pointer-events:none;transition:opacity .5s}
 #title.off{opacity:0}
 #title.off *{pointer-events:none!important}
@@ -75,18 +76,21 @@ addEventListener('message',e=>{
     else if(m.t==='titel'){$('title').classList.remove('off');$('bGo').textContent='Weitersegeln';}
     else if(m.t==='kampf'&&!busy){busy=true;
       const see=m.art==='see',cave=m.art==='hoehle',dots='<span class="dots"><i></i><i></i><i></i></span>';
-      wipe(true,see?'⚔ '+m.name+'!':cave?'⛏ Höhle':'⚓ Landgang',cave&&m.name?m.name+' wartet… '+dots:dots);
+      // Seekampf ohne Bretter-Wischen: gleiches Meer, sanft ueberblenden
+      if(!see)wipe(true,cave?'⛏ Höhle':'⚓ Landgang',cave&&m.name?m.name+' wartet… '+dots:dots);
       setTimeout(()=>{send(welt,{t:'pause'});
         const q=new URLSearchParams({embed:'1',seed:String(m.seed>>>0)});
         if(see){q.set('hp',String(m.hp|0));if(m.mhp)q.set('mhp',String(m.mhp|0));if(m.bhp)q.set('bhp',String(m.bhp|0));q.set('name',m.name||'');if(m.look)q.set('look',m.look);
-          q.set('up',/^[0-3]\.[0-3]\.[0-3]$/.test(m.up||'')?m.up:'0.0.0');q.set('tier',String(Math.max(0,m.tier|0)));}
+          q.set('up',/^[0-3]\.[0-3]\.[0-3]$/.test(m.up||'')?m.up:'0.0.0');q.set('tier',String(Math.max(0,m.tier|0)));
+          if(m.fl)q.set('fl','1');for(const k of['ba','ph'])if(isFinite(m[k]))q.set(k,String(Math.round(m[k]*100)/100));}
         if(!see&&/^[0-3]\.[0-3]\.[0-3]$/.test(m.up||''))q.set('up',m.up);
         if(cave){q.set('mode','hoehle');q.set('boss',m.boss||'marlo');q.set('tier',String(Math.max(0,m.tier|0)));q.set('name',m.name||'');}
-        kampf=document.createElement('iframe');kampf.id='kampf';kampf.title='Kampf';kampf.src=(see?'seekampf.html?':'landgang.html?')+q;document.body.appendChild(kampf);
+        kampf=document.createElement('iframe');kampf.id='kampf';kampf.title='Kampf';if(see)kampf.className='fade';kampf.src=(see?'seekampf.html?':'landgang.html?')+q;document.body.appendChild(kampf);
       },420);}
   }else if(kampf&&e.source===kampf.contentWindow){
-    if(m.t==='bereit'){setTimeout(()=>{wipe(false);kampf.focus();},250);}
-    else if(m.t==='ende'){wipe(true,m.win?'Sieg!':'Zurück an Bord…','');
+    if(m.t==='bereit'){setTimeout(()=>{wipe(false);kampf.classList.add('in');kampf.focus();},kampf.className?60:250);}
+    else if(m.t==='ende'){const sf=kampf.classList.contains('fade');if(sf){kampf.classList.remove('in');send(welt,{t:'weiter',res:m});welt.focus();const k=kampf;kampf=null;setTimeout(()=>{k.remove();busy=false;},450);return;}
+      wipe(true,m.win?'Sieg!':'Zurück an Bord…','');
       setTimeout(()=>{kampf.remove();kampf=null;send(welt,{t:'weiter',res:m});welt.focus();setTimeout(()=>{wipe(false);busy=false;},200);},450);}
   }
 });
