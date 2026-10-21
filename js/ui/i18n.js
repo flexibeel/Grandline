@@ -57,7 +57,7 @@ window.GL = window.GL || {};
     'Konto': 'Account', 'Du spielst als Gast.': 'You are playing as a guest.', 'Gast': 'Guest', 'Spielstände': 'Save slots', 'Streamer-Modus': 'Streamer mode',
     'Fortschritt zurücksetzen': 'Reset progress', 'Account löschen': 'Delete account', 'Kapitel-Fortschritt': 'Chapter progress',
     // Titelbild
-    'Neues Spiel': 'New game', 'Ein Piraten-Roguelike': 'A pirate roguelike', 'Sammelalbum': 'Album', 'gerade auf See': 'at sea now', 'heute an Bord': 'aboard today',
+    'Neues Spiel': 'New game', 'Neue Welt testen': 'Try the New World', 'Ein Piraten-Roguelike': 'A pirate roguelike', 'Sammelalbum': 'Album', 'gerade auf See': 'at sea now', 'heute an Bord': 'aboard today',
     'Funk zur Flotte': 'Contacting the fleet', 'ab Rang 2': 'from rank 2', 'Rangliste ab Rang 2': 'Leaderboard from rank 2',
     // Werte, Stile, Rollen, Banden
     'Kraft': 'Power', 'Klinge': 'Blade', 'Technik': 'Tech', 'Brecher': 'Breaker', 'Kämpfer': 'Fighter', 'Helfer': 'Support',

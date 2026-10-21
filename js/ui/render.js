@@ -4086,6 +4086,7 @@ window.GL = window.GL || {};
       <div class="ts-menu">
         ${GL.season ? GL.season.banner(profile) : ''}${pulse}
         <button class="btn ts-play" data-act="title-play">${run ? 'Weiterspielen' : profile.nickname ? 'Spielen' : 'Neues Spiel'} ${keyHint('Leertaste')}</button>
+        <a class="btn ts-beta" href="neu/"><span>Neue Welt testen</span> <small>Beta</small></a>
         <div class="ts-row">
           ${GL.meta.featureOpen(profile, 'rangliste') ? `<button class="btn ghost" data-act="title-go" data-tab="rangliste">Rangliste</button>` : `<button class="btn ghost locked" data-act="title-go" data-tab="rangliste" title="Ab Rang 2">Rangliste <small>ab Rang 2</small></button>`}
           <button class="btn ghost" data-act="title-go" data-tab="album">Sammelalbum</button>

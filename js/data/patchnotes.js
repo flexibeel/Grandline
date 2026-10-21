@@ -1,6 +1,10 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-21s', date: '21.10.', title: 'Neue Welt (Beta)', items: [
+    '🧭 Neue Welt testen: Auf dem Startbildschirm wartet ein neuer Knopf. Dahinter liegt eine offene See in 3D, mit Inseln, Treibgut und einem sehr nervösen Hafenhund',
+    '⚔ Begegnungen auf See werden zum Fahrenden Kampf, lila Fahnen zum Landgang. Tageszeit wie bei dir zu Hause',
+    '🧪 Das ist eine Testversion: Spielstand nur auf diesem Gerät, das alte Spiel bleibt, wie es ist. Sagt uns, wie es sich anfühlt!' ] },
   { v: '2026-10-21r', date: '21.10.', title: 'Rettungsring', items: [
     '🛟 Pirat sichern: Nach deiner ersten Fahrt hängt im Hafen ein Holzschild. Mail eingeben, Zahl aus der Mail eintippen, fertig. Kein Passwort, kein Link',
     '⚓ Auf einem neuen Gerät holst du deinen Piraten mit derselben Mail zurück. Der Spielercode wohnt jetzt unter „Andere Wege“' ] },

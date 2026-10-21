@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#2b1d14">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Grand Line · Neue Welt (Beta)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pirata+One&family=Pixelify+Sans:wght@600&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#fbf6ea;--wood:#2b1d14;--wl:#b07a44;--wd:#8a5a30;--gold:#f2c94c;--px:'Pixelify Sans',ui-monospace,Menlo,Consolas,monospace}
+html,body{margin:0;height:100%;background:#1a284c;overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none;font-family:var(--px);color:var(--ink)}
+iframe{position:fixed;inset:0;width:100%;height:100%;border:0;display:block;background:#1a284c}
+#kampf{z-index:5}
+#title{position:fixed;inset:0;z-index:10;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:calc(env(safe-area-inset-top) + 26px) 16px calc(env(safe-area-inset-bottom) + 20px);pointer-events:none;transition:opacity .5s}
+#title.off{opacity:0}
+#title.off *{pointer-events:none!important}
+.logo{text-align:center;filter:drop-shadow(0 4px 0 rgba(43,29,20,.65))}
+.logo b{display:block;font:400 58px/0.9 'Pirata One',serif;color:#ffe28a;letter-spacing:1px;-webkit-text-stroke:2px var(--wood);text-shadow:0 3px 0 var(--wood),0 6px 0 rgba(43,29,20,.4)}
+.logo span{display:inline-block;margin-top:8px;font:600 15px var(--px);background:var(--wood);padding:5px 12px;border-radius:3px;box-shadow:inset 0 -3px 0 #1a120c}
+.logo i{display:inline-block;margin-left:8px;font:600 11px var(--px);font-style:normal;background:#d8433a;color:var(--ink);padding:3px 6px;transform:rotate(-6deg);border:2px solid var(--wood)}
+.board{pointer-events:auto;width:min(330px,100%);background:linear-gradient(#8a5a30,#6e4524);border:4px solid var(--wood);border-radius:6px;box-shadow:0 6px 0 var(--wood),inset 0 3px 0 rgba(176,122,68,.6);padding:14px 14px 10px;display:grid;gap:10px;text-align:center}
+.btn{position:relative;border:3px solid var(--wood);border-radius:6px;background:var(--wl);color:var(--ink);font:600 15px/1.1 var(--px);text-shadow:1px 1px 0 var(--wood);box-shadow:0 4px 0 var(--wood),inset 0 -4px 0 rgba(43,29,20,.3),inset 0 3px 0 rgba(255,255,255,.18);padding:12px;min-height:52px;cursor:pointer;text-decoration:none;display:block}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--wood)}
+.btn.go{background:var(--gold);color:var(--wood);text-shadow:none;font-size:19px;min-height:60px}
+.btn.go:disabled{filter:grayscale(.6) brightness(.8)}
+.btn.ghost{background:#5e3b1d;font-size:13px;min-height:0;padding:10px 8px}
+.note{font:600 11px/1.45 var(--px);color:#f4e4c8;opacity:.9;text-shadow:1px 1px 0 var(--wood)}
+#tod{font:600 12px var(--px);color:#ffe28a;text-shadow:1px 1px 0 var(--wood)}
+/* Planken-Wischer zwischen Fahrt und Kampf */
+#wipe{position:fixed;inset:0;z-index:20;pointer-events:none}
+#wipe.on{pointer-events:auto}
+.pl{position:absolute;top:0;bottom:0;width:51%;background:repeating-linear-gradient(#8a5a30 0 46px,#6e4524 46px 50px,#2b1d14 50px 54px);transition:transform .38s steps(6)}
+.pl.l{left:0;transform:translateX(-102%);border-right:4px solid var(--wood)}
+.pl.r{right:0;transform:translateX(102%);border-left:4px solid var(--wood)}
+#wipe.on .pl{transform:none}
+#wT{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) scale(.6);opacity:0;transition:all .25s steps(4);background:#fbf6ea;color:var(--wood);border:4px solid var(--wood);border-radius:6px;box-shadow:0 5px 0 var(--wood);padding:12px 18px;font:600 20px var(--px);text-align:center;white-space:nowrap}
+#wT small{display:block;font-size:12px;margin-top:4px;opacity:.75}
+#wipe.on #wT{opacity:1;transform:translate(-50%,-50%) scale(1)}
+#wT .dots i{display:inline-block;width:5px;height:5px;background:var(--wood);margin:0 2px;animation:d .6s steps(2) infinite}
+#wT .dots i:nth-child(2){animation-delay:.2s}#wT .dots i:nth-child(3){animation-delay:.4s}
+@keyframes d{50%{opacity:.2}}
+</style>
+</head>
+<body>
+<iframe id="welt" src="welt.html" title="Offene See"></iframe>
+<div id="title">
+  <div class="logo"><b>Grand Line</b><span>Neue Welt</span><i>BETA</i></div>
+  <div class="board">
+    <div id="tod"></div>
+    <button class="btn go" id="bGo" disabled>Leinen los!</button>
+    <a class="btn ghost" href="../">‹ Zurück ins alte Spiel</a>
+    <div class="note">Testversion: offene See, Seekampf, Landgang.<br>Spielstand nur auf diesem Gerät · lädt ca. 0,8 MB</div>
+  </div>
+</div>
+<div id="wipe"><div class="pl l"></div><div class="pl r"></div><div id="wT"></div></div>
+<script>
+(function(){
+'use strict';
+const $=id=>document.getElementById(id),welt=$('welt');
+if(location.search.includes('h='))welt.src='welt.html'+location.search;
+let kampf=null,busy=false,ready=false;
+const send=(f,m)=>{try{f.contentWindow.postMessage(Object.assign({gl:1},m),location.origin);}catch(e){}};
+const h=new Date().getHours(),T=h<5?['Nacht','Laternen an, die Sterne sind wach.']:h<9?['Morgen','Die Möwen frühstücken schon.']:h<17?['Mittag','Gutes Segelwetter.']:h<21?['Abend','Die Sonne taucht ins Meer.']:['Nacht','Laternen an, die Sterne sind wach.'];
+$('tod').textContent=T[0]+' auf See · '+T[1];
+function wipe(on,txt,sub){const w=$('wipe');if(txt!==undefined)$('wT').innerHTML=txt+(sub?'<small>'+sub+'</small>':'');w.classList.toggle('on',on);}
+$('bGo').addEventListener('click',()=>{if(!ready)return;$('title').classList.add('off');send(welt,{t:'los'});welt.focus();});
+addEventListener('keydown',e=>{if((e.code==='Enter'||e.code==='Space')&&!$('title').classList.contains('off')&&ready){e.preventDefault();$('bGo').click();}});
+addEventListener('message',e=>{
+  if(e.origin!==location.origin)return;const m=e.data;if(!m||!m.gl)return;
+  if(e.source===welt.contentWindow){
+    if(m.t==='bereit'){ready=true;$('bGo').disabled=false;$('bGo').textContent=m.save?'Weitersegeln':'Leinen los!';}
+    else if(m.t==='titel'){$('title').classList.remove('off');$('bGo').textContent='Weitersegeln';}
+    else if(m.t==='kampf'&&!busy){busy=true;
+      const see=m.art==='see';
+      wipe(true,see?'⚔ '+m.name+'!':'⚓ Landgang','<span class="dots"><i></i><i></i><i></i></span>');
+      setTimeout(()=>{send(welt,{t:'pause'});
+        const q=new URLSearchParams({embed:'1',seed:String(m.seed>>>0)});
+        if(see){q.set('hp',String(m.hp|0));if(m.bhp)q.set('bhp',String(m.bhp|0));q.set('name',m.name||'');if(m.look)q.set('look',m.look);}
+        kampf=document.createElement('iframe');kampf.id='kampf';kampf.title='Kampf';kampf.src=(see?'seekampf.html?':'landgang.html?')+q;document.body.appendChild(kampf);
+      },420);}
+  }else if(kampf&&e.source===kampf.contentWindow){
+    if(m.t==='bereit'){setTimeout(()=>{wipe(false);kampf.focus();},250);}
+    else if(m.t==='ende'){wipe(true,m.win?'Sieg!':'Zurück an Bord…','');
+      setTimeout(()=>{kampf.remove();kampf=null;send(welt,{t:'weiter',res:m});welt.focus();setTimeout(()=>{wipe(false);busy=false;},200);},450);}
+  }
+});
+})();
+</script>
+</body>
+</html>
