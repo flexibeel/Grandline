@@ -12,6 +12,7 @@ Kostenloses Fanprojekt von Felix (flexibeel) und Freunden. Es gibt kein Geld dam
 - Jede Änderung auf einem eigenen Zweig (`feature/...` oder `fix/...`), nie direkt auf `main`.
 - `main` ist live (GitHub Pages, thegreatline.de). Auf `main` nur nach ausdrücklichem „schalte live“ von Felix.
 - Vor jedem Live-Gang: Eintrag in `js/data/patchnotes.js`, dann `python3 tools/bump-version.py` (sonst laden Browser die alte Version).
+- `bump-version.py` bündelt dabei alle Skripte nach `js/build/` und verkleinert die CSS (`css/style.min.css`). Bearbeitet werden weiter die Einzeldateien. Neue Skripte zwischen die BUNDLE-Marker in `index.html` schreiben, sie landen automatisch in `tools/bundles.json`. Zum Verkleinern braucht es `npm i -g terser lightningcss-cli`.
 - Mehrere kleine Commits pro Zweig sind gut. Zusammengeführt wird erst, wenn alles fertig und abgesegnet ist.
 
 ## Datenbank (Supabase-Projekt „Grandline“)
