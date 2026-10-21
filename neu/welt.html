@@ -60,6 +60,23 @@ body.title .ui *{pointer-events:none!important}
 #wMap .btn{width:100%;background:#9be27a;color:var(--wood);text-shadow:none;font-size:14px}
 #wGo{width:100%;min-height:42px}
 #tL{font:700 13px/1.5 var(--px);position:relative;margin-top:4px}#tL:empty{display:none}
+#tL .it{display:inline-block;padding:0 2px}#tL small{font-weight:400}.bes{display:inline-block;background:#9be27a;color:var(--wood);text-shadow:none;padding:0 4px;border-radius:2px;font-size:11px;margin-left:4px;animation:blink .6s steps(2) infinite}
+/* Ausruestung */
+#eq{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(24,22,48,.62);z-index:26;padding:12px}
+#eq.on{display:flex}
+#eq .wbox{width:min(400px,100%);max-height:calc(100% - 8px);overflow:hidden;grid-template-rows:auto auto auto auto 1fr auto}
+.eT{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}
+.eT .btn{min-height:36px;font-size:12px;padding:4px;background:#d9cfbc;color:var(--wood);text-shadow:none}.eT .btn.on{background:var(--gold)}
+.eS{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}
+.ec{background:#fbf6ea;color:var(--wood);text-shadow:none;border:3px solid var(--wood);border-radius:4px;padding:4px;display:grid;justify-items:center;gap:2px;font:700 10px/1.15 var(--px);text-align:center;min-height:86px;cursor:pointer}
+.ec img,.er img{width:32px;height:32px;image-rendering:pixelated;background:#e9dfcb;border:2px solid var(--rc,#2b1d14);border-radius:3px}
+.ec small,.er small{font-weight:400;opacity:.85}.ec.empty{opacity:.55;cursor:default}
+#eSum{font-size:11px;text-align:center;font-weight:400}
+#eBag{overflow:auto;display:grid;gap:5px;align-content:start;min-height:60px;padding-right:2px}
+.er{background:#fbf6ea;color:var(--wood);text-shadow:none;border:3px solid var(--wood);border-radius:4px;padding:5px;display:grid;grid-template-columns:36px 1fr auto;gap:2px 7px;align-items:center;font:700 11px/1.2 var(--px)}
+.er img{grid-row:1/3}.er .d{font-size:10px}.er .up{color:#2f6a2e}.er .dn{color:#9a2a22}
+.er .bb{grid-row:1/3;grid-column:3;display:grid;gap:4px}.er .bb .btn{font-size:10px;padding:4px 6px;min-height:0;background:var(--gold);color:var(--wood);text-shadow:none}.er .bb .btn.x{background:#d9cfbc}
+#eBag:empty:before{content:'Noch nichts gefunden. Kisten und Bosse in Höhlen lassen Ausrüstung fallen!';font:400 11px/1.4 var(--px);text-align:center;padding:8px}
 #marks{position:fixed;inset:0;pointer-events:none}
 .mk{position:absolute;width:0;height:0}
 .mk i{position:absolute;left:-9px;top:-9px;width:12px;height:12px;border:3px solid var(--wood);background:#ffe28a;transform:rotate(45deg);box-shadow:0 0 0 2px rgba(255,226,138,.35)}
@@ -131,6 +148,7 @@ body.title .ui *{pointer-events:none!important}
 <div id="menu">
   <div>Neue Welt · Beta</div>
   <button class="btn" data-m="ruhig">Ruhige Kamera: <span id="mRu">aus</span><br><small>Kein Wackeln, sanftes Folgen</small></button>
+  <button class="btn" data-m="eq">Ausrüstung<br><small>Waffen, Kleidung, Schmuck der Crew</small></button>
   <button class="btn" data-m="leg">Legende<br><small>Was die Randzeichen heißen</small></button>
   <button class="btn" data-m="titel">Zum Titelbild<br><small>Fahrt wird gemerkt</small></button>
   <button class="btn" data-m="neu">Karte neu würfeln<br><small>Neue Inseln, Bord-Gold weg. Werft bleibt.</small></button>
@@ -141,6 +159,7 @@ body.title .ui *{pointer-events:none!important}
 <button class="btn ui" id="act"><b id="actI">⚓</b><span id="actT">Anlegen</span><span class="key">E / Enter</span></button>
 <div id="tip" class="ui"></div>
 <div id="warn">!</div>
+<div id="eq"><div class="wbox"><h3>🎒 Ausrüstung</h3><div class="eT" id="eTabs"></div><div class="eS" id="eSlots"></div><div id="eSum"></div><div id="eBag"></div><button class="btn" id="eGo">Fertig</button></div></div>
 <div id="truhe"><div id="rays"></div><div id="chest"><canvas id="chB" width="32" height="16"></canvas><canvas id="chL" width="32" height="8"></canvas></div>
   <div id="tT">Schatz!</div><div id="tS"></div><div id="tG"><span class="coin"></span><span id="tGn">0</span></div><div id="tL"></div>
   <button class="btn" id="tGo">Weiter</button></div>
@@ -163,10 +182,11 @@ function rng(seed){let s=seed>>>0;return()=>{s=(s+0x6D2B79F5)>>>0;let t=s;t=Math
 const SK='gl.neu.v1';
 function fresh(){return {v:1,seed:(Math.random()*4294967296)>>>0,x:1.9,z:8.4,h:Math.PI/2,hp:100,gold:0,bank:0,found:[0],done:[],beaten:[],trips:0,fights:0,tips:{},mats:{pl:0,ei:0,se:0},up:{r:0,k:0,s:0},tier:0};}
 // alte Staende (v1 ohne mats/up/tier) bekommen die fehlenden Felder
-function fix(v){v.mats=Object.assign({pl:0,ei:0,se:0},v.mats);v.up=Object.assign({r:0,k:0,s:0},v.up);v.tier=Math.max(0,v.tier|0);
+function fix(v){v.eq=Array.isArray(v.eq)&&v.eq.length===3?v.eq.map(e=>Object.assign({w:null,k:null,s:null},e)):[{w:null,k:null,s:null},{w:null,k:null,s:null},{w:null,k:null,s:null}];v.bag=Array.isArray(v.bag)?v.bag.slice(0,24):[];
+  v.mats=Object.assign({pl:0,ei:0,se:0},v.mats);v.up=Object.assign({r:0,k:0,s:0},v.up);v.tier=Math.max(0,v.tier|0);
   for(const k in v.mats)v.mats[k]=Math.max(0,v.mats[k]|0);for(const k in v.up)v.up[k]=cl(v.up[k]|0,0,3);v.tips=v.tips||{};return v;}
 function load(){try{const v=JSON.parse(localStorage.getItem(SK)||'null');if(v&&v.v===1&&typeof v.seed==='number')return fix(Object.assign(fresh(),v));}catch(e){}return null;}
-let S=load()||fresh();
+let S=load()||fix(fresh());
 const mhp=()=>100+25*S.up.r,upStr=()=>S.up.r+'.'+S.up.k+'.'+S.up.s,tierK=()=>1+0.25*S.tier;
 S.hp=cl(S.hp,1,mhp());
 const OK='gl.neu.opt';let OPT={ruhig:0};try{Object.assign(OPT,JSON.parse(localStorage.getItem(OK)||'{}'));}catch(e){}
@@ -751,10 +771,10 @@ function fight(o){
   if(lock>0)return;lock=99;fightCtx=o;sh.v*=0.3;joyEnd();keys.clear();$('act').classList.remove('on');
   banner(o.art==='see'?o.name+' greift an!':o.art==='hoehle'?'Ab in die Höhle!':'Landgang!',o.art==='see'?'Kanonen klar!':o.name+(o.art==='hoehle'?' wartet im Dunkeln.':' wartet schon.'));
   setTimeout(()=>{S.fights++;save();
-    if(o.art==='hoehle')tell({t:'kampf',art:'hoehle',seed:o.seed>>>0,boss:o.boss,tier:S.tier,name:o.name,up:upStr()});
+    if(o.art==='hoehle')tell({t:'kampf',art:'hoehle',seed:o.seed>>>0,boss:o.boss,tier:S.tier,name:o.name,up:upStr(),g:gStr()});
     else if(o.art==='see'){const E=WORLD.E.find(e=>e.id===o.foe),ba=E?Math.atan2(E.z-sh.z,E.x-sh.x):0;
       tell({t:'kampf',art:'see',seed:(o.seed^(S.fights*0x9E3779B1))>>>0,hp:S.hp,mhp:mhp(),bhp:o.bhp||0,name:o.name,look:o.look||'',up:upStr(),tier:S.tier,fl:1,ba:Math.round(ba*100)/100,ph:Math.round(sh.h*100)/100});}
-    else tell({t:'kampf',art:'land',seed:(o.seed^(S.fights*0x9E3779B1))>>>0,name:o.name,up:upStr()});
+    else tell({t:'kampf',art:'land',seed:(o.seed^(S.fights*0x9E3779B1))>>>0,name:o.name,up:upStr(),g:gStr()});
     if(!EMB){paused=false;lock=0;}},900);
 }
 function afterFight(res){
@@ -763,7 +783,8 @@ function afterFight(res){
   if(o.art==='see'){
     const E=WORLD.E.find(e=>e.id===o.foe);
     if(res.win){E.dead=true;S.beaten.push(E.id);S.hp=cl(res.hp|0,1,mhp());const g=Math.round((E.ai[3]+(E.look==='lila'?E.id*18:0))*tierK());S.gold+=g;save();hudHp();logLine();
-      if(E.look==='boss')setTimeout(()=>truhe('Krähenbart versenkt!','Der Schrecken der Meere geht baden. Sein Gold nicht.',g,1),400);
+      if(E.look==='boss'){const list=[];lootIn([roll([20,45,28,7],'Krähenbart')],list);setTimeout(()=>truhe('Krähenbart versenkt!','Der Schrecken der Meere geht baden. Sein Gold nicht.',g,1,list),400);}
+      else if(Math.random()<0.3){const list=[];lootIn([roll([60,30,9,1])],list);setTimeout(()=>truhe(E.name+' versenkt!','Im Treibgut schwimmt was Brauchbares.',g,0,list),400);}
       else{setGold();banner('+'+g+' Gold',E.name+' geht baden.');crewJump(2);}
       E.g.visible=false;splash(E.x,E.z,20);}
     else if(res.flee){const lost=Math.ceil(S.gold*0.15);S.gold-=lost;S.hp=cl(res.hp|0,1,mhp());E.chase=0;E.cool=25;
@@ -777,12 +798,14 @@ function afterFight(res){
     if(res.win&&I&&!I.done){I.done=true;S.done.push(I.id);if(I.flag)I.flag.material.color.set(C.r);for(const f of I.torch||[])f.visible=false;}
     save();logLine();
     const list=['pl','ei','se'].filter(q=>got[q]).map(q=>'<span class="mt '+q+'"></span>+'+matN(q,got[q]));if(res.chests)list.push((res.chests|0)+' Truhe'+(res.chests==1?'':'n')+' geknackt');
+    const loot=[];if(res.win)loot.push(roll([0,45,40,15],I&&I.boss?(BOSS.find(b=>b[0]===I.boss)||[])[1]:''));for(let n=Math.floor((res.chests|0)/(res.win?4:6));n>0;n--)loot.push(roll([50,32,14,4]));
+    lootIn(loot,list);
     if(res.win)setTimeout(()=>truhe('Höhle geschafft!',o.name+' gibt auf und winkt mit einem Taschentuch. Die Fackeln gehen aus.',g,1,list),300);
     else if(g||list.length)setTimeout(()=>truhe('Rausgeflitzt!','Die Hälfte der Beute habt ihr retten können. '+o.name.split(' ').pop()+' wartet weiter.',g,0,list),300);
     else banner('Rückzug!',o.name+' kichert im Dunkeln.');
   }else{
     const I=WORLD.L.find(x=>x.id===o.island);
-    if(res.win){I.done=true;S.done.push(I.id);const g=180;S.gold+=g;save();if(I.flag)I.flag.material.color.set(C.r);setTimeout(()=>truhe('Bucht erobert!','Marlo ist verschnürt. Seine Truhe gehört jetzt euch.',g,1),300);}
+    if(res.win){I.done=true;S.done.push(I.id);const g=180;S.gold+=g;const list=[];lootIn([roll([35,40,20,5])],list);save();if(I.flag)I.flag.material.color.set(C.r);setTimeout(()=>truhe('Bucht erobert!','Marlo ist verschnürt. Seine Truhe gehört jetzt euch.',g,1,list),300);}
     else{banner('Rückzug!','Marlo lacht noch. Versucht es später nochmal.');}
   }
 }
@@ -832,15 +855,79 @@ function closeMenu(){$('menu').classList.remove('on');legToggle(false);}
 const ruTxt=()=>$('mRu').textContent=OPT.ruhig?'an':'aus';ruTxt();
 $('menuB').addEventListener('click',e=>{e.stopPropagation();legToggle(false);$('mInfo').textContent='Seekarte '+(S.tier+1)+' · Gold an Bord '+S.gold+' · im Hafen '+S.bank+' · Fahrten '+S.trips;$('menu').classList.toggle('on');});
 // Neue Seekarte: Hafenkasse, Material, Werft und Stufe bleiben
-function newMap(up){const keep={bank:S.bank+(up?S.gold:0),mats:S.mats,up:S.up,tips:S.tips,trips:S.trips,fights:S.fights,tier:S.tier+(up?1:0)};S=fix(Object.assign(fresh(),keep));
+function newMap(up){const keep={bank:S.bank+(up?S.gold:0),mats:S.mats,up:S.up,eq:S.eq,bag:S.bag,tips:S.tips,trips:S.trips,fights:S.fights,tier:S.tier+(up?1:0)};S=fix(Object.assign(fresh(),keep));
   try{localStorage.setItem(SK,JSON.stringify(S));sessionStorage.setItem('gl.neu.los','1');}catch(e){}location.reload();}
 for(const b of document.querySelectorAll('#menu [data-m]'))b.addEventListener('click',e=>{const m=b.dataset.m;
   if(m==='ruhig'){OPT.ruhig=OPT.ruhig?0:1;saveOpt();ruTxt();return;}
   closeMenu();
   if(m==='leg'){e.stopPropagation();legToggle(true);}
+  else if(m==='eq'){if(mode==='sail'&&!trOn&&!wfOn)eqOpen(0);}
   else if(m==='titel'){save();toTitle();tell({t:'titel'});}
   else if(m==='neu'&&confirm('Karte neu würfeln? Inseln und Gold an Bord sind dann weg. Hafenkasse, Material und Werft bleiben.'))newMap(false);});
 addEventListener('pointerdown',e=>{if(!e.target.closest('#leg,#goal,#menu,#menuB'))legToggle(false);});
+
+// ---------- Ausruestung (Beute-System aus der alten Version, crewgear.js): Waffe, Kleidung, Schmuck je Crew ----------
+// Werte: a = % Schaden, h = % Leben, u = % Ulti-Ladung. Wirken in Bucht und Hoehle (landgang.html, Option g).
+const BAGMAX=24,CREW=['Kapitän','Brakk','Nele'],SLOTS=[['w','Waffe'],['k','Kleidung'],['s','Schmuck']];
+const GB=[{id:'saebel',sl:'w',n:'Säbel',m:'a',art:'sword'},{id:'entermesser',sl:'w',n:'Entermesser',m:'a',art:'knife'},{id:'dreizack',sl:'w',n:'Dreizack',m:'a',art:'trident'},{id:'kochmesser',sl:'w',n:'Kochmesser',m:'a',art:'knife'},
+  {id:'mantel',sl:'k',n:'Kapitänsmantel',m:'h',art:'coat'},{id:'weste',sl:'k',n:'Lederweste',m:'h',art:'vest'},{id:'kopftuch',sl:'k',n:'Kopftuch',m:'h',art:'bandana'},
+  {id:'ring',sl:'s',n:'Goldring',m:'u',art:'ring'},{id:'kompass',sl:'s',n:'Kompass',m:'u',art:'compass'},{id:'amulett',sl:'s',n:'Amulett',m:'u',art:'amulet'},{id:'perlen',sl:'s',n:'Perlenkette',m:'u',art:'pearls'}];
+const RAR=[['Gewöhnlich','#8a8478'],['Selten','#3a7ad8'],['Episch','#8a4ac8'],['Legendär','#c8901a']],RW=[1,1.2,1.45,1.8],SCRAP=[6,14,35,90];
+const STN={a:'Schaden',h:'Leben',u:'Ulti-Ladung'},SUFX={a:'der Wucht',h:'der Zähigkeit',u:'des Donners'},MAIN0={a:8,h:10,u:12},SW={a:1.2,h:0.8,u:0.7};
+const IP={k:'#2b1d14',s:'#dfe3ea',S:'#9aa0b0',y:'#f2c94c',Y:'#b8862a',b:'#b07a44',B:'#6e4524',r:'#d8433a',R:'#9a2a22',w:'#fbf6ea',W:'#d9cfbc',g:'#5aa24a',p:'#f8d0e4',c:'#7fe0ff',n:'#3a64b0',N:'#24447a'};
+const ART={
+ sword:['.............kk.','............ksk.','...........kswk.','..........kswk..','.........kswk...','........kswk....','.......kswk.....','..kk..kswk......','..kyk.kswk......','...kyyswk.......','....kyyk........','...kyYyk........','..kbbk.kyk......','.kbBk...kk......','.kBk............','..k.............'],
+ knife:['................','...........kkk..','..........kswsk.','.........kswssk.','........kswssk..','.......kswssk...','......kswssk....','.....kswssk.....','....kkkkkk......','...kyyyk........','..kbbk..........','.kbBk...........','kbBk............','kBk.............','.k..............','................'],
+ trident:['..k....k....k...','.kyk..kyk..kyk..','.kyk..kyk..kyk..','.kyk..kyk..kyk..','.kyyk.kyk.kyyk..','..kyyyyyyyyyk...','...kkkkykkkk....','......kyk.......','......kbk.......','......kbk.......','......kBk.......','......kbk.......','......kBk.......','......kbk.......','......kBk.......','.......k........'],
+ coat:['....kk....kk....','...krrk..krrk...','..krrrrkkrrrrk..','.krrrrykkyrrrrk.','.krrrrrkkrrrrrk.','.krrRryrryrRrrk.','.krrRrrrrrrRrrk.','.kkkRryrryrRkkk.','..kRrrrrrrrrRk..','..kRrryrryrrRk..','..kRrrrrrrrrRk..','..kRrrrrrrrrRk..','..kRrrrkkrrrRk..','..kkkkk..kkkkk..','................','................'],
+ vest:['................','....kk....kk....','...kBbk..kbBk...','..kBbbbkkbbbBk..','..kBbbbywbbbBk..','..kBbbbwwbbbBk..','..kkBbbywbbBkk..','...kBbbwwbbBk...','...kBbbywbbBk...','...kBbbwwbbBk...','...kBbbywbbBk...','...kBBbwwbBBk...','...kkkkkkkkkk...','................','................','................'],
+ bandana:['................','................','.....kkkkkk.....','...kknnnnnnkk...','..knnwnnnnwnnk..','.knnnnnnnnnnnnk.','.knwnnnwnnnnwnkk','.kkkkkkkkkkkknNk','...........knNnk','............kNk.','.............k..','................','................','................','................','................'],
+ ring:['................','.......kk.......','......kcck......','.....kcwcck.....','......kcck......','.....kykkyk.....','....kyk..kyk....','...kyk....kyk...','...kyk....kYk...','...kyk....kYk...','...kyk....kYk...','....kyk..kYk....','.....kyyyYk.....','......kkkk......','................','................'],
+ compass:['................','.....kkkkkk.....','....kYyyyyYk....','...kYkkkkkkYk...','..kYkwwwwwwkYk..','..kykwwrwwwkyk..','..kykwwrrwwkyk..','..kykwwwkwwkyk..','..kykwwnnwwkyk..','..kykwwwnwwkyk..','..kYkwwwwwwkYk..','...kYkkkkkkYk...','....kYyyyyYk....','.....kkkkkk.....','................','................'],
+ amulet:['....kk....kk....','....kyk..kyk....','.....kyk.kyk....','.....kyk.kyk....','......kykyk.....','......kyyyk.....','.....kkkkkkk....','....kYyyyyyYk...','...kYygggyyYk...','...kYgcggyyYk...','...kYygggyyYk...','....kYyyyyYk....','.....kkkkkkk....','................','................','................'],
+ pearls:['................','..kk........kk..','..kwk......kwk..','..kwk......kwk..','...kwk....kwk...','...kwk....kwk...','....kwk..kwk....','....kwkkkkwk....','.....kwwwwk.....','......kppk......','.....kpwppk.....','.....kppppk.....','......kkkk......','................','................','................']};
+const artC={};function artUrl(k){if(!artC[k]){const c=document.createElement('canvas');c.width=c.height=16;const x=c.getContext('2d');ART[k].forEach((r,y)=>{for(let i=0;i<16;i++){const ch=r[i];if(ch&&ch!=='.'){x.fillStyle=IP[ch];x.fillRect(i,y,1,1);}}});artC[k]=c.toDataURL();}return artC[k];}
+const gbOf=it=>GB.find(b=>b.id===it.b)||GB[0],score=it=>it?SW.a*it.v.a+SW.h*it.v.h+SW.u*it.v.u:0;
+function roll(w,boss){
+  let x=Math.random()*w.reduce((a,b)=>a+b,0),r=0;while(r<3&&(x-=w[r])>=0)r++;
+  const b=GB[Math.floor(Math.random()*GB.length)],t=S.tier,k=(1+0.25*t)*RW[r],v={a:0,h:0,u:0};
+  v[b.m]=Math.max(1,Math.round(MAIN0[b.m]*k*(0.85+Math.random()*0.3)));let top=null;
+  for(let i=0;i<r;i++){const st=['a','h','u'][Math.floor(Math.random()*3)],n=Math.max(1,Math.round(MAIN0[st]*0.5*k*(0.8+Math.random()*0.4)));v[st]+=n;if(!top||n>top[1])top=[st,n];}
+  const n=r===3&&boss?b.n+' von '+boss.split(' ').pop():r>0?b.n+' '+SUFX[top?top[0]:b.m]:b.n;
+  return {id:(Date.now().toString(36)+Math.random().toString(36).slice(2,6)),b:b.id,r,t,v,n};}
+const statTxt=v=>['a','h','u'].filter(k=>v[k]).map(k=>'+'+v[k]+' % '+STN[k]).join(' · ');
+// fuer wen ist der Fund am besten? (groesster Zugewinn im passenden Platz)
+function bestFor(it){const sl=gbOf(it).sl;let bi=-1,bd=0;for(let i=0;i<3;i++){const d=score(it)-score(S.eq[i][sl]);if(d>bd+0.01){bd=d;bi=i;}}return bi;}
+function gStr(){return S.eq.map(e=>{const v={a:0,h:0,u:0};for(const k of'wks')if(e[k])for(const q of'ahu')v[q]+=e[k].v[q];return [v.a,v.h,v.u].map(n=>Math.min(150,n|0)).join('.');}).join('|');}
+// Funde einsacken: Truhen-Liste fuellen, volle Tasche = schlechtestes Teil wird zu Gold
+function lootIn(items,list){let better=0;
+  for(const it of items){const c=RAR[it.r][1],b=bestFor(it);if(b>=0)better++;
+    list.push('<span class="it" style="color:'+(it.r?c:'#fbf6ea')+'">◆ '+it.n+'</span> <small>'+statTxt(it.v)+'</small>'+(b>=0?'<span class="bes">Besser für '+CREW[b]+'!</span>':''));
+    S.bag.push(it);}
+  while(S.bag.length>BAGMAX){let wi=0;S.bag.forEach((it,i)=>{if(score(it)<score(S.bag[wi]))wi=i;});const w=S.bag.splice(wi,1)[0];S.bank+=SCRAP[w.r];}
+  if(items.length)afterTr=better?()=>eqOpen(-1):()=>tip('eq','Neue Ausrüstung in der Tasche! <b>Menü ☰ → Ausrüstung</b>',7);}
+let eqSel=0;
+function eqOpen(i){if(i<0){const it=S.bag[S.bag.length-1];i=it?Math.max(0,bestFor(it)):0;}eqSel=i;wfOn=true;wfT=performance.now();lock=99;joyEnd();keys.clear();$('act').classList.remove('on');$('tip').classList.remove('on');eqDraw();$('eq').classList.add('on');}
+function eqClose(){$('eq').classList.remove('on');wfOn=false;lock=0.4;save();}
+function eqDraw(){
+  $('eTabs').innerHTML=CREW.map((n,i)=>'<button class="btn'+(i===eqSel?' on':'')+'" data-c="'+i+'">'+n+'</button>').join('');
+  const E=S.eq[eqSel];
+  $('eSlots').innerHTML=SLOTS.map(([k,t])=>{const it=E[k];return it?'<div class="ec" data-s="'+k+'" style="--rc:'+RAR[it.r][1]+'"><img alt="" src="'+artUrl(gbOf(it).art)+'"><span style="color:'+RAR[it.r][1]+'">'+it.n+'</span><small>'+statTxt(it.v)+'</small></div>':
+    '<div class="ec empty"><img alt="" src="'+artUrl(t==='Waffe'?'sword':t==='Kleidung'?'vest':'ring')+'" style="opacity:.3"><span>'+t+'</span><small>leer</small></div>';}).join('');
+  const sum={a:0,h:0,u:0};for(const k of'wks')if(E[k])for(const q of'ahu')sum[q]+=E[k].v[q];
+  $('eSum').textContent=CREW[eqSel]+': '+(statTxt(sum)||'noch ohne Ausrüstung')+' · Tippen auf ein Teil = ablegen';
+  const bag=S.bag.map((it,i)=>[it,i]).sort((x,y)=>y[0].r-x[0].r||score(y[0])-score(x[0]));
+  $('eBag').innerHTML=bag.map(([it,i])=>{const sl=gbOf(it).sl,cur=E[sl],d=score(it)-score(cur),c=RAR[it.r][1];
+    return '<div class="er" style="--rc:'+c+'"><img alt="" src="'+artUrl(gbOf(it).art)+'"><div><span style="color:'+c+'">'+it.n+'</span> <small>'+RAR[it.r][0]+'</small></div>'+
+      '<div class="bb"><button class="btn" data-e="'+i+'">Anlegen</button><button class="btn x" data-x="'+i+'">Zerlegen +'+SCRAP[it.r]+'</button></div>'+
+      '<div class="d">'+statTxt(it.v)+' <b class="'+(d>0.01?'up':d<-0.01?'dn':'')+'">'+(cur?(d>0.01?'▲ besser':d<-0.01?'▼ schwächer':'= gleich'):'▲ Platz frei')+'</b></div></div>';}).join('');
+  for(const b of $('eTabs').querySelectorAll('[data-c]'))b.onclick=()=>{eqSel=+b.dataset.c;eqDraw();};
+  for(const b of $('eSlots').querySelectorAll('[data-s]'))b.onclick=()=>{const k=b.dataset.s;if(S.bag.length>=BAGMAX){banner('Tasche voll','Erst etwas zerlegen.');return;}S.bag.push(E[k]);E[k]=null;eqDraw();};
+  for(const b of $('eBag').querySelectorAll('[data-e]'))b.onclick=()=>{const it=S.bag[+b.dataset.e],sl=gbOf(it).sl;S.bag.splice(+b.dataset.e,1);if(E[sl])S.bag.push(E[sl]);E[sl]=it;crewJump(1);eqDraw();};
+  for(const b of $('eBag').querySelectorAll('[data-x]'))b.onclick=()=>{const it=S.bag.splice(+b.dataset.x,1)[0];S.bank+=SCRAP[it.r];logLine();eqDraw();};
+}
+$('eGo').addEventListener('click',eqClose);
+addEventListener('keydown',e=>{if($('eq').classList.contains('on')&&performance.now()-wfT>400&&e.code==='Escape'){e.preventDefault();eqClose();}});
 
 // ---------- Werft im Heimathafen ----------
 let wfOn=false,wfT=0;

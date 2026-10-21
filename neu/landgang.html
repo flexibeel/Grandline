@@ -186,6 +186,10 @@ function ray(s,x,z,dx,dz,max){for(let t=0;t<max;t+=0.1){for(const o of s.ob)if(!
 // Mult: Kraft(0) > Technik(1) > Klinge(2) > Kraft(0)
 const mult=(a,b)=>b===(a+1)%3?1.5:a===(b+1)%3?0.67:1;
 function mk(s,side,kind,style,x,z,hm){const c=K.u[kind],mh=Math.round(c.hp*(hm||1));s.u.push({id:s.u.length,side,kind,style,x,z,vx:0,vz:0,h:side==='p'?-Math.PI/2:Math.PI/2,hp:mh,max:mh,cd:15+s.u.length*4,sw:0,tg:-1,ult:0,bound:0,as:0,dead:false});}
+// Ausruestung der Crew: g = "a.h.u|a.h.u|a.h.u" (Prozent Schaden, Leben, Ulti-Ladung fuer Kapitaen, Brakk, Nele)
+function wear(s,g){if(typeof g!=='string'||!/^(\d{1,3}\.\d{1,3}\.\d{1,3}\|){2}\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(g))return;
+  g.split('|').forEach((p,i)=>{const[a,h,u]=p.split('.').map(v=>Math.min(200,+v)),U=s.u[i];if(!U)return;U.hp=U.max=Math.round(U.max*(1+h/100));U.am=1+a/100;U.um=1+u/100;
+    let x=s.hash;for(const v of[a,h,u]){x^=v;x=Math.imul(x,16777619)>>>0;}s.hash=x;});}
 // Werft-Rumpf (0-3): +10 % Leben pro Stufe fuer Kapitaen und Maats
 function create(seed,o){
   seed=seed>>>0;o=o||{};const hm=1+0.1*Math.max(0,Math.min(3,o.rumpf|0));
@@ -193,7 +197,7 @@ function create(seed,o){
     bs:{st:'move',pt:0,ring:100,wind:0,shot:K.shot.first,aa:[]},stats:{ults:0,cuts:0,net:'-',counters:0,slams:0,shots:0,blocked:0,shotHits:0,crates:0}};
   mk(s,'p','cap',0,0,6.2,hm);mk(s,'p','mate',1,-1.4,7.2,hm);mk(s,'p','mate',2,1.4,7.2,hm);
   mk(s,'e','boss',1,0,-3.6);mk(s,'e','grunt',0,-2.8,-1.8);mk(s,'e','grunt',2,2.8,-1.8);
-  return s;
+  wear(s,o.g);return s;
 }
 const reach=(a,t)=>K.u[a.kind].rng+K.u[t.kind].rad;
 function near(s,u,side,maxd){let best=null,bd=maxd;for(const t of s.u){if(t.dead||t.side!==side)continue;const d=dist(u,t);if(d<bd){bd=d;best=t;}}return best;}
@@ -216,10 +220,10 @@ function moveTo(s,u,tx,tz,v,stop){
 const brake=(s,u)=>accel(u,0,0,3);
 function dmg(s,src,t,base,kind){
   if(t.dead||(t.kind==='boss'&&s.bs.st==='net'))return;
-  const m=src?mult(src.style,t.style):1;let n=base*m;
+  const m=src?mult(src.style,t.style):1;let n=base*m*(src&&src.am||1);
   if(t.kind==='boss'&&s.bs.st==='stun')n*=K.wind.stunMul;
   n=Math.max(1,Math.round(n));t.hp=Math.max(0,t.hp-n);
-  if(kind==='hit'&&src)src.ult=Math.min(100,src.ult+K.ult.hit);
+  if(kind==='hit'&&src)src.ult=Math.min(100,src.ult+K.ult.hit*(src.um||1));
   if(t.side==='p')t.ult=Math.min(100,t.ult+K.ult.hurt);
   s.ev.push({k:kind,id:t.id,src:src?src.id:-1,n,m,x:t.x,z:t.z});
   if(t.hp<=0){t.dead=true;t.sw=0;t.vx=t.vz=0;s.ev.push({k:'down',id:t.id});if(s.focus===t.id)s.focus=-1;}
@@ -391,7 +395,7 @@ function simulate(seed,inputs,o){
   while(!s.over){const now=[];while(ip<list.length&&list[ip].step===s.step)now.push(list[ip++]);while(ip<list.length&&list[ip].step<s.step)ip++;step(s,now);}
   return summary(s);
 }
-return {HZ,DT,K,OB,sdn,ray,hide,mult,create,step,simulate,summary,r2,X:{rnd,around,accel,moveTo,cl,dist,brake}};
+return {HZ,DT,K,OB,sdn,ray,hide,mult,create,step,simulate,summary,r2,X:{rnd,around,accel,moveTo,cl,dist,brake,wear}};
 })();
 if(typeof module!=='undefined')module.exports=LK;
 /*END*/
@@ -401,7 +405,7 @@ if(typeof module!=='undefined')module.exports=LK;
 // Eingaben wie LK, dazu {step,type:'tap',k} (Perle zurueckwerfen).
 var HK=(function(){
 'use strict';
-const L=LK.K,{rnd,around,accel,moveTo,cl,dist,brake}=LK.X,sdn=LK.sdn,mult=LK.mult,r2=LK.r2,HZ=30,DT=1/HZ,MAXSTEP=HZ*240;
+const L=LK.K,{rnd,around,accel,moveTo,cl,dist,brake,wear}=LK.X,sdn=LK.sdn,mult=LK.mult,r2=LK.r2,HZ=30,DT=1/HZ,MAXSTEP=HZ*240;
 const U0={bat:{hp:34,atk:4,cd:24,rng:0.8,v:3.2,rad:0.3,st:2,g:2},crab:{hp:62,atk:6,cd:32,rng:0.85,v:1.9,rad:0.38,st:0,g:3},
   slime:{hp:44,atk:5,cd:40,rng:0.8,v:1.1,rad:0.42,st:1,g:3},
   marlo:{hp:1300,atk:11,cd:48,rng:1.05,v:1.8,rad:0.65,st:1},toni:{hp:1400,atk:13,cd:54,rng:1.15,v:1.45,rad:0.75,st:0},
@@ -479,7 +483,7 @@ function create(seed,o){
     focus:-1,ph:1,net:null,tx:0,tz:0,mv:0,mx:0,mz:0,kcd:0,bi:-1,
     bs:{st:'move',pt:0,pd:1,ring:100,wind:0,shot:L.shot.first,aa:[],ao:null,t1:0,t2:0,t3:0,back:0,called:0,rained:0},
     loot:{gold:0,pl:0,ei:0,se:0,chests:0,pots:0},stats:{ults:0,cuts:0,net:'-',counters:0,slams:0,shots:0,blocked:0,shotHits:0,crates:0,kills:0,back:0}};
-  gen(s);return s;}
+  gen(s);wear(s,o.g);return s;}
 function near(s,u,side,maxd,act){let best=null,bd=maxd;for(const t of s.u){if(t.dead||t.side!==side||(act&&!t.act))continue;const d=dist(u,t);if(d<bd){bd=d;best=t;}}return best;}
 function wake(s,i){const q=s.R[i];if(!q||q.act)return;q.act=true;for(const u of s.u)if(u.side==='e'&&u.room===i)u.act=true;s.ev.push({k:'room',i,boss:i===s.R.length-1});}
 function addLoot(s,l,x,z){const g=s.loot;if(l.g)g.gold+=l.g;for(const m of['pl','ei','se'])if(l[m])g[m]+=l[m];
@@ -488,12 +492,12 @@ function addLoot(s,l,x,z){const g=s.loot;if(l.g)g.gold+=l.g;for(const m of['pl',
 function dmg(s,src,t,base,kind){
   const b=s.u[s.bi],bs=s.bs;
   if(t.dead||(t===b&&bs.st==='net'))return;
-  const m=src?mult(src.style,t.style):1;let n=base*m;
+  const m=src?mult(src.style,t.style):1;let n=base*m*(src&&src.am||1);
   if(t.side==='p')n*=s.dm;
   if(t===b){if(bs.st==='stun')n*=L.wind.stunMul;
     if(s.boss==='perla'&&bs.st!=='open'&&bs.st!=='stun'&&kind!=='phit'&&kind!=='chit'){n*=K.perla.shell;s.ev.push({k:'klonk',x:t.x,z:t.z});}}
   n=Math.max(1,Math.round(n));t.hp=Math.max(0,t.hp-n);
-  if(kind==='hit'&&src)src.ult=Math.min(100,src.ult+L.ult.hit);
+  if(kind==='hit'&&src)src.ult=Math.min(100,src.ult+L.ult.hit*(src.um||1));
   if(t.side==='p')t.ult=Math.min(100,t.ult+L.ult.hurt);
   if(t.side==='e'&&!t.act)wake(s,t.room);
   s.ev.push({k:kind,id:t.id,src:src?src.id:-1,n,m,x:t.x,z:t.z});
@@ -713,6 +717,7 @@ let WPP=0.05;
 const hex=c=>new THREE.Color(c),$=id=>document.getElementById(id);
 const QS0=new URLSearchParams(location.search),EMB=QS0.has('embed'),OPT={rumpf:+QS0.get('rumpf')||+((QS0.get('up')||'').split('.')[0])||0};
 // Hoehle (Vertrag 21t): ?mode=hoehle&boss=marlo|toni|perla&tier=..&name=..
+if(QS0.get('g'))OPT.g=QS0.get('g');
 const CAVE=QS0.get('mode')==='hoehle',BOSSK=['marlo','toni','perla'].includes(QS0.get('boss'))?QS0.get('boss'):'marlo',G=CAVE?HK:LK;
 if(CAVE){OPT.boss=BOSSK;OPT.tier=Math.max(0,Math.min(9,+QS0.get('tier')||0));}
 const BN0={marlo:'Fadenmeister Marlo',toni:'Tropfstein-Toni',perla:'Muschelkönigin Perla'},BCOL={marlo:'#9b6fd1',toni:'#6fa8c8',perla:'#f0a0c8'};
