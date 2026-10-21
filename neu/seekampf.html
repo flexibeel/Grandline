@@ -4,17 +4,32 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
 <title>Fahrender Kampf</title>
+<link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@600;700&display=swap" rel="stylesheet">
 <style>
-:root{--sea:#4a5e90;--ink:#fbf6ea;--wood:#2b1d14;--gold:#f2c94c;--red:#d8433a;--hp:#5aa24a;--px:ui-monospace,Menlo,Consolas,monospace}
+:root{--sea:#4a5e90;--ink:#fbf6ea;--wood:#2b1d14;--gold:#f2c94c;--red:#d8433a;--hp:#5aa24a;--px:'Pixelify Sans',ui-monospace,Menlo,Consolas,monospace}
 html,body{margin:0;height:100%;background:var(--sea);overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none;font-family:var(--px);color:var(--ink)}
 #wrap{position:fixed;inset:0;overflow:hidden;background:var(--sea)}
 canvas{position:absolute;left:0;top:0;image-rendering:pixelated;image-rendering:crisp-edges}
-#hud{position:fixed;left:0;right:0;top:0;padding:calc(env(safe-area-inset-top) + 8px) 16px 0;pointer-events:none;display:grid;gap:5px}
+#hud{position:fixed;left:0;right:0;top:0;padding:calc(env(safe-area-inset-top) + 8px) 16px 0;pointer-events:none;display:grid;gap:6px;justify-items:center}
+.hpp{width:100%;max-width:420px;box-sizing:border-box;display:flex;align-items:center;gap:7px;background:linear-gradient(#8a5a30,#6e4524);border:3px solid var(--wood);border-radius:4px;box-shadow:0 3px 0 var(--wood),inset 0 2px 0 rgba(176,122,68,.6);padding:4px 7px 5px 4px}
+.por{position:static;width:30px;height:30px;flex:none;background:#bcd3e6;border:2px solid var(--wood);box-shadow:inset 0 0 0 1px rgba(251,246,234,.5)}
+.hbx{flex:1;min-width:0}
+.hbx .nm{display:flex;justify-content:space-between;align-items:baseline;gap:6px;font:700 12px/1 var(--px);text-shadow:1px 1px 0 var(--wood);margin-bottom:4px;white-space:nowrap}
+.hbx .nm small{font-size:10px;color:#ffe28a;margin-left:5px}
+.hbx .num{font-size:11px;opacity:.95}.hbx .num b{font-size:13px}
+.hbx>i{position:relative;display:block;height:10px;background:var(--wood);border:2px solid var(--wood);box-shadow:0 0 0 1px rgba(251,246,234,.4)}
+.hbx>i>b{display:block;height:100%;background:var(--hp);transition:width .12s steps(3);box-shadow:inset 0 -3px 0 rgba(0,0,0,.18),inset 0 2px 0 rgba(255,255,255,.25)}
+.hpp.boss .hbx>i>b{background:var(--red)}
+.hpp.low .hbx>i>b{animation:lowB .5s steps(1) infinite}
+@keyframes lowB{50%{filter:brightness(1.5)}}
+.hbx>i>em{position:absolute;top:-2px;bottom:-2px;width:2px;background:#ffe28a}
+
 .bar{display:grid;grid-template-columns:86px 1fr 34px;align-items:center;gap:6px;font:700 11px/1 var(--px);text-shadow:1px 1px 0 var(--wood)}
 .bar i{display:block;height:9px;background:var(--wood);border:2px solid var(--wood);box-shadow:0 0 0 1px rgba(251,246,234,.5)}
 .bar b{display:block;height:100%;background:var(--hp);transition:width .12s steps(3)}
 .bar.boss b{background:var(--red)}
 .bar span:last-child{text-align:right}
+@media(max-width:540px){#hud{padding-right:58px}}
 #tm{justify-self:center;font:700 11px var(--px);background:rgba(43,29,20,.55);padding:2px 6px;border-radius:2px}
 #ctl{--cx:calc(env(safe-area-inset-right) + 14px);--cy:calc(env(safe-area-inset-bottom) + 14px);position:fixed;inset:0;pointer-events:none}
 .btn{pointer-events:auto;position:relative;min-width:64px;min-height:64px;border:3px solid var(--wood);border-radius:6px;background:#b07a44;color:var(--ink);font:700 12px/1.1 var(--px);text-shadow:1px 1px 0 var(--wood);box-shadow:0 4px 0 var(--wood);overflow:hidden;padding:6px 8px;touch-action:none}
@@ -40,7 +55,7 @@ canvas{position:absolute;left:0;top:0;image-rendering:pixelated;image-rendering:
 #knob canvas{width:48px;height:48px;filter:drop-shadow(0 3px 0 rgba(43,29,20,.7))}
 #joy .key{top:auto;bottom:-14px}
 /* Zahnrad + Menue */
-#gear{position:fixed;right:calc(env(safe-area-inset-right) + 12px);top:calc(env(safe-area-inset-top) + 42px);width:34px;height:34px;min-width:0;min-height:0;padding:0;border-radius:4px;border-width:2px;box-shadow:0 3px 0 var(--wood);font-size:18px;line-height:1;background:#8a5a30}
+#gear{position:fixed;right:calc(env(safe-area-inset-right) + 12px);top:calc(env(safe-area-inset-top) + 10px);width:34px;height:34px;min-width:0;min-height:0;padding:0;border-radius:4px;border-width:2px;box-shadow:0 3px 0 var(--wood);font-size:18px;line-height:1;background:#8a5a30}
 #menu{position:fixed;right:calc(env(safe-area-inset-right) + 12px);top:calc(env(safe-area-inset-top) + 84px);display:none;background:#fbf6ea;color:var(--wood);border:3px solid var(--wood);border-radius:4px;box-shadow:0 4px 0 var(--wood);padding:10px;width:200px;font:700 12px/1.3 var(--px)}
 #menu.open{display:block}
 #menu .opt{display:block;width:100%;min-height:40px;margin-top:6px;text-align:left;background:#d9cfbc;color:var(--wood);text-shadow:none;border-width:2px;box-shadow:0 3px 0 var(--wood)}
@@ -59,7 +74,7 @@ canvas{position:absolute;left:0;top:0;image-rendering:pixelated;image-rendering:
 #kTip{position:fixed;right:calc(env(safe-area-inset-right) + 8px);bottom:calc(env(safe-area-inset-bottom) + 176px);font:700 12px/1.25 var(--px);background:#fbf6ea;color:var(--wood);border:3px solid var(--wood);border-radius:4px;box-shadow:0 3px 0 var(--wood);padding:6px 8px;pointer-events:none;display:none;max-width:170px;text-align:center}
 #kTip:after{content:'';position:absolute;right:38px;bottom:-11px;border:8px solid transparent;border-top-color:var(--wood);border-bottom:0}
 #kTip b{color:var(--red)}
-#hint{position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 84px);transform:translateX(-50%);text-align:center;line-height:1.4;max-width:calc(100% - 32px);font:700 11px var(--px);background:rgba(43,29,20,.55);padding:4px 8px;border-radius:2px;pointer-events:none;}
+#hint{position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 136px);transform:translateX(-50%);text-align:center;line-height:1.4;max-width:calc(100% - 32px);font:700 11px var(--px);background:rgba(43,29,20,.55);padding:4px 8px;border-radius:2px;pointer-events:none;}
 #warn{position:fixed;font:700 18px var(--px);color:#ffe28a;text-shadow:2px 2px 0 var(--wood);pointer-events:none;transform:translate(-50%,-100%);display:none}
 .pop{position:fixed;font:700 13px var(--px);color:var(--gold);text-shadow:1px 1px 0 #b8862a,2px 2px 0 var(--wood);pointer-events:none;transform:translate(-50%,-50%);animation:up .6s steps(4) forwards}
 .pop.big{font-size:22px;color:#ffe28a}
@@ -80,8 +95,8 @@ canvas{position:absolute;left:0;top:0;image-rendering:pixelated;image-rendering:
 <body>
 <div id="wrap"><canvas id="c"></canvas></div>
 <div id="hud">
-  <div class="bar"><span>Wellenreiter</span><i><b id="hpP"></b></i><span id="nP">100</span></div>
-  <div class="bar boss"><span id="bName">Krähenbart</span><i><b id="hpB"></b></i><span id="nB">0</span></div>
+  <div class="hpp" id="boxP"><canvas class="por" id="porP" width="12" height="12"></canvas><div class="hbx"><div class="nm"><span>Wellenreiter</span><span class="num"><b id="nP">100</b>/<span id="mP">100</span></span></div><i><b id="hpP"></b></i></div></div>
+  <div class="hpp boss" id="boxB"><canvas class="por" id="porB" width="12" height="12"></canvas><div class="hbx"><div class="nm"><span id="bName">Krähenbart</span><span class="num"><b id="nB">0</b>/<span id="mB">0</span></span></div><i><b id="hpB"></b></i></div></div>
   <div id="tm">0,0 s</div>
 </div>
 <div id="rp">REPLAY</div>
@@ -305,6 +320,9 @@ const $=id=>document.getElementById(id);
 // Einbettung in die Neue Welt: ?embed&seed=..&hp=..&bhp=..&name=..&look=lila
 const QS=new URLSearchParams(location.search),EMB=QS.has('embed'),OPT={php:+QS.get('hp')||0,bhp:+QS.get('bhp')||0},BN=(QS.get('name')||'Krähenbart').slice(0,24),LOOK=QS.get('look')||'boss';
 $('bName').textContent=BN;
+function por(id,rows,pal){const c=$(id);if(!c)return;const x=c.getContext('2d');x.clearRect(0,0,12,12);rows.forEach((r,y)=>[...r].forEach((ch,i)=>{if(ch!=='.'){x.fillStyle=pal[ch];x.fillRect(i,y,1,1);}}));}
+const SHIPP=['.....k......','....kwk.....','...kwwwk....','..kwwwwwk...','..kwwwwwk...','.kwwwwwwwk..','.....k......','kkkkkkkkkkkk','kbbbbbbbbbbk','.kbBbBbBbbk.','..kkkkkkkk..','ssssssssssss'];
+por('porP',SHIPP,{k:C.k,w:C.w,b:C.b,B:C.d,s:'#4a5e90'});por('porB',SHIPP,{k:C.k,w:LOOK==='lila'?'#9b6fd1':C.r,b:C.D,B:C.k,s:'#4a5e90'});
 const tell=m=>{try{if(parent!==window)parent.postMessage(Object.assign({gl:1},m),location.origin);}catch(e){}};
 
 // ---------- Renderer ----------
@@ -893,7 +911,7 @@ function hud(){
   const p=st.p,b=st.b,K=FK.K;
   const inR=Math.hypot(b.x-p.x,b.z-p.z)<=K.ab.range;
   const key=[p.hp,b.hp,Math.floor(st.step/3),b.ph,p.ab>0,p.kcd>0,inR,p.boost>0].join();if(key===hudKey)return;hudKey=key;
-  $('hpP').style.width=(p.hp/p.max*100)+'%';$('hpB').style.width=(b.hp/b.max*100)+'%';$('nP').textContent=p.hp;$('nB').textContent=b.hp;
+  $('hpP').style.width=(p.hp/p.max*100)+'%';$('hpB').style.width=(b.hp/b.max*100)+'%';$('nP').textContent=p.hp;$('nB').textContent=b.hp;$('mP').textContent=p.max;$('mB').textContent=b.max;$('boxP').classList.toggle('low',p.hp>0&&p.hp<p.max*.3);
   $('tm').textContent=(st.step/FK.HZ).toFixed(1).replace('.',',')+' s'+(p.boost>0?' · Rückenwind':'');
   $('bAb').querySelector('.cd').style.height=(p.ab/K.ab.cd*100)+'%';
   $('bK').querySelector('.cd').style.height=(p.kcd/K.st.miss*100)+'%';

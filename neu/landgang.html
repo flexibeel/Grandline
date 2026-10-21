@@ -4,12 +4,29 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
 <title>Landgang-Kampf</title>
+<link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@600;700&display=swap" rel="stylesheet">
 <style>
-:root{--sea:#3a6a98;--ink:#fbf6ea;--wood:#2b1d14;--gold:#f2c94c;--red:#d8433a;--hp:#5aa24a;--kr:#e0483c;--te:#4a8fe0;--kl:#4cb85a;--px:ui-monospace,Menlo,Consolas,monospace}
+:root{--sea:#3a6a98;--ink:#fbf6ea;--wood:#2b1d14;--gold:#f2c94c;--red:#d8433a;--hp:#5aa24a;--kr:#e0483c;--te:#4a8fe0;--kl:#4cb85a;--px:'Pixelify Sans',ui-monospace,Menlo,Consolas,monospace}
 html,body{margin:0;height:100%;background:var(--sea);overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none;font-family:var(--px);color:var(--ink)}
 #wrap{position:fixed;inset:0;overflow:hidden;background:var(--sea)}
 canvas{position:absolute;left:0;top:0;image-rendering:pixelated;image-rendering:crisp-edges}
-#hud{position:fixed;z-index:5;left:0;right:0;top:0;padding:calc(env(safe-area-inset-top) + 8px) 16px 7px;pointer-events:none;background:linear-gradient(#2b1d14e0,#2b1d14b0);border-bottom:3px solid var(--wood);box-shadow:0 2px 0 #b07a4466}
+#hud{position:fixed;z-index:5;left:0;right:0;top:0;padding:calc(env(safe-area-inset-top) + 8px) 16px 0;pointer-events:none;display:grid;gap:6px;justify-items:center}
+#tm{justify-self:center;background:rgba(43,29,20,.55);padding:2px 6px;border-radius:2px}
+#netT{width:100%;max-width:420px}
+@media(max-width:540px){#hud{padding-right:58px}}
+.hpp{width:100%;max-width:420px;box-sizing:border-box;display:flex;align-items:center;gap:7px;background:linear-gradient(#8a5a30,#6e4524);border:3px solid var(--wood);border-radius:4px;box-shadow:0 3px 0 var(--wood),inset 0 2px 0 rgba(176,122,68,.6);padding:4px 7px 5px 4px}
+.por{position:static;width:30px;height:30px;flex:none;background:#bcd3e6;border:2px solid var(--wood);box-shadow:inset 0 0 0 1px rgba(251,246,234,.5)}
+.hbx{flex:1;min-width:0}
+.hbx .nm{display:flex;justify-content:space-between;align-items:baseline;gap:6px;font:700 12px/1 var(--px);text-shadow:1px 1px 0 var(--wood);margin-bottom:4px;white-space:nowrap}
+.hbx .nm small{font-size:10px;color:#ffe28a;margin-left:5px}
+.hbx .num{font-size:11px;opacity:.95}.hbx .num b{font-size:13px}
+.hbx>i{position:relative;display:block;height:10px;background:var(--wood);border:2px solid var(--wood);box-shadow:0 0 0 1px rgba(251,246,234,.4)}
+.hbx>i>b{display:block;height:100%;background:var(--hp);transition:width .12s steps(3);box-shadow:inset 0 -3px 0 rgba(0,0,0,.18),inset 0 2px 0 rgba(255,255,255,.25)}
+.hpp.boss .hbx>i>b{background:#9b6fd1}
+.hpp.low .hbx>i>b{animation:lowB .5s steps(1) infinite}
+@keyframes lowB{50%{filter:brightness(1.5)}}
+.hbx>i>em{position:absolute;top:-2px;bottom:-2px;width:2px;background:#ffe28a}
+
 .r1{display:flex;justify-content:space-between;align-items:baseline;font:700 11px/1 var(--px);text-shadow:1px 1px 0 var(--wood);margin-bottom:5px}
 .r1 b{color:#c9a8ef}
 #ph{font-size:10px;color:#ffe28a;margin-left:6px}
@@ -31,7 +48,7 @@ canvas{position:absolute;left:0;top:0;image-rendering:pixelated;image-rendering:
 #jK{left:33px;top:33px;width:54px;height:54px;filter:drop-shadow(0 3px 0 #2b1d14aa)}
 body.drag #joy{display:none}
 @media (pointer:fine){#joy:not(.on){display:none}}
-#gear{position:fixed;z-index:7;right:10px;top:calc(env(safe-area-inset-top) + 50px);width:34px;height:34px;min-width:0;min-height:0;padding:0;display:grid;place-items:center}
+#gear{position:fixed;z-index:7;right:10px;top:calc(env(safe-area-inset-top) + 10px);width:34px;height:34px;min-width:0;min-height:0;padding:0;display:grid;place-items:center}
 #gear canvas{width:24px;height:24px;image-rendering:pixelated}
 #set{position:fixed;z-index:8;right:10px;top:calc(env(safe-area-inset-top) + 90px);display:none;background:#fbf6ea;color:var(--wood);border:3px solid var(--wood);border-radius:4px;box-shadow:0 4px 0 var(--wood);padding:8px;font:700 12px var(--px);width:180px}
 #set.on{display:grid;gap:6px}
@@ -93,8 +110,8 @@ body.drag #joy{display:none}
 <div id="wrap"><canvas id="c"></canvas></div>
 <div id="ov2"><div id="fc"></div></div>
 <div id="hud">
-  <div class="r1"><span><b>Fadenmeister Marlo</b><span id="ph">Phase 1</span></span><span id="tm">0,0 s</span></div>
-  <div class="bar"><b id="hpB"></b><i style="left:60%"></i><i style="left:25%"></i></div>
+  <div class="hpp boss"><canvas class="por" id="porB" width="12" height="12"></canvas><div class="hbx"><div class="nm"><span>Fadenmeister Marlo<small id="ph">Phase 1</small></span><span class="num"><b id="nB">0</b>/<span id="mB">0</span></span></div><i><b id="hpB"></b><em style="left:60%"></em><em style="left:25%"></em></i></div></div>
+  <div id="tm">0,0 s</div>
   <div id="netT"><b id="netB"></b></div>
 </div>
 <div id="rp">REPLAY</div>
@@ -947,11 +964,14 @@ function bars(P){
   const fc=$('fc'),fu=st.focus>=0?U[st.focus]:null;
   if(fu&&!fu.dead&&hbs[st.focus].style.display==='block'){fc.style.display='block';fc.style.left=hbs[st.focus].style.left;fc.style.top=(parseFloat(hbs[st.focus].style.top)-16-2*(Math.floor(wall*4)%2))+'px';}else fc.style.display='none';
 }
+function por(id,rows,pal){const c=$(id);if(!c)return;const x=c.getContext('2d');x.clearRect(0,0,12,12);rows.forEach((r,y)=>[...r].forEach((ch,i)=>{if(ch!=='.'){x.fillStyle=pal[ch];x.fillRect(i,y,1,1);}}));}
+const _SP=['.....k......','....kwk.....','...kwwwk....','..kwwwwwk...','..kwwwwwk...','.kwwwwwwwk..','.....k......','kkkkkkkkkkkk','kbbbbbbbbbbk','.kbBbBbBbbk.','..kkkkkkkk..','ssssssssssss'];
+por('porB',['...kkkkkk...','..kppppppk..','..kpPPPPpk..','kkkkkkkkkkkk','.kssssssssk.','.kskksskksk.','.kssssssssk.','.ksssnnsssk.','.kssrrrrssk.','..kssssssk..','..kddddddk..','.kddddddddk.'],{k:'#2b1d14',p:'#9b6fd1',P:'#c9a8ef',s:'#e8b48a',n:'#c98a64',r:'#9a2a22',d:'#5e3b1d'});
 let hudKey='';
 function hud(){
   const U=st.u,b=U[3],bs=st.bs;
   const key=[U.map(u=>u.hp+':'+u.ult+':'+u.bound).join(),Math.floor(st.step/3),bs.st,st.kcd>0,st.ph,!!st.net].join();if(key===hudKey)return;hudKey=key;
-  $('hpB').style.width=(b.hp/b.max*100)+'%';
+  $('hpB').style.width=(b.hp/b.max*100)+'%';$('nB').textContent=Math.max(0,Math.ceil(b.hp));$('mB').textContent=b.max;
   $('ph').textContent=st.net?'Fadennetz':st.ph===3?'Phase 3 · Wut':'Phase '+st.ph;
   $('tm').textContent=(st.step/LK.HZ).toFixed(1).replace('.',',')+' s';
   $('netT').style.display=st.net?'block':'none';if(st.net)$('netB').style.width=(st.net.t/K.net.dur*100)+'%';

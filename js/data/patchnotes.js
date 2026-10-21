@@ -4,7 +4,8 @@ GL.patchNotes = [
   { v: '2026-10-21t', date: '21.10.', title: 'Ruhige See', items: [
     '🌊 Neue Welt: Das Wasser schwimmt nicht mehr mit dem Bildschirm mit und bewegt sich gemächlicher. Gut für empfindliche Mägen',
     '🎥 Kamera folgt sanfter, mit weniger Vorlauf und kaum noch Wackeln. Im Menü gibt es jetzt „Ruhige Kamera“',
-    '🌑 Schiffsschatten mit weichem Rand' ] },
+    '🌑 Schiffsschatten mit weichem Rand',
+    '🪵 Lebensanzeigen in Seekampf und Landgang als Holzplanken, mit Bild, Name und Zahl. Am PC nicht mehr quer über den ganzen Bildschirm' ] },
   { v: '2026-10-21s', date: '21.10.', title: 'Neue Welt (Beta)', items: [
     '🧭 Neue Welt testen: Auf dem Startbildschirm wartet ein neuer Knopf. Dahinter liegt eine offene See in 3D, mit Inseln, Treibgut und einem sehr nervösen Hafenhund',
     '⚔ Begegnungen auf See werden zum Fahrenden Kampf, lila Fahnen zum Landgang. Tageszeit wie bei dir zu Hause',
