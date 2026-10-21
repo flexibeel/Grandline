@@ -9,6 +9,8 @@ window.GL = window.GL || {};
 GL.data = GL.data || {};
 
 GL.data.features = [
+  { id: 'kontor',    runs: 1, lvl: 2, tab: 'kontor', name: 'Das Kontor', art: 'chest', text: 'Dein Handelshaus im Hafen. Bernstein wächst auch, wenn du nicht spielst, und nach jeder Fahrt wird das Schiff entladen.',
+    steps: ['Im Hafen unter „Kontor“ abholen', 'Nach jedem Run: Kram wird Bernstein, Wertsachen werden Berry', 'Bernstein frischt Landgänge auf: noch einmal volle Beute'] },
   { id: 'gemeinschaft', runs: 4, lvl: 1, tab: 'gemeinschaft', req: p => !!(GL.meta && GL.meta.squadUnlocked && GL.meta.squadUnlocked(p)), name: 'Gemeinschafts-Fahrt', art: 'trident', text: 'Deine Stammcrew und bis zu drei Crews deiner Segelkumpane gegen den Welt-Boss der Woche. Wer mehr Schaden macht, darf angeben.',
     steps: ['Im Hafen unter „Gemeinschaft“', 'Bis zu 3 Kumpane oder Gast-Crews dazuholen', 'Drei Versuche am Tag, Beute beim ersten'] },
   { id: 'gemuet',    runs: 2, lvl: 2, tab: 'gemuet', req: () => !GL.season || GL.season.started(), name: 'Gemütlichkeit', art: 'flag', text: 'Ein kleiner Skilltree für deine ganze Crew. Punkte kommen nebenbei: mit jedem Rang, mit Fahrten, Landgängen und Vertrautheit.',

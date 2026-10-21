@@ -64,6 +64,7 @@
   "js/engine/crewgear.js",
   "js/engine/mastery.js",
   "js/engine/meta.js",
+  "js/engine/kontor.js",
   "js/engine/squad.js",
   "js/ui/sprites.js",
   "js/ui/save.js",
