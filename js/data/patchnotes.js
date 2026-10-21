@@ -1,6 +1,9 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-21r', date: '21.10.', title: 'Rettungsring', items: [
+    '🛟 Pirat sichern: Nach deiner ersten Fahrt hängt im Hafen ein Holzschild. Mail eingeben, Zahl aus der Mail eintippen, fertig. Kein Passwort, kein Link',
+    '⚓ Auf einem neuen Gerät holst du deinen Piraten mit derselben Mail zurück. Der Spielercode wohnt jetzt unter „Andere Wege“' ] },
   { v: '2026-10-21q', date: '21.10.', title: 'Schloss am Schatz', items: [
     '🛡 Spielercode besser geschützt: Wer fremde Codes durchprobiert, wird schnell ausgebremst. Dein eigener Code lädt immer, auch wenn draußen jemand rüttelt',
     '⚡ Noch schneller beim Start: Das Spiel holt sich statt fast hundert Dateien nur noch eine Handvoll' ] },

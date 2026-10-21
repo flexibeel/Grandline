@@ -83,3 +83,27 @@ GL.data.en = Object.assign(GL.data.en || {}, {
 });
 // Feinschliff (Kapitänsbuch-Kacheln, Album)
 Object.assign(GL.data.en, { 'Statistik': 'Stats', 'Sticker': 'Stickers', 'Freunde': 'Friends', 'Story': 'Story', 'Noch nicht gegessen': 'Not eaten yet', 'Noch nicht gefunden': 'Not found yet', 'Noch nicht besiegt': 'Not defeated yet' });
+// S1 „Pirat sichern“ (Holzschild, Anmelden per Mail-Code)
+Object.assign(GL.data.en, {
+  'Dein Pirat schwimmt noch ohne Rettungsring': 'Your pirate is swimming without a life ring',
+  'Geht dein Handy baden, ist deine Crew weg. Sichere sie mit deiner Mail, das dauert eine Minute.': 'If your phone goes for a swim, your crew is gone. Secure it with your email, it takes a minute.',
+  'Pirat sichern': 'Secure pirate', 'Später, ich mag Risiko': 'Later, I like risk',
+  'Wohin soll die Flaschenpost?': 'Where should the bottle post go?', 'Code schicken': 'Send code',
+  'Kein Passwort, keine Werbung. Nur eine Zahl zum Eintippen.': 'No password, no ads. Just a number to type in.',
+  'Code eintippen': 'Enter code', 'Sechs Zahlen sind unterwegs an': 'Six digits are on their way to',
+  'Nela:': 'Nela:', 'Den Link in der Mail kannst du links liegen lassen. Die Zahl reicht völlig.': 'You can ignore the link in the email. The number is all you need.',
+  'Nichts da? Schau im Spam-Ordner nach oder': 'Nothing there? Check your spam folder or', 'schick ihn nochmal': 'send it again',
+  'Gesichert!': 'Secured!', 'Deine Crew ist jetzt an deine Mail gekettet. Im guten Sinne.': 'Your crew is now chained to your email. In a good way.',
+  'Auf einem neuen Gerät: Anmelden, Mail eingeben, Code eintippen. Fertig.': 'On a new device: log in, enter your email, type the code. Done.',
+  'Zurück in den Hafen': 'Back to the harbor', 'Pirat noch nicht gesichert.': 'Pirate not secured yet.',
+  'Mit deiner Mail ist deine Crew auf jedem Gerät da.': 'With your email, your crew is on every device.',
+  'Alles klar': 'Got it', 'Das Schild hängt ab jetzt klein im Kapitänsbuch. Sichern geht dort jederzeit.': 'The sign now hangs small in the captain’s log. You can secure your pirate there anytime.',
+  'Das sieht nicht nach einer Mail-Adresse aus.': 'That does not look like an email address.', 'Der Code aus der Mail hat 6 Ziffern.': 'The code from the email has 6 digits.',
+  'Schicke Mail …': 'Sending email …', 'Prüfe …': 'Checking …', 'Nochmal schicken': 'Send again',
+  'Piraten zurückholen': 'Bring your pirate back', 'Gib die Mail ein, mit der du deinen Piraten gesichert hast.': 'Enter the email you secured your pirate with.',
+  'Andere Wege': 'Other ways', 'Spielercode vom anderen Gerät': 'Player code from your other device', 'Mit Spielercode laden': 'Load with player code',
+  'Den Code findest du auf dem anderen Gerät: Kapitänsbuch → 🔑 Spielercode.': 'You’ll find the code on your other device: Captain’s log → 🔑 Player code.',
+  'Noch kein Pirat gesichert?': 'Pirate not secured yet?', 'Diesen Piraten sichern': 'Secure this pirate',
+  'Gerade spielst du als Gast. Mit deiner Mail kommst du auf jedem Gerät an denselben Piraten. Kein Passwort, nur eine Zahl zum Eintippen.': 'You are playing as a guest. With your email you get the same pirate on every device. No password, just a number to type in.',
+  'Tippe in der Mail auf den Link, am besten auf diesem Gerät.': 'Tap the link in the email, ideally on this device.'
+});

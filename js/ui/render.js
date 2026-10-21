@@ -3380,6 +3380,50 @@ window.GL = window.GL || {};
       <button class="btn ghost" data-act="login-open">Account einrichten</button></div>`;
   }
 
+  // S1 „Pirat sichern“: Holzschild für Gäste. Im Hafen nach der ersten Fahrt (wegklickbar), danach klein im Kapitänsbuch.
+  // Ablauf: Mail eingeben → 6-Ziffern-Code aus der Mail eintippen → gesichert. Immer Code statt Link (iPhone-App/Safari).
+  function secureGuest(profile) {
+    const st = GL.online ? GL.online.state() : {};
+    return !GL.sandbox.on() && st.backend === 'supabase' && !!st.anon && !st.email && !!profile.nickname;
+  }
+  function secureSign(profile, uiRef, where) {
+    const s = (uiRef && uiRef.secure) || {};
+    const st = GL.online ? GL.online.state() : {};
+    const mine = s.where === where;
+    const wrap = (inner, cls) => `<div class="sec-sign${cls ? ' ' + cls : ''}"><span class="sec-nail l"></span><span class="sec-nail r"></span><div class="sec-plank">${inner}</div></div>`;
+    if (mine && s.step === 'done') return wrap(`<span class="sec-badge" aria-hidden="true">✓</span><h3>Gesichert!</h3>
+      <p>Deine Crew ist jetzt an deine Mail gekettet. Im guten Sinne.</p>
+      <small>Auf einem neuen Gerät: Anmelden, Mail eingeben, Code eintippen. Fertig.</small>
+      <button class="btn" data-act="secure-close">${where === 'hafen' ? 'Zurück in den Hafen' : 'Fertig'}</button>`, 'ok');
+    if (!secureGuest(profile)) return '';
+    const err = mine && s.err ? `<p class="sec-err" role="alert">${esc(s.err)}</p>` : '';
+    const step = mine ? s.step : null;
+    if (step === 'code' && st.mailSent) {
+      const codeOn = GL.config.online && GL.config.online.mailCode;
+      return wrap(codeOn ? `<h3>Code eintippen</h3>
+        <p>Sechs Zahlen sind unterwegs an <b>${mailOut(st.mailSent)}</b>.</p>
+        <input id="sec-code" class="sec-code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]*" enterkeyhint="done" placeholder="······" aria-label="Code aus der Mail">
+        ${err}<button class="btn" data-act="secure-verify">Pirat sichern</button>
+        <div class="sec-tip"><b>Nela:</b> <span>Den Link in der Mail kannst du links liegen lassen. Die Zahl reicht völlig.</span></div>
+        <small>Nichts da? Schau im Spam-Ordner nach oder <button class="link" data-act="secure-again">schick ihn nochmal</button>.</small>`
+        : `<h3>Schau in dein Postfach</h3><p>Mail an <b>${mailOut(st.mailSent)}</b> ist unterwegs. Tippe in der Mail auf den Link, am besten auf diesem Gerät.</p>
+        ${err}<small>Nichts da? <button class="link" data-act="secure-again">Nochmal schicken</button></small>`);
+    }
+    if (step === 'mail' || step === 'code') return wrap(`<h3>Wohin soll die Flaschenpost?</h3>
+      <input id="sec-mail" class="sec-mail" type="${streamOn() ? 'password' : 'email'}" inputmode="email" autocomplete="email" enterkeyhint="send" placeholder="deine@email.de" aria-label="E-Mail-Adresse" value="${esc(s.email || '')}">
+      ${err}<button class="btn" data-act="secure-send">Code schicken</button>
+      <small>Kein Passwort, keine Werbung. Nur eine Zahl zum Eintippen.</small>
+      <button class="link" data-act="secure-close">Abbrechen</button>`);
+    if (where === 'hafen') {
+      if (profile.secureLater || ((profile.stats && profile.stats.runs) || 0) < 1) return '';
+      return wrap(`<h3>Dein Pirat schwimmt noch ohne Rettungsring</h3>
+        <p>Geht dein Handy baden, ist deine Crew weg. Sichere sie mit deiner Mail, das dauert eine Minute.</p>
+        <button class="btn" data-act="secure-start" data-where="hafen">Pirat sichern</button>
+        <button class="link" data-act="secure-later">Später, ich mag Risiko</button>`);
+    }
+    return `<div class="sec-mini"><span>🛟 <b>Pirat noch nicht gesichert.</b> Mit deiner Mail ist deine Crew auf jedem Gerät da.</span><button class="btn mini" data-act="secure-start" data-where="buch">Pirat sichern</button></div>`;
+  }
+
   // ---------- Startbildschirm und Profil ----------
   // Eigener Pirat als Avatar (sonst der erste Kapitän)
   const DEFAULT_LOOK = { hair: '#6b4a2a', skin: '#f2c9a0', shirt: '#2f6fb0', pants: '#3b5a8c', hat: 'band', hatColor: '#c0392b' };
@@ -4079,33 +4123,36 @@ window.GL = window.GL || {};
         ${transferBox(profile, ui)}
         <button class="link" data-act="logout">${ui && ui.logoutArmed ? 'Wirklich abmelden? Nochmal tippen' : 'Abmelden'}</button></div>`;
     }
-    // Schritt 2: Mail ist raus, Code eintippen (oder Link in der Mail antippen)
+    const codeOn = !!(GL.config.online && GL.config.online.mailCode);
+    // Schritt 2: Mail ist raus, 6-Ziffern-Code eintippen (ohne Code-Vorlage: Link in der Mail antippen)
     if (st.mailSent) {
       return `<div class="ts-inner login-card">${back}
-        <div class="login-icon">✉</div><h2>Schau in dein Postfach</h2>
-        <p class="hint">Mail an <b>${mailOut(st.mailSent)}</b> ist unterwegs. <b>Tippe in der Mail auf den Link</b>, dann bist du angemeldet. Am besten auf dem Gerät, auf dem du spielen willst.</p>
-        <p class="login-alt">Keine Mail da? Spam-Ordner prüfen oder <button class="link" data-act="mail-again">andere Adresse / neu senden</button></p>
-        ${transferBox(profile, ui)}
-        ${GL.config.online && GL.config.online.mailCode ? `<details class="login-code"><summary>Ich habe einen Code in der Mail</summary>
-          <div class="login-field"><input id="mail-code" class="code-input" inputmode="numeric" autocomplete="one-time-code" maxlength="8" placeholder="123456"></div>
-          <button class="btn login-main" data-act="mail-code">Bestätigen</button></details>` : ''}
+        <div class="login-icon">✉</div><h2>${codeOn ? 'Code eintippen' : 'Schau in dein Postfach'}</h2>
+        ${codeOn ? `<p class="hint">Sechs Zahlen sind unterwegs an <b>${mailOut(st.mailSent)}</b>.</p>
+          <div class="login-field"><input id="mail-code" class="code-input sec-code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]*" enterkeyhint="go" placeholder="······" aria-label="Code aus der Mail"></div>
+          ${err}<button class="btn login-main" data-act="mail-code">Weiterspielen</button>
+          <div class="sec-tip"><b>Nela:</b> <span>Den Link in der Mail kannst du links liegen lassen. Die Zahl reicht völlig.</span></div>`
+        : `<p class="hint">Mail an <b>${mailOut(st.mailSent)}</b> ist unterwegs. <b>Tippe in der Mail auf den Link</b>, dann bist du angemeldet. Am besten auf dem Gerät, auf dem du spielen willst.</p>`}
+        <p class="login-alt">Nichts da? Schau im Spam-Ordner nach oder <button class="link" data-act="mail-again">andere Adresse / neu senden</button>.</p>
       </div>`;
     }
     const codeLogin = `<div class="login-field">
-        <input id="code-in" class="code-input" type="${streamOn() ? 'password' : 'text'}" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="ABC-123" maxlength="9" enterkeyhint="go" aria-label="Spielercode">
+        <input id="code-in" class="code-input small" type="${streamOn() ? 'password' : 'text'}" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="ABC-123" maxlength="9" enterkeyhint="go" aria-label="Spielercode">
       </div>
       ${ui && ui.codeError ? `<p class="login-err">${esc(ui.codeError)}</p>` : ''}
-      <button class="btn login-main" data-act="code-login">Weiterspielen</button>
-      <p class="login-alt">Deinen Code findest du auf dem anderen Gerät: Hauptquartier → Profil → 🔑 Spielercode.</p>`;
+      <button class="btn ghost login-main" data-act="code-login">Mit Spielercode laden</button>
+      <p class="login-alt">Den Code findest du auf dem anderen Gerät: Kapitänsbuch → 🔑 Spielercode.</p>`;
+    // Neues Gerät: Mail zuerst, Spielercode unter „Andere Wege“
     return `<div class="ts-inner login-card">${back}
-      <div class="login-icon">🔑</div><h2>Mit Spielercode anmelden</h2>
-      ${codeLogin}
-      <details class="login-more"${err ? ' open' : ''}><summary>Andere Wege</summary>
-        <span class="lm-lbl">Per Mail (Link in der Mail antippen)</span>
-        <div class="login-field"><input id="mail" type="${streamOn() ? 'password' : 'email'}" inputmode="email" placeholder="deine@email.de" autocomplete="email" aria-label="E-Mail-Adresse"></div>
-        ${err}
-        <button class="btn ghost login-main" data-act="mail-login">Link schicken</button>
-        ${profile.nickname ? `<p class="login-alt"><button class="link" data-act="mail-link">Diesen Piraten mit der Mail sichern</button></p>` : ''}
+      <div class="login-icon">⚓</div><h2>Piraten zurückholen</h2>
+      <p class="hint">Gib die Mail ein, mit der du deinen Piraten gesichert hast.</p>
+      <div class="login-field"><input id="mail" type="${streamOn() ? 'password' : 'email'}" inputmode="email" placeholder="deine@email.de" autocomplete="email" enterkeyhint="send" aria-label="E-Mail-Adresse"></div>
+      ${err}
+      <button class="btn login-main" data-act="mail-login">${codeOn ? 'Code schicken' : 'Link schicken'}</button>
+      <details class="login-more"${ui && ui.codeError ? ' open' : ''}><summary>Andere Wege</summary>
+        <span class="lm-lbl">Spielercode vom anderen Gerät</span>
+        ${codeLogin}
+        ${profile.nickname && !(st.email) ? `<p class="login-alt">Noch kein Pirat gesichert? <button class="link" data-act="secure-start" data-where="buch" data-open="profil">Diesen Piraten sichern</button></p>` : ''}
         ${transferBox(profile, ui)}
       </details>
     </div>`;
@@ -4934,6 +4981,7 @@ window.GL = window.GL || {};
       ${room ? roomHead(profile, tab) : hubTiles(profile, tab)}
       ${room ? '' : featureNextLine(profile)}
       ${room || (uiRef && uiRef.peek) ? '' : goalList(profile, 2).replace('goal-box pxf', 'goal-box pxf hq-goals')}
+      ${room || (uiRef && uiRef.peek) ? '' : secureSign(profile, uiRef, 'hafen')}
       ${room || (uiRef && uiRef.peek) ? '' : harborNews(profile)}
 
       ${!room ? '' : `
@@ -4952,12 +5000,12 @@ window.GL = window.GL || {};
         </div>
         <button class="btn ghost" data-act="profile-edit">Pirat und Aussehen bearbeiten</button>
         ${codeBox(profile, uiRef)}
-        ${accountLine()}
+        ${secureSign(profile, uiRef, 'buch') || accountLine()}
         ${slotsBox(uiRef)}
         <p class="fb-link"><button class="link" data-act="notes-open">Neuigkeiten${profile.notesSeen !== GL.version ? ' <i class="new-dot"></i>' : ''}</button> · <button class="link" data-act="fb-open">★ Feedback</button> · <button class="link" data-act="reload">↻ Neu laden</button> · <a href="legal.html">Rechtliches</a></p>
         ${adminBox(profile)}
         ${chapterPanel(profile)}
-        ${devicesBox()}
+        ${secureGuest(profile) ? '' : devicesBox()}
         ${dangerZone(uiRef)}</section>` : ''}
       ${tab === 'auftraege' ? questBoard(profile) : ''}
       ${tab === 'stammcrew' ? squadSection(profile, uiRef) : ''}

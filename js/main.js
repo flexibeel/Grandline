@@ -2148,6 +2148,44 @@
         Promise.race([p, new Promise(r => setTimeout(r, 4000))]).then(done, done);
         break;
       }
+      // S1 „Pirat sichern“ (Holzschild im Hafen bzw. Kapitänsbuch)
+      case 'secure-start': case 'secure-later': case 'secure-send': case 'secure-verify': case 'secure-again': case 'secure-close': {
+        const reTitle = () => { const t = document.getElementById('title'); if (t) t.dataset.last = ''; ui.lastStage = null; draw(); };
+        const s = ui.secure || (ui.secure = {});
+        if (type === 'secure-start') {
+          ui.secure = { where: el.dataset.where || 'hafen', step: 'mail' };
+          if (el.dataset.open) { ui.screen = null; ui.hqTab = el.dataset.open; ui.hqRoom = el.dataset.open; }
+          reTitle(); setTimeout(() => document.getElementById('sec-mail')?.focus(), 60); break;
+        }
+        if (type === 'secure-later') {
+          profile.secureLater = true; saveProfile(); ui.secure = {};
+          toast('<span><b>Alles klar</b>Das Schild hängt ab jetzt klein im Kapitänsbuch. Sichern geht dort jederzeit.</span>');
+          reTitle(); break;
+        }
+        if (type === 'secure-close') { if (s.step !== 'done') GL.online.state().mailSent = ''; ui.secure = {}; reTitle(); break; }
+        if (type === 'secure-again') { GL.online.state().mailSent = ''; s.step = 'mail'; s.err = null; reTitle(); break; }
+        if (type === 'secure-send') {
+          const v = ((document.getElementById('sec-mail') || {}).value || '').trim();
+          s.email = v;
+          if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)) { s.err = 'Das sieht nicht nach einer Mail-Adresse aus.'; reTitle(); break; }
+          el.disabled = true; el.textContent = 'Schicke Mail …';
+          GL.online.linkEmail(v).then(res => {
+            if (res.ok) { s.step = 'code'; s.err = null; } else s.err = res.msg;
+            reTitle(); if (res.ok) setTimeout(() => document.getElementById('sec-code')?.focus(), 60);
+          });
+          break;
+        }
+        // secure-verify
+        const v = ((document.getElementById('sec-code') || {}).value || '').replace(/\D/g, '');
+        if (v.length !== 6) { s.err = 'Der Code aus der Mail hat 6 Ziffern.'; reTitle(); break; }
+        el.disabled = true; el.textContent = 'Prüfe …';
+        GL.online.verifyCode(v).then(res => {
+          if (res.ok) { s.step = 'done'; s.err = null; GL.online.state().mailSent = ''; if (GL.sfx) GL.sfx.play('found'); }
+          else s.err = res.msg;
+          reTitle();
+        });
+        break;
+      }
       case 'mail-link':
       case 'mail-login': {
         const inp = document.getElementById('mail');
@@ -2244,6 +2282,7 @@
         if (v.length < 6) { toast('<span><b>Code prüfen</b>Der Code aus der Mail hat 6 Ziffern.</span>'); break; }
         el.disabled = true; el.textContent = 'Prüfe …';
         GL.online.verifyCode(v).then(res => {
+          ui.loginError = res.ok ? null : res.msg;
           if (res.ok) {
             toast('<span><b>Angemeldet</b>Dein Account wird geladen …</span>');
             try { sessionStorage.removeItem('gl.pulled'); } catch (e2) { /* egal */ }
@@ -2378,6 +2417,10 @@
   document.addEventListener('keydown', e => {
     if (e.ctrlKey || e.metaKey || e.altKey) return;
     if (e.key === 'Enter' && e.target.id === 'pf-name') { e.preventDefault(); document.querySelector('[data-act=profile-save]')?.click(); return; }
+    if (e.key === 'Enter' && e.target.id === 'sec-mail') { e.preventDefault(); document.querySelector('[data-act=secure-send]')?.click(); return; }
+    if (e.key === 'Enter' && e.target.id === 'sec-code') { e.preventDefault(); document.querySelector('[data-act=secure-verify]')?.click(); return; }
+    if (e.key === 'Enter' && e.target.id === 'mail') { e.preventDefault(); document.querySelector('[data-act=mail-login]')?.click(); return; }
+    if (e.key === 'Enter' && e.target.id === 'mail-code') { e.preventDefault(); document.querySelector('[data-act=mail-code]')?.click(); return; }
     if (e.key === 'Enter' && e.target.id === 'code-in') { e.preventDefault(); document.querySelector('[data-act=code-login]')?.click(); return; }
     if (e.key === 'Enter' && e.target.id === 'cc-nick') { e.preventDefault(); document.querySelector('[data-act=crew-nick]')?.click(); return; }
     if (e.key === 'Enter' && e.target.id === 'nick') { e.preventDefault(); document.querySelector('[data-act=set-nick]')?.click(); return; }

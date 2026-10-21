@@ -8,7 +8,7 @@ GL.config = {
   world: 'neutral',
   // Eigene Online-Rangliste (Supabase). Leer lassen = Rangliste über die geteilte Claude-Seite.
   online: { url: 'https://ahalqeebrtzpcrvpnyxf.supabase.co', key: 'sb_publishable_00GGB1JXueV7rpMb8JxX8A_FT6brXAm',
-            mailCode: false },   // true, sobald die Supabase-Mailvorlage {{ .Token }} enthält (dann gibt es zusätzlich einen 6-stelligen Code)
+            mailCode: true },   // true, sobald die Supabase-Mailvorlage {{ .Token }} enthält (dann gibt es zusätzlich einen 6-stelligen Code)
 
   // Aufbau eines Runs
   stepsPerIsland: 8,      // pro Meer: 2 Insel-Kapitel mit je 4 Etappen (3 Orte + Bösewicht bzw. Boss)

@@ -10009,3 +10009,34 @@ html:has(> body.is-app)::after { content: ""; position: fixed; left: 0; right: 0
 /* Verdeckter Tab bzw. App im Hintergrund: Animationen anhalten */
 html.gl-hidden *, html.gl-hidden *::before, html.gl-hidden *::after { animation-play-state: paused !important; }
 .ip-note { font-size: .82rem; color: var(--mute); margin: 8px 0 0; line-height: 1.35; }
+
+/* S1 „Pirat sichern“: Holzschild mit Brett, Nägeln und zwei Seilen (Hafen und Kapitänsbuch) */
+.sec-sign { position: relative; max-width: 340px; margin: 30px auto 14px; padding: 6px; background: #b07a44;
+  border: 4px solid #4a2d18; box-shadow: 0 5px 0 #4a2d18, inset 0 0 0 3px #c99a62; image-rendering: pixelated; }
+.sec-sign::before, .sec-sign::after { content: ""; position: absolute; top: -28px; width: 4px; height: 24px; background: #4a2d18; }
+.sec-sign::before { left: 28%; } .sec-sign::after { right: 28%; }
+.sec-nail { position: absolute; top: 10px; width: 6px; height: 6px; background: #4a2d18; } .sec-nail.l { left: 10px; } .sec-nail.r { right: 10px; }
+.sec-plank { background: var(--panel); border: 3px solid #4a2d18; padding: 14px 14px 12px; display: grid; gap: 9px; text-align: center; color: var(--ink); }
+.sec-plank h3 { margin: 0; font-size: 1.12rem; line-height: 1.2; color: var(--wood); text-wrap: balance; }
+.sec-plank p { margin: 0; font-size: .9rem; line-height: 1.4; }
+.sec-plank small { color: var(--mute); font-size: .78rem; line-height: 1.35; }
+.sec-plank .btn { width: 100%; min-height: 44px; }
+.sec-plank .link { justify-self: center; min-height: 32px; }
+.sec-plank input.sec-mail { width: 100%; font: 600 1rem "Nunito", system-ui, sans-serif; padding: 10px; min-height: 44px; text-align: center;
+  border: 3px solid #4a2d18; border-radius: 0; background: #fffaf0; color: #332a21; }
+.sec-plank input.sec-code, .login-field input.sec-code { width: 100%; max-width: 250px; justify-self: center; margin: 0 auto; display: block;
+  height: 54px; padding: 0 0 0 .45em; font: 700 1.7rem var(--px); letter-spacing: .45em; text-align: center;
+  color: #332a21; caret-color: var(--sea); background: #fffaf0; border: 3px solid #4a2d18; border-radius: 0; box-shadow: inset 0 3px 0 rgba(74,45,24,.12); }
+.sec-plank input.sec-code:focus, .login-field input.sec-code:focus { outline: 3px solid var(--sea); outline-offset: 2px; border-color: #4a2d18; }
+.sec-code::placeholder { color: #c9b48c; }
+.sec-tip { display: flex; gap: 6px; text-align: left; font-size: .8rem; line-height: 1.35; background: var(--panel-2); border: 2px solid var(--line); padding: 7px 8px; }
+.sec-tip b { font-family: var(--px); color: var(--sea); white-space: nowrap; }
+.sec-err { color: var(--red); font-weight: 700; font-size: .85rem; }
+.sec-badge { font: 700 2rem/1 var(--px); color: var(--gold); }
+.sec-sign.ok .sec-plank { border-color: #2f6b45; }
+.sec-mini { display: flex; gap: 10px; align-items: center; justify-content: space-between; padding: 10px 12px; margin: 10px 0;
+  background: var(--panel-2); border: 3px solid #8a5a34; font-size: .86rem; line-height: 1.35; }
+.sec-mini .btn { flex: none; }
+@media (max-width: 380px) { .sec-mini { flex-direction: column; align-items: stretch; } }
+@media (prefers-reduced-motion: no-preference) { .sec-sign:not(.ok):not(:has(input)) { animation: sec-sway 4s ease-in-out infinite; transform-origin: 50% -28px; } }
+@keyframes sec-sway { 50% { transform: rotate(.7deg); } }

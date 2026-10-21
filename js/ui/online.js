@@ -417,10 +417,10 @@ window.GL = window.GL || {};
     if (state.backend !== 'supabase') acct = '<p class="hint">Konten gehen nur auf der Website.</p>';
     else if (mailed) acct = `<div class="sync-sec ok"><b>✓ Konto gesichert</b><small>${mailShow(state.email)}. Auf jedem Gerät mit dieser Mail anmelden, dein Spielstand ist dann einfach da.</small></div>`;
     else if (state.mailSent && state.mailKind === 'link') acct = `<div class="sync-sec"><b>✉ Mail ist raus</b><small>An ${mailShow(state.mailSent)}. ${cfg.mailCode ? 'Code aus der Mail eintippen:' : 'Den Link in der Mail antippen, fertig. Am besten in diesem Browser.'}</small>
-        ${cfg.mailCode ? `<div class="sync-row"><input id="sync-otp" class="code-input" inputmode="numeric" autocomplete="one-time-code" maxlength="8" placeholder="123456" aria-label="Code aus der Mail"><button class="btn mini" data-sync="otp">OK</button></div>` : ''}
+        ${cfg.mailCode ? `<div class="sync-row"><input id="sync-otp" class="code-input" inputmode="numeric" autocomplete="one-time-code" maxlength="8" placeholder="······" aria-label="Code aus der Mail"><button class="btn mini" data-sync="otp">Pirat sichern</button></div>` : ''}
         <button class="link" data-sync="mail-again">Andere Adresse</button></div>`;
-    else acct = `<div class="sync-sec"><b>Konto sichern</b><small>Gerade spielst du als Gast. Mit deiner Mail kommst du auf jedem Gerät an denselben Piraten. Kein Passwort.</small>
-        <div class="sync-row"><input id="sync-mail" type="${streamer ? 'password' : 'email'}" inputmode="email" autocomplete="email" placeholder="deine@email.de" aria-label="E-Mail-Adresse"><button class="btn mini" data-sync="mail-link">Sichern</button></div></div>`;
+    else acct = `<div class="sync-sec"><b>Konto sichern</b><small>Gerade spielst du als Gast. Mit deiner Mail kommst du auf jedem Gerät an denselben Piraten. Kein Passwort, nur eine Zahl zum Eintippen.</small>
+        <div class="sync-row"><input id="sync-mail" type="${streamer ? 'password' : 'email'}" inputmode="email" autocomplete="email" placeholder="deine@email.de" aria-label="E-Mail-Adresse"><button class="btn mini" data-sync="mail-link">${cfg.mailCode ? 'Code schicken' : 'Sichern'}</button></div></div>`;
     const other = state.backend === 'supabase' ? `<details class="sync-sec sync-other"><summary><b>Auf anderem Gerät anmelden</b></summary>
         <small>Spielercode vom anderen Gerät eingeben (steht dort im Profil unter 🔑):</small>
         <div class="sync-row"><input id="sync-code" class="code-input" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="9" placeholder="ABC-123" aria-label="Spielercode"><button class="btn mini" data-sync="code">Laden</button></div>
