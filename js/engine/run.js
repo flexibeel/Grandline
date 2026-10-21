@@ -553,9 +553,41 @@ window.GL = window.GL || {};
         e.atk = Math.round(e.atk * (1 + E.atk * run.loop));
         e.spd += Math.min(3, run.loop);
       });
+      affixes(run, enemies);
     }
     return enemies;
   }
+
+  // ENDLOS-TIEFE (Design-Fläche Baustein 8): Gegner-Zusätze. Eine Zeichnung, mehrere Gegner.
+  //   Ab Runde 1 bekommen normale Gegner mit wachsender Chance einen Zusatz, Bosse bekommen pro Runde einen mehr (höchstens 3).
+  //   So steigt die Schwierigkeit ohne neue Zeichnungen, und jede Runde fühlt sich anders an.
+  const AFFIX = {
+    panzer:  { de: 'Gepanzert', en: 'Armored', fx: e => { e.mods = Object.assign({}, e.mods, { armor: ((e.mods && e.mods.armor) || 0) + 2 + Math.round(e.atk * 0.08), guard: 0.1 }); } },
+    flink:   { de: 'Flink', en: 'Swift', fx: e => { e.spd += 3; e.mods = Object.assign({}, e.mods, { dodge: 0.1 }); } },
+    riesig:  { de: 'Riesig', en: 'Giant', fx: e => { e.max = e.hp = Math.round(e.max * 1.5); } },
+    wuetend: { de: 'Wütend', en: 'Furious', fx: e => { e.atk = Math.round(e.atk * 1.2); } },
+    giftig:  { de: 'Giftig', en: 'Venomous', fx: e => { if (!e.status) e.status = { key: 'poison', rounds: 2, when: 'hit', chance: 0.45, value: Math.max(2, Math.round(e.atk * 0.2)) }; } },
+    fuehrer: { de: 'Anführer', en: 'Leader', fx: (e, all) => { all.forEach(o => { if (o !== e) o.atk = Math.round(o.atk * 1.1); }); e.max = e.hp = Math.round(e.max * 1.15); } }
+  };
+  const AFFIX_IDS = Object.keys(AFFIX);
+  function affixes(run, enemies) {
+    const loop = run.loop || 0;
+    if (!loop) return;
+    const chance = Math.min(0.75, 0.25 * loop);
+    const nameOf = e => e.name || ((GL.data.grunts || []).concat(GL.data.bosses || [], GL.data.hunted || []).find(x => x.id === e.id) || {}).name || '';
+    enemies.forEach(e => {
+      const n = e.boss || e.raid ? Math.min(3, loop) : R.float(run) < chance ? 1 : 0;
+      if (!n) return;
+      const pool = AFFIX_IDS.filter(k => !(k === 'fuehrer' && (e.boss || e.raid)));
+      const got = [];
+      for (let i = 0; i < n && pool.length; i++) got.push(pool.splice(R.int(run, 0, pool.length - 1), 1)[0]);
+      e.affix = got;
+      got.forEach(k => AFFIX[k].fx(e, enemies));
+      const base = nameOf(e);
+      e.name = (base ? base + ' · ' : '') + got.map(k => AFFIX[k].de.toLowerCase()).join(', ');
+    });
+  }
+  GL.affixes = AFFIX;
 
   // Macht aus einigen normalen Gegnern besondere Gegner (Heiler, Tank, Schütze …)
   function specialize(run, enemies, level) {

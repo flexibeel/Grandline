@@ -1,6 +1,9 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-22j', date: '22.10.', title: 'Endlos mit Biss', items: [
+    '🦀 Endlos-Fahrt: Ab der zweiten Runde tragen Gegner Zusätze. Gepanzert, Flink, Riesig, Wütend, Giftig oder Anführer, der seine Kumpel anstachelt',
+    '👑 Bosse bekommen pro Runde einen Zusatz mehr, bis zu drei. Wer weit kommt, trifft auf echte Brocken' ] },
   { v: '2026-10-22g', date: '22.10.', title: 'Ulti auf Zuruf', items: [
     '⚡ Ultis zündest du jetzt selbst: Leuchtet eine Figur, tippst du sie an und die Ulti kommt im nächsten Zug. Wer zu lange wartet, dem nimmt die Crew das nach ein paar Zügen ab',
     '🔁 Lieber zuschauen? Unter der Arena schaltest du „Ultis: auto“ ein, auch mitten im Kampf',
