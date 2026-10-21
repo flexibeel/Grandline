@@ -46,6 +46,16 @@ body.title .ui *{pointer-events:none!important}
 /* Werft */
 #werft{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(24,22,48,.62);z-index:25;padding:16px}
 #werft.on{display:flex}
+#werft{align-items:flex-end;background:linear-gradient(rgba(24,22,48,0) 34%,rgba(24,22,48,.55) 58%);touch-action:none;cursor:grab}
+#werft .wbox{max-height:min(58vh,560px);overflow-y:auto;cursor:default;touch-action:pan-y}
+#wHint{position:absolute;left:50%;top:calc(env(safe-area-inset-top) + 12px);transform:translateX(-50%);background:var(--wood);color:#fbf6ea;font:600 11px var(--px);padding:4px 10px;border-radius:3px;opacity:.85;pointer-events:none;white-space:nowrap}
+body.wf #hud,body.wf #goal,body.wf #log,body.wf #joy,body.wf #act,body.wf #tip,body.wf #warn,body.wf #marks{display:none!important}
+.wtab{display:flex;gap:6px}.wtab .btn{flex:1;font-size:12px;padding:6px;background:#6e4524;color:#fbf6ea}.wtab .btn.on{background:var(--gold);color:var(--wood);text-shadow:none}
+.wcat{display:flex;gap:4px}.wcat .btn{flex:1;font-size:11px;padding:5px 2px;background:#fbf6ea;color:var(--wood);text-shadow:none}.wcat .btn.on{background:var(--gold)}
+.wch{display:grid;grid-template-columns:repeat(auto-fill,minmax(74px,1fr));gap:6px}
+.wc{background:#fbf6ea;border:3px solid var(--wood);border-radius:4px;padding:5px 3px;color:var(--wood);text-shadow:none;font:600 9px/1.15 var(--px);display:grid;justify-items:center;gap:3px;cursor:pointer;text-align:center;overflow-wrap:anywhere}
+.wc canvas{width:32px;height:32px;image-rendering:pixelated}.wc small{font-weight:600;opacity:.75}.wc.sel{background:#ffe9a8;box-shadow:0 0 0 3px var(--gold)}.wc.on small{color:#2f8a3e;opacity:1}
+#wBuy{width:100%;background:var(--gold);color:var(--wood);text-shadow:none;font-size:13px}#wBuy:disabled{filter:grayscale(.9);opacity:.6}
 .wbox{width:min(360px,100%);box-sizing:border-box;background:linear-gradient(#8a5a30,#6e4524);border:4px solid var(--wood);border-radius:6px;box-shadow:0 6px 0 var(--wood),inset 0 3px 0 rgba(176,122,68,.6);padding:12px;display:grid;gap:8px;font:700 12px/1.3 var(--px);text-shadow:1px 1px 0 var(--wood)}
 .wbox h3{margin:0;font:700 19px var(--px);color:#ffe28a;text-align:center;text-shadow:2px 2px 0 var(--wood)}
 .wk{background:var(--wood);padding:6px 8px;border-radius:3px;display:flex;gap:4px 12px;flex-wrap:wrap;justify-content:center;align-items:center}
@@ -154,7 +164,7 @@ body.title .ui *{pointer-events:none!important}
   <button class="btn" data-m="neu">Karte neu würfeln<br><small>Neue Inseln, Bord-Gold weg. Werft bleibt.</small></button>
   <small id="mInfo"></small>
 </div>
-<div id="werft"><div class="wbox"><h3>⚒ Werft</h3><div class="wk" id="wKasse"></div><div id="wRows" style="display:grid;gap:6px"></div><div id="wMap"></div><button class="btn" id="wGo">Ablegen</button></div></div>
+<div id="werft"><div id="wHint">↔ Ziehen zum Drehen</div><div class="wbox"><h3>⚒ Werft</h3><div class="wtab"><button class="btn" data-t="aus">⚒ Ausbau</button><button class="btn" data-t="sch">🎨 Schmuck</button></div><div class="wk" id="wKasse"></div><div id="wRows" style="display:grid;gap:6px"></div><div id="wMap"></div><button class="btn" id="wGo">Ablegen</button></div></div>
 <div id="joy" class="ui"><canvas id="wheel" width="46" height="46"></canvas><div id="knob"><canvas id="knobC" width="16" height="16"></canvas></div></div>
 <button class="btn ui" id="act"><b id="actI">⚓</b><span id="actT">Anlegen</span><span class="key">E / Enter</span></button>
 <div id="tip" class="ui"></div>
@@ -165,6 +175,7 @@ body.title .ui *{pointer-events:none!important}
   <button class="btn" id="tGo">Weiter</button></div>
 <div id="fade"></div>
 <script src="../js/vendor/three.min.js"></script>
+<script src="schmuck.js"></script>
 <script>
 (function(){
 'use strict';
@@ -184,7 +195,8 @@ function fresh(){return {v:1,seed:(Math.random()*4294967296)>>>0,x:1.9,z:8.4,h:M
 // alte Staende (v1 ohne mats/up/tier) bekommen die fehlenden Felder
 function fix(v){v.eq=Array.isArray(v.eq)&&v.eq.length===3?v.eq.map(e=>Object.assign({w:null,k:null,s:null},e)):[{w:null,k:null,s:null},{w:null,k:null,s:null},{w:null,k:null,s:null}];v.bag=Array.isArray(v.bag)?v.bag.slice(0,24):[];
   v.mats=Object.assign({pl:0,ei:0,se:0},v.mats);v.up=Object.assign({r:0,k:0,s:0},v.up);v.tier=Math.max(0,v.tier|0);
-  for(const k in v.mats)v.mats[k]=Math.max(0,v.mats[k]|0);for(const k in v.up)v.up[k]=cl(v.up[k]|0,0,3);v.tips=v.tips||{};return v;}
+  for(const k in v.mats)v.mats[k]=Math.max(0,v.mats[k]|0);for(const k in v.up)v.up[k]=cl(v.up[k]|0,0,3);v.tips=v.tips||{};
+  v.look=window.GLS?GLS.parse(v.look):{sail:'weiss',hull:'eiche',flag:'rot',deco:'keine'};v.own=Array.isArray(v.own)?v.own.filter(x=>typeof x==='string').slice(0,64):[];return v;}
 function load(){try{const v=JSON.parse(localStorage.getItem(SK)||'null');if(v&&v.v===1&&typeof v.seed==='number')return fix(Object.assign(fresh(),v));}catch(e){}return null;}
 let S=load()||fix(fresh());
 const mhp=()=>100+25*S.up.r,upStr=()=>S.up.r+'.'+S.up.k+'.'+S.up.s,tierK=()=>1+0.25*S.tier;
@@ -298,7 +310,7 @@ function updFlag(m,t){const a=m.geometry.attributes.position.array,b=m.userData.
   m.geometry.attributes.position.needsUpdate=true;m.geometry.computeVertexNormals();}
 function makeShip(o){
   const root=new THREE.Group(),body=new THREE.Group();root.add(body);
-  body.add(mesh(hullGeo({L:3.3,B:0.58,yk:-0.42,yt:0.32,sheer:0.18,band:0.13,deck:'#c38c52',bulw:o.bulw,band2:o.band2,side:C.b,bot:C.B,transom:C.d}),M('#ffffff',{vertexColors:true})));
+  const hm=mesh(hullGeo({L:3.3,B:0.58,yk:-0.42,yt:0.32,sheer:0.18,band:0.13,deck:'#c38c52',bulw:o.bulw,band2:o.band2,side:C.b,bot:C.B,transom:C.d}),M('#ffffff',{vertexColors:true}));body.add(hm);
   const wood=M(C.d),woodL=M(C.b);
   add(body,mesh(box(0.62,o.boss?0.5:0.32,0.82),M(o.boss?C.D:C.B)),-1.12,o.boss?0.47:0.38,0);
   add(body,mesh(box(0.7,0.06,0.9),o.boss?M(C.y):woodL),-1.12,o.boss?0.75:0.57,0);
@@ -313,7 +325,7 @@ function makeShip(o){
   const fl=flag(o.flag);fl.position.set(0.05,2.95,0);body.add(fl);
   if(!o.noGuns){const gm=M(C.T);for(const z of[-1,1])for(const x of[-0.55,0.05,0.65]){const c=add(body,mesh(cyl(0.05,0.065,0.34,5),gm),x,0.26,z*0.5);c.rotation.x=Math.PI/2;}}
   root.scale.setScalar(o.scale||1);
-  root.userData={body,lan,sails:ss,roll:0,rv:0,heel:0};
+  root.userData={body,lan,sails:ss,roll:0,rv:0,heel:0,hull:hm,fl};
   return root;
 }
 // Crew an Deck
@@ -345,7 +357,11 @@ function shipUp(){
   if(s>=2){const t=sail(0.8,0.5,C.w,0.2);t.position.set(0.96,2.62,0);body.add(t);upSail.push(t);
     const y=add(upG,mesh(cyl(0.02,0.02,0.9,4),M(C.d)),0.96,2.64,0);y.rotation.x=Math.PI/2;add(upG,mesh(cyl(0.03,0.035,0.7),M(C.d)),0.92,2.45,0);}
   if(s>=3){const w=flag(C.y);w.scale.set(0.8,0.6,1);w.position.set(0.92,2.85,0);upG.add(w);}
+  lookOn(S.look);
 }
+// Schiffsschmuck (schmuck.js): Segel, Rumpf, Flagge, Galionsfigur, nur Optik
+const LKO={body:player.userData.body,hull:player.userData.hull,flag:player.userData.fl,sails:[]};
+function lookOn(L){if(!window.GLS)return;LKO.sails=player.userData.sails.concat(upSail);GLS.apply({THREE,M,mesh,box,cyl,ico,hullGeo,lanternMat},LKO,L);}
 
 const crew=[[{body:'#a8302a',hat:'tri',hc:C.k},-0.78,0.25,0,0],[{body:'#3a64b0',leg:C.d,hat:'cap',hc:'#24447a'},0.5,0.17,0.2,1.2],[{body:'#e8dcc0',leg:C.k,hat:'band',hc:'#2f8a3e'},1.32,0.22,-0.05,-0.4]].map(([o,x,y,z,r])=>{
   const f=deckFig(o);f.position.set(x,y,z);f.rotation.y=r;player.userData.body.add(f);return f;});
@@ -773,7 +789,7 @@ function fight(o){
   setTimeout(()=>{S.fights++;save();
     if(o.art==='hoehle')tell({t:'kampf',art:'hoehle',seed:o.seed>>>0,boss:o.boss,tier:S.tier,name:o.name,up:upStr(),g:gStr()});
     else if(o.art==='see'){const E=WORLD.E.find(e=>e.id===o.foe),ba=E?Math.atan2(E.z-sh.z,E.x-sh.x):0;
-      tell({t:'kampf',art:'see',seed:(o.seed^(S.fights*0x9E3779B1))>>>0,hp:S.hp,mhp:mhp(),bhp:o.bhp||0,name:o.name,look:o.look||'',up:upStr(),tier:S.tier,fl:1,ba:Math.round(ba*100)/100,ph:Math.round(sh.h*100)/100});}
+      tell({t:'kampf',art:'see',seed:(o.seed^(S.fights*0x9E3779B1))>>>0,hp:S.hp,mhp:mhp(),bhp:o.bhp||0,name:o.name,look:o.look||'',up:upStr(),sk:window.GLS?GLS.str(S.look):'',tier:S.tier,fl:1,ba:Math.round(ba*100)/100,ph:Math.round(sh.h*100)/100});}
     else tell({t:'kampf',art:'land',seed:(o.seed^(S.fights*0x9E3779B1))>>>0,name:o.name,up:upStr(),g:gStr()});
     if(!EMB){paused=false;lock=0;}},900);
 }
@@ -855,7 +871,7 @@ function closeMenu(){$('menu').classList.remove('on');legToggle(false);}
 const ruTxt=()=>$('mRu').textContent=OPT.ruhig?'an':'aus';ruTxt();
 $('menuB').addEventListener('click',e=>{e.stopPropagation();legToggle(false);$('mInfo').textContent='Seekarte '+(S.tier+1)+' · Gold an Bord '+S.gold+' · im Hafen '+S.bank+' · Fahrten '+S.trips;$('menu').classList.toggle('on');});
 // Neue Seekarte: Hafenkasse, Material, Werft und Stufe bleiben
-function newMap(up){const keep={bank:S.bank+(up?S.gold:0),mats:S.mats,up:S.up,eq:S.eq,bag:S.bag,tips:S.tips,trips:S.trips,fights:S.fights,tier:S.tier+(up?1:0)};S=fix(Object.assign(fresh(),keep));
+function newMap(up){const keep={bank:S.bank+(up?S.gold:0),mats:S.mats,up:S.up,look:S.look,own:S.own,eq:S.eq,bag:S.bag,tips:S.tips,trips:S.trips,fights:S.fights,tier:S.tier+(up?1:0)};S=fix(Object.assign(fresh(),keep));
   try{localStorage.setItem(SK,JSON.stringify(S));sessionStorage.setItem('gl.neu.los','1');}catch(e){}location.reload();}
 for(const b of document.querySelectorAll('#menu [data-m]'))b.addEventListener('click',e=>{const m=b.dataset.m;
   if(m==='ruhig'){OPT.ruhig=OPT.ruhig?0:1;saveOpt();ruTxt();return;}
@@ -930,12 +946,46 @@ $('eGo').addEventListener('click',eqClose);
 addEventListener('keydown',e=>{if($('eq').classList.contains('on')&&performance.now()-wfT>400&&e.code==='Escape'){e.preventDefault();eqClose();}});
 
 // ---------- Werft im Heimathafen ----------
-let wfOn=false,wfT=0;
+let wfOn=false,wfT=0,wfView=false,wTab='aus',wCat='sail',PV=null,wfRot=0,wfDrag=null,wfIdle=0;
 const WF=[['r','pl','Rumpf','Mehr Rumpf: +25 Lebenspunkte, an Land +10 % Crew-Leben'],['k','ei','Kanonen','Mehr Wumms: +15 % Schaden, an Land +10 %'],['s','se','Segel','Mehr Wind: +8 % Tempo, an Land +5 % Crew-Tempo']];
-function werft(){wfOn=true;wfT=performance.now();lock=99;joyEnd();keys.clear();$('act').classList.remove('on');$('tip').classList.remove('on');wfDraw();$('werft').classList.add('on');}
+function werft(){wfOn=true;wfView=true;wfIdle=0;wfT=performance.now();lock=99;joyEnd();keys.clear();$('act').classList.remove('on');$('tip').classList.remove('on');
+  PV=Object.assign({},S.look);zoomT=6;document.body.classList.add('wf');wfDraw();$('werft').classList.add('on');}
+function wfClose(){$('werft').classList.remove('on');document.body.classList.remove('wf');wfOn=false;wfView=false;lookOn(S.look);zoomT=14.5;lock=0.5;save();}
+// Nahansicht: Schiff mit dem Finger drehen (oberer Bereich), sonst dreht es sich langsam von allein
+$('werft').addEventListener('pointerdown',e=>{if(e.target.closest('.wbox'))return;wfDrag=e.clientX;wfIdle=0;try{$('werft').setPointerCapture(e.pointerId);}catch(_){}});
+$('werft').addEventListener('pointermove',e=>{if(wfDrag===null)return;wfRot-=(e.clientX-wfDrag)*0.012;wfDrag=e.clientX;});
+for(const t of['pointerup','pointercancel'])$('werft').addEventListener(t,()=>{wfDrag=null;wfIdle=0;});
+// Schmuck: Kacheln mit Pixelbild
+const SCN={sail:'Segel',hull:'Rumpf',flag:'Flagge',deco:'Figur'},SJ={sail:'Frisch gehisst! Der Wind freut sich.',hull:'Neu gestrichen. Vorsicht, nass!',flag:'Flagge gehisst. Sieht gefährlich aus. Fast.',deco:'Neue Galionsfigur! Sie guckt grimmig. Oder müde.'};
+const DIC={laterne:['....kk....','...kkkk...','..kffffk..','..kfyyfk..','..kffffk..','..kffffk..','...kkkk...','....bb....','....bb....','....bb....'],
+ schaf:['..........','...wwww...','..wwwwwwk.','.wwwwwwkkk','.wwwwwwkwk','.wwwwwwkkk','..wwwwww..','...k..k...','...k..k...'],
+ loewe:['..YYYYYY..','.YYyyyyYY.','YYykyykyYY','YYyyyyyyYY','YYyykkyyYY','YYyyyyyyYY','.YYykkyYY.','..YYyyYY..','...YYYY...'],
+ drache:['......gg..','.....gggkg','....ggggGG','....gg....','...gg.....','..gg......','.ggg......','gggG......','GGG.......'],
+ keine:['','','','','..k....k..','...k..k...','....kk....','...k..k...','..k....k..']},DPC={k:'#2b1d14',f:'#ffe28a',y:'#f2c94a',Y:'#c08a2a',w:'#f4f0e0',g:'#5c9a42',G:'#3f7a2e',b:'#8a5a30'};
+function sIcon(c,d,cv){cv.width=cv.height=16;const x=cv.getContext('2d'),px=(a,b,w,h,col)=>{x.fillStyle=col;x.fillRect(a,b,w,h);};
+  if(c==='sail'){GLS.sailCanvas(d,cv);x.strokeStyle='#2b1d14';x.lineWidth=1;x.strokeRect(0.5,0.5,15,15);}
+  else if(c==='hull'){px(1,6,14,1,d.bulw);px(1,7,14,1,d.band2);px(2,8,12,2,d.side);px(3,10,10,2,d.bot);px(4,12,8,1,'#2b1d14');px(7,2,1,4,'#5e3b1d');}
+  else if(c==='flag'){const w=d.big?10:7,h=d.big?7:5;px(3,2,1,13,'#5e3b1d');px(4,3,w,h,'#2b1d14');px(4,3,w-1,h-1,d.c);}
+  else (DIC[d.id]||[]).forEach((r,y)=>{for(let i=0;i<r.length;i++)if(r[i]!=='.')px(3+i,3+y,1,1,DPC[r[i]]);});}
+const owns=(c,d)=>d.p===0||S.own.includes(c+':'+d.id);
+function schDraw(){
+  const sel=GLS.get(wCat,PV[wCat]),cur=S.look[wCat];
+  $('wRows').innerHTML='<div class="wcat">'+GLS.CATS.map(c=>'<button class="btn'+(c===wCat?' on':'')+'" data-c="'+c+'">'+SCN[c]+'</button>').join('')+'</div>'+
+    '<div class="wch">'+GLS.D[wCat].map(d=>'<div class="wc'+(d.id===sel.id?' sel':'')+(d.id===cur?' on':'')+'" data-i="'+d.id+'" role="button"><canvas data-ic="'+d.id+'"></canvas>'+d.n+'<small>'+(d.id===cur?'✓ dran':owns(wCat,d)?'gehört dir':d.p+' Gold')+'</small></div>').join('')+'</div>'+
+    (owns(wCat,sel)?'<small style="text-align:center;font-weight:400">Antippen = sofort dran. Kostet nix, sieht gut aus.</small>':'<button class="btn" id="wBuy"'+(S.bank>=sel.p?'':' disabled')+'>'+sel.n+' kaufen · '+sel.p+' Gold'+(S.bank>=sel.p?'':'<br><small>Noch '+(sel.p-S.bank)+' Gold sammeln</small>')+'</button>');
+  for(const cv of $('wRows').querySelectorAll('[data-ic]'))sIcon(wCat,GLS.get(wCat,cv.dataset.ic),cv);
+  for(const b of $('wRows').querySelectorAll('[data-c]'))b.addEventListener('click',()=>{wCat=b.dataset.c;PV=Object.assign({},S.look);lookOn(PV);wfDraw();});
+  for(const b of $('wRows').querySelectorAll('[data-i]'))b.addEventListener('click',()=>{const d=GLS.get(wCat,b.dataset.i);PV[wCat]=d.id;
+    if(owns(wCat,d)){S.look[wCat]=d.id;save();}lookOn(PV);wfIdle=0;wfDraw();});
+  const bb=$('wBuy');if(bb)bb.addEventListener('click',()=>{if(owns(wCat,sel)||S.bank<sel.p)return;S.bank-=sel.p;S.own.push(wCat+':'+sel.id);S.look[wCat]=sel.id;
+    save();logLine();lookOn(S.look);crewJump(2);flash=0.08;banner(sel.n+'!',SJ[wCat]);wfDraw();});
+}
+
 const wPxC={};function wPx(u){if(!wPxC[u]){const c=document.createElement('canvas');c.width=c.height=16;pixel(c,WUP.find(x=>x.k===u).px);wPxC[u]=c.toDataURL();}return wPxC[u];}
 function wfDraw(){
+  for(const b of document.querySelectorAll('.wtab [data-t]'))b.classList.toggle('on',b.dataset.t===wTab);
   $('wKasse').innerHTML='<span><span class="coin"></span>'+S.bank+' Gold im Hafen</span><span>'+['pl','ei','se'].map(k=>'<span class="mt '+k+'"></span>'+S.mats[k]).join(' ')+'</span>';
+  if(wTab==='sch'&&window.GLS){$('wMap').innerHTML='';schDraw();return;}
   $('wRows').innerHTML=WF.map(([u,m,t,d])=>{const n=S.up[u]+1,max=S.up[u]>=3,ok=!max&&S.bank>=120*n&&S.mats[m]>=n;
     return '<div class="wr"><img alt="" src="'+wPx(u)+'"><div><b>'+t+'</b><span class="pips">'+[1,2,3].map(i=>'<i class="'+(i<=S.up[u]?'on':'')+'"></i>').join('')+'</span></div><small>'+d+'</small>'+
       '<small>'+(u==='r'?'Rumpf jetzt: '+mhp():u==='k'?'Schaden jetzt: ×'+(1+0.15*S.up.k).toFixed(2):'Tempo jetzt: ×'+(1+0.08*S.up.s).toFixed(2))+'</small>'+
@@ -949,7 +999,8 @@ function wfDraw(){
 function wfBuy(u){const w=WF.find(x=>x[0]===u),m=w[1],n=S.up[u]+1;if(n>3||S.bank<120*n||S.mats[m]<n)return;
   S.bank-=120*n;S.mats[m]-=n;S.up[u]=n;if(u==='r')S.hp=mhp();save();hudHp();logLine();shipUp();wfDraw();crewJump(2);flash=0.08;
   const J={r:'Neue Planken! Riecht nach Sägespänen.',k:'Die Kanonen glänzen. Der Koch hat Angst.',s:'Frisches Segeltuch. Die Möwen sind neidisch.'};banner(w[2]+' Stufe '+n+'!',J[u]);}
-$('wGo').addEventListener('click',()=>{$('werft').classList.remove('on');wfOn=false;lock=0.5;save();});
+$('wGo').addEventListener('click',wfClose);
+for(const b of document.querySelectorAll('.wtab [data-t]'))b.addEventListener('click',()=>{wTab=b.dataset.t;PV=Object.assign({},S.look);lookOn(PV);wfDraw();});
 addEventListener('keydown',e=>{if(wfOn&&performance.now()-wfT>400&&(e.code==='Escape'||e.code==='Enter'||e.code==='Space')&&!e.repeat){e.preventDefault();$('wGo').click();}});
 
 // ---------- Modus: Titelbild oder Fahrt ----------
@@ -1006,7 +1057,8 @@ function placeShip(g,x,z,h,dt,bob,w,v){
 let wakeTimer=0,foamTimer=0;
 function visual(dt){
   const x=sh.x,z=sh.z,h=sh.h,dx=Math.cos(h),dz=Math.sin(h);
-  placeShip(player,x,z,h,dt,0,sh.w,sh.v);
+  if(wfView){if(wfDrag===null&&(wfIdle+=dt)>1.5)wfRot+=dt*0.35;}else if(wfRot){wfRot=wrapA(wfRot)*Math.exp(-dt*3);if(Math.abs(wfRot)<0.002)wfRot=0;}
+  placeShip(player,x,z,h+wfRot,dt,0,sh.w,sh.v);
   for(const s of player.userData.sails)s.userData.amt=0.35+0.65*Math.min(1,sh.v/2.5+(mode==='title'?0.3:0));
   for(const f of crew){const u=f.userData;u.ph+=dt*3;
     if(u.jump>0){u.jump-=dt;u.b.position.y=Math.max(0,Math.sin((1-u.jump/0.5)*Math.PI))*0.22;}else u.b.position.y=0;
@@ -1020,11 +1072,13 @@ function visual(dt){
   else if(dt>0){const ex=wx-camT.x,ez=wz-camT.z,el=Math.hypot(ex,ez),DZ=ru?1.1:0.7,k=el>DZ?(el-DZ)/el*1.3:0;
     const a=1-Math.exp(-dt*(ru?1.6:2.4));
     camV.x+=((sh.x-sh.px)/dt+ex*k-camV.x)*a;camV.z+=((sh.z-sh.pz)/dt+ez*k-camV.z)*a;camT.x+=camV.x*dt;camT.z+=camV.z*dt;}
+  // Werft-Nahansicht: Schiff gross im oberen Bildteil
+  if(wfView){const U=0.3*(H+2)*WPP,kz=(U-1.4*Math.cos(PITCH))/Math.sin(PITCH),a=1-Math.exp(-dt*4);camT.x+=(x-camT.x)*a;camT.z+=(z+kz-camT.z)*a;camV.set(0,0,0);}
   if(Math.abs(zoom-zoomT)>0.01){zoom+=(zoomT-zoom)*(1-Math.exp(-dt*2.2));frustum();}
   // Inseln: nur nahe zeigen; Schaum-Uniforms der naechsten 8
   const near8=WORLD.L.map(I=>[Math.hypot(I.x-camT.x,I.z-camT.z)-I.r,I]).sort((a,b)=>a[0]-b[0]);
-  for(const[d,I]of near8){I.g.visible=d<30&&!(I.hid&&!S.found.includes(I.id));}
-  const n8=near8.filter(e=>e[1].g.visible||!e[1].hid);
+  for(const[d,I]of near8){I.g.visible=d<30&&!(I.hid&&!S.found.includes(I.id))&&!(wfView&&I.k==='hafen');}
+  const n8=near8.filter(e=>(e[1].g.visible||!e[1].hid)&&!(wfView&&e[1].k==='hafen'));
   for(let i=0;i<NI;i++){const e=n8[i];if(e&&e[0]<40)isleU[i].set(e[1].x,e[1].z,e[1].r+0.15,e[1].w);else isleU[i].set(0,0,0,0);}
   for(const I of WORLD.L){
     if(I.hid&&!S.found.includes(I.id)&&Math.hypot(I.x-camT.x,I.z-camT.z)<26){// Glitzerwasser ueber der versteckten Hoehle
@@ -1094,7 +1148,7 @@ applyTOD(hour);hudHp();$('gold').textContent=S.gold;logLine();drawWheel(0);joy.d
 for(const v of wakeP)v.set(sh.x,sh.z,99,0);
 if(!EMB||QS.has('los')||autoLos)begin();
 requestAnimationFrame(t=>{last=t;frame(t);tell({t:'bereit',save:S.trips>0||S.gold>0||S.found.length>1});});
-window.__w={get S(){return S;},sh,WORLD,begin,fight,afterFight,truhe,werft,wfBuy,newMap,get fightCtx(){return fightCtx;},get near(){return near;},doAct,get mode(){return mode;},keys};
+window.__w={lookOn,get S(){return S;},sh,WORLD,begin,fight,afterFight,truhe,werft,wfBuy,newMap,get fightCtx(){return fightCtx;},get near(){return near;},doAct,get mode(){return mode;},keys};
 })();
 </script>
 </body>

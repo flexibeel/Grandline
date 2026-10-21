@@ -147,6 +147,7 @@ canvas{position:absolute;left:0;top:0;image-rendering:pixelated;image-rendering:
   <div id="chk"></div>
 </div></div>
 <script src="../js/vendor/three.min.js"></script>
+<script src="schmuck.js"></script>
 <script>
 /*LOGIC*/
 // Spiel-Logik: ohne Grafik, ohne Math.random/Date. Fester Takt 30 Schritte/s.
@@ -508,7 +509,7 @@ function updFlag(m,t){
 function makeShip(o){
   const root=new THREE.Group(),body=new THREE.Group();root.add(body);
   const L=o.L||3.3,B=o.B||0.58,ks=L/3.3,fl_=o.kind==='flink',pz_=o.kind==='panzer';
-  body.add(mesh(hullGeo({L,B,yk:-0.42,yt:0.32,sheer:o.sheer===undefined?0.18:o.sheer,band:0.13,deck:'#c38c52',bulw:o.bulw,band2:o.band2,side:C.b,bot:C.B,transom:C.d}),M('#ffffff',{vertexColors:true})));
+  const hm=mesh(hullGeo({L,B,yk:-0.42,yt:0.32,sheer:o.sheer===undefined?0.18:o.sheer,band:0.13,deck:'#c38c52',bulw:o.bulw,band2:o.band2,side:C.b,bot:C.B,transom:C.d}),M('#ffffff',{vertexColors:true}));body.add(hm);let fl=null;
   const wood=M(C.d),woodL=M(C.b);
   const cab=mesh(box(0.62*ks,o.boss?0.5:0.32,0.82*B/0.58),M(o.cab||(o.boss?C.D:C.B)));cab.position.set(-1.12*ks,o.boss?0.47:0.38,0);body.add(cab);
   const roof=mesh(box(0.7*ks,0.06,0.9*B/0.58),o.roof?M(o.roof):o.boss?M(C.y):woodL);roof.position.set(-1.12*ks,o.boss?0.75:0.57,0);body.add(roof);
@@ -522,7 +523,7 @@ function makeShip(o){
     body.add(tri3([0.3,1.75,0, 1.75,0.55,0, 0.4,0.55,0],o.sail2||C.W));
     const yd=mesh(cyl(0.022,0.022,2.2,4),wood);yd.rotation.z=-0.93;yd.position.set(-0.34,1.48,0);body.add(yd);
     const bs=mesh(cyl(0.025,0.04,0.8),wood);bs.rotation.z=-Math.PI/2+0.3;bs.position.set(1.5,0.45,0);body.add(bs);
-    const fl=flag(o.flag);fl.position.set(0.15,2.25,0);fl.scale.setScalar(0.8);body.add(fl);
+    fl=flag(o.flag);fl.position.set(0.15,2.25,0);fl.scale.setScalar(0.8);body.add(fl);
   }else{
   const mm=mesh(cyl(0.045,0.07,2.7),wood);mm.position.set(0.05,1.45,0);body.add(mm);
   const fm=mesh(cyl(0.04,0.06,2.1),wood);fm.position.set(0.92,1.15,0);body.add(fm);
@@ -533,7 +534,7 @@ function makeShip(o){
   const s3=sail(1.2,0.8,o.sail,0.28);s3.position.set(0.96,1.93,0);body.add(s3);
   const jg=new THREE.BufferGeometry();jg.setAttribute('position',new THREE.Float32BufferAttribute([0.95,1.95,0,2.35,0.68,0,0.98,0.55,0],3));jg.computeVertexNormals();
   body.add(mesh(jg,M(o.boss?C.R:C.W,{side:THREE.DoubleSide})));
-  const fl=flag(o.flag);fl.position.set(0.05,2.95,0);body.add(fl);
+  fl=flag(o.flag);fl.position.set(0.05,2.95,0);body.add(fl);
   }
   const gm=M(C.T),xs=o.noGuns?[]:fl_?[-0.45,0.35]:pz_?[-1.05,-0.45,0.15,0.75]:o.boss?[-0.75,-0.25,0.25,0.75]:[-0.55,0.05,0.65];
   for(const z of[-1,1])for(const x of xs){const c=mesh(cyl(0.05,0.065,0.34,5),gm);c.rotation.x=Math.PI/2;c.position.set(x,0.26,z*(o.B?o.B*0.86:0.5));body.add(c);}
@@ -563,7 +564,7 @@ function makeShip(o){
   }
   root.scale.setScalar(o.scale||1);
   const mats=[];root.traverse(m=>{if(m.isMesh&&m.material.emissive){m.material=m.material.clone();mats.push(m.material);}});
-  root.userData={body,lan,mats,fire,roll:0,rv:0,flash:0};
+  root.userData={body,lan,mats,fire,roll:0,rv:0,flash:0,hull:hm,fl};
   return root;
 }
 const S0=sails.length,player=makeShip({sail:C.w,flag:C.r,bulw:C.B,band2:C.d,noGuns:1}),PS=sails.slice(S0),boss=
@@ -582,8 +583,10 @@ scene.add(player,boss);
   if(r>=2){const nm=M(C.k);for(const z of[-1,1])for(let i=0;i<6;i++)ad(mesh(box(0.03,0.03,0.02),nm,false),-1.05+i*0.38,0.15,z*0.56);}
   if(r>=3){const im=M(C.t);for(const z of[-1,1])for(const x of[-0.9,0.1,1.0])ad(mesh(box(0.06,0.5,0.02),im),x,-0.02,z*(0.55-Math.abs(x)*0.05));}
   const sc=1+0.1*s;for(const m of PS)m.scale.set(1,sc,sc);
-  if(s>=2){ad(sail(0.8,0.5,C.w,0.2),0.96,2.62,0);const y=ad(mesh(cyl(0.02,0.02,0.9,4),M(C.d)),0.96,2.64,0);y.rotation.x=Math.PI/2;ad(mesh(cyl(0.03,0.035,0.7),M(C.d)),0.92,2.45,0);}
+  let top=null;if(s>=2){top=ad(sail(0.8,0.5,C.w,0.2),0.96,2.62,0);const y=ad(mesh(cyl(0.02,0.02,0.9,4),M(C.d)),0.96,2.64,0);y.rotation.x=Math.PI/2;ad(mesh(cyl(0.03,0.035,0.7),M(C.d)),0.92,2.45,0);}
   if(s>=3){const w=flag(C.y);w.scale.set(0.8,0.6,1);ad(w,0.92,2.85,0);}
+  // Schiffsschmuck aus der Werft (schmuck.js, Parameter sk), nur Grafik
+  if(window.GLS&&QS.get('sk')){const P=player.userData;GLS.apply({THREE,M,mesh,box,cyl,ico:r=>new THREE.IcosahedronGeometry(r,0),hullGeo},{body,hull:P.hull,flag:P.fl,sails:top?PS.concat([top]):PS},GLS.parse(QS.get('sk')));}
   player.traverse(m=>{if(m.isMesh&&m.material.emissive&&!player.userData.mats.includes(m.material)){m.material=m.material.clone();player.userData.mats.push(m.material);}});}
 // ---------- Crew an Deck: kleine Figuren, die mitschaukeln und sich freuen ----------
 function deckFig(o){

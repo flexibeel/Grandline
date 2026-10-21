@@ -1,6 +1,9 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-22c', date: '22.10.', title: 'Schmuck fürs Schiff', items: [
+    '🔍 Neue Welt: Die Werft zeigt dein Schiff jetzt ganz nah. Mit dem Finger drehen, jeder Ausbau ist sofort zu sehen',
+    '🎨 Neuer Reiter „Schmuck“: Segel, Rumpf, Flagge und Galionsfigur aus der alten Version. Kostet Hafen-Gold, ist nur Optik und segelt auch im Seekampf mit' ] },
   { v: '2026-10-22b', date: '22.10.', title: 'Finten und Rammböcke', items: [
     '🎭 Seekampf: Gegner täuschen jetzt an. Kein Feuer am Bug und ein weißes „!!“ heißt Finte. Wer dann kontert, fällt rein',
     '🐏 Neuer Angriff: Blinkt eine rote Bahn vor dem Gegner, nimmt er Anlauf und rammt. Konter hilft nicht, nur seitlich ausweichen',
