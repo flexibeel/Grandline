@@ -78,7 +78,7 @@ addEventListener('message',e=>{
       wipe(true,see?'⚔ '+m.name+'!':'⚓ Landgang','<span class="dots"><i></i><i></i><i></i></span>');
       setTimeout(()=>{send(welt,{t:'pause'});
         const q=new URLSearchParams({embed:'1',seed:String(m.seed>>>0)});
-        if(see){q.set('hp',String(m.hp|0));if(m.max)q.set('max',String(m.max|0));if(m.kan)q.set('kan',String(m.kan|0));if(m.bhp)q.set('bhp',String(m.bhp|0));q.set('name',m.name||'');if(m.look)q.set('look',m.look);}
+        if(see){q.set('hp',String(m.hp|0));if(m.max)q.set('max',String(m.max|0));if(m.kan)q.set('kan',String(m.kan|0));if(m.bhp)q.set('bhp',String(m.bhp|0));q.set('name',m.name||'');if(m.look)q.set('look',m.look);}else if(m.rumpf)q.set('rumpf',String(m.rumpf|0));
         kampf=document.createElement('iframe');kampf.id='kampf';kampf.title='Kampf';kampf.src=(see?'seekampf.html?':'landgang.html?')+q;document.body.appendChild(kampf);
       },420);}
   }else if(kampf&&e.source===kampf.contentWindow){

@@ -690,7 +690,7 @@ let fightCtx=null;
 function fight(o){
   if(lock>0)return;lock=99;fightCtx=o;sh.v*=0.3;joyEnd();keys.clear();$('act').classList.remove('on');
   banner(o.art==='see'?o.name+' greift an!':'Landgang!',o.art==='see'?'Kanonen klar!':o.name+' wartet schon.');
-  setTimeout(()=>{S.fights++;save();tell({t:'kampf',art:o.art,seed:(o.seed^(S.fights*0x9E3779B1))>>>0,hp:S.hp,max:maxHp(),kan:(S.up&&S.up.k)|0,bhp:o.bhp||0,name:o.name,look:o.look||''});
+  setTimeout(()=>{S.fights++;save();tell({t:'kampf',art:o.art,seed:(o.seed^(S.fights*0x9E3779B1))>>>0,hp:S.hp,max:maxHp(),kan:(S.up&&S.up.k)|0,bhp:o.bhp||0,name:o.name,look:o.look||'',rumpf:(S.up&&S.up.r)|0});
     if(!EMB){paused=false;lock=0;}},900);
 }
 function afterFight(res){
@@ -735,7 +735,7 @@ $('tGo').addEventListener('click',()=>{if(!$('truhe').classList.contains('done')
 
 // ---------- Werft ----------
 const WUP=[
- {k:'r',n:'Rumpf',d:'+20 Rumpf pro Stufe',j:['Dicke Planken. Der Holzwurm ist beleidigt.','Doppelt genagelt hält besser.','Jetzt mit Eisenbeschlag. Fast unsinkbar. Fast.'],
+ {k:'r',n:'Rumpf',d:'+20 Rumpf pro Stufe, an Land +10 % Crew-Leben',j:['Dicke Planken. Der Holzwurm ist beleidigt.','Doppelt genagelt hält besser.','Jetzt mit Eisenbeschlag. Fast unsinkbar. Fast.'],
   px:['','','','kkkkkkkkkkkkkkkk','kjjjjjjjjjjjjjjk','kbbbBbbbbbBbbbbk','kBBBBBBBBBBBBBBk','.kbbbbkkkkbbbbk.','.kBBBkyyyykBBBk.','..kbbkyYYykbbk..','..kBBBkkkkBBBk..','...kddddddddk...','....kkkkkkkk....','..ww.....ww....w','wwwwwwwwwwwwwwww','aaaaaaaaaaaaaaaa']},
  {k:'k',n:'Kanonen',d:'+10 % Schaden im Seekampf',j:['Frisch geputzt. Und lauter.','Schwerere Kugeln, gleicher Spaß.','Die Möwen fliegen freiwillig weg.'],
   px:['','','............ww..','...........wwwww','............www.','.kkkkkkkkkk.....','kTTTTTTTTTkk....','kttttttttttk....','kTTTTTTTTTkk....','.kkkkkkkkkk.....','..kbbbbbbbk.....','.kBBBBBBBBBk....','.kkkkkkkkkkk....','.kdyk...kdyk....','..kk.....kk.....','aaaaaaaaaaaaaaaa']},
