@@ -469,6 +469,12 @@ window.GL = window.GL || {};
   }
 
   GL.art = {
+    // Freies Raster (z. B. Kaperfahrt-Teile aus js/data/kfart.js): rows = Zeilen, w×h, pal ergänzt/überschreibt die gemeinsame Palette
+    raw(key, rows, w, h, pal, cls) {
+      const k = 'raw:' + key;
+      if (cache[k]) return cache[k];
+      return (cache[k] = svg(w, h, grid(rows, w, pal), cls || 'ga-raw'));
+    },
     scene(id, opts) {
       const o = opts || {}, t = o.time || 'day', key = 'sc:' + id + ':' + t + ':' + (o.weather || '') + ':' + (o.ship === false ? 0 : 1);
       if (cache[key]) return cache[key];

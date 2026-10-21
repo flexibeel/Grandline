@@ -1841,6 +1841,7 @@
       case 'hq-home': { const was = ui.hqRoom; ui.hqRoom = null; draw(); window.scrollTo(0, 0);
         const st = document.getElementById('stage'); if (st && was) { st.classList.remove('room-in', 'room-side'); void st.offsetWidth; st.classList.add('room-out'); setTimeout(() => st.classList.remove('room-out'), 300); }
         break; }
+      case 'kf-open': if (GL.kf) GL.kf.open(profile, { save: saveProfile, close: () => { ui.lastStage = null; draw(); } }); break;
       case 'hq-tab': if (GL.meta.featureOpen(profile, el.dataset.tab)) {
         // Wie in einer App: Raum gleitet herein (seitlich innerhalb einer Gruppe, sonst von unten)
         const prevRoom = ui.hqRoom;
@@ -2399,6 +2400,8 @@
       }
       return;
     }
+    // KAPERFAHRT offen: Tasten gehören ihr (Esc schließt, Leertaste/Enter pariert dort selbst)
+    if (GL.kf && GL.kf.isOpen()) { if (e.key === 'Escape') document.querySelector('#kf [data-kf=close]')?.click(); return; }
     // Esc: oberstes Fenster schließen (Pop-up, Spieler-Karte, Album, Steckbrief, Raum im Hafen)
     if (e.key === 'Escape') {
       const pop = document.getElementById('fpop');

@@ -4740,7 +4740,9 @@ window.GL = window.GL || {};
   function hubTiles(profile, tab) {
     const fresh = ((profile.stats && profile.stats.runs) || 0) < 1 && !(profile.seenFeatures || []).length;
     const open = ROOMS.filter(r => GL.meta.featureOpen(profile, r.id) && !(fresh && r.id === 'werft'));
-    return `<nav class="hub" aria-label="Räume im Hauptquartier"><span class="hub-lbl">Im Hafen</span><div class="hub-grid">${open.map(r =>
+    // KAPERFAHRT: eigener kurzer Modus, immer als erste Kachel
+    const kf = GL.kf ? `<button class="hub-tile kf-tile-hub" data-act="kf-open"><i class="hub-art">${GL.sprites.ship()}</i><b class="ht-l">Kaperfahrt</b><b class="ht-s">Kapern</b><small>${GL.kf.sub(profile)}</small></button>` : '';
+    return `<nav class="hub" aria-label="Räume im Hauptquartier"><span class="hub-lbl">Im Hafen</span><div class="hub-grid">${kf}${open.map(r =>
       `<button class="hub-tile" data-act="hq-tab" data-tab="${r.id}"><i class="hub-art">${roomArt(r.art)}</i><b class="ht-l">${r.name}</b><b class="ht-s">${HUB_SHORT[r.id] || r.name}</b>${r.sub(profile) ? `<small>${r.sub(profile)}</small>` : ''}${tabAlert(profile, r.id) ? '<i class="tab-dot" title="Hier gibt es etwas zu tun"></i>' : ''}</button>`).join('')}</div></nav>`;
   }
   // Räume, die zusammengehören: oben als Umschalter (wie Tabs in einer App)

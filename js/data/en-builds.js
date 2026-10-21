@@ -39,7 +39,7 @@ GL.i18nExtraP = (GL.i18nExtraP || []).concat([
 ]);
 // Kampf-Herz: Kombos, schwerer Schlag, Kampfbilanz, Wiki „Kampf“
 Object.assign(GL.data.en, {
-  'Daneben!': 'Missed!', 'Knapp vorbei!': 'Close call!', 'Schwerer Schlag!': 'Heavy blow!', 'holt aus …': 'winds up …',
+  'Kaperfahrt': 'Raid voyage', 'Kapern': 'Raid', 'Daneben!': 'Missed!', 'Knapp vorbei!': 'Close call!', 'Schwerer Schlag!': 'Heavy blow!', 'holt aus …': 'winds up …',
   'Sturmangriff': 'Charge', 'Tausend Schnitte': 'Thousand Cuts', 'Festung': 'Fortress', 'Zäher Brocken': 'Tough Nut', 'Klingensturm': 'Blade Storm',
   'Ganze Crew +1 Tempo, Kraft-Figuren +10 % Schaden.': 'Whole crew +1 speed, Power characters +10 % damage.',
   'Klinge-Figuren +8 % Krit-Chance und +6 % Ausweichen.': 'Blade characters +8 % crit chance and +6 % dodge.',
