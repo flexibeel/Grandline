@@ -28,7 +28,7 @@ canvas{position:absolute;left:0;top:0;image-rendering:pixelated;image-rendering:
 @keyframes bump{50%{transform:translateY(2px)}}
 #meWrap{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom) + 176px);width:min(420px,calc(100% - 32px));pointer-events:none}
 @media (max-width:699px){#kTip,#fTip{bottom:auto!important;right:auto!important;left:50%;transform:translateX(-50%);top:calc(env(safe-area-inset-top) + 100px)}#kTip:after,#fTip:after{display:none}}
-@media (min-width:700px){#meWrap{bottom:calc(env(safe-area-inset-bottom) + 12px);width:min(420px,calc(100% - 420px))}#fTip{right:calc(env(safe-area-inset-right) + 112px)}}
+@media (min-width:700px){#meWrap{bottom:calc(env(safe-area-inset-bottom) + 12px);width:min(420px,calc(100% - 420px))}body #fTip{right:calc(env(safe-area-inset-right) + 104px)}body #fTip:after{right:12px}}
 #tm{font:600 11px var(--px);background:rgba(43,29,20,.55);padding:2px 6px;border-radius:2px}
 #ctl{--cx:calc(env(safe-area-inset-right) + 14px);--cy:calc(env(safe-area-inset-bottom) + 14px);position:fixed;inset:0;pointer-events:none}
 .btn{pointer-events:auto;position:relative;min-width:64px;min-height:64px;border:3px solid var(--wood);border-radius:6px;background:#b07a44;color:var(--ink);font:700 12px/1.1 var(--px);text-shadow:1px 1px 0 var(--wood);box-shadow:0 4px 0 var(--wood);overflow:hidden;padding:6px 8px;touch-action:none}
