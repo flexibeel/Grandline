@@ -1,6 +1,11 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-22b', date: '22.10.', title: 'Finten und Rammböcke', items: [
+    '🎭 Seekampf: Gegner täuschen jetzt an. Kein Feuer am Bug und ein weißes „!!“ heißt Finte. Wer dann kontert, fällt rein',
+    '🐏 Neuer Angriff: Blinkt eine rote Bahn vor dem Gegner, nimmt er Anlauf und rammt. Konter hilft nicht, nur seitlich ausweichen',
+    '⚓ Wildes Konter-Drücken kostet jetzt Rumpf und sperrt den Knopf kurz',
+    '🖥 Am PC verdeckt der Feuersturm-Tipp nicht mehr den Konter-Knopf' ] },
   { v: '2026-10-22a', date: '22.10.', title: 'Fäden in Reichweite', items: [
     '🕸 Fadennetz von Marlo: Die Fäden hängen jetzt tiefer, direkt über deiner Crew. Kein Hochfummeln unter die Leiste mehr, und die Knoten lassen sich leichter antippen' ] },
   { v: '2026-10-21z', date: '21.10.', title: 'Scharfe Sicht', items: [

@@ -132,7 +132,8 @@ canvas{position:absolute;left:0;top:0;image-rendering:pixelated;image-rendering:
 </div>
 <div id="erk"><div class="cd2"><h2>Kurz erklärt</h2>
   <div class="row"><div class="ic" style="background:#e08a3a">Feuer-<br>sturm</div><div><b>Feuersturm</b>: sieben Feuerkugeln auf einmal. Klappt nur in Reichweite: Leuchtet der Knopf <b>orange</b>, drück ihn. Ist er grau, fahr näher ran. Danach lädt er kurz nach.</div></div>
-  <div class="row"><div class="ic" style="background:var(--red)">Konter</div><div><b>Konter</b>: Holt der Boss aus, erscheint ein Schild und der Knopf blinkt. Jetzt drücken: Er ist betäubt und kassiert Extra-Schaden. Zu früh gedrückt bringt nichts.</div></div>
+  <div class="row"><div class="ic" style="background:var(--red)">Konter</div><div><b>Konter</b>: Holt der Boss aus, erscheint ein Schild und der Knopf blinkt. Jetzt drücken: Er ist betäubt und kassiert Extra-Schaden. Zu früh gedrückt kostet Rumpf und sperrt den Knopf kurz. Kein Feuer am Bug, weißes „!!“? Finte, nicht drücken!</div></div>
+  <div class="row"><div class="ic" style="background:#9a2a22">Ramm-<br>bahn</div><div>Blinkt eine <b>rote Bahn</b> vor ihm, nimmt er Anlauf und rammt. Konter hilft hier nicht: <b>seitlich raus</b> aus der Bahn.</div></div>
   <div class="row"><div class="ic" style="background:#b07a44">Rote<br>Ringe</div><div>Rote Ringe auf dem Wasser zeigen, wo Kugeln einschlagen. <b>Raus da!</b> Kanonen feuern von allein.</div></div>
   <button class="btn" id="erkOk">Verstanden!</button></div></div>
 <div id="ov"><div id="card">
@@ -165,6 +166,7 @@ const K={R:15,flee:36,
   ab:{cd:300,n:7,dmg:9,range:12,spread:1.1},                   // Feuersturm
   bv:{cd0:72,cdr:30,n:3,dmg:7,spread:1.0,range:13},            // Boss-Salve
   st:{every:180,ever:90,wind:30,dmg:20,range:13,stun:60,cdmg:24,miss:45,stunMul:1.5}, // Ausholen/Konter
+  v2:{miss:90,self:4,fake:0.3,fakeHit:8,ram:{first:210,every:300,ever:150,aim:36,dur:22,spd:9,len:9,dmg:18,range:10}}, // Regeln 2: Fehldruck, Finte, Rammen
   fa:{first:300,firstr:150,every:390,everr:300,life:660,spd:0.55,grab:1.45,smash:1.9,heal:18,boost:150}}; // Treibgut-Fass
 K.pb=Object.assign({},K.p,{vmax:K.p.vmax*1.4,acc:K.p.acc*1.7,turn:K.p.turn*1.15}); // Rueckenwind
 // Gegnerarten: nur Abweichungen von boss/lila. hp = Standard, wenn bhp fehlt.
@@ -172,9 +174,9 @@ K.pb=Object.assign({},K.p,{vmax:K.p.vmax*1.4,acc:K.p.acc*1.7,turn:K.p.turn*1.15}
 // panzer: dicker Kahn, Dreifach-Salve (3x3), laedt die Riesenkanone (eigener Konter: laenger offen, haut mehr rein).
 K.look={
   flink:{hp:200,b:{vmax:3.5,acc:2.6,dec:3.2,turn:2.2,tacc:7,gain:3,half:1.05,rad:0.5,orbit:5.5},orbA:0.85,flip:0.007,fly:0.7,
-    bv:{cd0:30,cdr:16,n:2,dmg:3,spread:0.9,range:11},st:{every:210,ever:90,wind:24,dmg:12,range:9,stun:50,cdmg:18}},
+    bv:{cd0:30,cdr:16,n:2,dmg:3,spread:0.9,range:11},st:{every:210,ever:90,wind:24,dmg:12,range:9,stun:50,cdmg:18},ram:{first:150,every:220,ever:110,aim:30,spd:10.5,len:9,dmg:12}},
   panzer:{hp:760,b:{vmax:1.45,acc:0.8,dec:1.5,turn:0.65,tacc:2,gain:2,half:2.4,rad:1.15,orbit:8.5},orbA:0.3,flip:0.002,fly:1.15,
-    bv:{cd0:130,cdr:40,n:3,dmg:6,spread:1.3,range:14,vol:3,vgap:14},st:{every:240,ever:120,wind:48,dmg:30,range:14,stun:80,cdmg:32}}};
+    bv:{cd0:130,cdr:40,n:3,dmg:6,spread:1.3,range:14,vol:3,vgap:14},st:{every:240,ever:120,wind:48,dmg:30,range:14,stun:80,cdmg:32},ram:{aim:48,dur:26,spd:6.5,len:8,dmg:26}}};
 const LOOKS=['boss','lila','flink','panzer'];
 // Werte fuer diesen Kampf: Ausbau (r,k,s), Stufe (tier) und Gegnerart. Ohne Optionen exakt K.
 function cfg(o){
@@ -182,9 +184,10 @@ function cfg(o){
   const p=o.s?Object.assign({},K.p,{vmax:K.p.vmax*sp,acc:K.p.acc*sp}):K.p;
   const pb=o.s?Object.assign({},p,{vmax:p.vmax*1.4,acc:p.acc*1.7,turn:p.turn*1.15}):K.pb;
   const c={p,pb,b:Object.assign({},K.b,L.b||{}),bs:Object.assign({},K.bs),ab:Object.assign({},K.ab),
-    bv:Object.assign({vol:1,vgap:0},K.bv,L.bv||{}),st:Object.assign({},K.st,L.st||{}),orbA:L.orbA||0.45,flip:L.flip||0.003,fly:L.fly||1};
+    bv:Object.assign({vol:1,vgap:0},K.bv,L.bv||{}),st:Object.assign({},K.st,L.st||{}),orbA:L.orbA||0.45,flip:L.flip||0.003,fly:L.fly||1,
+    v2:o.v?Object.assign({},K.v2,{ram:Object.assign({},K.v2.ram,L.ram||{})}):null};
   if(o.k){c.bs.dmg=Math.round(c.bs.dmg*dm);c.ab.dmg=Math.round(c.ab.dmg*dm);c.st.cdmg=Math.round(c.st.cdmg*dm);}
-  if(o.tier){c.bv.dmg=Math.round(c.bv.dmg*em);c.st.dmg=Math.round(c.st.dmg*em);}
+  if(o.tier){c.bv.dmg=Math.round(c.bv.dmg*em);c.st.dmg=Math.round(c.st.dmg*em);if(c.v2)c.v2.ram.dmg=Math.round(c.v2.ram.dmg*em);}
   return c;
 }
 function opts(o){
@@ -193,7 +196,7 @@ function opts(o){
   const look=LOOKS.includes(o.look)?o.look:'boss';
   // fl=1: Abhauen erlaubt (aus dem Ring segeln); ba/ph: Richtung zum Gegner und Kurs aus der offenen See
   const num=v=>v===undefined||v===null||v===''||!isFinite(+v)?null:r2(wrap(+v));
-  return {r:i3(u.r),k:i3(u.k),s:i3(u.s),tier:cl(Math.floor(+o.tier||0),0,9),look,mhp:Math.max(0,Math.floor(+o.mhp||0)),fl:+o.fl===1?1:0,ba:num(o.ba),ph:num(o.ph)};
+  return {r:i3(u.r),k:i3(u.k),s:i3(u.s),tier:cl(Math.floor(+o.tier||0),0,9),look,mhp:Math.max(0,Math.floor(+o.mhp||0)),fl:+o.fl===1?1:0,ba:num(o.ba),ph:num(o.ph),v:+o.v>=2?2:0};
 }
 function rnd(s){s.r=(s.r+0x6D2B79F5)>>>0;let t=s.r;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);return((t^(t>>>14))>>>0)/4294967296;}
 function rndF(s){s.f=(s.f+0x6D2B79F5)>>>0;let t=s.f;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);return((t^(t>>>14))>>>0)/4294967296;}
@@ -209,12 +212,12 @@ function create(seed,o0){
   const s0={seed,r:seed,f:(seed^0x9E3779B9)>>>0,fass:null,ft:0,step:0,over:false,winner:null,nid:1,balls:[],ev:[],hash:2166136261,stats:{pShots:0,pHits:0,bShots:0,bHits:0,counters:0,slams:0},
     p:{x:0,z:7,h:-Math.PI/2,v:0,w:0,tx:0,tz:7,mv:false,mx:0,mz:0,boost:0,hp:php,max:pmax,cd:30,ab:60,kcd:0},
     b:{x:0,z:-5,h:0,v:0,w:0,hp:bhp,max:bhp,cd:75,ph:'move',pt:0,st:150,orb:1}};
-  s0.stats.loot=0;s0.ft=K.fa.first+Math.floor(rndF(s0)*K.fa.firstr);
+  s0.stats.loot=0;if(o.v){s0.stats.fakes=0;s0.stats.dodges=0;s0.stats.rams=0;s0.b.rt=c.v2.ram.first;s0.b.fk=0;}s0.ft=K.fa.first+Math.floor(rndF(s0)*K.fa.firstr);
   s0.o=o;s0.c=c;
   if(o.ba!==null){const dx=Math.cos(o.ba),dz=Math.sin(o.ba);Object.assign(s0.p,{x:r2(-dx*6),z:r2(-dz*6),tx:r2(-dx*6),tz:r2(-dz*6),h:o.ph!==null?o.ph:o.ba});Object.assign(s0.b,{x:r2(dx*5),z:r2(dz*5),h:r2(wrap(o.ba+Math.PI/2))});}
   if(o.fl){s0.p.lim=K.R+3;s0.p.out=0;}
   // Optionen gehen in die Pruefsumme ein (Standard-Kampf bleibt unveraendert)
-  if(o.r||o.k||o.s||o.tier||o.fl||o.ba!==null||o.look==='flink'||o.look==='panzer'||pmax!==K.p.hp){let h=s0.hash;for(const v of[o.r,o.k,o.s,o.tier,LOOKS.indexOf(o.look),pmax,bhp,o.fl,Math.round((o.ba||0)*100),Math.round((o.ph||0)*100)]){h^=v|0;h=Math.imul(h,16777619)>>>0;}s0.hash=h;}
+  if(o.r||o.k||o.s||o.tier||o.fl||o.v||o.ba!==null||o.look==='flink'||o.look==='panzer'||pmax!==K.p.hp){let h=s0.hash;for(const v of[o.r,o.k,o.s,o.tier,LOOKS.indexOf(o.look),pmax,bhp,o.fl,Math.round((o.ba||0)*100),Math.round((o.ph||0)*100)]){h^=v|0;h=Math.imul(h,16777619)>>>0;}if(o.v){h^=o.v;h=Math.imul(h,16777619)>>>0;}s0.hash=h;}
   return s0;
 }
 // Richtung statt Zielpunkt: Laenge des Vektors = Anteil der Hoechstfahrt
@@ -285,8 +288,11 @@ function counter(s){
   const p=s.p,b=s.b;
   if(p.kcd>0)return;
   const T=s.c.st;
-  if(b.ph==='wind'){b.ph='stun';b.pt=T.stun;s.stats.counters++;s.ev.push({k:'counter'});hurt(s,'b',T.cdmg,b.x,b.z,'chit');}
-  else{p.kcd=T.miss;s.ev.push({k:'kmiss'});}
+  const V=s.c.v2;
+  if(b.ph==='wind'&&!(V&&b.fk)){b.ph='stun';b.pt=T.stun;s.stats.counters++;s.ev.push({k:'counter'});hurt(s,'b',T.cdmg,b.x,b.z,'chit');}
+  else if(!V){p.kcd=T.miss;s.ev.push({k:'kmiss'});}
+  else{const fake=b.ph==='wind',n=Math.min(fake?V.fakeHit:V.self,p.hp-1);p.kcd=V.miss;
+    if(n>0)p.hp-=n;s.ev.push({k:fake?'kfake':'kmiss',n,x:p.x,z:p.z});}
 }
 function step(s,inputs){
   if(s.over)return s;
@@ -312,11 +318,26 @@ function step(s,inputs){
       for(let v=0;v<V.vol;v++)for(let i=0;i<V.n;i++){const o=i-(V.n-1)/2;shoot(s,'b',b.x+Math.cos(b.h)*o*0.9,b.z+Math.sin(b.h)*o*0.9,p,1,V.spread,V.dmg,v*V.vgap+i*5);}
       b.cd=V.cd0+Math.floor(rnd(s)*V.cdr);
     }
-    if(--b.st<=0&&d<11){b.ph='wind';b.pt=c.st.wind;s.ev.push({k:'wind'});}
+    if(--b.st<=0&&d<11){b.ph='wind';b.pt=c.st.wind;
+      if(c.v2){const n=s.stats.slams+s.stats.counters+s.stats.fakes;b.fk=n>0&&rnd(s)<c.v2.fake?1:0;}
+      s.ev.push(b.fk?{k:'wind',fake:1}:{k:'wind'});}
+    else if(c.v2&&b.ph==='move'&&--b.rt<=0&&d<c.v2.ram.range&&b.st>40){
+      const RM=c.v2.ram,l=d||1;b.ph='aim';b.pt=RM.aim;b.ax=r2((p.x-b.x)/l);b.az=r2((p.z-b.z)/l);b.ox=r2(b.x);b.oz=r2(b.z);b.rh=0;
+      s.stats.rams++;s.ev.push({k:'aim',x:b.ox,z:b.oz,dx:b.ax,dz:b.az,len:RM.len});}
+  }else if(b.ph==='aim'){
+    turn(b,wrap(Math.atan2(b.az,b.ax)-b.h),c.b);coast(b,0,c.b);b.ox=r2(b.x);b.oz=r2(b.z);
+    if(--b.pt<=0){b.ph='ram';b.pt=c.v2.ram.dur;b.h=Math.atan2(b.az,b.ax);b.w=0;b.v=c.v2.ram.spd;s.ev.push({k:'ram'});}
+  }else if(b.ph==='ram'){
+    const RM=c.v2.ram;b.v=RM.spd;b.x+=b.ax*RM.spd*DT;b.z+=b.az*RM.spd*DT;
+    const r=Math.hypot(b.x,b.z);if(r>K.R){b.x*=K.R/r;b.z*=K.R/r;b.pt=Math.min(b.pt,1);}
+    if(!b.rh&&Math.hypot(b.x-p.x,b.z-p.z)<c.b.rad+K.p.rad+0.35){b.rh=1;hurt(s,'p',RM.dmg,p.x,p.z,'ramhit');}
+    if(--b.pt<=0){if(!b.rh){s.stats.dodges++;s.ev.push({k:'dodge',x:p.x,z:p.z});}
+      b.ph='move';b.v=RM.spd*0.4;b.rt=RM.every+Math.floor(rnd(s)*RM.ever);b.cd=Math.max(b.cd,30);}
   }else{
     coast(b,0,c.b);
     if(--b.pt<=0){
-      if(b.ph==='wind'){
+      if(b.ph==='wind'&&b.fk){b.fk=0;s.stats.fakes++;s.ev.push({k:'fakeend'});}
+      else if(b.ph==='wind'){
         s.stats.slams++;
         if(d<c.st.range)hurt(s,'p',c.st.dmg,p.x,p.z,'slam');else s.ev.push({k:'slammiss'});
       }
@@ -378,7 +399,7 @@ const $=id=>document.getElementById(id);
 // Einbettung in die Neue Welt: ?embed&seed=..&hp=..&bhp=..&name=..&look=lila
 // neu (Vertrag 21t): &mhp=..&up=r.k.s&tier=..&look=lila|boss|flink|panzer
 const QS=new URLSearchParams(location.search),EMB=QS.has('embed'),BN=(QS.get('name')||'Krähenbart').slice(0,24),LOOK=FK.LOOKS.includes(QS.get('look'))?QS.get('look'):'boss';
-const OPT={php:+QS.get('hp')||0,bhp:+QS.get('bhp')||0,mhp:+QS.get('mhp')||0,up:QS.get('up')||'',tier:+QS.get('tier')||0,look:LOOK,fl:+QS.get('fl')||0,ba:QS.get('ba'),ph:QS.get('ph')};
+const OPT={php:+QS.get('hp')||0,bhp:+QS.get('bhp')||0,mhp:+QS.get('mhp')||0,up:QS.get('up')||'',tier:+QS.get('tier')||0,look:LOOK,fl:+QS.get('fl')||0,ba:QS.get('ba'),ph:QS.get('ph'),v:2};
 let RUHIG=false;try{RUHIG=!!(JSON.parse(localStorage.getItem('gl.neu.opt')||'{}')||{}).ruhig;}catch(e){}
 let TIP={};try{TIP=JSON.parse(localStorage.getItem('gl.neu.tip')||'{}')||{};}catch(e){TIP={};}
 function tipDone(k){TIP[k]=1;try{localStorage.setItem('gl.neu.tip',JSON.stringify(TIP));}catch(e){}}
@@ -592,6 +613,8 @@ const marker=new THREE.Mesh(new THREE.RingGeometry(0.28,0.42,8).rotateX(-Math.PI
 marker.position.y=0.04;scene.add(marker);
 // Landepunkte der Boss-Kugeln (nur Darstellung): Ring zeigt wo, die Füllung zeigt wann
 const lgRing=new THREE.RingGeometry(0.46,0.58,10).rotateX(-Math.PI/2),lgFill=new THREE.CircleGeometry(0.46,10).rotateX(-Math.PI/2);
+const ramG=new THREE.PlaneGeometry(1,1).rotateX(-Math.PI/2),ramMesh=new THREE.Mesh(ramG,new THREE.MeshBasicMaterial({color:hex('#d8433a'),transparent:true,opacity:0.4,depthWrite:false,depthTest:false}));
+ramMesh.renderOrder=10;ramMesh.visible=false;
 const lmRing=new THREE.MeshBasicMaterial({color:hex('#d8433a'),transparent:true,opacity:0.95,depthWrite:false,depthTest:false});
 const lmFill=new THREE.MeshBasicMaterial({color:hex('#ffe28a'),transparent:true,opacity:0.6,depthWrite:false,depthTest:false});
 const landMesh=new Map();window.__lm=landMesh;
@@ -782,7 +805,13 @@ function onEvent(e){
         winsSeen<=2?BN+' '+WT+'!<br><b>Jetzt Konter drücken</b>':'<b>Konter!</b>';
       if(first)tipDone('k');fsHide();t.style.display='block';$('hint').style.display='none';tipLeft=99;}break;
     case 'counter':crewJump(1.2);tipLeft=0;hs=0.08;shake=0.1;flash=0.07;pop(st.b.x,st.b.z,'Konter!','big');break;
-    case 'kmiss':popScreen(winsSeen?'Zu früh! Warte aufs „!!“':'Erst wenn er ausholt!');break;
+    case 'kmiss':popScreen(winsSeen?'Zu früh! Warte aufs „!!“':'Erst wenn er ausholt!');if(e.n){pop(e.x,e.z,'-'+e.n,'me');bump('meBox');}break;
+    case 'kfake':popScreen('Reingefallen – Finte!');hs=0.06;shake=0.12;if(e.n){pop(e.x,e.z,'-'+e.n,'me');bump('meBox');}fakeTip();break;
+    case 'fakeend':pop(st.b.x,st.b.z,'Finte!','');fakeTip();break;
+    case 'aim':{const first=mode==='live'&&!TIP.ram;popScreen(first?'Rammangriff! Raus aus der roten Bahn':'Er nimmt Anlauf!');if(first)tipDone('ram');break;}
+    case 'ram':shake=Math.max(shake,0.06);break;
+    case 'ramhit':hitFx(e.x,0.3,e.z,true);player.userData.flash=0.1;player.userData.rv+=3;hs=0.1;shake=0.18;bump('meBox');pop(e.x,e.z,'-'+e.n+' Gerammt!','me big');crewJump(0);break;
+    case 'dodge':pop(e.x,e.z,'Ausgewichen!','loot');break;
     case 'far':popScreen('Näher ran!');rangeT=1.6;break;
     case 'ability':popScreen('Feuersturm!');fsHide();break;
     case 'fspawn':popScreen(e.kind==='heal'?'Ein Fass treibt heran! (Rum)':'Ein Fass treibt heran! (Wind)');break;
@@ -804,7 +833,7 @@ function showEnd(){
   const fled=s.winner==='flee';
   $('ovT').textContent=win?'Sieg!':fled?'Entkommen!':'Versenkt!';
   $('ovP').innerHTML=(win?BN+' geht baden.':fled?'Volle Fahrt durch die Felsen. '+BN+' schimpft hinterher.':(s.step>=FK.HZ*90?'Zeit um. '+BN+' segelt davon.':'Der Wellenreiter liegt auf Grund.'))+
-    '<br>'+t+' s · Rumpf '+s.p.hp+' · Boss '+s.b.hp+'<br>Treffer '+s.stats.pHits+'/'+s.stats.pShots+' · Konter '+s.stats.counters+'/'+s.stats.slams+' · Fässer '+s.stats.loot+' · Eingaben '+rec.length;
+    '<br>'+t+' s · Rumpf '+s.p.hp+' · Boss '+s.b.hp+'<br>Treffer '+s.stats.pHits+'/'+s.stats.pShots+' · Konter '+s.stats.counters+'/'+s.stats.slams+(s.stats.rams?' · Ausgewichen '+s.stats.dodges+'/'+s.stats.rams:'')+' · Fässer '+s.stats.loot+' · Eingaben '+rec.length;
   if(EMB){$('bAgain').style.display=$('bView').style.display=$('bChk').style.display='none';$('bGo').style.display='';
     $('bGo').textContent=win?'Beute einsammeln':fled?'Weitersegeln':'Zurück in den Hafen';}
   $('ov').style.display='flex';
@@ -972,13 +1001,18 @@ function visual(dt,a){
   for(const s of sails)updSail(s,wall,1);for(const f of flags)updFlag(f,wall);
   // Ausholen sichtbar machen
   const wind=b.ph==='wind',stun=b.ph==='stun',fire=boss.userData.fire;
-  const k=wind?1-b.pt/st.c.st.wind:0;
-  fire.scale.setScalar(wind?1+k*2.2+(Math.floor(wall*12)%2)*0.4:1);fireL.intensity=wind?1.5+k*3:0;
+  const k=wind?1-b.pt/st.c.st.wind:0,real=wind&&!b.fk;
+  // Finte: kein Feuer am Bug, weisses Zeichen (echtes Ausholen: Feuer + gelbes Zeichen)
+  fire.scale.setScalar(real?1+k*2.2+(Math.floor(wall*12)%2)*0.4:1);fireL.intensity=real?1.5+k*3:0;
+  if(!ramMesh.parent)scene.add(ramMesh);
+  if(b.ph==='aim'||b.ph==='ram'){const L=st.c.v2.ram.len,wd=st.c.b.rad*2+0.7;ramMesh.visible=true;
+    ramMesh.position.set(b.ox+b.ax*L/2,0.02,b.oz+b.az*L/2);ramMesh.rotation.y=-Math.atan2(b.az,b.ax);ramMesh.scale.set(L,1,wd);
+    ramMesh.material.opacity=b.ph==='ram'?0.3:(Math.floor(wall*8)%2?0.35:0.6);}else ramMesh.visible=false;
   boss.updateMatrixWorld(true);fire.getWorldPosition(fireL.position);
-  if(wind&&Math.random()<0.6)emit(fireL.position.x+R(-.15,.15),fireL.position.y,fireL.position.z+R(-.15,.15),R(-.2,.2),R(1,2),R(-.2,.2),0.35,2,1,C.f,C.o,0,1,0);
+  if(real&&Math.random()<0.6)emit(fireL.position.x+R(-.15,.15),fireL.position.y,fireL.position.z+R(-.15,.15),R(-.2,.2),R(1,2),R(-.2,.2),0.35,2,1,C.f,C.o,0,1,0);
   if(stun){boss.userData.body.rotation.z=0.12*Math.sin(wall*9);if(Math.random()<0.3)emit(bx+R(-1,1),2.8,bz+R(-.5,.5),0,0.6,0,0.5,2,2,C.f,C.y,0,0,1);}
   waterU.uWarn.value=wind?1:0;
-  const w=$('warn');if(wind){const[sx,sy]=toScreen(bx,4.3,bz);w.style.left=sx+'px';w.style.top=sy+'px';w.style.display='block';w.textContent=k>0.5?'!!!':'!!';}else w.style.display='none';
+  const w=$('warn');if(wind){const[sx,sy]=toScreen(bx,4.3,bz);w.style.left=sx+'px';w.style.top=sy+'px';w.style.display='block';w.textContent=k>0.5?'!!!':'!!';w.style.color=b.fk?'#fbf6ea':'';}else w.style.display='none';
   // Kielwasser + Schaum
   const dx=Math.cos(ph),dz=Math.sin(ph),spd=p.v;
   wakeTimer-=dt;for(const v of wakeP)v.z+=dt;
@@ -1048,6 +1082,8 @@ function hud(){
   $('bK').classList.toggle('ready',b.ph==='wind');
   $('bAb').classList.toggle('go',p.ab<=0&&inR&&!st.over);$('bAb').classList.toggle('off',p.ab<=0&&!inR);
 }
+function fakeTip(){if(mode!=='live'||TIP.fi)return;tipDone('fi');const t=$('kTip');t.style.maxWidth='210px';
+  t.innerHTML='<b>Finte!</b><br>Brennt kein Feuer am Bug und ist das „!!“ weiß, holt er nur zum Schein aus. Dann <b>nicht</b> kontern.';t.style.display='block';setTimeout(()=>{if(st&&st.b.ph!=='wind')t.style.display='none';},4500);}
 let fsT=0;function fsHide(){fsT=0;$('fTip').style.display='none';}
 function bump(id){const el=$(id);el.classList.remove('hitp');void el.offsetWidth;el.classList.add('hitp');}
 // Wappen in Pixeln (16x16): Schild in Gegnerfarbe, Zeichen 8x8 obendrauf
