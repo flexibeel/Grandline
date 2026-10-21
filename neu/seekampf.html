@@ -475,11 +475,11 @@ for(const[x,z,r]of ROCKS){const m=mesh(new THREE.IcosahedronGeometry(r,0),M(C.e)
 // ---------- Wasser (aus probe-3d, gekuerzt) ----------
 const NWP=24;const wakeP=[];for(let i=0;i<NWP;i++)wakeP.push(new THREE.Vector4(0,0,99,0));
 const waterU={uT:{value:0},uSP:{value:new THREE.Vector2()},uSD:{value:new THREE.Vector2(1,0)},uEP:{value:new THREE.Vector2()},uED:{value:new THREE.Vector2(1,0)},
-  uWP:{value:wakeP},uR:{value:ROCKS.map(r=>new THREE.Vector3(r[0],r[1],r[2]))},uSh:{value:new THREE.Vector2(-SUN.x/SUN.y,-SUN.z/SUN.y)},uWarn:{value:0}};
+  uWP:{value:wakeP},uR:{value:ROCKS.map(r=>new THREE.Vector3(r[0],r[1],r[2]))},uSh:{value:new THREE.Vector2(-SUN.x/SUN.y,-SUN.z/SUN.y)},uWarn:{value:0},uPx:{value:new THREE.Vector2(.078,.1)}};
 const water=new THREE.Mesh(new THREE.PlaneGeometry(1,1).rotateX(-Math.PI/2),new THREE.ShaderMaterial({uniforms:waterU,
 vertexShader:`varying vec2 vW;void main(){vec4 w=modelMatrix*vec4(position,1.);vW=w.xz;gl_Position=projectionMatrix*viewMatrix*w;}`,
 fragmentShader:`precision highp float;varying vec2 vW;
-uniform float uT,uWarn;uniform vec2 uSP,uSD,uEP,uED,uSh;uniform vec4 uWP[${NWP}];uniform vec3 uR[8];
+uniform float uT,uWarn;uniform vec2 uSP,uSD,uEP,uED,uSh,uPx;uniform vec4 uWP[${NWP}];uniform vec3 uR[8];
 float h(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
 float vn(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(h(i),h(i+vec2(1,0)),f.x),mix(h(i+vec2(0,1)),h(i+vec2(1,1)),f.x),f.y);}
 float b2(vec2 a){a=floor(a);return fract(dot(a,vec2(.5,a.y*.75)));}
@@ -487,21 +487,21 @@ float by(vec2 a){return b2(.5*a)*.25+b2(a);}
 vec2 loc(vec2 p,vec2 P,vec2 D){vec2 d=p-P;return vec2(dot(d,D),dot(d,vec2(-D.y,D.x)));}
 float ell(vec2 q,vec2 r){return length(q/r);}
 void main(){
-  vec2 p=vW;float tq=floor(uT*8.)/8.;float dz=by(gl_FragCoord.xy)-.5;
+  vec2 p=vW;float tq=floor(uT*6.)/6.;float dz=by(floor(vW/uPx))-.5;
   vec3 cTop=vec3(.353,.435,.627),cMid=vec3(.290,.369,.565),cLow=vec3(.235,.310,.502),cDeep=vec3(.180,.235,.416);
   vec3 cHi=vec3(.624,.663,.816),cWarm=vec3(.933,.620,.478),cFoam=vec3(.984,.965,.918);
-  float n1=vn(p*.32+vec2(tq*.12,tq*.05))*.65+vn(p*.9-vec2(tq*.2,0.))*.35;
-  vec3 col=cMid;col=mix(col,cTop,step(.56+dz*.05,n1));col=mix(col,cLow,step(n1,.36+dz*.05));
-  vec2 sp=p*vec2(1.3,4.2)+vec2(tq*.6,tq*.25);col=mix(col,cHi,step(.68,vn(sp)*vn(sp*.5+7.3))*.7);
-  float n3=vn(p*vec2(1.1,5.)-vec2(tq*.4,0.));col=mix(col,cWarm,step(.92,n3));
+  float n1=vn(p*.32+vec2(tq*.05,tq*.02))*.7+vn(p*.9-vec2(tq*.08,0.))*.3;
+  vec3 col=cMid;col=mix(col,cTop,step(.58+dz*.05,n1)*.6);col=mix(col,cLow,step(n1,.34+dz*.05)*.55);
+  vec2 sp=p*vec2(1.3,4.2)+vec2(tq*.25,tq*.1);col=mix(col,cHi,step(.72,vn(sp)*vn(sp*.5+7.3))*.4);
+  float n3=vn(p*vec2(1.1,5.)-vec2(tq*.16,0.));col=mix(col,cWarm,step(.93,n3)*.6);
   float r=length(p);col=mix(col,cDeep,smoothstep(15.5,19.,r)*.6);
   float sh=0.;vec2 q;
-  q=loc(p-uSh*.35,uSP,uSD);sh=max(sh,step(ell(q-vec2(.1,0.),vec2(1.7,.62)),1.));
+  q=loc(p-uSh*.35,uSP,uSD);sh=max(sh,step(ell(q-vec2(.1,0.),vec2(1.75,.66))+dz*.3,1.));
   q=loc(p-uSh*1.85,uSP,uSD);sh=max(sh,.7*step(ell(q-vec2(.35,0.),vec2(.95,.72)),1.));
-  q=loc(p-uSh*.5,uEP,uED);sh=max(sh,step(ell(q-vec2(.15,0.),vec2(2.45,.9)),1.));
+  q=loc(p-uSh*.5,uEP,uED);sh=max(sh,step(ell(q-vec2(.15,0.),vec2(2.5,.94))+dz*.3,1.));
   q=loc(p-uSh*2.7,uEP,uED);sh=max(sh,.7*step(ell(q-vec2(.5,0.),vec2(1.4,1.05)),1.));
-  col=mix(col,cDeep,sh*.75);
-  float fn=vn(p*5.+vec2(tq*3.,0.));
+  col=mix(col,cDeep,sh*.6);
+  float fn=vn(p*5.+vec2(tq*1.4,0.));
   q=loc(p,uSP,uSD);float e=ell(q-vec2(.05,0.),vec2(1.75,.62));
   float ring=step(.97,e)*step(e,1.03+smoothstep(0.,1.6,q.x)*.22+fn*.12);
   q=loc(p,uEP,uED);float ee=ell(q,vec2(2.5,.9));ring=max(ring,step(.97,ee)*step(ee,1.03+fn*.08));
@@ -613,6 +613,7 @@ resize();addEventListener('resize',resize);
 
 // ---------- Kampf-Treiber: fester Takt, Eingaben aufzeichnen ----------
 let winsSeen=0,tipLeft=0;
+const CALM=(()=>{try{return localStorage.getItem('gl.ruhig')==='1';}catch(e){return false;}})();
 let st,rec,ip,mode,acc=0,hs=0,shake=0,flash=0,lastSum=null,warnOn=false;
 const prev={px:0,pz:0,ph:0,bx:0,bz:0,bh:0};
 const camT=new THREE.Vector3();let camInit=false,wakeTimer=0,foamTimer=0;
@@ -879,8 +880,8 @@ function visual(dt,a){
   sun.position.set(px+SUN.x*25,SUN.y*25,pz+SUN.z*25);sun.target.position.set(px,0,pz);
   // Kamera: Spieler + etwas Richtung Boss, Spieler unten-mittig
   const want=new THREE.Vector3(px+(bx-px)*0.3+Math.cos(ph)*p.v*0.35,0,pz+(bz-pz)*0.3-1.5+Math.sin(ph)*p.v*0.35);
-  if(!camInit){camT.copy(want);camInit=true;}camT.lerp(want,1-Math.exp(-dt*2.2));
-  water.position.set(camT.x,0,camT.z);
+  if(!camInit){camT.copy(want);camInit=true;}camT.lerp(want,1-Math.exp(-dt*(CALM?1.2:1.7)));
+  water.position.set(camT.x,0,camT.z);waterU.uPx.value.set(WPP,WPP/Math.sin(PITCH));
   waterU.uT.value=wall;waterU.uSP.value.set(px,pz);waterU.uSD.value.set(dx,dz);waterU.uEP.value.set(bx,bz);waterU.uED.value.set(Math.cos(bh),Math.sin(bh));
   shake-=dt;flash-=dt;
   const kt=$('kTip');if(!wind&&tipLeft>0){tipLeft=0;kt.style.display='none';}if(st.over)kt.style.display='none';
@@ -909,7 +910,7 @@ function render(){
   pos.addScaledVector(RIGHT,(rr-r)*WPP).addScaledVector(UP,(ur-u)*WPP);
   cam.position.copy(pos);cam.lookAt(pos.x,0,pos.z-Math.cos(PITCH)*dist);cam.updateMatrixWorld();
   let sx=-(r-rr)*S/dpr,sy=(u-ur)*S/dpr;
-  if(shake>0){sx+=(Math.random()<.5?-1:1)*S/dpr;sy+=(Math.random()<.5?-1:1)*S/dpr;}
+  if(shake>0.08&&!CALM&&Math.floor(shake*30)%2){sx+=S/dpr;}
   cv.style.transform='translate('+(offX+sx)+'px,'+(offY+sy)+'px)';
   renderer.setRenderTarget(rtC);renderer.setClearColor(0x4a5e90,1);renderer.render(scene,cam);
   pts.visible=false;for(const m of landMesh.values())m.r.visible=m.f.visible=false;marker.visible&&(marker.userData.v=1);scene.overrideMaterial=ndMat;renderer.shadowMap.autoUpdate=false;

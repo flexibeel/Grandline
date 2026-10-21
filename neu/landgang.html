@@ -529,23 +529,23 @@ ship.position.set(PX+2.05,-0.05,-14.4);ship.rotation.y=Math.PI/2+0.05;ship.scale
 
 // ---------- Wasser mit Pixel-Schaum ----------
 const FOAMP=[...ROCKS,...posts.slice(0,6),[ship.position.x,ship.position.z,0.9]];
-const waterU={uT:{value:0},uDim:{value:0},uW0:{value:new THREE.Color()},uW1:{value:new THREE.Color()},uW2:{value:new THREE.Color()},uFo:{value:new THREE.Color()},
+const waterU={uT:{value:0},uPx:{value:new THREE.Vector2(.05,.08)},uDim:{value:0},uW0:{value:new THREE.Color()},uW1:{value:new THREE.Color()},uW2:{value:new THREE.Color()},uFo:{value:new THREE.Color()},
   uR:{value:FOAMP.map(r=>new THREE.Vector3(r[0],r[1],r[2]))}};
 const NF=FOAMP.length;
 const water=new THREE.Mesh(new THREE.PlaneGeometry(1,1).rotateX(-Math.PI/2),new THREE.ShaderMaterial({uniforms:waterU,
 vertexShader:`varying vec2 vW;void main(){vec4 w=modelMatrix*vec4(position,1.);vW=w.xz;gl_Position=projectionMatrix*viewMatrix*w;}`,
-fragmentShader:`precision highp float;varying vec2 vW;uniform float uT,uDim;uniform vec3 uW0,uW1,uW2,uFo;uniform vec3 uR[${NF}];
+fragmentShader:`precision highp float;varying vec2 vW;uniform float uT,uDim;uniform vec2 uPx;uniform vec3 uW0,uW1,uW2,uFo;uniform vec3 uR[${NF}];
 float h(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
 float vn(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(h(i),h(i+vec2(1,0)),f.x),mix(h(i+vec2(0,1)),h(i+vec2(1,1)),f.x),f.y);}
 float b2(vec2 a){a=floor(a);return fract(dot(a,vec2(.5,a.y*.75)));}
 void main(){
-  vec2 p=vW;float tq=floor(uT*8.)/8.;float dz=b2(.5*gl_FragCoord.xy)*.25+b2(gl_FragCoord.xy)-.5;
-  float n1=vn(p*.35+vec2(tq*.1,tq*.05))*.65+vn(p*.9-vec2(tq*.18,0.))*.35;
-  vec3 col=uW1;col=mix(col,uW0,step(.58+dz*.05,n1));col=mix(col,uW2,step(n1,.36+dz*.05));
-  float r=length(p),a=atan(p.y,p.x),fn=vn(p*4.+vec2(tq*2.,0.)),bay=.45*sin(3.*a+.5)+.25*sin(5.*a+1.3);
+  vec2 p=vW;float tq=floor(uT*6.)/6.;vec2 pq=floor(vW/uPx);float dz=b2(.5*pq)*.25+b2(pq)-.5;
+  float n1=vn(p*.35+vec2(tq*.04,tq*.02))*.7+vn(p*.9-vec2(tq*.07,0.))*.3;
+  vec3 col=uW1;col=mix(col,uW0,step(.6+dz*.05,n1)*.6);col=mix(col,uW2,step(n1,.34+dz*.05)*.55);
+  float r=length(p),a=atan(p.y,p.x),fn=vn(p*4.+vec2(tq*1.,0.)),bay=.45*sin(3.*a+.5)+.25*sin(5.*a+1.3);
   col=mix(col,mix(uW0,uFo,.3),step(r,12.4+bay+dz*.5+sin(a*7.)*.25)*.75);
   col=mix(col,uW2*.8,smoothstep(15.,27.,r)*.7);
-  vec2 sp=p*vec2(1.3,4.)+vec2(tq*.6,tq*.2);col=mix(col,mix(uW0,uFo,.55),step(.7,vn(sp)*vn(sp*.5+7.3))*.6);
+  vec2 sp=p*vec2(1.3,4.)+vec2(tq*.25,tq*.08);col=mix(col,mix(uW0,uFo,.4),step(.74,vn(sp)*vn(sp*.5+7.3))*.35);
   float sh=10.95+bay+.12*sin(a*7.+tq*2.)+fn*.12;float ring=step(sh-.12,r)*step(r,sh+.2);
   for(int k=0;k<2;k++){float wv=fract(uT*.2+float(k)*.5);ring=max(ring,step(abs(r-sh-.15-(1.-wv)*2.2-fn*.15),.05+wv*.07)*step(.3-wv*.25,fn));}
   for(int i=0;i<${NF};i++){float d=length(p-uR[i].xy)-uR[i].z;ring=max(ring,step(-.05,d)*step(d,.1+.07*step(.5,fract(uT*1.2+float(i)*.3))+fn*.1));}
@@ -675,6 +675,7 @@ for(let i=0;i<3;i++){const b=document.createElement('button');b.className='btn p
 const hbs=[0,1,2,3,4,5].map(i=>{const d=document.createElement('div');d.className='hb'+(i>2?' e':'')+(i===3?' boss':'');d.innerHTML='<b></b>';$('ov2').appendChild(d);return d;});
 
 // ---------- Kampf-Treiber: fester Takt, Eingaben aufzeichnen ----------
+const CALM=(()=>{try{return localStorage.getItem('gl.ruhig')==='1';}catch(e){return false;}})();
 let tilt=0,st,rec,ip,mode,acc=0,hs=0,shake=0,flash=0,lastSum=null,winds=0,wall=0,dimT=0,todT=0,hour=clockH();
 const prev=[];const camT=new THREE.Vector3();let camInit=false;
 function start(seed,inputs){
@@ -931,8 +932,8 @@ function visual(dt,a){
   updParts(dt);
   // Kamera: Kapitaen + etwas Richtung Marlo, folgt sanft
   const want=new THREE.Vector3(cx+(bx-cx)*0.22,0,cz+Math.max(-1.6,Math.min(1.6,(bz-cz)*0.22))+0.4);
-  if(!camInit){camT.copy(want);camInit=true;}camT.lerp(want,1-Math.exp(-dt*2.5));
-  water.position.set(camT.x,-0.16,camT.z);waterU.uT.value=wall;
+  if(!camInit){camT.copy(want);camInit=true;}camT.lerp(want,1-Math.exp(-dt*(CALM?1.3:1.9)));
+  water.position.set(camT.x,-0.16,camT.z);waterU.uT.value=wall;waterU.uPx.value.set(WPP,WPP/Math.sin(PITCH));
   sun.position.set(camT.x+SUN.x*30,SUN.y*30,camT.z+SUN.z*30);sun.target.position.set(camT.x,0,camT.z);
   shake-=dt;flash-=dt;
   bars(P);hud();
@@ -967,7 +968,7 @@ function render(){
   pos.addScaledVector(RIGHT,(rr-r)*WPP).addScaledVector(UP,(ur-u)*WPP);
   cam.position.copy(pos);cam.lookAt(pos.x,0,pos.z-Math.cos(PITCH)*dist);if(tilt>0)cam.rotateZ(Math.sin(tilt/0.8*Math.PI)*0.07);cam.updateMatrixWorld();
   let sx=-(r-rr)*S/dpr,sy=(u-ur)*S/dpr;
-  if(shake>0){sx+=(Math.random()<.5?-1:1)*S/dpr;sy+=(Math.random()<.5?-1:1)*S/dpr;}
+  if(shake>0.08&&!CALM&&Math.floor(shake*30)%2){sx+=S/dpr;}
   cv.style.transform='translate('+(offX+sx)+'px,'+(offY+sy)+'px)';
   const cc=waterU.uW2.value;renderer.setRenderTarget(rtC);renderer.setClearColor(cc,1);renderer.render(scene,cam);
   const hide=[pts,marker,windRing,...srs,...aimL,...aimE];for(const c of covers)if(c.f>0.3)hide.push(c.g);if(bFade>0.3)hide.push(figs[3]);for(const m of landMesh.values())hide.push(m.r,m.f);for(const f of ultFx)hide.push(f.m);

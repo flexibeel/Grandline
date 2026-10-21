@@ -103,6 +103,7 @@ body.title .ui *{pointer-events:none!important}
   <div>Neue Welt · Beta</div>
   <button class="btn" data-m="titel">Zum Titelbild<br><small>Fahrt wird gemerkt</small></button>
   <button class="btn" data-m="neu">Neue Seekarte<br><small>Neue Inseln, Beute weg</small></button>
+  <button class="btn" data-m="ruhig" id="mRuhig">Ruhige Kamera: aus<br><small>Weniger Bewegung, kein Wackeln</small></button>
   <small id="mInfo"></small>
 </div>
 <div id="joy" class="ui"><canvas id="wheel" width="46" height="46"></canvas><div id="knob"><canvas id="knobC" width="16" height="16"></canvas></div></div>
@@ -384,28 +385,28 @@ for(let i=0;i<3;i++){const g=new THREE.Group(),wm=M(C.w);add(g,mesh(box(0.16,0.0
 const NWP=24,NI=8;const wakeP=[];for(let i=0;i<NWP;i++)wakeP.push(new THREE.Vector4(0,0,99,0));
 const isleU=[];for(let i=0;i<NI;i++)isleU.push(new THREE.Vector4(0,0,0,0));
 const waterU={uT:{value:0},uW0:{value:new THREE.Color()},uW1:{value:new THREE.Color()},uW2:{value:new THREE.Color()},uFo:{value:new THREE.Color()},
-  uI:{value:isleU},uWP:{value:wakeP},uSP:{value:new THREE.Vector2()},uSD:{value:new THREE.Vector2(1,0)},uSh:{value:new THREE.Vector2()}};
+  uI:{value:isleU},uWP:{value:wakeP},uSP:{value:new THREE.Vector2()},uSD:{value:new THREE.Vector2(1,0)},uSh:{value:new THREE.Vector2()},uPx:{value:new THREE.Vector2(.07,.09)}};
 const water=new THREE.Mesh(new THREE.PlaneGeometry(1,1).rotateX(-Math.PI/2),new THREE.ShaderMaterial({uniforms:waterU,
 vertexShader:`varying vec2 vW;void main(){vec4 w=modelMatrix*vec4(position,1.);vW=w.xz;gl_Position=projectionMatrix*viewMatrix*w;}`,
-fragmentShader:`precision highp float;varying vec2 vW;uniform float uT;uniform vec3 uW0,uW1,uW2,uFo;uniform vec4 uI[${NI}];uniform vec4 uWP[${NWP}];uniform vec2 uSP,uSD,uSh;
+fragmentShader:`precision highp float;varying vec2 vW;uniform float uT;uniform vec3 uW0,uW1,uW2,uFo;uniform vec4 uI[${NI}];uniform vec4 uWP[${NWP}];uniform vec2 uSP,uSD,uSh,uPx;
 float h(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
 float vn(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(h(i),h(i+vec2(1,0)),f.x),mix(h(i+vec2(0,1)),h(i+vec2(1,1)),f.x),f.y);}
 float b2(vec2 a){a=floor(a);return fract(dot(a,vec2(.5,a.y*.75)));}
 float by(vec2 a){return b2(.5*a)*.25+b2(a);}
 vec2 loc(vec2 p,vec2 P,vec2 D){vec2 d=p-P;return vec2(dot(d,D),dot(d,vec2(-D.y,D.x)));}
 void main(){
-  vec2 p=vW;float tq=floor(uT*8.)/8.;float dz=by(gl_FragCoord.xy)-.5;
-  float n1=vn(p*.3+vec2(tq*.1,tq*.05))*.65+vn(p*.85-vec2(tq*.18,0.))*.35;
-  vec3 col=uW1;col=mix(col,uW0,step(.58+dz*.05,n1));col=mix(col,uW2,step(n1,.36+dz*.05));
-  vec2 sp=p*vec2(1.3,4.)+vec2(tq*.6,tq*.2);col=mix(col,mix(uW0,uFo,.55),step(.7,vn(sp)*vn(sp*.5+7.3))*.6);
-  float fn=vn(p*4.+vec2(tq*2.,0.)),ring=0.,shal=0.;
+  vec2 p=vW;float tq=floor(uT*6.)/6.;float dz=by(floor(vW/uPx))-.5;
+  float n1=vn(p*.3+vec2(tq*.04,tq*.02))*.7+vn(p*.85-vec2(tq*.07,0.))*.3;
+  vec3 col=uW1;col=mix(col,uW0,step(.6+dz*.05,n1)*.6);col=mix(col,uW2,step(n1,.34+dz*.05)*.55);
+  vec2 sp=p*vec2(1.3,4.)+vec2(tq*.25,tq*.08);col=mix(col,mix(uW0,uFo,.4),step(.74,vn(sp)*vn(sp*.5+7.3))*.35);
+  float fn=vn(p*4.+vec2(tq*1.,0.)),ring=0.,shal=0.;
   for(int i=0;i<${NI};i++){vec4 I=uI[i];if(I.z<=0.)continue;vec2 q=p-I.xy;float a=atan(q.y,q.x);float d=length(q)-I.z-(.3*sin(3.*a+I.w)+.2*sin(5.*a+I.w*2.));
     shal=max(shal,1.-smoothstep(.2,3.2,d));
     ring=max(ring,step(-.05,d)*step(d,.95+.12*sin(a*7.+tq*2.)+fn*.14)*step(.7,d+fn*.3));
     for(int k=0;k<2;k++){float wv=fract(uT*.18+float(k)*.5+I.w);ring=max(ring,step(abs(d-1.2-(1.-wv)*2.4-fn*.15),.05+wv*.07)*step(.3-wv*.25,fn));}}
   col=mix(col,mix(uW0,uFo,.3),step(.45+dz*.25,shal)*.85);
-  vec2 q=loc(p-uSh*.35,uSP,uSD);float sh=step(length((q-vec2(.1,0.))/vec2(1.7,.62)),1.);
-  col=mix(col,uW2*.75,sh*.65);
+  vec2 q=loc(p-uSh*.35,uSP,uSD);float sh=step(length((q-vec2(.1,0.))/vec2(1.75,.66))+dz*.3,1.);
+  col=mix(col,uW2*.8,sh*.5);
   float best=9.,age=9.;
   for(int i=0;i<${NWP-1};i++){vec4 a=uWP[i],b=uWP[i+1];vec2 ab=b.xy-a.xy;float hh=clamp(dot(p-a.xy,ab)/max(dot(ab,ab),1e-4),0.,1.);float ag=mix(a.z,b.z,hh);float k=length(p-a.xy-ab*hh)/(.17+ag*.24);if(k<best){best=k;age=ag;}}
   float fw=vn(p*4.2+vec2(0.,tq*2.));
@@ -465,7 +466,8 @@ postScene.add(new THREE.Mesh(new THREE.PlaneGeometry(2,2),post));
 // ---------- Fahrt: Schiff mit Ruder-Traegheit ----------
 const SP={vmax:4.6,acc:2.0,dec:2.6,turn:1.8,tacc:6,gain:2.6};
 const sh={x:S.x,z:S.z,h:S.h,v:0,w:0,px:S.x,pz:S.z,ph:S.h};
-let mode='title',paused=false,wall=0,bumpT=0,lock=0,camInit=false,shake=0,flash=0;
+let mode='title',paused=false,wall=0,bumpT=0,lock=0,camInit=false,shake=0,flash=0,calm=false;const camLead=new THREE.Vector3();
+try{calm=localStorage.getItem('gl.ruhig')==='1';}catch(e){}
 const camT=new THREE.Vector3();
 function shipStep(dt,mx,mz){
   const m=Math.min(1,Math.hypot(mx,mz));let tv=0,dh=0;
@@ -474,7 +476,7 @@ function shipStep(dt,mx,mz){
   sh.v+=cl(tv-sh.v,-SP.dec*dt,SP.acc*dt);
   sh.x+=Math.cos(sh.h)*sh.v*dt;sh.z+=Math.sin(sh.h)*sh.v*dt;
   for(const I of WORLD.L){const dx=sh.x-I.x,dz=sh.z-I.z,d=Math.hypot(dx,dz),r=I.r+1.25;
-    if(d<r){sh.x=I.x+dx/d*r;sh.z=I.z+dz/d*r;if(sh.v>1.8&&wall-bumpT>1.2){bumpT=wall;shake=0.18;pop(sh.x,sh.z,'Sandbank!','');crewJump(0);}sh.v*=0.9;}}
+    if(d<r){sh.x=I.x+dx/d*r;sh.z=I.z+dz/d*r;if(sh.v>1.8&&wall-bumpT>1.2){bumpT=wall;if(!calm&&sh.v>2.6)shake=0.1;pop(sh.x,sh.z,'Sandbank!','');crewJump(0);}sh.v*=0.9;}}
   const rr=Math.hypot(sh.x,sh.z);
   if(rr>WR){sh.x*=WR/rr;sh.z*=WR/rr;sh.v*=0.9;if(wall-bumpT>3){bumpT=wall;banner('Hier endet die Karte','Vorerst. Felix zeichnet noch.');}}
 }
@@ -655,8 +657,9 @@ $('tGo').addEventListener('click',()=>{if(!$('truhe').classList.contains('done')
 
 // ---------- Menue ----------
 function closeMenu(){$('menu').classList.remove('on');}
-$('menuB').addEventListener('click',e=>{e.stopPropagation();$('mInfo').textContent='Gold an Bord '+S.gold+' · im Hafen '+S.bank+' · Fahrten '+S.trips;$('menu').classList.toggle('on');});
-for(const b of document.querySelectorAll('#menu [data-m]'))b.addEventListener('click',()=>{closeMenu();
+$('menuB').addEventListener('click',e=>{e.stopPropagation();$('mInfo').textContent='Gold an Bord '+S.gold+' · im Hafen '+S.bank+' · Fahrten '+S.trips;$('menu').classList.toggle('on');ruhigTxt();});
+function ruhigTxt(){const b=$('mRuhig');b.firstChild.textContent='Ruhige Kamera: '+(calm?'an':'aus');b.classList.toggle('sel',calm);}
+for(const b of document.querySelectorAll('#menu [data-m]'))b.addEventListener('click',e=>{if(b.dataset.m==='ruhig'){e.stopPropagation();calm=!calm;try{localStorage.setItem('gl.ruhig',calm?'1':'0');}catch(_){}ruhigTxt();return;}closeMenu();
   if(b.dataset.m==='titel'){save();toTitle();tell({t:'titel'});}
   else if(b.dataset.m==='neu'&&confirm('Neue Seekarte? Inseln und Beute dieser Fahrt sind dann weg.')){const keep={bank:S.bank,tips:S.tips,trips:S.trips};S=Object.assign(fresh(),keep);try{localStorage.setItem(SK,JSON.stringify(S));}catch(e){}location.reload();}});
 
@@ -720,8 +723,11 @@ function visual(dt){
     if(u.cheer>0)u.cheer-=dt;const ww=Math.sin(wall*14)*0.6,wave=mode==='title'&&f===crew[1];
     u.arms[0].rotation.x=u.cheer>0?2.6+ww:0.12*Math.sin(u.ph);u.arms[1].rotation.x=u.cheer>0?-2.6-ww:wave?-2.4-0.5*Math.sin(wall*6):-0.12*Math.sin(u.ph);}
   // Kamera: folgt mit Vorlauf in Fahrtrichtung
-  const lead=Math.min(1,sh.v/SP.vmax)*2.6,want=new THREE.Vector3(x+dx*lead,0,z+dz*lead+(mode==='title'?-2.2:-0.6));
-  if(!camInit){camT.copy(want);camInit=true;}camT.lerp(want,1-Math.exp(-dt*2.4));
+  const lead=calm?0:Math.min(1,sh.v/SP.vmax)*1.2;camLead.lerp(new THREE.Vector3(dx*lead,0,dz*lead),1-Math.exp(-dt*0.8));
+  const want=new THREE.Vector3(x+camLead.x,0,z+camLead.z+(mode==='title'?-2.2:-0.6));
+  if(!camInit){camT.copy(want);camInit=true;}
+  {const ex=want.x-camT.x,ez=want.z-camT.z,ed=Math.hypot(ex,ez),dzn=calm?0.9:0.5;
+   if(ed>dzn){const k=(ed-dzn)/ed*(1-Math.exp(-dt*(calm?1.3:1.8)));camT.x+=ex*k;camT.z+=ez*k;}}
   if(Math.abs(zoom-zoomT)>0.01){zoom+=(zoomT-zoom)*(1-Math.exp(-dt*2.2));frustum();}
   // Inseln: nur nahe zeigen; Schaum-Uniforms der naechsten 8
   const near8=WORLD.L.map(I=>[Math.hypot(I.x-camT.x,I.z-camT.z)-I.r,I]).sort((a,b)=>a[0]-b[0]);
@@ -760,7 +766,7 @@ function visual(dt){
   const lp=player.userData.lan.getWorldPosition(new THREE.Vector3());lamp.position.copy(lp).y+=0.1;lamp.intensity=lan*0.9;townL.intensity=lan*(1.1+0.1*Math.sin(wall*7));
   if(lan>0.3)extra.push([lp.x,lp.y,lp.z,6,hex('#ffd58a'),0.3]);
   updParts(dt);
-  water.position.set(camT.x,-0.16,camT.z);waterU.uT.value=wall;waterU.uSP.value.set(x,z);waterU.uSD.value.set(dx,dz);
+  water.position.set(camT.x,-0.16,camT.z);waterU.uT.value=wall;waterU.uPx.value.set(WPP,WPP/Math.sin(PITCH));waterU.uSP.value.set(x,z);waterU.uSD.value.set(dx,dz);
   sun.position.set(camT.x+SUN.x*30,SUN.y*30,camT.z+SUN.z*30);sun.target.position.set(camT.x,0,camT.z);
   shake-=dt;flash-=dt;
   if(mode==='sail'){updMarks();const a=Math.atan2(-sh.x,sh.z),q=Math.round(a/TAU*32);if(q!==compA){compA=q;drawCompass(q/32*TAU);}}
@@ -772,7 +778,7 @@ function render(){
   pos.addScaledVector(RIGHT,(rr-r)*WPP).addScaledVector(UP,(ur-u)*WPP);
   cam.position.copy(pos);cam.lookAt(pos.x,0,pos.z-Math.cos(PITCH)*dist);cam.updateMatrixWorld();
   let sx=-(r-rr)*PS/dpr,sy=(u-ur)*PS/dpr;
-  if(shake>0){sx+=(Math.random()<.5?-1:1)*PS/dpr;sy+=(Math.random()<.5?-1:1)*PS/dpr;}
+  if(shake>0&&!calm&&Math.floor(shake*30)%2){sx+=PS/dpr;}
   cv.style.transform='translate('+(offX+sx)+'px,'+(offY+sy)+'px)';
   renderer.setRenderTarget(rtC);renderer.setClearColor(waterU.uW2.value,1);renderer.render(scene,cam);
   const hideL=[pts];for(const I of WORLD.L)if(I.beam)hideL.push(I.beam);
