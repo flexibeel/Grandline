@@ -1,6 +1,9 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-21q', date: '21.10.', title: 'Schloss am Schatz', items: [
+    '🛡 Spielercode besser geschützt: Wer fremde Codes durchprobiert, wird schnell ausgebremst. Dein eigener Code lädt immer, auch wenn draußen jemand rüttelt',
+    '⚡ Noch schneller beim Start: Das Spiel holt sich statt fast hundert Dateien nur noch eine Handvoll' ] },
   { v: '2026-10-21p', date: '21.10.', title: 'Leichter Wind', items: [
     '📱 iPhone-App: Kein heller Balken mehr oben, dafür ein Holzstreifen. Der Hinweis erklärt den Schalter „Als Web-App öffnen“ (ab iOS 26)',
     '🔑 In der App anmelden: Mail-Code eintippen statt Link antippen, dann landet dein Pirat auch wirklich in der App',
