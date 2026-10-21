@@ -12,3 +12,6 @@ blk = open(os.path.join(root, 'js/data/patchnotes.js')).read().split('items: [',
 items = [x.replace("\\'", "'") for x in re.findall(r"'((?:[^'\\]|\\.)*)'", blk)]
 json.dump({'v': v, 'title': t.group(1) if t else '', 'items': items[:3]}, open(os.path.join(root, 'version.json'), 'w'), ensure_ascii=False)
 print('Version', v)
+# JS bündeln und CSS verkleinern (siehe tools/bundle.py)
+import sys; sys.path.insert(0, os.path.join(root, 'tools'))
+import bundle; bundle.build(v)
