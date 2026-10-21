@@ -1,0 +1,194 @@
+<title>Grand Line Kampf-Richtungen</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pirata+One&family=Pixelify+Sans:wght@500;700&family=Nunito:wght@400;600;700&display=swap">
+<style>
+/* Layout: eine Logbuch-Spalte; oben die Erkenntnisse aus anderen Spielen, dann vier Standbilder als Holzrahmen-Tafeln */
+:root{
+  --bg:#f6f1e3; --panel:#fffdf6; --ink:#332a21; --mute:#7a6c57; --line:#e4d6b4;
+  --wood:#8a5a34; --woodedge:#4a2d18; --sea:#2f8f82; --gold:#c08a2e; --red:#d1604a;
+  --f-title:"Pirata One","Georgia",serif; --f-px:"Pixelify Sans","Courier New",monospace; --f-body:"Nunito",system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#11161c;--panel:#1c1a17;--ink:#f1eee8;--mute:#b3aa9c;--line:#3a342c;--wood:#a8774c;--woodedge:#2a1a0e;--sea:#6fb8ad;--gold:#d9b05a;--red:#e07a62;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#11161c;--panel:#1c1a17;--ink:#f1eee8;--mute:#b3aa9c;--line:#3a342c;--wood:#a8774c;--woodedge:#2a1a0e;--sea:#6fb8ad;--gold:#d9b05a;--red:#e07a62;color-scheme:dark}
+body{background:var(--bg);color:var(--ink);font:16px/1.55 var(--f-body);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 56px}
+.wrap{max-width:720px;margin:0 auto;display:flex;flex-direction:column;gap:36px}
+h1{font:400 clamp(2.2rem,8vw,3.2rem)/1 var(--f-title);margin:0;text-wrap:balance;color:var(--wood)}
+h2{font:700 1.15rem/1.2 var(--f-px);margin:0;letter-spacing:.02em;text-wrap:balance}
+.kicker{font:700 .78rem var(--f-px);letter-spacing:.12em;text-transform:uppercase;color:var(--sea)}
+p{margin:0;max-width:65ch}
+.lead{color:var(--mute);font-size:1.05rem}
+header{display:flex;flex-direction:column;gap:10px}
+section{display:flex;flex-direction:column;gap:14px}
+.games{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
+.game{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:14px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.game b{font:700 1rem var(--f-px)}
+.game .how{font-size:.92rem}
+.game .take{font-size:.86rem;color:var(--sea);font-weight:700}
+.rules{display:flex;flex-direction:column;gap:8px;margin:0;padding:0;list-style:none}
+.rules li{display:flex;gap:10px;align-items:baseline}
+.rules li::before{content:"";flex:0 0 8px;height:8px;background:var(--gold);box-shadow:0 0 0 2px var(--woodedge);transform:translateY(-1px)}
+.plate{background:var(--wood);padding:6px;border-radius:3px;box-shadow:0 0 0 3px var(--woodedge),0 6px 0 0 var(--woodedge)}
+.plate canvas{display:block;width:100%;height:auto;image-rendering:pixelated;image-rendering:crisp-edges;background:#1b2b33;max-width:100%}
+.dir{display:flex;flex-direction:column;gap:12px}
+.dir .meta{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font:600 .78rem var(--f-px);padding:3px 8px;border-radius:3px;background:var(--panel);border:1px solid var(--line);color:var(--mute)}
+.chip.good{color:var(--sea);border-color:var(--sea)}
+.chip.warn{color:var(--red);border-color:var(--red)}
+.verdict{background:var(--panel);border:2px solid var(--wood);border-radius:6px;padding:18px;display:flex;flex-direction:column;gap:10px}
+.src{font-size:.82rem;color:var(--mute)}
+.src a{color:var(--sea)}
+hr{border:0;border-top:2px dashed var(--line);margin:0}
+</style>
+
+<div class="wrap">
+<header>
+  <span class="kicker">Logbuch · Kampf-Entwurf · 20.10.2026</span>
+  <h1>Wie sollen Kämpfe aussehen?</h1>
+  <p class="lead">Vier Richtungen für Grand Line, abgeleitet aus Auto-Battlern, Handy-Spielen und Wanderburg. Die Rechnung im Hintergrund (vorab gerechnet, Replays stimmen, Befehle mitten im Kampf) bleibt bei A bis C fast unverändert. Nur die Bühne ändert sich.</p>
+</header>
+
+<section>
+  <span class="kicker">Was andere Spiele machen</span>
+  <div class="games">
+    <div class="game"><b>Super Auto Pets</b><span class="how">Im Laden aufstellen, dann läuft der Kampf allein. Tiere stehen in einer Reihe, große Figuren, rund 20 Sekunden, Tempo-Knopf.</span><span class="take">Die Entscheidung fällt vorher.</span></div>
+    <div class="game"><b>Backpack Battles · The Bazaar</b><span class="how">Gekämpft wird mit Gegenständen, die auf Abklingzeit von selbst feuern. Man baut den Rucksack, der Kampf ist eine kurze Show.</span><span class="take">Ausrüstung ist das eigentliche Spiel.</span></div>
+    <div class="game"><b>AFK Journey · Idle Heroes</b><span class="how">Seitliche Bühne, Helden kämpfen allein. Ist die Leiste voll, tippt man die Spezialattacke an. Mehr Eingriff gibt es nicht.</span><span class="take">Ein Tipp-Moment reicht.</span></div>
+    <div class="game"><b>Teamfight Tactics</b><span class="how">Figuren auf einem Brett platzieren. Wer vorne steht, wer hinten, wer neben wem: Das entscheidet den Kampf.</span><span class="take">Aufstellung als Rätsel.</span></div>
+    <div class="game"><b>Archero · Vampire Survivors</b><span class="how">Man bewegt sich nur, Angriffe kommen automatisch. Bei Archero schießt man, sobald man stehen bleibt.</span><span class="take">Eine Geste, sofort verstanden.</span></div>
+    <div class="game"><b>Wanderburg</b><span class="how">Die Burg fährt, schluckt Dörfer und kleinere Festungen und wächst daran. Waffen sind Bausteine. Man lenkt, spart Fähigkeiten für Bosse auf.</span><span class="take">Kampf ist Teil der Fahrt.</span></div>
+    <div class="game"><b>Loop Hero</b><span class="how">Der Held läuft allein im Kreis. Man baut die Welt um ihn herum, der Kampf ist nur ein kleines Fenster.</span><span class="take">Der Kampf darf klein sein.</span></div>
+  </div>
+  <ul class="rules">
+    <li><span>Fast alle erfolgreichen Auto-Battler halten den Kampf kurz (10 bis 30 Sekunden) und legen das Denken davor.</span></li>
+    <li><span>Figuren stehen groß auf einer Bühne. Werte sieht man erst beim Antippen, nicht in Kästen.</span></li>
+    <li><span>Auf dem Handy gibt es höchstens ein bis zwei Tipp-Momente pro Kampf, klar angekündigt.</span></li>
+    <li><span>Tempo-Knopf und Überspringen sind Standard.</span></li>
+  </ul>
+</section>
+
+<hr>
+
+<section class="dir">
+  <span class="kicker">Richtung A</span>
+  <h2>Seitliche Bühne</h2>
+  <div class="plate"><canvas id="cA" width="160" height="96" aria-label="Standbild: Crew links an Deck, Boss rechts holt aus, Konter-Schild über ihm"></canvas></div>
+  <p>Crew links an Deck, Gegner rechts. Große Figuren, schmaler Lebensbalken darunter, Zahlen fliegen. Holt der Boss aus, erscheint das Konter-Schild. So sieht schon die Intro-Szene aus.</p>
+  <div class="meta"><span class="chip good">Rechnung bleibt</span><span class="chip good">Konter passt</span><span class="chip">Aufwand mittel</span></div>
+</section>
+
+<section class="dir">
+  <span class="kicker">Richtung B</span>
+  <h2>Schiff gegen Schiff</h2>
+  <div class="plate"><canvas id="cB" width="160" height="96" aria-label="Standbild: zwei Schiffe nebeneinander, Planke dazwischen, Crew entert"></canvas></div>
+  <p>Beide Schiffe nebeneinander, die Crew entert über die Planke. Der Boss steht auf seinem Deck. Sehr piratig und eigen, braucht aber am meisten neue Pixel-Kunst.</p>
+  <div class="meta"><span class="chip good">Rechnung bleibt</span><span class="chip good">Konter passt</span><span class="chip warn">viel Kunst</span></div>
+</section>
+
+<section class="dir">
+  <span class="kicker">Richtung C</span>
+  <h2>Kurz und knackig</h2>
+  <div class="plate"><canvas id="cC" width="160" height="96" aria-label="Standbild: oben die Aufstellung mit fünf Plätzen, unten ein kurzer Kampfstreifen mit Tempo-Knopf"></canvas></div>
+  <p>Wie Super Auto Pets: Das Spiel passiert beim Aufstellen. Der Kampf ist ein kurzer Streifen zum Zuschauen, mit Tempo-Knopf und einem Konter-Moment.</p>
+  <div class="meta"><span class="chip good">Rechnung bleibt</span><span class="chip good">am schnellsten gebaut</span><span class="chip">weniger Show</span></div>
+</section>
+
+<section class="dir">
+  <span class="kicker">Richtung D</span>
+  <h2>Fahrender Kampf</h2>
+  <div class="plate"><canvas id="cD" width="160" height="96" aria-label="Standbild: Schiff von oben auf dem Meer, Kanonen feuern automatisch auf Boote ringsum"></canvas></div>
+  <p>Wie Wanderburg: Das Schiff segelt, Kanonen und Crew-Plätze sind Bausteine, Gegner kommen ins Bild. Du lenkst und zündest Fähigkeiten. Passt zur geplanten Endlos-Fahrt.</p>
+  <div class="meta"><span class="chip warn">neue Echtzeit-Rechnung</span><span class="chip warn">Replays neu</span><span class="chip">größter Umbau</span></div>
+</section>
+
+<div class="verdict">
+  <span class="kicker">Mein Vorschlag</span>
+  <h2>A als Bühne, mit dem Tempo von C</h2>
+  <p>Die seitliche Bühne nimmt die Kästen weg und nutzt, was schon schön ist. Dazu den Rhythmus von C: Kampf kurz, Tempo-Knopf, ein Konter-Moment. D würde ich nur für die Endlos-Fahrt aufheben, als eigenen Modus, nicht für die normale Fahrt.</p>
+</div>
+
+<p class="src">Quellen zu Wanderburg: <a href="https://www.tomshw.it/videogioco/wanderburg-i-consigli-per-iniziare">Tom's Hardware</a>, <a href="https://www.gematsu.com/games/wanderburg">Gematsu</a>. Die übrigen Spiele beschreibe ich aus eigener Kenntnis.</p>
+</div>
+
+<script>
+const P={ink:'#2a1f17',skin:'#f0c39a',sky1:'#f2a65e',sky2:'#7a5aa8',sea1:'#2f8f82',sea2:'#1d5f62',plank:'#a8743f',plank2:'#7d522b',white:'#fffdf6',red:'#d1604a',gold:'#e7b84a',green:'#5bb36c',blue:'#3a8fb8',purple:'#7a4fa8',sail:'#efe6d2',dark:'#163a3c'};
+function g(id){const c=document.getElementById(id);const x=c.getContext('2d');x.imageSmoothingEnabled=false;return x}
+function r(x,a,b,w,h,c){x.fillStyle=c;x.fillRect(a,b,w,h)}
+function sky(x,top,bot,h){for(let i=0;i<h;i++){const t=i/h;x.fillStyle=t<.5?top:bot;r(x,0,i,160,1,x.fillStyle)}}
+// Pirat 8x12, Blick nach rechts (dir=1) oder links (-1)
+function pirate(x,a,b,shirt,hat,dir){
+  r(x,a,b+2,8,10,P.ink);
+  r(x,a+1,b+3,6,4,P.skin);
+  r(x,a+1,b+2,6,2,hat); r(x,a+(dir>0?6:0),b+3,2,1,hat);
+  r(x,a+(dir>0?5:2),b+4,1,1,P.ink);
+  r(x,a+1,b+7,6,3,shirt);
+  r(x,a+1,b+10,2,2,'#4a3a2a'); r(x,a+5,b+10,2,2,'#4a3a2a');
+}
+function boss(x,a,b){
+  r(x,a,b,16,22,P.ink);
+  r(x,a+1,b+1,14,5,P.purple); r(x,a+5,b,6,2,P.gold);
+  r(x,a+2,b+6,12,6,P.skin); r(x,a+4,b+8,2,1,P.ink); r(x,a+10,b+8,2,1,P.ink); r(x,a+5,b+10,6,1,P.red);
+  r(x,a+1,b+12,14,7,P.purple); r(x,a+7,b+12,2,7,P.gold);
+  r(x,a+2,b+19,4,3,'#3a2a20'); r(x,a+10,b+19,4,3,'#3a2a20');
+}
+function bar(x,a,b,w,f,c){r(x,a-1,b-1,w+2,4,P.ink);r(x,a,b,w,2,'#5a3a2a');r(x,a,b,Math.round(w*f),2,c)}
+function sign(x,a,b,w,h){r(x,a-1,b-1,w+2,h+2,P.ink);r(x,a,b,w,h,P.plank);r(x,a,b+h-1,w,1,P.plank2)}
+// 3x5 Pixel-Ziffern/Buchstaben für winzige Beschriftung
+const F={'0':'111101101101111','1':'010110010010111','2':'111001111100111','3':'111001111001111','4':'101101111001001','5':'111100111001111','6':'111100111101111','7':'111001001001001','8':'111101111101111','9':'111101111001111','K':'101110100110101','O':'111101101101111','N':'101111111111101','T':'111010010010010','E':'111100110100111','R':'110101110101101','!':'010010010000010','X':'101101010101101','x':'000101010101000','2x':''};
+function txt(x,s,a,b,c){for(const ch of s){const m=F[ch];if(m){for(let i=0;i<15;i++)if(m[i]==='1')r(x,a+i%3,b+(i/3|0),1,1,c)}a+=4}}
+function waves(x,y){r(x,0,y,160,96-y,P.sea1);for(let i=0;i<160;i+=12){r(x,i+(y%7),y+3,6,1,P.sea2);r(x,i+6,y+9,5,1,P.sea2);r(x,i+2,y+15,4,1,'#5fb8a8')}}
+
+// A: seitliche Bühne
+(function(){const x=g('cA');sky(x,'#f4b26a','#e88a5a',60);r(x,108,10,10,10,'#ffe3a0');waves(x,58);
+  r(x,0,62,160,4,P.ink);r(x,0,66,160,30,P.plank);for(let i=0;i<160;i+=16)r(x,i,66,1,30,P.plank2);r(x,0,74,160,1,P.plank2);r(x,0,84,160,1,P.plank2);
+  r(x,2,40,2,22,P.plank2);r(x,0,42,6,2,P.plank2); // Reling-Pfosten
+  const crew=[[14,P.red,'#c0392b'],[30,P.blue,P.red],[46,P.green,P.gold]];
+  crew.forEach(([a,s,h],i)=>{pirate(x,a,50-(i%2)*2,s,h,1);bar(x,a,64-(i%2)*2+0,8,[.8,.55,1][i],P.green)});
+  boss(x,112,40);bar(x,112,64,16,.45,P.red);
+  // Ausholen: Glühen + Schild
+  r(x,128,44,3,1,P.gold);r(x,130,42,1,3,P.gold);r(x,127,40,1,2,P.gold);
+  sign(x,98,22,44,11);txt(x,'KONTER!',100,25,P.white);r(x,119,33,2,6,P.plank2);
+  // fliegende Zahl
+  txt(x,'24',60,38,P.ink);txt(x,'24',59,37,P.white);
+  // Tempo-Knopf
+  sign(x,4,4,14,9);txt(x,'2x',6,6,P.white);
+})();
+// B: Schiff gegen Schiff
+(function(){const x=g('cB');sky(x,'#8fc4d8','#b8dce6',56);waves(x,56);
+  function ship(a,flip,col){r(x,a,58,56,4,P.ink);r(x,a+2,62,52,8,col);r(x,a+6,70,44,3,P.ink);r(x,a+(flip?40:14),20,2,38,P.ink);r(x,a+(flip?30:16),22,(flip?10:14),22,P.sail);r(x,a+(flip?30:16),22,(flip?10:14),1,P.ink)}
+  ship(4,0,P.plank);ship(100,1,'#5a3a4a');
+  r(x,58,56,44,2,P.plank2);r(x,58,58,44,1,P.ink); // Planke
+  pirate(x,16,46,P.red,'#c0392b',1);pirate(x,64,42,P.blue,P.red,1);pirate(x,80,44,P.green,P.gold,1);
+  boss(x,124,36);bar(x,124,30,16,.6,P.red);
+  r(x,74,38,2,2,P.white);r(x,71,40,2,1,P.white);r(x,77,40,2,1,P.white);
+})();
+// C: Aufstellen + kurzer Streifen
+(function(){const x=g('cC');r(x,0,0,160,96,'#efe2c4');
+  r(x,0,0,160,10,P.plank);txt(x,'1',4,3,P.white);
+  for(let i=0;i<5;i++){const a=10+i*29;r(x,a,16,24,28,P.ink);r(x,a+1,17,22,26,i<4?'#fffdf6':'#e4d6b4');if(i<4)pirate(x,a+8,24,[P.red,P.blue,P.green,P.gold][i],[P.red,P.red,P.gold,P.purple][i],1)}
+  r(x,10,46,141,1,P.plank2);
+  // Kampfstreifen
+  r(x,0,56,160,40,'#1d5f62');r(x,0,82,160,14,P.plank);
+  [[16,P.red],[28,P.blue],[40,P.green],[52,P.gold]].forEach(([a,s])=>pirate(x,a,70,s,P.red,1));
+  pirate(x,104,70,P.purple,P.ink,-1);pirate(x,116,70,P.purple,P.ink,-1);pirate(x,128,70,P.purple,P.ink,-1);
+  r(x,0,56,Math.round(160*.4),2,P.gold);
+  sign(x,140,60,16,9);txt(x,'2x',143,62,P.white);
+})();
+// D: Fahrender Kampf (Draufsicht)
+(function(){const x=g('cD');r(x,0,0,160,96,P.sea1);
+  for(let i=0;i<40;i++){r(x,(i*37)%160,(i*23)%96,4,1,P.sea2)}
+  // Kielwasser
+  for(let i=0;i<6;i++)r(x,76-i,66+i*5,8+i*2,2,'#7fd0c0');
+  // Schiff
+  r(x,70,30,20,36,P.ink);r(x,72,32,16,32,P.plank);r(x,76,26,8,6,P.ink);r(x,77,27,6,4,P.plank);
+  r(x,74,40,12,10,P.sail);r(x,79,36,2,20,P.ink);
+  [[69,36],[69,52],[89,36],[89,52]].forEach(([a,b])=>r(x,a,b,3,3,'#2a2a2a'));
+  // Gegnerboote
+  function boat(a,b){r(x,a,b,10,14,P.ink);r(x,a+1,b+1,8,12,'#5a3a4a');r(x,a+3,b+4,4,4,P.red)}
+  boat(20,14);boat(130,40);boat(30,66);boat(120,10);
+  // Kanonenkugeln
+  [[60,28],[50,22],[40,18],[96,44],[108,42],[118,44]].forEach(([a,b])=>r(x,a,b,2,2,P.ink));
+  r(x,26,18,6,6,P.gold);r(x,28,16,2,10,P.gold);
+  // Rumpf-Leiste
+  r(x,4,4,60,6,P.ink);r(x,5,5,40,4,P.green);
+})();
+</script>
