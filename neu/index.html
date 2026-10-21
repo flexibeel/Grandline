@@ -43,6 +43,15 @@ iframe{position:fixed;inset:0;width:100%;height:100%;border:0;display:block;back
 #wT .dots i{display:inline-block;width:5px;height:5px;background:var(--wood);margin:0 2px;animation:d .6s steps(2) infinite}
 #wT .dots i:nth-child(2){animation-delay:.2s}#wT .dots i:nth-child(3){animation-delay:.4s}
 @keyframes d{50%{opacity:.2}}
+#rang{position:fixed;inset:0;z-index:30;display:none;align-items:center;justify-content:center;background:rgba(24,22,48,.62);padding:16px}
+#rang.on{display:flex}#rang .board{max-height:calc(100% - 20px);overflow-y:auto;gap:8px}
+#rang h3{margin:0;font:400 30px 'Pirata One',serif;color:#ffe28a;text-align:center;text-shadow:2px 2px 0 var(--wood)}
+.rt{display:flex;gap:6px}.rt .btn{flex:1;font-size:12px;padding:7px 4px;min-height:0;background:#5e3b1d}.rt .btn.on{background:var(--gold);color:var(--wood);text-shadow:none}
+#rL{background:#fbf6ea;color:var(--wood);border:3px solid var(--wood);border-radius:4px;padding:4px 6px;display:grid;gap:2px;font:600 12px/1.25 var(--px);min-height:60px}
+.rr{display:grid;grid-template-columns:26px 1fr auto;gap:6px;align-items:center;padding:3px 2px;border-bottom:1px dashed #d9cfbc}.rr:last-child{border:0}
+.rr div{text-align:left}.rr small{display:block;font-size:10px;opacity:.7}.rr b{font-size:13px}.rr.me{background:#ffe9a8}.rr i{font-style:normal;text-align:center}
+#rL .m{opacity:.7;text-align:center;padding:14px 4px}
+.rn{display:grid;gap:4px;font:600 12px var(--px)}.rn input{font:600 14px var(--px);padding:7px 8px;border:3px solid var(--wood);border-radius:4px;background:#fbf6ea;color:var(--wood);user-select:text;-webkit-user-select:text}
 </style>
 </head>
 <body>
@@ -52,10 +61,12 @@ iframe{position:fixed;inset:0;width:100%;height:100%;border:0;display:block;back
   <div class="board">
     <div id="tod"></div>
     <button class="btn go" id="bGo" disabled>Leinen los!</button>
+    <button class="btn ghost" id="bRang">🏆 Beste Kapitäne</button>
     <a class="btn ghost" href="../">‹ Zurück ins alte Spiel</a>
-    <div class="note">Testversion: offene See mit Höhlen-Bossen, Werft und neuen Seekarten, dazu Seekampf und Landgang.<br>Spielstand nur auf diesem Gerät · lädt ca. 0,8 MB</div>
+    <div class="note">Testversion: offene See mit Höhlen-Bossen, Werft und neuen Seekarten, dazu Seekampf und Landgang.<br>Spielstand nur auf diesem Gerät, Rangliste online · lädt ca. 0,8 MB</div>
   </div>
 </div>
+<div id="rang"><div class="board"><h3>🏆 Beste Kapitäne</h3><div class="rt"><button class="btn on" data-w="0">Gesamt</button><button class="btn" data-w="1">Diese Woche</button></div><div id="rL"></div><label class="rn">Dein Name<input id="rN" maxlength="20" autocomplete="off"></label><small class="note">Punkte: Seekarte ×1000, Boss ×120, gesichertes Gold ÷10</small><button class="btn ghost" id="rX">Schließen</button></div></div>
 <div id="wipe"><div class="pl l"></div><div class="pl r"></div><div id="wT"></div></div>
 <script>
 (function(){
@@ -67,12 +78,42 @@ const send=(f,m)=>{try{f.contentWindow.postMessage(Object.assign({gl:1},m),locat
 const h=new Date().getHours(),T=h<5?['Nacht','Laternen an, die Sterne sind wach.']:h<9?['Morgen','Die Möwen frühstücken schon.']:h<17?['Mittag','Gutes Segelwetter.']:h<21?['Abend','Die Sonne taucht ins Meer.']:['Nacht','Laternen an, die Sterne sind wach.'];
 $('tod').textContent=T[0]+' auf See · '+T[1];
 function wipe(on,txt,sub){const w=$('wipe');if(txt!==undefined)$('wT').innerHTML=txt+(sub?'<small>'+sub+'</small>':'');w.classList.toggle('on',on);}
+// ---------- Rangliste (Beta): gleiche Supabase-Sitzung wie das alte Spiel, supabase-js erst bei Bedarf ----------
+const SB={url:'https://ahalqeebrtzpcrvpnyxf.supabase.co',key:'sb_publishable_00GGB1JXueV7rpMb8JxX8A_FT6brXAm'};
+let sbP=null;
+function sb(){if(sbP)return sbP;
+  sbP=new Promise((ok,no)=>{if(window.supabase)return ok();const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js';s.onload=ok;s.onerror=no;document.head.appendChild(s);})
+    .then(async()=>{const c=window.supabase.createClient(SB.url,SB.key,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});
+      const {data}=await c.auth.getSession();if(!data||!data.session){const r=await c.auth.signInAnonymously();if(r.error)throw r.error;}return c;});
+  sbP.catch(()=>{sbP=null;});return sbP;}
+function myName(){try{const n=localStorage.getItem('gl.neu.name');if(n)return n;const p=JSON.parse(localStorage.getItem('grandline.profile')||'null');if(p&&p.nickname)return String(p.nickname).slice(0,20);}catch(e){}return 'Pirat';}
+let rq=null,rT=0,rLast=0;
+function rangPush(m){rq={tier:m.tier|0,gold:m.gold|0,boss:m.boss|0};clearTimeout(rT);rT=setTimeout(rangSend,Math.max(1500,rLast+21000-Date.now()));}
+async function rangSend(){if(!rq)return;const q=rq;rq=null;rLast=Date.now();
+  try{const c=await sb(),{data,error}=await c.rpc('beta_submit',{p_name:myName(),p_tier:q.tier,p_gold:q.gold,p_boss:q.boss});
+    // Server laesst die Seekarte nur Stufe fuer Stufe steigen: dann gleich nochmal melden
+    if(!error&&data&&(data.why==='zu schnell'||(data.ok&&data.tier<q.tier))){if(!rq)rq=q;clearTimeout(rT);rT=setTimeout(rangSend,21500);}}catch(e){}}
+const esc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let rW=0;
+async function rangDraw(){const L=$('rL');L.innerHTML='<div class="m">Fernrohr wird ausgezogen …</div>';
+  for(const b of document.querySelectorAll('.rt [data-w]'))b.classList.toggle('on',+b.dataset.w===rW);
+  try{const c=await sb(),{data,error}=await c.rpc('beta_top',{p_week:!!rW});if(error)throw error;
+    L.innerHTML=data&&data.length?data.map(x=>'<div class="rr'+(x.me?' me':'')+'"><i>'+(x.rank<=3?['🥇','🥈','🥉'][x.rank-1]:x.rank)+'</i><div>'+esc(x.name)+'<small>Seekarte '+(x.tier+1)+' · '+x.boss+' Bosse · '+x.gold+' Gold</small></div><b>'+x.score+'</b></div>').join(''):
+      '<div class="m">'+(rW?'Diese Woche noch keiner auf See. Deine Chance!':'Noch leer. Sei der erste Kapitän!')+'</div>';}
+  catch(e){L.innerHTML='<div class="m">Keine Verbindung zur Hafenmeisterei. Später nochmal.</div>';}}
+$('bRang').addEventListener('click',()=>{$('rN').value=myName();$('rang').classList.add('on');rangDraw();});
+$('rX').addEventListener('click',()=>$('rang').classList.remove('on'));
+$('rang').addEventListener('click',e=>{if(e.target.id==='rang')$('rang').classList.remove('on');});
+for(const b of document.querySelectorAll('.rt [data-w]'))b.addEventListener('click',()=>{rW=+b.dataset.w;rangDraw();});
+$('rN').addEventListener('change',()=>{const v=$('rN').value.trim().slice(0,20);try{if(v.length>=2)localStorage.setItem('gl.neu.name',v);}catch(e){}
+  try{const S=JSON.parse(localStorage.getItem('gl.neu.v1')||'null');if(S&&S.rk)rangPush({tier:S.tier,gold:S.rk.gold,boss:S.rk.boss});}catch(e){}});
 $('bGo').addEventListener('click',()=>{if(!ready)return;$('title').classList.add('off');send(welt,{t:'los'});welt.focus();});
-addEventListener('keydown',e=>{if((e.code==='Enter'||e.code==='Space')&&!$('title').classList.contains('off')&&ready){e.preventDefault();$('bGo').click();}});
+addEventListener('keydown',e=>{if((e.code==='Enter'||e.code==='Space')&&!$('title').classList.contains('off')&&ready&&!$('rang').classList.contains('on')){e.preventDefault();$('bGo').click();}});
 addEventListener('message',e=>{
   if(e.origin!==location.origin)return;const m=e.data;if(!m||!m.gl)return;
   if(e.source===welt.contentWindow){
     if(m.t==='bereit'){ready=true;$('bGo').disabled=false;$('bGo').textContent=m.save?'Weitersegeln':'Leinen los!';}
+    else if(m.t==='rang')rangPush(m);
     else if(m.t==='titel'){$('title').classList.remove('off');$('bGo').textContent='Weitersegeln';}
     else if(m.t==='kampf'&&!busy){busy=true;
       const see=m.art==='see',cave=m.art==='hoehle',dots='<span class="dots"><i></i><i></i><i></i></span>';

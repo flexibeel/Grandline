@@ -196,7 +196,7 @@ function fresh(){return {v:1,seed:(Math.random()*4294967296)>>>0,x:1.9,z:8.4,h:M
 function fix(v){v.eq=Array.isArray(v.eq)&&v.eq.length===3?v.eq.map(e=>Object.assign({w:null,k:null,s:null},e)):[{w:null,k:null,s:null},{w:null,k:null,s:null},{w:null,k:null,s:null}];v.bag=Array.isArray(v.bag)?v.bag.slice(0,24):[];
   v.mats=Object.assign({pl:0,ei:0,se:0},v.mats);v.up=Object.assign({r:0,k:0,s:0},v.up);v.tier=Math.max(0,v.tier|0);
   for(const k in v.mats)v.mats[k]=Math.max(0,v.mats[k]|0);for(const k in v.up)v.up[k]=cl(v.up[k]|0,0,3);v.tips=v.tips||{};
-  v.look=window.GLS?GLS.parse(v.look):{sail:'weiss',hull:'eiche',flag:'rot',deco:'keine'};v.own=Array.isArray(v.own)?v.own.filter(x=>typeof x==='string').slice(0,64):[];return v;}
+  v.look=window.GLS?GLS.parse(v.look):{sail:'weiss',hull:'eiche',flag:'rot',deco:'keine'};v.rk=Object.assign({gold:0,boss:0},v.rk);v.rk.gold=Math.max(0,v.rk.gold|0);v.rk.boss=Math.max(0,v.rk.boss|0);v.own=Array.isArray(v.own)?v.own.filter(x=>typeof x==='string').slice(0,64):[];return v;}
 function load(){try{const v=JSON.parse(localStorage.getItem(SK)||'null');if(v&&v.v===1&&typeof v.seed==='number')return fix(Object.assign(fresh(),v));}catch(e){}return null;}
 let S=load()||fix(fresh());
 const mhp=()=>100+25*S.up.r,upStr=()=>S.up.r+'.'+S.up.k+'.'+S.up.s,tierK=()=>1+0.25*S.tier;
@@ -766,7 +766,7 @@ function interact(){
 function doAct(){
   if(!near||lock>0||mode!=='sail')return;const I=near;$('act').classList.remove('on');
   if(I.k==='hafen'){
-    const g=S.gold;S.bank+=g;S.gold=0;S.hp=mhp();S.trips++;save();hudHp();setGold();logLine();
+    const g=S.gold;S.bank+=g;S.rk.gold+=g;S.gold=0;S.hp=mhp();S.trips++;save();rang();hudHp();setGold();logLine();
     if(g>0){truhe('Beute gesichert!','Die Crew feiert im Hafen. Rumpf geflickt.',g,0);afterTr=werft;}else werft();
   }else if(I.k==='schatz'){
     const g=60+Math.floor(rng(I.s)()*70);I.done=true;S.done.push(I.id);S.gold+=g;save();
@@ -799,7 +799,7 @@ function afterFight(res){
   if(o.art==='see'){
     const E=WORLD.E.find(e=>e.id===o.foe);
     if(res.win){E.dead=true;S.beaten.push(E.id);S.hp=cl(res.hp|0,1,mhp());const g=Math.round((E.ai[3]+(E.look==='lila'?E.id*18:0))*tierK());S.gold+=g;save();hudHp();logLine();
-      if(E.look==='boss'){const list=[];lootIn([roll([20,45,28,7],'Krähenbart')],list);setTimeout(()=>truhe('Krähenbart versenkt!','Der Schrecken der Meere geht baden. Sein Gold nicht.',g,1,list),400);}
+      if(E.look==='boss'){S.rk.boss++;save();rang();const list=[];lootIn([roll([20,45,28,7],'Krähenbart')],list);setTimeout(()=>truhe('Krähenbart versenkt!','Der Schrecken der Meere geht baden. Sein Gold nicht.',g,1,list),400);}
       else if(Math.random()<0.3){const list=[];lootIn([roll([60,30,9,1])],list);setTimeout(()=>truhe(E.name+' versenkt!','Im Treibgut schwimmt was Brauchbares.',g,0,list),400);}
       else{setGold();banner('+'+g+' Gold',E.name+' geht baden.');crewJump(2);}
       E.g.visible=false;splash(E.x,E.z,20);}
@@ -811,7 +811,7 @@ function afterFight(res){
   }else if(o.art==='hoehle'){
     const I=WORLD.L.find(x=>x.id===o.island),k=res.win?1:0.5,m=res.mats||{},g=Math.floor((res.gold|0)*k),got={};
     for(const q of['pl','ei','se']){got[q]=Math.floor(Math.max(0,m[q]|0)*k);S.mats[q]+=got[q];}S.gold+=g;
-    if(res.win&&I&&!I.done){I.done=true;S.done.push(I.id);if(I.flag)I.flag.material.color.set(C.r);for(const f of I.torch||[])f.visible=false;}
+    if(res.win&&I&&!I.done){I.done=true;S.done.push(I.id);S.rk.boss++;rang();if(I.flag)I.flag.material.color.set(C.r);for(const f of I.torch||[])f.visible=false;}
     save();logLine();
     const list=['pl','ei','se'].filter(q=>got[q]).map(q=>'<span class="mt '+q+'"></span>+'+matN(q,got[q]));if(res.chests)list.push((res.chests|0)+' Truhe'+(res.chests==1?'':'n')+' geknackt');
     const loot=[];if(res.win)loot.push(roll([0,45,40,15],I&&I.boss?(BOSS.find(b=>b[0]===I.boss)||[])[1]:''));for(let n=Math.floor((res.chests|0)/(res.win?4:6));n>0;n--)loot.push(roll([50,32,14,4]));
@@ -821,7 +821,7 @@ function afterFight(res){
     else banner('Rückzug!',o.name+' kichert im Dunkeln.');
   }else{
     const I=WORLD.L.find(x=>x.id===o.island);
-    if(res.win){I.done=true;S.done.push(I.id);const g=180;S.gold+=g;const list=[];lootIn([roll([35,40,20,5])],list);save();if(I.flag)I.flag.material.color.set(C.r);setTimeout(()=>truhe('Bucht erobert!','Marlo ist verschnürt. Seine Truhe gehört jetzt euch.',g,1,list),300);}
+    if(res.win){I.done=true;S.done.push(I.id);S.rk.boss++;rang();const g=180;S.gold+=g;const list=[];lootIn([roll([35,40,20,5])],list);save();if(I.flag)I.flag.material.color.set(C.r);setTimeout(()=>truhe('Bucht erobert!','Marlo ist verschnürt. Seine Truhe gehört jetzt euch.',g,1,list),300);}
     else{banner('Rückzug!','Marlo lacht noch. Versucht es später nochmal.');}
   }
 }
@@ -871,7 +871,9 @@ function closeMenu(){$('menu').classList.remove('on');legToggle(false);}
 const ruTxt=()=>$('mRu').textContent=OPT.ruhig?'an':'aus';ruTxt();
 $('menuB').addEventListener('click',e=>{e.stopPropagation();legToggle(false);$('mInfo').textContent='Seekarte '+(S.tier+1)+' · Gold an Bord '+S.gold+' · im Hafen '+S.bank+' · Fahrten '+S.trips;$('menu').classList.toggle('on');});
 // Neue Seekarte: Hafenkasse, Material, Werft und Stufe bleiben
-function newMap(up){const keep={bank:S.bank+(up?S.gold:0),mats:S.mats,up:S.up,look:S.look,own:S.own,eq:S.eq,bag:S.bag,tips:S.tips,trips:S.trips,fights:S.fights,tier:S.tier+(up?1:0)};S=fix(Object.assign(fresh(),keep));
+// Rangliste (Beta): Stand an index melden, der traegt ihn online ein
+function rang(){tell({t:'rang',tier:S.tier,gold:S.rk.gold,boss:S.rk.boss});}
+function newMap(up){const keep={bank:S.bank+(up?S.gold:0),mats:S.mats,up:S.up,look:S.look,own:S.own,rk:S.rk,eq:S.eq,bag:S.bag,tips:S.tips,trips:S.trips,fights:S.fights,tier:S.tier+(up?1:0)};S=fix(Object.assign(fresh(),keep));rang();
   try{localStorage.setItem(SK,JSON.stringify(S));sessionStorage.setItem('gl.neu.los','1');}catch(e){}location.reload();}
 for(const b of document.querySelectorAll('#menu [data-m]'))b.addEventListener('click',e=>{const m=b.dataset.m;
   if(m==='ruhig'){OPT.ruhig=OPT.ruhig?0:1;saveOpt();ruTxt();return;}
@@ -1147,7 +1149,7 @@ resize();addEventListener('resize',resize);
 applyTOD(hour);hudHp();$('gold').textContent=S.gold;logLine();drawWheel(0);joy.drawn=0;
 for(const v of wakeP)v.set(sh.x,sh.z,99,0);
 if(!EMB||QS.has('los')||autoLos)begin();
-requestAnimationFrame(t=>{last=t;frame(t);tell({t:'bereit',save:S.trips>0||S.gold>0||S.found.length>1});});
+requestAnimationFrame(t=>{last=t;frame(t);tell({t:'bereit',save:S.trips>0||S.gold>0||S.found.length>1});if(S.trips>0)rang();});
 window.__w={lookOn,get S(){return S;},sh,WORLD,begin,fight,afterFight,truhe,werft,wfBuy,newMap,get fightCtx(){return fightCtx;},get near(){return near;},doAct,get mode(){return mode;},keys};
 })();
 </script>

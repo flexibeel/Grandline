@@ -1,6 +1,8 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-22d', date: '22.10.', title: 'Beste Kapitäne', items: [
+    '🏆 Neue Welt: Rangliste auf dem Titelbild, gesamt und für diese Woche. Punkte gibt es für Seekarten, besiegte Bosse und gesichertes Gold. Dein Name lässt sich dort ändern' ] },
   { v: '2026-10-22c', date: '22.10.', title: 'Schmuck fürs Schiff', items: [
     '🔍 Neue Welt: Die Werft zeigt dein Schiff jetzt ganz nah. Mit dem Finger drehen, jeder Ausbau ist sofort zu sehen',
     '🎨 Neuer Reiter „Schmuck“: Segel, Rumpf, Flagge und Galionsfigur aus der alten Version. Kostet Hafen-Gold, ist nur Optik und segelt auch im Seekampf mit' ] },
