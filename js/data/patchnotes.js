@@ -1,6 +1,8 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-21z', date: '21.10.', title: 'Scharfe Sicht', items: [
+    '🖥 Neue Welt: Der Seekampf am PC ist nicht mehr grob verpixelt. Schiffe, Felsen und Wellen sind jetzt genauso fein wie auf der offenen See' ] },
   { v: '2026-10-21y', date: '21.10.', title: 'Ausbau überall', items: [
     '🔧 Neue Welt: Dein Werft-Ausbau ist jetzt auch im Seekampf zu sehen. Mehr Kanonen, Planken, Eisenbänder, Topsegel und der goldene Wimpel fahren mit in die Schlacht',
     '⚔ An Land zählt die Werft mit: Kanonen geben der Crew +10 % Schaden, Segel +5 % Tempo pro Stufe. In der Bucht und in der Höhle' ] },

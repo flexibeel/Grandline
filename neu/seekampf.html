@@ -398,7 +398,7 @@ function rt(){const r=new THREE.WebGLRenderTarget(W+2,H+2,{minFilter:THREE.Neare
 function resize(){
   dpr=window.devicePixelRatio||1;
   const dw=Math.round(innerWidth*dpr),dh=Math.round(innerHeight*dpr);
-  S=Math.max(2,Math.floor(dw/180));W=Math.ceil(dw/S);H=Math.ceil(dh/S);
+  S=Math.max(2,Math.floor(Math.min(dw,dh*0.75)/180));W=Math.ceil(dw/S);H=Math.ceil(dh/S);
   WPP=VIEWW/Math.min(W,H*0.75);
   renderer.setSize(W+2,H+2,false);
   cv.style.width=((W+2)*S/dpr)+'px';cv.style.height=((H+2)*S/dpr)+'px';
