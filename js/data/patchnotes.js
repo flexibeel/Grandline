@@ -1,6 +1,10 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-22n', date: '22.10.', title: 'Die Taverne am Hafen', items: [
+    '🍺 Mit dem Deck gibt es pro Insel-Karte genau eine Taverne, irgendwo in den ersten drei Reihen. Wer sie sucht, findet sie auch',
+    '🔄 Die Taverne bleibt jetzt auch bei voller Crew stehen: Du kannst dort tauschen, entlassen und Figuren zusammenlegen, ohne dass ein Platz frei sein muss',
+    '🎪 Markttag und Marktfest bringen weiter zusätzliche Tavernen mit. Tagesfahrt und Wettfahrt bleiben wie sie waren' ] },
   { v: '2026-10-22m', date: '22.10.', title: 'Das Deck', items: [
     '⚓ Neuer Crew-Start: Vor dem Ablegen stellst du deine Crew auf dem Schiff auf, bis zu 6 Figuren. Du bist als Kapitän immer dabei und kostest nichts',
     '🎴 Jede Figur hat einen Kampfwert. Dein Budget liegt bei 45 und wächst mit dem Piratenrang (+1 je 2 Ränge, höchstens 60). Starke Figuren kosten mehr, dafür passen weniger aufs Deck',

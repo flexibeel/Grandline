@@ -4,7 +4,7 @@
 **Am Ende jedes Chats** wird sie aktualisiert und mitgepusht: Was ist fertig, was liegt auf welchem Zweig, was kommt als Nächstes.
 Felix und Jan arbeiten mit verschiedenen Claude-Accounts. Diese Datei ist das gemeinsame Gedächtnis, deshalb gehört hier alles rein, was der nächste Chat wissen muss.
 
-Stand: 22.10.2026 (spätabends)
+Stand: 22.10.2026 (nachts)
 
 ## Wer macht was
 - **Felix:** entscheidet, was gebaut wird und was live geht („schalte live“), Kunst und Look.
@@ -16,10 +16,12 @@ Stand: 22.10.2026 (spätabends)
 - Alte Zweige, die `neu/...` ändern, sind 3D-Arbeit und werden **nicht** weitergeführt. Ideen daraus werden bei Bedarf im 2D-Spiel neu gebaut.
 
 ## Live
-- `main` = **22m „Das Deck“** (thegreatline.de): Crew-Start „Das Deck“ (Crew vor dem Ablegen auf dem Schiff aufstellen, Kampfwert-Budget 45 plus Rang, keine Crew-Bremse mehr). Davor 22l „Die Figurenreise“: Stil-Dojo im Kontor, Erinnerungsstücke, Story-Formen für die Strohhüte. Seit 22.10. außerdem in `CLAUDE.md`: Modellwahl (Sonnet/Opus) und Entscheidungen als Klick-Fragen (nur Arbeitsregeln, Spiel unverändert). Davor 22k Schiffs-Upgrades sichtbar, 22j Endlos-Tiefe, 22i Kontor Teil 1, 22h Kampf-Update.
+- `main` = **22n „Die Taverne am Hafen“** (thegreatline.de): Crew-Start Teil 2, im Deck-Start genau eine Taverne pro Insel-Karte, bleibt bei voller Crew stehen. Davor 22m „Das Deck“ (Crew vor dem Ablegen auf dem Schiff aufstellen, Kampfwert-Budget 45 plus Rang, keine Crew-Bremse mehr) und 22l „Die Figurenreise“ (Stil-Dojo im Kontor, Erinnerungsstücke, Story-Formen für die Strohhüte). Seit 22.10. außerdem in `CLAUDE.md`: Modellwahl (Sonnet/Opus) und Entscheidungen als Klick-Fragen (nur Arbeitsregeln, Spiel unverändert). Davor 22k Schiffs-Upgrades sichtbar, 22j Endlos-Tiefe, 22i Kontor Teil 1, 22h Kampf-Update.
 
 ## Wartet auf „schalte live“
-- `feature/crew-taverne`: **Crew-Start Teil 2, Taverne genau einmal pro Insel-Karte** (nur Deck-Runs, Tagesfahrt/Wettfahrt/alte Starts unverändert). Noch nicht gebündelt: beim Live-Gang Patchnote + `bump-version.py`.
+_(nichts)_
+
+Crew-Start Teil 2 (22n) ist live (`feature/crew-taverne`): **Taverne genau einmal pro Insel-Karte** (nur Deck-Runs, Tagesfahrt/Wettfahrt/alte Starts unverändert).
   - `nodeTypes` (`js/engine/run.js`): bei `run.deck` keine Taverne mehr im Zufallstopf, auch die Insel-Eigenheit „Taverne“ (`bias: ['recruit']`) entfällt. Markttag und Marktfest (Twist, „mehr Tavernen“) legen weiter welche drauf.
   - `genChart`: setzt nach Raid und Offener See genau eine feste Taverne in Reihe 1 bis 3 (ersetzt Kampf, Frucht oder Rast, nie den einzigen Kampf der allerersten Reihe). Hat die Karte durch Markttag/Marktfest schon eine, bleibt es dabei.
   - `genOptions`: Beim Deck-Start wird die Taverne bei voller Crew **nicht** mehr zum Kampf. Das war der wichtigste Fund: Mit dem Deck ist die Crew meist schon voll, die Taverne fiel vorher fast immer weg. Tauschen, Entlassen und Zusammenlegen gehen auch ohne freien Platz.
@@ -73,6 +75,7 @@ Die große Ideenliste ist das Claude-Doc **„Grand Line: Ideenwerkstatt“** im
 
 ## Letzte Übergabe
 _Hier schreibt der letzte Chat in 3 bis 5 Zeilen, wo er aufgehört hat._
+- 22.10. (Jan, 7. Chat): `feature/crew-taverne` live als 22n (Patchnote, `bump-version.py`, Bündel per `node --check` geprüft, ff nach `main`). Nächstes Thema: Figurenreise Teil 2. Erst Vorschlag per Klick-Fragen, noch nichts gebaut.
 - 22.10. (Jan, 6. Chat, Teil 2): `feature/crew-deck` live als 22m. Taverne einmal pro Insel-Karte auf `feature/crew-taverne` gebaut und gemessen (Details oben unter „Wartet“), wartet auf „schalte live“. Entscheidungen per Klick: genau eine Taverne pro Karte, Markttag/Marktfest bleiben als Ausnahme. Headless-Messung läuft nur lokal (Scratchpad), im Repo gibt es `tools/balance.html`.
 - 22.10. (Jan, 6. Chat): `feature/crew-deck` live als 22m (Patchnote, `bump-version.py`, Bündel gebaut, per `node --check` geprüft). Nächstes Thema: Crew-Start Teil 2 (Taverne nur einmal pro Insel, dann Balance mit `tools/balance.html`). Noch nicht begonnen, erst kurz vorschlagen.
 - 22.10. (Jan, 5. Chat): `feature/modellwahl` live (nur `CLAUDE.md`). Crew-Start „Das Deck“ auf `feature/crew-deck` gebaut, Engine (Budget, Replay, Gegner-Ausgleich) und Bildschirm im Browser geprüft, auch Handy-Breite. Entscheidungen per Klick: Look ja, Budget 45 +1 je 2 Ränge bis 60, Pirat gratis, Kampfwert berechnet, Gegner passend zur Crew-Größe, Taverne-Umbau als eigener Schritt.
