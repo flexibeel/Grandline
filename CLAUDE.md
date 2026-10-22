@@ -4,6 +4,7 @@ Kostenloses Fanprojekt von Felix (flexibeel) und Freunden. Es gibt kein Geld dam
 
 ## Vorgehen
 - **Erst fragen, dann bauen.** Bei neuen Ideen zuerst kurz vorschlagen (was, wo, wie groß) und eine Zusage abwarten. Erst designen und abstimmen, dann programmieren.
+- **Fragen zum Anklicken.** Entscheidungen als Auswahl-Fragen stellen (Fragen-Werkzeug mit Antwortknöpfen), nicht als Liste im Text. Die empfohlene Antwort steht zuerst.
 - **Klein anfangen.** Lieber eine Sache fertig machen als fünf anfangen. Keine großen Umbauten oder Neu-Designs ohne ausdrückliches Okay.
 - **Nicht überladen.** Die Ideen-Liste ist eine Ideensammlung, kein Bauplan. Nur umsetzen, was ausdrücklich gewünscht ist.
 - **Sparsam testen.** Ein gezielter Test statt vieler Durchläufe. Keine unnötig großen Ausgaben.
