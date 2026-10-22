@@ -16,12 +16,12 @@ Stand: 22.10.2026 (nachmittags)
 - Alte Zweige, die `neu/...` ändern, sind 3D-Arbeit und werden **nicht** weitergeführt. Ideen daraus werden bei Bedarf im 2D-Spiel neu gebaut.
 
 ## Live
-- `main` = **22k „Das Schiff wächst mit“** (thegreatline.de): Werft-Stufen sichtbar am Schiff. Davor 22h Kampf-Update, 22i Kontor Teil 1, 22j Endlos-Tiefe.
+- `main` = **22l „Die Figurenreise“** (thegreatline.de): Stil-Dojo im Kontor, Erinnerungsstücke, Story-Formen für die Strohhüte. Davor 22k Schiffs-Upgrades sichtbar, 22j Endlos-Tiefe, 22i Kontor Teil 1, 22h Kampf-Update.
 
 ## Wartet auf „schalte live“
-- `feature/figurenreise` (22l): Stil-Dojo im Kontor (Timing-Minispiel, 20 Bernstein, Tagesstil), Erinnerungsstücke für die 9 Strohhüte (eigene 12×12-Pixelbilder), je 2 Story-Formen (Boss besiegt + 10/25 Stücke → Titel, Look, +10 % Leben/Angriff im Run über `run.start.forms`), Stücke auch aus Landgängen (25 %). Patchnote steht drin, beim Live-Gang nur `python3 tools/bump-version.py`. Enthält auch den Fahrplan-Abgleich (`feature/fahrplan-abgleich`).
-  - Dateien: `js/data/forms.js`, `js/engine/forms.js`, `js/ui/dojo.js` (in `tools/bundles.json`), Accessoires `FORM_ACC` in `sprites.js`, neutrale Namen in `js/world/neutral.js`.
-  - Look-Details bisher nur für Ruffy, Zorro, Nami (Vorschau an Felix). Die anderen 6 haben Titel und Werte, Look folgt nach Felix' Okay.
+_(nichts)_
+
+Figurenreise Teil 1 (22l) ist live. Dateien: `js/data/forms.js`, `js/engine/forms.js`, `js/ui/dojo.js`, Accessoires `FORM_ACC` in `sprites.js`, neutrale Namen in `js/world/neutral.js`. Look-Details bisher nur für Ruffy, Zorro, Nami, die anderen 6 haben Titel und Werte.
 
 ## Gesamtplan gegen Spiel (Abgleich 22.10.)
 Bauplan ist die Design-Fläche **„Grand Line: Gesamtplan“** (claude.ai/artifact/1dispKg6D9ikrHzthLXdN4, 22 Tafeln, mit Jans Dungeons). Stand im Code:
