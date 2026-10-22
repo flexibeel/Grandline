@@ -2711,6 +2711,18 @@
   }, 120000);
   syncProfile();
   draw();
+  // Neustart für alle (GL.config.neustart, Löschen in save.js): einmal der Infoscreen
+  try {
+    if (GL.season && GL.season.restartPop && localStorage.getItem('grandline.neustartInfo')) {
+      localStorage.removeItem('grandline.neustartInfo');
+      const showRestart = () => {
+        if ((GL.story && GL.story.active()) || document.getElementById('fpop')) { setTimeout(showRestart, 1500); return; }
+        openGearPop(GL.season.restartPop(profile));
+        const p = document.getElementById('fpop'); if (p) p.dataset.id = 'neustart';
+      };
+      setTimeout(showRestart, 600);
+    }
+  } catch (e) { /* egal */ }
   // Großer Neustart: Countdown jede Sekunde, Live-Fenster bei null, Einladungs-Landung, Online-Eintrag zurücksetzen
   if (GL.season) {
     const pre = !GL.season.started();

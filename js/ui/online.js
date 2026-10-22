@@ -737,6 +737,7 @@ window.GL = window.GL || {};
       refBy: profile.refBy || null,
       invites: (profile.invites || []).length,
       season: profile.season || null,
+      ns: (GL.config.neustart && GL.config.neustart.id) || null,   // Neustart für alle: Einträge danach (Nachlauf im SQL erkennt alte Reste)
       updated: new Date().toISOString()
     };
   }

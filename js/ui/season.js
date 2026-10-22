@@ -136,6 +136,22 @@ window.GL = window.GL || {};
     </div>`;
   }
 
+  // Infoscreen nach dem Neustart für alle (GL.config.neustart, einmal pro Gerät, nur wer vorher gespielt hat)
+  function restartPop(profile) {
+    return `<div class="fpop-card sz-pop">
+      <div class="sz-kicker">⛵ ${en() ? 'All hands on deck' : 'Alle Mann an Deck'}</div>
+      ${stage(profile)}
+      <h3 class="sz-title">${en() ? 'Fresh start for everyone!' : 'Neustart für alle!'}</h3>
+      <p class="sz-text">${en()
+        ? 'The game has grown a lot lately: the deck, the character journey, the trading post, the stat card in battle and much more. So that everyone gets to experience the new game from the very first voyage, we have reset all accounts.'
+        : 'Das Spiel ist zuletzt ordentlich gewachsen: das Deck, die Figurenreise, das Kontor, die Werte-Tafel im Kampf und vieles mehr. Damit alle das neue Spiel von der ersten Fahrt an erleben, haben wir alle Konten zurückgesetzt.'}</p>
+      <p class="sz-keep">${en()
+        ? 'Simply create a new pirate, everyone starts at the same line. Thanks to everyone who tested along the way!'
+        : 'Leg dir einfach einen neuen Piraten an, alle starten an derselben Linie. Danke an alle, die mitgetestet haben!'}</p>
+      <div class="sz-btns"><button class="btn" data-act="pop-close">${en() ? 'Cast off!' : 'Leinen los!'}</button></div>
+    </div>`;
+  }
+
   // Sekündlich alle Countdowns auffrischen; bei null einmal Bescheid geben
   let fired = false;
   function tick(onZero) {
@@ -144,5 +160,5 @@ window.GL = window.GL || {};
     if (S().id && left <= 0 && !fired && onZero) { fired = true; onZero(); }
   }
 
-  GL.season = { started, msLeft, stale, convert, markLaunch, inLaunch, banner, popup, invitePop, tick, shareText, clock, id: () => S().id, backupKey: BACKUP };
+  GL.season = { started, msLeft, stale, convert, markLaunch, inLaunch, banner, popup, invitePop, restartPop, tick, shareText, clock, id: () => S().id, backupKey: BACKUP };
 })();

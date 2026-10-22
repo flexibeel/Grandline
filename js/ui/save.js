@@ -15,6 +15,31 @@ window.GL = window.GL || {};
     try { localStorage.setItem(key, JSON.stringify(value)); } catch (e) { /* Speichern nicht möglich, Spiel läuft trotzdem */ }
   }
 
+  // Neustart für alle (GL.config.neustart): einmal pro Gerät, bevor irgendetwas geladen oder hochgeladen wird.
+  // Löscht Spielstand, Zweitpiraten und die Anmeldung (Supabase-Schlüssel sb-…), Einstellungen bleiben.
+  // Das Gerät des Kontos, das bleibt (keep), wird nur markiert.
+  (function neustart() {
+    const N = GL.config && GL.config.neustart;
+    if (!N || !N.id || !N.keep) return;
+    try {
+      const MARK = 'grandline.neustart';
+      if (localStorage.getItem(MARK) === N.id) return;
+      const uid = String(localStorage.getItem('grandline.uid') || '').toLowerCase();
+      if (uid && uid.startsWith(String(N.keep).toLowerCase())) { localStorage.setItem(MARK, N.id); return; }
+      const had = !!localStorage.getItem(PROFILE_KEY);
+      const KEEP = ['grandline.theme', 'grandline.lang', 'grandline.sfx', 'grandline.music', 'grandline.streamer', 'grandline.world', 'grandline.storyAuto'];
+      const gone = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        if (k && (k.startsWith('grandline.') || k.startsWith('gl.') || k.startsWith('sb-')) && !KEEP.includes(k)) gone.push(k);
+      }
+      gone.forEach(k => localStorage.removeItem(k));
+      try { sessionStorage.removeItem('gl.pulled'); } catch (e) { /* egal */ }
+      localStorage.setItem(MARK, N.id);
+      if (had) localStorage.setItem('grandline.neustartInfo', N.id);
+    } catch (e) { /* Speicher gesperrt: dann gibt es auch nichts zu löschen */ }
+  })();
+
   GL.save = {
     loadRun() {
       const run = read(RUN_KEY);
