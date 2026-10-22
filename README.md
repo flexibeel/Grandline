@@ -28,7 +28,9 @@ js/data/            Inhalte: hier passiert das meiste Erweitern
   relics.js         Schätze, die den ganzen Run wirken
   islands.js        Inseln, mögliche Bosse und Texte der Routen
   unlocks.js        Was man wie freischaltet
-  upgrades.js       Werft-Ausbauten im Hauptquartier
+  upgrades.js       Werft-Ausbauten im Hauptquartier (Rumpf, Kanonen, Segel ...)
+  shipparts.js      Schiffs-Kosmetik (Segel, Rumpf, Flagge, Galionsfigur)
+  patchnotes.js     Neuigkeiten im Spiel (vor jedem Live-Gang ergänzen)
   gear.js           Ausrüstung für das Lager
   events.js         Ereignisse auf See
   heat.js           Kopfgeld-Stufen (Schwierigkeit)
@@ -40,12 +42,16 @@ js/engine/          Spiellogik (ohne Grafik)
   effects.js        Rechnet Synergien, Schätze und Fähigkeiten zusammen
   battle.js         Kampfsystem
   run.js            Ablauf eines Runs
+  kontor.js         Kontor im Hafen (Bernstein, Entladen nach dem Run)
 js/ui/              Darstellung
-  sprites.js        Pixel-Figuren und Symbole
+  sprites.js        Pixel-Figuren, Symbole und das Schiff (GL.sprites.ship)
+  art.js            Szenen, Requisiten, gemeinsame Farbpalette
   arena.js          Kampf-Arena mit Animationen
   render.js         Bildschirme
   save.js           Speicherstand und Bestwert
 js/main.js          Verbindet alles und steuert die Klicks
+js/build/           Gebündelte Skripte (nur über tools/bump-version.py erzeugen)
+claude/FAHRPLAN.md  Stand, Warteschlange und Übergabe für Claude-Chats
 tools/balance.html  Spielt tausende Runs automatisch und zeigt die Schwierigkeit
 ```
 
@@ -114,7 +120,7 @@ Mit 20 % Chance nach einer Etappe passiert etwas, immer mit einer Wahl (`js/data
 - Artefakt-Plätze: 1 zu Beginn, je einer mehr ab Rang 5, 9 und 13. Ausgerüstete Artefakte wirken in jedem Run.
 - Erwachte Teufelsfrüchte aus Raids stehen ebenfalls in der Schatzkammer.
 
-## Kampf in 3D, Rangliste, Duelle
+## Kampffeld, Rangliste, Duelle
 - Kampffeld im Pokémon-Stil (js/ui/arena.js, fieldHtml): Crew vorne links, Gegner hinten rechts, Plattformen, Boden mit Perspektive. Angriffe je Kampfstil: Kraft = Einschlag, Klinge = Schnitt, Technik = Geschoss. Krits zoomen, K.o.s fallen um, Zustände leuchten als Aura.
 - Online-Rangliste (js/ui/online.js): ein Eintrag pro Spieler (scores/<id>) mit Punkten, Schaden, härtestem Treffer, K.o.s, Kopfgeld, Bossen, Siegen, Rang und Artefakten. Kategorien wählbar.
 - Duell: gleicher Seed für alle, ohne Werft, Lager und Artefakte (fair). Code teilen, Freund gibt ihn ein. Ergebnisse stehen pro Code in der Rangliste.
