@@ -17,6 +17,9 @@
 <p>Spielt viele Runs mit zufälligen Entscheidungen automatisch durch und zeigt, wie weit sie kommen.
 Ein echter Spieler entscheidet besser als der Zufall, die Gewinnrate hier ist also eine Untergrenze.
 Nach Änderungen in <code>js/data/config.js</code> einfach neu laden.</p>
+<p>Start „Deck“ ist der aktuelle Crew-Start (zufällig aufgestellte Crew im Kampfwert-Budget). „Taverne gezielt ansteuern“ spielt wie ein Spieler, der eine sichtbare Taverne immer nimmt. Ohne den Haken läuft der Bot blind durch die Karte und trifft die Taverne nur zufällig.</p>
+<label>Start <select id="mode"><option value="deck">Deck (aktuell)</option><option value="old">Klassisch (Maat-Wahl)</option></select></label>
+<label><input id="steer" type="checkbox" checked> Taverne gezielt ansteuern</label><br>
 <label>Anzahl Runs <input id="n" type="number" value="2000" min="100" step="100"></label>
 <button id="go">Starten</button>
 <div id="out"></div>
@@ -48,37 +51,80 @@ Nach Änderungen in <code>js/data/config.js</code> einfach neu laden.</p>
 <script src="../js/engine/battle.js"></script>
 <script src="../js/engine/run.js"></script>
 <script>
-function playRandom(seed) {
-  const run = GL.run.create(seed);
+const SELF = { name: 'Testpirat', type: 'kraft', role: 'kaempfer', hp: 30, atk: 7, spd: 5, look: {}, rally: 2 };
+const st = { taverns: 0, buys: 0, merges: 0, stuck: 0 };
+
+function playRandom(seed, mode, steer) {
+  const run = GL.run.create(seed, mode === 'deck' ? { self: SELF, deck: true, rank: seed % 12, ramp: true } : { ramp: true });
   const pickRng = { rng: seed ^ 0x9e3779b9 };
-  let guard = 0;
-  while (!GL.run.isFinished(run) && guard++ < 500) {
-    const p = run.phase;
-    if (p === 'starter') GL.run.act(run, { type: 'pick', index: seed % run.pool.length });
-    else if (p === 'map') GL.run.act(run, { type: 'node', index: GL.rng.int(pickRng, 0, run.options.length - 1) });
-    else if (p === 'prep') GL.run.act(run, { type: 'fight' });
-    else if (p === 'battle') GL.run.act(run, { type: 'continue' });
-    else if (p === 'awaken') GL.run.act(run, { type: 'pick', index: GL.rng.int(pickRng, 0, run.crew.length - 1) });
-    else GL.run.act(run, { type: 'pick', index: GL.rng.int(pickRng, 0, run.pool.length - 1) });
+  const I = (a, b) => GL.rng.int(pickRng, a, b);
+  const act = a => GL.run.act(run, a);
+  let guard = 0, inShop = false;
+  while (!GL.run.isFinished(run) && guard++ < 1500) {
+    const p = run.phase; let ok = true;
+    if (p === 'starter') {
+      if (run.deck) {
+        // zufällig aufgestellt: eigener Pirat plus Figuren, solange das Kampfwert-Budget reicht
+        const pool = GL.run.deckPool(run).slice();
+        for (let i = pool.length - 1; i > 0; i--) { const j = I(0, i); [pool[i], pool[j]] = [pool[j], pool[i]]; }
+        const ids = ['self']; let kw = 0;
+        pool.forEach(id => { const c = GL.run.kw(id); if (ids.length < GL.config.maxCrew && kw + c <= run.deckBudget) { ids.push(id); kw += c; } });
+        ok = act({ type: 'deck', ids });
+      } else ok = act({ type: 'pick', index: seed % run.pool.length });
+    }
+    else if (p === 'course') ok = act({ type: 'pick', index: I(0, Math.max(0, (run.courseOpts || []).length - 1)) });
+    else if (p === 'map') {
+      let k = I(0, run.options.length - 1);
+      if (steer && run.options.indexOf('recruit') >= 0) k = run.options.indexOf('recruit');
+      ok = act({ type: 'node', index: k });
+    }
+    else if (p === 'prep') ok = act({ type: 'fight' });
+    else if (p === 'battle') ok = act({ type: 'continue' });
+    else if (p === 'awaken') ok = act({ type: 'pick', index: I(0, run.crew.length - 1) });
+    else if (p === 'event') {
+      const ev = run.event && (run.event.crew ? (GL.data.crewEvents || []).find(e => e.id === run.event.id) : GL.data.events.find(e => e.id === run.event.id));
+      const n = ev && ev.choices ? ev.choices.length : 1, first = I(0, n - 1); ok = false;
+      for (let k = 0; k < n && !ok; k++) ok = act({ type: 'pick', index: (first + k) % n });
+    }
+    else if (p === 'recruit') {
+      // Taverne: gleiche Figuren zuerst (Zusammenlegen), dann alles Bezahlbare, solange Platz ist, sonst weiter
+      if (!inShop && !run.harbor) { st.taverns++; inShop = true; }
+      let bought = false;
+      const order = run.pool.map((o, i) => i).sort((a, b) => (run.pool[b].dup ? 1 : 0) - (run.pool[a].dup ? 1 : 0));
+      for (const i of order) { const had = run.crew.length; if (act({ type: 'pick', index: i })) { bought = true; st.buys++; if (run.crew.length === had) st.merges++; break; } }
+      if (!bought) { inShop = false; ok = act({ type: 'leave' }); }
+    }
+    else if (run.pool && run.pool.length) ok = act({ type: 'pick', index: I(0, run.pool.length - 1) });
+    else ok = act({ type: 'continue' });
+    if (ok === false && p !== 'recruit' && !(act({ type: 'skip' }) || act({ type: 'leave' }) || act({ type: 'continue' }))) { st.stuck++; break; }
   }
   return run;
 }
 
 document.getElementById('go').onclick = () => {
   const n = Math.max(1, Number(document.getElementById('n').value) || 1000);
+  const mode = document.getElementById('mode').value, steer = document.getElementById('steer').checked;
   const islands = GL.data.islands;
   const died = islands.map(() => 0);
-  let wins = 0;
+  Object.assign(st, { taverns: 0, buys: 0, merges: 0, stuck: 0 });
+  let wins = 0, crew = 0, steps = 0;
   for (let s = 1; s <= n; s++) {
-    const run = playRandom(s);
+    const run = playRandom(s, mode, steer);
     if (run.phase === 'win') wins++;
     else died[Math.min(Math.floor(run.step / GL.config.stepsPerIsland), islands.length - 1)]++;
+    crew += run.crew.length; steps += run.step;
   }
-  const pct = x => (100 * x / n).toFixed(1) + ' %';
+  const pct = x => (100 * x / n).toFixed(1) + ' %', avg = x => (x / n).toFixed(2);
   document.getElementById('out').innerHTML =
     `<table><tr><th>Ergebnis</th><th>Anteil</th></tr>` +
     islands.map((isl, i) => `<tr><td>Gescheitert in ${isl.name}</td><td>${pct(died[i])}</td></tr>`).join('') +
-    `<tr><td><b>Gewonnen</b></td><td><b>${pct(wins)}</b></td></tr></table>`;
+    `<tr><td><b>Gewonnen</b></td><td><b>${pct(wins)}</b></td></tr></table>` +
+    `<table><tr><th>Pro Run (Durchschnitt)</th><th></th></tr>` +
+    `<tr><td>Etappen gesegelt</td><td>${avg(steps)}</td></tr>` +
+    `<tr><td>Crew am Ende</td><td>${avg(crew)}</td></tr>` +
+    `<tr><td>Taverne besucht</td><td>${avg(st.taverns)}</td></tr>` +
+    `<tr><td>Käufe, davon Zusammenlegen</td><td>${avg(st.buys)}, ${avg(st.merges)}</td></tr>` +
+    (st.stuck ? `<tr><td>Runs, die nicht weiterkamen</td><td>${st.stuck}</td></tr>` : '') + `</table>`;
 };
 </script>
 </body>

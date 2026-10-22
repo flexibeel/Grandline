@@ -4,7 +4,7 @@
 **Am Ende jedes Chats** wird sie aktualisiert und mitgepusht: Was ist fertig, was liegt auf welchem Zweig, was kommt als Nächstes.
 Felix und Jan arbeiten mit verschiedenen Claude-Accounts. Diese Datei ist das gemeinsame Gedächtnis, deshalb gehört hier alles rein, was der nächste Chat wissen muss.
 
-Stand: 22.10.2026 (abends)
+Stand: 22.10.2026 (spätabends)
 
 ## Wer macht was
 - **Felix:** entscheidet, was gebaut wird und was live geht („schalte live“), Kunst und Look.
@@ -19,7 +19,12 @@ Stand: 22.10.2026 (abends)
 - `main` = **22m „Das Deck“** (thegreatline.de): Crew-Start „Das Deck“ (Crew vor dem Ablegen auf dem Schiff aufstellen, Kampfwert-Budget 45 plus Rang, keine Crew-Bremse mehr). Davor 22l „Die Figurenreise“: Stil-Dojo im Kontor, Erinnerungsstücke, Story-Formen für die Strohhüte. Seit 22.10. außerdem in `CLAUDE.md`: Modellwahl (Sonnet/Opus) und Entscheidungen als Klick-Fragen (nur Arbeitsregeln, Spiel unverändert). Davor 22k Schiffs-Upgrades sichtbar, 22j Endlos-Tiefe, 22i Kontor Teil 1, 22h Kampf-Update.
 
 ## Wartet auf „schalte live“
-_(nichts)_
+- `feature/crew-taverne`: **Crew-Start Teil 2, Taverne genau einmal pro Insel-Karte** (nur Deck-Runs, Tagesfahrt/Wettfahrt/alte Starts unverändert). Noch nicht gebündelt: beim Live-Gang Patchnote + `bump-version.py`.
+  - `nodeTypes` (`js/engine/run.js`): bei `run.deck` keine Taverne mehr im Zufallstopf, auch die Insel-Eigenheit „Taverne“ (`bias: ['recruit']`) entfällt. Markttag und Marktfest (Twist, „mehr Tavernen“) legen weiter welche drauf.
+  - `genChart`: setzt nach Raid und Offener See genau eine feste Taverne in Reihe 1 bis 3 (ersetzt Kampf, Frucht oder Rast, nie den einzigen Kampf der allerersten Reihe). Hat die Karte durch Markttag/Marktfest schon eine, bleibt es dabei.
+  - `genOptions`: Beim Deck-Start wird die Taverne bei voller Crew **nicht** mehr zum Kampf. Das war der wichtigste Fund: Mit dem Deck ist die Crew meist schon voll, die Taverne fiel vorher fast immer weg. Tauschen, Entlassen und Zusammenlegen gehen auch ohne freien Platz.
+  - `tools/balance.html`: spielt jetzt den Deck-Start (Auswahl Deck/Klassisch, Haken „Taverne gezielt ansteuern“), kennt Kurswahl und Ereignisse und zeigt Taverne-Besuche und Käufe. Vorher blieb es an der Kurswahl hängen.
+  - **Balance-Messung** (3000 Runs, gleiche Seeds, einfacher Bot, Untergrenze): gezielter Bot gewinnt vorher 62,1 %, nachher 65,7 %, Taverne besucht 1,9 → 3,7 pro Run, Zusammenlegen 0,23 → 0,52. Blinder Zufallsbot vorher 54,5 %, nachher 47,8 % (trifft die einzelne Taverne nur selten). Echte Spieler liegen dazwischen, also kein Wert angefasst. Etwas härter: East Blue (gezielt 1,4 → 3,6 % Ausfälle). Zum Nachjustieren bei Bedarf: `config.deck.foeComp`, `config.shop.startGold`.
 
 Crew-Start „Das Deck“ (22m) ist live (`feature/crew-deck`, Gesamtplan-Tafel „Crew-Start: das Deck“). Ersetzt die Maat-Wahl: bis zu 6 Figuren auf dem Schiff, eigener Pirat gratis und immer Kapitän, Budget 45 (+1 je 2 Piratenränge, höchstens 60), Gegner im ersten Meer passend zur Crew-Größe, letzte Aufstellung in `profile.lastDeck`.
   - Dateien: `js/ui/deck.js` (neu, Bildschirm + Klicks), `GL.run.kw/deckBudget/deckPool` und Aktion `{ type: 'deck', ids }` in `js/engine/run.js`, Stellschrauben in `config.deck` (Budget, Kampfwert-Spanne, feste Werte, `foeComp`), CSS-Block „CREW-START“ am Ende von `style.css`.
@@ -56,19 +61,19 @@ Wiederherstellen eines Archivs: `git push origin archiv/<name>:refs/heads/featur
 
 ## Warteschlange (Felix wählt die Reihenfolge)
 Felix (22.10.): Jetzt Inhalt aus dem Gesamtplan ins Spiel. Kampfstile Variante A (5 Stile) ist abgesegnet.
-1. Crew-Start Teil 2: Taverne nur noch einmal pro Insel (Tafel „Crew-Start: das Deck“, Abschnitt „Im Run“), danach Balance mit `tools/balance.html` prüfen
-2. Figurenreise Teil 2: Looks der übrigen 6 Strohhüte, Wahl-Boni, eigene Fähigkeit pro Form, Nebenfiguren
-3. Spielgefühl: Felix findet, es fühlt sich noch wie ein „spielbares Forum“ an (viel Text, Listen, Knöpfe). Vor dem App-Start einmal gezielt angehen, erst Vorschlag
-4. Nächstes Gesamtplan-Paket: Story-Drops (6er-Crew mit Kampfwert steckt im Deck), Kopfgeld als roter Faden, Endless aus Biomen oder 5 Kampfstile
-5. Bug prüfen: `masters` (Meisterschaft Gold, +15 % Fähigkeit) wird in `main.js` beim Run-Start nicht übergeben, der Bonus greift wohl nie. Fix verschiebt Balance, daher erst mit Felix
-6. Rumpf-Upgrade auch im Landgang
-7. Mehr Gold-Ziele (4. Stufe oder Kosmetik wie eine Flagge)
-8. Aus der Ideenwerkstatt („Ja, machen wir“): Piratin fertig, Look-Inventur, Kampfszenen lebendiger, Kämpfer-Auswahl entschlacken, Performance
+1. Figurenreise Teil 2: Looks der übrigen 6 Strohhüte, Wahl-Boni, eigene Fähigkeit pro Form, Nebenfiguren
+2. Spielgefühl: Felix findet, es fühlt sich noch wie ein „spielbares Forum“ an (viel Text, Listen, Knöpfe). Vor dem App-Start einmal gezielt angehen, erst Vorschlag
+3. Nächstes Gesamtplan-Paket: Story-Drops (6er-Crew mit Kampfwert steckt im Deck), Kopfgeld als roter Faden, Endless aus Biomen oder 5 Kampfstile
+4. Bug prüfen: `masters` (Meisterschaft Gold, +15 % Fähigkeit) wird in `main.js` beim Run-Start nicht übergeben, der Bonus greift wohl nie. Fix verschiebt Balance, daher erst mit Felix
+5. Rumpf-Upgrade auch im Landgang
+6. Mehr Gold-Ziele (4. Stufe oder Kosmetik wie eine Flagge)
+7. Aus der Ideenwerkstatt („Ja, machen wir“): Piratin fertig, Look-Inventur, Kampfszenen lebendiger, Kämpfer-Auswahl entschlacken, Performance
 
 Die große Ideenliste ist das Claude-Doc **„Grand Line: Ideenwerkstatt“** im Account von Felix. Von anderen Accounts aus ist es nicht lesbar. Was dort beschlossen wird, kommt als Punkt in diese Warteschlange.
 
 ## Letzte Übergabe
 _Hier schreibt der letzte Chat in 3 bis 5 Zeilen, wo er aufgehört hat._
+- 22.10. (Jan, 6. Chat, Teil 2): `feature/crew-deck` live als 22m. Taverne einmal pro Insel-Karte auf `feature/crew-taverne` gebaut und gemessen (Details oben unter „Wartet“), wartet auf „schalte live“. Entscheidungen per Klick: genau eine Taverne pro Karte, Markttag/Marktfest bleiben als Ausnahme. Headless-Messung läuft nur lokal (Scratchpad), im Repo gibt es `tools/balance.html`.
 - 22.10. (Jan, 6. Chat): `feature/crew-deck` live als 22m (Patchnote, `bump-version.py`, Bündel gebaut, per `node --check` geprüft). Nächstes Thema: Crew-Start Teil 2 (Taverne nur einmal pro Insel, dann Balance mit `tools/balance.html`). Noch nicht begonnen, erst kurz vorschlagen.
 - 22.10. (Jan, 5. Chat): `feature/modellwahl` live (nur `CLAUDE.md`). Crew-Start „Das Deck“ auf `feature/crew-deck` gebaut, Engine (Budget, Replay, Gegner-Ausgleich) und Bildschirm im Browser geprüft, auch Handy-Breite. Entscheidungen per Klick: Look ja, Budget 45 +1 je 2 Ränge bis 60, Pirat gratis, Kampfwert berechnet, Gegner passend zur Crew-Größe, Taverne-Umbau als eigener Schritt.
 - 22.10. (Jan, 4. Chat): Beratung zu Engines (Ergebnis: kein Wechsel, Web-Stack passt; bei Bedarf Piskel/LibreSprite für Sprite-Sheets, PixiJS nur für die Arena, Tiled für handgebaute Karten) und zu Kosten. Regel zur Modellwahl auf `feature/modellwahl`, wartet auf Felix' Okay.

@@ -320,12 +320,14 @@ window.GL = window.GL || {};
   // Wege führen nur zu benachbarten Orten der nächsten Reihe. Oben wartet der Inselboss.
   //   run.chart = { rows: [[{ t, next: [spalten] }]], at: spalte | null, path: [spalten] }
   function nodeTypes(run, row) {
-    const types = ['battle', 'battle', 'battle', 'recruit', 'recruit', 'fruit', 'rest'];
+    // Deck-Start: die Taverne steht nicht im Zufallstopf, genChart setzt pro Karte genau eine fest ein
+    const types = run.deck ? ['battle', 'battle', 'battle', 'fruit', 'rest'] : ['battle', 'battle', 'battle', 'recruit', 'recruit', 'fruit', 'rest'];
     if (freeRelics(run).length) types.push('treasure');
     if (row >= 1 || chapterIdx(run) === 1) types.push('elite');
     // Eigenheiten der Insel und Insel-Twist: ein paar Orte mehr von einer Sorte
+    // (Deck-Start: Insel-Eigenheit „Taverne“ entfällt, nur Markttag und Marktfest legen weiter Tavernen drauf)
     const here = chapterIsland(run), tw = twistOf(run);
-    ((here && here.bias) || []).concat((tw && tw.types) || []).forEach(k => {
+    (((here && here.bias) || []).filter(k => !(run.deck && k === 'recruit'))).concat((tw && tw.types) || []).forEach(k => {
       if (k === 'treasure' && !freeRelics(run).length) return;
       if (k === 'elite' && row < 1 && chapterIdx(run) === 0) return;
       types.push(k);
@@ -413,6 +415,20 @@ window.GL = window.GL || {};
     // ---------- OFFENE SEE (js/engine/opensea.js): ein Ort wird zur Offenen See, ohne Zufallszug ----------
     if (GL.seaRun) GL.seaRun.place(run, rows);
     // ---------- END OFFENE SEE ----------
+    // Deck-Start: genau eine Taverne pro Karte, an zufälliger Stelle in Reihe 1 bis 3. Markttag und Marktfest haben schon
+    // welche daraufgelegt, dann bleibt es dabei. Erst nach Raid und Offener See, damit keines von beiden sie verdrängt.
+    if (run.deck && !rows.some(row => row.some(n => n.t === 'recruit'))) {
+      const cand = [];
+      rows.forEach((row, r) => {
+        if (r >= rows.length - 1) return;
+        row.forEach((n, i) => {
+          if (n.t !== 'battle' && n.t !== 'fruit' && n.t !== 'rest') return;
+          if (r === 0 && run.step === 0 && n.t === 'battle' && row.filter(x => x.t === 'battle').length < 2) return;   // erster Ort: mindestens ein Kampf
+          cand.push([r, i]);
+        });
+      });
+      if (cand.length) { const [r, i] = cand[R.int(run, 0, cand.length - 1)]; rows[r][i].t = 'recruit'; }
+    }
     const names = here ? here.places.concat([here.lair || here.name]) : [];
     return { rows, at: null, path: [], stops: rows.map((_, r) => names[r] || null) };
   }
@@ -427,7 +443,8 @@ window.GL = window.GL || {};
     // Orte, die gerade nicht gehen, werden zu Kämpfen (Crew voll, keine Schätze mehr)
     cols.forEach(c => {
       const n = ch.rows[pos][c];
-      if (n.t === 'recruit' && run.crew.length >= crewLimit(run)) n.t = 'battle';
+      // Deck-Start: Die Crew ist meist schon voll, die Taverne bleibt trotzdem (tauschen, entlassen, Zusammenlegen)
+      if (n.t === 'recruit' && !run.deck && run.crew.length >= crewLimit(run)) n.t = 'battle';
       if (n.t === 'treasure' && !freeRelics(run).length) n.t = 'battle';
     });
     run.optCols = cols.slice();
