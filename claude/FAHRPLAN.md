@@ -16,10 +16,16 @@ Stand: 22.10.2026 (nachmittags)
 - Alte Zweige, die `neu/...` ändern, sind 3D-Arbeit und werden **nicht** weitergeführt. Ideen daraus werden bei Bedarf im 2D-Spiel neu gebaut.
 
 ## Live
-- `main` = **22j „Endlos mit Biss“** (thegreatline.de), enthält Kampf-Update (22h), Kontor Teil 1 (22i), Endlos-Tiefe (22j)
+- `main` = **22k „Das Schiff wächst mit“** (thegreatline.de): Werft-Stufen sichtbar am Schiff. Davor 22h Kampf-Update, 22i Kontor Teil 1, 22j Endlos-Tiefe.
 
 ## Wartet auf „schalte live“
-- `feature/schiff-upgrades-sichtbar` (22k): Werft-Stufen sichtbar am Schiff (Segel größer + Rah, Kanonenluken, Flicken/Eisen/Kupfer-/Goldkiel). Patchnote steht schon drin, beim Live-Gang nur noch `python3 tools/bump-version.py`, dann nach `main`. Enthält auch eine kleine README-Ergänzung (Ordnerliste).
+- _(nichts)_
+
+## Gesamtplan gegen Spiel (Abgleich 22.10.)
+Bauplan ist die Design-Fläche **„Grand Line: Gesamtplan“** (claude.ai/artifact/1dispKg6D9ikrHzthLXdN4, 22 Tafeln, mit Jans Dungeons). Stand im Code:
+- **Gebaut:** Ultis per Klick (0, +30, ×1,6), Heiler unter 50 %, Fokus/Verteidigen, Frost/Schock/Blind + 4 Reaktionen, Kontor Teil 1 (Bernstein, Entladen, Wertsachen, Raritäten, eigene Vitrine), Endless-Gegner-Zusätze, Schiffs-Upgrades sichtbar. Inseln bis Sabaody, 65 Figuren, 3 Kampfstile.
+- **Schon da, aber anders als im Plan (darauf aufbauen, nicht doppeln):** Meisterschaft je Figur (`engine/mastery.js`, ≈ Figurenreise), Piratenrang + Heat-Kopfgeld (≈ Spieler-Kopfgeld), Crew-Ausrüstung 3 Plätze (`crewgear`), Landgänge + Seekarte (≈ Dungeons), Raid-Jagd mit Vitrine, Duos, Stil-Kombos, Team-Fähigkeiten, Skilltree.
+- **Fehlt noch:** 6er-Crew mit Kampfwert-Budget + Story-Drops (Plan-Schritt 4), Erinnerungsstücke/Story-Formen/Stil-Dojos, Trainingsrollen (Ulti-Stufen), Kopfgeld-Stufen als Freischalt-Faden, Endless aus Biomen + Wetter + wachsende Inseln + Woche, Saphir/Rubin + Raid-Minispiele, Kombüse/Vorräte, Handelsfahrten, Wanderhändler, 5 Kampfstile, 6 Seltenheiten + Taverne + Marken, Waffen an Figuren, Ulti-Team-Kombos, Schiffe aus 4 Teilen mit Bonus, Logbuch, Boss-Steckbrief, Figuren bis Marineford.
 
 ## Dateikarte
 Die Ordnerliste in `README.md` (Abschnitt „Ordner“) ist die Karte, wo was liegt. Erst dort nachsehen, dann gezielt öffnen. Pixel-Regeln für Kunst: Tag `archiv/gamedesigner` bzw. Zweig `feature/gamedesigner` (`.claude/agents/gamedesigner.md`).
@@ -50,5 +56,6 @@ Die große Ideenliste ist das Claude-Doc **„Grand Line: Ideenwerkstatt“** im
 
 ## Letzte Übergabe
 _Hier schreibt der letzte Chat in 3 bis 5 Zeilen, wo er aufgehört hat._
+- 22.10. (Jan, 3. Chat): 22k live. Gesamtplan-Fläche gegen den Code abgeglichen (Abschnitt oben). Felix will jetzt Inhalt aus dem Plan ins Spiel statt Kleinkram; Rumpf im Landgang rückt nach hinten. Nächstes Paket wird gerade abgestimmt.
 - 22.10. (Jan, 2. Chat): `release/22j` live. `feature/upgrades-am-schiff` war 3D und ist tot. Schiffs-Upgrades im 2D-Spiel gebaut auf `feature/schiff-upgrades-sichtbar`: `GL.sprites.ship` liest `GL.sprites.myUpg` (= `profile.upgrades`), nur fürs eigene Schiff; fremde Schiffe nur mit `look.upg`. Vorschau aller Stufen geprüft. Aufräumen der Zweige muss Felix von Hand machen (Befehle oben).
 - 22.10. (Jan): Fahrplan und Startnachricht-Regel angelegt (siehe `CLAUDE.md`). Nichts am Spiel geändert. Nächster Chat: `release/22j` live, dann Upgrades sichtbar am Schiff.
