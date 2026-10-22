@@ -19,7 +19,7 @@ Stand: 22.10.2026 (nachmittags)
 - `main` = **22l „Die Figurenreise“** (thegreatline.de): Stil-Dojo im Kontor, Erinnerungsstücke, Story-Formen für die Strohhüte. Davor 22k Schiffs-Upgrades sichtbar, 22j Endlos-Tiefe, 22i Kontor Teil 1, 22h Kampf-Update.
 
 ## Wartet auf „schalte live“
-_(nichts)_
+- `feature/modellwahl`: nur `CLAUDE.md` (neuer Abschnitt „Modellwahl“: wann Sonnet, wann Opus). Keine Spieländerung, also keine Patchnote und kein `bump-version.py` nötig, einfach nach `main` mergen.
 
 Figurenreise Teil 1 (22l) ist live. Dateien: `js/data/forms.js`, `js/engine/forms.js`, `js/ui/dojo.js`, Accessoires `FORM_ACC` in `sprites.js`, neutrale Namen in `js/world/neutral.js`. Look-Details bisher nur für Ruffy, Zorro, Nami, die anderen 6 haben Titel und Werte.
 
@@ -63,6 +63,7 @@ Die große Ideenliste ist das Claude-Doc **„Grand Line: Ideenwerkstatt“** im
 
 ## Letzte Übergabe
 _Hier schreibt der letzte Chat in 3 bis 5 Zeilen, wo er aufgehört hat._
+- 22.10. (Jan, 4. Chat): Beratung zu Engines (Ergebnis: kein Wechsel, Web-Stack passt; bei Bedarf Piskel/LibreSprite für Sprite-Sheets, PixiJS nur für die Arena, Tiled für handgebaute Karten) und zu Kosten. Regel zur Modellwahl auf `feature/modellwahl`, wartet auf Felix' Okay.
 - 22.10. (Jan, 3. Chat): 22k live. Gesamtplan-Fläche gegen den Code abgeglichen (Abschnitt oben). Figurenreise Teil 1 auf `feature/figurenreise` gebaut und im Browser durchgespielt (Dojo, Aufstieg, Werte, neutrale Namen). Live läuft die neutrale Welt (`config.world`), neue Begriffe also immer in `neutral.js` eintragen.
 - 22.10. (Jan, 2. Chat): `release/22j` live. `feature/upgrades-am-schiff` war 3D und ist tot. Schiffs-Upgrades im 2D-Spiel gebaut auf `feature/schiff-upgrades-sichtbar`: `GL.sprites.ship` liest `GL.sprites.myUpg` (= `profile.upgrades`), nur fürs eigene Schiff; fremde Schiffe nur mit `look.upg`. Vorschau aller Stufen geprüft. Aufräumen der Zweige muss Felix von Hand machen (Befehle oben).
 - 22.10. (Jan): Fahrplan und Startnachricht-Regel angelegt (siehe `CLAUDE.md`). Nichts am Spiel geändert. Nächster Chat: `release/22j` live, dann Upgrades sichtbar am Schiff.

@@ -30,6 +30,11 @@ Kostenloses Fanprojekt von Felix (flexibeel) und Freunden. Es gibt kein Geld dam
 - Nur lesen ist okay. Schema-Änderungen, Migrationen, SQL-Skripte aus `tools/` und Datenlöschungen nur nach ausdrücklicher Zusage.
 - Spielstände anderer Spieler nie ändern. Keine persönlichen Daten in Antworten wiedergeben.
 
+## Modellwahl (spart Geld)
+- **Sonnet:** Planen, Vorschläge, Texte und Übersetzungen, Patchnotes, Fahrplan, neue Inhalte nach bestehendem Muster, kleine Fixes, der Live-Gang nach festem Ablauf.
+- **Opus:** Bauen über mehrere Dateien, knifflige Bugs, Kampfsystem, Supabase und Spielstände, Pixel-Art.
+- Claude sagt von sich aus Bescheid, wenn ein Wechsel sinnvoll ist: „Jetzt bitte auf Opus umschalten“ bzw. „Das schafft auch Sonnet“.
+
 ## Stil
 - Cozy Pixel-Look, Texte locker und witzig, Deutsch und Englisch (`[de, en]`).
 - Kunst ist Felix wichtig: Lieber durchdacht und erkennbar als schnell generiert.
