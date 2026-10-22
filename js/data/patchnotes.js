@@ -1,6 +1,9 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-22j', date: '22.10.', title: 'Endlos mit Biss', items: [
+    '🦀 Endlos-Fahrt: Ab der zweiten Runde tragen Gegner Zusätze. Gepanzert, Flink, Riesig, Wütend, Giftig oder Anführer, der seine Kumpel anstachelt',
+    '👑 Bosse bekommen pro Runde einen Zusatz mehr, bis zu drei. Wer weit kommt, trifft auf echte Brocken' ] },
   { v: '2026-10-22i', date: '22.10.', title: 'Das Kontor im Hafen', items: [
     '🟧 Neu im Hafen: das Kontor. Bernstein wächst dort auch, wenn du nicht spielst, bis das Lager voll ist',
     '📦 Nach jeder Fahrt wird das Schiff entladen: Kram wird Bernstein, Wertsachen wie eine Perlenkette bringen Berry. Volle Ladung gibt 4 Stunden Rückenwind',
