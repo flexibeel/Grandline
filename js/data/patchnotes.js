@@ -1,6 +1,10 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-22o', date: '22.10.', title: 'Neue Looks für die Strohhüte', items: [
+    '🎭 Alle neun Strohhut-Figuren sehen jetzt in jeder Story-Form anders aus: Die letzten sechs haben ihre Looks bekommen, 12 neue Formen mit eigenen Details',
+    '🧢 Dazu 24 neue Kleinigkeiten, von der Maske über Geweih und Arztkoffer bis zur Geige. Wer aufsteigt, sieht es sofort an der Figur',
+    '🎨 Nur Optik: Werte und Balance bleiben, wie sie waren' ] },
   { v: '2026-10-22n', date: '22.10.', title: 'Die Taverne am Hafen', items: [
     '🍺 Mit dem Deck gibt es pro Insel-Karte genau eine Taverne, irgendwo in den ersten drei Reihen. Wer sie sucht, findet sie auch',
     '🔄 Die Taverne bleibt jetzt auch bei voller Crew stehen: Du kannst dort tauschen, entlassen und Figuren zusammenlegen, ohne dass ein Platz frei sein muss',
