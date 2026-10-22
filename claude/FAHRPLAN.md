@@ -4,7 +4,7 @@
 **Am Ende jedes Chats** wird sie aktualisiert und mitgepusht: Was ist fertig, was liegt auf welchem Zweig, was kommt als Nächstes.
 Felix und Jan arbeiten mit verschiedenen Claude-Accounts. Diese Datei ist das gemeinsame Gedächtnis, deshalb gehört hier alles rein, was der nächste Chat wissen muss.
 
-Stand: 22.10.2026 (nachts)
+Stand: 22.10.2026 (nachmittags, nach 22n)
 
 ## Wer macht was
 - **Felix:** entscheidet, was gebaut wird und was live geht („schalte live“), Kunst und Look.
@@ -13,13 +13,18 @@ Stand: 22.10.2026 (nachts)
 
 ## Grundsatz-Entscheidung (21.10.)
 - **Weitergebaut wird das 2D-Pixel-Spiel** (`index.html`, `js/`). Das 3D-System „Neue Welt“ (`neu/`) ist seit 22f entfernt und archiviert (`archiv/neue-welt`), `/neu/` leitet nur noch aufs Spiel um.
+- **Gespielt und gebaut wird in der eigenen (neutralen) Welt**, damit das Spiel veröffentlicht werden kann (`config.world: 'neutral'`, Namen in `js/world/neutral.js`). Neue Namen, Titel und Texte immer mit einem Eintrag in `neutral.js` absichern. Prüfen: `index.html?welt=neutral`, oder alle neuen Texte per Skript durch die Ersetzungsliste schicken. Keine Markennamen im Spiel sichtbar lassen.
 - Alte Zweige, die `neu/...` ändern, sind 3D-Arbeit und werden **nicht** weitergeführt. Ideen daraus werden bei Bedarf im 2D-Spiel neu gebaut.
 
 ## Live
 - `main` = **22n „Die Taverne am Hafen“** (thegreatline.de): Crew-Start Teil 2, im Deck-Start genau eine Taverne pro Insel-Karte, bleibt bei voller Crew stehen. Davor 22m „Das Deck“ (Crew vor dem Ablegen auf dem Schiff aufstellen, Kampfwert-Budget 45 plus Rang, keine Crew-Bremse mehr) und 22l „Die Figurenreise“ (Stil-Dojo im Kontor, Erinnerungsstücke, Story-Formen für die Strohhüte). Seit 22.10. außerdem in `CLAUDE.md`: Modellwahl (Sonnet/Opus) und Entscheidungen als Klick-Fragen (nur Arbeitsregeln, Spiel unverändert). Davor 22k Schiffs-Upgrades sichtbar, 22j Endlos-Tiefe, 22i Kontor Teil 1, 22h Kampf-Update.
 
 ## Wartet auf „schalte live“
-_(nichts)_
+- `feature/figurenreise-looks`: **Figurenreise Teil 2, erster Schritt: Looks der übrigen 6 Strohhüte** (Lysop, Sanji, Chopper, Robin, Franky, Brook, je 2 Formen). Nur Optik, keine Werte geändert. Noch nicht gebündelt: beim Live-Gang Patchnote + `bump-version.py`.
+  - `js/ui/sprites.js`: 22 neue Form-Accessoires in `FORM_ACC` (langnase, gurt, maske, umhang, straehne, hemd, zigarette, feuerbein, kreuz, arzttasche, geweih, fell, haarband, buch, extraarme, blueten, sonnenbrille, metallarm, brustplatte, werkzeug, augenhoehlen, rippen, geige, noten), neue Farbbuchstaben M (Metall), L (hell), A (Bernstein), I (Blütenrosa), Hilfsfunktion `rowOf`. Pro Form höchstens 4 Accessoires (`safeLook`).
+  - `js/data/forms.js`: die `look`-Einträge der 12 Formen, Sogeking mit grünem Hemd, Monster Point mit dunklerer Haut.
+  - `js/world/neutral.js`: neue Einträge für Schwarzbein/Black Leg, Seelenkönig/Soul King, Monster-Punkt, Drum, Yohoho. Alle Form-Texte der 9 Strohhüte einmal durch die Ersetzungsliste geschickt, nichts Markenhaftes mehr drin.
+  - Vorschau-Skript liegt nicht im Repo (lief lokal): `GL.sprites.render` je Form in ein SVG-Blatt, dann mit cairosvg zu PNG.
 
 Crew-Start Teil 2 (22n) ist live (`feature/crew-taverne`): **Taverne genau einmal pro Insel-Karte** (nur Deck-Runs, Tagesfahrt/Wettfahrt/alte Starts unverändert).
   - `nodeTypes` (`js/engine/run.js`): bei `run.deck` keine Taverne mehr im Zufallstopf, auch die Insel-Eigenheit „Taverne“ (`bias: ['recruit']`) entfällt. Markttag und Marktfest (Twist, „mehr Tavernen“) legen weiter welche drauf.
@@ -63,7 +68,7 @@ Wiederherstellen eines Archivs: `git push origin archiv/<name>:refs/heads/featur
 
 ## Warteschlange (Felix wählt die Reihenfolge)
 Felix (22.10.): Jetzt Inhalt aus dem Gesamtplan ins Spiel. Kampfstile Variante A (5 Stile) ist abgesegnet.
-1. Figurenreise Teil 2: Looks der übrigen 6 Strohhüte, Wahl-Boni, eigene Fähigkeit pro Form, Nebenfiguren
+1. Figurenreise Teil 2, Rest: Wahl-Boni (Felix/Jan 22.10.: bei jeder Form 1 von 2 Boni zur Wahl, im Dojo-Bildschirm), eigene Fähigkeit pro Form, Nebenfiguren. Looks der 6 Strohhüte liegen auf `feature/figurenreise-looks`
 2. Spielgefühl: Felix findet, es fühlt sich noch wie ein „spielbares Forum“ an (viel Text, Listen, Knöpfe). Vor dem App-Start einmal gezielt angehen, erst Vorschlag
 3. Nächstes Gesamtplan-Paket: Story-Drops (6er-Crew mit Kampfwert steckt im Deck), Kopfgeld als roter Faden, Endless aus Biomen oder 5 Kampfstile
 4. Bug prüfen: `masters` (Meisterschaft Gold, +15 % Fähigkeit) wird in `main.js` beim Run-Start nicht übergeben, der Bonus greift wohl nie. Fix verschiebt Balance, daher erst mit Felix
@@ -75,6 +80,7 @@ Die große Ideenliste ist das Claude-Doc **„Grand Line: Ideenwerkstatt“** im
 
 ## Letzte Übergabe
 _Hier schreibt der letzte Chat in 3 bis 5 Zeilen, wo er aufgehört hat._
+- 22.10. (Jan, 7. Chat, Teil 2): Figurenreise Teil 2 auf Klick-Antwort „nur die Looks“ gebaut: `feature/figurenreise-looks`, 12 Looks per Vorschau-Blatt geprüft, neutrale Namen ergänzt. Wartet auf „schalte live“. Danach als Nächstes die Wahl-Boni (1 von 2 pro Form), erst kurz vorschlagen. Jan-Hinweis: immer in der eigenen Welt arbeiten, keine Markennamen sichtbar.
 - 22.10. (Jan, 7. Chat): `feature/crew-taverne` live als 22n (Patchnote, `bump-version.py`, Bündel per `node --check` geprüft, ff nach `main`). Nächstes Thema: Figurenreise Teil 2. Erst Vorschlag per Klick-Fragen, noch nichts gebaut.
 - 22.10. (Jan, 6. Chat, Teil 2): `feature/crew-deck` live als 22m. Taverne einmal pro Insel-Karte auf `feature/crew-taverne` gebaut und gemessen (Details oben unter „Wartet“), wartet auf „schalte live“. Entscheidungen per Klick: genau eine Taverne pro Karte, Markttag/Marktfest bleiben als Ausnahme. Headless-Messung läuft nur lokal (Scratchpad), im Repo gibt es `tools/balance.html`.
 - 22.10. (Jan, 6. Chat): `feature/crew-deck` live als 22m (Patchnote, `bump-version.py`, Bündel gebaut, per `node --check` geprüft). Nächstes Thema: Crew-Start Teil 2 (Taverne nur einmal pro Insel, dann Balance mit `tools/balance.html`). Noch nicht begonnen, erst kurz vorschlagen.

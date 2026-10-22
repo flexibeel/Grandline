@@ -73,16 +73,49 @@ window.GL = window.GL || {};
     // Story-Formen (js/data/forms.js): mehrere kleine Details auf einmal
     (Array.isArray(look.facc) ? look.facc : []).forEach(k => (FORM_ACC[k] || []).forEach(([y, x, ch]) => { if (grid[y]) grid[y][x] = ch; }));
   }
-  // y, x, Farbe. S = Haut der Figur, X Dampf, Z Bauchbinde, V Taktstock/Tattoo, Y Gold
+  // y, x, Farbe. S = Haut der Figur, H = Haarfarbe, X Dampf, Z Bauchbinde, V Taktstock/Tattoo/Buch, Y Gold,
+  // M Metall, L hell (Hemd, Maske, Knochen), A Bernstein (Band, Umhang, Flammen), I Blüten-Rosa
+  const rowOf = (y, x0, x1, ch) => { const a = []; for (let x = x0; x <= x1; x++) a.push([y, x, ch]); return a; };
   const FORM_ACC = {
     weste: [[6, 5, 'S'], [6, 6, 'S'], [7, 5, 'S'], [7, 6, 'S'], [8, 5, 'S'], [8, 6, 'S']],
     dampf: [[0, 0, 'X'], [0, 11, 'X'], [2, 0, 'X'], [3, 11, 'X'], [1, 11, 'X']],
     bauchbinde: [2, 3, 4, 5, 6, 7, 8, 9].map(x => [9, x, 'Z']),
     ohrringe: [[4, 2, 'Y'], [5, 2, 'Y'], [3, 1, 'Y']],
     tattoo: [[7, 1, 'V']],
-    taktstock: [[5, 11, 'V'], [6, 11, 'V'], [7, 11, 'V'], [8, 11, 'V'], [9, 11, 'V'], [10, 11, 'V'], [11, 11, 'V']]
+    taktstock: [[5, 11, 'V'], [6, 11, 'V'], [7, 11, 'V'], [8, 11, 'V'], [9, 11, 'V'], [10, 11, 'V'], [11, 11, 'V']],
+    // Lysop: lange Nase, Gürtel mit Beutel, Maske und Umhang
+    langnase: [[4, 10, 'S'], [4, 11, 'S']],
+    gurt: rowOf(9, 2, 9, 'W').concat([[10, 2, 'W'], [10, 3, 'W']]),
+    maske: [[3, 2, 'L'], [3, 3, 'L'], [3, 4, 'K'], [3, 5, 'L'], [3, 6, 'L'], [3, 7, 'K'], [3, 8, 'L'], [3, 9, 'L']].concat(rowOf(4, 2, 9, 'L')),
+    umhang: [[6, 1, 'A'], [6, 10, 'A'], [7, 0, 'A'], [7, 11, 'A'], [8, 0, 'A'], [8, 11, 'A'], [9, 0, 'A'], [9, 11, 'A']],
+    // Sanji: Haarsträhne über dem Auge, weißes Hemd, Zigarette, brennendes Bein
+    straehne: [[2, 6, 'H'], [2, 7, 'H'], [2, 8, 'H'], [3, 7, 'H'], [3, 8, 'H']],
+    hemd: [[6, 5, 'L'], [6, 6, 'L'], [7, 5, 'L'], [7, 6, 'L'], [8, 5, 'L'], [8, 6, 'L']],
+    zigarette: [[5, 8, 'L'], [5, 9, 'L'], [5, 10, 'R']],
+    feuerbein: [[11, 2, 'F'], [11, 3, 'A'], [12, 2, 'A'], [12, 3, 'F'], [13, 2, 'F'], [13, 3, 'A']],
+    // Chopper: Kreuz auf dem Hut, Arzttasche, Geweih, Fell
+    kreuz: [[0, 5, 'L'], [0, 6, 'L'], [1, 4, 'L'], [1, 5, 'L'], [1, 6, 'L'], [1, 7, 'L']],
+    arzttasche: [[10, 10, 'W'], [10, 11, 'Y'], [11, 10, 'W'], [11, 11, 'W']],
+    geweih: [[0, 1, 'W'], [0, 2, 'W'], [1, 1, 'W'], [0, 9, 'W'], [0, 10, 'W'], [1, 10, 'W']],
+    fell: [[6, 0, 'W'], [7, 0, 'W'], [8, 0, 'W'], [6, 11, 'W'], [7, 11, 'W'], [8, 11, 'W']],
+    // Robin: Stirnband, Buch, zusätzliche Arme, Blüten
+    haarband: rowOf(2, 3, 8, 'A'),
+    buch: [[7, 11, 'V'], [8, 11, 'V'], [9, 11, 'V'], [9, 10, 'L']],
+    extraarme: [[4, 0, 'S'], [5, 1, 'S'], [6, 0, 'S'], [4, 11, 'S'], [5, 10, 'S'], [6, 11, 'S']],
+    blueten: [[0, 0, 'I'], [2, 0, 'I'], [0, 11, 'I'], [2, 11, 'I']],
+    // Franky: Sonnenbrille, Metallarme, Brustplatte, Schraubenschlüssel
+    sonnenbrille: rowOf(3, 2, 9, 'K'),
+    metallarm: [[7, 1, 'M'], [8, 1, 'M'], [7, 10, 'M'], [8, 10, 'M']],
+    brustplatte: rowOf(7, 4, 7, 'M').concat(rowOf(8, 4, 7, 'M')),
+    werkzeug: [[5, 10, 'M'], [5, 11, 'M'], [6, 11, 'M'], [7, 11, 'M'], [8, 11, 'M']],
+    // Brook: leere Augenhöhlen, Rippen, Geige mit Bogen, Noten
+    augenhoehlen: [[3, 3, 'K'], [3, 4, 'K'], [3, 7, 'K'], [3, 8, 'K']],
+    rippen: rowOf(6, 4, 7, 'L').concat([[7, 5, 'L'], [7, 6, 'L']], rowOf(8, 4, 7, 'L')),
+    geige: [[6, 0, 'W'], [7, 0, 'W'], [8, 0, 'W'], [9, 0, 'W'], [6, 11, 'K'], [7, 11, 'K'], [8, 11, 'K'], [9, 11, 'K']],
+    noten: [[3, 0, 'Y'], [4, 0, 'Y'], [2, 11, 'Y'], [3, 11, 'Y']]
   };
-  const ACC_COL = { K: '#1a1a1a', R: '#c0392b', G: '#3a2a20', Y: '#f2d24a', W: '#6a4424', F: '#e0483b', Q: '#d8d8d8', X: '#f2eeee', Z: '#3f8f4f', V: '#2f6fb0' };
+  const ACC_COL = { K: '#1a1a1a', R: '#c0392b', G: '#3a2a20', Y: '#f2d24a', W: '#6a4424', F: '#e0483b', Q: '#d8d8d8', X: '#f2eeee', Z: '#3f8f4f', V: '#2f6fb0',
+    M: '#8a96a4', L: '#f4f0e6', A: '#e8a030', I: '#f08ab4' };
   // Dunkler Pixel-Umriss um alles Gezeichnete: kräftiger, klarer Look (wie in Stardew oder Dwarves)
   function outline(grid, w, h) {
     const filled = (x, y) => y >= 0 && y < h && x >= 0 && x < w && grid[y][x] !== '.';
@@ -172,7 +205,7 @@ window.GL = window.GL || {};
     applyLook(grid, look);
     const colors = Object.assign({ H: look.hair, S: look.skin, E: '#1a1a1a', C: look.shirt, P: look.pants, O: '#2a1f14', B: look.hatColor || look.hair, D: look.beard, N: look.nose }, ACC_COL, MASK_COL[look.mask] || {});
     const colorOf = ch => colors[ch] || '#888888';
-    const NOSH = 'EYTKRGWFQ';
+    const NOSH = 'EYTKRGWFQLAI';
     // Ruhebild: Oberkörper (bis Gürtel) und Beine getrennt, damit der Oberkörper beim Atmen um einen Pixel sinkt
     const idle = pixelsOf(grid, 12, 14, colorOf, NOSH);
     const up = idle.filter(p => p[1] <= 9), low = idle.filter(p => p[1] > 9);

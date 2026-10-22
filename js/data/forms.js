@@ -7,7 +7,7 @@
 //   item  = Erinnerungsstück: name [de, en], art = 12x12 Pixelbild (Farben aus GL.data.formPal)
 //   forms = Formen der Reihe nach: title [de, en], boss = Boss-id (einmal besiegt), need = Stücke,
 //           look = Änderungen am Aussehen (wird über den Grund-Look gelegt; facc = Form-Accessoires aus sprites.js (FORM_ACC))
-//   Pilot: die neun Strohhüte. Weitere Figuren kommen Arc für Arc dazu.
+//   Pilot: die neun Strohhüte, alle mit Look-Details (Teil 2). Weitere Figuren kommen Arc für Arc dazu.
 window.GL = window.GL || {};
 GL.data = GL.data || {};
 
@@ -54,42 +54,42 @@ GL.data.forms = {
     item: { name: ['Schleuder', 'Slingshot'], text: ['Kabuto ist größer. Die hier war die erste.', 'Kabuto is bigger. This one came first.'],
       art: ['............', '..W.....W...', '..Wr...rW...', '..W.rrr.W...', '..Ww...wW...', '...Ww.wW....', '....WwW.....', '.....W......', '.....W......', '.....w......', '....ww......', '............'] },
     forms: [
-      { title: ['Kapitän der Lysop-Bande', 'Captain of the Usopp Pirates'], boss: 'arlong', need: 10, look: {} },
-      { title: ['Sogeking', 'Sniper King'], boss: 'rob-lucci', need: 25, look: {} }
+      { title: ['Kapitän der Lysop-Bande', 'Captain of the Usopp Pirates'], boss: 'arlong', need: 10, look: { facc: ['langnase', 'gurt'] } },
+      { title: ['Sogeking', 'Sniper King'], boss: 'rob-lucci', need: 25, look: { shirt: '#5a7a3a', facc: ['maske', 'umhang', 'langnase'] } }
     ] },
   sanji: {
     item: { name: ['Kochlöffel', 'Wooden spoon'], text: ['Wer Hunger hat, bekommt zu essen. Immer.', 'Anyone hungry gets fed. Always.'],
       art: ['............', '........WW..', '.......WwwW.', '.......WwwW.', '........WW..', '.......w....', '......w.....', '.....w......', '....w.......', '...w........', '..w.........', '............'] },
     forms: [
-      { title: ['Schwarzbein', 'Black Leg'], boss: 'arlong', need: 10, look: {} },
-      { title: ['Diable Jambe', 'Diable Jambe'], boss: 'rob-lucci', need: 25, look: {} }
+      { title: ['Schwarzbein', 'Black Leg'], boss: 'arlong', need: 10, look: { facc: ['straehne', 'hemd', 'zigarette'] } },
+      { title: ['Diable Jambe', 'Diable Jambe'], boss: 'rob-lucci', need: 25, look: { facc: ['straehne', 'hemd', 'zigarette', 'feuerbein'] } }
     ] },
   chopper: {
     item: { name: ['Kirschblüte von Drumm', 'Drum cherry blossom'], text: ['Rot geschneit, für einen Doktor.', 'Snowed down pink, for a doctor.'],
       art: ['............', '.....PP.....', '....PppP....', '.PP..pp..PP.', 'PppPyyyyPppP', '.PPpyYYypPP.', '...pyYYyp...', '..PpyyyypP..', '.PppP..PppP.', '.PPP....PPP.', '............', '............'] },
     forms: [
-      { title: ['Arzt von Drumm', 'Doctor of Drum'], boss: 'crocodile', need: 10, look: {} },
-      { title: ['Monster-Punkt', 'Monster Point'], boss: 'rob-lucci', need: 25, look: {} }
+      { title: ['Arzt von Drumm', 'Doctor of Drum'], boss: 'crocodile', need: 10, look: { facc: ['kreuz', 'arzttasche'] } },
+      { title: ['Monster-Punkt', 'Monster Point'], boss: 'rob-lucci', need: 25, look: { skin: '#a8703f', facc: ['geweih', 'fell', 'kreuz'] } }
     ] },
   robin: {
     item: { name: ['Altes Geschichtsbuch', 'Old history book'], text: ['Die Seiten sind voller Fragen.', 'The pages are full of questions.'],
       art: ['............', '..bbbbbbbb..', '..bBBBBBBbl.', '..bBggggBbl.', '..bBBBBBBbl.', '..bBBBBBBbl.', '..bBBBBBBbl.', '..bBBBBBBbl.', '..bBBBBBBbl.', '..bbbbbbbbl.', '...llllllll.', '............'] },
     forms: [
-      { title: ['Archäologin von Ohara', 'Archaeologist of Ohara'], boss: 'enel', need: 10, look: {} },
-      { title: ['Die leben will', 'She who wants to live'], boss: 'rob-lucci', need: 25, look: {} }
+      { title: ['Archäologin von Ohara', 'Archaeologist of Ohara'], boss: 'enel', need: 10, look: { facc: ['haarband', 'buch'] } },
+      { title: ['Die leben will', 'She who wants to live'], boss: 'rob-lucci', need: 25, look: { facc: ['haarband', 'extraarme', 'blueten'] } }
     ] },
   franky: {
     item: { name: ['Cola-Flasche', 'Cola bottle'], text: ['Treibstoff. Ganz offiziell.', 'Fuel. Officially.'],
       art: ['.....kk.....', '.....SS.....', '.....SS.....', '....SddS....', '...SddddS...', '...SrrrrS...', '...SrxxrS...', '...SrrrrS...', '...SddddS...', '...SddddS...', '...SSSSSS...', '............'] },
     forms: [
-      { title: ['Cyborg von Water 7', 'Cyborg of Water 7'], boss: 'rob-lucci', need: 10, look: {} },
-      { title: ['Erbauer der Sunny', 'Builder of the Sunny'], boss: 'moria', need: 25, look: {} }
+      { title: ['Cyborg von Water 7', 'Cyborg of Water 7'], boss: 'rob-lucci', need: 10, look: { facc: ['sonnenbrille', 'metallarm'] } },
+      { title: ['Erbauer der Sunny', 'Builder of the Sunny'], boss: 'moria', need: 25, look: { facc: ['sonnenbrille', 'metallarm', 'brustplatte', 'werkzeug'] } }
     ] },
   brook: {
     item: { name: ['Teetasse', 'Teacup'], text: ['Yohoho! Mit Milch, bitte.', 'Yohoho! With milk, please.'],
       art: ['....m..m....', '.....m..m...', '....m..m....', '............', '..xxxxxxx...', '..xllllllxx.', '..xlggggl.x.', '..xllllllxx.', '...xllllx...', '.mmmmmmmmmm.', '..mmmmmmmm..', '............'] },
     forms: [
-      { title: ['Seelenkönig', 'Soul King'], boss: 'moria', need: 10, look: {} },
-      { title: ['Musikant der Strohhüte', 'Straw Hat musician'], boss: 'kuma', need: 25, look: {} }
+      { title: ['Seelenkönig', 'Soul King'], boss: 'moria', need: 10, look: { facc: ['augenhoehlen', 'rippen'] } },
+      { title: ['Musikant der Strohhüte', 'Straw Hat musician'], boss: 'kuma', need: 25, look: { facc: ['augenhoehlen', 'rippen', 'geige', 'noten'] } }
     ] }
 };
