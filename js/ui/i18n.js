@@ -28,6 +28,7 @@ window.GL = window.GL || {};
     'Neu laden': 'Reload', '↻ Neu laden': '↻ Reload', 'Vollbild': 'Fullscreen', 'Details': 'Details', 'Kompakt': 'Compact', 'Spezial': 'Special', 'Auto': 'Auto',
     'Deine Crew': 'Your crew', 'Gekauft': 'Bought', '+ Bonus': '+ Bonus', '♥ Duo': '♥ Duo', 'Kampf, Taverne, Schatz, Teufelsfrucht oder Rast.': 'Fight, tavern, treasure, devil fruit or rest.',
     // Spielablauf
+    'Antippen für Details': 'Tap for details',
     'Wähle deinen Kapitän': 'Choose your captain', 'Ereignis auf See': 'Event at sea', 'Neue Insel': 'New island', 'Taverne': 'Tavern', 'Hafentaverne': 'Harbor tavern',
     'Der erste Kauf ist gratis.': 'Your first hire is free.', 'Welche Frucht isst du?': 'Which fruit do you eat?', 'Je seltener die Frucht, desto stärker ihr Effekt.': 'The rarer the fruit, the stronger its effect.',
     'Welchen Schatz nimmst du mit?': 'Which treasure do you take?', 'Schätze wirken bis zum Ende des Runs. Je seltener, desto stärker.': 'Treasures last until the end of the run. The rarer, the stronger.',

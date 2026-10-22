@@ -1991,20 +1991,24 @@ window.GL = window.GL || {};
           const fx = lvl ? `<span class="co-riskfx"><i class="rf-foe" title="Gegner stärker">⚔+${pct(RK.foe)}%</i><i class="rf-gold" title="Mehr Gold pro Sieg">💰+${pct(RK.gold)}%</i><i class="rf-b" title="Mehr Kopfgeld">฿+${pct(RK.bounty)}%</i>${RK.drop ? '<i class="rf-loot" title="Bösewicht lässt oft einen Extra-Schatz fallen">🎁</i>' : ''}</span>` : '<span class="co-riskfx calm"><i>Normale Gegner, normale Beute</i></span>';
           const danger = `<span class="co-danger d${lvl}" title="${['Gemütlicher Einstieg', 'Ordentlich was los', 'Wird ungemütlich'][lvl]}">${[0, 1, 2].map(k => `<i class="${k <= lvl ? 'on' : ''}"></i>`).join('')}<small>${['gemütlich', 'ordentlich', 'ungemütlich'][lvl]}</small></span>`;
           const pet = (() => { const pt = (GL.data.pets || []).find(p => p.isl === isl.id); const pr = profRef; return pt && pr && !(pr.pets || []).includes(pt.id) ? `<span class="co-petchip"><i class="pet-sil">${petArt(pt.id)}</i>Begleiter?</span>` : ''; })();
-          return `<button class="opt course-opt co2" data-act="pick" data-i="${i}">
+          // Inselwahl als Wisch-Karten (22s): vorne nur Bild, Name und Bösewicht, alles andere klappt beim Antippen auf
+          const sigChip = (() => { const sg = ch === 1 && GL.cgear && profRef ? GL.cgear.sigOf(isl.boss) : null; if (!sg) return ''; const wish = GL.cgear.wishes(profRef).includes(sg.id); return wish ? `<span class="co-wish" title="${esc(sg.name)}">🎯 ${esc(sg.name)}</span>` : (GL.cgear.atlas(profRef)[sg.id] == null ? `<span class="co-sig" title="Fundstück: ${esc(sg.name)}">🎁 Fundstück</span>` : ''); })();
+          const marks = `${route ? `<span class="co-routechip">${esc(route)}</span>` : ''}${isNewIsl(isl) ? '<span class="new-chip co-new" title="Hier warst du noch nie">Neue Insel</span>' : ''}${pet}${sigChip}`;
+          return `<button class="opt isl-card co2" data-i="${i}" style="--k:${i}" aria-label="${esc(isl.name)}">
             ${i < 9 ? `<kbd class="key">${i + 1}</kbd>` : ''}
-            <span class="co-scene">${cardStage({ id: 'isl-' + isl.id }, th)}
-              <span class="co-boss"><i class="co-boss-sh" aria-hidden="true"></i>${GL.sprites.render(foe)}</span>
-              <span class="co-chips">${(() => { const sg = ch === 1 && GL.cgear && profRef ? GL.cgear.sigOf(isl.boss) : null; if (!sg) return ''; const wish = GL.cgear.wishes(profRef).includes(sg.id); return wish ? `<span class="co-wish" title="${esc(sg.name)}">🎯 ${esc(sg.name)}</span>` : (GL.cgear.atlas(profRef)[sg.id] == null ? `<span class="co-sig" title="Fundstück: ${esc(sg.name)}">🎁 Fundstück</span>` : ''); })()}${route ? `<span class="co-routechip">${esc(route)}</span>` : ''}${isNewIsl(isl) ? '<span class="new-chip co-new" title="Hier warst du noch nie">Neue Insel</span>' : ''}${pet}</span>
+            <span class="co-scene isl-scene">${cardStage({ id: 'isl-' + isl.id }, th)}
+              <span class="isl-boss"><i class="isl-shine" aria-hidden="true"></i><i class="co-boss-sh" aria-hidden="true"></i><span class="isl-boss-spr">${GL.sprites.render(foe)}</span></span>
               <b class="co-name">${isl.name}</b></span>
-            <span class="co-body">
+            <span class="isl-foe"><small>${ch === 0 ? 'Bösewicht der Insel' : 'Boss des Meeres'}</small><b>${foe.name}</b>${badge(foe.type)}${isNewFoe(foe.id) ? newChip : ''}</span>
+            <span class="isl-more"><span class="isl-more-in co-body">
+              ${marks ? `<span class="isl-marks">${marks}</span>` : ''}
               <small class="co-text">${isl.text}</small>
               <span class="co-route">${isl.places.map(p => `<i>${p}</i>`).join('<em>›</em>')}<em>›</em><i class="co-lair">${isl.lair}</i></span>
-              <span class="co-foe2"><span><small>${ch === 0 ? 'Bösewicht der Insel' : 'Boss des Meeres'}</small><b>${foe.name} ${badge(foe.type)}${isNewFoe(foe.id) ? newChip : ''}</b>
-                <small>schwach gegen ${badge(info.counter)}${bounty ? ` · ${bounty}` : ''}</small></span>${danger}</span>
+              <span class="co-foe2"><span><small>schwach gegen ${badge(info.counter)}${bounty ? ` · ${bounty}` : ''}</small></span>${danger}</span>
               ${fx}
               ${crackHint(foe).html}
-            </span>
+            </span></span>
+            <span class="isl-tap">Antippen für Details</span>
           </button>`;
         }).join('');
         // Zum ersten Mal in diesem Meer: kleiner Freudenmoment
@@ -2014,9 +2018,12 @@ window.GL = window.GL || {};
         return `${noticeBox(run)}${seaBanner}<span class="event-kicker">${twoRoutes ? (GL.run.islandIndex(run) === 1 ? 'Zweites Meer' : 'Drittes Meer') + ' · Zwei Routen' : sea.name + ' · ' + (ch === 0 ? 'Erste Insel' : 'Zweite Insel')}</span>
           <h2>${ch === 0 ? 'Welche Insel steuerst du an?' : 'Kurs auf den Boss des Meeres'}</h2>
           ${GL.run.twist ? (tw => tw ? `<span class="co-twist" data-tip="${esc('Insel-Twist dieser Etappe: ' + tw.name + '\n' + tw.text)}">${tw.icon || '🎲'} <b>${esc(tw.name)}</b><small>${esc(tw.text)}</small></span>` : '')((t0 => t0 && t0.en && GL.i18n && GL.i18n.lang() === 'en' ? Object.assign({}, t0, { name: t0.en[0], text: t0.en[1] }) : t0)(GL.run.twist(run))) : ''}
-          <p class="hint course-hint">${ch === 0 ? 'Jede Insel hat ihre eigenen Orte. Am Ende wartet ihr Bösewicht: Sieg bringt Kopfgeld, einen Schatz und eine Verschnaufpause.'
+          <div class="isl-swipe" data-n="${opts.length}"><div class="isl-track">${cards}</div></div>
+          <div class="isl-dots" aria-hidden="true">${opts.map((_, k) => `<i class="${k ? '' : 'on'}"></i>`).join('')}</div>
+          <div class="dock isl-dock"><button class="btn isl-go" data-act="pick" data-i="0"><span class="isl-go-t">Kurs setzen</span></button></div>
+          <p class="hint course-hint isl-hint">${ch === 0 ? 'Jede Insel hat ihre eigenen Orte. Am Ende wartet ihr Bösewicht: Sieg bringt Kopfgeld, einen Schatz und eine Verschnaufpause.'
             : 'Auf der großen Insel wartet der Boss dieses Meeres. Wähle den Gegner, gegen den deine Crew die besseren Karten hat.'}</p>
-          <div class="course-grid">${cards}</div>`;
+          `;
       }
 
       // ---------- OFFENE SEE (js/ui/opensea.js) ----------

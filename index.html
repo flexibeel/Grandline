@@ -125,6 +125,6 @@
 <!-- Englisch nur laden, wenn Englisch aktiv ist (gleiche Regel wie js/ui/i18n.js) -->
 <script>(function(){var l="de";try{l=localStorage.getItem("grandline.lang")||(/^de/i.test(navigator.language||"de")?"de":"en")}catch(e){}if(l==="de")return;
 document.write('<!-- BUNDLE en --><script src="js/build/en.min.js?v=2026-10-22r"><\/script><!-- /BUNDLE -->');})();</script>
-<!-- BUNDLE tail --><script src="js/build/tail.min.js?v=2026-10-22r"></script><!-- /BUNDLE -->
+<!-- BUNDLE tail --><script src="js/build/tail.min.js?v=2026-10-22r"></script><script src="js/ui/inselwahl.js"></script><!-- /BUNDLE -->
 </body>
 </html>
