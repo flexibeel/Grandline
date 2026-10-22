@@ -115,7 +115,13 @@ GL.config = {
   // Glücksfund nach gewonnenen Kämpfen: Goldtruhe mit mindestens seltener Ausrüstung + Gold (Glücksmünze erhöht die Chance)
   luck: { battle: 0.06, elite: 0.12, boss: 0.2, raid: 0.25, gold: 15 },
   // Ultis: Energie pro eigenem Treffer / eingestecktem Treffer, bei max feuert die Ulti. Bosse starten mit etwas Energie.
-  ult: { max: 100, gainHit: 40, gainHurt: 20, start: 20, bossStart: 40, fireChance: 0.6, maxWait: 2, spark: 0.05, holdMax: 4 },   // holdMax: Ulti-Klick, so viele eigene Züge wartet eine volle Ulti auf den Tipp
+  // KAMPF-UPDATE (Baustein 1): seltener, dafür stärker. Start bei 0, +30 pro Treffer, +15 wenn getroffen, power = Faktor auf Ulti-Treffer.
+  //   (+20/+10 wie auf der Design-Fläche machte Ultis in der Bot-Simulation 2,6-mal seltener und das Spiel deutlich schwerer)
+  ult: { max: 100, gainHit: 30, gainHurt: 15, start: 0, bossStart: 40, fireChance: 0.6, maxWait: 2, spark: 0.05, holdMax: 4, power: 1.6 },   // holdMax: Ulti-Klick, so viele eigene Züge wartet eine volle Ulti auf den Tipp
+  // KAMPF-UPDATE (Baustein 2): Helfer heilen auch ohne Ulti. Ist ein Verbündeter unter below Leben, heilen sie ihn (pct × Angriff) statt anzugreifen.
+  healer: { below: 0.5, pct: 0.6 },
+  // VERTIEFUNG: Reaktionen zwischen Zuständen (beide werden verbraucht). boom/shatter = Anteil Max-Leben, Bosse nehmen davon nur bossCut.
+  react: { boom: 0.08, shatter: 0.16, steamRounds: 2, bossCut: 0.4 },   // holdMax: Ulti-Klick, so viele eigene Züge wartet eine volle Ulti auf den Tipp
   critMult: 2,
   // STATS: Deckel für Krit-Chance und Ausweichen. Was darüber liegt, verfällt nicht, sondern wird umgewandelt:
   //   critOver: je 1 % Krit-Chance über dem Deckel +critOver % Krit-Schaden (0.5 → 20 % drüber = +10 % Krit-Schaden)

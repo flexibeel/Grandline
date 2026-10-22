@@ -327,3 +327,24 @@ Object.assign(GL.data.en, {
   'Volltreffer, Stolperfalle … oder nichts': 'Bullseye, tripwire … or nothing',
   '📣 Kommando:': '📣 Command:', '🍖 Kommando:': '🍖 Command:', '🎲 Glückswurf:': '🎲 Lucky roll:', 'Volltreffer': 'Bullseye', 'Stolperfalle': 'Tripwire', 'nichts': 'nothing'
 });
+// KAMPF-UPDATE: neue Zustände, Reaktionen und Ultis
+GL.data.en = Object.assign(GL.data.en || {}, {
+  'Frost': 'Frost', 'Schock': 'Shock', 'Blind': 'Blinded', 'Frost!': 'Frost!', 'Schock!': 'Shock!', 'Blind!': 'Blinded!',
+  'Frost weg': 'Frost gone', 'Schock weg': 'Shock gone', 'Blind weg': 'Sight back',
+  'Langsamer. Mit Schock: Zersplittern, mit Brand: Dampf.': 'Slower. With shock: shatter, with burning: steam.',
+  'Springt beim nächsten Treffer auf einen Nachbarn. Mit Frost: Zersplittern.': 'Jumps to a neighbour on the next hit. With frost: shatter.',
+  '25 % der Angriffe verfehlen.': '25 % of attacks miss.',
+  'Blitz auf alle Gegner (100 %), der Vorderste ist betäubt, alle unter Schock.': 'Lightning on all enemies (100 %), the front one is stunned, all are shocked.',
+  'Gewaltiger Blitz auf alle (90 %), alle unter Schock.': 'Massive lightning on all (90 %), all are shocked.',
+  'Friert alle ein: Treffer (80 %), der Vorderste ist betäubt, alle bekommen Frost.': 'Freezes everyone: hit (80 %), the front one is stunned, all get frost.',
+  'Lichtkugeln auf alle (100 %), alle geblendet.': 'Light orbs on all (100 %), all blinded.'
+});
+// KONTOR (Teil 1)
+GL.data.en = Object.assign(GL.data.en || {}, {
+  'Kontor': 'Counting house', 'Das Kontor': 'The counting house', 'Bernstein': 'Amber', 'Auffrischen': 'Refresh',
+  'Dein Handelshaus im Hafen. Bernstein wächst auch, wenn du nicht spielst, und nach jeder Fahrt wird das Schiff entladen.': 'Your trading house in the harbor. Amber grows while you are away, and after every voyage the ship gets unloaded.',
+  'Im Hafen unter „Kontor“ abholen': 'Collect it in the harbor under “Counting house”',
+  'Nach jedem Run: Kram wird Bernstein, Wertsachen werden Berry': 'After every run: odds and ends become amber, valuables become Berry',
+  'Bernstein frischt Landgänge auf: noch einmal volle Beute': 'Amber refreshes Shore Leave spots: full loot once more',
+  'Kontor · Schiff entladen': 'Counting house · ship unloaded', 'Steht jetzt in der Vitrine im Kontor': 'Now on display in the counting house'
+});

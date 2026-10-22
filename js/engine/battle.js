@@ -104,7 +104,7 @@ window.GL = window.GL || {};
     }
 
     // ---------- Zustände (halten mehrere Runden) ----------
-    const DEBUFF_ORDER = ['fear', 'stun', 'poison', 'weak', 'bleed', 'burning'];
+    const DEBUFF_ORDER = ['fear', 'stun', 'poison', 'weak', 'bleed', 'burning', 'frost', 'shock', 'blind'];
     function addStatus(u, key, rounds, value) {
       if (u.hp <= 0) return null;
       const def = GL.data.statuses[key];
@@ -115,7 +115,35 @@ window.GL = window.GL || {};
       }
       const cur = u.status[key];
       u.status[key] = { rounds: Math.max(rounds, cur ? cur.rounds : 0), value: value || (cur ? cur.value : 0) };
+      // VERTIEFUNG: Treffen zwei passende Zustände aufeinander, gibt es eine Reaktion. Beide werden verbraucht.
+      if (reaction(u, key)) return null;
       return { to: idx(u), key, rounds };
+    }
+    // Reaktionen: Brand + Gift = Explosion, Frost + Schock = Zersplittern, Brand + Frost = Dampf, Geschwächt + Furcht = Panik
+    const REACT = [['burning', 'poison', 'boom'], ['frost', 'shock', 'shatter'], ['burning', 'frost', 'steam'], ['weak', 'fear', 'panic']];
+    const RX = Object.assign({ boom: 0.08, shatter: 0.16, steamRounds: 2, bossCut: 0.4 }, C.react || {});
+    function reaction(u, key) {
+      const pair = REACT.find(p => (p[0] === key && u.status[p[1]]) || (p[1] === key && u.status[p[0]]));
+      if (!pair) return false;
+      const r = pair[2];
+      delete u.status[pair[0]]; delete u.status[pair[1]];
+      const team = allies(u);
+      const cut = x => (x.boss || x.mini || x.raid ? RX.bossCut : 1);   // Bosse nehmen von Prozent-Schaden nur einen Teil
+      events.push({ k: 'reaction', side: u.side, to: idx(u), r, keys: [pair[0], pair[1]] });
+      if (r === 'boom') {
+        const list = alive(team).map(t => { const d = Math.max(2, Math.round(t.max * RX.boom * cut(t))); return { to: idx(t), dmg: Math.min(t.hp, d), hp: damage(t, d) }; });
+        if (list.length) events.push({ k: 'dmg', side: u.side, list, by: 'reaktion', rx: r });
+      } else if (r === 'shatter') {
+        const d = Math.max(3, Math.round(u.max * RX.shatter * cut(u)));
+        u.guard = Math.max(0, (u.guard || 0) - 0.15);
+        events.push({ k: 'dmg', side: u.side, list: [{ to: idx(u), dmg: Math.min(u.hp, d), hp: damage(u, d) }], by: 'reaktion', rx: r });
+      } else if (r === 'steam') {
+        const list = alive(team).map(t => { t.status.blind = { rounds: RX.steamRounds, value: 0 }; return { to: idx(t), key: 'blind', rounds: RX.steamRounds }; });
+        if (list.length) events.push({ k: 'status', side: u.side, list, by: 'reaktion', rx: r });
+      } else if (r === 'panic') {
+        if (!u.status.brave) u.status.stun = true;
+      }
+      return true;
     }
     function spreadStatus(u, st, target) {
       let list;
@@ -132,6 +160,7 @@ window.GL = window.GL || {};
     // ---------- Ultis: Energie laden, bei voller Leiste ersetzt die Ulti den nächsten Angriff ----------
     const U = C.ult || { max: 100, gainHit: 25, gainHurt: 10, bossStart: 30 };
     const UL = GL.data.ultis || {}, UD = GL.data.ultiDefaults || {};
+    const HL = Object.assign({ below: 0.5, pct: 0.6 }, C.healer || {});
     const ultOf = u => {
       if (u.side === 'crew' || (u.ref && u.ref.pvp)) return UL[u.id] || UD[u.role] || UD.kaempfer || null;
       if (u.boss || u.mini) return UL[u.id] || UD.foe || null;
@@ -141,11 +170,13 @@ window.GL = window.GL || {};
     let gainMult = 1;
     const charge = (u, n) => { if (u.ult && u.hp > 0) u.energy = Math.min(U.max, u.energy + Math.round(n * gainMult)); };
 
+    let inUlt = false;
+    const spdOf = u => u.spd - (u.status && u.status.frost ? 3 : 0);   // Frost: langsamer
     function ultStrike(u, t, mult, pierce) {
       let m = typeMult(u.type, t.type);
       if (m < 1 && u.ignoreWeak) m = 1;
       if (m > 1 && u.side === 'crew') m += flags.effBonus;
-      let d = u.atk * mult * m * (1 + (u.dmgPct || 0));
+      let d = u.atk * mult * m * (1 + (u.dmgPct || 0)) * (inUlt ? (U.power || 1) : 1);   // KAMPF-UPDATE: Ultis seltener, dafür stärker
       if (t.boss || t.mini) d *= 1 + (u.bossPct || 0);
       if (u.status.fear) d *= 0.65;
       if (t.status.weak) d *= 1.25;
@@ -173,7 +204,8 @@ window.GL = window.GL || {};
       const P = tier === 'perfect';
       events.push({ k: 'ult', side: u.side, from: idx(u), by: u.id, name: ult.name, spark: !!spark, tier, bonus: bonus ? bonus.label : '', combo: u.ultCount });
       const st = { hit: [] };
-      (bonus ? ult.fx.concat([bonus]) : ult.fx).forEach(f0 => fxStep(u, f0, P, st));
+      inUlt = true;
+      try { (bonus ? ult.fx.concat([bonus]) : ult.fx).forEach(f0 => fxStep(u, f0, P, st)); } finally { inUlt = false; }
       teamCharge(u);
     }
     // Ein Effekt einer Ulti oder Team-Fähigkeit
@@ -906,7 +938,7 @@ window.GL = window.GL || {};
         // Duell: bei gleichem Tempo entscheidet der Zufall, wer zuerst handelt (sonst hätte der Angreifer immer Vorteil)
         queue.forEach(u => { u.tb = R.float(run); });
         queue.sort((a, b) => b.spd - a.spd || b.tb - a.tb);
-      } else queue.sort((a, b) => b.spd - a.spd);
+      } else queue.sort((a, b) => spdOf(b) - spdOf(a));
 
       for (const u of queue) {
         if (!alive(enemies).length || !alive(crew).length) break;   // Kampf schon entschieden
@@ -931,6 +963,14 @@ window.GL = window.GL || {};
           u.ultWait = (u.ultWait || 0) + 1;
         } else if (u.ult && u.energy >= U.max * 0.5 && R.float(run) < (U.spark || 0)) { doUlt(u, true); continue; }
         const foes = foesOf(u);
+        // KAMPF-UPDATE: Helfer heilen auch ohne Ulti. Ist ein Verbündeter unter 50 % Leben, heilen sie ihn statt anzugreifen.
+        if (u.role === 'helfer' && HL.pct > 0) {
+          const hurt = alive(allies(u)).filter(f => f.hp < f.max * HL.below).sort((a, b) => a.hp / a.max - b.hp / b.max)[0];
+          if (hurt) {
+            const got = heal(hurt, Math.max(1, Math.round(u.atk * HL.pct * (u.side === 'crew' ? flags.healMult : 1))));
+            if (got > 0) { events.push({ k: 'heal', side: u.side, list: [{ to: idx(hurt), amount: got, hp: hurt.hp }], by: u.id, hl: true }); charge(u, U.gainHit); continue; }
+          }
+        }
         // Tempo-Stil: Chance auf einen Extra-Zug. Letzter Pirat im Rausch schlägt doppelt.
         const baseAtt = u.ability === 'double' || u.planDouble ? 2 : 1;
         const extra = u.extraTurn > 0 && R.float(run) < Math.min(0.6, u.extraTurn) ? 1 : 0;
@@ -995,6 +1035,7 @@ window.GL = window.GL || {};
           let miss = false;
           if (u.side === 'enemy' && firstBlock > 0) { blocked = true; firstBlock--; dmg = 0; }
           else if ((target.dodge || 0) + wxMiss > 0 && R.float(run) < Math.min(DCAP, ((target.dodge || 0) + wxMiss) * (heavy ? 2 : 1))) { miss = true; dmg = 0; }   // Deckel: höchstens 60 % Ausweichen (STATS: config.caps.dodge, Überlauf = Schutz, siehe effects.js)
+          else if (u.status.blind && R.float(run) < 0.25) { miss = true; dmg = 0; }   // Blind: jeder vierte Angriff geht daneben
 
           // Volltreffer: seltener Glücksschlag der eigenen Crew
           let lucky = false;
@@ -1052,6 +1093,12 @@ window.GL = window.GL || {};
           // Fähigkeiten nach einem Treffer
           if (dmg > 0) {
             if (FX) FX.onHit(u, target, dmg);
+            // Schock springt beim nächsten Treffer auf einen Nachbarn über
+            if (target.status.shock && target.hp > 0) {
+              const nb = foes.filter(f => f !== target && f.hp > 0 && !f.status.shock)[0];
+              delete target.status.shock;
+              if (nb) { const got = addStatus(nb, 'shock', 2); if (got) events.push({ k: 'status', side: nb.side, list: [got], by: 'reaktion', jump: true }); }
+            }
             // KAMPFTIEFE: Stil-Ketten der Crew
             if (KT && u.side === 'crew' && target.hp > 0) {
               if (u.type === 'technik' && blades()) target.mark = true;

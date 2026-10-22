@@ -1013,7 +1013,7 @@ window.GL = window.GL || {};
         });
         if (GL.arenaFx && ev.list.length >= 2) try { GL.arenaFx.aoe(ev.side, ev.list.map(x => x.to), ev.by); } catch (e) { /* nur Deko */ }
       } else if (ev.k === 'heal') {
-        if (GL.data.abilities[ev.by] && !ev.ult && !ev.sig) callout(ev.by, ev.side);
+        if (GL.data.abilities[ev.by] && !ev.ult && !ev.sig && !ev.hl) callout(ev.by, ev.side);
         ev.list.forEach(x => {
           pulse(el(ev.side, x.to), 'healed'); float(ev.side, x.to, '+' + x.amount, 'heal'); setHp(ev.side, x.to, x.hp);
           fx('fx-heal', center(fu(ev.side, x.to)), 900); fieldFloat(ev.side, x.to, '+' + x.amount, 'heal');
@@ -1160,6 +1160,12 @@ window.GL = window.GL || {};
         if (ev.id === 'pulver') { pulse(root, 'shake'); fx('fx-flash', { x: 0, y: 0 }, 400); const fld = $('#field'); if (fld) pulse(fld, 'boss-slam'); }
         else if (ev.id === 'moewen' && ev.to != null) { fieldFloat(ev.side, ev.to, ev.hit ? '🐦 Pick!' : '🐦', 'debuff'); pulse(fu(ev.side, ev.to), 'hurt'); }
         else if (ev.id === 'duell') (ev.list || []).forEach(x => { const u = fu(x.side, x.to); if (u) u.classList.add('duelist'); fieldFloat(x.side, x.to, '⚔', 'buff'); });
+      } else if (ev.k === 'reaction') {
+        const en = GL.i18n && GL.i18n.lang() === 'en';
+        const W = { boom: ['💥', 'Explosion!', 'Explosion!'], shatter: ['❄', 'Zersplittern!', 'Shatter!'], steam: ['♨', 'Dampf!', 'Steam!'], panic: ['😱', 'Panik!', 'Panic!'] }[ev.r] || ['', '!', '!'];
+        (ev.keys || []).forEach(k => removeLive(ev.side, ev.to, k));
+        pulse(fu(ev.side, ev.to), 'hurt'); fieldFloat(ev.side, ev.to, W[0] + ' ' + (en ? W[2] : W[1]), 'crit');
+        if (ev.r === 'boom' || ev.r === 'shatter') { pulse(root, 'shake'); fx('fx-flash', { x: 0, y: 0 }, 300); }
       } else if (ev.k === 'note') {
         pulse(root, 'flash');
         if (ev.by && !ev.ult && !ev.sig) callout(ev.by, ev.side);
