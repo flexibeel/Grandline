@@ -4859,7 +4859,7 @@ window.GL = window.GL || {};
       </div>
       <p class="hint small">${EN ? `Level ${k.lvl}: storage fills in ${KO.K.capHours(k.lvl)} h. Spend ${KO.K.refresh} amber in Shore Leave to get full loot again.` : `Stufe ${k.lvl}: Lager ist nach ${KO.K.capHours(k.lvl)} h voll. Im Landgang frischen ${KO.K.refresh} Bernstein einen Ort auf: noch einmal volle Beute.`}</p>
       ${haul}${rare}
-    </section>`;
+    </section>${GL.formsUi ? GL.formsUi.section(profile) : ''}`;
   }
   // ---------- Gemütlichkeit: Skilltree ----------
   // Eigene kleine Pixel-Bilder für die Knoten (10×10)

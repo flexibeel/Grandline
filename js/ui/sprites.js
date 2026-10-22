@@ -70,8 +70,19 @@ window.GL = window.GL || {};
       brille: [[3, 3, 'G'], [3, 5, 'G'], [3, 6, 'G'], [3, 8, 'G'], [2, 4, 'G'], [2, 7, 'G']], ohrring: [[4, 2, 'Y'], [5, 2, 'Y']], pfeife: [[5, 8, 'W'], [5, 9, 'W'], [5, 10, 'W'], [4, 10, 'W'], [4, 11, 'W'], [3, 11, 'Q']],
       blume: [[1, 9, 'F'], [0, 9, 'F'], [1, 10, 'F'], [1, 8, 'Y']] }[look.acc];
     if (A) A.forEach(([y, x, ch]) => { if (grid[y]) grid[y][x] = ch; });
+    // Story-Formen (js/data/forms.js): mehrere kleine Details auf einmal
+    (Array.isArray(look.facc) ? look.facc : []).forEach(k => (FORM_ACC[k] || []).forEach(([y, x, ch]) => { if (grid[y]) grid[y][x] = ch; }));
   }
-  const ACC_COL = { K: '#1a1a1a', R: '#c0392b', G: '#3a2a20', Y: '#f2d24a', W: '#6a4424', F: '#e0483b', Q: '#d8d8d8' };
+  // y, x, Farbe. S = Haut der Figur, X Dampf, Z Bauchbinde, V Taktstock/Tattoo, Y Gold
+  const FORM_ACC = {
+    weste: [[6, 5, 'S'], [6, 6, 'S'], [7, 5, 'S'], [7, 6, 'S'], [8, 5, 'S'], [8, 6, 'S']],
+    dampf: [[0, 0, 'X'], [0, 11, 'X'], [2, 0, 'X'], [3, 11, 'X'], [1, 11, 'X']],
+    bauchbinde: [2, 3, 4, 5, 6, 7, 8, 9].map(x => [9, x, 'Z']),
+    ohrringe: [[4, 2, 'Y'], [5, 2, 'Y'], [3, 1, 'Y']],
+    tattoo: [[7, 1, 'V']],
+    taktstock: [[5, 11, 'V'], [6, 11, 'V'], [7, 11, 'V'], [8, 11, 'V'], [9, 11, 'V'], [10, 11, 'V'], [11, 11, 'V']]
+  };
+  const ACC_COL = { K: '#1a1a1a', R: '#c0392b', G: '#3a2a20', Y: '#f2d24a', W: '#6a4424', F: '#e0483b', Q: '#d8d8d8', X: '#f2eeee', Z: '#3f8f4f', V: '#2f6fb0' };
   // Dunkler Pixel-Umriss um alles Gezeichnete: kräftiger, klarer Look (wie in Stardew oder Dwarves)
   function outline(grid, w, h) {
     const filled = (x, y) => y >= 0 && y < h && x >= 0 && x < w && grid[y][x] !== '.';
@@ -91,6 +102,7 @@ window.GL = window.GL || {};
     const l = Object.assign({}, look || {});
     ['hair', 'skin', 'shirt', 'pants', 'hatColor', 'beard', 'nose'].forEach(k => { if (l[k] != null) l[k] = safeCol(l[k]); });
     ['hat', 'acc', 'mask', 'hairStyle', 'style', 'eyes'].forEach(k => { if (l[k] != null && !/^[a-z0-9_-]{0,24}$/i.test(String(l[k]))) delete l[k]; });
+    if (l.facc != null) l.facc = Array.isArray(l.facc) ? l.facc.filter(k => typeof k === 'string' && FORM_ACC[k]).slice(0, 4) : [];
     return l;
   }
   function svg(look) {
@@ -292,11 +304,14 @@ window.GL = window.GL || {};
   }
 
   // Figuren-Meisterschaft Silber: zweites Outfit, nur für die Crew-Figur selbst (nicht für Gegner mit gleicher id)
+  // Story-Form (js/engine/forms.js) legt sich darüber: Titel-Look schlägt zweites Outfit
   function mlook(entry) {
-    const look = entry.look || {};
-    if (!GL.mastery || !GL.mastery.alt(entry.id)) return look;
+    let look = entry.look || {};
     const d = (GL.data.crew || []).find(c => c.id === entry.id);
-    return d && d === entry ? GL.mastery.altLook(look) : look;
+    if (!d || d !== entry) return look;
+    if (GL.mastery && GL.mastery.alt(entry.id)) look = GL.mastery.altLook(look);
+    const f = GL.forms && GL.forms.lookOf(entry.id);
+    return f ? Object.assign({}, look, f) : look;
   }
   GL.sprites = {
     // Schiff mit eigenen Teilen (look = { sail, hull, flag, deco } aus GL.data.shipParts); ohne Angabe: das eigene Schiff

@@ -128,6 +128,8 @@ window.GL = window.GL || {};
       ...masterPower(run, d)
     };
     if (m.masterAtk) { m.atk += m.masterAtk; delete m.masterAtk; }
+    // Story-Form (js/engine/forms.js): Leben und Angriff je Form +10 %
+    if (GL.forms) GL.forms.boost(run, m);
     return m;
   }
   // Meisterschaft Gold: Fähigkeit dieser Figur wirkt 15 % stärker (Wert aus abilities.js)
@@ -1393,7 +1395,9 @@ window.GL = window.GL || {};
           items: (p.items || []).map(x => ({ uid: x.uid, id: x.id, r: x.r, lvl: x.lvl || 0 })),
           skills: skillBonus(p.skills),
           // Figuren-Meisterschaft Gold+: Fähigkeit etwas stärker (nur ids, aus dem Profil)
-          masters: Array.isArray(p.masters) ? p.masters.filter(x => typeof x === 'string').slice(0, 80) : []
+          masters: Array.isArray(p.masters) ? p.masters.filter(x => typeof x === 'string').slice(0, 80) : [],
+          // Story-Formen der Figurenreise: { id: Stufe }
+          forms: p.forms && typeof p.forms === 'object' ? Object.keys(p.forms).slice(0, 80).reduce((o, id) => { const l = Math.floor(+p.forms[id]); if (/^[a-z0-9_-]{1,24}$/.test(id) && l > 0 && l < 10) o[id] = l; return o; }, {}) : {}
         },
         bonus: {
           restHeal: upgradeTotal(up, 'restHeal'), choices: upgradeTotal(up, 'choices'),

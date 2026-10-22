@@ -1,6 +1,10 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-22l', date: '22.10.', title: 'Die Figurenreise', items: [
+    '🥋 Neu im Kontor: das Stil-Dojo. Jeden Tag ist ein anderer Kampfstil dran. Für 20 Bernstein trainierst du eine Figur: drei Schläge im Takt, jeder Treffer zählt',
+    '🎒 Jede Strohhut-Figur hat ihr eigenes Erinnerungsstück, von der Fleischkeule bis zur Teetasse. Es gibt sie im Dojo und ab und zu nach einem Landgang',
+    '✦ Story-Formen: Besiegst du den passenden Story-Boss und hast genug Stücke, steigt die Figur auf. Neuer Titel, neuer Look und +10 % Leben und Angriff in jedem Run' ] },
   { v: '2026-10-22k', date: '22.10.', title: 'Das Schiff wächst mit', items: [
     '⛵ Was du in der Werft ausbaust, sieht man jetzt am Schiff: Neue Segel machen es bauchiger, auf Stufe 2 kommt eine Rah dazu',
     '💣 Das Kanonendeck zeigt Luken im Rumpf, erst zwei, dann vier',

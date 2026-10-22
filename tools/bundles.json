@@ -86,7 +86,10 @@
   "js/data/coop.js",
   "js/ui/coop.js",
   "js/ui/sticker.js",
-  "js/ui/season.js"
+  "js/ui/season.js",
+  "js/data/forms.js",
+  "js/engine/forms.js",
+  "js/ui/dojo.js"
  ],
  "en": [
   "js/data/en.js",

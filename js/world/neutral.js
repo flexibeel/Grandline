@@ -67,6 +67,9 @@ GL.worlds.neutral = {
     'Ruffys': 'Rafes', 'Ruffy': 'Rafe',
     'Zorros': 'Sorens', 'Namis': 'Nelas', 'Lysops': 'Lasses', 'Sanjis': 'Santos', 'Choppers': 'Pipos', 'Robins': 'Rubinas', 'Frankys': 'Bolzens', 'Brooks': 'Brunos', 'Vivis': 'Vinas', 'Jinbeis': 'Jonahs', 'Aces': 'Aschs',
     'Zorro': 'Soren', 'Nami': 'Nela', 'Lysop': 'Lasse', 'Sanji': 'Santo', 'Chopper': 'Pipo',
+    // Figurenreise (js/data/forms.js)
+    'Gear Second': 'Zweiter Gang', 'Sogeking': 'Maskenkönig', 'Sniper King': 'Mask King', 'Ohara': 'Bücherinsel', 'Strohhüte': 'Sturmmöwen', 'Straw Hat': 'Storm Gull',
+    'Bellemeres': 'Bellas', 'Bell-mère': 'Bella', 'Kabuto': 'Donnerschleuder', 'Usopp': 'Lasse',
     'Robin': 'Rubina', 'Franky': 'Bolzen', 'Brook': 'Bruno', 'Garp': 'Grimm', 'Hina': 'Hilde',
     'Tashigi': 'Tessa', 'Koby': 'Kian', 'Kalifa': 'Kalina', 'Kumadori': 'Kordo', 'Blueno': 'Blaun',
     'Jabra': 'Jago', 'Bon Clay': 'Mimo', 'Mr. 5': 'Herr Fünf', 'Mr. 1': 'Herr Eins', 'Mr. 3': 'Herr Drei',

@@ -36,6 +36,7 @@ window.GL = window.GL || {};
       Object.keys(fresh).forEach(k => { if (p[k] === undefined) p[k] = fresh[k]; });
       Object.keys(fresh.stats).forEach(k => { if (p.stats[k] === undefined) p.stats[k] = fresh.stats[k]; });
       if (GL.mastery) GL.mastery.sync(p);
+      if (GL.forms) GL.forms.sync(p);
       return p;
     },
 

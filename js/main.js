@@ -812,6 +812,7 @@
       altOpen1: GL.meta.featureOpen(profile, 'route2'),
       buddy: GL.meta.squadUnlocked(profile) && profile.buddy && GL.meta.squadIds(profile).includes(profile.buddy) && profile.buddy !== 'self' ? profile.buddy : null,
       endlessSea: Number.isInteger(endlessSea) && GL.meta.seasCleared(profile).includes(endlessSea) ? endlessSea : undefined,
+      forms: GL.forms ? GL.forms.startMap(profile) : {},
       ramp: true
     });
     ui.newBest = false;
@@ -2108,6 +2109,17 @@
         break;
       case 'buy-upgrade': if (GL.meta.buyUpgrade(profile, el.dataset.id)) { saveProfile(); draw(); } break;
       case 'kontor-collect': if (GL.kontor) { const n = GL.kontor.collect(profile); saveProfile(); draw(); if (n > 0) toast(`<span><b>+${n} 🟧 ${GL.i18n && GL.i18n.lang() === 'en' ? 'Amber' : 'Bernstein'}</b>${GL.i18n && GL.i18n.lang() === 'en' ? 'Collected from the counting house.' : 'Aus dem Kontor abgeholt.'}</span>`); } break;
+      // Figurenreise und Stil-Dojo (js/ui/dojo.js)
+      case 'fr-dojo': case 'fr-hit': case 'fr-up': case 'fr-close': {
+        if (!GL.formsUi) break;
+        const show = h => { const bx = document.getElementById('fpop'); if (bx && bx.dataset.fr) { bx.innerHTML = h; bx.scrollTop = 0; } else { openGearPop(h); const b2 = document.getElementById('fpop'); if (b2) b2.dataset.fr = '1'; } };
+        if (type === 'fr-close') { GL.formsUi.stop(); closePop(); ui.lastStage = null; draw(); break; }
+        if (type === 'fr-dojo') { const h = GL.formsUi.dojoStart(profile, el.dataset.id); if (!h) break; saveProfile(); show(h); GL.formsUi.loop(); ui.lastStage = null; draw(); break; }
+        if (type === 'fr-up') { const h = GL.formsUi.upHtml(profile, el.dataset.id); if (!h) break; saveProfile(); show(h); ui.lastStage = null; draw(); break; }
+        const pr = GL.formsUi.hit(profile);
+        if (pr) pr.then(h => { if (!h) return; saveProfile(); show(h); GL.formsUi.loop(); });
+        break;
+      }
       case 'kontor-up': if (GL.kontor && GL.kontor.upgrade(profile)) { saveProfile(); draw(); } break;
       case 'buy-gear': if (GL.meta.buyGear(profile, el.dataset.id)) { saveProfile(); draw(); } break;
       case 'toggle-gear': if (GL.meta.toggleLoadout(profile, el.dataset.id)) { saveProfile(); draw(); } break;
@@ -2458,6 +2470,8 @@
     if (e.key === 'Enter' && e.target.id === 'nick') { e.preventDefault(); document.querySelector('[data-act=set-nick]')?.click(); return; }
     const tag = (e.target.tagName || '').toLowerCase();
     if (tag === 'input' || tag === 'textarea') return;
+    // Stil-Dojo: Leertaste/Enter = Schlag
+    if (GL.formsUi && GL.formsUi.active() && (e.key === ' ' || e.key === 'Enter')) { e.preventDefault(); document.querySelector('[data-act=fr-hit]')?.click(); return; }
     // Startbildschirm: Leertaste/Enter = Spielen
     if (ui.screen) {
       if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); document.querySelector('#title [data-act=title-play], #title [data-act=profile-save]')?.click(); }

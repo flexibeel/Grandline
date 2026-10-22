@@ -19,13 +19,15 @@ Stand: 22.10.2026 (nachmittags)
 - `main` = **22k „Das Schiff wächst mit“** (thegreatline.de): Werft-Stufen sichtbar am Schiff. Davor 22h Kampf-Update, 22i Kontor Teil 1, 22j Endlos-Tiefe.
 
 ## Wartet auf „schalte live“
-- _(nichts)_
+- `feature/figurenreise` (22l): Stil-Dojo im Kontor (Timing-Minispiel, 20 Bernstein, Tagesstil), Erinnerungsstücke für die 9 Strohhüte (eigene 12×12-Pixelbilder), je 2 Story-Formen (Boss besiegt + 10/25 Stücke → Titel, Look, +10 % Leben/Angriff im Run über `run.start.forms`), Stücke auch aus Landgängen (25 %). Patchnote steht drin, beim Live-Gang nur `python3 tools/bump-version.py`. Enthält auch den Fahrplan-Abgleich (`feature/fahrplan-abgleich`).
+  - Dateien: `js/data/forms.js`, `js/engine/forms.js`, `js/ui/dojo.js` (in `tools/bundles.json`), Accessoires `FORM_ACC` in `sprites.js`, neutrale Namen in `js/world/neutral.js`.
+  - Look-Details bisher nur für Ruffy, Zorro, Nami (Vorschau an Felix). Die anderen 6 haben Titel und Werte, Look folgt nach Felix' Okay.
 
 ## Gesamtplan gegen Spiel (Abgleich 22.10.)
 Bauplan ist die Design-Fläche **„Grand Line: Gesamtplan“** (claude.ai/artifact/1dispKg6D9ikrHzthLXdN4, 22 Tafeln, mit Jans Dungeons). Stand im Code:
 - **Gebaut:** Ultis per Klick (0, +30, ×1,6), Heiler unter 50 %, Fokus/Verteidigen, Frost/Schock/Blind + 4 Reaktionen, Kontor Teil 1 (Bernstein, Entladen, Wertsachen, Raritäten, eigene Vitrine), Endless-Gegner-Zusätze, Schiffs-Upgrades sichtbar. Inseln bis Sabaody, 65 Figuren, 3 Kampfstile.
 - **Schon da, aber anders als im Plan (darauf aufbauen, nicht doppeln):** Meisterschaft je Figur (`engine/mastery.js`, ≈ Figurenreise), Piratenrang + Heat-Kopfgeld (≈ Spieler-Kopfgeld), Crew-Ausrüstung 3 Plätze (`crewgear`), Landgänge + Seekarte (≈ Dungeons), Raid-Jagd mit Vitrine, Duos, Stil-Kombos, Team-Fähigkeiten, Skilltree.
-- **Fehlt noch:** 6er-Crew mit Kampfwert-Budget + Story-Drops (Plan-Schritt 4), Erinnerungsstücke/Story-Formen/Stil-Dojos, Trainingsrollen (Ulti-Stufen), Kopfgeld-Stufen als Freischalt-Faden, Endless aus Biomen + Wetter + wachsende Inseln + Woche, Saphir/Rubin + Raid-Minispiele, Kombüse/Vorräte, Handelsfahrten, Wanderhändler, 5 Kampfstile, 6 Seltenheiten + Taverne + Marken, Waffen an Figuren, Ulti-Team-Kombos, Schiffe aus 4 Teilen mit Bonus, Logbuch, Boss-Steckbrief, Figuren bis Marineford.
+- **Fehlt noch:** ~~Erinnerungsstücke/Story-Formen/Stil-Dojos~~ (Teil 1 auf `feature/figurenreise`), 6er-Crew mit Kampfwert-Budget + Story-Drops (Plan-Schritt 4), Erinnerungsstücke/Story-Formen/Stil-Dojos, Trainingsrollen (Ulti-Stufen), Kopfgeld-Stufen als Freischalt-Faden, Endless aus Biomen + Wetter + wachsende Inseln + Woche, Saphir/Rubin + Raid-Minispiele, Kombüse/Vorräte, Handelsfahrten, Wanderhändler, 5 Kampfstile, 6 Seltenheiten + Taverne + Marken, Waffen an Figuren, Ulti-Team-Kombos, Schiffe aus 4 Teilen mit Bonus, Logbuch, Boss-Steckbrief, Figuren bis Marineford.
 
 ## Dateikarte
 Die Ordnerliste in `README.md` (Abschnitt „Ordner“) ist die Karte, wo was liegt. Erst dort nachsehen, dann gezielt öffnen. Pixel-Regeln für Kunst: Tag `archiv/gamedesigner` bzw. Zweig `feature/gamedesigner` (`.claude/agents/gamedesigner.md`).
@@ -48,14 +50,19 @@ Danach bleiben: `main`, `archiv/neue-welt` (3D-Archiv), `feature/piratin` (steht
 Wiederherstellen eines Archivs: `git push origin archiv/<name>:refs/heads/feature/<name>`.
 
 ## Warteschlange (Felix wählt die Reihenfolge)
-1. Rumpf-Upgrade auch im Landgang
-2. Mehr Gold-Ziele (4. Stufe oder Kosmetik wie eine Flagge)
-3. Aus der Ideenwerkstatt („Ja, machen wir“): Piratin fertig, Look-Inventur, Kampfszenen lebendiger, Kämpfer-Auswahl entschlacken, Performance
+Felix (22.10.): Jetzt Inhalt aus dem Gesamtplan ins Spiel. Kampfstile Variante A (5 Stile) ist abgesegnet.
+1. Figurenreise Teil 2: Looks der übrigen 6 Strohhüte, Wahl-Boni, eigene Fähigkeit pro Form, Nebenfiguren
+2. Spielgefühl: Felix findet, es fühlt sich noch wie ein „spielbares Forum“ an (viel Text, Listen, Knöpfe). Vor dem App-Start einmal gezielt angehen, erst Vorschlag
+3. Nächstes Gesamtplan-Paket: 6er-Crew + Story-Drops, Kopfgeld als roter Faden, Endless aus Biomen oder 5 Kampfstile
+4. Bug prüfen: `masters` (Meisterschaft Gold, +15 % Fähigkeit) wird in `main.js` beim Run-Start nicht übergeben, der Bonus greift wohl nie. Fix verschiebt Balance, daher erst mit Felix
+5. Rumpf-Upgrade auch im Landgang
+6. Mehr Gold-Ziele (4. Stufe oder Kosmetik wie eine Flagge)
+7. Aus der Ideenwerkstatt („Ja, machen wir“): Piratin fertig, Look-Inventur, Kampfszenen lebendiger, Kämpfer-Auswahl entschlacken, Performance
 
 Die große Ideenliste ist das Claude-Doc **„Grand Line: Ideenwerkstatt“** im Account von Felix. Von anderen Accounts aus ist es nicht lesbar. Was dort beschlossen wird, kommt als Punkt in diese Warteschlange.
 
 ## Letzte Übergabe
 _Hier schreibt der letzte Chat in 3 bis 5 Zeilen, wo er aufgehört hat._
-- 22.10. (Jan, 3. Chat): 22k live. Gesamtplan-Fläche gegen den Code abgeglichen (Abschnitt oben). Felix will jetzt Inhalt aus dem Plan ins Spiel statt Kleinkram; Rumpf im Landgang rückt nach hinten. Nächstes Paket wird gerade abgestimmt.
+- 22.10. (Jan, 3. Chat): 22k live. Gesamtplan-Fläche gegen den Code abgeglichen (Abschnitt oben). Figurenreise Teil 1 auf `feature/figurenreise` gebaut und im Browser durchgespielt (Dojo, Aufstieg, Werte, neutrale Namen). Live läuft die neutrale Welt (`config.world`), neue Begriffe also immer in `neutral.js` eintragen.
 - 22.10. (Jan, 2. Chat): `release/22j` live. `feature/upgrades-am-schiff` war 3D und ist tot. Schiffs-Upgrades im 2D-Spiel gebaut auf `feature/schiff-upgrades-sichtbar`: `GL.sprites.ship` liest `GL.sprites.myUpg` (= `profile.upgrades`), nur fürs eigene Schiff; fremde Schiffe nur mit `look.upg`. Vorschau aller Stufen geprüft. Aufräumen der Zweige muss Felix von Hand machen (Befehle oben).
 - 22.10. (Jan): Fahrplan und Startnachricht-Regel angelegt (siehe `CLAUDE.md`). Nichts am Spiel geändert. Nächster Chat: `release/22j` live, dann Upgrades sichtbar am Schiff.

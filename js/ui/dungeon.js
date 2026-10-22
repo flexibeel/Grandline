@@ -583,6 +583,7 @@ window.GL = window.GL || {};
     L.gear.forEach(it => items.push(`<li><i class="dg-gear r${it.r}">⚙</i><b>${esc(GL.cgear && GL.cgear.name ? GL.cgear.name(it) : T('Ausrüstung'))}</b></li>`));
     if (L.snack) items.push(`<li><i class="dg-heart">🍙</i><b>+1</b> ${esc(T('Proviant zum Verschenken'))}</li>`);
         if (L.bond && L.bond.gain) items.push(`<li><i class="dg-heart">♥</i><b>+${L.bond.gain}</b> ${esc(T('Vertrautheit für die Stammcrew'))}${L.bond.ups.length ? ` · ${esc(L.bond.ups.join(', '))} ♥` : ''}</li>`);
+    if (L.memento && GL.formsUi) items.push(GL.formsUi.lootRow(L.memento));
     if (L.find) items.push(`<li class="dg-findrow"><span class="dg-find big">${findArt(d.find)}</span><span><b>${esc(T(d.find.name))}</b><small>${esc(T(d.find.text))}</small></span></li>`);
     const def = bossOf(d);
     return card(`${scene(d, { boss: !cur.won })}
@@ -647,6 +648,8 @@ window.GL = window.GL || {};
       try { L.dl = GL.dliga.record(profile, { win: true, id: d.id, sea: d.sea || 0, lvl: cur.fight.lvl || 0, deep: !!cur.deep, rounds, hpFrac: maxSum ? hpSum / maxSum : 0 }); } catch (e) { L.dl = null; }
     }
     if (cur.won) st.clears += 1;
+    // Figurenreise: ab und zu ein Erinnerungsstück für jemanden aus der Stammcrew
+    if (cur.won && GL.forms) L.memento = GL.forms.landgangDrop(profile, cur.crew.map(m => m.id));
     if (cur.won && cur.fresh) st.day = today();
     profile.counts = profile.counts || {};
     profile.counts.landgang = (profile.counts.landgang || 0) + 1;
