@@ -4,7 +4,7 @@
 **Am Ende jedes Chats** wird sie aktualisiert und mitgepusht: Was ist fertig, was liegt auf welchem Zweig, was kommt als Nächstes.
 Felix und Jan arbeiten mit verschiedenen Claude-Accounts. Diese Datei ist das gemeinsame Gedächtnis, deshalb gehört hier alles rein, was der nächste Chat wissen muss.
 
-Stand: 22.10.2026 (nachmittags, nach 22p)
+Stand: 22.10.2026 (nachmittags, nach 22p und Kampf-Durchblick-Vorschlag)
 
 ## Wer macht was
 - **Felix:** entscheidet, was gebaut wird und was live geht („schalte live“), Kunst und Look.
@@ -17,7 +17,7 @@ Stand: 22.10.2026 (nachmittags, nach 22p)
 - Alte Zweige, die `neu/...` ändern, sind 3D-Arbeit und werden **nicht** weitergeführt. Ideen daraus werden bei Bedarf im 2D-Spiel neu gebaut.
 
 ## Live
-- `main` = **22p „Deine Form, dein Bonus“** (thegreatline.de): Figurenreise Teil 2, Wahl-Boni (bei jeder Form 1 von 2 Boni: Leben, Angriff oder Tempo, im Dojo jederzeit kostenlos umstellbar). Davor 22o „Neue Looks für die Strohhüte“: die 12 Form-Looks der übrigen 6 Strohhüte (nur Optik). Davor 22n „Die Taverne am Hafen“: Crew-Start Teil 2, im Deck-Start genau eine Taverne pro Insel-Karte, bleibt bei voller Crew stehen. Davor 22m „Das Deck“ (Crew vor dem Ablegen auf dem Schiff aufstellen, Kampfwert-Budget 45 plus Rang, keine Crew-Bremse mehr) und 22l „Die Figurenreise“ (Stil-Dojo im Kontor, Erinnerungsstücke, Story-Formen für die Strohhüte). Seit 22.10. außerdem die Fahrplan-Notizen (`feature/fahrplan-notizen`: Wahl-Boni abgestimmt, Kampf-Durchblick, Neustart-Idee, nur Fahrplan) und in `CLAUDE.md`: Modellwahl (Sonnet/Opus) und Entscheidungen als Klick-Fragen (nur Arbeitsregeln, Spiel unverändert). Davor 22k Schiffs-Upgrades sichtbar, 22j Endlos-Tiefe, 22i Kontor Teil 1, 22h Kampf-Update.
+- `main` = **22p „Deine Form, dein Bonus“** (thegreatline.de): Figurenreise Teil 2, Wahl-Boni (bei jeder Form 1 von 2 Boni: Leben, Angriff oder Tempo, im Dojo jederzeit kostenlos umstellbar). Davor 22o „Neue Looks für die Strohhüte“: die 12 Form-Looks der übrigen 6 Strohhüte (nur Optik). Davor 22n „Die Taverne am Hafen“: Crew-Start Teil 2, im Deck-Start genau eine Taverne pro Insel-Karte, bleibt bei voller Crew stehen. Davor 22m „Das Deck“ (Crew vor dem Ablegen auf dem Schiff aufstellen, Kampfwert-Budget 45 plus Rang, keine Crew-Bremse mehr) und 22l „Die Figurenreise“ (Stil-Dojo im Kontor, Erinnerungsstücke, Story-Formen für die Strohhüte). Seit 22.10. außerdem die Fahrplan-Notizen (`feature/fahrplan-notizen`: Wahl-Boni abgestimmt, Kampf-Durchblick, Neustart-Idee, nur Fahrplan), der Kampf-Durchblick-Vorschlag (`feature/kampf-durchblick-vorschlag`: erst Werte-Tafel, dann größeres Feld mit Fahrtband, nur Fahrplan) und in `CLAUDE.md`: Modellwahl (Sonnet/Opus) und Entscheidungen als Klick-Fragen (nur Arbeitsregeln, Spiel unverändert). Davor 22k Schiffs-Upgrades sichtbar, 22j Endlos-Tiefe, 22i Kontor Teil 1, 22h Kampf-Update.
 
 ## Wartet auf „schalte live“
 _(nichts)_
@@ -98,6 +98,7 @@ Die große Ideenliste ist das Claude-Doc **„Grand Line: Ideenwerkstatt“** im
 
 ## Letzte Übergabe
 _Hier schreibt der letzte Chat in 3 bis 5 Zeilen, wo er aufgehört hat._
+- 22.10. (Jan, 10. Chat): `feature/kampf-durchblick-vorschlag` live (nur Fahrplan, ff nach `main`, ohne Patchnote/Versionssprung). Nächstes Thema: 1b Teil A, Werte-Tafel (Halten oder ⓘ), wird gebaut, sobald Felix' Okay zum Vorschlag vorliegt.
 - 22.10. (Jan, 9. Chat): `feature/figurenreise-boni` live als 22p (Patchnote, `bump-version.py`, Bündel per `node --check` geprüft, ff nach `main`). Kampf-Durchblick (Punkt 1b): Vorschlag mit Skizze gemacht und von Jan per Klick abgestimmt (erst Werte-Tafel per Halten/ⓘ, dann größeres Feld mit Fahrtband), steht auf `feature/kampf-durchblick-vorschlag` (nur Fahrplan). Wartet auf Felix' Okay, dann bauen (Opus).
 - 22.10. (Jan, 9. Chat): `feature/fahrplan-notizen` live (nur Fahrplan, ff nach `main`, ohne Patchnote/Versionssprung wie bei der Modellwahl). Wahl-Boni (1a) auf Opus gebaut: `feature/figurenreise-boni`, wartet auf „schalte live“. Danach: Rest von Punkt 1 (eigene Fähigkeit pro Form) oder 1b Kampf-Durchblick, erst Vorschlag.
 - 22.10. (Jan, 8. Chat): `feature/figurenreise-looks` live als 22o (Patchnote, `bump-version.py` mit terser/lightningcss, Bündel per `node --check` geprüft, ff nach `main`). Nächstes Thema: Figurenreise Teil 2, Wahl-Boni (bei jeder Form 1 von 2 Boni zur Wahl, im Dojo-Bildschirm). Erst kurz vorschlagen, noch nichts gebaut.
