@@ -19,32 +19,36 @@ Stand: 22.10.2026 (nachmittags)
 - `main` = **22j „Endlos mit Biss“** (thegreatline.de), enthält Kampf-Update (22h), Kontor Teil 1 (22i), Endlos-Tiefe (22j)
 
 ## Wartet auf „schalte live“
-- _(nichts)_
+- `feature/schiff-upgrades-sichtbar` (22k): Werft-Stufen sichtbar am Schiff (Segel größer + Rah, Kanonenluken, Flicken/Eisen/Kupfer-/Goldkiel). Patchnote steht schon drin, beim Live-Gang nur noch `python3 tools/bump-version.py`, dann nach `main`. Enthält auch eine kleine README-Ergänzung (Ordnerliste).
 
-## Offene Zweige (nicht live, nicht in 22j)
-| Zweig | Stand | Rückstand zu main |
-|---|---|---|
-| `feature/upgrades-am-schiff` | **3D (neu/), tot.** Nicht weiterbauen | 18 Commits |
-| `fix/seekampf-pc` | Feuersturm-Tipp verdeckt Konter-Knopf nicht mehr | 9 |
-| `feature/uebergabe` | **3D, tot.** alte Übergabe-Notiz (Neue Welt, Werft) | 21 |
-| `feature/kaperfahrt` | Kurzmodus im Hafen (Deck als Spielbrett, W20) | 33 |
-| `feature/konter-tippen` | Konter per Ring-Fenster | 33 |
-| `feature/fahrender-kampf-entwurf` | Entwurf, Richtungen und Sprites | 33 |
-| `feature/gamedesigner` | Pixel-Handwerk-Regeln | 43 |
-| `feature/sichtbarkeit` | anonyme Besucherzählung, Tabelle fehlt noch | 43 |
-| `feature/piratin` | WIP Frisuren/Anrede, unfertig | 61 |
+## Dateikarte
+Die Ordnerliste in `README.md` (Abschnitt „Ordner“) ist die Karte, wo was liegt. Erst dort nachsehen, dann gezielt öffnen. Pixel-Regeln für Kunst: Tag `archiv/gamedesigner` bzw. Zweig `feature/gamedesigner` (`.claude/agents/gamedesigner.md`).
 
-Hinweis: Fehlt ein Zweig hier, ist er schon in `main` enthalten. Felix entscheidet, welche Zweige weiterleben und welche ins Archiv gehen.
+## Offene Zweige und Aufräumen (Felix' Okay vom 22.10. liegt vor)
+Claude-Sitzungen dürfen keine Zweige löschen und keine Tags pushen (Proxy sperrt das). Deshalb einmal von Hand, am PC im Repo-Ordner (Git Bash/Terminal):
+
+```
+git fetch origin
+# 1) Offene Arbeit als Archiv-Markierung sichern (nichts geht verloren)
+for b in feature/fahrender-kampf-entwurf feature/gamedesigner feature/kaperfahrt feature/konter-tippen feature/sichtbarkeit feature/uebergabe feature/upgrades-am-schiff fix/seekampf-pc; do git tag "archiv/${b#*/}" "origin/$b"; done
+git push origin --tags
+# 2) Löschen: die 8 gesicherten + 38 Zweige, die schon komplett in main stecken
+git push origin --delete feature/fahrender-kampf-entwurf feature/gamedesigner feature/kaperfahrt feature/konter-tippen feature/sichtbarkeit feature/uebergabe feature/upgrades-am-schiff fix/seekampf-pc
+git push origin --delete feature/beta-rangliste feature/dungeon-suche feature/eigene-welt feature/endless-tiefe feature/erste-minuten feature/fahrplan feature/fernkampf-crew feature/gegner-werte feature/hp-planken feature/inhalt feature/kampf-look feature/kampf-update feature/kampfbuehne feature/kampftiefe feature/klar-schiff feature/konten-sync feature/kontor feature/ladescreen feature/neue-welt feature/neue-welt-2 feature/neue-welt-hilfe feature/offene-see feature/pirat-sichern feature/seekampf-spannung feature/spielmacher-szene feature/startnachricht feature/stats feature/ultis-per-klick feature/upgrades-seekampf feature/werft feature/werft-nahansicht fix/buendeln fix/fadennetz-tippen fix/iphone-schrift-tempo fix/ohne-3d fix/rangliste-cloud fix/ruhige-see release/22j
+```
+Ohne Terminal: Auf GitHub unter „Branches“ die 38 Zweige aus Schritt 2 per Mülleimer löschen (die sind sicher in `main`), die 8 offenen einfach stehen lassen.
+
+Danach bleiben: `main`, `archiv/neue-welt` (3D-Archiv), `feature/piratin` (steht noch auf der Wunschliste) und offene Arbeitszweige.
+Wiederherstellen eines Archivs: `git push origin archiv/<name>:refs/heads/feature/<name>`.
 
 ## Warteschlange (Felix wählt die Reihenfolge)
-1. Upgrades sichtbar am Schiff im 2D-Spiel (Vorschlag liegt bei Felix, siehe Übergabe)
-2. Rumpf-Upgrade auch im Landgang
-3. Mehr Gold-Ziele (4. Stufe oder Kosmetik wie eine Flagge)
-4. Aus der Ideenwerkstatt („Ja, machen wir“): Piratin fertig, Look-Inventur, Kampfszenen lebendiger, Kämpfer-Auswahl entschlacken, Performance
+1. Rumpf-Upgrade auch im Landgang
+2. Mehr Gold-Ziele (4. Stufe oder Kosmetik wie eine Flagge)
+3. Aus der Ideenwerkstatt („Ja, machen wir“): Piratin fertig, Look-Inventur, Kampfszenen lebendiger, Kämpfer-Auswahl entschlacken, Performance
 
 Die große Ideenliste ist das Claude-Doc **„Grand Line: Ideenwerkstatt“** im Account von Felix. Von anderen Accounts aus ist es nicht lesbar. Was dort beschlossen wird, kommt als Punkt in diese Warteschlange.
 
 ## Letzte Übergabe
 _Hier schreibt der letzte Chat in 3 bis 5 Zeilen, wo er aufgehört hat._
-- 22.10. (Jan, 2. Chat): `release/22j` live geschaltet. Festgestellt: `feature/upgrades-am-schiff` war 3D, daher tot. Vorschlag für Schiffs-Upgrades im 2D-Spiel gemacht: Werft-Stufen (`js/data/upgrades.js`: rumpf/kanonen/segel) zeichnen Pixel ins Schiff in `GL.sprites.ship` (`js/ui/sprites.js`, 16×12-Raster `SHIP`). Wartet auf Zusage, noch kein Zweig.
+- 22.10. (Jan, 2. Chat): `release/22j` live. `feature/upgrades-am-schiff` war 3D und ist tot. Schiffs-Upgrades im 2D-Spiel gebaut auf `feature/schiff-upgrades-sichtbar`: `GL.sprites.ship` liest `GL.sprites.myUpg` (= `profile.upgrades`), nur fürs eigene Schiff; fremde Schiffe nur mit `look.upg`. Vorschau aller Stufen geprüft. Aufräumen der Zweige muss Felix von Hand machen (Befehle oben).
 - 22.10. (Jan): Fahrplan und Startnachricht-Regel angelegt (siehe `CLAUDE.md`). Nichts am Spiel geändert. Nächster Chat: `release/22j` live, dann Upgrades sichtbar am Schiff.
