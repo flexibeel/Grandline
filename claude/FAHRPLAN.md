@@ -9,7 +9,8 @@ Stand: 22.10.2026 (abends, 22r live, `feature/inselwahl-bilder` wartet auf „sc
 ## Wer macht was
 - **Felix:** entscheidet, was gebaut wird und was live geht („schalte live“), Kunst und Look.
 - **Jan:** _(bitte ergänzen)_
-- **Claude:** setzt um, immer auf eigenem Zweig, pflegt diese Datei.
+- **Claude:** setzt um, immer auf eigenem Zweig, pflegt diese Datei. Plant und prüft die Arbeit von Cursor (siehe unten).
+- **Cursor (Grok), ab Jans Einrichtung:** baut klar umrissene Aufträge aus „Bauaufträge für Cursor“ auf eigenem Zweig, Regeln in `AGENTS.md`. Geht nie selbst live.
 
 ## Grundsatz-Entscheidung (21.10.)
 - **Weitergebaut wird das 2D-Pixel-Spiel** (`index.html`, `js/`). Das 3D-System „Neue Welt“ (`neu/`) ist seit 22f entfernt und archiviert (`archiv/neue-welt`), `/neu/` leitet nur noch aufs Spiel um.
@@ -67,6 +68,25 @@ Crew-Start „Das Deck“ (22m) ist live (`feature/crew-deck`, Gesamtplan-Tafel 
 
 Figurenreise Teil 1 (22l) ist live. Dateien: `js/data/forms.js`, `js/engine/forms.js`, `js/ui/dojo.js`, Accessoires `FORM_ACC` in `sprites.js`, neutrale Namen in `js/world/neutral.js`. Look-Details bisher nur für Ruffy, Zorro, Nami, die anderen 6 haben Titel und Werte.
 
+## Bauaufträge für Cursor
+Claude schreibt hier Aufträge, Cursor (Grok) baut sie, Claude prüft den Zweig im nächsten Chat, dann „schalte live“ durch Felix. Regeln für Cursor: `AGENTS.md`.
+Gut für Cursor: Inhalte nach bestehendem Muster, Texte und Übersetzungen, kleine Fixes, klar umrissene Punkte. Bei Claude bleiben: Vorschläge und Skizzen, Kampfsystem-Umbauten, Spielstände/Supabase, Prüfen vor dem Live-Gang.
+
+Vorlage (Claude füllt aus):
+```
+### A<Nr>: <Titel>   Status: offen | gebaut, wartet auf Prüfung | geprüft | live
+Zweig: feature/... oder fix/...
+Ziel: <1 bis 2 Sätze, was der Spieler danach erlebt>
+Dateien: <welche Dateien, wo ungefähr>
+Weg: <Schritte>
+Fallen: <was man leicht kaputt macht>
+Fertig, wenn: <prüfbare Punkte, inkl. Handy-Breite DE/EN>
+Nicht anfassen: <was ausdrücklich nicht dazugehört>
+Übergabe von Cursor: <3 bis 5 Zeilen>
+```
+
+_(noch keiner. Jan richtet Cursor ein, dann schreibt Claude als Probe den ersten Auftrag, voraussichtlich 2b Freischalt-Meldungen.)_
+
 ## Gesamtplan gegen Spiel (Abgleich 22.10.)
 Bauplan ist die Design-Fläche **„Grand Line: Gesamtplan“** (claude.ai/artifact/1dispKg6D9ikrHzthLXdN4, 22 Tafeln, mit Jans Dungeons). Stand im Code:
 - **Gebaut:** Ultis per Klick (0, +30, ×1,6), Heiler unter 50 %, Fokus/Verteidigen, Frost/Schock/Blind + 4 Reaktionen, Kontor Teil 1 (Bernstein, Entladen, Wertsachen, Raritäten, eigene Vitrine), Endless-Gegner-Zusätze, Schiffs-Upgrades sichtbar. Inseln bis Sabaody, 65 Figuren, 3 Kampfstile.
@@ -107,6 +127,12 @@ Felix (22.10.): Jetzt Inhalt aus dem Gesamtplan ins Spiel. Kampfstile Variante A
 2. Spielgefühl: Felix findet, es fühlt sich noch wie ein „spielbares Forum“ an (viel Text, Listen, Knöpfe). Vor dem App-Start einmal gezielt angehen, erst Vorschlag
    - Bestandsaufnahme (Jan, 22.10., 390 px): Titel und Hafen wirken schon wie ein Spiel. Am meisten Forum: die Inselwahl (lange Textkarten, gebaut auf `feature/inselwahl-bilder`), der Kapitän-Reiter (~2500 px Verwaltung: Spielercode, Spielstände, Konto untereinander) und „Crew aufstellen“ (viele Chips und Filter). Kampf und Aufträge-Reiter noch nicht angeschaut.
 2a. **Warum gehe ich in diesen Run? (Jan, 22.10.)** Vor dem Ablegen soll klar sein: Ich fahre los, weil … (Ziel dieser Fahrt, Belohnung, was ich freischalte, welche Figur weiterkommt). Hängt an den Tafeln „Einstieg & Neustart“, „Was wohin fließt“ und „Figurenreise & Kopfgeld“ im Gesamtplan (dort als orangene Notiz rechts neben „Endgame-Tiefe“ vermerkt). Jans Wunsch als nächster großer Punkt nach der Inselwahl. Erst Vorschlag mit Skizze, dann bauen.
+2c. **Kampf mit Tiefe (Jan, 22.10., wichtig):** Kämpfe fühlen sich gleich an (starten, bam bam bam, nächste Runde). Nichts spricht dagegen, vorzuspulen oder zu überspringen. Ziel: Man will hinschauen und eingreifen.
+   - **Bosse mit Signatur-Attacken:** jeder Boss 1 bis 2 eigene Angriffe mit Ansage, z. B. **Fesseln** (eine Figur aus der Crew setzt aus, bis man sie befreit oder ein Konter greift), Flächenschlag, Rüstung brechen, Beschwören. Mit Vorwarnung, damit man reagieren kann (Ulti, Fokus, Heiler).
+   - **Animationen und Waffen:** Bosse und eigene Figuren mit sichtbaren Waffen und eigenen Angriffs-Animationen statt gleicher Treffer-Effekte.
+   - **Boni müssen spürbar sein:** Wahl-Boni, Formen, Ausrüstung, Duos, Stil-Kombos sollen im Kampf sichtbar etwas ändern (Zahl, Effekt, Moment), nicht nur in der Werte-Tafel.
+   - **Nicht vorberechnet wirken:** Heute rechnet `GL.battle.simulate` den Kampf und `arena.js` spielt ihn ab, Eingriffe (Ulti, Fokus) gehen als `cmds` ein. Prüfen, ob Entscheidungen im Kampf genug Gewicht haben und ob mehr echte Momente zum Eingreifen nötig sind.
+   - Hängt zusammen mit: Gesamtplan-Tafeln „Kampf: selbst eingreifen“, „4 · Waffen & Animationen“, „Zustände & Reaktionen“, „1 · Ultis“, Punkt 7 („Kampfszenen lebendiger“) und Punkt 8 (größeres Kampffeld). Erst Vorschlag mit Skizze, dann in Häppchen bauen (Kampfsystem = Claude/Opus, neue Animationen und Waffen-Looks nach festem Muster auch Cursor).
 2b. **Bug: Meldungen zu neuen Freischaltungen** wirken teils fehlerhaft (Jan, 22.10.). Genaue Fälle noch sammeln (doppelt? falscher Zeitpunkt? bleibt hängen?), dann gezielt prüfen.
 3. Nächstes Gesamtplan-Paket: Story-Drops (6er-Crew mit Kampfwert steckt im Deck), Kopfgeld als roter Faden, Endless aus Biomen oder 5 Kampfstile
 4. Bug prüfen: `masters` (Meisterschaft Gold, +15 % Fähigkeit) wird in `main.js` beim Run-Start nicht übergeben, der Bonus greift wohl nie. Fix verschiebt Balance, daher erst mit Felix
@@ -119,7 +145,7 @@ Die große Ideenliste ist das Claude-Doc **„Grand Line: Ideenwerkstatt“** im
 
 ## Letzte Übergabe
 _Hier schreibt der letzte Chat in 3 bis 5 Zeilen, wo er aufgehört hat._
-- 22.10. (Jan, 13. Chat): 22r live bestätigt (thegreatline.de = `2026-10-22r`). Spielgefühl angegangen: Bestandsaufnahme per Screenshots, dann `feature/inselwahl-bilder` gebaut (Opus), wartet auf „schalte live“. Neu in der Warteschlange: 2a Run-Motivation, 2b Freischalt-Meldungen. Der Gesamtplan (claude.ai/artifact/1dispKg6D9ikrHzthLXdN4) ist von Jans Account aus beschreibbar, dort steht eine Notiz zu 2a/2b.
+- 22.10. (Jan, 13. Chat): 22r live bestätigt (thegreatline.de = `2026-10-22r`). Spielgefühl angegangen: Bestandsaufnahme per Screenshots, dann `feature/inselwahl-bilder` gebaut (Opus), wartet auf „schalte live“. Neu in der Warteschlange: 2a Run-Motivation, 2b Freischalt-Meldungen, 2c Kampf mit Tiefe. Neu: `AGENTS.md` und Abschnitt „Bauaufträge für Cursor“ (Claude plant, Grok baut, Claude prüft). Der Gesamtplan (claude.ai/artifact/1dispKg6D9ikrHzthLXdN4) ist von Jans Account aus beschreibbar, dort steht eine Notiz zu 2a/2b.
 - 22.10. (Jan, 12. Chat): `feature/neustart` live als 22r (`keep` = `0e7333bc`, Patchnote, `bump-version.py`, Bündel per `node --check` geprüft, ff nach `main`). **Felix muss jetzt SQL Teil 2 ausführen**, morgen Teil 3. Nächstes Thema: Felix und Jan wählen aus der Warteschlange.
 - 22.10. (Jan, 11. Chat, Teil 3): Neustart für alle (1c) auf Opus vorbereitet: `feature/neustart` (enthält auch die Fahrplan-Änderung zu Teil B). Wartet auf Felix: SQL Teil 1, dann `keep_id` an Claude, dann live, dann Teil 2. Nichts gelöscht.
 - 22.10. (Jan, 11. Chat, Teil 2): Skizze zu Teil B gezeigt, Jan will nichts komplett Neues jetzt. Teil B steht als Punkt 8 am Ende der Warteschlange. Nächstes Thema: Felix/Jan wählen aus der Warteschlange.
