@@ -11,6 +11,13 @@ Kostenloses Fanprojekt von Felix (flexibeel) und Freunden. Es gibt kein Geld dam
 ## Neuer Chat
 - Zuerst `claude/FAHRPLAN.md` lesen (Stand, offene Zweige, Warteschlange). Code nur gezielt öffnen, nicht das ganze Projekt durchsuchen.
 - Am Ende des Chats `claude/FAHRPLAN.md` aktualisieren (Live-Stand, Zweige, „Letzte Übergabe“) und mitpushen.
+- Ist ein Thema fertig, als letzte Nachricht eine **Startnachricht für den nächsten Chat** als Codeblock ausgeben, genau in dieser Form (zum Rauskopieren für Felix und Jan):
+  ```
+  Arbeite im Repo flexibeel/Grandline, lies claude/FAHRPLAN.md.
+  1. Schalte live: <Zweig> (<in einem Satz, was drin ist>)
+  2. Nächstes Thema: <Punkt aus der Warteschlange>
+  ```
+- Steht „Schalte live“ in der Startnachricht, gilt das als Felix' Zusage für genau diesen Zweig: Patchnotes, `bump-version.py`, nach `main`, Fahrplan nachziehen. Danach mit dem nächsten Thema beginnen (erst kurz vorschlagen, dann bauen).
 
 ## Git und Live-Gang
 - Jede Änderung auf einem eigenen Zweig (`feature/...` oder `fix/...`), nie direkt auf `main`.

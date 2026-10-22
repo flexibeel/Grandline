@@ -46,4 +46,4 @@ Die große Ideenliste ist das Claude-Doc **„Grand Line: Ideenwerkstatt“** im
 
 ## Letzte Übergabe
 _Hier schreibt der letzte Chat in 3 bis 5 Zeilen, wo er aufgehört hat._
-- 22.10. (Jan): Fahrplan angelegt. Nichts am Spiel geändert.
+- 22.10. (Jan): Fahrplan und Startnachricht-Regel angelegt (siehe `CLAUDE.md`). Nichts am Spiel geändert. Nächster Chat: `release/22j` live, dann Upgrades sichtbar am Schiff.
