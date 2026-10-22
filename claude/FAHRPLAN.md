@@ -21,7 +21,7 @@ Stand: 22.10.2026 (nachmittags, nach 22n)
 
 ## Wartet auf „schalte live“
 - `feature/figurenreise-looks`: **Figurenreise Teil 2, erster Schritt: Looks der übrigen 6 Strohhüte** (Lysop, Sanji, Chopper, Robin, Franky, Brook, je 2 Formen). Nur Optik, keine Werte geändert. Noch nicht gebündelt: beim Live-Gang Patchnote + `bump-version.py`.
-  - `js/ui/sprites.js`: 22 neue Form-Accessoires in `FORM_ACC` (langnase, gurt, maske, umhang, straehne, hemd, zigarette, feuerbein, kreuz, arzttasche, geweih, fell, haarband, buch, extraarme, blueten, sonnenbrille, metallarm, brustplatte, werkzeug, augenhoehlen, rippen, geige, noten), neue Farbbuchstaben M (Metall), L (hell), A (Bernstein), I (Blütenrosa), Hilfsfunktion `rowOf`. Pro Form höchstens 4 Accessoires (`safeLook`).
+  - `js/ui/sprites.js`: 24 neue Form-Accessoires in `FORM_ACC` (langnase, gurt, maske, umhang, straehne, hemd, zigarette, feuerbein, kreuz, arzttasche, geweih, fell, haarband, buch, extraarme, blueten, sonnenbrille, metallarm, brustplatte, werkzeug, augenhoehlen, rippen, geige, noten), neue Farbbuchstaben M (Metall), L (hell), A (Bernstein), I (Blütenrosa), Hilfsfunktion `rowOf`. Pro Form höchstens 4 Accessoires (`safeLook`).
   - `js/data/forms.js`: die `look`-Einträge der 12 Formen, Sogeking mit grünem Hemd, Monster Point mit dunklerer Haut.
   - `js/world/neutral.js`: neue Einträge für Schwarzbein/Black Leg, Seelenkönig/Soul King, Monster-Punkt, Drum, Yohoho. Alle Form-Texte der 9 Strohhüte einmal durch die Ersetzungsliste geschickt, nichts Markenhaftes mehr drin.
   - Vorschau-Skript liegt nicht im Repo (lief lokal): `GL.sprites.render` je Form in ein SVG-Blatt, dann mit cairosvg zu PNG.
