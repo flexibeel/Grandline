@@ -8,9 +8,15 @@ Die Arbeit ist aufgeteilt: **Claude plant und prüft, du baust.** Felix und Jan 
 2. `CLAUDE.md`: die Arbeitsregeln. Sie gelten für dich genauso (außer dem Abschnitt „Modellwahl“).
 3. `README.md`, Abschnitt „Ordner“: die Karte, wo was liegt. Dann nur die Dateien öffnen, die der Auftrag nennt. Nicht das ganze Projekt durchsuchen.
 
+## Sparsam arbeiten (wichtig, Felix und Jan zahlen selbst)
+- Nur die Dateien und Stellen öffnen, die der Auftrag nennt. Große Dateien (`js/ui/render.js` ~5.600 Zeilen, `css/style.css` ~10.000 Zeilen, `js/main.js`) **nie komplett lesen**: erst per Suche die Stelle finden, dann nur den Abschnitt.
+- Erst denken, dann einmal sauber bauen, dann **ein** gezielter Test. Keine Schleifen aus Probieren und Neuladen.
+- Ist etwas unklar oder größer als gedacht: kurz bei Jan nachfragen statt raten oder umbauen.
+- Antworten an Jan kurz: was gemacht, was offen, keine langen Erklärungen.
+
 ## Ablauf für einen Bauauftrag
 1. Nimm genau **einen** Auftrag mit Status „offen“ aus „Bauaufträge für Cursor“. Steht keiner da: nichts bauen, Jan Bescheid sagen.
-2. Neuer Zweig von `main`, Name steht im Auftrag (`feature/...` oder `fix/...`). **Nie direkt auf `main` arbeiten oder pushen.**
+2. Neuer Zweig, Name und Ausgangszweig stehen im Auftrag (sonst von `main`). **Nie direkt auf `main` arbeiten oder pushen.**
 3. Bauen, was im Auftrag steht, nicht mehr. Ideen, die dir unterwegs kommen, schreibst du in deine Übergabe, du baust sie nicht.
 4. Selbst prüfen (siehe unten), dann committen und den Zweig pushen.
 5. Im Fahrplan: Status des Auftrags auf **„gebaut, wartet auf Prüfung“**, dazu 3 bis 5 Zeilen Übergabe (was gebaut, welche Dateien, wie geprüft, was offen ist). Mitpushen.

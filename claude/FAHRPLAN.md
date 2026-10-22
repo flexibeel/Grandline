@@ -85,7 +85,16 @@ Nicht anfassen: <was ausdrücklich nicht dazugehört>
 Übergabe von Cursor: <3 bis 5 Zeilen>
 ```
 
-_(noch keiner. Jan richtet Cursor ein, dann schreibt Claude als Probe den ersten Auftrag, voraussichtlich 2b Freischalt-Meldungen.)_
+### A1: Pop-ups und Freischalt-Meldungen sauber hintereinander (Punkt 2b)   Status: offen
+Ausgangszweig: `feature/inselwahl-bilder` (dort liegen `AGENTS.md` und dieser Auftrag, ist noch nicht auf `main`). Neuer Zweig: `fix/freischalt-meldungen`.
+Ziel: Wer in den Hafen kommt, sieht Meldungen (Neu freigeschaltet, Story-Kapitel, Neuigkeiten, Willkommen, Gruß der Crew, Rang-Aufstieg, Toasts) **einzeln, in sinnvoller Reihenfolge, je einmal** und ohne dass etwas hängen bleibt oder sich überdeckt. Seit dem Neustart (22r) sind alle wieder frische Spieler, da kommt viel auf einmal.
+Erst fragen: **Jan sitzt neben dir.** Lass dir zuerst 1 bis 3 konkrete Fälle beschreiben, was falsch läuft (doppelt? falsche Reihenfolge? Fenster bleibt hängen? zu viel auf einmal?). Die gehen vor.
+Dateien: `js/main.js` `featureCheck()` (ab Zeile ~176, die Warteschlange der Hafen-Pop-ups) und wo es aufgerufen wird; `js/engine/meta.js` `featuresNew()`/`featureSeen()` (~Zeile 373); `js/ui/render.js` Pop-up `fpop` (Suche nach `fpop-kicker`, ~Zeile 4745); Toasts per Suche nach `function toast`.
+Weg: (1) Jans Fälle nachstellen: frischer Spieler (Speicher leeren, Pirat anlegen, 1 bis 2 Fahrten) und ein Spieler mit Fortschritt. (2) Notieren, welche Meldungen in welcher Reihenfolge kommen. (3) Nur die Ursachen der beschriebenen Fehler beheben (z. B. fehlendes `seen`-Merken, zwei Wege zeigen dasselbe, Prüfung auf offenes Fenster fehlt).
+Fallen: `featureCheck()` hat viele Bedingungen, die sich gegenseitig ausschließen sollen (`old`, `ui.storyPending`, `GL.story.active()`, `GL.greet.active()`). Nicht umbauen, nur gezielt ergänzen. `profile` wird gespeichert: neue Felder nur, wenn nötig, mit Standardwert für alte Stände. Nichts an Freischalt-Regeln oder Balance ändern.
+Fertig, wenn: Jans Fälle treten nicht mehr auf; frischer Spieler sieht beim ersten Hafenbesuch höchstens ein Fenster gleichzeitig; nach Neuladen kommt nichts doppelt; DE und EN auf 390 px geprüft; Konsole ohne Fehler.
+Nicht anfassen: Story-Inhalte, Neuigkeiten-Texte, Supabase/Online-Code, Kampf.
+Übergabe von Cursor: _(hier eintragen)_
 
 ## Gesamtplan gegen Spiel (Abgleich 22.10.)
 Bauplan ist die Design-Fläche **„Grand Line: Gesamtplan“** (claude.ai/artifact/1dispKg6D9ikrHzthLXdN4, 22 Tafeln, mit Jans Dungeons). Stand im Code:
