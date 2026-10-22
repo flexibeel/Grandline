@@ -108,11 +108,15 @@ window.GL = window.GL || {};
     const V = C().boni || { hp: 0.05, atk: 0.05, spd: 1 };
     const nh = cnt('h'), na = cnt('a'), ns = cnt('s');
     const kh = 1 + C().bonus * l + V.hp * nh, ka = 1 + C().bonus * l + V.atk * na;
+    // Nur Anzeige (Werte-Tafel im Kampf): Anteil der Form und der Wahl-Boni, ändert nichts am Ergebnis
+    const h0 = m.max, at0 = m.atk;
+    const fh = Math.round(h0 * (1 + C().bonus * l)) - h0, fa = Math.max(at0 + l, Math.round(at0 * (1 + C().bonus * l))) - at0;
     const max = Math.round(m.max * kh);
     m.hp = Math.round(m.hp * (max / Math.max(1, m.max)));
     m.max = max;
     m.atk = Math.max(m.atk + l + na, Math.round(m.atk * ka));
     if (ns) m.spd += ns * V.spd;
+    m.fsrc = { hp: [fh, max - h0 - fh], atk: [fa, m.atk - at0 - fa], spd: [0, ns * V.spd] };
     m.form = l;
     return m;
   }

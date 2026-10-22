@@ -938,10 +938,37 @@
     const b = document.querySelector('.ult-mode'); if (b) b.outerHTML = GL.ui.ultModeBtn(profile);
   }
   document.addEventListener('click', e => {
+    if (e.target.closest && e.target.closest('.f-why')) return;   // i-Knopf öffnet nur die Werte-Tafel
     const u = e.target.closest && e.target.closest('#arena .fighter[data-side=crew].charged, #field .fu-crew.charged');
     if (!u || !anim || anim.done || !ui.rf) return;
     rcUlt(Number(u.dataset.i));
   });
+  // KAMPF-DURCHBLICK: Werte-Tafel per i-Knopf oder Halten (Antippen bleibt Ulti bzw. Fokusziel).
+  // Solange die Tafel offen ist, wartet der Kampf (stepAnim läuft erst nach dem Schließen weiter).
+  function unitCard(side, i) {
+    if (!run || !run.battle || !GL.arena.card || (side !== 'crew' && side !== 'enemy')) return;
+    const html = GL.arena.card(run, side, i);
+    if (!html) return;
+    openGearPop(html);
+    const p = document.getElementById('fpop'); if (p) p.classList.add('wt-pop');
+    if (anim && !anim.done) anim.hold = true;
+  }
+  (function holdCard() {
+    const SEL = '#arena .fighter, #field .fu';
+    let t = null, sx = 0, sy = 0, fired = false;
+    document.addEventListener('pointerdown', e => {
+      if (e.button > 0 || !run || !run.battle) return;
+      const u = e.target.closest && e.target.closest(SEL);
+      if (!u || e.target.closest('.f-why, .int-i')) return;
+      sx = e.clientX; sy = e.clientY; fired = false; clearTimeout(t);
+      t = setTimeout(() => { t = null; fired = true; if (navigator.vibrate) try { navigator.vibrate(8); } catch (x) { /* egal */ } unitCard(u.dataset.side, Number(u.dataset.i)); }, 450);
+    });
+    document.addEventListener('pointermove', e => { if (t && Math.hypot(e.clientX - sx, e.clientY - sy) > 10) { clearTimeout(t); t = null; } });
+    ['pointerup', 'pointercancel'].forEach(k => document.addEventListener(k, () => { clearTimeout(t); t = null; if (fired) setTimeout(() => { fired = false; }, 400); }));
+    // Der Klick nach dem Halten darf weder Ulti noch Fokus auslösen und die Tafel nicht gleich wieder schließen
+    window.addEventListener('click', e => { if (fired) { fired = false; e.stopPropagation(); e.preventDefault(); } }, true);
+    document.addEventListener('contextmenu', e => { if (e.target.closest && e.target.closest(SEL)) e.preventDefault(); });
+  })();
   // Gegner im laufenden Kampf antippen: Fokusziel ab dem nächsten Zug
   function rcFocus(i) {
     if (!anim || anim.done || !ui.rf || !run || !run.battle) return;
@@ -968,6 +995,7 @@
   }
   function stepAnim() {
     if (!anim || anim.done) return;
+    if (anim.hold) { if (document.querySelector('#fpop.wt-pop:not(.out)')) { anim.timer = setTimeout(stepAnim, 150); return; } anim.hold = false; }
     const ev = run.battle.events[anim.i++];
     if (!ev) { anim.done = true; GL.ui.hold = null; if (GL.sfx) GL.sfx.play(run.battle.win ? 'win' : 'lose'); draw(); if (GL.quips) { const r = run, hp = anim.crewHp.slice(); setTimeout(() => { if (run === r) GL.quips.end(r, hp); }, 120); } return; }
     // Zug-Marke: Befehlsknöpfe laden, sonst nichts zu sehen
@@ -1895,6 +1923,7 @@
       case 'news-done': newsDone(); break;
       case 'news-story': profile.story = { seen: [] }; ui.storyShown = false; newsDone(); toast('<span><b>📖 Die Story beginnt von vorn</b>Kapitel 1 startet gleich, die nächsten kommen mit deinen Fahrten.</span>'); setTimeout(() => { ui.lastStage = null; draw(); }, 600); break;
       case 'pop-close': closePop(); break;
+      case 'unit-card': unitCard(el.dataset.side, i); break;
       // ---------- OFFENE SEE (js/ui/opensea.js): Seekarte antippen, segeln, Hilfe ----------
       case 'sea-tap': case 'sea-go': case 'sea-x': case 'sea-direct': case 'sea-help': {
         const r0 = GL.seaUi ? GL.seaUi.click(type, el, run) : null;

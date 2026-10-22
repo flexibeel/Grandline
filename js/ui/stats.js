@@ -68,7 +68,14 @@ window.GL = window.GL || {};
     const mod = (run.mod && run.mod[k]) || 0;
     const out = [{ ico: '👤', name: L('Grundwert', 'Base'), v: base }];
     if (mod) out.push({ ico: '⚓', name: L('Hafen & Start', 'Harbor & start'), v: mod });
-    const rest = now - base - mod - gear;
+    // Figurenreise: Story-Form und Wahl-Bonus (m.fsrc schreibt forms.boost beim Anheuern), Meisterschaft +1 Angriff
+    const fs = (m.fsrc && m.fsrc[k]) || [0, 0];
+    if (fs[0]) out.push({ ico: '🎭', name: L(`Story-Form ${m.form || ''}`.trim(), `Story form ${m.form || ''}`.trim()), v: fs[0] });
+    if (fs[1]) out.push({ ico: '🎯', name: L('Wahl-Bonus', 'Chosen bonus'), v: fs[1] });
+    const ab = GL.data.abilities && GL.data.abilities[m.id];
+    const mAtk = k === 'atk' && m.master && !(ab && typeof ab.value === 'number' && !Number.isInteger(ab.value)) ? 1 : 0;
+    if (mAtk) out.push({ ico: '🏅', name: L('Meisterschaft', 'Mastery'), v: mAtk });
+    const rest = now - base - mod - gear - fs[0] - fs[1] - mAtk;
     if (rest) out.push({ ico: '★', name: L('Level, Training & Würfelglück', 'Levels, training & dice luck'), v: rest });
     if (gear) out.push({ ico: '⚙', name: L('Ausrüstung', 'Gear'), v: gear });
     return out;

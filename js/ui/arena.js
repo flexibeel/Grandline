@@ -103,7 +103,7 @@ window.GL = window.GL || {};
       <div class="f-status" aria-label="Zustände"></div>
       <div class="f-sprite">${GL.sprites.render(entry)}</div>
       <div class="f-info">
-        <div class="f-name"><b>${entry.name}</b> ${badge(unit.type)}</div>
+        <div class="f-name"><b>${entry.name}</b> ${badge(unit.type)}<button class="f-why" type="button" data-act="unit-card" data-side="${side}" data-i="${i}" aria-label="Werte von ${String(entry.name).replace(/"/g, '&quot;')}">i</button></div>
         <div class="f-bar"><i style="width:${pct}%"></i><s style="width:${pct}%"></s></div>
         ${en != null ? `<div class="f-en" title="Ulti-Energie"><i style="width:${en}%"></i></div>` : ''}
         <div class="f-hp"><span>${hp}</span> / ${unit.max}</div>
@@ -874,8 +874,107 @@ window.GL = window.GL || {};
     }
   }
 
+  // ---------- KAMPF-DURCHBLICK: Werte-Tafel einer Figur (Halten oder i) ----------
+  // Rechnet nichts Eigenes: Kampfwerte und Herkunft aus GL.statsUi.breakdown, Leben/Ulti/Zustände aus der laufenden Arena.
+  const escT = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  function liveBits(side, i, unit) {
+    const f = el(side, i);
+    const hp = f ? Number((f.querySelector('.f-hp span') || {}).textContent) : unit.hp;
+    const enEl = f && f.querySelector('.f-en i');
+    const en = enEl ? Math.round(parseFloat(enEl.style.width) || 0) : null;
+    return { hp: isNaN(hp) ? unit.hp : hp, en, charged: !!(f && f.classList.contains('charged')), st: live[side + ':' + i] || {} };
+  }
+  // Datentexte ins Englische. Eigene Welt vorher und nachher anwenden: sonst holt die Übersetzung Original-Namen zurück
+  const W = x => (GL.world && GL.world.tr ? GL.world.tr(x) : x);
+  const T = x => { if (!x) return ''; const n = W(String(x)); return W(GL.i18n && GL.i18n.t ? GL.i18n.t(n) : n); };
+  const kindName = (kind, key) => { const T = kind === 'type' ? GL.data.types : kind === 'role' ? GL.data.roles : GL.data.factions; return ((T || {})[key] || {}).name || key; };
+  const sideName = s => { const [k, v] = String(s).split(':'); return kindName(k, v); };
+  function together(run, i) {
+    const u = run.crew[i], E = GL.effects, on = [], miss = [];
+    if (!u || !E) return { on, miss };
+    const mine = s => (s.kind === 'type' && s.key === u.type) || (s.kind === 'role' && s.key === u.role) || (s.kind === 'faction' && s.key === u.faction);
+    const st = E.status(run.crew).filter(mine);
+    st.filter(s => s.active).forEach(s => on.push({ ico: s.kind === 'faction' ? '🏴' : (((s.kind === 'type' ? GL.data.types : GL.data.roles)[s.key] || {}).icon || '✦'), name: `${T(s.name)} ${s.count}`, text: T(s.active.text) }));
+    E.duos(run.crew).filter(d => d.a === u.id || d.b === u.id).forEach(d => on.push({ ico: '♥', name: T(d.name), text: T(d.text) }));
+    const mySides = ['type:' + u.type, 'role:' + u.role];
+    E.combos(run.crew).filter(c => mySides.includes(c.a) || mySides.includes(c.b)).forEach(c => on.push({ ico: c.icon || '✦', name: T(c.name), text: T(c.text) }));
+    const t = run.battle && run.battle.team;
+    if (t && t.f === u.faction) { const M = (GL.data.teamMoves || {})[t.f] || {}; on.push({ ico: '🤝', name: T(t.name), text: T(M.text) }); }
+    // Was fehlt noch? Nächste Stufe der eigenen Stile, Duo-Partner, Kombo-Gegenstück, Team-Fähigkeit
+    st.filter(s => s.next).forEach(s => miss.push(L(`Noch ${s.next.n - s.count}× ${W(s.name)}: ${W(s.next.text)}`, `${s.next.n - s.count} more ${T(s.name)}: ${T(s.next.text)}`)));
+    const ids = new Set(run.crew.map(x => x.id));
+    (GL.data.duos || []).filter(d => (d.a === u.id && !ids.has(d.b)) || (d.b === u.id && !ids.has(d.a))).slice(0, 2).forEach(d => {
+      const p = crewData(d.a === u.id ? d.b : d.a); if (p) miss.push(L(`Duo „${W(d.name)}“ mit ${p.name}`, `Duo “${T(d.name)}” with ${p.name}`));
+    });
+    const onSet = new Set(E.status(run.crew).filter(s => s.active && s.kind !== 'faction').map(s => s.kind + ':' + s.key));
+    E.combosNear(run.crew).filter(c => (mySides.includes(c.a) && onSet.has(c.a)) || (mySides.includes(c.b) && onSet.has(c.b))).slice(0, 2).forEach(c => {
+      miss.push(L(`Kombo „${W(c.name)}“: fehlt ${sideName(onSet.has(c.a) ? c.b : c.a)}`, `Combo “${T(c.name)}”: needs ${T(sideName(onSet.has(c.a) ? c.b : c.a))}`));
+    });
+    const F = u.faction && GL.data.factions[u.faction], TM = u.faction && (GL.data.teamMoves || {})[u.faction];
+    if (F && TM && !(t && t.f === u.faction)) {
+      const need = F.tiers[F.tiers.length - 1].n, have = run.crew.filter(x => x.faction === u.faction).length;
+      if (need > have) miss.push(L(`Team-Fähigkeit „${W(TM.name)}“: noch ${need - have}× ${F.name}`, `Team move “${T(TM.name)}”: ${need - have} more ${T(F.name)}`));
+    }
+    return { on, miss: miss.slice(0, 4) };
+  }
+  function card(run, side, i) {
+    const b = run && run.battle;
+    if (!b) return '';
+    const crew = side === 'crew';
+    const unit = crew ? run.crew[i] : b.enemies[i];
+    if (!unit) return '';
+    const entry = crew ? (unit.def || crewData(unit.id)) : (unit.def || GL.data.foeDef(unit) || crewData(unit.id));
+    if (!entry) return '';
+    const lv = liveBits(side, i, unit), S = GL.statsUi;
+    const P = v => Math.round(v * 100) + ' %';
+    // Werte mit Herkunft (nur eigene Crew, Gegner zeigen die nackten Zahlen)
+    const statRow = (k, ico, label, total, lines, extra) => `<div class="wt-stat"><div class="wt-sline"><i aria-hidden="true">${ico}</i><span>${label}</span><b>${total}</b></div>${lines && lines.length ? `<div class="wt-src">${lines.map(x => `<span class="wt-chip${x.base ? ' base' : ''}"><i aria-hidden="true">${x.ico}</i>${escT(x.name)} <b>${x.base ? x.v : (x.v < 0 ? '−' : '+') + Math.abs(Math.round(x.v * 10) / 10)}</b></span>`).join('')}</div>` : ''}${extra || ''}</div>`;
+    let stats = '', note = '';
+    if (crew && S && S.breakdown) {
+      const rowsOf = k => { const r = S.breakdown(run, i, k); if (!r) return { total: unit[k], lines: [] }; if (r.note) note = r.note; return { total: r.total, lines: r.lines.map((x, n) => Object.assign({}, x, { base: n === 0 && /^👤/.test(x.ico) })) }; };
+      const h = rowsOf('hp'), a = rowsOf('atk'), s = rowsOf('spd');
+      stats = statRow('hp', '❤', L('Leben', 'HP'), `${lv.hp} / ${unit.max}`, h.lines) + statRow('atk', '⚔', L('Angriff', 'Attack'), a.total, a.lines) + statRow('spd', '➤', L('Tempo', 'Speed'), s.total, s.lines);
+      // Weitere Kampfwerte nur, wenn sie etwas zeigen
+      const ex = S.breakdown(run, i, 'crit'), u2 = ex && ex.u;
+      if (u2) {
+        const sv = S.shown(u2), more = [[L('Krit', 'Crit'), P(sv.crit)], [L('Krit-Schaden', 'Crit dmg'), S.mult(sv.critMult)]]
+          .concat(u2.armor > 0 ? [[L('Rüstung', 'Armor'), u2.armor]] : [], u2.guard > 0 ? [[L('Schutz', 'Guard'), P(u2.guard)]] : [], u2.dodge > 0 ? [[L('Ausweichen', 'Dodge'), P(sv.dodge)]] : [],
+            u2.dmgPct > 0 ? [[L('Schaden', 'Damage'), '+' + P(u2.dmgPct)]] : [], u2.bossPct > 0 ? [[L('Gegen Bosse', 'Vs bosses'), '+' + P(u2.bossPct)]] : [], u2.regen > 0 ? [[L('Heilung/Runde', 'Heal/round'), u2.regen]] : []);
+        stats += `<div class="wt-more">${more.map(([n, v]) => `<span><small>${n}</small><b>${v}</b></span>`).join('')}</div>`;
+      }
+    } else {
+      stats = statRow('hp', '❤', L('Leben', 'HP'), `${lv.hp} / ${unit.max}`) + statRow('atk', '⚔', L('Angriff', 'Attack'), unit.atk) + statRow('spd', '➤', L('Tempo', 'Speed'), unit.spd);
+    }
+    // Zustände
+    const stKeys = Object.keys(lv.st);
+    const states = stKeys.length ? `<div class="wt-sec"><b class="wt-h">${L('Zustände', 'Effects')}</b><div class="wt-states">${stKeys.map(k => { const d = GL.data.statuses[k] || {}; return `<span class="st-chip st-${k}${d.good ? ' good' : ''}"><b>${escT(T(d.name || k))}</b>${k === 'stun' ? '' : ` <small>${lv.st[k]}</small>`}<em>${escT(T(d.text))}</em></span>`; }).join('')}</div></div>` : '';
+    // Fähigkeit und Ulti
+    const ab = GL.data.abilities && GL.data.abilities[unit.id], ul = (GL.data.ultis || {})[unit.id];
+    const hand = document.body.classList.contains('ult-hand');
+    const ultTxt = lv.charged ? (crew && hand ? L('Bereit! Figur antippen zum Zünden.', 'Ready! Tap the character to fire.') : L('Bereit', 'Ready')) : lv.en != null ? `${lv.en} %` : '';
+    const skills = (ab ? `<p class="wt-abil"><b>✦ ${escT(T(ab.name))}:</b> ${escT(T(ab.text))}</p>` : '') +
+      (lv.en != null ? `<div class="wt-ult${lv.charged ? ' full' : ''}"><span><b>⚡ ${escT(ul ? T(ul.name) : 'Ulti')}</b>${ul && ul.text ? ` <small>${escT(T(ul.text))}</small>` : ''}</span><div class="wt-ubar"><i style="width:${Math.min(100, lv.en || 0)}%"></i></div><em>${ultTxt}</em></div>` : '');
+    // Zusammenspiel (nur eigene Crew)
+    let tog = '';
+    if (crew) {
+      const T = together(run, i);
+      tog = `<div class="wt-sec"><b class="wt-h">${L('Zusammenspiel', 'Teamwork')}</b>${T.on.length ? T.on.map(x => `<p class="wt-on"><i aria-hidden="true">${x.ico}</i><b>${escT(x.name)}:</b> ${escT(x.text)}</p>`).join('') : `<p class="wt-none">${L('Gerade nichts aktiv. Ein Einzelkämpfer.', 'Nothing active right now. A lone wolf.')}</p>`}
+        ${T.miss.length ? `<b class="wt-h sub">${L('Fehlt noch', 'Still missing')}</b>${T.miss.map(t => `<p class="wt-miss">${escT(t)}</p>`).join('')}` : ''}</div>`;
+    } else if (lv.hp > 0) {
+      const ints = intentHtml(unit, b.enemies, { pvp: b.kind === 'duel' }, 'wt-int');
+      if (ints) tog = `<div class="wt-sec"><b class="wt-h">${L('Plant', 'Plans')}</b>${ints}<p class="wt-none">${L('Symbol antippen erklärt es. Gegner antippen = Fokusziel.', 'Tap an icon to explain it. Tap the enemy = focus target.')}</p></div>`;
+    }
+    const lvl = crew ? `<small class="wt-lv">Lv ${unit.lvl || 1}${unit.stars ? ' · ' + '★'.repeat(unit.stars) : ''}${unit.form ? ' · 🎭 ' + L('Form', 'Form') + ' ' + unit.form : ''}</small>` : `<small class="wt-lv">${unit.boss ? 'Boss' : unit.mini ? L('Anführer', 'Leader') : L('Gegner', 'Enemy')}</small>`;
+    return `<div class="fpop-card wt-card ${crew ? 'us' : 'them'}" role="dialog" aria-label="${escT(entry.name)}">
+      <div class="wt-head"><div class="wt-spr">${GL.sprites.render(entry)}</div><div class="wt-id"><b>${escT(entry.name)}</b><span>${badge(unit.type)}${unit.role && GL.data.roles[unit.role] ? ` <em class="wt-role">${escT(T(GL.data.roles[unit.role].name))}</em>` : ''}</span>${lvl}</div></div>
+      <div class="wt-stats">${stats}</div>${note ? `<p class="wt-note">${escT(note)}</p>` : ''}
+      ${states}${skills}${tog}
+      <p class="wt-foot">${L('Halten oder i öffnet diese Tafel. Der Kampf wartet so lange.', 'Hold or tap i to open this card. The fight waits meanwhile.')}</p>
+    </div>`;
+  }
+
   GL.arena = {
-    say,
+    say, card,
     intents, intentHtml, intentText, intentIcon: k => INT_ICO[k] || '',
     html(run, anim) {
       curRun = run;
