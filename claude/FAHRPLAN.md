@@ -16,10 +16,10 @@ Stand: 22.10.2026 (nachmittags)
 - Alte Zweige, die `neu/...` ändern, sind 3D-Arbeit und werden **nicht** weitergeführt. Ideen daraus werden bei Bedarf im 2D-Spiel neu gebaut.
 
 ## Live
-- `main` = **22l „Die Figurenreise“** (thegreatline.de): Stil-Dojo im Kontor, Erinnerungsstücke, Story-Formen für die Strohhüte. Davor 22k Schiffs-Upgrades sichtbar, 22j Endlos-Tiefe, 22i Kontor Teil 1, 22h Kampf-Update.
+- `main` = **22l „Die Figurenreise“** (thegreatline.de): Stil-Dojo im Kontor, Erinnerungsstücke, Story-Formen für die Strohhüte. Seit 22.10. außerdem in `CLAUDE.md`: Modellwahl (Sonnet/Opus) und Entscheidungen als Klick-Fragen (nur Arbeitsregeln, Spiel unverändert). Davor 22k Schiffs-Upgrades sichtbar, 22j Endlos-Tiefe, 22i Kontor Teil 1, 22h Kampf-Update.
 
 ## Wartet auf „schalte live“
-- `feature/modellwahl`: nur `CLAUDE.md` (neuer Abschnitt „Modellwahl“: wann Sonnet, wann Opus; dazu Regel „Fragen zum Anklicken“). Keine Spieländerung, also keine Patchnote und kein `bump-version.py` nötig, einfach nach `main` mergen.
+_(nichts)_
 
 Figurenreise Teil 1 (22l) ist live. Dateien: `js/data/forms.js`, `js/engine/forms.js`, `js/ui/dojo.js`, Accessoires `FORM_ACC` in `sprites.js`, neutrale Namen in `js/world/neutral.js`. Look-Details bisher nur für Ruffy, Zorro, Nami, die anderen 6 haben Titel und Werte.
 
