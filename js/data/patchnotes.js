@@ -1,6 +1,10 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-22k', date: '22.10.', title: 'Das Schiff wächst mit', items: [
+    '⛵ Was du in der Werft ausbaust, sieht man jetzt am Schiff: Neue Segel machen es bauchiger, auf Stufe 2 kommt eine Rah dazu',
+    '💣 Das Kanonendeck zeigt Luken im Rumpf, erst zwei, dann vier',
+    '🪵 Der verstärkte Rumpf bekommt Flicken, dann Eisenbeschläge, einen Kupferkiel und ganz oben einen goldenen' ] },
   { v: '2026-10-22j', date: '22.10.', title: 'Endlos mit Biss', items: [
     '🦀 Endlos-Fahrt: Ab der zweiten Runde tragen Gegner Zusätze. Gepanzert, Flink, Riesig, Wütend, Giftig oder Anführer, der seine Kumpel anstachelt',
     '👑 Bosse bekommen pro Runde einen Zusatz mehr, bis zu drei. Wer weit kommt, trifft auf echte Brocken' ] },

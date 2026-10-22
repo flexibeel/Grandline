@@ -268,6 +268,28 @@ window.GL = window.GL || {};
     '..HHHHHHHHHHHH..',
     '...HHHHHHHHHH...'
   ];
+  // Werft-Segel ab Stufe 1: bauchiger und eine Reihe länger
+  const SHIP_BIG = [
+    '.......F........',
+    '.......MFF......',
+    '....SSSMSSSS....',
+    '..SSSSSMSSSSSS..',
+    '..SSSSSMSSSSSS..',
+    '...SSSSMSSSSS...',
+    '....SSSMSSSS....',
+    '.R.R.R.M.R.R.R..',
+    'HHHHHHHHHHHHHHHH',
+    '.HHHHHHHHHHHHHH.',
+    '..HHHHHHHHHHHH..',
+    '...HHHHHHHHHH...'
+  ];
+  // Farbe aufhellen (amt > 0) oder abdunkeln (amt < 0)
+  function shade(hex, amt) {
+    const n = parseInt(String(hex).slice(1), 16);
+    if (isNaN(n)) return hex;
+    const f = v => Math.max(0, Math.min(255, Math.round(amt > 0 ? v + (255 - v) * amt : v * (1 + amt))));
+    return '#' + [n >> 16, (n >> 8) & 255, n & 255].map(v => f(v).toString(16).padStart(2, '0')).join('');
+  }
 
   // Figuren-Meisterschaft Silber: zweites Outfit, nur für die Crew-Figur selbst (nicht für Gegner mit gleicher id)
   function mlook(entry) {
@@ -283,21 +305,37 @@ window.GL = window.GL || {};
       const P = GL.data.shipParts || {};
       const pick = (k, id) => ((P[k] || []).find(x => x.id === id) || (P[k] || [])[0] || {});
       const sail = pick('sail', L.sail), hull = pick('hull', L.hull), flag = pick('flag', L.flag), deco = pick('deco', L.deco);
-      const key = 'ship:' + [sail.id, hull.id, flag.id, deco.id].join('/');
+      // Werft-Stufen sichtbar: nur am eigenen Schiff (ohne look) oder wenn look.upg mitkommt
+      const U = (look ? look.upg : GL.sprites.myUpg) || {};
+      const su = Math.min(2, U.segel || 0), ku = Math.min(2, U.kanonen || 0), ru = Math.min(5, U.rumpf || 0);
+      const key = 'ship:' + [sail.id, hull.id, flag.id, deco.id, su, ku, ru].join('/');
       if (cache[key]) return cache[key];
       const c = { S: sail.c || '#f1eee8', M: '#5a4433', H: hull.c || '#6b4a32', R: hull.r || '#3a2a1e', F: flag.c || '#1a1a1a' };
-      const rows = SHIP.map(r => r.split(''));
+      const rows = (su ? SHIP_BIG : SHIP).map(r => r.split(''));
       if (flag.big) { rows[0][8] = 'F'; rows[1][10] = 'F'; rows[0][9] = 'F'; }
+      // Segel Stufe 2: Rah (Holzbalken) über dem Segel, ragt links und rechts heraus
+      if (su >= 2) for (let x = 3; x <= 12; x++) rows[2][x] = 'M';
       let r = '';
+      const px = (x, y, col) => { r += `<rect x="${x}" y="${y}" width="1" height="1" fill="${col}"/>`; };
       rows.forEach((row, y) => row.forEach((ch, x) => {
         if (ch === '.') return;
         let col = c[ch];
         if (ch === 'S' && sail.pat === 'streifen' && y % 2 === 1) col = sail.c2;
         if (ch === 'S' && sail.pat === 'flicken' && (x * 7 + y * 3) % 9 === 0) col = sail.c2;
         if (ch === 'S' && sail.pat === 'stern' && ((x === 5 && y === 3) || (x === 9 && y === 4) || (x === 10 && y === 2))) col = sail.c2;
-        r += `<rect x="${x}" y="${y}" width="1" height="1" fill="${col}"/>`;
+        px(x, y, col);
       }));
-      Object.keys(deco.px || {}).forEach(col => deco.px[col].forEach(([x, y]) => { r += `<rect x="${x}" y="${y}" width="1" height="1" fill="${col}"/>`; }));
+      // Rumpf: 1-2 Flicken (heller), 3-4 Eisenbeschlag an Bug und Heck, 5 goldener Kiel (sonst ab 4 Kupfer)
+      const patch = shade(c.H, 0.28), nail = shade(c.H, -0.35), iron = '#4a525c', ironHi = '#7d8792';
+      if (ru >= 1) { px(3, 10, patch); px(4, 10, nail); }
+      if (ru >= 2) { px(10, 10, patch); px(11, 10, patch); }
+      if (ru >= 3) { px(0, 8, ironHi); px(1, 9, iron); px(15, 8, ironHi); px(14, 9, iron); }
+      if (ru >= 4) for (let x = 3; x <= 12; x++) px(x, 11, ru >= 5 ? (x % 3 ? '#d8b04a' : '#f2d77a') : (x % 3 ? '#a8653a' : '#c98552'));
+      // Kanonen: Stufe 1 zwei Luken, Stufe 2 vier
+      const ports = ku >= 2 ? [3, 6, 9, 12] : ku ? [5, 10] : [];
+      const hn = parseInt(c.H.slice(1), 16), dark = ((hn >> 16) * 0.3 + ((hn >> 8) & 255) * 0.59 + (hn & 255) * 0.11) < 60;
+      ports.forEach(x => px(x, 9, dark ? c.R : '#241a14'));
+      Object.keys(deco.px || {}).forEach(col => deco.px[col].forEach(([x, y]) => px(x, y, col)));
       cache[key] = `<svg viewBox="0 0 16 12" aria-hidden="true">${r}</svg>`;
       return cache[key];
     },

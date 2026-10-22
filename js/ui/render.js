@@ -4187,10 +4187,10 @@ window.GL = window.GL || {};
     const grp = (k, label) => `<div class="ship-grp"><span class="lbl">${label}</span><div class="cos-grid">${P[k].map(it => {
       const ok = GL.meta.cosmeticUnlocked(profile, it, vals);
       return `<button class="cos ship-opt${cur[k] === it.id ? ' on' : ''}${ok ? '' : ' locked'}" data-act="ship-pick" data-k="${k}" data-v="${it.id}"${ok ? '' : ' disabled'} title="${esc(it.name)}${ok ? '' : ': ' + GL.meta.reqText(it)}">
-        <span class="ship-prev">${GL.sprites.ship(Object.assign({}, cur, { [k]: it.id }))}</span><small>${ok ? esc(it.name) : '🔒 ' + GL.meta.reqText(it)}</small></button>`;
+        <span class="ship-prev">${GL.sprites.ship(Object.assign({}, cur, { [k]: it.id, upg: profile.upgrades }))}</span><small>${ok ? esc(it.name) : '🔒 ' + GL.meta.reqText(it)}</small></button>`;
     }).join('')}</div></div>`;
     return `<div class="cos-all ship-all"><span class="event-kicker">Dein Schiff</span>
-      <div class="ship-big">${GL.sprites.ship(cur)}</div>
+      <div class="ship-big">${GL.sprites.ship(Object.assign({}, cur, { upg: profile.upgrades }))}</div>
       <p class="hint">Dein Schiff segelt im Hauptquartier und auf der Seekarte. Neue Teile schaltest du mit Rängen, Siegen und Funden frei.</p>
       ${grp('sail', 'Segel')}${grp('hull', 'Rumpf')}${grp('flag', 'Flagge')}${grp('deco', 'Galionsfigur')}</div>`;
   }
@@ -5428,6 +5428,7 @@ window.GL = window.GL || {};
         }
       }
       GL.sprites.myShip = (ui.profile && ui.profile.ship) || null;
+      GL.sprites.myUpg = (ui.profile && ui.profile.upgrades) || null;
       const nb = document.getElementById('notes-btn');
       if (nb && ui.profile) nb.innerHTML = 'Neuigkeiten' + (ui.profile.notesSeen !== GL.version ? ' <i class="new-dot"></i>' : '');
       document.body.classList.toggle('streamer', streamOn());
