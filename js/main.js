@@ -1471,7 +1471,7 @@
         else { openGearPop(h); const b2 = document.getElementById('fpop'); if (b2) b2.dataset.dg = '1'; }
         break;
       }
-      case 'dg-open': case 'dg-list': case 'dg-start': case 'dg-go': case 'dg-pick': case 'dg-next': case 'dg-fast': case 'dg-cmd': case 'dg-depth': case 'dg-door': case 'dg-relic': case 'dg-plan': {
+      case 'dg-open': case 'dg-list': case 'dg-start': case 'dg-amber': case 'dg-go': case 'dg-pick': case 'dg-next': case 'dg-fast': case 'dg-cmd': case 'dg-depth': case 'dg-door': case 'dg-relic': case 'dg-plan': {
         if (type === 'dg-open' && GL.skUi && !(GL.dungeon._cur() && GL.dungeon._cur().fight && !GL.dungeon._cur().fight.done)) { GL.skUi.reset(); const h0 = GL.skUi.html(profile); saveProfile(); const bx = document.getElementById('fpop'); if (bx && bx.dataset.dg) bx.innerHTML = h0; else { openGearPop(h0); const b3 = document.getElementById('fpop'); if (b3) b3.dataset.dg = '1'; } break; }   // DUNGEON-SUCHE
         // Landgang mit Bosskampf der Stammcrew: Beute wird beim Kampfende gespeichert (onSave)
         GL.dungeon.onSave = () => { saveProfile(); ui.lastStage = null; draw(); };
@@ -2107,6 +2107,8 @@
         toast('<span><b>↺ Umgeskillt</b>Alle Skillpunkte sind wieder frei.</span>');
         break;
       case 'buy-upgrade': if (GL.meta.buyUpgrade(profile, el.dataset.id)) { saveProfile(); draw(); } break;
+      case 'kontor-collect': if (GL.kontor) { const n = GL.kontor.collect(profile); saveProfile(); draw(); if (n > 0) toast(`<span><b>+${n} 🟧 ${GL.i18n && GL.i18n.lang() === 'en' ? 'Amber' : 'Bernstein'}</b>${GL.i18n && GL.i18n.lang() === 'en' ? 'Collected from the counting house.' : 'Aus dem Kontor abgeholt.'}</span>`); } break;
+      case 'kontor-up': if (GL.kontor && GL.kontor.upgrade(profile)) { saveProfile(); draw(); } break;
       case 'buy-gear': if (GL.meta.buyGear(profile, el.dataset.id)) { saveProfile(); draw(); } break;
       case 'toggle-gear': if (GL.meta.toggleLoadout(profile, el.dataset.id)) { saveProfile(); draw(); } break;
       case 'reroll': ui.tvSel = null; act({ type: 'reroll' }); break;

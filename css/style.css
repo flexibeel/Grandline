@@ -10072,3 +10072,17 @@ body.ult-hand .rc-ulthint { display: inline; }
 .st-chip.st-frost { background: #d8eef8; color: #1f5a78; }
 .st-chip.st-shock { background: #fbf0c4; color: #7a5a10; }
 .st-chip.st-blind { background: #e2e2e6; color: #3a3d46; }
+/* ===== KONTOR (Teil 1) ===== */
+.kontor .ko-nums { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 8px 0; }
+.kontor .ko-nums > div { background: #fffaf0; border: 2px solid #e4d6b4; border-radius: 10px; padding: 8px; text-align: center; display: flex; flex-direction: column; gap: 2px; }
+.kontor .ko-nums > div.full { border-color: #c08a2e; background: #fff4d4; }
+.kontor .ko-nums b { font-size: 1.05rem; color: #3a2a1a; }
+.kontor .ko-nums span { font-size: .72rem; color: #7a6c57; }
+.kontor .ko-btns { display: flex; flex-wrap: wrap; gap: 8px; margin: 6px 0; }
+.ko-haul, .ko-vit { display: flex; flex-direction: column; gap: 4px; margin-top: 10px; font-size: .82rem; color: #5e5242; }
+.ko-vit-row { display: flex; flex-wrap: wrap; gap: 6px; }
+.ko-rare { display: inline-flex; flex-direction: column; padding: 6px 10px; border-radius: 9px; background: #163a3c; color: #fff8e8; border: 2px solid #e2b44a; }
+.ko-rare.red { border-color: #d9423a; }
+.ko-rare small { color: #9fc1bc; font-size: .66rem; }
+.dg-amber { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 6px 0 2px; }
+.dg-amber small { color: #7a6c57; }

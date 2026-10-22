@@ -922,6 +922,12 @@ window.GL = window.GL || {};
       const berry = GL.meta.berryFor(profile, eff) + Math.max(0, (run.bestStreak || 0) - 2) * 3;
       profile.berry += berry;
       profile.stats.berryTotal += berry;
+      // KONTOR: Schiff entladen (Kram -> Bernstein, Wertsachen -> Berry, selten eine Rarität). Einmal pro Run.
+      profile.lastHaul = null;
+      if (GL.kontor && GL.meta.featureOpen(profile, 'kontor')) {
+        const isl = GL.run.chapterIsland ? GL.run.chapterIsland(run) : null;
+        profile.lastHaul = GL.kontor.unload(profile, run, isl ? isl.name : '');
+      }
       const xp = GL.meta.rankXpFor(eff);
       const reachNow = E ? 0 : run.phase === 'win' ? GL.run.totalSteps() : (run.step || 0);
       // Endlos-Modus: weiteste Strecke über alle Runden

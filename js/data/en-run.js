@@ -339,3 +339,12 @@ GL.data.en = Object.assign(GL.data.en || {}, {
   'Friert alle ein: Treffer (80 %), der Vorderste ist betäubt, alle bekommen Frost.': 'Freezes everyone: hit (80 %), the front one is stunned, all get frost.',
   'Lichtkugeln auf alle (100 %), alle geblendet.': 'Light orbs on all (100 %), all blinded.'
 });
+// KONTOR (Teil 1)
+GL.data.en = Object.assign(GL.data.en || {}, {
+  'Kontor': 'Counting house', 'Das Kontor': 'The counting house', 'Bernstein': 'Amber', 'Auffrischen': 'Refresh',
+  'Dein Handelshaus im Hafen. Bernstein wächst auch, wenn du nicht spielst, und nach jeder Fahrt wird das Schiff entladen.': 'Your trading house in the harbor. Amber grows while you are away, and after every voyage the ship gets unloaded.',
+  'Im Hafen unter „Kontor“ abholen': 'Collect it in the harbor under “Counting house”',
+  'Nach jedem Run: Kram wird Bernstein, Wertsachen werden Berry': 'After every run: odds and ends become amber, valuables become Berry',
+  'Bernstein frischt Landgänge auf: noch einmal volle Beute': 'Amber refreshes Shore Leave spots: full loot once more',
+  'Kontor · Schiff entladen': 'Counting house · ship unloaded', 'Steht jetzt in der Vitrine im Kontor': 'Now on display in the counting house'
+});

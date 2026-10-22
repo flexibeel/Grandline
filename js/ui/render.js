@@ -2307,6 +2307,9 @@ window.GL = window.GL || {};
           <span class="loot-grid">${cgNew.map((it, i) => lootTile(GL.cgear.RID[it.r], cgArt(it), GL.cgear.name(it), i, `${GL.cgear.RNAME[it.r]}${it.f && it.f.name ? ' · gefunden bei ' + it.f.name : ''}${it.f && it.f.sea ? ' (' + it.f.sea + ')' : ''}${it.s ? '\nFundstück für den Beute-Atlas' : ''}`).replace('class="loot-tile', `class="loot-tile${it.r >= 2 ? ' lt-shine' : ''}${it.s ? ' lt-sig' : ''}`).replace('</small></span>', `</small>${it.s ? '<em class="lt-sigtag">🎯 Fundstück</em>' : it.r >= 2 && it.f && it.f.name ? `<em class="lt-from">${esc(it.f.name)}</em>` : ''}</span>`)).join('')}</span></div>` : '';
         const shardHtml = run.endlessSea != null && ui.lastBerry != null ? `<div class="trophy-sum"><span class="event-kicker">Endlos-Fahrt · ${esc((GL.data.islands[run.endlessSea] || {}).name || '')}</span>
           <span>${run.loop || 0} ${run.loop === 1 ? 'Runde' : 'Runden'} geschafft${ui.profile && ui.profile.lastShards ? ` · <b>+${ui.profile.lastShards} 🔹 Meersplitter</b> zum Neu-Würfeln von Ausrüstung` : ''}</span></div>` : '';
+        const hl = ui.profile && ui.lastBerry != null ? ui.profile.lastHaul : null;
+        const haulHtml = hl ? `<div class="trophy-sum ko-sum"><span class="event-kicker">Kontor · Schiff entladen</span>
+          <span>${hl.kram} Kram → <b>+${hl.amber} 🟧 Bernstein</b>${hl.wert ? ` · ${esc(hl.wert[0])} → <b>+${hl.berry} Berry</b>` : ''}${hl.wind ? ' · Frischer Wind: 4 h +50 %' : ''}</span>${hl.rare ? `<span class="ko-rare ${hl.rare.tier}"><b>✨ Rarität: ${esc(hl.rare.name)}</b><small>Steht jetzt in der Vitrine im Kontor</small></span>` : ''}</div>` : '';
         const tro = (run.trophies || []).map(id => (GL.data.artifacts || []).find(a => a.id === id)).filter(Boolean);
         const troHtml = tro.length ? `<div class="trophy-sum tro-sum loot-sum"><span class="event-kicker">Neu in der Schatzkammer</span>
           <span class="loot-grid">${tro.map((a, i) => lootTile('trophy', artIcon(a), a.name, i, a.text.replace('{v}', '…'))).join('')}</span></div>` : '';
@@ -2362,7 +2365,7 @@ window.GL = window.GL || {};
         const uxRew = (ui.runRewards || []).length ? `<details class="ux-rew"><summary>🎁 ${ui.runRewards.length} Profil-Belohnungen in diesem Run</summary><div class="ux-rew-list">${ui.runRewards.map(h => `<div class="toast ux-rew-it">${h}</div>`).join('')}</div></details>` : '';
         const uxActs = `<div class="end-actions ux-end-top">${canEndless ? `<button class="btn" data-act="endless">${pxIco('ship')}Weitersegeln</button>` : ''}<button class="btn big${canEndless ? ' ghost' : ''}" data-act="again">${pxIco('loop')}${run.daily ? 'Neuer Run' : run.duel ? 'Normaler Run' : 'Nochmal!'} ${keyHint('Leertaste')}</button>
           <button class="btn ghost" data-act="hq">${pxIco('anchor')}Hauptquartier ${keyHint('H')}</button></div>`;
-        return `<div class="ux-end">${head}${uxActs}${uxWhy}${uxNextHtml}</div><div class="ux-end-rest">${record}${berry}${rankHtml}${heatUp}${mastHtml}${buildEnd}${duelHtml}${endlessHtml}${uxRew}${bond}${shardHtml}${cgHtml}${troHtml}${itemSum}${goals}</div>`;
+        return `<div class="ux-end">${head}${uxActs}${uxWhy}${uxNextHtml}</div><div class="ux-end-rest">${record}${berry}${rankHtml}${heatUp}${mastHtml}${buildEnd}${duelHtml}${endlessHtml}${uxRew}${bond}${haulHtml}${shardHtml}${cgHtml}${troHtml}${itemSum}${goals}</div>`;
       }
     }
     return '';
@@ -4530,6 +4533,7 @@ window.GL = window.GL || {};
       <div class="fpop-btns"><button class="btn ghost" data-act="pop-close">Schließen</button></div></div>`;
   }
   function tabAlert(profile, id) {
+    if (id === 'kontor') return !!(GL.kontor && GL.kontor.state(profile).amber + GL.kontor.pending(profile) >= GL.kontor.cap(GL.kontor.state(profile)));   // Lager voll
     if (id === 'werft') return GL.data.upgrades.some(u => { const c = GL.meta.upgradeCost(profile, u.id); return c != null && profile.berry >= c; });
     if (id === 'stammcrew') return !!(GL.cgear && (profile.gearNew || []).length);
     if (id === 'gemuet') return !!(GL.skills && GL.skills.free(profile) > 0 && GL.skills.all().some(n => !GL.skills.blocker(profile, n.id)));
@@ -4795,6 +4799,7 @@ window.GL = window.GL || {};
     { id: 'stammcrew', name: 'Stammcrew', art: 'flag', sub: p => GL.meta.squadUnlocked(p) ? `⚔ ${GL.meta.squadPower(GL.meta.squadRefs(p))}` : '' },
     { id: 'rangliste', name: 'Rangliste', art: 'podium', sub: () => '' },
     { id: 'gemeinschaft', name: 'Gemeinschaft', art: 'trident', sub: p => GL.coop ? `${GL.coop.boss().short} · ${GL.coop.triesLeft(p)}/3` : '' },
+    { id: 'kontor', name: 'Kontor', art: 'chest', sub: p => GL.kontor ? `🟧 ${GL.kontor.state(p).amber + GL.kontor.pending(p)}` : '' },
     { id: 'werft', name: 'Werft', art: 'ship', sub: () => 'Ausbauten' },
     { id: 'gemuet', name: 'Gemütlichkeit', art: 'flag', sub: p => GL.skills ? (GL.skills.free(p) ? `✦ ${GL.skills.free(p)} frei` : 'Skilltree') : '' },
     { id: 'schmiede', name: 'Schmiede', art: 'anvil', sub: p => `${(p.itemLoadout || []).length}/${GL.meta.itemSlots(p)} dabei` },
@@ -4813,8 +4818,8 @@ window.GL = window.GL || {};
       `<button class="hub-tile" data-act="hq-tab" data-tab="${r.id}"><i class="hub-art">${roomArt(r.art)}</i><b class="ht-l">${r.name}</b><b class="ht-s">${HUB_SHORT[r.id] || r.name}</b>${r.sub(profile) ? `<small>${r.sub(profile)}</small>` : ''}${tabAlert(profile, r.id) ? '<i class="tab-dot" title="Hier gibt es etwas zu tun"></i>' : ''}</button>`).join('')}</div></nav>`;
   }
   // Räume, die zusammengehören: oben als Umschalter (wie Tabs in einer App)
-  const ROOM_GROUPS = { crew: ['stammcrew', 'schmiede', 'lager', 'kammer'], hafen: ['werft', 'gemuet', 'haendler'] };
-  const SEG_NAME = { stammcrew: 'Crew', schmiede: 'Schmiede', lager: 'Lager', kammer: 'Kammer', werft: 'Werft', gemuet: 'Skills', haendler: 'Händler' };
+  const ROOM_GROUPS = { crew: ['stammcrew', 'schmiede', 'lager', 'kammer'], hafen: ['kontor', 'werft', 'gemuet', 'haendler'] };
+  const SEG_NAME = { stammcrew: 'Crew', schmiede: 'Schmiede', lager: 'Lager', kammer: 'Kammer', werft: 'Werft', gemuet: 'Skills', haendler: 'Händler', kontor: 'Kontor' };
   const groupOf = id => Object.keys(ROOM_GROUPS).find(g => ROOM_GROUPS[g].includes(id)) || null;
   // Erster offener Raum der Crew-Gruppe (für den Crew-Knopf unten)
   function crewRoom(profile, last) {
@@ -4828,6 +4833,33 @@ window.GL = window.GL || {};
     const segHtml = seg.length > 1 ? `<div class="room-seg seg-${seg.length}" role="tablist">${seg.map(x => `<button class="seg-btn${x.id === r.id ? ' on' : ''}" data-act="hq-tab" data-tab="${x.id}" role="tab" aria-selected="${x.id === r.id}"><i class="seg-ico">${roomArt(x.art)}</i><span>${SEG_NAME[x.id] || x.name}</span>${tabAlert(profile, x.id) ? '<i class="tab-dot"></i>' : ''}</button>`).join('')}</div>` : '';
     return `<div class="room-head app-bar"><button class="room-back" data-act="hq-home" aria-label="Zurück zum Hafen">‹ <span>Hafen</span></button><span class="room-title"><i class="hub-art sm">${roomArt(r.art)}</i>${r.name}</span><span class="room-berry" title="Berry">${GL.sprites.coin()}<b>${Number(profile.berry || 0).toLocaleString('de-DE')}</b></span><button class="room-x" data-act="hq-home" aria-label="Schließen" title="Schließen (Esc)">✕</button></div>
       ${segHtml}`;
+  }
+  // ---------- Kontor (Design-Fläche Baustein 6/7, Teil 1) ----------
+  function kontorRoom(profile) {
+    if (!GL.kontor) return '';
+    const EN = GL.i18n && GL.i18n.lang() === 'en';
+    const KO = GL.kontor, k = KO.state(profile), pend = KO.pending(profile), cap = KO.cap(k), rate = KO.K.rate(k.lvl);
+    const full = pend >= cap, wind = k.windUntil && k.windUntil > Date.now();
+    const cost = k.lvl < KO.K.maxLvl ? KO.K.cost(k.lvl) : null;
+    const h = k.lastHaul;
+    const haul = h ? `<div class="ko-haul"><span class="event-kicker">${EN ? 'Last unload' : 'Zuletzt entladen'}</span>
+      <span>${h.kram} ${EN ? 'odds and ends' : 'Kram'} (${h.names.map(n => esc(EN ? n[1] : n[0])).join(', ')}) → <b>+${h.amber} 🟧</b>${h.wert ? ` · ${esc(EN ? h.wert[1] : h.wert[0])} → <b>+${h.berry} Berry</b>` : ''}${h.wind ? ` · ${EN ? 'Fresh wind: +50 % for 4 h' : 'Frischer Wind: 4 h lang +50 %'}` : ''}</span></div>` : '';
+    const rare = k.rare.length ? `<div class="ko-vit"><span class="event-kicker">${EN ? 'Showcase · rarities' : 'Vitrine · Raritäten'}</span><div class="ko-vit-row">${k.rare.map(r => `<span class="ko-rare ${r.tier}" title="${esc((EN ? r.en : r.name) + (r.place ? ' · ' + r.place : '') + ' · ' + r.day)}"><b>${esc(EN ? r.en : r.name)}</b><small>${esc(r.place || '')} ${esc(r.day)}</small></span>`).join('')}</div></div>`
+      : `<p class="hint">${EN ? 'Very rarely an unload brings a rarity. It only decorates, it never adds power.' : 'Ganz selten ist beim Entladen eine Rarität dabei. Sie schmückt nur, Kampfwerte gibt sie nie.'}</p>`;
+    return `<section class="hq-sec kontor">
+      <p class="hint">${EN ? 'Amber grows even while you are away. Every run brings goods home: odds and ends turn into amber, valuables into Berry.' : 'Bernstein wächst auch, wenn du nicht spielst. Jede Fahrt bringt Ladung heim: Kram wird Bernstein, Wertsachen werden Berry.'}</p>
+      <div class="ko-nums">
+        <div><b>🟧 ${k.amber}</b><span>${EN ? 'Amber' : 'Bernstein'}</span></div>
+        <div class="${full ? 'full' : ''}"><b>${pend} / ${cap}</b><span>${EN ? 'Storage' : 'Lager'}${full ? (EN ? ' · full!' : ' · voll!') : ''}</span></div>
+        <div><b>${rate}${wind ? ' ×1,5' : ''}</b><span>${EN ? 'per hour' : 'pro Stunde'}</span></div>
+      </div>
+      <div class="ko-btns">
+        <button class="btn" data-act="kontor-collect"${pend > 0 ? '' : ' disabled'}>${EN ? 'Collect' : 'Abholen'} ${pend > 0 ? `+${pend}` : ''}</button>
+        ${cost != null ? `<button class="btn ghost" data-act="kontor-up"${(profile.berry || 0) >= cost ? '' : ' disabled'}>${EN ? 'Expand to level' : 'Ausbauen auf Stufe'} ${k.lvl + 1} · ${GL.sprites.coin()} ${cost.toLocaleString('de-DE')}</button>` : `<span class="hint">${EN ? 'Max level' : 'Höchste Stufe'}</span>`}
+      </div>
+      <p class="hint small">${EN ? `Level ${k.lvl}: storage fills in ${KO.K.capHours(k.lvl)} h. Spend ${KO.K.refresh} amber in Shore Leave to get full loot again.` : `Stufe ${k.lvl}: Lager ist nach ${KO.K.capHours(k.lvl)} h voll. Im Landgang frischen ${KO.K.refresh} Bernstein einen Ort auf: noch einmal volle Beute.`}</p>
+      ${haul}${rare}
+    </section>`;
   }
   // ---------- Gemütlichkeit: Skilltree ----------
   // Eigene kleine Pixel-Bilder für die Knoten (10×10)
@@ -5006,6 +5038,7 @@ window.GL = window.GL || {};
       ${room || (uiRef && uiRef.peek) ? '' : harborNews(profile)}
 
       ${!room ? '' : `
+      ${tab === 'kontor' ? kontorRoom(profile) : ''}
       ${tab === 'werft' ? `<section class="hq-sec">
         <p class="hint">Bau dein Schiff aus. Jede Stufe gilt für alle kommenden Runs.</p>
         <div class="wf-grid">${upgrades}</div></section>` : ''}

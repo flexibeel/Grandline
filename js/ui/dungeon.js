@@ -177,6 +177,14 @@ window.GL = window.GL || {};
     return '';
   }
 
+  // KONTOR: schon erkundete Orte mit Bernstein auffrischen (noch einmal volle Beute)
+  function amberRow(profile) {
+    if (!GL.kontor || !GL.meta.featureOpen(profile, 'kontor')) return '';
+    const k = GL.kontor.state(profile), c = GL.kontor.K.refresh;
+    const done = (D().dungeons || []).filter(d => unlocked(profile, d) && !fresh(profile, d.id) && !(GL.seekarte && !GL.seekarte.allowed(profile, d.id)));
+    if (!done.length) return '';
+    return `<div class="dg-amber"><small>🟧 ${k.amber} ${esc(T('Bernstein'))} · ${esc(T('Auffrischen'))} (${c}):</small>${done.map(d => `<button class="btn mini ghost" data-act="dg-amber" data-v="${d.id}"${k.amber >= c ? '' : ' disabled'}>${esc(T(d.name))}</button>`).join('')}</div>`;
+  }
   // ---------- Bildschirme ----------
   function listHtml(profile) {
     const crew = members(profile);
@@ -199,6 +207,7 @@ window.GL = window.GL || {};
       ${GL.dliga ? GL.dliga.panelHtml(profile) : ''}
       <div class="dg-with"><small>${esc(T('Mit dabei'))}</small>${crew.slice(0, 6).map(sprite).join('')}</div>
       <div class="dg-list">${rows}</div>
+      ${amberRow(profile)}
       <p class="dg-sub small">${esc(T('Fundstücke'))}: ${nf}/${(D().dungeons || []).length}</p>
       <div class="fpop-btns">${GL.skUi ? `<button class="btn" data-act="sk-open">🧭 ${esc(T('Zur Seekarte'))}</button>` : ''}<button class="btn ghost" data-act="pop-close">${esc(T('Schließen'))}</button></div>`, 'dg-listcard');   // DUNGEON-SUCHE: Knopf zur Seekarte
   }
@@ -661,6 +670,7 @@ window.GL = window.GL || {};
       this.pending = null;
       if (name === 'dg-open' || name === 'dg-list') { if (cur && cur.fight && !cur.fight.done) return null; stop(); cur = null; return listHtml(profile); }
       if (name === 'dg-start') return start(profile, data.v) || listHtml(profile);
+      if (name === 'dg-amber') { if (GL.kontor && GL.kontor.refreshDungeon(profile, data.v)) this.dirty = true; return listHtml(profile); }
       if (!cur) return listHtml(profile);
       cur.profile = profile;
       if (name === 'dg-depth') { if (cur.i > 0 || cur.fight) return stepHtml(); const deep = data.v === '1' && (peek(profile, cur.d.id).clears || 0) >= 1; cur.deep = deep; cur.nSteps = deep ? DEEP.steps : STEPS; return introHtml(); }

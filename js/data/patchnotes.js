@@ -1,6 +1,11 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-22i', date: '22.10.', title: 'Das Kontor im Hafen', items: [
+    '🟧 Neu im Hafen: das Kontor. Bernstein wächst dort auch, wenn du nicht spielst, bis das Lager voll ist',
+    '📦 Nach jeder Fahrt wird das Schiff entladen: Kram wird Bernstein, Wertsachen wie eine Perlenkette bringen Berry. Volle Ladung gibt 4 Stunden Rückenwind',
+    '🏝 Mit 20 Bernstein frischst du einen Landgang auf, den du heute schon besucht hast: noch einmal volle Beute',
+    '✨ Ganz selten liegt eine Rarität in der Ladung. Sie schmückt deine Vitrine im Kontor, Kampfwerte gibt sie nie' ] },
   { v: '2026-10-22h', date: '22.10.', title: 'Heiler und Reaktionen', items: [
     '⚡ Ultis kommen seltener, treffen dafür 1,6-mal so hart. Das Antippen lohnt sich jetzt richtig',
     '💚 Helfer heilen auch ohne Ulti: Ist jemand unter 50 % Leben, verarzten sie ihn statt anzugreifen',
