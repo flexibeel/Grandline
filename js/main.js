@@ -813,6 +813,7 @@
       buddy: GL.meta.squadUnlocked(profile) && profile.buddy && GL.meta.squadIds(profile).includes(profile.buddy) && profile.buddy !== 'self' ? profile.buddy : null,
       endlessSea: Number.isInteger(endlessSea) && GL.meta.seasCleared(profile).includes(endlessSea) ? endlessSea : undefined,
       forms: GL.forms ? GL.forms.startMap(profile) : {},
+      fboni: GL.forms ? GL.forms.startBoni(profile) : {},
       ramp: true,
       deck: true, rank: GL.meta.rankIndex(profile)   // CREW-START: Crew vor dem Ablegen aufstellen
     });
@@ -2114,8 +2115,16 @@
       case 'buy-upgrade': if (GL.meta.buyUpgrade(profile, el.dataset.id)) { saveProfile(); draw(); } break;
       case 'kontor-collect': if (GL.kontor) { const n = GL.kontor.collect(profile); saveProfile(); draw(); if (n > 0) toast(`<span><b>+${n} 🟧 ${GL.i18n && GL.i18n.lang() === 'en' ? 'Amber' : 'Bernstein'}</b>${GL.i18n && GL.i18n.lang() === 'en' ? 'Collected from the counting house.' : 'Aus dem Kontor abgeholt.'}</span>`); } break;
       // Figurenreise und Stil-Dojo (js/ui/dojo.js)
-      case 'fr-dojo': case 'fr-hit': case 'fr-up': case 'fr-close': {
+      case 'fr-dojo': case 'fr-hit': case 'fr-up': case 'fr-close': case 'fr-pick': {
         if (!GL.formsUi) break;
+        if (type === 'fr-pick') {
+          const d = el.dataset;
+          if (!GL.forms.choose(profile, d.id, +d.i, d.k)) break;
+          saveProfile();
+          if (d.pop) { GL.formsUi.stop(); closePop(); toast(`<span><b>✦ ${GL.formsUi.boniLabel(d.k)}</b>${GL.i18n && GL.i18n.lang() === 'en' ? 'Bonus chosen. Switch anytime in the dojo.' : 'Bonus gewählt. Im Dojo jederzeit umstellbar.'}</span>`); }
+          ui.lastStage = null; draw();
+          break;
+        }
         const show = h => { const bx = document.getElementById('fpop'); if (bx && bx.dataset.fr) { bx.innerHTML = h; bx.scrollTop = 0; } else { openGearPop(h); const b2 = document.getElementById('fpop'); if (b2) b2.dataset.fr = '1'; } };
         if (type === 'fr-close') { GL.formsUi.stop(); closePop(); ui.lastStage = null; draw(); break; }
         if (type === 'fr-dojo') { const h = GL.formsUi.dojoStart(profile, el.dataset.id); if (!h) break; saveProfile(); show(h); GL.formsUi.loop(); ui.lastStage = null; draw(); break; }

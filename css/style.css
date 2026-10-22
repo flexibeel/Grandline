@@ -10117,6 +10117,18 @@ body.ult-hand .rc-ulthint { display: inline; }
 .fr-track i { display: block; height: 100%; background: #c08a2e; border-radius: 4px; transition: width .4s; }
 .fr-need { font-size: .72rem; color: #8e3220; } .fr-need.ok { color: #2e6b32; }
 .fr-upbtn { align-self: flex-start; }
+/* Wahl-Boni: 1 von 2 je Form, umstellbar */
+.fr-card.pick { border-color: #6f9a5a; }
+.fr-boni { display: flex; flex-direction: column; gap: 4px; }
+.fr-boni small { font-size: .72rem; color: #5e5242; } .fr-boni.open small b { color: #2e6b32; }
+.fr-boni > span, .fr-boni.pop { display: flex; flex-wrap: wrap; gap: 6px; }
+.fr-boni.pop { justify-content: center; margin: 4px 0 2px; }
+.fr-bon { font: inherit; font-size: .76rem; font-weight: 700; padding: 5px 9px; min-height: 32px; border-radius: 999px; border: 2px solid #e4d6b4; background: #fffdf6; color: #5e5242; cursor: pointer; }
+.fr-boni.open .fr-bon { border-color: #9cc48a; animation: fr-glow 1.6s ease-in-out infinite; }
+.fr-bon.on { border-color: #c08a2e; background: #ffe9a8; color: #3a2a12; box-shadow: inset 0 -2px 0 rgba(160,110,30,.35); }
+.fr-boni.pop .fr-bon { font-size: .9rem; padding: 8px 14px; min-height: 40px; }
+.fr-boni-q { text-align: center; margin: 6px 0 0; display: flex; flex-direction: column; } .fr-boni-q small { font-size: .74rem; color: #8a7a62; }
+@media (prefers-reduced-motion: reduce) { .fr-boni.open .fr-bon { animation: none; } }
 /* Dojo-Fenster */
 .fr-pop { text-align: center; }
 .fr-stage { position: relative; height: 96px; margin: 6px auto 10px; max-width: 260px; display: flex; align-items: flex-end; justify-content: center; gap: 46px; background: linear-gradient(#f6e7c8 70%, #c89a5a 70%); border-radius: 12px; border: 2px solid #e4d6b4; padding-bottom: 8px; }

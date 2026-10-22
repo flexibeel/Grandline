@@ -24,6 +24,23 @@ window.GL = window.GL || {};
   const itemIco = id => `<i class="fr-ico">${pix(item(id).art)}</i>`;
   const sprite = d => `<i class="fr-spr">${GL.sprites.render(d)}</i>`;
 
+  // ---------- Wahl-Boni (1 von 2 je Form) ----------
+  function boniLabel(k) {
+    const V = GL.forms.conf().boni || { hp: 0.05, atk: 0.05, spd: 1 }, en = EN();
+    if (k === 'hp') return `❤ +${Math.round(V.hp * 100)} % ${en ? 'health' : 'Leben'}`;
+    if (k === 'atk') return `⚔ +${Math.round(V.atk * 100)} % ${en ? 'attack' : 'Angriff'}`;
+    return `💨 +${V.spd} ${en ? 'speed' : 'Tempo'}`;
+  }
+  // Knöpfe für eine Form: gewählter Bonus leuchtet, Umstellen kostet nichts
+  function boniBtns(profile, id, i, pop) {
+    const cur = GL.forms.picks(profile, id)[i];
+    return GL.forms.boniOf(id, i).map(k => `<button class="fr-bon${cur === k ? ' on' : ''}" data-act="fr-pick" data-id="${id}" data-i="${i}" data-k="${k}"${pop ? ' data-pop="1"' : ''} aria-pressed="${cur === k}">${boniLabel(k)}</button>`).join('');
+  }
+  function boniRows(profile, id) {
+    const forms = GL.data.forms[id].forms || [], en = EN();
+    return GL.forms.picks(profile, id).map((k, i) => `<div class="fr-boni${k ? '' : ' open'}"><small>◆ ${esc(L(forms[i].title))}${k ? '' : ` · <b>${en ? 'pick a bonus' : 'Bonus wählen'}</b>`}</small><span>${boniBtns(profile, id, i)}</span></div>`).join('');
+  }
+
   // ---------- Abschnitt im Kontor ----------
   function section(profile) {
     if (!GL.forms) return '';
@@ -36,8 +53,9 @@ window.GL = window.GL || {};
       const d = crew(id), l = F.level(profile, id), nx = F.next(profile, id), t = F.title(profile, id), n = F.mem(profile, id);
       const bar = nx ? Math.min(100, Math.round(100 * n / nx.f.need)) : 100;
       const goal = nx ? `<span class="fr-need${nx.bossOk ? ' ok' : ''}">${nx.bossOk ? '✓' : '🔒'} ${esc(en ? 'Beat' : 'Besiege')} ${esc(T(F.bossName(nx.f.boss)))}</span>` : `<span class="fr-need ok">★ ${en ? 'Final form for now' : 'Vorerst letzte Form'}</span>`;
-      return `<div class="fr-card${nx && nx.ok ? ' ready' : ''}">
+      return `<div class="fr-card${nx && nx.ok ? ' ready' : ''}${F.open(profile, id) ? ' pick' : ''}">
         <div class="fr-top">${sprite(d)}<span class="fr-name"><b>${esc(T(d.name))}</b><small>${t ? esc(L(t)) : (en ? 'Story start' : 'Story-Anfang')}</small></span><span class="fr-lv" title="${en ? 'Form' : 'Form'}">${'◆'.repeat(l)}${'◇'.repeat(Math.max(0, (GL.data.forms[id].forms || []).length - l))}</span></div>
+        ${l ? boniRows(profile, id) : ''}
         ${nx ? `<div class="fr-next"><small>${en ? 'Next' : 'Als Nächstes'}: <b>${esc(L(nx.f.title))}</b></small>
           <div class="fr-bar">${itemIco(id)}<span class="fr-track"><i style="width:${bar}%"></i></span><b>${n}/${nx.f.need}</b></div>${goal}</div>` : goal}
         ${nx && nx.ok ? `<button class="btn fr-upbtn" data-act="fr-up" data-id="${id}">✦ ${en ? 'Rise up' : 'Aufsteigen'}</button>` : ''}
@@ -53,7 +71,7 @@ window.GL = window.GL || {};
         <p class="hint small">${en ? `One session: ${C.dojoCost} 🟧 amber (you have ${am}).` : `Eine Einheit: ${C.dojoCost} 🟧 Bernstein (du hast ${am}).`}</p>
       </div>
       <h4 class="stb-sec">${en ? 'Character journey' : 'Figurenreise'} <small>${en ? 'story forms' : 'Story-Formen'}</small></h4>
-      <p class="hint">${en ? `Beat the story boss once and collect enough mementos: the figure rises to its next form. New title, new look, +${Math.round(C.bonus * 100)} % health and attack.` : `Story-Boss einmal besiegen und genug Erinnerungsstücke sammeln: Die Figur steigt in ihre nächste Form auf. Neuer Titel, neuer Look, +${Math.round(C.bonus * 100)} % Leben und Angriff.`}</p>
+      <p class="hint">${en ? `Beat the story boss once and collect enough mementos: the figure rises to its next form. New title, new look, +${Math.round(C.bonus * 100)} % health and attack, plus one bonus of your choice. You can switch bonuses anytime for free.` : `Story-Boss einmal besiegen und genug Erinnerungsstücke sammeln: Die Figur steigt in ihre nächste Form auf. Neuer Titel, neuer Look, +${Math.round(C.bonus * 100)} % Leben und Angriff, dazu ein Bonus deiner Wahl. Umstellen geht jederzeit und kostenlos.`}</p>
       <div class="fr-grid">${cards}</div>
     </section>`;
   }
@@ -144,7 +162,10 @@ window.GL = window.GL || {};
       <div class="fr-rise"><i class="fr-old">${oldSpr}</i><i class="fr-flash"></i><i class="fr-new">${GL.sprites.render(d)}</i><span class="fr-sparks">${'<b></b>'.repeat(8)}</span></div>
       <h3 class="fr-title">${esc(T(d.name))}, ${esc(L(f.title))}</h3>
       <p class="hint">${oldTitle ? `${en ? 'Was' : 'Bisher'}: ${esc(L(oldTitle))} · ` : ''}+${Math.round(C.bonus * 100)} % ${en ? 'health and attack in every run' : 'Leben und Angriff in jedem Run'}</p>
-      <div class="fpop-btns"><button class="btn" data-act="fr-close">${en ? 'Onward!' : 'Weiter geht’s!'}</button></div>`, 'rise');
+      ${GL.forms.boniOf(id, before).length ? `<p class="fr-boni-q"><b>${en ? 'Pick a bonus on top:' : 'Wähle einen Bonus obendrauf:'}</b><small>${en ? 'You can switch it later in the dojo, for free.' : 'Später im Dojo jederzeit kostenlos umstellbar.'}</small></p>
+      <div class="fr-boni pop">${boniBtns(profile, id, before, true)}</div>
+      <div class="fpop-btns"><button class="btn ghost" data-act="fr-close">${en ? 'Choose later' : 'Später wählen'}</button></div>`
+      : `<div class="fpop-btns"><button class="btn" data-act="fr-close">${en ? 'Onward!' : 'Weiter geht’s!'}</button></div>`}`, 'rise');
   }
 
   // Zeile in der Landgang-Beute
@@ -153,5 +174,5 @@ window.GL = window.GL || {};
     return `<li class="dg-findrow">${`<span class="dg-find big">${pix(it.art)}</span>`}<span><b>+1 ${esc(L(it.name))}</b><small>${EN() ? 'Memento for' : 'Erinnerungsstück für'} ${esc(T(d ? d.name : id))}</small></span></li>`;
   }
 
-  GL.formsUi = { section, dojoStart, hit, upHtml, lootRow, loop, stop, active: () => !!(G && !G.done) };
+  GL.formsUi = { section, dojoStart, hit, upHtml, lootRow, loop, stop, boniLabel, active: () => !!(G && !G.done) };
 })();

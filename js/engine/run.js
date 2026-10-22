@@ -128,7 +128,7 @@ window.GL = window.GL || {};
       ...masterPower(run, d)
     };
     if (m.masterAtk) { m.atk += m.masterAtk; delete m.masterAtk; }
-    // Story-Form (js/engine/forms.js): Leben und Angriff je Form +10 %
+    // Story-Form (js/engine/forms.js): Leben und Angriff je Form +10 %, dazu die Wahl-Boni
     if (GL.forms) GL.forms.boost(run, m);
     return m;
   }
@@ -1463,7 +1463,9 @@ window.GL = window.GL || {};
           // Figuren-Meisterschaft Gold+: Fähigkeit etwas stärker (nur ids, aus dem Profil)
           masters: Array.isArray(p.masters) ? p.masters.filter(x => typeof x === 'string').slice(0, 80) : [],
           // Story-Formen der Figurenreise: { id: Stufe }
-          forms: p.forms && typeof p.forms === 'object' ? Object.keys(p.forms).slice(0, 80).reduce((o, id) => { const l = Math.floor(+p.forms[id]); if (/^[a-z0-9_-]{1,24}$/.test(id) && l > 0 && l < 10) o[id] = l; return o; }, {}) : {}
+          forms: p.forms && typeof p.forms === 'object' ? Object.keys(p.forms).slice(0, 80).reduce((o, id) => { const l = Math.floor(+p.forms[id]); if (/^[a-z0-9_-]{1,24}$/.test(id) && l > 0 && l < 10) o[id] = l; return o; }, {}) : {},
+          // Wahl-Boni der Formen: { id: 'as' } (h/a/s je Form, '-' offen). Fehlt in alten Replays = keine Boni
+          fboni: p.fboni && typeof p.fboni === 'object' ? Object.keys(p.fboni).slice(0, 80).reduce((o, id) => { const v = p.fboni[id]; if (/^[a-z0-9_-]{1,24}$/.test(id) && typeof v === 'string' && /^[has-]{1,9}$/.test(v)) o[id] = v; return o; }, {}) : {}
         },
         bonus: {
           restHeal: upgradeTotal(up, 'restHeal'), choices: upgradeTotal(up, 'choices'),

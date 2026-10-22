@@ -1,5 +1,7 @@
 // Figurenreise: Erinnerungsstücke sammeln, Story-Formen freischalten (Daten: js/data/forms.js).
-//   profile.forms = { mem: { id: Anzahl }, lvl: { id: Form-Stufe } }
+//   profile.forms = { mem: { id: Anzahl }, lvl: { id: Form-Stufe }, pick: { id: ['atk', 'spd'] } }
+//   Wahl-Boni: pro erreichter Form 1 von 2 Boni (Daten: boni je Form), im Dojo wählbar und jederzeit kostenlos umstellbar.
+//   Im Run über run.start.fboni = { id: 'as' } (h/a/s je Form, '-' = noch nicht gewählt). Alte Replays ohne das Feld: keine Boni.
 //   Eine Form braucht: Story-Boss einmal besiegt (profile.seen.bosses) + genug Stücke. Die Stücke werden verbraucht.
 //   Im Run wirkt die Stufe über run.start.forms (Replay-sicher): Leben und Angriff je Form +10 %.
 //   Stil-Dojo: Bernstein aus dem Kontor gegen Stücke für eine Figur des Tagesstils (Minispiel in js/ui/dojo.js).
@@ -7,13 +9,15 @@ window.GL = window.GL || {};
 
 (function () {
   const D = () => GL.data.forms || {};
-  const C = () => GL.data.formConf || { bonus: 0.1, dojoCost: 20, dojoGain: [1, 3, 5], landgangChance: 0.25 };
+  const C = () => GL.data.formConf || { bonus: 0.1, dojoCost: 20, dojoGain: [1, 3, 5], landgangChance: 0.25, boni: { hp: 0.05, atk: 0.05, spd: 1 } };
+  const KEYS = ['hp', 'atk', 'spd'], CODE = { hp: 'h', atk: 'a', spd: 's' };
   const num = v => Math.max(0, Math.floor(Number(v) || 0));
 
   function state(p) {
     const f = p.forms = p.forms && typeof p.forms === 'object' ? p.forms : {};
     f.mem = f.mem && typeof f.mem === 'object' ? f.mem : {};
     f.lvl = f.lvl && typeof f.lvl === 'object' ? f.lvl : {};
+    f.pick = f.pick && typeof f.pick === 'object' ? f.pick : {};
     return f;
   }
   const has = id => !!D()[id];
@@ -46,6 +50,35 @@ window.GL = window.GL || {};
     sync(p);
     return nx.f;
   }
+  // ---------- Wahl-Boni ----------
+  const boniOf = (id, i) => { const f = ((D()[id] || {}).forms || [])[i]; return f && Array.isArray(f.boni) ? f.boni.filter(k => KEYS.includes(k)) : []; };
+  // Gewählte Boni je erreichter Form (null = offen)
+  function picks(p, id) {
+    const raw = Array.isArray(state(p).pick[id]) ? state(p).pick[id] : [];
+    const out = [];
+    for (let i = 0; i < level(p, id); i++) out.push(boniOf(id, i).includes(raw[i]) ? raw[i] : null);
+    return out;
+  }
+  function choose(p, id, i, key) {
+    i = num(i);
+    if (i >= level(p, id) || !boniOf(id, i).includes(key)) return false;
+    const s = state(p), a = Array.isArray(s.pick[id]) ? s.pick[id].slice(0, 9) : [];
+    while (a.length <= i) a.push(null);
+    a[i] = key;
+    s.pick[id] = a;
+    return true;
+  }
+  const open = (p, id) => picks(p, id).filter(x => !x).length;
+  const openAll = p => Object.keys(D()).reduce((n, id) => n + open(p, id), 0);
+  function startBoni(p) {
+    const out = {};
+    Object.keys(state(p).lvl).forEach(id => {
+      const a = has(id) ? picks(p, id) : [];
+      if (a.some(Boolean)) out[id] = a.map(k => CODE[k] || '-').join('');
+    });
+    return out;
+  }
+
   const bossName = id => { const b = (GL.data.bosses || []).find(x => x.id === id); return b ? b.name : id; };
   const title = (p, id) => { const l = level(p, id); return l ? D()[id].forms[l - 1].title : null; };
 
@@ -69,11 +102,17 @@ window.GL = window.GL || {};
   function boost(run, m) {
     const F = run && run.start && run.start.forms, l = F ? num(F[m.id]) : 0;
     if (!l) return m;
-    const k = 1 + C().bonus * l;
-    const max = Math.round(m.max * k);
+    // Wahl-Boni (nur mit run.start.fboni, alte Replays ohne)
+    const W = (run.start.fboni && typeof run.start.fboni[m.id] === 'string' ? run.start.fboni[m.id] : '').slice(0, l);
+    const cnt = ch => W.split('').filter(x => x === ch).length;
+    const V = C().boni || { hp: 0.05, atk: 0.05, spd: 1 };
+    const nh = cnt('h'), na = cnt('a'), ns = cnt('s');
+    const kh = 1 + C().bonus * l + V.hp * nh, ka = 1 + C().bonus * l + V.atk * na;
+    const max = Math.round(m.max * kh);
     m.hp = Math.round(m.hp * (max / Math.max(1, m.max)));
     m.max = max;
-    m.atk = Math.max(m.atk + l, Math.round(m.atk * k));
+    m.atk = Math.max(m.atk + l + na, Math.round(m.atk * ka));
+    if (ns) m.spd += ns * V.spd;
     m.form = l;
     return m;
   }
@@ -114,5 +153,6 @@ window.GL = window.GL || {};
   }
 
   GL.forms = { state, has, mem, level, next, add, up, title, bossName, sync, lookOf, startMap, boost, known,
+    boniOf, picks, choose, open, openAll, startBoni,
     dayStyle, dojoFigs, dojoPay, dojoReward, amber, landgangDrop, conf: C };
 })();
