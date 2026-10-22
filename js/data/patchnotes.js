@@ -1,6 +1,10 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-22r', date: '22.10.', title: 'Neustart für alle', items: [
+    '⛵ Alle Konten sind zurückgesetzt: Das Spiel ist zuletzt ordentlich gewachsen, jetzt starten alle das neue Spiel von der ersten Fahrt an, an derselben Linie',
+    '⚓ Leg dir einfach einen neuen Piraten an. Beim ersten Start siehst du einmal einen kleinen Infoscreen, danach geht es los',
+    '🙏 Danke an alle, die bisher mitgetestet haben!' ] },
   { v: '2026-10-22q', date: '22.10.', title: 'Durchblick im Kampf', items: [
     'ℹ Neu im Kampf: die Werte-Tafel. Tipp auf das kleine i neben dem Namen oder halte eine Figur gedrückt, dann siehst du alles auf einen Blick. Der Kampf wartet so lange',
     '🔎 Leben, Angriff und Tempo mit Herkunft: Grundwert, Hafen, Story-Form, Wahl-Bonus, Meisterschaft und Ausrüstung. So siehst du, was deine Wahl wirklich bringt',

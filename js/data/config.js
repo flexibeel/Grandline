@@ -196,6 +196,6 @@ GL.config = {
 // Neustart für alle (22.10.2026, Felix' Okay über Jan): Jedes Gerät löscht beim nächsten Start einmal seinen lokalen
 //   Spielstand samt Anmeldung und zeigt einen Infoscreen. Auf dem Server löscht tools/neustart-2026-10-22.sql die Konten.
 //   keep = die ersten 8 Zeichen der Konto-ID, die bleibt (NoNa, neuestes Konto; Teil 1 des SQL zeigt sie). Leer = aus.
-GL.config.neustart = { id: 'n1', keep: '' };
+GL.config.neustart = { id: 'n1', keep: '0e7333bc' };
 
 GL.config.season = { id: 's1', start: Date.UTC(2026, 9, 18, 16, 0, 0), launchEnd: Date.UTC(2026, 9, 19, 22, 0, 0) };
