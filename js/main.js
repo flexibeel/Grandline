@@ -813,7 +813,8 @@
       buddy: GL.meta.squadUnlocked(profile) && profile.buddy && GL.meta.squadIds(profile).includes(profile.buddy) && profile.buddy !== 'self' ? profile.buddy : null,
       endlessSea: Number.isInteger(endlessSea) && GL.meta.seasCleared(profile).includes(endlessSea) ? endlessSea : undefined,
       forms: GL.forms ? GL.forms.startMap(profile) : {},
-      ramp: true
+      ramp: true,
+      deck: true, rank: GL.meta.rankIndex(profile)   // CREW-START: Crew vor dem Ablegen aufstellen
     });
     ui.newBest = false;
     ui.lastBerry = null; ui.runRewards = [];
@@ -1539,6 +1540,9 @@
       case 'crew-name-open': ui.editTab = 'kampf'; ui.editSub = 'bande'; openProfile(); break;
       case 'login-open': ui.loginFrom = ui.screen || 'hq'; ui.screen = 'login'; draw(); break;
       case 'login-back': ui.screen = ui.loginFrom === 'hq' ? null : 'title'; draw(); break;
+      case 'deck-fig': case 'deck-slot': case 'deck-filter': case 'deck-go':   // CREW-START: das Deck (js/ui/deck.js)
+        if (run && run.deck && run.phase === 'starter' && GL.deck && GL.deck.click(type, el, run, ui, act, profile, saveProfile)) { ui.lastStage = null; draw(); }
+        break;
       case 'cap-filter': ui.capFilter = el.dataset.v; ui.lastStage = null; draw(); break;
       case 'fuse': {
         const it = GL.meta.fuse(profile, Number(el.dataset.r));

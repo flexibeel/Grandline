@@ -10157,3 +10157,70 @@ body.ult-hand .rc-ulthint { display: inline; }
 @keyframes fr-spark { 0% { opacity: 1; transform: translate(-50%, -50%); } 100% { opacity: 0; transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) rotate(90deg); } }
 .fr-title { opacity: 0; animation: fr-in .6s 1.4s ease-out forwards; }
 @media (prefers-reduced-motion: reduce) { .fr-old, .fr-flash, .fr-sparks { display: none; } .fr-new, .fr-title { animation: none; opacity: 1; } .fr-card.ready { animation: none; } }
+
+/* ===== CREW-START: das Deck (js/ui/deck.js) =====
+   Eine Szene statt einer Liste: Himmel mit Kombo-Wimpeln, Deck mit zwei Reihen, Steg mit allen Figuren.
+   Die Szene hat feste Farben (Himmel, Holz, Steg) und sieht in Hell und Dunkel gleich aus. */
+.dk { border: 4px solid #332a21; border-radius: 16px; overflow: hidden; background: #7cc3d8; box-shadow: 0 4px 0 rgba(51, 42, 33, .25); }
+.dk-sky { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; padding: 12px 14px 14px; background: #9fd3e3; }
+.dk-pens { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.dk-pen { align-self: flex-start; font: 700 .82rem/1.15 'Fredoka', sans-serif; padding: 5px 12px 5px 8px; border-radius: 0 10px 10px 0; border-left: 5px solid; }
+.dk-pen span { font-family: 'Pixelify Sans', 'Fredoka', sans-serif; }
+.dk-pen.act { background: #2f7a3e; color: #fff8e8; border-color: #1c4a26; }
+.dk-pen.near { background: #c08a2e; color: #fff8e8; border-color: #7a5410; }
+.dk-pen.calm { background: #fffdf6; color: #6e604b; border-color: #c9bb98; }
+.dk-meter { flex: none; display: flex; flex-direction: column; align-items: flex-end; gap: 4px; color: #163a3c; }
+.dk-mk { font: 700 .68rem/1 'Pixelify Sans', 'Fredoka', sans-serif; letter-spacing: .1em; text-transform: uppercase; }
+.dk-bar { display: block; width: 150px; height: 18px; border-radius: 9px; background: #163a3c; padding: 3px; box-sizing: border-box; }
+.dk-bar i { display: block; height: 100%; border-radius: 6px; background: #e2b44a; transition: width .2s; }
+.dk-mv { font: 600 1.05rem/1 'Pixelify Sans', 'Fredoka', sans-serif; }
+.dk-mv b { font-size: 1.45rem; }
+.dk-deck { display: flex; flex-direction: column; gap: 6px; padding: 12px 14px; background: #a8743f; border-top: 6px solid #6e4522; border-bottom: 6px solid #6e4522;
+  background-image: repeating-linear-gradient(90deg, transparent 0 46px, rgba(110, 69, 34, .35) 46px 48px); }
+.dk-row-k { font: 700 .7rem/1.2 'Pixelify Sans', 'Fredoka', sans-serif; letter-spacing: .1em; text-transform: uppercase; color: #fbe6c4; }
+.dk-row-k small { opacity: .8; }
+.dk-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.dk-slot { min-height: 104px; border-radius: 12px; background: #8c5d31; border: 3px solid #6e4522; color: #fff8e8; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 2px; padding: 6px 4px 7px; cursor: pointer; font: inherit; }
+.dk-slot:hover { border-color: #fbe6c4; }
+.dk-slot.dk-cap { border-color: #f2c46a; }
+.dk-slot.on { border-color: #fff8e8; box-shadow: 0 0 0 3px #fff8e8 inset; transform: translateY(-2px); }
+.dk-slot.dk-target { outline: 2px dashed #fbe6c4; outline-offset: 2px; }
+.dk-empty { background: transparent; border: 3px dashed #fbe6c4; justify-content: center; color: #fbe6c4; }
+.dk-plus { font: 600 1.8rem/1 'Pixelify Sans', 'Fredoka', sans-serif; }
+.dk-spr { display: grid; place-items: center; font-style: normal; }
+.dk-slot .dk-spr svg { width: 46px; height: auto; }
+.dk-name { font: 700 .78rem/1.1 'Fredoka', sans-serif; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dk-kw { font-size: .72rem; color: #fbe6c4; }
+.dk-kw b { font: 600 .9rem/1 'Pixelify Sans', 'Fredoka', sans-serif; color: #fff3c4; }
+.dk-capk { font: 700 .72rem/1 'Fredoka', sans-serif !important; color: #f2c46a !important; }
+.dk-steg { display: flex; flex-direction: column; gap: 8px; padding: 10px 14px 14px; background: #5d6f74; }
+.dk-steg-h { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+.dk-steg .dk-row-k { color: #e5ecea; }
+.dk-chips { display: flex; gap: 5px; flex-wrap: wrap; }
+.dk-chip { font: 700 .74rem/1 'Fredoka', sans-serif; min-height: 30px; padding: 0 11px; border-radius: 999px; border: 0; background: #44555a; color: #e5ecea; cursor: pointer; }
+.dk-chip.on { background: #fff8e8; color: #332a21; }
+.dk-figs { display: grid; grid-template-columns: repeat(auto-fill, minmax(76px, 1fr)); gap: 7px; max-height: 260px; overflow-y: auto; padding: 2px; }
+.dk-fig { position: relative; min-height: 84px; border-radius: 10px; background: #44555a; border: 2px solid transparent; color: #e5ecea; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding: 5px 3px; cursor: pointer; font: inherit; }
+.dk-fig .dk-spr svg { width: 34px; height: auto; }
+.dk-fig .dk-name { font-size: .7rem; }
+.dk-fkw { font: 600 .8rem/1 'Pixelify Sans', 'Fredoka', sans-serif; color: #f2c46a; }
+.dk-fig:hover { border-color: #e5ecea; }
+.dk-fig.on { border-color: #fff8e8; background: #36464a; }
+.dk-fig.here { background: #36464a; opacity: .7; }
+.dk-fig.here .dk-fkw { color: #9fe0a8; }
+.dk-fig.dear, .dk-fig:disabled { opacity: .4; cursor: not-allowed; }
+.dk-foot { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 2px; }
+.dk-hint { font-size: .85rem; line-height: 1.3; color: #e5ecea; }
+.dk-go { flex: none; min-height: 48px; padding: 0 24px; border: 0; border-radius: 12px; background: #d9423a; color: #fff8e8; border-bottom: 5px solid #8e2a22; font: 600 1.3rem/1 'Pixelify Sans', 'Fredoka', sans-serif; cursor: pointer; }
+.dk-go small { font-size: .75rem; opacity: .85; margin-left: 4px; }
+.dk-go:active { transform: translateY(2px); border-bottom-width: 3px; }
+@media (max-width: 520px) {
+  .dk-sky { padding: 10px; }
+  .dk-bar { width: 110px; }
+  .dk-deck, .dk-steg { padding-left: 10px; padding-right: 10px; }
+  .dk-row { gap: 6px; }
+  .dk-slot { min-height: 92px; }
+  .dk-slot .dk-spr svg { width: 38px; }
+  .dk-foot { flex-direction: column; align-items: stretch; }
+  .dk-go { width: 100%; }
+}

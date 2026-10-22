@@ -89,7 +89,8 @@
   "js/ui/season.js",
   "js/data/forms.js",
   "js/engine/forms.js",
-  "js/ui/dojo.js"
+  "js/ui/dojo.js",
+  "js/ui/deck.js"
  ],
  "en": [
   "js/data/en.js",

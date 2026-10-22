@@ -241,8 +241,43 @@ window.GL = window.GL || {};
     run.lastGold = { base, interest };
   }
 
+  // CREW-START „Das Deck“: Kampfwert (KW) je Figur, zugleich ihre Kosten im Crew-Budget. Eigener Pirat kostet nichts.
+  let kwRange = null;
+  function kw(id) {
+    const D = GL.config.deck;
+    if (id === 'self') return 0;
+    if (D.kwFix && D.kwFix[id] != null) return D.kwFix[id];
+    const d = byId(GL.data.crew, id);
+    if (!d) return 0;
+    const raw = c => (c.hp || 0) + (c.atk || 0) * 4 + (c.spd || 0) * 2;
+    if (!kwRange) { const v = GL.data.crew.filter(c => !c.self).map(raw); kwRange = [Math.min(...v), Math.max(...v)]; }
+    const [lo, hi] = kwRange;
+    return Math.max(D.kwMin, Math.min(D.kwMax, Math.round(D.kwMin + (D.kwMax - D.kwMin) * (raw(d) - lo) / Math.max(1, hi - lo))));
+  }
+  function deckBudget(rankIdx) {
+    const D = GL.config.deck;
+    return Math.min(D.max, D.budget + Math.floor(Math.max(0, rankIdx | 0) / D.perRanks));
+  }
+  // Figuren, die am Steg stehen: Starter + Freischaltungen (ohne eigenen Piraten, der steht immer an Deck)
+  function deckPool(run) {
+    return [...new Set(GL.config.starters.concat(run.unlocked || []))].filter(id => id !== 'self' && byId(GL.data.crew, id));
+  }
+  // Alte Crew-Bremse als Maßstab: so viele Figuren hätte man an dieser Etappe höchstens gehabt
+  function rampLimit(run) {
+    const r = GL.config.crewRamp;
+    return r ? Math.min(GL.config.maxCrew, r.start + Math.floor((run.step || 0) / r.per)) : GL.config.maxCrew;
+  }
+  // Gegner im ersten Meer stärker, wenn die Deck-Crew größer ist als die alte Bremse erlaubt hätte
+  function deckFoeMult(run) {
+    if (!run.deck || run.loop || run.endlessSea != null || islandIndex(run) > 0) return 1;
+    const r = GL.config.crewRamp, lim = rampLimit(run), n = (run.crew || []).length;
+    if (!r || run.step >= r.steps || n <= lim) return 1;
+    return 1 + GL.config.deck.foeComp * (n - lim) / lim;
+  }
+
   function crewLimit(run) {
     const base = GL.config.maxCrew + GL.effects.flags(run).crewLimit;
+    if (run.deck) return base;   // Deck-Start: keine Crew-Bremse
     // Crew-Bremse: im ersten Meer wächst die Crew langsamer (sonst ist sie nach zwei Etappen schon voll)
     const r = GL.config.crewRamp;
     if (r && run.ramp && !run.loop && run.endlessSea == null && run.step < r.steps) return Math.min(base, r.start + Math.floor(run.step / r.per));
@@ -557,6 +592,9 @@ window.GL = window.GL || {};
       });
       affixes(run, enemies);
     }
+    // Deck-Start: volle Crew im ersten Meer, also passend stärkere Gegner
+    const dm = deckFoeMult(run);
+    if (dm > 1) enemies.forEach(e => { e.max = e.hp = Math.round(e.max * dm); e.atk = Math.round(e.atk * dm); });
     return enemies;
   }
 
@@ -1051,6 +1089,15 @@ window.GL = window.GL || {};
     if (a.type === 'sea') return GL.seaRun ? GL.seaRun.act(run, a) : false;   // OFFENE SEE: segeln
     switch (run.phase) {
       case 'starter': {
+        // Deck-Start: { type: 'deck', ids: [...] } in Reihenfolge der Plätze (vorne zuerst), 'self' muss dabei sein
+        if (run.deck) {
+          if (a.type !== 'deck' || !Array.isArray(a.ids)) return false;
+          const ids = a.ids.map(String), pool = deckPool(run);
+          if (!ids.length || ids.length > GL.config.maxCrew || new Set(ids).size !== ids.length) return false;
+          if (!ids.includes('self') || ids.some(id => id !== 'self' && !pool.includes(id))) return false;
+          if (ids.reduce((s, id) => s + kw(id), 0) > run.deckBudget) return false;
+          ids.forEach(id => { const o = id === 'self' ? run.selfOffer : rollOffer(run, id); o.stars = 1; run.crew.push(makeMember(run, o)); });
+        } else {
         if (a.type !== 'pick') return false;
         const offer = run.pool[a.index];
         if (!offer) return false;
@@ -1062,9 +1109,11 @@ window.GL = window.GL || {};
           // Der Maat will auch bezahlt werden: seine Heuer kostet zwei Drittel des Startgolds
           run.gold = Math.floor((run.gold || 0) / 3);   // Heuer: zwei Drittel des Startgolds, der Rest bleibt für die erste Taverne
         } else run.crew.push(makeMember(run, offer));
+        }
         autoEquip(run);
-        run.crew[0].points += run.startPoints || 0;
-        run.captain = run.crew[0].id;
+        const capU = run.deck ? run.crew.find(u => u.id === 'self') : run.crew[0];
+        capU.points += run.startPoints || 0;
+        run.captain = capU.id;
         // Eigene Teufelsfrucht deines Piraten (im Profil ausgerüstet): wirkt wie eine gegessene Frucht
         if (run.captain === 'self' && run.start.self && run.start.self.fruit) {
           const sf = run.start.self.fruit, fd = byId(GL.data.fruits, sf.id);
@@ -1464,6 +1513,14 @@ window.GL = window.GL || {};
       const capPool = GL.config.starters.concat(run.unlocked.filter(id => byId(GL.data.crew, id) && !GL.config.starters.includes(id)));
       // Du bist immer selbst Kapitän: statt Kapitänswahl gibt es einen „Ersten Maat“ aus 3 Angeboten (kein Neu-Würfeln).
       // Ohne eigenen Piraten (z. B. Wettfahrt mit festem Kapitän, alte Spielstände) bleibt die alte Kapitänswahl.
+      // CREW-START „Das Deck“: statt Maat-Wahl die ganze Crew vor dem Ablegen aufstellen (Kampfwert-Budget)
+      if (p.self && p.deck && !p.classicCaptain) {
+        run.deck = true; run.start.deck = true;
+        run.deckBudget = deckBudget(p.rank); run.start.rank = p.rank | 0;
+        run.selfOffer = rollOffer(run, 'self');
+        run.pool = [];
+        return run;
+      }
       if (p.self && !p.classicCaptain) {
         run.mateMode = true;
         run.selfOffer = rollOffer(run, 'self');
@@ -1534,7 +1591,7 @@ window.GL = window.GL || {};
     },
 
     totalSteps,
-    crewLimit,
+    crewLimit, kw, deckBudget, deckPool,
     xpNeed,
     upgradeTotal,
 

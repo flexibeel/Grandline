@@ -57,7 +57,7 @@ GL.i18nExtraP = (GL.i18nExtraP || []).concat([
 ]);
 // Hotfix-Runde 2
 Object.assign(GL.data.en, {
-  'Ersten Maat wählen': 'Choose your first mate',
+  'Ersten Maat wählen': 'Choose your first mate', 'Crew aufstellen': 'Set up your crew',
   'Kapitän bist du selbst. Dein Maat bleibt den ganzen Run.': 'You are the captain. Your mate stays for the whole run.',
   'Kapitän bist du selbst, dein Maat bleibt den ganzen Run.': 'you are the captain, your mate stays for the whole run.',
   'Ersten Maat wählen.': 'Choose your first mate.'

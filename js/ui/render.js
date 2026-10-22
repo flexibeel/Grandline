@@ -774,7 +774,7 @@ window.GL = window.GL || {};
     const here = GL.run.chapterIsland(run);
     const island = here && run.phase !== 'course' ? here.name : GL.run.island(run).name;
     const pos = Math.min(GL.run.rowIdx(run) + 1, GL.config.chapterSteps);
-    return `${bars}${GL.worldmap ? `<button class="vy-map" data-act="worldmap" aria-label="Weltkarte" title="Weltkarte: Wie weit bin ich?">${GL.art && GL.art.prop ? GL.art.prop('karte') : '🗺'}</button>` : ''}<span class="track-loc">${island} · <b class="stop-name">${run.phase === 'course' ? 'Kurs setzen' : run.phase === 'starter' ? (run.mateMode ? 'Ersten Maat wählen' : 'Kapitän wählen') : GL.run.stopName(run)}</b>${run.phase === 'course' || run.phase === 'starter' ? '' : ` <small class="muted">(${pos}/${GL.config.chapterSteps})</small>`}</span>
+    return `${bars}${GL.worldmap ? `<button class="vy-map" data-act="worldmap" aria-label="Weltkarte" title="Weltkarte: Wie weit bin ich?">${GL.art && GL.art.prop ? GL.art.prop('karte') : '🗺'}</button>` : ''}<span class="track-loc">${island} · <b class="stop-name">${run.phase === 'course' ? 'Kurs setzen' : run.phase === 'starter' ? (run.deck ? 'Crew aufstellen' : run.mateMode ? 'Ersten Maat wählen' : 'Kapitän wählen') : GL.run.stopName(run)}</b>${run.phase === 'course' || run.phase === 'starter' ? '' : ` <small class="muted">(${pos}/${GL.config.chapterSteps})</small>`}</span>
       <span class="head-chips">
         <em class="gold-chip" data-tip="Gold für die Taverne.\nGibt es für Siege, verfällt am Run-Ende.">${GL.sprites.coin()} <b>${GL.ui.hold && run.phase === 'battle' ? GL.ui.hold.gold : run.gold || 0}</b></em>
         <em class="bounty-chip" id="bounty-chip" data-tip="Kopfgeld deines Kapitäns.\nZählt für deinen Punktestand und die Rangliste 'Höchstes Kopfgeld'. Bringt sonst nichts im Run.">${GL.sprites.icon('node', 'elite')} <b>${fmtBounty(GL.ui.hold && run.phase === 'battle' ? GL.ui.hold.bounty : run.bountyM || 0)}</b></em>${lageChip(run)}${(bd => bd ? `<em class="mood-chip build-chip b-${bd.key}" data-tip="${esc('Dein Stil: ' + bd.name + ' (' + bd.count + '× ' + bd.label + ')\n' + bd.pitch + '\n' + bd.tiers.map(x => (bd.count >= x.n ? '✓ ' : '· ') + x.n + ': ' + x.text).join('\n') + comboTip(run.crew))}">${bd.icon}<b>${esc(bd.name)}</b><small>${'★'.repeat(bd.tier)}</small>${GL.effects.combos && GL.effects.combos(run.crew).length ? '<i class="combo-dot" aria-hidden="true">✦</i>' : ''}</em>` : '')(GL.effects.build ? GL.effects.build(run.crew) : null)}${(run.streak || 0) >= 2 ? `<em class="streak-chip${run.streak >= 6 ? ' hot' : run.streak >= 3 ? ' warm' : ''}" data-tip="Kopfgeld-Serie: ${run.streak} Siege in Folge ohne K.O.\nAb 3 Siegen +1 Gold pro Sieg, ab 6 +2. Am Run-Ende Extra-Berry.\nFällt jemand, beginnt die Serie neu.">${PX_FLAME}<b>${run.streak}</b></em>` : ''}
@@ -1914,6 +1914,7 @@ window.GL = window.GL || {};
       }
 
       case 'starter': {
+        if (run.deck && GL.deck) return GL.deck.stage(run, ui);   // CREW-START: das Deck (js/ui/deck.js)
         const offered = run.pool.map(o => o.id);
         // Freigeschaltet (rotieren durch die Auswahl) und wirklich noch gesperrt: klar getrennt, nichts doppelt
         const owned = (ui.profile && ui.profile.unlocked) || [];
@@ -3754,7 +3755,7 @@ window.GL = window.GL || {};
         <section class="wk-sec"><h3>Rollen</h3><div class="wk-tri">${Object.keys(Rl).map(k => `<div class="wk-card">${pxIcon(k, 'lg')}<b>${Rl[k].name}</b><small>${{ brecher: 'Steht vorne, steckt ein', kaempfer: 'Macht den Schaden', helfer: 'Heilt und stärkt' }[k] || ''}</small></div>`).join('')}</div>
           <p>Vor jedem Kampf stellt sich die Crew <b>automatisch</b> auf: Brecher vorne, Kämpfer in der Mitte, Helfer hinten.</p></section>
         <section class="wk-sec"><h3>So läuft ein Run</h3><ol class="wk-steps">
-          <li><b>Ersten Maat wählen.</b> Kapitän bist du selbst, dein Maat bleibt den ganzen Run.</li>
+          <li><b>Crew aufstellen.</b> Kapitän bist du selbst. Stell bis zu fünf Figuren dazu an Deck, ihr Kampfwert muss ins Budget passen.</li>
           <li><b>Route segeln.</b> Kämpfe, Taverne, Schätze, Früchte, Rast.</li>
           <li><b>Crew bauen.</b> Gleiche Banden, Stile und Rollen schalten Boni frei.</li>
           <li><b>Boss besiegen.</b> Pro Meer ein Bösewicht und ein Boss. Drei Meere bis zum Ziel.</li></ol></section>
@@ -5251,7 +5252,7 @@ window.GL = window.GL || {};
       kicker: 'So läuft ein Run',
       title: 'Wählen, kämpfen, weitersegeln',
       body: `<div class="in-rows">
-        ${irow(pxIco('anchor'), 'Ersten Maat wählen', 'Kapitän bist du selbst. Dein Maat bleibt den ganzen Run.')}
+        ${irow(pxIco('anchor'), 'Crew aufstellen', 'Kapitän bist du selbst. Stell bis zu fünf Figuren dazu an Deck, ihr Kampfwert muss ins Budget passen.')}
         ${irow(GL.sprites.icon('node', 'recruit'), 'Route wählen', 'Kampf, Taverne, Schatz, Frucht oder Rast.')}
         ${irow(pxIco('swords'), 'Kämpfe laufen allein', 'Du planst, deine Crew prügelt.')}
         ${irow(GL.sprites.icon('node', 'elite'), 'Boss besiegen', 'Am Ende jeder Insel wartet ein Bösewicht.')}</div>`

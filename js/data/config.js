@@ -17,6 +17,12 @@ GL.config = {
   maxCrew: 6,
   // Crew-Bremse im ersten Meer: Etappe 1–2 höchstens 3, 3–4 höchstens 4, 5–6 höchstens 5, danach maxCrew
   crewRamp: { start: 3, per: 2, steps: 6 },
+  // CREW-START „Das Deck“: vor dem Ablegen stellt man bis zu maxCrew Figuren auf (eigener Pirat gratis auf Platz 1).
+  //   budget   = Kampfwert-Budget zum Start, perRanks = +1 je so viele Piratenränge, max = Deckel
+  //   kwMin/kwMax = Spanne des berechneten Kampfwerts (aus Leben, Angriff, Tempo), kwFix = feste Werte je Figur
+  //   foeComp  = Gegner im ersten Meer: je Figur über der alten Crew-Bremse so viel stärker (0.5 = halbe Lücke)
+  deck: { budget: 45, perRanks: 2, max: 60, kwMin: 2, kwMax: 11, foeComp: 0.5,
+    kwFix: { ruffy: 8, zorro: 8, nami: 7, lysop: 6, sanji: 8, chopper: 7, robin: 9, franky: 8, brook: 8 } },
   starters: ['ruffy', 'zorro', 'nami'],   // wählbare Kapitäne zu Beginn eines Runs
   choicesPerPick: 3,      // wie viele Optionen bei Rekrutierung/Teufelsfrucht
   captainChoices: 3,      // so viele Kapitäne stehen beim Start zur Wahl (plus dein eigener Pirat)
