@@ -8,6 +8,10 @@ Kostenloses Fanprojekt von Felix (flexibeel) und Freunden. Es gibt kein Geld dam
 - **Nicht überladen.** Die Ideen-Liste ist eine Ideensammlung, kein Bauplan. Nur umsetzen, was ausdrücklich gewünscht ist.
 - **Sparsam testen.** Ein gezielter Test statt vieler Durchläufe. Keine unnötig großen Ausgaben.
 
+## Neuer Chat
+- Zuerst `claude/FAHRPLAN.md` lesen (Stand, offene Zweige, Warteschlange). Code nur gezielt öffnen, nicht das ganze Projekt durchsuchen.
+- Am Ende des Chats `claude/FAHRPLAN.md` aktualisieren (Live-Stand, Zweige, „Letzte Übergabe“) und mitpushen.
+
 ## Git und Live-Gang
 - Jede Änderung auf einem eigenen Zweig (`feature/...` oder `fix/...`), nie direkt auf `main`.
 - `main` ist live (GitHub Pages, thegreatline.de). Auf `main` nur nach ausdrücklichem „schalte live“ von Felix.
