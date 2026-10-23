@@ -1394,6 +1394,9 @@ window.GL = window.GL || {};
     if (ev.k === 'hit' && ev.op && !ev.miss) { const a = crewData(run.crew[ev.from].id).name, n = targetName(run, 'enemy', ev.to); return EN ? `${a} uses the opening: critical hit on ${n} for ${ev.dmg}.` : `${a} nutzt die Blöße: kritisch, ${ev.dmg} Schaden an ${n}.`; }
     // /KAMPFTIEFE
     if (ev.k === 'sig') { const n = anyData(ev.by) ? anyData(ev.by).name : (EN ? 'The boss' : 'Der Boss'); return EN ? `${n} unleashes ${ev.en}${ev.strong ? ', stronger than before' : ''}! ${ev.tEn}` : `${n} entfesselt ${ev.name}${ev.strong ? ', stärker als zuvor' : ''}! ${ev.text}`; }
+    if (ev.k === 'sigprog') return '';
+    if (ev.k === 'sig-break') { const n = anyData(ev.by) ? anyData(ev.by).name : (EN ? 'The boss' : 'Der Boss'); return EN ? `Interrupted! ${n} loses ${ev.en || 'the move'} and staggers for a turn.` : `Unterbrochen! ${n} verliert ${ev.name || 'den Angriff'} aus dem Griff und taumelt einen Zug lang.`; }
+    if (ev.k === 'status' && ev.by === 'sigbreak') return '';
     if (ev.k === 'extra') { const n = targetName(run, ev.side, ev.from); return EN ? `${n} is so quick there is time for an extra move.` : `${n} ist so schnell, dass es für einen Extra-Zug reicht.`; }
     if (ev.k === 'riposte') { const a = targetName(run, ev.side, ev.from), b = targetName(run, ev.side === 'crew' ? 'enemy' : 'crew', ev.to); return EN ? `${a} parries and strikes back: ${ev.dmg} damage to ${b}.` : `${a} pariert und kontert: ${ev.dmg} Schaden an ${b}.`; }
     if (ev.k === 'wxfx') {

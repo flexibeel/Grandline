@@ -1002,6 +1002,7 @@
     if (!rcResim()) { ui.rf.cmds.pop(); return; }
     document.querySelectorAll('#field .fu-enemy.focus').forEach(x => x.classList.remove('focus'));
     const u = document.querySelector(`#field .fu-enemy[data-i="${i}"]`); if (u) u.classList.add('focus');
+    document.querySelectorAll('#field .fu-enemy .fu-sig').forEach(x => GL.arena.sigRefresh(Number(x.parentNode.dataset.i)));
   }
   document.addEventListener('click', e => {
     const u = e.target.closest && e.target.closest('#field .fu-enemy');
@@ -1021,6 +1022,7 @@
     if (!ev) { anim.done = true; GL.ui.hold = null; if (GL.sfx) GL.sfx.play(run.battle.win ? 'win' : 'lose'); draw(); if (GL.quips) { const r = run, hp = anim.crewHp.slice(); setTimeout(() => { if (run === r) GL.quips.end(r, hp); }, 120); } return; }
     // Zug-Marke: Befehlsknöpfe laden, sonst nichts zu sehen
     if (ev.k === 'turn') { if (ui.rf) ui.rf.turn = ev.t; anim.rc = anim.rc || { rally: 0, guard: 0, burst: 0 }; RUN_CMDS.forEach(k => { anim.rc[k] = (anim.rc[k] || 0) + 1; }); rcCharge(); anim.timer = setTimeout(stepAnim, 0); return; }
+    if (ev.k === 'sigprog') { GL.arena.play(ev); anim.timer = setTimeout(stepAnim, 0); return; }   // 2c-1: Balken füllt sich ohne eigene Pause
     if (ev.k === 'cmd') { GL.arena.play(ev); anim.timer = setTimeout(stepAnim, Math.max(350, 700 * (SPEEDF[anim.speed] || 0.55))); return; }
     const setHp = (side, to, hp) => { (side === 'crew' ? anim.crewHp : anim.enemyHp)[to] = hp; };
     if (ev.k === 'hit') setHp(ev.side === 'crew' ? 'enemy' : 'crew', ev.to, ev.hp);
@@ -1035,7 +1037,7 @@
     // Fähigkeiten-Hinweise etwas länger stehen lassen, damit man sie lesen kann
     // Wie bei TFT: lange Kämpfe werden mit den Runden von selbst etwas flotter
     const f = (SPEEDF[anim.speed] || 0.55) * (anim.rn >= 7 ? 0.65 : anim.rn >= 4 ? 0.82 : 1);
-    const big = ev.k === 'duo' || ev.k === 'rage' || ev.k === 'windup' || ev.heavy || ev.k === 'will' || ev.k === 'weather' || ev.k === 'wave' || ev.final || ev.k === 'sig' || (ev.k === 'plan' && (ev.big || ev.plan === 'sig')) || (ev.k === 'revive' && (ev.by === 'vivre' || ev.by === 'doc'));   // Wendepunkte bekommen immer etwas Zeit
+    const big = ev.k === 'duo' || ev.k === 'rage' || ev.k === 'windup' || ev.heavy || ev.k === 'will' || ev.k === 'weather' || ev.k === 'wave' || ev.final || ev.k === 'sig' || ev.k === 'sig-break' || (ev.k === 'plan' && (ev.big || ev.plan === 'sig')) || (ev.k === 'revive' && (ev.by === 'vivre' || ev.by === 'doc'));   // Wendepunkte bekommen immer etwas Zeit
     const wait = ev.k === 'special' ? Math.max(900, 1800 * f) : ev.k === 'ult' ? Math.max(500, SPEED.ult * f)
       : ev.k === 'revive' && ev.by === 'vivre' ? Math.max(1700, 2600 * f) : big ? Math.max(900, 1500 * f) : ev.k === 'hit' ? SPEED.normal * f * (nextQuick(ev) ? 0.6 : 1) + (ev.crit && !ev.miss ? 70 : 0) : SPEED.special * f;   // Krit: kurzer Treffer-Stopp
     anim.timer = setTimeout(stepAnim, wait);
