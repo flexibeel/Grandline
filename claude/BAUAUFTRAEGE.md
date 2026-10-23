@@ -84,3 +84,34 @@ Prüfskript (lokal, nicht im Repo): vorher ca. 80+ verdächtige Strings (viele I
 **Abnahme:** Datei existiert, alle genannten Einträge haben zwei Vorschläge, kein Vorschlag ist eine Schreibvariante oder ein Wort der Vorlage.
 **Abschluss:** Commit, `git push origin feature/texte-pruefung`, Beweis mit `git ls-remote origin feature/texte-pruefung`.
 
+---
+
+## A3c: Attacken-Namen eigene Welt (Ultis, Fähigkeiten, Boss-Signaturen)   Status: offen
+
+**Zweig:** `feature/texte-pruefung` (dort weiterarbeiten, `git pull` zuerst). Regeln: `AGENTS.md`. Ausgang: A3 und A3b sind geprüft und eingetragen.
+**Ziel:** Im Kampf sind keine Attacken- und Fruchtnamen aus der Vorlage mehr sichtbar. Das ist das Sichtbarste, was noch übrig ist (Ulti-Banner, Boss-Ansagen, Werte-Tafel).
+**Datei:** nur `js/world/neutral.js`, im Block „Ergänzungen A3“ (neuer Unterblock „Ergänzungen A3c“ unten anhängen). Keine anderen Dateien.
+
+### Was ersetzt wird, was nicht
+- **Ersetzen:** japanische und englische Original-Attacken und Fruchtnamen, also alles, was nach Vorlage klingt. Beispiele aus der Liste unten: `Kokuto: Yoru`, `Yasakani no Magatama`, `Kamusari`, `Slave Arrow`, `Death Wink`, `Okama Kenpo`, `Nose Fancy Cannon`, `Gura-Gura-Schlag`, `Gura-Gura-Beben`, `Mato-Mato-Hagel`, `Mato-Mato-Frucht`, `Mero-Mero-Frucht`, `Sube-Sube-Frucht`, `Ton-Ton-Frucht`, `Nikyu-Nikyu`, `Toge-Toge`, `Spring-Spring`, `Baku-Baku-Kanone`, `Takoyaki-Punch`, `Gyojin-Karate`, `Yakuzame`, `Muggy Ball`, `Nuki Ashi`, `Daisenso`, `Kurouzu`, `Kamazo`, `Punk Gibson`, `Age Twister`, `Ghost Rap`, `Seimei Kikan`, `Golden Away`, `Brick Bat`, `Jugon`, `Shigure`, `Ice Time`, `Massacre Soldier`, `Negative Hollows`, `Senbonzuke`, `Radikal Beam`, `Diable Jambe`, `Thunderbolt Tempo`, `Cien Fleur: Clutch`, `Clutch`, `Santoryu: Oni Giri`, `Gum-Gum-Gatling`, `Krokobiss`, `Mr`-Attacken wie `Atlas-Klinge` nur, wenn sie nach Vorlage klingen.
+- **Bleibt:** gewöhnliche deutsche Wörter (`Wolfsrudel`, `Augenschuss`, `Weißer Rauch`, `Festmahl`, `Notoperation`, `Eisenkeule` …). Im Zweifel bleiben lassen und im Bericht nennen.
+- **Eine Ersetzung gilt überall** (der Schlüssel ist der ganze Originaltext). `Fadenkäfig` und `Donnergott` kommen als Ulti, Fähigkeit und Signatur vor, ein Eintrag reicht. Nie Allerweltswörter als Schlüssel nehmen (Lehre aus `Killer` und `Dragon`).
+
+### Stil
+Lockerer deutscher Attackenname, 1 bis 3 Wörter, passt zur Figur und zu ihrem neuen Namen aus `neutral.js` (Mihawk heißt jetzt Falkenauge, Whitebeard Weißbart, Sabo Silvo, Doflamingo siehe Datei). Cozy-Ton, mit Augenzwinkern erlaubt, keine Schreibvarianten des Originals, keine Wörter der Vorlage. Früchte: Muster `…-Frucht` wie die schon vorhandenen (`Gummi-Frucht`, `Sand-Frucht`).
+
+### Ermittlung der Liste
+Alles, was `GL.world.tr` heute unverändert lässt, steht in dieser Prüfung (Node-Skript lädt `ultis.js`, `abilities.js`, `enemies.js` und `neutral.js`, schickt jeden `name` und jeden `bossSigs`-Namen durch `tr`). Baue es dir nach und prüfe damit vorher und nachher.
+Ultis (54 von 72 unersetzt), Fähigkeiten (86 von 107), Signaturen (13). Gesamtliste siehe unten, du siehst nur die markenhaften an:
+`Gum-Gum-Gatling`, `Santoryu: Oni Giri`, `Thunderbolt Tempo`, `Diable Jambe`, `Cien Fleur: Clutch`, `Radikal Beam`, `Shigure`, `Golden Away`, `Seimei Kikan`, `Okama Kenpo`, `Nose Fancy Cannon`, `Gura-Gura-Schlag`, `Kokuto: Yoru`, `Slave Arrow`, `Kamusari`, `Yasakani no Magatama`, `Yakuzame`, `Mato-Mato-Hagel`, `Brick Bat`, `Ursus Shock`, `Kurouzu`, `Muggy Ball`, `Nuki Ashi`, `Daisenso`, `Takoyaki-Punch`, `Baku-Baku-Kanone`, `Death Wink`, `Gyojin-Karate`, `Ice Time`, `Jugon`, `Punk Gibson`, `Kamazo`, `Age Twister`, `Ghost Rap`, `Tonkatsu`, `Karate-Welle`, `Mero-Mero-Frucht`, `Sube-Sube-Frucht`, `Ton-Ton-Frucht`, `Mato-Mato-Frucht`, `Nikyu-Nikyu`, `Toge-Toge`, `Spring-Spring`, `Gura-Gura-Beben`, `Massacre Soldier`, `Negative Hollows`, `Senbonzuke`, `Krokobiss`, `Hormon-Frucht`, `Alters-Frucht`, `Magnet-Frucht`, `Drachenklaue`, `Ursus-Schock`, `Vogelkäfig`, `Lichtgeschwindigkeit`, `Schattenraub`, `Energie-Steroide`, `Wüstensarg`, `Sägezahn-Sturm`.
+Höchstens **60 Einträge**. Was offen bleibt, im Bericht nennen.
+
+### Abnahme (Claude prüft danach genau das)
+1. Diff berührt nur `js/world/neutral.js` (und die Übergabe-Zeile in `claude/BAUAUFTRAEGE.md`), nichts gelöscht, bestehende Einträge unverändert.
+2. `node --check js/world/neutral.js` ok, keine doppelten Schlüssel, kein Schlüssel ist ein Allerweltswort.
+3. Claude lässt das Prüfskript laufen: keine markenhaften Namen in der obigen Liste mehr unersetzt, Stichproben von Texten wie den Ulti-Beschreibungen („Santoryu: Oni Giri“ steht auch in `text`).
+4. Neue Namen passen zum Stil, keine Schreibvarianten des Originals.
+
+### Abschluss von Grok
+Kurz: wie viele Einträge, was bewusst bleibt, was offen ist. Dann `git push origin feature/texte-pruefung` und Beweis mit `git ls-remote origin feature/texte-pruefung`.
+
