@@ -1,6 +1,10 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-23a', date: '23.10.', title: 'Ruhigere Meldungen', items: [
+    '🔔 Hinweise kommen jetzt einzeln und der Reihe nach: Es steht immer nur einer auf dem Bildschirm, und sie überholen sich nicht mehr',
+    '📖 Läuft gerade eine Story, ein Gruß oder ein Fenster, wartet der Hinweis höflich, bis es vorbei ist. Es geht keiner mehr verloren',
+    '⏱ Längere Meldungen bleiben länger stehen, damit du sie in Ruhe lesen kannst. Mehrere neue Profil-Belohnungen im Hafen erscheinen jetzt jede für sich' ] },
   { v: '2026-10-22s', date: '22.10.', title: 'Die Inselwahl als Wisch-Karten', items: [
     '🗺 Die Inselwahl ist jetzt ein Kartenstapel: Wische durch die Inseln, vorne siehst du nur Bild, Inselname und den Bösewicht, der sich vorstellt, sobald seine Karte in der Mitte liegt',
     '👆 Alles Weitere klappt auf, wenn du die Karte antippst: Orte, Fundstück, Begleiter, wogegen der Gegner schwach ist und wie du ihn knackst. Der Knopf „Kurs setzen“ folgt der Karte in der Mitte',
