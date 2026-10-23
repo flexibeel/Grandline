@@ -10404,3 +10404,22 @@ body.ult-hand .rc-ulthint { display: inline; }
 #field .fu.stagger .fu-body { animation: sigStagger .9s steps(6) 1; transform-origin: 50% 100%; }
 @keyframes sigStagger { 0% { transform: rotate(0); } 20% { transform: rotate(-9deg) translateX(-3px); } 45% { transform: rotate(7deg) translateX(2px); } 70% { transform: rotate(-4deg); } 100% { transform: rotate(0); } }
 @media (prefers-reduced-motion: reduce) { .fu-sig.nofoc em { animation: none; } .fu-sig .fs-track i { transition: none; } }
+
+/* A3 ANSAGE – Steckbrief-Zeile in der Inselwahl */
+.sig-hint {
+  display: block;
+  margin-top: .4em;
+  padding: .35em .6em;
+  border-radius: 6px;
+  background: var(--paper, #fff8e7);
+  border: 1px solid var(--ink, #3a2a1a);
+  font-size: .92em;
+  line-height: 1.35;
+}
+.sig-hint b { color: var(--accent, #c45c26); }
+.sig-hint .sig-break { display: block; margin-top: .15em; opacity: .85; font-style: italic; }
+.dark .sig-hint, [data-theme="dark"] .sig-hint {
+  background: #2a2218;
+  border-color: #6a5a4a;
+  color: #f0e6d6;
+}

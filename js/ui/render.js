@@ -1656,6 +1656,20 @@ window.GL = window.GL || {};
     if (second.name === T[counter].build) second = { icon: Ro.helfer.icon, name: Ro.helfer.build, why: 'hält länger durch' };
     return { counter, html: `<span class="crack"><b>So knackst du ihn:</b> <i>${T[counter].icon} <span>${esc(T[counter].build)}</span></i> <span>(${esc(T[counter].name)} ×2 Schaden) ·</span> <i>${second.icon} <span>${esc(second.name)}</span></i> <span>${esc(second.why)}</span></span>` };
   }
+
+  function sigHint(foe) {
+    if (!foe || !GL.data.bossSigs || !GL.data.bossSigs[foe.id]) return '';
+    const S = GL.data.bossSigs[foe.id];
+    const en = GL.i18n && GL.i18n.lang && GL.i18n.lang() === 'en';
+    const p = Math.round((GL.config.sig && GL.config.sig.breakPct || 0.15) * 100);
+    const name = esc(en ? (S.en || S.name) : S.name);
+    const text = esc(en ? (S.tEn || S.t) : S.t);
+    const head = en ? `✦ Signature move: ${name}` : `✦ Ansage: ${name}`;
+    const inter = en
+      ? `Interrupt: focus him and deal at least ${p}% damage before it goes off.`
+      : `Unterbrechen: Fokus auf ihn und mindestens ${p} % Schaden, bevor sie losgeht.`;
+    return `<span class="sig-hint"><b>${head}</b> <span>${text}</span> <span class="sig-break">${esc(inter)}</span></span>`;
+  }
   function bossInfo(boss) {
     const T = GL.data.types;
     const counter = Object.keys(T).find(k => T[k].strong === boss.type);
@@ -2009,7 +2023,7 @@ window.GL = window.GL || {};
               <span class="co-route">${isl.places.map(p => `<i>${p}</i>`).join('<em>›</em>')}<em>›</em><i class="co-lair">${isl.lair}</i></span>
               <span class="co-foe2"><span><small>schwach gegen ${badge(info.counter)}${bounty ? ` · ${bounty}` : ''}</small></span>${danger}</span>
               ${fx}
-              ${crackHint(foe).html}
+              ${crackHint(foe).html}${sigHint(foe)}
             </span></span>
             <span class="isl-tap">Antippen für Details</span>
           </button>`;

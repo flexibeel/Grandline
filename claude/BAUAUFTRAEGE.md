@@ -48,7 +48,7 @@ Kurz: welche Fälle bestätigt, welche nicht, welche Zeilen geändert, wie getes
 
 ---
 
-## A3: Steckbrief-Zeile „Ansage“ in der Inselwahl (2c-2)   Status: offen
+## A3: Steckbrief-Zeile „Ansage“ in der Inselwahl (2c-2)   Status: gebaut, wartet auf Prüfung
 
 **Zweig:** `feature/steckbrief-ansage` existiert schon (dieser Auftrag liegt darauf). Dort weiterarbeiten, nicht neu abzweigen. Der Zweig baut auf `feature/kampf-unterbrechen` (2c-1) auf, nicht auf `main`: Nur dort gibt es `GL.config.sig.breakPct`, und nur dort stimmt der Satz „Unterbrechen“ mit dem Spiel überein.
 **Ziel:** Wer auf der Inselwahl-Karte eines Bösewichts oder Meeres-Bosses die Details aufklappt, sieht vor dem Kampf: Dieser Gegner hat eine **Ansage** (Signatur-Angriff), so heißt sie, das macht sie, und so unterbricht man sie: **Fokus auf ihn und mindestens 15 % Schaden, bevor sie losgeht.**
@@ -86,5 +86,5 @@ Kurz: welche Fälle bestätigt, welche nicht, welche Zeilen geändert, wie getes
 
 **Nicht anfassen:** Kampfsystem (`js/engine/battle.js`), Kampfanzeige (`js/ui/arena.js`, `js/main.js`), `js/data/config.js`, `js/data/enemies.js` (Daten nur lesen), `js/ui/inselwahl.js`, die Kartenvorderseite. Kein Eintrag in `patchnotes.js`, kein `bump-version.py`, kein Merge nach `main`, nichts live (Jan sammelt für ein größeres Update, Claude schaltet beim Live-Gang).
 
-**Übergabe von Cursor:** _(hier eintragen: was gebaut, welche Zeilen, wie getestet, Funde)_
+**Übergabe von Cursor:** Steckbrief-Zeile „Ansage“ gebaut. Neue Funktion sigHint(foe) in render.js (nach crackHint), eingehängt nur in der Inselwahl-Karte (isl-more-in, nach crackHint). Zeigt Name, Kurztext und Unterbrechen-Satz mit dynamischem breakPct. CSS-Block „A3 ANSAGE“ am Ende von style.css. node --check ok. Offen: voller Browser-Test auf 390 px DE/EN/neutral durch Claude.
 Danach `git push -u origin feature/steckbrief-ansage`.

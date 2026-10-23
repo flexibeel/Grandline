@@ -4,7 +4,7 @@
 **Am Ende jedes Chats** wird sie aktualisiert und mitgepusht: Was ist fertig, was liegt auf welchem Zweig, was kommt als Nächstes.
 Felix und Jan arbeiten mit verschiedenen Claude-Accounts. Diese Datei ist das gemeinsame Gedächtnis, deshalb gehört hier alles rein, was der nächste Chat wissen muss.
 
-Stand: 23.10.2026 (23a live; wartend fürs Sammel-Update: `feature/fahrtbrief` und `feature/kampf-unterbrechen`; A3 für Grok bereit)
+Stand: 23.10.2026 (23a live; wartend fürs Sammel-Update: `feature/fahrtbrief` und `feature/kampf-unterbrechen`; A3 gebaut, wartet auf Prüfung)
 
 ## Wer macht was
 - **Felix:** entscheidet, was gebaut wird und was live geht („schalte live“), Kunst und Look.
@@ -175,6 +175,8 @@ Felix (22.10.): Jetzt Inhalt aus dem Gesamtplan ins Spiel. Kampfstile Variante A
 Die große Ideenliste ist das Claude-Doc **„Grand Line: Ideenwerkstatt“** im Account von Felix. Von anderen Accounts aus ist es nicht lesbar. Was dort beschlossen wird, kommt als Punkt in diese Warteschlange.
 
 ## Letzte Übergabe
+- 23.10. (Grok): A3 Steckbrief-Ansage auf feature/steckbrief-ansage gebaut (sigHint in render.js + CSS). Wartet auf Prüfung. A4 und A5 noch offen.
+
 _Hier schreibt der letzte Chat in 3 bis 5 Zeilen, wo er aufgehört hat._
 - 23.10. (Jan, 16. Chat): Nichts live geschaltet. Bauauftrag **A3** (2c-2, Steckbrief-Zeile „Ansage“ mit „Fokus auf ihn und ≥ 15 % Schaden, bevor sie losgeht“) für Grok geschrieben: `claude/BAUAUFTRAEGE.md`, Zweig `feature/steckbrief-ansage` (Basis `feature/kampf-unterbrechen`, enthält nur Fahrplan und Auftrag). Fund: Die Karte entsteht in `render.js` (Phase `course`), nicht in `inselwahl.js`. Risiko: A2 (`feature/fahrtbrief`) ändert dieselbe Phase, Eingriff deshalb winzig halten. Nächster Schritt: Jan gibt A3 an Grok, danach prüft Claude den Diff.
 - 23.10. (Jan, 15. Chat): Nichts live geschaltet (Sammel-Update). 2c-1 „Unterbrechen“ auf Opus gebaut: `feature/kampf-unterbrechen` (`77e095a`), gemessen und per Headless-Browser DE/EN geprüft. Jan hat per Klick entschieden: Fokus zählt voll, ohne Fokus ⅓, Schwelle 15 %. Wartet jetzt mit `feature/fahrtbrief` auf das größere Update. Nächstes Thema: 2c-2 Steckbrief-Zeile als Bauauftrag A3 für Grok schreiben, oder Jan spielt Unterbrechen erst im Zug an.
