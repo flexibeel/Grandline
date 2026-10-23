@@ -161,10 +161,37 @@ Felix (22.10.): Jetzt Inhalt aus dem Gesamtplan ins Spiel. Kampfstile Variante A
 7. Aus der Ideenwerkstatt („Ja, machen wir“): Piratin fertig, Look-Inventur, Kampfszenen lebendiger, Kämpfer-Auswahl entschlacken, Performance
 8. **Kampf-Durchblick Teil B, größeres Kampffeld mit Fahrtband** (Jan, 22.10.: nichts komplett Neues jetzt, hinten anhängen). Skizze und Maße stehen bei Punkt 1b (Feld ~60 % der Höhe, Figuren ~1,5×, Kämpfer-Karten als Leiste, Fahrtband oben). Die Skizze liegt nur im 11. Chat vor, bei Bedarf neu zeichnen. Noch nichts gebaut, vor dem Bauen Felix' Okay zur Skizze, Opus.
 
+9. **Idee 1 (Jan, 23.10.): Alles ersetzen, eigenes Piratenuniversum** in Wellen (Inseln, Gegner, Figuren), Vorschlag steht unter „Vorschläge von Jan“, wartet auf Felix' Okay und Weltbau-Dokument.
+10. **Idee 2 (Jan, 23.10.): Hafen als Mittelpunkt, Exkursionen mit wechselnden Teams**, Vorschlag mit Skizze unter „Vorschläge von Jan“, wartet auf Felix' Okay. Schritt 1 (Hafen ordnen) ist klein.
+
 Die große Ideenliste ist das Claude-Doc **„Grand Line: Ideenwerkstatt“** im Account von Felix. Von anderen Accounts aus ist es nicht lesbar. Was dort beschlossen wird, kommt als Punkt in diese Warteschlange.
+
+## Vorschläge von Jan, 23.10. (Idee 1 und 2), noch nichts gebaut
+Beide kamen von Jan, Entscheidung liegt bei Felix. Jan hat per Klick gewählt: **Idee 1 „alles ersetzen“**, **Idee 2 „erst Vorschlag mit Skizze“**.
+
+### Idee 1: Nur noch eigenes Piratenuniversum, alles ersetzen
+- **Stand:** Die eigene Welt ist nur eine Ersetzungsschicht (`js/world/neutral.js`, 161 Zeilen: Spiel-Logik und ids bleiben, Texte werden übersetzt). Darunter stecken noch die Vorlagen: 65 Figuren (`crew.js`), 53 Inseln-Einträge (`islands.js`), 35 Gegner (`enemies.js`), 14 Boss-Ansagen (`bossSigs`), Formen, Früchte, Geschichten, Duos und Kombos. Neue Inhalte sind dadurch an die Vorlagen gebunden.
+- **Vorschlag:** In **Wellen** ersetzen, die Quelle selbst (nicht mehr über `neutral.js`), jede Welle live spielbar, Spielstände bleiben über die ids gültig:
+  1. Regeln festlegen (Felix): Weltbau auf einer Seite (Meere, Inseln, Fraktionen, Ton), Namensschema, Look-Regeln. Ab sofort **alles Neue nur original**.
+  2. Welle A: Inseln und Meere samt Texten (`islands.js`, Geschichten), niedrigstes Risiko, sieht man sofort.
+  3. Welle B: Gegner und Bosse samt Ansagen (`enemies.js`, `bossSigs`, Fähigkeiten-Namen).
+  4. Welle C: die 65 Figuren (Namen, Looks, Formen, Duos). Das ist der große Teil und **Felix' Kunst** (Pixel-Looks, Opus), pro Insel-Gruppe ein Paket.
+  5. Danach `neutral.js` abbauen, `config.world` und `?welt=` entfallen.
+- **Entscheidung Felix:** Ein Okay zum Umfang (Welle für Welle, ohne Zeitdruck?) und das Weltbau-Dokument. Ohne das wird es kein stimmiges Universum, sondern nur Umbenennen. Text und Namen kann Sonnet nach Muster, Looks Opus.
+
+### Idee 2: Vom eigenen Piraten zum eigenen Hafen, Exkursionen mit wechselnden Teams
+- **Stand:** Der eigene Pirat (`'self'`) ist in `run.js`, `meta.js`, `deck.js`, `online.js`, `story.js`, `greet.js` und `arena.js` verankert und immer Kapitän. Kontor Teil 1, Deck (Crew aufstellen, Budget), Taverne, Figurenreise, Raid-Jagd und Vitrine gibt es schon. Piratenrang und Heat-Kopfgeld hängen am Piraten.
+- **Skizze (Zielbild):** Der Hafen ist der Mittelpunkt: **Kontor** (Beute, Vitrine, Ausbau), **Taverne** (täglich wechselnde Angebote, wer sich anheuern lässt), **Dock** (Schiff, Upgrades), **Auftragstafel** (Raids und Bosse als Exkursionen). Man bricht mit einem frisch angeheuerten Team auf, bringt Beute heim, baut den Hafen aus.
+- **Schritte (klein anfangen):**
+  1. Hafen als Startbildschirm ordnen (Kontor, Taverne, Dock, Tafel), noch **mit** dem eigenen Piraten als Kapitän. Kein neues Spielstand-Feld.
+  2. Exkursion als eigener Fahrttyp: Auftrag von der Tafel (Raid oder Boss), Team aus 3 Taverne-Angeboten gegen Heuer, Beute kommt ins Kontor.
+  3. Erst danach: der eigene Pirat wird zur wählbaren Figur statt Pflicht-Kapitän. **Das ist der riskante Teil** (Rang, Kopfgeld, Replays, Cloud-Sync). Alte Stände **migrieren, nicht löschen**, kein zweiter Neustart.
+- **Entscheidung Felix:** Soll der eigene Pirat ganz verschwinden oder als wählbare Figur bleiben? Wie viel vom heutigen Run (Insel für Insel) bleibt, wie viel wird zur Exkursion? Schritt 1 ist klein und risikoarm, 2 und 3 brauchen Opus und Felix' Okay.
+- **Abgleich:** Das ist verwandt mit 2a (Fahrtziel/Warum fahre ich los?) und dem Gesamtplan (Kopfgeld-Faden, Handelsfahrten). Nach dem Sammel-Update angehen.
 
 ## Letzte Übergabe
 _Hier schreibt der letzte Chat in 3 bis 5 Zeilen, wo er aufgehört hat._
+- 23.10. (Jan, 16. Chat, Teil 2): Jan bringt zwei Ideen: eigenes Piratenuniversum (alles ersetzen) und Hafen/Kontor mit Exkursionen statt eigenem Piraten. Beide als Vorschlag im Fahrplan (`feature/vorschlag-hafen`, nur Fahrplan), Punkte 9 und 10. Wartet auf Felix' Okay.
 - 23.10. (Jan, 14. Chat, Teil 3): Jan will erst weiterbauen und später **ein größeres Update** live schalten (kann erst im Zug zocken). `feature/fahrtbrief` (A2) geprüft, wartet. 2c Kampf mit Tiefe abgeglichen: Boss-Signaturen gibt es schon, es fehlt der Eingreif-Moment. Per Klick entschieden: **Unterbrechen** (2c-1) plus Steckbrief-Zeile (2c-2), Entwurf unter Punkt 2c. Nächster Schritt: 2c-1 bauen, **auf Opus** (Kampfsystem).
 - 23.10. (Jan, 14. Chat, Teil 2): Grok (Cursor) ist an GitHub angebunden (Test `cursor/verbindungstest` bestätigt, Autor „Grok“). A1 (Toast-Warteschlange F1 bis F5) von Grok auf `fix/freischalt-meldungen` gebaut (`1ff9a0a`), von Claude per Diff und Simulations-Test geprüft, live als 23a (Patchnote, `bump-version.py`, `node --check`, ff nach `main`). Ablauf Claude plant, Grok baut, Claude prüft und schaltet live funktioniert. Nächstes Thema: Jan/Felix wählen aus der Warteschlange (2a Run-Motivation, 2c Kampf mit Tiefe, erst Vorschlag).
 - 23.10. (Jan, 14. Chat): `feature/inselwahl-bilder` live als 22s (Patchnote, `bump-version.py`, Bündel per `node --check` geprüft, ff nach `main`). A1 (Hafen-Meldungen, Punkt 2b) noch offen: Jan nennt als Fall „mehrere gleichzeitig“. Zweig `fix/freischalt-meldungen` existiert (enthält nur `claude/BAUAUFTRAEGE.md` mit Toast-Fällen F1 bis F4, aus dem Code gelesen, nicht im Spiel bestätigt). Grok hat bisher nichts gepusht, Anbindung wird eingerichtet.
