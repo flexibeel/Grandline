@@ -702,6 +702,27 @@
         if (((profile.stats && profile.stats.runs) || 0) % 4 === 0) { ui.welcomeDue = true; ui.welcomeFrom = (GL.patchNotes[3] || {}).v; }
         profile.firstSeen = {};
       }
+
+      // A4b: +50 Berry wenn Fahrtziel in dieser Fahrt geschafft
+      if (ui.briefGoal && !run.daily && !run.duel && GL.config.goalBonus) {
+        const g = ui.briefGoal;
+        let achieved = false;
+        if (g.kind === 'fig' && g.have0 != null) {
+          const n = GL.meta.nextUnlocks(profile, 10).find(x => x.u.unlock === g.id);
+          achieved = !n || n.pr.have > g.have0; // freigeschaltet oder Fortschritt
+        } else if (g.kind === 'rank' && g.have0 != null) {
+          const rp = GL.meta.rankProgress(profile);
+          achieved = rp && rp.have > g.have0;
+        } else if (g.kind === 'quest') {
+          achieved = true; // vereinfacht
+        }
+        if (achieved) {
+          const bonus = GL.config.goalBonus || 50;
+          profile.berry = (profile.berry || 0) + bonus;
+          ui.lastBerry = (ui.lastBerry || 0) + bonus;
+          setTimeout(() => toast(`<span><b>Fahrtziel geschafft</b>+${bonus} Berry</span>`), 800);
+        }
+      }
       if (run.daily) {
         const sc = GL.run.score(run);
         profile.daily = { d: run.daily, score: sc };
@@ -762,7 +783,7 @@
     run = GL.run.create(seed >>> 0, { heat: 0 });
     run.duel = duelCode(seed);
     ui.newBest = false;
-    ui.lastBerry = null; ui.runRewards = [];
+    ui.lastBerry = null; ui.runRewards = []; ui.briefStart = null;
     saveProfile();
     GL.save.storeRun(run);
     draw();
@@ -811,7 +832,7 @@
       profile.daily = { d: day, score: null, tries: 1 };
       profile.dailyPay = (profile.dailyPay || []).concat([day]).slice(-7);
     }
-    ui.newBest = false; ui.lastBerry = null; ui.runRewards = []; ui.restartArmed = false;
+    ui.newBest = false; ui.lastBerry = null; ui.runRewards = []; ui.briefStart = null; ui.restartArmed = false;
     saveProfile();
     GL.save.storeRun(run);
     draw();
@@ -839,7 +860,7 @@
       deck: true, rank: GL.meta.rankIndex(profile)   // CREW-START: Crew vor dem Ablegen aufstellen
     });
     ui.newBest = false;
-    ui.lastBerry = null; ui.runRewards = [];
+    ui.lastBerry = null; ui.runRewards = []; ui.briefStart = null;
     ui.restartArmed = false;
     saveProfile();
     GL.save.storeRun(run);

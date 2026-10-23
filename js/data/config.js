@@ -151,6 +151,7 @@ GL.config = {
   // FIGHT: Pläne der Gegnergruppen (enemies.js foePlans): Salve (Anteil Angriff je Marine), Rausch (+Angriff je Gefallenem),
   // Biss (Blutungs-Chance), Welle (Anteil Ø-Angriff an alle), Strahl (Faktor Angriff), Untot (Leben beim Aufstehen)
   plan: { salvo: 0.45, frenzy: 0.1, bite: 0.18, wave: 0.55, beam: 1.6, undead: 0.3 },
+  goalBonus: 50,   // A4b: Berry für erreichtes Fahrtziel
   sig: { final: 1.3,   // Boss-Signatur in der Endphase: so viel stärker
     // 2c-1 Unterbrechen: Schaden am Boss bis zu seiner nächsten Aktion, gemessen an seinem Höchstleben (Endphase ×finalBreak).
     // Mit Fokus auf ihm zählt jeder Treffer voll, sonst nur noFocus. Messung 23.10. (1500 Bot-Runs): ohne Fokus ~5 %, mit Fokus ~53 % unterbrochen.

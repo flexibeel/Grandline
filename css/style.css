@@ -10423,3 +10423,76 @@ body.ult-hand .rc-ulthint { display: inline; }
   border-color: #6a5a4a;
   color: #f0e6d6;
 }
+
+/* 23b Fahrtbrief */
+.fahrtbrief {
+  margin: 6px 8px 4px;
+  padding: 6px 8px;
+  background: rgba(255, 250, 240, .92);
+  border: 2px solid #c9a46a;
+  border-radius: 8px;
+  font-size: .82rem;
+  line-height: 1.25;
+}
+.fb-kicker {
+  display: block;
+  font: 700 .72rem 'Fredoka', sans-serif;
+  color: #8a5a2a;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+.fb-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 0;
+  min-height: 28px;
+}
+.fb-row + .fb-row { border-top: 1px dashed #e0d0b0; }
+.fb-spr, .fb-ico {
+  flex: 0 0 28px;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+}
+.fb-b { flex: 1; min-width: 0; }
+.fb-b b { display: block; font-size: .85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.fb-b small { display: block; font-size: .72rem; opacity: .85; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.fb-bar {
+  display: block;
+  height: 4px;
+  background: #f0e6d0;
+  border-radius: 2px;
+  margin-top: 2px;
+  overflow: hidden;
+}
+.fb-bar i { display: block; height: 100%; background: #6a9a4a; }
+.fb-left { flex: 0 0 auto; font-size: .72rem; font-weight: 700; color: #5a3a1a; }
+
+/* Run-Ende Chip und Leuchten */
+.goal-chip {
+  margin-left: 4px;
+  padding: 1px 5px;
+  background: #6a9a4a;
+  color: #fff;
+  border-radius: 8px;
+  font-size: .7rem;
+  font-weight: 700;
+}
+.goal-up { animation: goal-glow .8s ease-out; }
+@keyframes goal-glow {
+  0% { background: #fff6c0; box-shadow: 0 0 8px #ffd060; }
+  100% { background: transparent; box-shadow: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .goal-up { animation: none; }
+}
+
+/* A4 Fahrtziel */
+.fb-row.goal-row.on { outline: 2px solid var(--accent, #c45c26); background: rgba(196, 92, 38, .08); }
+.goal-chip { font-size: .75em; padding: .1em .4em; border-radius: 4px; background: #e8f0e0; }
+.goal-end { margin: .6em 0; padding: .4em .6em; border-radius: 6px; background: var(--paper, #fff8e7); }
