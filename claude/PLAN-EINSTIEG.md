@@ -60,8 +60,27 @@ Heute dauert eine Fahrt etwa 20 Minuten (drei Meere, je zwei Inseln). Damit der 
 - Titel (`render.js` Titelbereich), Profil-Formular (`render.js` ~Z. 4340), Willkommen/Anleitung (`intro`, `render.js` ~Z. 5328), Story-Start (`js/ui/story.js`, `js/data/story.js` Kapitel 1), Seekarte (`js/ui/seekarte.js`, `js/engine/seekarte.js`), Deck (`js/ui/deck.js`), Taverne fest in Reihe 1 bis 3 (`genChart` in `run.js`), Coach (Nami/Nela), Freischaltungen (`features.js`, neue Einträge für Fahrt-Systeme), Weltgedächtnis (F0).
 - Risiko: Der Einstieg ist der Teil, den jeder neue Spieler sieht. Unbedingt mit frischem Spieler, Rückkehrer und „Neustart für alle“-Spieler prüfen. Alte Stände dürfen nichts verlieren (wer Deck schon kennt, behält es).
 
-## 5. Offene Fragen (nächste Klick-Runde)
-1. Wie lang ist die erste Fahrt: (a) nur bis zum ersten Bösewicht, oder (b) voll?
-2. Wie entsteht der eigene Pirat: Name im Gespräch und Aussehen später, oder doch vorher kurz gestalten?
-3. Ist die Seekarte mit Nebel schon in der ersten Fahrt der Ort, an dem man den Kurs setzt?
-4. Welche der Fahrt-Systeme dürfen später kommen (Deck, Synergie-Chips, Taverne, Fahrtziel)?
+## 5. Entscheidungen der Klick-Runde (23.10., Jan)
+1. **Die erste Fahrt geht nur bis zum ersten Bösewicht** (rund 8 Minuten), dann Heimkehr mit Fest. Ab Fahrt 2 normale Fahrten. Abschnitt 3 ist damit entschieden: Weg (a).
+2. **Der Pirat wird mitten in der Szene gestaltet** (nicht wie empfohlen „Aussehen später“): Die Crew steht am Steg und schaut dich an, Rafe fragt nach deinem Namen, Nela mustert dich („Mit dem Hut willst du zur See?“), und du wählst **im Gespräch** Hut und Farbe als Antwort-Knöpfe mit kleiner Vorschau deiner Figur auf der Bühne. Die Werte (❤ ⚔ ➤) sind dabei nicht zu sehen. Ausführlich gestalten bleibt beim Kapitän möglich.
+3. **Ja: Schon in der ersten Fahrt setzt man den Kurs auf der Seekarte mit Nebel**, indem man ein Gerücht im Nebel antippt. Die Wisch-Karten der Inselwahl (22s) kommen danach, wenn man mehrere Inseln kennt, oder werden zur Detailansicht eines Gerüchts.
+4. **Später kommen nur: Deck mit Kampfwert und die Synergie-Chips.** **Taverne und Fahrtziel bleiben ab Fahrt 1.**
+   - **Folge für das Fahrtziel:** Es wird heute auf dem Deck gewählt (`deck.js`, `briefHtml`). Fällt das Deck in Fahrt 1 weg, zieht die Wahl des Fahrtziels **auf die Seekarte**, neben „Kurs setzen“ (bei der ersten Fahrt eine einzige Zeile, z. B. „🎯 Finde den ersten Bösewicht“).
+   - **Taverne in Fahrt 1:** bleibt fest in Reihe 1 bis 3. Da die erste Fahrt kürzer ist, kommt sie dann sicher vor dem Bösewicht. Für Neulinge die Ansicht vereinfachen: ohne Synergie-Chips (die kommen ja später).
+
+### Angepasste Minuten-Tabelle (nach den Antworten)
+| Minute | Was passiert |
+|---|---|
+| 0 | Titel als lebende Szene, ein Knopf „Neues Spiel“ |
+| 0,5 bis 1,5 | Story am Steg: Rafe fragt, du antwortest per Wahl (erste Folge), **gestaltest im Gespräch Hut und Farbe**, nennst deinen Namen |
+| 2 | Seekarte im Nebel: Gerücht antippen = Kurs, darunter das Fahrtziel in einer Zeile |
+| 2,5 | Ablegen ohne Deck, feste erste Crew |
+| 3 | Flaschenpost Teil 1 mit Siegel „⚓ Das wird man sich merken“ |
+| 3,5 | Taverne, vereinfacht (ohne Synergie-Chips) |
+| 4 bis 5 | Kampf mit einem Eingriff: Fokus, „Unterbrochen!“ |
+| 6 | Kapitän Korken kommt (Kuchen oder Kanone) |
+| 7 | Bösewicht, danach die erste Insel-Wahl (befreien oder plündern) |
+| 8 | **Heimkehr mit Fest**: Seekarte zeigt Aufgedecktes und den befreiten Ort, Story Kapitel 2 (erste Rezeptseite) |
+| 9 bis 10 | Hafen mit Dock und Taverne offen, die anderen Gebäude mit Fensterläden |
+
+Nächster Schritt in der Planung: ein **Storyboard** dieser 10 Minuten als Bild-Board (wie das Board der Bekannten), damit Felix den Ablauf sieht und abnicken kann.
