@@ -205,12 +205,39 @@ Felix (22.10.): Jetzt Inhalt aus dem Gesamtplan ins Spiel. Kampfstile Variante A
 7. Aus der Ideenwerkstatt („Ja, machen wir“): Piratin fertig, Look-Inventur, Kampfszenen lebendiger, Kämpfer-Auswahl entschlacken, Performance
 8. **Kampf-Durchblick Teil B, größeres Kampffeld mit Fahrtband** (Jan, 22.10.: nichts komplett Neues jetzt, hinten anhängen). Skizze und Maße stehen bei Punkt 1b (Feld ~60 % der Höhe, Figuren ~1,5×, Kämpfer-Karten als Leiste, Fahrtband oben). Die Skizze liegt nur im 11. Chat vor, bei Bedarf neu zeichnen. Noch nichts gebaut, vor dem Bauen Felix' Okay zur Skizze, Opus.
 
+9. **Idee 1 (Jan, 23.10.): Alles ersetzen, eigenes Piratenuniversum** in Wellen (Inseln, Gegner, Figuren), Vorschlag steht unter „Vorschläge von Jan“, **Felix' Okay 23.10. (per Klick): erst ein Weltbau-Dokument** (eine Seite: Meere, Inseln, Fraktionen, Ton, Namensschema, sollte Sonnet schreiben, Felix liest und ergänzt), danach Wellen A bis C. Noch nichts gebaut.
+10. **Idee 2 (Jan, 23.10.): Hafen als Mittelpunkt, Exkursionen mit wechselnden Teams**, Vorschlag mit Skizze unter „Vorschläge von Jan“, **Felix' Okay 23.10. (per Klick) für Schritt 1: Hafen ordnen** (Startbildschirm Kontor, Taverne, Dock, Auftragstafel, eigener Pirat bleibt vorerst Kapitän, kein neues Spielstand-Feld, Opus, erst kurze Skizze zeigen). Schritte 2 und 3 brauchen später ein eigenes Okay.
+
 Die große Ideenliste ist das Claude-Doc **„Grand Line: Ideenwerkstatt“** im Account von Felix. Von anderen Accounts aus ist es nicht lesbar. Was dort beschlossen wird, kommt als Punkt in diese Warteschlange.
+
+## Vorschläge von Jan, 23.10. (Idee 1 und 2), noch nichts gebaut
+Beide kamen von Jan, Entscheidung liegt bei Felix. Jan hat per Klick gewählt: **Idee 1 „alles ersetzen“**, **Idee 2 „erst Vorschlag mit Skizze“**.
+
+### Idee 1: Nur noch eigenes Piratenuniversum, alles ersetzen
+- **Stand:** Die eigene Welt ist nur eine Ersetzungsschicht (`js/world/neutral.js`, 161 Zeilen: Spiel-Logik und ids bleiben, Texte werden übersetzt). Darunter stecken noch die Vorlagen: 65 Figuren (`crew.js`), 53 Inseln-Einträge (`islands.js`), 35 Gegner (`enemies.js`), 14 Boss-Ansagen (`bossSigs`), Formen, Früchte, Geschichten, Duos und Kombos. Neue Inhalte sind dadurch an die Vorlagen gebunden.
+- **Vorschlag:** In **Wellen** ersetzen, die Quelle selbst (nicht mehr über `neutral.js`), jede Welle live spielbar, Spielstände bleiben über die ids gültig:
+  1. Regeln festlegen (Felix): Weltbau auf einer Seite (Meere, Inseln, Fraktionen, Ton), Namensschema, Look-Regeln. Ab sofort **alles Neue nur original**.
+  2. Welle A: Inseln und Meere samt Texten (`islands.js`, Geschichten), niedrigstes Risiko, sieht man sofort.
+  3. Welle B: Gegner und Bosse samt Ansagen (`enemies.js`, `bossSigs`, Fähigkeiten-Namen).
+  4. Welle C: die 65 Figuren (Namen, Looks, Formen, Duos). Das ist der große Teil und **Felix' Kunst** (Pixel-Looks, Opus), pro Insel-Gruppe ein Paket.
+  5. Danach `neutral.js` abbauen, `config.world` und `?welt=` entfallen.
+- **Entscheidung Felix:** Ein Okay zum Umfang (Welle für Welle, ohne Zeitdruck?) und das Weltbau-Dokument. Ohne das wird es kein stimmiges Universum, sondern nur Umbenennen. Text und Namen kann Sonnet nach Muster, Looks Opus.
+
+### Idee 2: Vom eigenen Piraten zum eigenen Hafen, Exkursionen mit wechselnden Teams
+- **Stand:** Der eigene Pirat (`'self'`) ist in `run.js`, `meta.js`, `deck.js`, `online.js`, `story.js`, `greet.js` und `arena.js` verankert und immer Kapitän. Kontor Teil 1, Deck (Crew aufstellen, Budget), Taverne, Figurenreise, Raid-Jagd und Vitrine gibt es schon. Piratenrang und Heat-Kopfgeld hängen am Piraten.
+- **Skizze (Zielbild):** Der Hafen ist der Mittelpunkt: **Kontor** (Beute, Vitrine, Ausbau), **Taverne** (täglich wechselnde Angebote, wer sich anheuern lässt), **Dock** (Schiff, Upgrades), **Auftragstafel** (Raids und Bosse als Exkursionen). Man bricht mit einem frisch angeheuerten Team auf, bringt Beute heim, baut den Hafen aus.
+- **Schritte (klein anfangen):**
+  1. Hafen als Startbildschirm ordnen (Kontor, Taverne, Dock, Tafel), noch **mit** dem eigenen Piraten als Kapitän. Kein neues Spielstand-Feld.
+  2. Exkursion als eigener Fahrttyp: Auftrag von der Tafel (Raid oder Boss), Team aus 3 Taverne-Angeboten gegen Heuer, Beute kommt ins Kontor.
+  3. Erst danach: der eigene Pirat wird zur wählbaren Figur statt Pflicht-Kapitän. **Das ist der riskante Teil** (Rang, Kopfgeld, Replays, Cloud-Sync). Alte Stände **migrieren, nicht löschen**, kein zweiter Neustart.
+- **Entscheidung Felix:** Soll der eigene Pirat ganz verschwinden oder als wählbare Figur bleiben? Wie viel vom heutigen Run (Insel für Insel) bleibt, wie viel wird zur Exkursion? Schritt 1 ist klein und risikoarm, 2 und 3 brauchen Opus und Felix' Okay.
+- **Abgleich:** Das ist verwandt mit 2a (Fahrtziel/Warum fahre ich los?) und dem Gesamtplan (Kopfgeld-Faden, Handelsfahrten). Nach dem Sammel-Update angehen.
 
 ## Letzte Übergabe
 - 23.10. (Grok): A3 Steckbrief-Ansage auf feature/steckbrief-ansage gebaut (sigHint in render.js + CSS). Wartet auf Prüfung. A4 und A5 noch offen.
 
 _Hier schreibt der letzte Chat in 3 bis 5 Zeilen, wo er aufgehört hat._
+- 23.10. (Jan, 16. Chat, Teil 2): Jan bringt zwei Ideen: eigenes Piratenuniversum (alles ersetzen) und Hafen/Kontor mit Exkursionen statt eigenem Piraten. Beide als Vorschlag im Fahrplan (`feature/vorschlag-hafen`, nur Fahrplan), Punkte 9 und 10. Felix (am Handy von Jan) hat per Klick entschieden: Idee 1 erst Weltbau-Dokument, Idee 2 Schritt 1 freigegeben, Grok baut als Nächstes A3, A4, A5. Idee 2 Schritt 1 läuft **nach** Groks Aufträgen, nichts davon gebaut.
 - 23.10. (Jan, 16. Chat): Nichts live geschaltet. Bauauftrag **A3** (2c-2, Steckbrief-Zeile „Ansage“ mit „Fokus auf ihn und ≥ 15 % Schaden, bevor sie losgeht“) für Grok geschrieben: `claude/BAUAUFTRAEGE.md`, Zweig `feature/steckbrief-ansage` (Basis `feature/kampf-unterbrechen`, enthält nur Fahrplan und Auftrag). Fund: Die Karte entsteht in `render.js` (Phase `course`), nicht in `inselwahl.js`. Risiko: A2 (`feature/fahrtbrief`) ändert dieselbe Phase, Eingriff deshalb winzig halten. Nächster Schritt: Jan gibt A3 an Grok, danach prüft Claude den Diff.
 - 23.10. (Jan, 15. Chat): Nichts live geschaltet (A2, 2c-1 und A3 warten auf das Sammel-Update). **A3 von Grok noch nicht geliefert** (`feature/steckbrief-ansage` endet auf Claudes Auftrags-Commit `3e2962c`, „Übergabe von Cursor“ leer), also nichts zu prüfen. 2a gewählt: Vorschlag „Ziel setzen“, Jan per Klick **mit Bonus**. Auftrag A4 auf `feature/fahrtziel` geschrieben (A4a und A4b bauen: feste +50 Berry, nach `finishRun`, nicht in der Engine). **Felix hat A4b am 23.10. zugestimmt.** Nächster Schritt: Grok baut A4 komplett, Claude prüft. Alternativ 2d Offline-Modus (Fund: Supabase-CDN und Google Fonts müssen mit in den Zwischenspeicher).
 - 23.10. (Jan, 15. Chat): Nichts live geschaltet (Sammel-Update). 2c-1 „Unterbrechen“ auf Opus gebaut: `feature/kampf-unterbrechen` (`77e095a`), gemessen und per Headless-Browser DE/EN geprüft. Jan hat per Klick entschieden: Fokus zählt voll, ohne Fokus ⅓, Schwelle 15 %. Wartet jetzt mit `feature/fahrtbrief` auf das größere Update. Nächstes Thema: 2c-2 Steckbrief-Zeile als Bauauftrag A3 für Grok schreiben, oder Jan spielt Unterbrechen erst im Zug an.
