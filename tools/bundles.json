@@ -125,6 +125,7 @@
   "js/ui/sfx.js",
   "js/ui/story.js",
   "js/ui/greet.js",
-  "js/main.js"
+  "js/main.js",
+  "js/ui/inselwahl.js"
  ]
 }
