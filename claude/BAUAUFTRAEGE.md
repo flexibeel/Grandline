@@ -45,3 +45,30 @@ Fix: Überall höchstens **1** Toast gleichzeitig (`inRun() ? 1 : 2` wird zu `1`
 
 ### Abschluss von Grok
 Kurz: welche Fälle bestätigt, welche nicht, welche Zeilen geändert, wie getestet. Dann `git push -u origin fix/freischalt-meldungen`.
+
+---
+
+## A3: Texte-Prüfung: eigene Welt und Englisch (Punkt 7b)   Status: offen
+
+**Zweig:** `feature/texte-pruefung` (von `main`, existiert schon mit diesem Auftrag, dort weiterarbeiten). Regeln: `AGENTS.md`.
+**Ziel:** Im Spiel ist **kein Original-Name aus der Vorlage** sichtbar (Figuren, Attacken, Orte, Früchte, Schiffe, Titel), weder auf Deutsch noch auf Englisch, und im Englischen steht möglichst **kein deutscher Text** auf den Hauptbildschirmen. Entscheidung Jan, 23.10. Vorbereitung für die Veröffentlichung (`config.world: 'neutral'`).
+**Dateien:** `js/world/neutral.js` (Ersetzungsliste, hier kommen fehlende Einträge hin), `js/ui/i18n.js` und `js/data/en*.js` (Englisch). Zu prüfende Daten: `js/data/*.js`, besonders `crew.js`, `ultis.js`, `abilities.js`, `enemies.js` (auch `bossSigs`), `islands.js`, `fruits.js`, `shipparts.js`, `story.js`, `events*.js`, `cosmetics.js`, `badges.js`.
+
+### Weg
+1. **Prüfskript** (Node, liegt **nicht** im Repo): lädt die Daten und `neutral.js`, schickt jeden sichtbaren Namen und Text (Felder `name`, `text`, `t`, `desc`, `title`, Listen `[de, en]`) durch `GL.world.tr` und listet alles, was danach noch wie ein Original-Name aussieht. Du kennst die Vorlage, nutze dein Wissen für die Suche. Vorher und nachher zählen.
+2. **Eigene Welt:** Fehlende Namen in `neutral.js` ergänzen, im bestehenden Muster (Original → neuer Name, Deutsch und Englisch, falls das Muster beides hat). Neue Namen passen zum lockeren Cozy-Ton und klingen nicht selbst wie ein Markenname.
+3. **Englisch:** Mit `index.html?welt=neutral` auf Englisch die Bildschirme Titel, Hafen, Kontor, Inselwahl, Deck, Kampf, Run-Ende auf Handy-Breite (390 px) ansehen. Deutsche Reste auflisten und, wo ein Wörterbucheintrag fehlt, die englische Übersetzung nachtragen (Muster der vorhandenen Einträge, Ton locker und witzig). Aus dem Fund unter 22q: `GL.i18n.t` holt im Englischen teils Original-Namen zurück. Findest du die Ursache, **nur melden**, nicht umbauen.
+4. Höchstens **60 Einträge** pro Durchgang, im Bericht auflisten, was noch offen ist.
+
+### Fallen
+Nur Texte und Namen ändern, **keine Logik**, keine IDs (`id:`-Werte, Datenschlüssel) umbenennen (bricht Spielstände und Replays). Bestehende Einträge nicht ändern, nur ergänzen. Dateien bleiben gültiges JS (`node --check`). Platzhalter wie `{n}` unverändert lassen.
+
+### Abnahme (Claude prüft danach genau das)
+1. Diff berührt nur `js/world/neutral.js`, `js/ui/i18n.js`, `js/data/en*.js` (und `claude/FAHRPLAN.md` für die Übergabe), keine IDs geändert, nichts gelöscht.
+2. Prüfskript meldet keine Original-Namen mehr oder nennt eine Rest-Liste mit Grund. Stichproben von Claude im Browser auf 390 px.
+3. In Englisch auf den genannten Bildschirmen höchstens vereinzelt deutsche Reste, aufgelistet.
+4. `node --check` auf `neutral.js`, `i18n.js` und jede geänderte `en*.js`. Konsole ohne Fehler. Kein Spielverhalten geändert.
+5. Kein Patchnote, kein `bump-version.py`, kein Merge nach `main`.
+
+### Abschluss von Grok
+Kurz: vorher/nachher-Zahlen, wie viele Einträge ergänzt, was offen bleibt, Fund zu `GL.i18n.t`. Dann `git push -u origin feature/texte-pruefung`.
