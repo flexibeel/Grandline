@@ -65,6 +65,63 @@ window.GL = window.GL || {};
     </button>`;
   }
 
+
+  // Fahrtbrief: warum lohnt sich diese Fahrt? Höchstens 3 Zeilen.
+  function briefHtml(profile) {
+    if (!profile || !GL.meta) return '';
+    const lines = [];
+    // (a) nächste Figur
+    const next = GL.meta.nextUnlocks(profile, 1);
+    if (next.length) {
+      const { u, pr } = next[0];
+      const d = crewData(u.unlock);
+      const pct = Math.round(100 * pr.have / Math.max(1, pr.need));
+      const tip = esc(u.text);
+      lines.push(`<div class="fb-row" data-tip="${tip}" tabindex="0">
+        <i class="fb-spr">${GL.sprites.render(d)}</i>
+        <span class="fb-b"><b>${esc(d.name)}</b><small>${esc(u.text)}</small>
+          <span class="fb-bar"><i style="width:${pct}%"></i></span></span>
+        <em class="fb-left">${pr.have}/${pr.need}</em></div>`);
+    }
+    // (b) offener Auftrag mit dem meisten Fortschritt
+    if (GL.meta.featureOpen && GL.meta.featureOpen(profile, 'quests')) {
+      const qs = GL.meta.questsEnsure(profile);
+      let best = null, bestF = -1;
+      for (const q of qs) {
+        const pr = GL.meta.questProgress(profile, q);
+        if (pr.done) continue;
+        const f = pr.have / Math.max(1, pr.need);
+        if (f > bestF) { bestF = f; best = { q, pr }; }
+      }
+      if (best) {
+        const def = GL.meta.questDef(best.q);
+        const pct = Math.round(100 * best.pr.have / Math.max(1, best.pr.need));
+        const tip = esc(def.text || '');
+        lines.push(`<div class="fb-row" data-tip="${tip}" tabindex="0">
+          <i class="fb-ico">${def.icon || '?'}</i>
+          <span class="fb-b"><b>${en() ? 'Quest' : 'Auftrag'}</b><small>${esc(def.text || '')}</small>
+            <span class="fb-bar"><i style="width:${pct}%"></i></span></span>
+          <em class="fb-left">${best.pr.have}/${best.pr.need}</em></div>`);
+      }
+    }
+    // (c) Rang
+    const rp = GL.meta.rankProgress(profile);
+    if (rp && rp.next && rp.need > rp.have) {
+      const left = rp.need - rp.have;
+      const pct = Math.round(100 * rp.have / Math.max(1, rp.need));
+      const tip = esc(en() ? 'Victories and long voyages give rank XP.' : 'Siege und weite Fahrten bringen Rang-EP.');
+      const name = esc(rp.next.name);
+      lines.push(`<div class="fb-row" data-tip="${tip}" tabindex="0">
+        <i class="fb-ico">⚓</i>
+        <span class="fb-b"><b>${en() ? 'Rank' : 'Rang'}</b><small>${en() ? `still ${left} rank XP until ${name}` : `noch ${left} Rang-EP bis ${name}`}</small>
+          <span class="fb-bar"><i style="width:${pct}%"></i></span></span>
+        <em class="fb-left">${left}</em></div>`);
+    }
+    if (!lines.length) return '';
+    const title = en() ? 'Your destination' : 'Dein Fahrtziel';
+    return `<div class="fahrtbrief"><span class="fb-kicker">${title}</span>${lines.slice(0, 3).join('')}</div>`;
+  }
+
   function stage(run, ui) {
     const st = state(run, ui), B = run.deckBudget, used = cost(st.slots);
     const onDeck = st.slots.filter(Boolean);
@@ -109,6 +166,7 @@ window.GL = window.GL || {};
           <span class="dk-chips">${chip('all', en() ? 'All' : 'Alle')}${Object.keys(T).map(k => chip(k, T[k].name)).join('')}</span>
         </div>
         <div class="dk-figs">${figs}</div>
+        ${briefHtml(ui.profile)}
         <div class="dk-foot">
           <span class="dk-hint">${hint}</span>
           <button class="dk-go" data-act="deck-go">${en() ? 'Set sail' : 'Ablegen'} <small>${onDeck.length}/${N()}</small></button>
@@ -162,6 +220,11 @@ window.GL = window.GL || {};
     if (type === 'deck-go') {
       const ids = st.slots.filter(Boolean);
       if (profile) { profile.lastDeck = st.slots.slice(); if (save) save(); }
+      // Schnappschuss für Run-Ende-Chips
+      ui.briefStart = {};
+      if (profile && GL.meta && GL.meta.nextUnlocks) {
+        GL.meta.nextUnlocks(profile, 5).forEach(({ u, pr }) => { ui.briefStart[u.unlock] = pr.have; });
+      }
       ui.deck = null;
       act({ type: 'deck', ids });
       return false;

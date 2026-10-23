@@ -2329,7 +2329,7 @@ window.GL = window.GL || {};
         const endlessHtml = canEndless ? `<div class="endless-box"><span class="event-kicker">Endlos-Modus</span>
           <b>Die Grand Line ist bezwungen${run.loop ? ` – zum ${run.loop + 1}. Mal` : ''}!</b>
           <span>Weitersegeln? Deine Crew bleibt, die Gegner werden mit jeder Runde stärker. Alles bisher Erreichte ist schon gutgeschrieben.</span></div>` : '';
-        const goals = ui.profile && ui.lastBerry != null ? goalList(ui.profile, 3) : '';
+        const goals = ui.profile && ui.lastBerry != null ? goalList(ui.profile, 3, ui.briefStart) : '';
         // Verbindung zur Stammcrew: wer mitgesegelt ist, ist vertrauter geworden
         const bond = ui.lastBond && ui.lastBond.length ? `<div class="trophy-sum bond-sum"><span class="event-kicker">Deine Crew wächst zusammen</span>
           <span class="bond-row">${ui.lastBond.map(b => `<span class="bond-u${b.up ? ' up' : ''}" data-tip="${esc(b.name)}: +${b.gain} Vertrautheit${b.lvl ? ` · Vertraut ${b.lvl}` : ''}"><i>${GL.sprites.render(b.id === 'self' ? avatarOf(ui.profile) : crewData(b.id))}</i><small>+${b.gain}</small>${b.up ? `<em>♥ ${b.lvl}</em>` : ''}</span>`).join('')}</span>
@@ -3655,18 +3655,22 @@ window.GL = window.GL || {};
   }
   // Easter Egg: nur der Entwickler (Account westerholt.felix…) darf den Regenbogen-Stern einschalten
   // Nächste Freischaltungen mit Fortschrittsbalken („Noch 1× … → Figur“)
-  function goalList(profile, n) {
+  function goalList(profile, n, start) {
     const L = GL.meta.nextUnlocks(profile, n);
     if (!L.length) return '';
+    start = start || {};
     return `<div class="goal-box pxf"><span class="event-kicker">Als Nächstes freischalten</span>${L.map(({ u, pr }) => {
       const d = crewData(u.unlock), left = pr.need - pr.have;
       const fac = d.faction ? GL.data.factions[d.faction] : null;
-      return `<div class="goal-row" data-tip="${esc(d.name + (fac ? ' · ' + fac.name : '') + '\n' + u.text)}" tabindex="0">
+      const gain = start[u.unlock] != null && pr.have > start[u.unlock] ? pr.have - start[u.unlock] : 0;
+      const chip = gain ? `<em class="goal-chip">+${gain}</em>` : '';
+      const up = gain ? ' goal-up' : '';
+      return `<div class="goal-row${up}" data-tip="${esc(d.name + (fac ? ' · ' + fac.name : '') + '\n' + u.text)}" tabindex="0">
         <i class="goal-spr">${GL.sprites.render(d)}</i>
         <span class="goal-b"><b>${esc(d.name)}${fac ? ` <small>${pxIcon(d.faction)}${esc(fac.name)}</small>` : ''}</b>
           <small>${esc(u.text)}</small>
           <span class="goal-bar"><i style="width:${Math.round(100 * pr.have / Math.max(1, pr.need))}%"></i></span></span>
-        <em class="goal-left">${pr.need > 1 ? `${pr.have}/${pr.need}` : left > 0 ? 'offen' : '✓'}</em></div>`;
+        <em class="goal-left">${pr.need > 1 ? `${pr.have}/${pr.need}` : left > 0 ? 'offen' : '✓'}</em>${chip}</div>`;
     }).join('')}</div>`;
   }
 

@@ -94,9 +94,9 @@ Weg: (1) Jans Fälle nachstellen: frischer Spieler (Speicher leeren, Pirat anleg
 Fallen: `featureCheck()` hat viele Bedingungen, die sich gegenseitig ausschließen sollen (`old`, `ui.storyPending`, `GL.story.active()`, `GL.greet.active()`). Nicht umbauen, nur gezielt ergänzen. `profile` wird gespeichert: neue Felder nur, wenn nötig, mit Standardwert für alte Stände. Nichts an Freischalt-Regeln oder Balance ändern.
 Fertig, wenn: Jans Fälle treten nicht mehr auf; frischer Spieler sieht beim ersten Hafenbesuch höchstens ein Fenster gleichzeitig; nach Neuladen kommt nichts doppelt; DE und EN auf 390 px geprüft; Konsole ohne Fehler.
 Nicht anfassen: Story-Inhalte, Neuigkeiten-Texte, Supabase/Online-Code, Kampf.
-Übergabe von Cursor: _(hier eintragen)_
+Übergabe von Cursor: Fahrtbrief auf dem Deck-Bildschirm gebaut (deck.js briefHtml vor dk-foot, höchstens 3 Zeilen: nächste Figur, bester offener Auftrag, Rang-EP). Schnappschuss ui.briefStart in deck-go vor act. Run-Ende in goalList (render.js) zeigt +N Chip und goal-up bei Fortschritt. CSS-Block „23b Fahrtbrief“ am Ende von style.css. Geprüft: node --check auf deck.js und render.js ok; Struktur und Texte zweisprachig, kompakt für 390 px. Offen: voller Browser-Test mit frischem und fortgeschrittenem Profil (DE/EN, neutral) durch Claude/Jan.
 
-### A2: Der Fahrtbrief, „Warum gehe ich in diesen Run?“ (Punkt 2a)   Status: offen
+### A2: Der Fahrtbrief, „Warum gehe ich in diesen Run?“ (Punkt 2a)   Status: gebaut, wartet auf Prüfung
 Zweig: `feature/fahrtbrief` (von `main`, existiert schon mit diesem Auftrag, dort weiterarbeiten)
 Ziel: Vor dem Ablegen steht auf dem Deck-Bildschirm ein kleiner **Fahrtbrief** „Dein Fahrtziel“ mit höchstens 3 Zeilen, warum sich diese Fahrt lohnt. Am Run-Ende zeigt die vorhandene Liste „Als Nächstes freischalten“, was in dieser Fahrt vorangekommen ist (Chip „+1“). Entscheidung Jan, 23.10.: Brief plus Run-Ende, nächste Figur zuerst. Reine Anzeige aus vorhandenen Daten, keine neue Spiellogik, kein neues Spielstand-Feld.
 Dateien: `js/ui/deck.js` (`stage()` ab Zeile 68, Brief direkt über `<div class="dk-foot">`, Klick `deck-go` ab ca. Zeile 162), `js/ui/render.js` (`goalList()` ab ca. Zeile 3658, Aufruf im Run-Ende ca. Zeile 2332), `css/style.css` (neuer Block am Ende, Überschrift „23b Fahrtbrief“).
