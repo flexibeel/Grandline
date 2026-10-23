@@ -52,8 +52,11 @@ Stand 23.10.2026. **Nur Plan, nichts gebaut.** Vertiefung von Säule 4A aus `cla
 - Siegel „⚓ Das wird man sich merken“ an Wahlen, die ins Gedächtnis schreiben.
 - Eigene Welt: Folgen-Texte enthalten noch Vorlagen-Namen (z. B. „Log Port“, „Loguetown“), beim Bauen durch `neutral.js` prüfen bzw. mit Weltbau-Welle A neu benennen.
 
-## 6. Offene Fragen (nächste Klick-Runde)
-1. Wie oft kommt ein Bekannter wieder: höchstens ein Wiedersehen pro Fahrt, oder öfter?
-2. Bleibt es bei einem Wiedersehen, oder darf eine Folge über viele Fahrten weiterwachsen (Teil 4, 5 …, z. B. Korken wird Crew-Mitglied)?
-3. Die Entscheidung nach dem Bösewicht: drei Wahlen wie oben, oder anders?
-4. Welche Bekannten bekommen zuerst ein Gesicht (Vorschau-Board mit Looks zum Abklicken)?
+## 6. Entscheidungen der Klick-Runde (23.10., Jan)
+1. **Höchstens ein Wiedersehen pro Fahrt.** Bleibt besonders und überlagert die neuen Folgen nicht.
+2. **Geschichten wachsen über viele Fahrten, aber nur einige Bekannte werden Crew.** Die anderen bekommen **andere feste Rollen in der Welt**, z. B. Händler, Wirt, Rivale, Auftraggeber. (Jans Antwort kam abgeschnitten an: „… es muss andere Charaktere geben, die andere Rollen im …“, so verstanden, bei Bedarf nachfragen.) Vorschlag für die Aufteilung kommt mit den Gesichtern (Abschnitt 7).
+3. **Nach dem Bösewicht: je Insel eigene Wahlen**, nicht überall dieselben drei. Befreien, Plündern und Weiterziehen aus Abschnitt 4 bleiben als Muster und Rückfall, jede Insel bekommt aber Wahlen, die zu ihrem Bösewicht passen (z. B. Zirkus: Zelt abbauen oder die Artisten anheuern). Das ist viel Text, gehört zu Weltbau-Welle A (Inseln neu), Sonnet nach Muster.
+4. **Gesichter zuerst für alle vier:** Kapitän Korken, der Leuchtturmwärter, der Kapitän des Nebelschiffs, der dankbare Händler. Vorschau-Board: siehe Abschnitt 7.
+
+## 7. Gesichter der Bekannten (Vorschau-Board)
+Board „Bekannte der Grand Line“ (Artefakt in Jans Account: claude.ai/artifact/XKAXDtAVMgnTiDcmWFyH5p): je 4 Looks A bis D, gezeichnet mit `GL.sprites.render`, die Looks stehen als `look`-Objekte im Erzeugungs-Skript (Hut, Haar, Haut, Hemd, Hose, Bart, Nase, `acc`, `facc`). Vorschlag Rollen: **Korken und Nebelkapitän können Crew werden**, **Wärter (deckt Wege auf der Seekarte auf) und Händler (Laden mit Freundschaftspreis) bekommen feste Rollen in der Welt**. Fehlt in der Engine: Größen-Option für winzige Figuren (Korken), Teekanne, Laterne, Umhang in anderer Farbe (hat fest orange Ränder). Wahl: wird ergänzt, sobald Jan und Felix abgeklickt haben.
