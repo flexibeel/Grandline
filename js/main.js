@@ -2970,3 +2970,24 @@
     setInterval(() => { if (!document.hidden) { lastSync = 0; backToApp(); } }, 180000);   // alle 3 Minuten nach Updates schauen
   }
 })();
+
+  // A5 Offline-Chip
+  function updateOfflineChip() {
+    let el = document.getElementById('offline-chip');
+    const on = navigator.onLine;
+    if (!on && !el) {
+      el = document.createElement('em');
+      el.id = 'offline-chip';
+      el.className = 'offline-chip';
+      el.textContent = '📴 Offline';
+      el.title = 'Ohne Netz: Rangliste, Konto und Duelle pausieren, dein Stand wird lokal gespeichert';
+      document.body.appendChild(el);
+    } else if (on && el) {
+      el.remove();
+      if (typeof toast === 'function') setTimeout(() => toast('<span>Wieder online, Stand wird abgeglichen</span>'), 300);
+    }
+  }
+  window.addEventListener('online', updateOfflineChip);
+  window.addEventListener('offline', updateOfflineChip);
+  updateOfflineChip();
+

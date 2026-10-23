@@ -10496,3 +10496,10 @@ body.ult-hand .rc-ulthint { display: inline; }
 .fb-row.goal-row.on { outline: 2px solid var(--accent, #c45c26); background: rgba(196, 92, 38, .08); }
 .goal-chip { font-size: .75em; padding: .1em .4em; border-radius: 4px; background: #e8f0e0; }
 .goal-end { margin: .6em 0; padding: .4em .6em; border-radius: 6px; background: var(--paper, #fff8e7); }
+
+/* A5 OFFLINE */
+.offline-chip {
+  position: fixed; top: 8px; right: 8px; z-index: 9999;
+  background: #444; color: #fff; padding: .2em .5em; border-radius: 4px;
+  font-size: .75rem; pointer-events: none;
+}

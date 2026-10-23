@@ -88,3 +88,54 @@ Kurz: welche Fälle bestätigt, welche nicht, welche Zeilen geändert, wie getes
 
 **Übergabe von Cursor:** Steckbrief-Zeile „Ansage“ gebaut. Neue Funktion sigHint(foe) in render.js (nach crackHint), eingehängt nur in der Inselwahl-Karte (isl-more-in, nach crackHint). Zeigt Name, Kurztext und Unterbrechen-Satz mit dynamischem breakPct. CSS-Block „A3 ANSAGE“ am Ende von style.css. node --check ok. Offen: voller Browser-Test auf 390 px DE/EN/neutral durch Claude.
 Danach `git push -u origin feature/steckbrief-ansage`.
+
+---
+
+## A5: Offline-Modus mit Service Worker (Punkt 2d)   Status: gebaut, wartet auf Prüfung
+
+**Zweig:** `feature/offline-modus` (von `main`, dieser Auftrag liegt schon darauf). Dort weiterarbeiten, nicht neu abzweigen.
+**Entscheidung Jan, 23.10. (per Klick):** Grok baut, Claude prüft. Umfang: offline spielbar **plus kleiner Offline-Chip**.
+**Ziel:** Jan (und alle anderen) können das Spiel im Flugzeug oder Zug spielen. Wer die Seite einmal mit Netz geöffnet hat, kann sie später ohne Netz starten und eine ganze Fahrt spielen. Zurück im Netz gleicht der vorhandene Cloud-Sync (`GL.cloudSync`, `GL.online.resync`) von selbst ab. Rangliste, Konto und Duelle scheitern ohne Netz **still**, nichts blockiert.
+**Regeln für dich:** `AGENTS.md`, erst `CLAUDE.md`. Keine Patchnote, kein `bump-version.py`-Lauf, kein Merge, nichts live (das Sammel-Update macht Claude).
+
+**Dateien:**
+- Neu: `sw.js` im Hauptordner (gleiche Ebene wie `index.html`, sonst reicht der Geltungsbereich nicht).
+- `index.html`: ein kleines Skript zum Anmelden des Service Workers, **nach** den Spiel-Bündeln, nur wenn `'serviceWorker' in navigator` und die Seite über https oder localhost läuft. Fehler abfangen, still bleiben.
+- `tools/bump-version.py`: schreibt beim Live-Gang Version und Dateiliste in `sw.js` (siehe Weg 3). **Das Skript nur erweitern, nicht ausführen.**
+- Offline-Chip: `js/main.js` (Ereignisse `online`/`offline`) und ein Block „A5 OFFLINE“ am Ende von `css/style.css`. Texte direkt im Code zweisprachig wie in `deck.js`, eigene Welt prüfen.
+
+**Weg:**
+1. **`sw.js`** mit einer Zeile `const V = '__VERSION__';` und `const FILES = [/*__FILES__*/];` (Platzhalter, die `bump-version.py` füllt; im Zweig bleiben die Platzhalter stehen, `sw.js` muss trotzdem laufen: bei Platzhalter einfach nur `./` und `index.html` merken).
+   - `install`: Cache `gl-` + `V` anlegen, `FILES` hineinlegen (`cache.addAll`, Fehler einzelner Dateien dürfen die Installation **nicht** abbrechen, also einzeln mit `Promise.allSettled`). `self.skipWaiting()`.
+   - `activate`: alle Caches mit anderem Namen als `gl-` + `V` löschen, dann `clients.claim()`.
+   - `fetch` (nur GET, nur http/https):
+     - `version.json`: **immer** Netz, nie aus dem Cache (der Versions-Check in `main.js` `backToApp` verlässt sich darauf). Ohne Netz einfach durchfallen lassen (Fehler), der Check schluckt das.
+     - Navigationen (`index.html`, `./`): **netz-zuerst**, bei Fehler die gemerkte `index.html`. Frische Antwort wieder im Cache ablegen.
+     - Eigene Dateien mit `?v=` (Bündel, CSS) und Bilder: **cache-zuerst**, sonst Netz und merken.
+     - Fremd (jsDelivr für Supabase, Google Fonts `fonts.googleapis.com` und `fonts.gstatic.com`): **stale-while-revalidate** (aus dem Cache liefern, im Hintergrund auffrischen). Schlägt beides fehl, normaler Netzfehler, **nicht** den Service Worker abstürzen lassen.
+     - Alles andere (Supabase-Projekt-Adresse für Konto, Rangliste, Duelle, Realtime): **nicht anfassen**, nicht abfangen, nicht cachen (kein `respondWith`).
+2. **Dateiliste (`FILES`)**: `./`, `index.html`, `css/style.min.css?v=<V>`, `js/build/core.min.js?v=<V>`, `js/build/en.min.js?v=<V>`, `js/build/tail.min.js?v=<V>`, `manifest.webmanifest`, `legal.html`, alle `img/*.png`. Die genauen `?v=`-URLs müssen **zeichengleich** zu denen in `index.html` sein (sonst trifft der Cache nicht). Die Schrift-CSS und das Supabase-Skript legt der Service Worker beim ersten Laden selbst ab (Punkt „Fremd“), nicht in `FILES`.
+3. **`tools/bump-version.py`**: nach dem Bündeln `sw.js` öffnen, `__VERSION__` durch die Version ersetzen und `/*__FILES__*/` durch die Liste aus Punkt 2 (am besten aus `index.html` per Suche nach `src="js/build/…"` und `href="css/style.min.css…"` gelesen, nicht von Hand). Läuft das Skript **ohne** `sw.js` im Ordner, still überspringen. Platzhalter nur ersetzen, wenn sie noch da sind (nicht bei jedem Lauf doppelt anhängen: Vorlage `sw.js` bleibt im Zweig mit Platzhaltern, im Live-Stand stehen die echten Werte, deshalb Regex auf `const V = '...'` und die Liste zwischen Markern `/*FILES*/ … /*END*/`).
+4. **Offline-Chip**: Beim Start und bei `window` `offline`/`online` prüfen (`navigator.onLine`). Offline: ein **kleiner Chip** in der Kopfzeile oder am Rand („📴 Offline“ / „Offline“, Hinweis beim Antippen als `title`: „Ohne Netz: Rangliste, Konto und Duelle pausieren, dein Stand wird lokal gespeichert“). Wieder online: Chip weg, und einmal ein leiser Toast „Wieder online, Stand wird abgeglichen“, dann übernimmt der vorhandene `resync` (nichts selbst anstoßen, `online.js` Zeile ~953 hört schon auf `online`). Nicht in der Kampf- oder Run-Hektik: Chip darf nichts verdecken, höchstens kleines Symbol am Handy (390 px).
+5. **Nicht blockieren**: Prüfe, dass ohne Netz weder ein Ladebildschirm hängen bleibt noch ein Fenster aufgeht, das nicht schließt (Start, Hafen, Fahrt starten, Fahrt beenden, Speichern). Wo `GL.online` im Offline-Fall hängt oder Fehler wirft, **nur melden** in der Übergabe, nicht umbauen.
+
+**Fallen:**
+- **Alter Zwischenspeicher nach einem Update:** Die Version steckt im Cache-Namen. Ändert sich `V`, ist `sw.js` byte-verschieden, der Browser installiert den neuen, `activate` löscht die alten Caches. Nie `V` fest eintragen oder `sw.js` selbst aus dem Cache liefern: Der Browser holt `sw.js` ohnehin am Netz, aber ein Cache davor würde Updates für immer verhindern.
+- **GitHub Pages:** Die Seite läuft unter einer eigenen Domain (`CNAME`), Wurzel `/`. Pfade im Service Worker trotzdem **relativ** (`./`, `index.html`), damit es auch lokal oder in einem Unterordner läuft.
+- **Opaque Antworten** (fremde Dateien ohne CORS) dürfen gemerkt werden, aber nur `status` 200 oder `type === 'opaque'` eintragen, keine Fehlerseiten.
+- **iPhone/Safari:** Eine App vom Home-Bildschirm hat einen **eigenen** Speicher getrennt von Safari. Das ist Sache der Spieler, steht aber in der Übergabe als Hinweis für die Patchnote.
+- `index.html` lädt die Bündel mit `document.write` für Englisch (`en.min.js`). Auch diese Datei muss in `FILES` stehen.
+- Service Worker laufen nicht über `file://`. Zum Testen: `python3 -m http.server` im Ordner, dann `http://localhost:8000`.
+
+**Fertig, wenn (Claude prüft genau das):**
+1. Diff berührt nur `sw.js` (neu), `index.html` (ein Anmelde-Skript), `tools/bump-version.py`, `js/main.js`, `css/style.css`, `claude/…`. Keine Texte in Daten, kein Supabase-Code, keine Dateien in `js/build/`.
+2. Test per lokalem Server und Headless-Browser (oder Chrome): Seite einmal online laden, Service Worker aktiv, Cache enthält alle Dateien aus `FILES`. Dann **Netz aus** (Headless: `context.set_offline(True)` bzw. DevTools „Offline“), Seite neu laden: Spiel lädt, Hafen sichtbar, eine Fahrt lässt sich starten, Konsole ohne neue Fehler außer erwarteten Netzfehlern der Online-Funktionen.
+3. Offline-Chip erscheint beim Wechsel auf offline, verschwindet beim Wechsel auf online, Toast kommt einmal. DE und EN, 390 px, Hell und Dunkel, nichts verdeckt.
+4. Versionssprung simuliert: `V` ändern, neu laden, alter Cache ist weg, neuer da. `version.json` kommt immer frisch (im Offline-Test: Fehler, Spiel läuft trotzdem).
+5. `node --check sw.js` und `node --check js/main.js` laufen durch. `python3 -c "import ast;ast.parse(open('tools/bump-version.py').read())"` läuft durch. `bump-version.py` selbst **nicht** im Zweig ausführen, aber trocken prüfen: eine **Kopie** des Ordners in `/tmp`, dort ausführen, `sw.js` hat danach Version und Liste, `index.html`-URLs und `FILES` stimmen zeichengleich.
+6. `sw.js` im Zweig bleibt eine funktionierende Vorlage (Platzhalter), Test aus 2 lief mit den echten Werten aus der Kopie.
+
+**Nicht anfassen:** Supabase/Online-Code (`js/ui/online.js`, nur lesen), Spielstand-Format (`save.js`), Kampf, Daten, `patchnotes.js`, `js/build/`, `css/style.min.css`, Zweige löschen.
+
+**Übergabe von Cursor:** sw.js Vorlage mit Platzhaltern, Registrierung in index.html, Offline-Chip in main.js (online/offline Events), CSS. bump-version.py nicht ausgeführt. node --check ok. Offen: voller Offline-Test mit lokalem Server + Headless durch Claude/Jan.
+Danach `git push -u origin feature/offline-modus`.
