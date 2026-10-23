@@ -759,7 +759,7 @@ window.GL = window.GL || {};
 
   // ---------- Kopfzeile ----------
 
-  function header(run) {
+  function header(run, ui) {
     const total = GL.run.totalSteps();
     const per = GL.config.stepsPerIsland;
     // Reiseleiste: Tau mit Etappen-Knoten, Inseln als kleine Inseln, Meeresende als Flagge, das Schiff zeigt, wo du bist
@@ -778,21 +778,13 @@ window.GL = window.GL || {};
       <span class="head-chips">
 
         ${(g => {
-          if (!g || !g.kind || run.daily || run.duel) return '';
+          if (!g || !g.kind || !run.deck || run.daily || run.duel || !GL.deck || !GL.deck.goalStatus) return '';
+          const st = GL.deck.goalStatus(ui.profile, g);
+          if (!st) return '';
           const en = GL.i18n && GL.i18n.lang && GL.i18n.lang() === 'en';
-          let label = '🎯';
-          if (g.kind === 'fig') {
-            const d = crewData(g.id);
-            label += d ? ' ' + d.name.slice(0, 8) : '';
-          } else if (g.kind === 'quest') label += en ? ' Quest' : ' Auftrag';
-          else if (g.kind === 'rank') label += en ? ' Rank' : ' Rang';
-          // progress if we have have0
-          if (g.have0 != null) {
-            // simple live progress would need meta, skip for chip size
-            label += ' …';
-          }
-          return `<em class="goal-chip" title="${esc(en ? 'Voyage goal' : 'Fahrtziel')}">${label}</em>`;
-        })(GL.ui && GL.ui.briefGoal)}
+          const prog = st.done ? '✓' : g.kind === 'rank' ? Math.round(100 * st.have / Math.max(1, st.need)) + '%' : st.have + '/' + st.need;
+          return `<em class="trip-goal${st.done ? ' ok' : ''}" data-tip="${esc((en ? 'Voyage goal: ' : 'Fahrtziel: ') + st.name)}">🎯 <b>${prog}</b></em>`;
+        })(ui && ui.briefGoal)}
         <em class="gold-chip" data-tip="Gold für die Taverne.\nGibt es für Siege, verfällt am Run-Ende.">${GL.sprites.coin()} <b>${GL.ui.hold && run.phase === 'battle' ? GL.ui.hold.gold : run.gold || 0}</b></em>
         <em class="bounty-chip" id="bounty-chip" data-tip="Kopfgeld deines Kapitäns.\nZählt für deinen Punktestand und die Rangliste 'Höchstes Kopfgeld'. Bringt sonst nichts im Run.">${GL.sprites.icon('node', 'elite')} <b>${fmtBounty(GL.ui.hold && run.phase === 'battle' ? GL.ui.hold.bounty : run.bountyM || 0)}</b></em>${lageChip(run)}${(bd => bd ? `<em class="mood-chip build-chip b-${bd.key}" data-tip="${esc('Dein Stil: ' + bd.name + ' (' + bd.count + '× ' + bd.label + ')\n' + bd.pitch + '\n' + bd.tiers.map(x => (bd.count >= x.n ? '✓ ' : '· ') + x.n + ': ' + x.text).join('\n') + comboTip(run.crew))}">${bd.icon}<b>${esc(bd.name)}</b><small>${'★'.repeat(bd.tier)}</small>${GL.effects.combos && GL.effects.combos(run.crew).length ? '<i class="combo-dot" aria-hidden="true">✦</i>' : ''}</em>` : '')(GL.effects.build ? GL.effects.build(run.crew) : null)}${(run.streak || 0) >= 2 ? `<em class="streak-chip${run.streak >= 6 ? ' hot' : run.streak >= 3 ? ' warm' : ''}" data-tip="Kopfgeld-Serie: ${run.streak} Siege in Folge ohne K.O.\nAb 3 Siegen +1 Gold pro Sieg, ab 6 +2. Am Run-Ende Extra-Berry.\nFällt jemand, beginnt die Serie neu.">${PX_FLAME}<b>${run.streak}</b></em>` : ''}
         ${run.heat ? `<em class="heat-chip">Stufe ${run.heat}</em>` : ''}
@@ -2347,28 +2339,16 @@ window.GL = window.GL || {};
           <b>Die Grand Line ist bezwungen${run.loop ? ` – zum ${run.loop + 1}. Mal` : ''}!</b>
           <span>Weitersegeln? Deine Crew bleibt, die Gegner werden mit jeder Runde stärker. Alles bisher Erreichte ist schon gutgeschrieben.</span></div>` : '';
 
-        // A4 Fahrtziel-Abrechnung
+        // A4 Fahrtziel-Abrechnung (einmal beim Run-Ende in main.js berechnet)
         const goalEnd = (() => {
-          const g = ui.briefGoal;
-          if (!g || run.daily || run.duel) return '';
+          const r = ui.goalResult;
+          if (!r) return '';
           const en = GL.i18n && GL.i18n.lang && GL.i18n.lang() === 'en';
-          let done = false, name = '';
-          if (g.kind === 'fig' && g.have0 != null) {
-            const n = GL.meta && GL.meta.nextUnlocks && GL.meta.nextUnlocks(ui.profile, 10).find(x => x.u.unlock === g.id);
-            done = n ? n.pr.have > g.have0 || n.pr.done : true; // freigeschaltet
-            const d = crewData(g.id);
-            name = d ? d.name : g.id;
-          } else if (g.kind === 'quest') {
-            name = en ? 'Quest' : 'Auftrag';
-            // simple: assume done if progress advanced enough or gone
-            done = true; // placeholder, better logic later
-          } else if (g.kind === 'rank') {
-            name = en ? 'Rank' : 'Rang';
-            const rp = GL.meta && GL.meta.rankProgress && GL.meta.rankProgress(ui.profile);
-            done = rp && g.have0 != null && rp.have > g.have0;
-          }
-          const txt = done ? (en ? `Voyage goal: ${name} done!` : `Fahrtziel: ${name} geschafft!`) : (en ? `Voyage goal: ${name}` : `Fahrtziel: ${name}`);
-          return `<div class="goal-end"><span class="event-kicker">🎯 ${txt}</span></div>`;
+          const name = esc(r.name);
+          const txt = r.done
+            ? (en ? `Voyage goal: ${name} reached! +${r.bonus} berries` : `Fahrtziel: ${name} geschafft! +${r.bonus} Berry`)
+            : (en ? `Voyage goal: ${name} not reached yet` : `Fahrtziel: ${name} noch nicht erreicht`);
+          return `<div class="goal-end${r.done ? ' ok' : ''}"><span class="event-kicker">🎯 ${txt}</span></div>`;
         })();
         const goals = (goalEnd || '') + (ui.profile && ui.lastBerry != null ? goalList(ui.profile, 3, ui.briefStart) : '');
         // Verbindung zur Stammcrew: wer mitgesegelt ist, ist vertrauter geworden
@@ -5541,7 +5521,7 @@ window.GL = window.GL || {};
           <div class="peek-body">${hq(ui.profile, ui.hqTab || 'profil', ui)}</div>`;
       }
       $('#restart').hidden = false;
-      $('#track').innerHTML = header(run);
+      $('#track').innerHTML = header(run, ui);
       const rail = run.crew.length && !['over', 'win', 'starter'].includes(run.phase) ? traitRail(run) : '';
       $('#traits').hidden = !rail;
       if ($('#traits').innerHTML !== rail) $('#traits').innerHTML = rail;

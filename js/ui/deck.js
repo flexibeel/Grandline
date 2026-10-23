@@ -66,22 +66,19 @@ window.GL = window.GL || {};
   }
 
 
-  // Fahrtbrief: warum lohnt sich diese Fahrt? Höchstens 3 Zeilen.
-  function briefHtml(profile, ui) {
-    if (!profile || !GL.meta) return '';
-    const lines = [];
+  // Fahrtbrief: warum lohnt sich diese Fahrt? Höchstens 3 Zeilen. Jede Zeile ist ein mögliches Fahrtziel (A4).
+  function briefRows(profile) {
+    const rows = [];
     // (a) nächste Figur
     const next = GL.meta.nextUnlocks(profile, 1);
     if (next.length) {
       const { u, pr } = next[0];
       const d = crewData(u.unlock);
       const pct = Math.round(100 * pr.have / Math.max(1, pr.need));
-      const tip = esc(u.text);
-      lines.push(`<div class="fb-row goal-row${ui.briefGoal && ui.briefGoal.kind==='fig' && ui.briefGoal.id===u.unlock ? ' on' : ''}" data-act="goal-set" data-kind="fig" data-id="${esc(u.unlock)}" data-tip="${tip}" tabindex="0">
-        <i class="fb-spr">${GL.sprites.render(d)}</i>
+      rows.push({ kind: 'fig', id: u.unlock, tip: u.text, html: `<i class="fb-spr">${GL.sprites.render(d)}</i>
         <span class="fb-b"><b>${esc(d.name)}</b><small>${esc(u.text)}</small>
           <span class="fb-bar"><i style="width:${pct}%"></i></span></span>
-        <em class="fb-left">${pr.have}/${pr.need}</em></div>`);
+        <em class="fb-left">${pr.have}/${pr.need}</em>` });
     }
     // (b) offener Auftrag mit dem meisten Fortschritt
     if (GL.meta.featureOpen && GL.meta.featureOpen(profile, 'quests')) {
@@ -97,12 +94,10 @@ window.GL = window.GL || {};
         const def = GL.meta.questDef(best.q);
         const qText = String(def.text || '').replace('{n}', best.q.n.toLocaleString('de-DE'));
         const pct = Math.round(100 * best.pr.have / Math.max(1, best.pr.need));
-        const tip = esc(qText);
-        lines.push(`<div class="fb-row goal-row${ui.briefGoal && ui.briefGoal.kind==='quest' && String(ui.briefGoal.id)==String(best.q.id || best.q.n) ? ' on' : ''}" data-act="goal-set" data-kind="quest" data-id="${esc(best.q.id || best.q.n)}" data-tip="${tip}" tabindex="0">
-          <i class="fb-ico">${def.icon || '?'}</i>
+        rows.push({ kind: 'quest', id: best.q.id, tip: qText, html: `<i class="fb-ico">${def.icon || '?'}</i>
           <span class="fb-b"><b>${en() ? 'Quest' : 'Auftrag'}</b><small>${esc(qText)}</small>
             <span class="fb-bar"><i style="width:${pct}%"></i></span></span>
-          <em class="fb-left">${best.pr.have}/${best.pr.need}</em></div>`);
+          <em class="fb-left">${best.pr.have}/${best.pr.need}</em>` });
       }
     }
     // (c) Rang
@@ -110,17 +105,69 @@ window.GL = window.GL || {};
     if (rp && rp.next && rp.need > rp.have) {
       const left = rp.need - rp.have;
       const pct = Math.round(100 * rp.have / Math.max(1, rp.need));
-      const tip = esc(en() ? 'Victories and long voyages give rank XP.' : 'Siege und weite Fahrten bringen Rang-EP.');
       const name = esc(rp.next.name);
-      lines.push(`<div class="fb-row goal-row${ui.briefGoal && ui.briefGoal.kind==='rank' ? ' on' : ''}" data-act="goal-set" data-kind="rank" data-id="rank" data-tip="${tip}" tabindex="0">
-        <i class="fb-ico">⚓</i>
+      rows.push({ kind: 'rank', id: 'rank', tip: en() ? 'Victories and long voyages give rank XP.' : 'Siege und weite Fahrten bringen Rang-EP.', html: `<i class="fb-ico">⚓</i>
         <span class="fb-b"><b>${en() ? 'Rank' : 'Rang'}</b><small>${en() ? `still ${left} rank XP until ${name}` : `noch ${left} Rang-EP bis ${name}`}</small>
           <span class="fb-bar"><i style="width:${pct}%"></i></span></span>
-        <em class="fb-left">${left}</em></div>`);
+        <em class="fb-left">${left}</em>` });
     }
-    if (!lines.length) return '';
+    return rows.slice(0, 3);
+  }
+  // Das gewählte Ziel, sonst (ohne Tippen) die oberste Zeile
+  function currentGoal(profile, ui) {
+    const rows = briefRows(profile);
+    const g = ui && ui.briefGoal;
+    const hit = g && rows.find(r => r.kind === g.kind && String(r.id) === String(g.id));
+    const r = hit || rows[0];
+    return r ? { kind: r.kind, id: r.id } : null;
+  }
+  function briefHtml(profile, ui) {
+    if (!profile || !GL.meta) return '';
+    const rows = briefRows(profile);
+    if (!rows.length) return '';
+    const cur = currentGoal(profile, ui);
     const title = en() ? 'Your destination' : 'Dein Fahrtziel';
-    return `<div class="fahrtbrief"><span class="fb-kicker">${title}</span>${lines.slice(0, 3).join('')}</div>`;
+    return `<div class="fahrtbrief"><span class="fb-kicker">${title}</span>${rows.map(r => {
+      const on = cur && cur.kind === r.kind && String(cur.id) === String(r.id);
+      return `<div class="fb-row${on ? ' on' : ''}" data-act="goal-set" data-kind="${r.kind}" data-id="${esc(r.id)}" data-tip="${esc(r.tip)}" tabindex="0" role="button" aria-pressed="${on ? 'true' : 'false'}">${r.html}</div>`;
+    }).join('')}</div>`;
+  }
+  // Startstand des gewählten Ziels (beim Ablegen gemerkt)
+  function goalStart(profile, g) {
+    if (!g || !profile || !GL.meta) return g;
+    if (g.kind === 'quest') {
+      const q = (profile.quests || []).find(x => x.id === g.id);
+      if (q) { const pr = GL.meta.questProgress(profile, q); g.have0 = pr.have; g.need0 = pr.need; }
+    } else if (g.kind === 'rank') {
+      const rp = GL.meta.rankProgress(profile);
+      g.rank0 = GL.meta.rankIndex(profile); g.have0 = rp ? rp.have : 0; g.need0 = rp ? rp.need : 1;
+    } else if (g.kind === 'fig') {
+      const n = GL.meta.nextUnlocks(profile, 999).find(x => x.u.unlock === g.id);
+      if (n) { g.have0 = n.pr.have; g.need0 = n.pr.need; }
+    }
+    return g;
+  }
+  // Stand des Ziels jetzt: geschafft heißt in DIESER Fahrt erreicht (Figur freigeschaltet, Auftrag erfüllt, Rangstufe gestiegen)
+  function goalStatus(profile, g) {
+    if (!g || !profile || !GL.meta) return null;
+    if (g.kind === 'fig') {
+      const d = crewData(g.id);
+      const done = (profile.unlocked || []).includes(g.id);
+      const n = done ? null : GL.meta.nextUnlocks(profile, 999).find(x => x.u.unlock === g.id);
+      const need = n ? n.pr.need : (g.need0 || 1);
+      return { name: d ? d.name : String(g.id), done, have: done ? need : (n ? n.pr.have : (g.have0 || 0)), need };
+    }
+    if (g.kind === 'quest') {
+      const q = (profile.quests || []).find(x => x.id === g.id);
+      const pr = q ? GL.meta.questProgress(profile, q) : null;
+      return { name: en() ? 'Quest' : 'Auftrag', done: !!(pr && pr.done), have: pr ? pr.have : (g.have0 || 0), need: pr ? pr.need : (g.need0 || 1) };
+    }
+    if (g.kind === 'rank') {
+      const rp = GL.meta.rankProgress(profile);
+      const done = GL.meta.rankIndex(profile) > (g.rank0 | 0);
+      return { name: en() ? 'Rank' : 'Rang', done, have: done ? 1 : (rp ? rp.have : 0), need: done ? 1 : (rp ? rp.need : 1) };
+    }
+    return null;
   }
 
   function stage(run, ui) {
@@ -228,30 +275,13 @@ window.GL = window.GL || {};
     if (type === 'deck-go') {
       const ids = st.slots.filter(Boolean);
       if (profile) { profile.lastDeck = st.slots.slice(); if (save) save(); }
-      // Default goal: first row if none chosen
-      if (!ui.briefGoal && profile) {
-        const next = GL.meta && GL.meta.nextUnlocks && GL.meta.nextUnlocks(profile, 1);
-        if (next && next.length) ui.briefGoal = { kind: 'fig', id: next[0].u.unlock };
-      }
-      // Schnappschuss + Startstand des Ziels
+      // Schnappschuss für die Run-Ende-Chips, Fahrtziel (gewählt oder oberste Zeile) samt Startstand merken
       ui.briefStart = {};
       if (profile && GL.meta && GL.meta.nextUnlocks) {
         GL.meta.nextUnlocks(profile, 5).forEach(({ u, pr }) => { ui.briefStart[u.unlock] = pr.have; });
       }
-      if (ui.briefGoal && profile && GL.meta) {
-        const g = ui.briefGoal;
-        if (g.kind === 'fig') {
-          const n = GL.meta.nextUnlocks(profile, 10).find(x => x.u.unlock === g.id);
-          if (n) g.have0 = n.pr.have;
-        } else if (g.kind === 'quest') {
-          const qs = GL.meta.questsEnsure(profile);
-          const q = qs.find(q => (q.id || q.n) == g.id);
-          if (q) g.have0 = GL.meta.questProgress(profile, q).have;
-        } else if (g.kind === 'rank') {
-          const rp = GL.meta.rankProgress(profile);
-          if (rp) { g.have0 = rp.have; g.rank0 = rp.index || 0; }
-        }
-      }
+      ui.goalResult = null;
+      ui.briefGoal = profile && GL.meta ? goalStart(profile, currentGoal(profile, ui)) : null;
       ui.deck = null;
       act({ type: 'deck', ids });
       return false;
@@ -259,5 +289,5 @@ window.GL = window.GL || {};
     return false;
   }
 
-  GL.deck = { stage, click, state };
+  GL.deck = { stage, click, state, goalStatus };
 })();
