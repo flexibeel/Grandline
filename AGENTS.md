@@ -4,7 +4,7 @@ Du baust mit an **The Great Line** (thegreatline.de), einem kostenlosen Pixel-Ro
 Die Arbeit ist aufgeteilt: **Claude plant und prüft, du baust.** Felix und Jan entscheiden.
 
 ## Zuerst lesen, in dieser Reihenfolge
-1. `claude/FAHRPLAN.md`: Stand, was live ist, was wartet, Warteschlange. Dein Auftrag steht dort im Abschnitt **„Bauaufträge für Cursor“**.
+1. `claude/FAHRPLAN.md`: Stand, was live ist, was wartet, Warteschlange. Dein Auftrag steht dort im Abschnitt **„Bauaufträge für Cursor“** (ältere Auftrags-Details: `claude/BAUAUFTRAEGE.md`).
 2. `CLAUDE.md`: die Arbeitsregeln. Sie gelten für dich genauso (außer dem Abschnitt „Modellwahl“).
 3. `README.md`, Abschnitt „Ordner“: die Karte, wo was liegt. Dann nur die Dateien öffnen, die der Auftrag nennt. Nicht das ganze Projekt durchsuchen.
 

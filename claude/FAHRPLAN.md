@@ -85,7 +85,7 @@ Nicht anfassen: <was ausdrücklich nicht dazugehört>
 Übergabe von Cursor: <3 bis 5 Zeilen>
 ```
 
-### A1: Pop-ups und Freischalt-Meldungen sauber hintereinander (Punkt 2b)   Status: offen
+### A1: Pop-ups und Freischalt-Meldungen sauber hintereinander (Punkt 2b)   Status: live (23a, Details in `claude/BAUAUFTRAEGE.md`)
 Ausgangszweig: `feature/inselwahl-bilder` (dort liegen `AGENTS.md` und dieser Auftrag, ist noch nicht auf `main`). Neuer Zweig: `fix/freischalt-meldungen`.
 Ziel: Wer in den Hafen kommt, sieht Meldungen (Neu freigeschaltet, Story-Kapitel, Neuigkeiten, Willkommen, Gruß der Crew, Rang-Aufstieg, Toasts) **einzeln, in sinnvoller Reihenfolge, je einmal** und ohne dass etwas hängen bleibt oder sich überdeckt. Seit dem Neustart (22r) sind alle wieder frische Spieler, da kommt viel auf einmal.
 Erst fragen: **Jan sitzt neben dir.** Lass dir zuerst 1 bis 3 konkrete Fälle beschreiben, was falsch läuft (doppelt? falsche Reihenfolge? Fenster bleibt hängen? zu viel auf einmal?). Die gehen vor.
@@ -94,6 +94,20 @@ Weg: (1) Jans Fälle nachstellen: frischer Spieler (Speicher leeren, Pirat anleg
 Fallen: `featureCheck()` hat viele Bedingungen, die sich gegenseitig ausschließen sollen (`old`, `ui.storyPending`, `GL.story.active()`, `GL.greet.active()`). Nicht umbauen, nur gezielt ergänzen. `profile` wird gespeichert: neue Felder nur, wenn nötig, mit Standardwert für alte Stände. Nichts an Freischalt-Regeln oder Balance ändern.
 Fertig, wenn: Jans Fälle treten nicht mehr auf; frischer Spieler sieht beim ersten Hafenbesuch höchstens ein Fenster gleichzeitig; nach Neuladen kommt nichts doppelt; DE und EN auf 390 px geprüft; Konsole ohne Fehler.
 Nicht anfassen: Story-Inhalte, Neuigkeiten-Texte, Supabase/Online-Code, Kampf.
+Übergabe von Cursor: _(hier eintragen)_
+
+### A2: Der Fahrtbrief, „Warum gehe ich in diesen Run?“ (Punkt 2a)   Status: offen
+Zweig: `feature/fahrtbrief` (von `main`, existiert schon mit diesem Auftrag, dort weiterarbeiten)
+Ziel: Vor dem Ablegen steht auf dem Deck-Bildschirm ein kleiner **Fahrtbrief** „Dein Fahrtziel“ mit höchstens 3 Zeilen, warum sich diese Fahrt lohnt. Am Run-Ende zeigt die vorhandene Liste „Als Nächstes freischalten“, was in dieser Fahrt vorangekommen ist (Chip „+1“). Entscheidung Jan, 23.10.: Brief plus Run-Ende, nächste Figur zuerst. Reine Anzeige aus vorhandenen Daten, keine neue Spiellogik, kein neues Spielstand-Feld.
+Dateien: `js/ui/deck.js` (`stage()` ab Zeile 68, Brief direkt über `<div class="dk-foot">`, Klick `deck-go` ab ca. Zeile 162), `js/ui/render.js` (`goalList()` ab ca. Zeile 3658, Aufruf im Run-Ende ca. Zeile 2332), `css/style.css` (neuer Block am Ende, Überschrift „23b Fahrtbrief“).
+Weg:
+1. `goalList` aus `render.js` für `deck.js` erreichbar machen: `GL.ui = GL.ui || {}; GL.ui.goalList = goalList;` (dort liegt schon `GL.ui.petPop`).
+2. **Brief** in `deck.js stage()` über dem Fuß. Zeilen in dieser Reihenfolge, jede nur, wenn es sie gibt: (a) nächste Figur: `GL.meta.nextUnlocks(profile, 1)`, Zeile mit Mini-Figur, Name, Text `u.text`, Balken und `have/need` wie in `goalList`; (b) ein offener Auftrag mit dem meisten Fortschritt (`GL.meta.questsEnsure`, `questDef`, `questProgress`, nicht `done`), nur wenn `GL.meta.featureOpen(profile, 'quests')`; (c) Rang: `GL.meta.rankProgress`, „noch X Rang-EP bis <Rang>“, mit Balken. Höchstens 3 Zeilen, je eine Zeile hoch (Handy!). Gibt es gar keine Zeile, kein Brief. Tippen oder Halten auf eine Zeile zeigt wie bei `goal-row` per `data-tip` einen Satz, wie man es in dieser Fahrt schafft (Figur: `u.text`; Auftrag: Auftragstext; Rang: „Siege und weite Fahrten bringen Rang-EP.“).
+3. **Schnappschuss** in `deck-go` (`deck.js`), vor `act(...)`: `ui.briefStart = {}` und je `GL.meta.nextUnlocks(profile, 5)` die Fortschrittszahl `pr.have` unter `u.unlock` merken. Nur in `ui`, nicht in `profile`.
+4. **Run-Ende:** in `goalList` (oder beim Aufruf in `render.js` ca. Zeile 2332) für jede Zeile mit `pr.have > ui.briefStart[u.unlock]` einen kleinen Chip „+N“ und die Klasse `goal-up` (kurzes Leuchten, mit `prefers-reduced-motion` ohne Animation). Gibt es `ui.briefStart` nicht (Tagesfahrt, Wettfahrt, alter Start), nichts anzeigen. Ist die Figur dabei freigeschaltet worden, kommt wie bisher der Hinweis „Freigeschaltet“, hier nichts doppeln.
+Fallen: `deck.js` ist eine eigene IIFE, `goalList` ist in `render.js` lokal (Schritt 1). Texte direkt zweisprachig mit `en() ? 'English' : 'Deutsch'` wie in `deck.js`, nichts Neues in `i18n.js`. Eigene Welt: Figurennamen und Texte laufen durch die Ersetzung, mit `index.html?welt=neutral` prüfen. Das Deck ist schon hoch: Brief kompakt halten, „Ablegen“ muss auf 390 px ohne langes Scrollen erreichbar bleiben. `nextUnlocks` liefert nur Figuren, die es im Spiel gibt.
+Fertig, wenn: frischer Spieler (keine Aufträge frei, keine Freischaltung nahe): Brief zeigt nur die Rang-Zeile oder fehlt, ohne Fehler; Spieler mit Fortschritt: bis zu 3 Zeilen, Figur zuerst; nach einer Fahrt mit Fortschritt erscheint „+N“ in der Run-Ende-Liste, ohne Fortschritt kein Chip; Tagesfahrt zeigt keinen Chip; DE und EN auf 390 px, Konsole ohne Fehler, `node --check` auf `deck.js` und `render.js`.
+Nicht anfassen: Freischalt-Regeln (`unlocks.js`), Auftrags- und Rang-Logik (`meta.js`), Run-Engine, Spielstand, Balance, Patchnote und Versionssprung.
 Übergabe von Cursor: _(hier eintragen)_
 
 ## Gesamtplan gegen Spiel (Abgleich 22.10.)
