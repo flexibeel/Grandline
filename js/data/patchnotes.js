@@ -1,6 +1,10 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-22s', date: '22.10.', title: 'Die Inselwahl als Wisch-Karten', items: [
+    '🗺 Die Inselwahl ist jetzt ein Kartenstapel: Wische durch die Inseln, vorne siehst du nur Bild, Inselname und den Bösewicht, der sich vorstellt, sobald seine Karte in der Mitte liegt',
+    '👆 Alles Weitere klappt auf, wenn du die Karte antippst: Orte, Fundstück, Begleiter, wogegen der Gegner schwach ist und wie du ihn knackst. Der Knopf „Kurs setzen“ folgt der Karte in der Mitte',
+    '⛵ Nach dem Kurs gibt es eine kurze Szene: Das Schiff legt ab, die Insel taucht auf, der Bösewicht springt ins Bild. Tippen überspringt sie. Die Kopfzeile unterwegs ist am Handy ruhiger geworden' ] },
   { v: '2026-10-22r', date: '22.10.', title: 'Neustart für alle', items: [
     '⛵ Alle Konten sind zurückgesetzt: Das Spiel ist zuletzt ordentlich gewachsen, jetzt starten alle das neue Spiel von der ersten Fahrt an, an derselben Linie',
     '⚓ Leg dir einfach einen neuen Piraten an. Beim ersten Start siehst du einmal einen kleinen Infoscreen, danach geht es los',
