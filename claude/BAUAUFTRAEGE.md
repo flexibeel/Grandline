@@ -48,7 +48,7 @@ Kurz: welche Fälle bestätigt, welche nicht, welche Zeilen geändert, wie getes
 
 ---
 
-## A3: Texte-Prüfung: eigene Welt und Englisch (Punkt 7b)   Status: gebaut, wartet auf Prüfung
+## A3: Texte-Prüfung: eigene Welt und Englisch (Punkt 7b)   Status: geprüft (Claude), wartet auf Sammel-Update
 
 **Zweig:** `feature/texte-pruefung` (von `main`, existiert schon mit diesem Auftrag, dort weiterarbeiten). Regeln: `AGENTS.md`.
 **Ziel:** Im Spiel ist **kein Original-Name aus der Vorlage** sichtbar (Figuren, Attacken, Orte, Früchte, Schiffe, Titel), weder auf Deutsch noch auf Englisch, und im Englischen steht möglichst **kein deutscher Text** auf den Hauptbildschirmen. Entscheidung Jan, 23.10. Vorbereitung für die Veröffentlichung (`config.world: 'neutral'`).
@@ -75,7 +75,7 @@ Prüfskript (lokal, nicht im Repo): vorher ca. 80+ verdächtige Strings (viele I
 
 ---
 
-## A3b: Namensvorschläge für die Beinahe-Namen (nur Vorschläge, kein Code)   Status: offen
+## A3b: Namensvorschläge für die Beinahe-Namen (nur Vorschläge, kein Code)   Status: erledigt (Claude schrieb die Vorschläge neu, Jan wählte „Alle A“, in `neutral.js` eingetragen)
 
 **Zweig:** `feature/texte-pruefung` (dort weiterarbeiten, letzter Commit von Claude `eaab889`, vorher `git pull`).
 **Hintergrund:** A3 hat 47 Namen ergänzt, davon sind etwa 15 nur umgeschrieben und noch als Vorlage erkennbar. Claude hat `Killer`, `Dragon` (trifft Allerweltswörter) und die Dubletten `Koala`, `Vista`, `Drake` aus `neutral.js` entfernt. Jan will die Namen selbst aussuchen.
