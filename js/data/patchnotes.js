@@ -1,6 +1,9 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-23c', date: '23.10.', title: 'Tipp auf den Gegner, nur Fokus', items: [
+    '🎯 Im Kampf setzt ein Tipp auf einen Gegner im Feld jetzt nur noch den Fokus. Vorher sprang das Tempo gleich mit auf schnell, und das war bei Boss-Ansagen genau falsch. Schneller wird es weiter mit dem Tempo-Knopf oder einem Tipp auf freie Fläche',
+    '🃏 Ein kleiner Fehler im Hintergrund ist weg: Beim Darüberfahren mit der Maus über manche Karten, zum Beispiel bei Ereignissen, kam jedes Mal eine Fehlermeldung. Jetzt bleibt es still' ] },
   { v: '2026-10-23b', date: '23.10.', title: 'Fahrtziel, Unterbrechen und offline segeln', items: [
     '🎯 Vor dem Ablegen siehst du auf dem Deck dein Fahrtziel: die nächste Figur, den besten Auftrag oder den nächsten Rang. Tipp eine Zeile an, um dein Ziel zu wählen. Es läuft oben in der Kopfzeile mit, und wer es in der Fahrt schafft, bekommt +50 Taler obendrauf',
     '⚡ Bosse kann man jetzt unterbrechen: Sagt ein Boss seine große Attacke an, erscheint ein Balken über ihm. Fokus auf ihn und genug Schaden, bevor sie losgeht, dann bricht sie ab und er taumelt. Ohne Fokus zählt nur ein Drittel',
