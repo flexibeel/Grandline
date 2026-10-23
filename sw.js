@@ -1,13 +1,18 @@
+// Service Worker: macht das Spiel offline spielbar (Seite, Skripte, Bilder bleiben zwischengespeichert).
+// Version und Dateiliste trägt tools/bump-version.py beim Live-Gang ein. Im Zweig stehen Platzhalter,
+// dann merkt sich der Worker nur ./ und index.html. NICHT von Hand eintragen.
 const V = '__VERSION__';
-const FILES = [/*__FILES__*/];
+const FILES = [/*FILES*//*END*/];
 
 const CACHE = 'gl-' + V;
+const SAME = self.location.origin;
 
 self.addEventListener('install', e => {
   e.waitUntil(
     caches.open(CACHE).then(cache => {
-      const toCache = FILES.length ? FILES : ['./', 'index.html'];
-      return Promise.allSettled(toCache.map(u => cache.add(u).catch(() => {})));
+      const list = FILES.length ? FILES : ['./', 'index.html'];
+      // Einzeln und am HTTP-Zwischenspeicher vorbei: eine fehlende Datei bricht die Installation nicht ab
+      return Promise.allSettled(list.map(u => cache.add(new Request(u, { cache: 'reload' }))));
     }).then(() => self.skipWaiting())
   );
 });
@@ -20,51 +25,59 @@ self.addEventListener('activate', e => {
   );
 });
 
-self.addEventListener('fetch', e => {
-  const url = new URL(e.request.url);
-  if (e.request.method !== 'GET' || !url.protocol.startsWith('http')) return;
+const keep = r => r && (r.status === 200 || r.type === 'opaque');
 
-  // version.json always network
-  if (url.pathname.endsWith('version.json')) {
-    e.respondWith(fetch(e.request).catch(() => new Response('', { status: 503 })));
+self.addEventListener('fetch', e => {
+  const req = e.request;
+  if (req.method !== 'GET') return;
+  const url = new URL(req.url);
+  if (!url.protocol.startsWith('http')) return;
+  const own = url.origin === SAME;
+
+  // Versions-Check: immer Netz, nie aus dem Zwischenspeicher (ohne Netz scheitert er still)
+  if (own && url.pathname.endsWith('version.json')) {
+    e.respondWith(fetch(req).catch(() => new Response('', { status: 503 })));
     return;
   }
 
-  // Navigation: network first
-  if (e.request.mode === 'navigate' || url.pathname.endsWith('index.html') || url.pathname === '/') {
+  // Seiten: Netz zuerst. Die Spielseite (index.html oder nur der Ordner, auch mit ?welt=… oder ?v=…) wird gemerkt
+  // und ohne Netz ausgeliefert. Andere Seiten (legal.html) werden nur aus der Liste ersatzweise geholt.
+  if (own && req.mode === 'navigate') {
+    const game = url.pathname.endsWith('/') || url.pathname.endsWith('/index.html');
     e.respondWith(
-      fetch(e.request).then(r => {
-        const clone = r.clone();
-        caches.open(CACHE).then(c => c.put(e.request, clone));
+      fetch(req).then(r => {
+        if (game && keep(r)) { const c = r.clone(); caches.open(CACHE).then(cache => cache.put('index.html', c)); }
         return r;
-      }).catch(() => caches.match('index.html') || caches.match('./'))
+      }).catch(() => game
+        ? caches.match('index.html', { ignoreSearch: true }).then(r => r || caches.match('./', { ignoreSearch: true }))
+        : caches.match(req, { ignoreSearch: true }))
     );
     return;
   }
 
-  // Own files with ?v= : cache first
-  if (url.search.includes('v=') || url.pathname.includes('/js/build/') || url.pathname.includes('/css/') || url.pathname.includes('/img/')) {
+  // Eigene Dateien (Bündel und Stil mit ?v=, Bilder): Zwischenspeicher zuerst, sonst Netz und merken
+  if (own && (url.search.includes('v=') || url.pathname.includes('/js/build/') || url.pathname.includes('/css/') || url.pathname.includes('/img/'))) {
     e.respondWith(
-      caches.match(e.request).then(cached => cached || fetch(e.request).then(r => {
-        if (r.ok) caches.open(CACHE).then(c => c.put(e.request, r.clone()));
+      caches.match(req).then(hit => hit || fetch(req).then(r => {
+        if (keep(r)) { const c = r.clone(); caches.open(CACHE).then(cache => cache.put(req, c)); }
         return r;
       }))
     );
     return;
   }
 
-  // Foreign (fonts, jsdelivr): stale-while-revalidate
-  if (url.host.includes('fonts.g') || url.host.includes('jsdelivr') || url.host.includes('googleapis')) {
+  // Fremdes (Supabase-Skript über jsDelivr, Google Fonts): aus dem Zwischenspeicher, im Hintergrund auffrischen
+  if (!own && (url.host === 'cdn.jsdelivr.net' || url.host === 'fonts.googleapis.com' || url.host === 'fonts.gstatic.com')) {
     e.respondWith(
-      caches.match(e.request).then(cached => {
-        const fetched = fetch(e.request).then(r => {
-          if (r.ok || r.type === 'opaque') caches.open(CACHE).then(c => c.put(e.request, r.clone()));
+      caches.match(req).then(hit => {
+        const net = fetch(req).then(r => {
+          if (keep(r)) { const c = r.clone(); caches.open(CACHE).then(cache => cache.put(req, c)); }
           return r;
-        }).catch(() => cached);
-        return cached || fetched;
+        }).catch(() => hit || Response.error());
+        return hit || net;
       })
     );
     return;
   }
-  // else: do not intercept (Supabase etc.)
+  // Alles andere (Supabase-Projekt: Konto, Rangliste, Duelle, Realtime): nicht anfassen
 });

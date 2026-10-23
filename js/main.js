@@ -2960,25 +2960,28 @@
     setInterval(() => { if (!document.hidden) checkDefense(); }, 300000);
     setInterval(() => { if (!document.hidden) { lastSync = 0; backToApp(); } }, 180000);   // alle 3 Minuten nach Updates schauen
   }
-})();
-
-  // A5 Offline-Chip
-  function updateOfflineChip() {
-    let el = document.getElementById('offline-chip');
-    const on = navigator.onLine;
-    if (!on && !el) {
-      el = document.createElement('em');
-      el.id = 'offline-chip';
-      el.className = 'offline-chip';
-      el.textContent = '📴 Offline';
-      el.title = 'Ohne Netz: Rangliste, Konto und Duelle pausieren, dein Stand wird lokal gespeichert';
-      document.body.appendChild(el);
-    } else if (on && el) {
-      el.remove();
-      if (typeof toast === 'function') setTimeout(() => toast('<span>Wieder online, Stand wird abgeglichen</span>'), 300);
+  // A5 Offline-Chip: kleine Marke oben, solange das Gerät kein Netz hat. Zurück im Netz einmal ein leiser Toast,
+  // den Abgleich macht online.js selbst (Ereignis „online“ → resync).
+  (function offlineChip() {
+    const en = () => GL.i18n && GL.i18n.lang && GL.i18n.lang() === 'en';
+    function update(first) {
+      let el = document.getElementById('offline-chip');
+      if (!navigator.onLine) {
+        if (!el) {
+          el = document.createElement('em');
+          el.id = 'offline-chip';
+          el.className = 'offline-chip';
+          el.textContent = '📴 Offline';
+          document.body.appendChild(el);
+        }
+        el.title = en() ? 'No network: leaderboard, account and duels pause, your progress is saved on this device.' : 'Ohne Netz: Rangliste, Konto und Duelle pausieren, dein Stand wird auf diesem Gerät gespeichert.';
+      } else if (el) {
+        el.remove();
+        if (!first) setTimeout(() => toast(`<span><b>${en() ? 'Back online' : 'Wieder online'}</b>${en() ? 'Syncing your progress.' : 'Dein Stand wird abgeglichen.'}</span>`), 300);
+      }
     }
-  }
-  window.addEventListener('online', updateOfflineChip);
-  window.addEventListener('offline', updateOfflineChip);
-  updateOfflineChip();
-
+    window.addEventListener('online', () => update(false));
+    window.addEventListener('offline', () => update(false));
+    update(true);
+  })();
+})();
