@@ -10388,7 +10388,7 @@ body.ult-hand .rc-ulthint { display: inline; }
 
 /* A5 OFFLINE */
 .offline-chip {
-  position: fixed; top: 8px; right: 8px; z-index: 9999;
-  background: #444; color: #fff; padding: .2em .5em; border-radius: 4px;
-  font-size: .75rem; pointer-events: none;
+  position: fixed; top: max(2px, env(safe-area-inset-top)); left: 50%; transform: translateX(-50%); z-index: 9999;
+  font-style: normal; font-size: .68rem; font-weight: 700; line-height: 1; white-space: nowrap;
+  padding: 3px 8px; border-radius: 999px; background: #4a4036; color: #fff6dc; box-shadow: 0 1px 0 rgba(0,0,0,.25);
 }

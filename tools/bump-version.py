@@ -15,3 +15,19 @@ print('Version', v)
 # JS bündeln und CSS verkleinern (siehe tools/bundle.py)
 import sys; sys.path.insert(0, os.path.join(root, 'tools'))
 import bundle; bundle.build(v)
+# Offline-Modus: Version und Dateiliste in den Service Worker (sw.js) eintragen. Im Zweig bleibt sw.js eine Vorlage mit Platzhaltern.
+# Die URLs kommen aus der fertigen index.html und müssen zeichengleich zu dem sein, was die Seite lädt, sonst trifft der Zwischenspeicher nicht.
+swp = os.path.join(root, 'sw.js')
+if os.path.exists(swp):
+    html = open(p).read()
+    files = ['./', 'index.html']
+    files += re.findall(r'(?:src|href)="((?:js/build/[^"]+\.js|css/style\.min\.css)\?v=[^"]*)"', html)
+    files += ['manifest.webmanifest', 'legal.html']
+    files += sorted('img/' + f for f in os.listdir(os.path.join(root, 'img')) if f.lower().endswith(('.png', '.jpg', '.svg', '.webp', '.ico')))
+    sw = open(swp, encoding='utf-8').read()
+    sw, n1 = re.subn(r"const V = '[^']*';", "const V = '%s';" % v, sw)
+    sw, n2 = re.subn(r"const FILES = \[/\*FILES\*/.*?/\*END\*/\];", lambda m: "const FILES = [/*FILES*/%s/*END*/];" % ','.join(json.dumps(f) for f in files), sw, flags=re.S)
+    if n1 != 1 or n2 != 1:
+        sys.exit('sw.js: Platzhalter für Version oder Dateiliste nicht gefunden')
+    open(swp, 'w', encoding='utf-8').write(sw)
+    print('sw.js: Version', v, '·', len(files), 'Dateien')
