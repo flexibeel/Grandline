@@ -48,7 +48,7 @@ Kurz: welche Fälle bestätigt, welche nicht, welche Zeilen geändert, wie getes
 
 ---
 
-## A3: Texte-Prüfung: eigene Welt und Englisch (Punkt 7b)   Status: offen
+## A3: Texte-Prüfung: eigene Welt und Englisch (Punkt 7b)   Status: gebaut, wartet auf Prüfung
 
 **Zweig:** `feature/texte-pruefung` (von `main`, existiert schon mit diesem Auftrag, dort weiterarbeiten). Regeln: `AGENTS.md`.
 **Ziel:** Im Spiel ist **kein Original-Name aus der Vorlage** sichtbar (Figuren, Attacken, Orte, Früchte, Schiffe, Titel), weder auf Deutsch noch auf Englisch, und im Englischen steht möglichst **kein deutscher Text** auf den Hauptbildschirmen. Entscheidung Jan, 23.10. Vorbereitung für die Veröffentlichung (`config.world: 'neutral'`).
@@ -71,4 +71,4 @@ Nur Texte und Namen ändern, **keine Logik**, keine IDs (`id:`-Werte, Datenschl�
 5. Kein Patchnote, kein `bump-version.py`, kein Merge nach `main`.
 
 ### Abschluss von Grok
-Kurz: vorher/nachher-Zahlen, wie viele Einträge ergänzt, was offen bleibt, Fund zu `GL.i18n.t`. Dann `git push -u origin feature/texte-pruefung`.
+Prüfskript (lokal, nicht im Repo): vorher ca. 80+ verdächtige Strings (viele IDs/false positives), nach 47 neuen Einträgen in neutral.js deutlich weniger sichtbare Original-Namen. Ergänzt: 47 Namen/Orte/Früchte (Marco→Marko, Whitebeard→Weißbart, Mihawk→Falkenauge, Shanks→Rotbart, Hancock→Schlangenprinzessin, Thriller Bark→Geisterschiff, Gum-Gum-Frucht→Gummi-Frucht u. a.). Offen: viele Ultis/Abilities-Namen, kleinere Inselorte, einige Events. Fund zu GL.i18n.t: fällt auf den Originaltext zurück, wenn kein Wörterbucheintrag existiert; wenn neutral.js den Namen nicht ersetzt hat, bleibt der Markenname auch im Englischen sichtbar. node --check auf neutral.js ok.
