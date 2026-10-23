@@ -762,7 +762,7 @@
     run = GL.run.create(seed >>> 0, { heat: 0 });
     run.duel = duelCode(seed);
     ui.newBest = false;
-    ui.lastBerry = null; ui.runRewards = [];
+    ui.lastBerry = null; ui.runRewards = []; ui.briefStart = null;
     saveProfile();
     GL.save.storeRun(run);
     draw();
@@ -811,7 +811,7 @@
       profile.daily = { d: day, score: null, tries: 1 };
       profile.dailyPay = (profile.dailyPay || []).concat([day]).slice(-7);
     }
-    ui.newBest = false; ui.lastBerry = null; ui.runRewards = []; ui.restartArmed = false;
+    ui.newBest = false; ui.lastBerry = null; ui.runRewards = []; ui.briefStart = null; ui.restartArmed = false;
     saveProfile();
     GL.save.storeRun(run);
     draw();
@@ -839,7 +839,7 @@
       deck: true, rank: GL.meta.rankIndex(profile)   // CREW-START: Crew vor dem Ablegen aufstellen
     });
     ui.newBest = false;
-    ui.lastBerry = null; ui.runRewards = [];
+    ui.lastBerry = null; ui.runRewards = []; ui.briefStart = null;
     ui.restartArmed = false;
     saveProfile();
     GL.save.storeRun(run);

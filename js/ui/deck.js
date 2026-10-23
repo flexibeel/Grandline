@@ -95,11 +95,12 @@ window.GL = window.GL || {};
       }
       if (best) {
         const def = GL.meta.questDef(best.q);
+        const qText = String(def.text || '').replace('{n}', best.q.n.toLocaleString('de-DE'));
         const pct = Math.round(100 * best.pr.have / Math.max(1, best.pr.need));
-        const tip = esc(def.text || '');
+        const tip = esc(qText);
         lines.push(`<div class="fb-row" data-tip="${tip}" tabindex="0">
           <i class="fb-ico">${def.icon || '?'}</i>
-          <span class="fb-b"><b>${en() ? 'Quest' : 'Auftrag'}</b><small>${esc(def.text || '')}</small>
+          <span class="fb-b"><b>${en() ? 'Quest' : 'Auftrag'}</b><small>${esc(qText)}</small>
             <span class="fb-bar"><i style="width:${pct}%"></i></span></span>
           <em class="fb-left">${best.pr.have}/${best.pr.need}</em></div>`);
       }
