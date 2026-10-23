@@ -179,6 +179,7 @@ Ein neuer Chat liest **zuerst `claude/PLAN-FOLGEN.md`** (das Leitbild) und dann 
 | `claude/PLAN-FOLGEN.md` | **Leitbild:** Entscheidungen mit Folgen, Welt erkunden, Weltgedächtnis, 4 Säulen, Logbuch | Leitbild steht, Klick-Runde 2 beantwortet (Abschnitt 9) |
 | `claude/PLAN-WELT-MERKT.md` | Säule 4A: Bekannte aus den 10 Folgen kommen wieder, Orte nach dem Bösewicht (befreien/plündern) | Fragen beantwortet, Gesichter der vier Bekannten gewählt (Board „Bekannte der Grand Line“) |
 | `claude/PLAN-EINSTIEG.md` | Die ersten 10 Minuten: Welt vor Menü, erste Wahl mit Folge, Seekarte mit Nebel, Systeme später | Fragen beantwortet (Abschnitt 5), nächster Schritt: Storyboard als Bild-Board |
+| `claude/PLAN-PIXEL.md` | Figuren 24 × 30 mit Umriss, Blinzeln/Atmen, Angriffsposen, Gefühle im Gesicht, zusammen mit Weltbau-Welle C | Entschieden, nichts gebaut (Board „Pixelgröße der Figuren“) |
 | `claude/HAFEN-SKIZZE.md` | Hafen Schritt 1: vier Gebäude | Fragen beantwortet, freigegeben, nicht gebaut |
 | `claude/WELTBAU.md` | Eigenes Universum: Meere, Fraktionen, Namen | Fragen beantwortet, Wellen A bis C freigegeben, nicht gebaut |
 | `claude/ENDLESS-SKIZZE.md` | Endless aus Biomen und Wetter | Plan, Fragen offen (Abschnitt 6) |

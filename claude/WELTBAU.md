@@ -42,3 +42,5 @@ Pro Figur ein Markenzeichen (Hut, Farbe oder Gegenstand), höchstens 4 Accessoir
 4. Tempo: eine Welle pro Update, oder mehrere im Sammel-Update?
 
 **Antworten (23.10., Felix/Jan per Klick):** 1. Ton und Strömungs-Grundidee passen so · 2. Die Stammfiguren (Sturmmöwen, 9 Köpfe) werden **zuletzt** ersetzt · 3. Die Krone wird am Ende **selbst Gegner** (Gerichtsinsel als Wendepunkt) · 4. Tempo: **mehrere Wellen im Sammel-Update** (nicht eine pro Update, abweichend von der Empfehlung). Damit sind die Wellen A bis C freigegeben, **noch nichts gebaut**, Start mit Welle A (Inseln und Meere).
+
+**Ergänzung (23.10., Jan per Klick):** Welle C (die 65 Figuren) entsteht gleich im **neuen Raster 24 × 30** mit Umrisslinie, Blinzeln, Atmen, Gefühlen im Gesicht und Angriffsposen. Details: `claude/PLAN-PIXEL.md`.
