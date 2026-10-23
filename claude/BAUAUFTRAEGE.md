@@ -139,3 +139,26 @@ Danach `git push -u origin feature/steckbrief-ansage`.
 
 **Übergabe von Cursor:** sw.js Vorlage mit Platzhaltern, Registrierung in index.html, Offline-Chip in main.js (online/offline Events), CSS. bump-version.py nicht ausgeführt. node --check ok. Offen: voller Offline-Test mit lokalem Server + Headless durch Claude/Jan.
 Danach `git push -u origin feature/offline-modus`.
+
+---
+
+## A6: Konsolenfehler „Cannot read properties of null (reading 'style')“   Status: offen
+
+**Zweig:** `fix/null-style` von `main`. Klein, nur der Fehler.
+**Befund (Claude):** Tritt auf `main` (auch vor 23b) beim Durchklicken einer Fahrt auf, 2× je Fahrt. Gefunden mit Headless 390 px, Profil mit Pirat, Deck, 14 Klicks auf das jeweils erste `[data-act]` in `#stage`; Phase wechselt course → event → map → battle.
+**Weg:** (1) Mit `page.on('pageerror')` den `e.stack` ausgeben, so die Datei und Zeile finden (vorher nicht raten). (2) Zugriff mit Prüfung absichern (`if (el)`), nur dort. (3) Gleichen Durchlauf wiederholen: keine `pageerror` mehr.
+**Nicht anfassen:** Kampf-Logik, Spielstand, Online-Code. Keine Patchnote, kein `bump-version.py`, kein Merge.
+**Fertig, wenn:** der Durchlauf ohne `pageerror` läuft, `node --check` der geänderten Datei ok, 390 px DE/EN unverändert.
+**Übergabe von Cursor:** _(hier eintragen)_
+
+## A7: Tipp aufs Kampffeld setzt nur den Fokus   Status: offen
+
+**Zweig:** `fix/fokus-ohne-tempo` von `main`. Klein.
+**Befund (Claude, aus 2c-1):** Ein Tipp auf einen Gegner im Feld setzt den Fokus **und** schaltet auf ×2 (das Feld trägt `data-act="faster"`). Seit „Unterbrechen“ ist Fokus wichtig, das Mitschalten stört.
+**Ziel:** Tipp auf einen Gegner setzt nur den Fokus. Das Tempo schaltet nur der vorhandene Tempo-Knopf bzw. ein Tipp auf freie Feldfläche.
+**Dateien:** `js/main.js` (Klick `faster`, Fokus-Tipp, Suche nach `data-act="faster"` und `focus`), `js/ui/arena.js` (Feld-Markup).
+**Fallen:** Ulti-Tipp auf eigene leuchtende Figur und das `i`/Halten der Werte-Tafel müssen unverändert bleiben. Replays/`cmds` nicht ändern.
+**Fertig, wenn:** Headless-Test im Kampf: Tipp auf Gegner → Fokus gesetzt, Tempo bleibt; Tipp auf leere Fläche → Tempo wie bisher; Ulti und Tafel unverändert; 390 px DE/EN.
+**Nicht anfassen:** `battle.js`, Balance. Keine Patchnote, kein `bump-version.py`, kein Merge.
+**Übergabe von Cursor:** _(hier eintragen)_
+
