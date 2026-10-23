@@ -1508,7 +1508,7 @@
         break;
       case 'speed': if (anim && !anim.done) setSpeed(Number(el.dataset.v) || 2); break;
       case 'tempo': if (anim && !anim.done) { setSpeed((anim.speed || 2) >= 3 ? 2 : 3); const t = document.querySelector('.tempo'); if (t) t.outerHTML = GL.ui.tempoBtn(anim, false); } break;
-      case 'faster': if (anim && !anim.done) setSpeed(3); break;
+      case 'faster': if (anim && !anim.done && !(e.target.closest && e.target.closest('.fu-enemy'))) setSpeed(3); break;   // Tipp auf einen Gegner setzt nur den Fokus (rcFocus), nicht das Tempo
       case 'ff':
         // Daumen-Knopf: erst Turbo, beim zweiten Tipp zum Ergebnis (frühestens nach 1,5 s, damit Boss-Auftritte sichtbar bleiben)
         if (!anim || anim.done) break;
