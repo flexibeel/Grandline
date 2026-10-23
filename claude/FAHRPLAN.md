@@ -8,7 +8,7 @@ Stand: 23.10.2026 (23a live: ruhigere Meldungen; Grok ist an GitHub angebunden, 
 
 ## Wer macht was
 - **Felix:** entscheidet, was gebaut wird und was live geht („schalte live“), Kunst und Look.
-- **Jan:** _(bitte ergänzen)_
+- **Jan:** Mitarbeiter, brainstormt mit (Ideen, Vorschläge, Rückmeldungen). Umgesetzt und gebaut wird alles über Felix, Jan setzt nichts allein um.
 - **Claude:** setzt um, immer auf eigenem Zweig, pflegt diese Datei. Plant und prüft die Arbeit von Cursor (siehe unten).
 - **Cursor (Grok), ab Jans Einrichtung:** baut klar umrissene Aufträge aus „Bauaufträge für Cursor“ auf eigenem Zweig, Regeln in `AGENTS.md`. Geht nie selbst live.
 
