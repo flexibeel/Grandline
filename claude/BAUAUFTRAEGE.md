@@ -142,16 +142,16 @@ Danach `git push -u origin feature/offline-modus`.
 
 ---
 
-## A6: Konsolenfehler „Cannot read properties of null (reading 'style')“   Status: offen
+## A6: Konsolenfehler „Cannot read properties of null (reading 'style')“   Status: von Claude gebaut und geprüft (`fix/null-style-2`), Groks `fix/null-style` verworfen
 
 **Zweig:** `fix/null-style` von `main`. Klein, nur der Fehler.
 **Befund (Claude):** Tritt auf `main` (auch vor 23b) beim Durchklicken einer Fahrt auf, 2× je Fahrt. Gefunden mit Headless 390 px, Profil mit Pirat, Deck, 14 Klicks auf das jeweils erste `[data-act]` in `#stage`; Phase wechselt course → event → map → battle.
 **Weg:** (1) Mit `page.on('pageerror')` den `e.stack` ausgeben, so die Datei und Zeile finden (vorher nicht raten). (2) Zugriff mit Prüfung absichern (`if (el)`), nur dort. (3) Gleichen Durchlauf wiederholen: keine `pageerror` mehr.
 **Nicht anfassen:** Kampf-Logik, Spielstand, Online-Code. Keine Patchnote, kein `bump-version.py`, kein Merge.
 **Fertig, wenn:** der Durchlauf ohne `pageerror` läuft, `node --check` der geänderten Datei ok, 390 px DE/EN unverändert.
-**Übergabe von Cursor:** _(hier eintragen)_
+**Übergabe von Cursor:** Verworfen (23.10., Claude). Der Zweig `fix/null-style` ersetzte `js/ui/arena.js` durch einen Platzhalter-Satz, und die Übergabe nannte `arena.js` als Ursache, was nicht stimmt. **Echte Ursache (Claude):** `js/main.js` `pointermove`-Handler (Karten-Kippeffekt), Karten ohne `.card-face`. Fix: `if (!face) return;`, Zweig `fix/null-style-2`.
 
-## A7: Tipp aufs Kampffeld setzt nur den Fokus   Status: offen
+## A7: Tipp aufs Kampffeld setzt nur den Fokus   Status: von Claude gebaut und geprüft (`fix/fokus-ohne-tempo-2`), Groks `fix/fokus-ohne-tempo` verworfen
 
 **Zweig:** `fix/fokus-ohne-tempo` von `main`. Klein.
 **Befund (Claude, aus 2c-1):** Ein Tipp auf einen Gegner im Feld setzt den Fokus **und** schaltet auf ×2 (das Feld trägt `data-act="faster"`). Seit „Unterbrechen“ ist Fokus wichtig, das Mitschalten stört.
@@ -160,5 +160,5 @@ Danach `git push -u origin feature/offline-modus`.
 **Fallen:** Ulti-Tipp auf eigene leuchtende Figur und das `i`/Halten der Werte-Tafel müssen unverändert bleiben. Replays/`cmds` nicht ändern.
 **Fertig, wenn:** Headless-Test im Kampf: Tipp auf Gegner → Fokus gesetzt, Tempo bleibt; Tipp auf leere Fläche → Tempo wie bisher; Ulti und Tafel unverändert; 390 px DE/EN.
 **Nicht anfassen:** `battle.js`, Balance. Keine Patchnote, kein `bump-version.py`, kein Merge.
-**Übergabe von Cursor:** _(hier eintragen)_
+**Übergabe von Cursor:** Verworfen (23.10., Claude). Der Zweig `fix/fokus-ohne-tempo` enthielt keine Code-Änderung, nur eine Übergabe, die eine nicht gepushte Änderung beschrieb. Umgesetzt von Claude auf `fix/fokus-ohne-tempo-2`: `case 'faster'` in `js/main.js` ignoriert Tipps auf `.fu-enemy`.
 
