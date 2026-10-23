@@ -110,7 +110,7 @@ Fertig, wenn: frischer Spieler (keine Aufträge frei, keine Freischaltung nahe):
 Nicht anfassen: Freischalt-Regeln (`unlocks.js`), Auftrags- und Rang-Logik (`meta.js`), Run-Engine, Spielstand, Balance, Patchnote und Versionssprung.
 Übergabe von Cursor: _(hier eintragen)_
 
-### A4: Fahrtziel setzen (Punkt 2a, Teil 2)   Status: offen (A4a und A4b freigegeben, Felix' Okay 23.10. über Jan)
+### A4: Fahrtziel setzen (Punkt 2a, Teil 2)   Status: gebaut, wartet auf Prüfung
 Zweig: `feature/fahrtziel` (liegt auf `feature/fahrtbrief` = A2, mit diesem Auftrag; dort weiterarbeiten). Entscheidung Jan, 23.10. (per Klick): „Ziel setzen plus Bonus“. Der Bonus verschiebt die Balance, deshalb zwei Teile.
 Ziel: Der Fahrtbrief aus A2 zeigt nicht nur, sondern man **setzt ein Fahrtziel**. Es steht während der Fahrt als kleiner Chip in der Kopfzeile („🎯 Nami 2/3“) und wird am Run-Ende abgerechnet („Fahrtziel: +1, geschafft!“).
 **A4a: Ziel setzen, nur Anzeige (jetzt bauen)**
@@ -125,7 +125,7 @@ Fertig, wenn: Tippen wechselt das leuchtende Ziel; ohne Tippen gilt die oberste 
 **A4b: Prämie bei Erreichen (Felix hat am 23.10. über Jan zugestimmt, nach A4a bauen)**
 Abgesegnet: **feste +50 Berry**, einmal pro Fahrt, nur wenn das gewählte Fahrtziel **in dieser Fahrt** erreicht wurde (Figur freigeschaltet, Auftrag erfüllt, Rangstufe gestiegen). Kein Rang-EP, keine Punkte, nichts in der Rangliste. Zum Vergleich: Tagesfahrt gibt 60 bis 130 Berry, Heat +20 % je Stufe, Rang +2 % je Rang. Selbstbegrenzend, weil ein erreichtes Ziel nicht noch einmal wählbar ist. Umsetzung wie bei der Tagesfahrt: **nach** `finishRun` in `js/main.js` (`profile.berry += bonus; ui.lastBerry += bonus;`, Vorbild Zeile ~707), **nicht** in der Run-Engine, damit Replays gleich bleiben. Wert in `GL.config.goalBonus` (Stellschraube), Zeile am Run-Ende „Fahrtziel geschafft: +50 Berry“.
 Nicht anfassen: Freischalt-Regeln (`unlocks.js`), Auftrags- und Rang-Logik (`meta.js`), Run-Engine (`js/engine/run.js`), Spielstand-Felder, Patchnote, Versionssprung, kein Merge nach `main`.
-Übergabe von Cursor: _(hier eintragen: was gebaut, welche Zeilen, wie getestet, Funde)_
+Übergabe von Cursor: A4a Ziel setzen (Tippen auf Brief-Zeilen, Default erste, Chip in Kopfzeile, Abrechnung am Run-Ende) + A4b +50 Berry (config.goalBonus, nach finishRun). deck.js, render.js, main.js, config.js, CSS. node --check ok. Offen: Browser-Test.
 Danach `git push -u origin feature/fahrtziel`.
 
 ## Gesamtplan gegen Spiel (Abgleich 22.10.)

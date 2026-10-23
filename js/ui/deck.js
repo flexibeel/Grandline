@@ -67,7 +67,7 @@ window.GL = window.GL || {};
 
 
   // Fahrtbrief: warum lohnt sich diese Fahrt? Höchstens 3 Zeilen.
-  function briefHtml(profile) {
+  function briefHtml(profile, ui) {
     if (!profile || !GL.meta) return '';
     const lines = [];
     // (a) nächste Figur
@@ -77,7 +77,7 @@ window.GL = window.GL || {};
       const d = crewData(u.unlock);
       const pct = Math.round(100 * pr.have / Math.max(1, pr.need));
       const tip = esc(u.text);
-      lines.push(`<div class="fb-row" data-tip="${tip}" tabindex="0">
+      lines.push(`<div class="fb-row goal-row${ui.briefGoal && ui.briefGoal.kind==='fig' && ui.briefGoal.id===u.unlock ? ' on' : ''}" data-act="goal-set" data-kind="fig" data-id="${esc(u.unlock)}" data-tip="${tip}" tabindex="0">
         <i class="fb-spr">${GL.sprites.render(d)}</i>
         <span class="fb-b"><b>${esc(d.name)}</b><small>${esc(u.text)}</small>
           <span class="fb-bar"><i style="width:${pct}%"></i></span></span>
@@ -98,7 +98,7 @@ window.GL = window.GL || {};
         const qText = String(def.text || '').replace('{n}', best.q.n.toLocaleString('de-DE'));
         const pct = Math.round(100 * best.pr.have / Math.max(1, best.pr.need));
         const tip = esc(qText);
-        lines.push(`<div class="fb-row" data-tip="${tip}" tabindex="0">
+        lines.push(`<div class="fb-row goal-row${ui.briefGoal && ui.briefGoal.kind==='quest' && String(ui.briefGoal.id)==String(best.q.id || best.q.n) ? ' on' : ''}" data-act="goal-set" data-kind="quest" data-id="${esc(best.q.id || best.q.n)}" data-tip="${tip}" tabindex="0">
           <i class="fb-ico">${def.icon || '?'}</i>
           <span class="fb-b"><b>${en() ? 'Quest' : 'Auftrag'}</b><small>${esc(qText)}</small>
             <span class="fb-bar"><i style="width:${pct}%"></i></span></span>
@@ -112,7 +112,7 @@ window.GL = window.GL || {};
       const pct = Math.round(100 * rp.have / Math.max(1, rp.need));
       const tip = esc(en() ? 'Victories and long voyages give rank XP.' : 'Siege und weite Fahrten bringen Rang-EP.');
       const name = esc(rp.next.name);
-      lines.push(`<div class="fb-row" data-tip="${tip}" tabindex="0">
+      lines.push(`<div class="fb-row goal-row${ui.briefGoal && ui.briefGoal.kind==='rank' ? ' on' : ''}" data-act="goal-set" data-kind="rank" data-id="rank" data-tip="${tip}" tabindex="0">
         <i class="fb-ico">⚓</i>
         <span class="fb-b"><b>${en() ? 'Rank' : 'Rang'}</b><small>${en() ? `still ${left} rank XP until ${name}` : `noch ${left} Rang-EP bis ${name}`}</small>
           <span class="fb-bar"><i style="width:${pct}%"></i></span></span>
@@ -167,7 +167,7 @@ window.GL = window.GL || {};
           <span class="dk-chips">${chip('all', en() ? 'All' : 'Alle')}${Object.keys(T).map(k => chip(k, T[k].name)).join('')}</span>
         </div>
         <div class="dk-figs">${figs}</div>
-        ${briefHtml(ui.profile)}
+        ${briefHtml(ui.profile, ui)}
         <div class="dk-foot">
           <span class="dk-hint">${hint}</span>
           <button class="dk-go" data-act="deck-go">${en() ? 'Set sail' : 'Ablegen'} <small>${onDeck.length}/${N()}</small></button>
@@ -218,13 +218,39 @@ window.GL = window.GL || {};
       st.sel = st.slots[i] ? { slot: i } : null;
       return true;
     }
+
+    if (type === 'goal-set') {
+      const kind = el.dataset.kind, id = el.dataset.id;
+      if (!kind || !id) return false;
+      ui.briefGoal = { kind, id };
+      return true;
+    }
     if (type === 'deck-go') {
       const ids = st.slots.filter(Boolean);
       if (profile) { profile.lastDeck = st.slots.slice(); if (save) save(); }
-      // Schnappschuss für Run-Ende-Chips
+      // Default goal: first row if none chosen
+      if (!ui.briefGoal && profile) {
+        const next = GL.meta && GL.meta.nextUnlocks && GL.meta.nextUnlocks(profile, 1);
+        if (next && next.length) ui.briefGoal = { kind: 'fig', id: next[0].u.unlock };
+      }
+      // Schnappschuss + Startstand des Ziels
       ui.briefStart = {};
       if (profile && GL.meta && GL.meta.nextUnlocks) {
         GL.meta.nextUnlocks(profile, 5).forEach(({ u, pr }) => { ui.briefStart[u.unlock] = pr.have; });
+      }
+      if (ui.briefGoal && profile && GL.meta) {
+        const g = ui.briefGoal;
+        if (g.kind === 'fig') {
+          const n = GL.meta.nextUnlocks(profile, 10).find(x => x.u.unlock === g.id);
+          if (n) g.have0 = n.pr.have;
+        } else if (g.kind === 'quest') {
+          const qs = GL.meta.questsEnsure(profile);
+          const q = qs.find(q => (q.id || q.n) == g.id);
+          if (q) g.have0 = GL.meta.questProgress(profile, q).have;
+        } else if (g.kind === 'rank') {
+          const rp = GL.meta.rankProgress(profile);
+          if (rp) { g.have0 = rp.have; g.rank0 = rp.index || 0; }
+        }
       }
       ui.deck = null;
       act({ type: 'deck', ids });

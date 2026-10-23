@@ -10453,3 +10453,8 @@ body.ult-hand .rc-ulthint { display: inline; }
 @media (prefers-reduced-motion: reduce) {
   .goal-up { animation: none; }
 }
+
+/* A4 Fahrtziel */
+.fb-row.goal-row.on { outline: 2px solid var(--accent, #c45c26); background: rgba(196, 92, 38, .08); }
+.goal-chip { font-size: .75em; padding: .1em .4em; border-radius: 4px; background: #e8f0e0; }
+.goal-end { margin: .6em 0; padding: .4em .6em; border-radius: 6px; background: var(--paper, #fff8e7); }

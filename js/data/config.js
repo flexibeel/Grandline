@@ -151,6 +151,7 @@ GL.config = {
   // FIGHT: Pläne der Gegnergruppen (enemies.js foePlans): Salve (Anteil Angriff je Marine), Rausch (+Angriff je Gefallenem),
   // Biss (Blutungs-Chance), Welle (Anteil Ø-Angriff an alle), Strahl (Faktor Angriff), Untot (Leben beim Aufstehen)
   plan: { salvo: 0.45, frenzy: 0.1, bite: 0.18, wave: 0.55, beam: 1.6, undead: 0.3 },
+  goalBonus: 50,   // A4b: Berry für erreichtes Fahrtziel
   sig: { final: 1.3 },   // Boss-Signatur in der Endphase: so viel stärker
   // KAMPFTIEFE: Stil-Ketten und Schwung (battle.js). cut = Blutung nach Klinge-Krit (Anteil Angriff, Runden),
   //   rip = Kraft reißt Blutung auf (Restschaden × rip), expose = Technik gegen Geschwächt/Betäubt (+Schaden, Rüstung egal),
