@@ -2729,6 +2729,7 @@
     });
     if (!card) return;
     const face = card.querySelector('.card-face');
+    if (!face) return;   // manche Karten (z. B. Ereignis-Wahl) haben kein .card-face
     const r = card.getBoundingClientRect();
     const x = (e.clientX - r.left) / r.width;
     const y = (e.clientY - r.top) / r.height;
