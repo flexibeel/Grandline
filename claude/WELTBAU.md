@@ -40,3 +40,5 @@ Pro Figur ein Markenzeichen (Hut, Farbe oder Gegenstand), höchstens 4 Accessoir
 2. Sollen die Stammfiguren (Sturmmöwen, 9 Köpfe) zuerst ersetzt werden oder zuletzt, weil man an ihnen hängt?
 3. Soll die Krone am Ende selbst ein Gegner werden (Gerichtsinsel als Wendepunkt), oder bleibt sie nur Kulisse?
 4. Tempo: eine Welle pro Update, oder mehrere im Sammel-Update?
+
+**Antworten (23.10., Felix/Jan per Klick):** 1. Ton und Strömungs-Grundidee passen so · 2. Die Stammfiguren (Sturmmöwen, 9 Köpfe) werden **zuletzt** ersetzt · 3. Die Krone wird am Ende **selbst Gegner** (Gerichtsinsel als Wendepunkt) · 4. Tempo: **mehrere Wellen im Sammel-Update** (nicht eine pro Update, abweichend von der Empfehlung). Damit sind die Wellen A bis C freigegeben, **noch nichts gebaut**, Start mit Welle A (Inseln und Meere).

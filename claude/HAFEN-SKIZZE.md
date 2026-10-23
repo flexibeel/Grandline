@@ -80,3 +80,5 @@ Neu nur als Hülle: die vier Gebäude-Kacheln und die Gruppen-Zuordnung. Kein ne
 2. **Tab-Leiste unten?** (a) Hafen · Tafel · Taverne · Kapitän *(empfohlen)* · (b) Bleibt wie heute (Hafen · Aufträge · Crew · Rangliste · Kapitän) · (c) Nur Hafen · Kapitän.
 3. **Wohin mit Endlos und Tageskarte?** (a) Ins Dock (Fahrtarten) *(empfohlen)* · (b) Auf die Auftragstafel · (c) Bleiben in der Steg-Szene.
 4. **Schmiede?** (a) Ins Kontor (Beute) *(empfohlen)* · (b) In die Taverne zur Stammcrew.
+
+**Antworten (23.10., Felix/Jan per Klick, alle wie empfohlen):** 1. Gesperrte Gebäude zeigen, mit Fensterläden und nur „zu“ · 2. Tab-Leiste Hafen · Tafel · Taverne · Kapitän · 3. Endlos und Tageskarte ins Dock · 4. Schmiede ins Kontor. Damit ist Schritt 1 freigegeben, Bauen mit Opus, Zweig `feature/hafen-gebaeude`, Häppchen A zuerst.
