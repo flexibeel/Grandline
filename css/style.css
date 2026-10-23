@@ -10385,3 +10385,41 @@ body.ult-hand .rc-ulthint { display: inline; }
     background: transparent !important; border: 0 !important; box-shadow: none !important; padding: 2px 5px !important; font-size: .86rem !important; min-height: 0; }
   body.in-run header .track .head-chips .lg-one, body.in-run header .track .head-chips .build-chip b { display: none; }
 }
+
+/* ===== 2c-1 UNTERBRECHEN: Aufladebalken über dem Boss ===== */
+.fu-sig { position: absolute; bottom: 100%; left: 50%; margin-bottom: 4px; transform: translateX(-50%) scale(calc(1 / var(--s, 1))); transform-origin: 50% 100%;
+  z-index: 6; display: flex; flex-direction: column; align-items: center; gap: 1px; pointer-events: none; white-space: nowrap; }
+.fu-sig small { font-size: .6rem; font-weight: 800; color: #4e1f72; background: #f6ecff; border: 2px solid #2a1238; border-radius: 4px; padding: 0 5px; line-height: 1.35; }
+.fu-sig .fs-track { display: block; width: 58px; height: 7px; border: 2px solid #2a1238; border-radius: 3px; background: #4a3058; overflow: hidden; box-shadow: 0 1px 0 rgba(255,255,255,.25); }
+.fu-sig .fs-track i { display: block; height: 100%; background: linear-gradient(180deg, #f6d6ff, #b06ae0); transition: width .18s steps(4); }
+.fu-sig em { font-style: normal; font-size: .56rem; font-weight: 800; color: #fff; background: #6a3a8a; border-radius: 3px; padding: 0 4px; line-height: 1.35; }
+.fu-sig.nofoc em { background: #c0392b; animation: sigNudge .6s ease-in-out infinite alternate; }
+.fu.ko .fu-sig { display: none; }
+@keyframes sigNudge { from { transform: translateY(0); } to { transform: translateY(-2px); } }
+/* „Unterbrochen!“: helles Spruchband der Crew, Boss taumelt kurz */
+.ult-call.us.sig-break { top: 34%; }
+.ult-call.us.sig-break b { color: #2f6b2a !important; }
+.ult-call.us.sig-break small { color: #6a3a8a; }
+.ult-call.us.sig-break em { display: block; font-style: normal; font-size: .68rem; font-weight: 700; max-width: 240px; margin: 2px auto 0; }
+#field .fu.stagger .fu-body { animation: sigStagger .9s steps(6) 1; transform-origin: 50% 100%; }
+@keyframes sigStagger { 0% { transform: rotate(0); } 20% { transform: rotate(-9deg) translateX(-3px); } 45% { transform: rotate(7deg) translateX(2px); } 70% { transform: rotate(-4deg); } 100% { transform: rotate(0); } }
+@media (prefers-reduced-motion: reduce) { .fu-sig.nofoc em { animation: none; } .fu-sig .fs-track i { transition: none; } }
+
+/* A3 ANSAGE – Steckbrief-Zeile in der Inselwahl */
+.sig-hint {
+  display: block;
+  margin-top: .4em;
+  padding: .35em .6em;
+  border-radius: 6px;
+  background: var(--paper, #fff8e7);
+  border: 1px solid var(--ink, #3a2a1a);
+  font-size: .92em;
+  line-height: 1.35;
+}
+.sig-hint b { color: var(--accent, #c45c26); }
+.sig-hint .sig-break { display: block; margin-top: .15em; opacity: .85; font-style: italic; }
+.dark .sig-hint, [data-theme="dark"] .sig-hint {
+  background: #2a2218;
+  border-color: #6a5a4a;
+  color: #f0e6d6;
+}

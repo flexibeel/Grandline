@@ -45,3 +45,46 @@ Fix: Überall höchstens **1** Toast gleichzeitig (`inRun() ? 1 : 2` wird zu `1`
 
 ### Abschluss von Grok
 Kurz: welche Fälle bestätigt, welche nicht, welche Zeilen geändert, wie getestet. Dann `git push -u origin fix/freischalt-meldungen`.
+
+---
+
+## A3: Steckbrief-Zeile „Ansage“ in der Inselwahl (2c-2)   Status: gebaut, wartet auf Prüfung
+
+**Zweig:** `feature/steckbrief-ansage` existiert schon (dieser Auftrag liegt darauf). Dort weiterarbeiten, nicht neu abzweigen. Der Zweig baut auf `feature/kampf-unterbrechen` (2c-1) auf, nicht auf `main`: Nur dort gibt es `GL.config.sig.breakPct`, und nur dort stimmt der Satz „Unterbrechen“ mit dem Spiel überein.
+**Ziel:** Wer auf der Inselwahl-Karte eines Bösewichts oder Meeres-Bosses die Details aufklappt, sieht vor dem Kampf: Dieser Gegner hat eine **Ansage** (Signatur-Angriff), so heißt sie, das macht sie, und so unterbricht man sie: **Fokus auf ihn und mindestens 15 % Schaden, bevor sie losgeht.**
+**Umfang:** klein, reine Anzeige. Regeln für dich: `AGENTS.md`. Erst `CLAUDE.md` lesen, dann nur die unten genannten Stellen öffnen.
+
+**Dateien und Stellen** (Zeilen gelten für diesen Zweig, grob):
+- `js/ui/render.js`, Phase `case 'course'` (ab ca. Zeile 1968). Die Karte wird **hier** gebaut, nicht in `js/ui/inselwahl.js` (das ist nur das Wisch- und Antipp-Verhalten, dort nichts ändern). Im Karten-Template steht in `<span class="isl-more-in co-body">` (ca. Zeile 2004 bis 2013) am Ende `${crackHint(foe).html}`. Die neue Zeile kommt **direkt dahinter**, also nur im aufgeklappten Teil, nicht auf die Vorderseite.
+- Neue Hilfsfunktion `sigHint(foe)` direkt unter `crackHint` (ca. Zeile 1647), gleiche Bauart.
+- Daten: `GL.data.bossSigs[foe.id]` (`js/data/enemies.js`, ab Zeile 173) mit `name`, `en`, `t`, `tEn`. Es gibt 14 Einträge (smoker, arlong, crocodile, enel, rob-lucci, kaku, hody, vander, moria, kuma, kizaru, doflamingo, teach, shanks). Alle anderen Gegner haben **keine** Ansage.
+- Prozentzahl: `Math.round(GL.config.sig.breakPct * 100)` (derzeit 15). **Nie fest als 15 schreiben**, damit die Anzeige mit der Stellschraube mitgeht.
+- `css/style.css`: ein kleiner Block am Ende der Datei „A3 ANSAGE“. Vorbild für die Optik ist `.crack` (ca. Zeile 7418, in der Inselwahl `.co2 .crack`, ca. Zeile 7777): gleiche Größe und Rundung, aber eigene Farbe, damit man Ansage und „So knackst du ihn“ auseinanderhält.
+
+**Weg:**
+1. `sigHint(foe)`: Gibt es `bossSigs[foe.id]` nicht, liefert die Funktion `''` (dann **keine** Zeile und **keine** Lücke). Sonst ein `<span class="sig-hint">` mit drei Teilen: Kopf „✦ Ansage: <Name>“, der Kurztext der Signatur, und der Satz zum Unterbrechen.
+2. Sprache wie in `intentText` in `js/ui/arena.js` (ca. Zeile 70): `const en = GL.i18n && GL.i18n.lang && GL.i18n.lang() === 'en'`, dann `S.en`/`S.tEn` bzw. `S.name`/`S.t`. Namen und Texte mit `esc(...)` ausgeben.
+3. Texte (so oder sehr nah dran, Ton locker):
+   - Kopf DE: `✦ Ansage: ${S.name}` · EN: `✦ Signature move: ${S.en}`
+   - Unterbrechen DE: `Unterbrechen: Fokus auf ihn und mindestens ${p} % Schaden, bevor sie losgeht.` · EN: `Interrupt: focus him and deal at least ${p} % damage before it goes off.`
+4. In das Karten-Template einhängen, CSS-Block anlegen, fertig. Das Wort „Fokus“ heißt im Spiel schon so (Kampf-Befehl), nichts Neues erfinden.
+
+**Fallen:**
+- `feature/fahrtbrief` (A2) ändert dieselbe Phase `course` in `render.js`. Halte den Eingriff dort **winzig** (eine Zeile im Template plus die neue Funktion an anderer Stelle), damit das spätere Zusammenführen ohne Konflikt klappt.
+- Nicht über Booleans wie `ch === 1` einschränken: Bösewichte (Insel 1) und Meeres-Bosse (Insel 2) können beide eine Ansage haben, entscheidend ist nur, ob `bossSigs[foe.id]` existiert.
+- Eigene Welt: Die Signatur-Namen laufen schon durch `js/world/neutral.js`, aber **prüfen**, nicht annehmen (z. B. „Rokuogan“, „Königshaki“, „Vogelkäfig“ dürfen nirgends sichtbar bleiben). Skript: für alle 14 Einträge Name, `en`, `t`, `tEn` durch die Ersetzungsliste schicken und Treffer melden. Fehlt etwas, Eintrag in `neutral.js` ergänzen.
+- Hell- und Dunkel-Theme beide ansehen (Farben nur über die vorhandenen CSS-Variablen oder mit eigener Dunkel-Regel, wie bei `.crack`).
+- Handy 390 px: Text bricht um, kein seitliches Scrollen, die Karte klappt weiter sauber auf und zu (Höhe der aufgeklappten Karte ändert sich nur um die neue Zeile).
+
+**Fertig, wenn:**
+1. Karte eines Gegners **mit** Ansage (einer der 14 Einträge, Beispiel in einem Testlauf per Skript suchen: welche Insel hat einen davon als Bösewicht oder Boss): Details aufklappen zeigt die Ansage-Zeile mit Name, Kurztext und Unterbrech-Satz, in Deutsch und Englisch.
+2. Karte eines Gegners **ohne** Ansage: unverändert, keine leere Zeile.
+3. Die Prozentzahl im Satz stimmt mit `GL.config.sig.breakPct` überein (Test: Wert kurz auf 0,2 setzen, Anzeige zeigt 20, danach zurück auf 0,15).
+4. Mit `?welt=neutral` kein Markenname in der Zeile, für alle 14 Signaturen per Skript geprüft.
+5. 390 px, Hell und Dunkel, DE und EN, kein Überlauf, Konsole ohne neue Fehler.
+6. `node --check js/ui/render.js` läuft durch.
+
+**Nicht anfassen:** Kampfsystem (`js/engine/battle.js`), Kampfanzeige (`js/ui/arena.js`, `js/main.js`), `js/data/config.js`, `js/data/enemies.js` (Daten nur lesen), `js/ui/inselwahl.js`, die Kartenvorderseite. Kein Eintrag in `patchnotes.js`, kein `bump-version.py`, kein Merge nach `main`, nichts live (Jan sammelt für ein größeres Update, Claude schaltet beim Live-Gang).
+
+**Übergabe von Cursor:** Steckbrief-Zeile „Ansage“ gebaut. Neue Funktion sigHint(foe) in render.js (nach crackHint), eingehängt nur in der Inselwahl-Karte (isl-more-in, nach crackHint). Zeigt Name, Kurztext und Unterbrechen-Satz mit dynamischem breakPct. CSS-Block „A3 ANSAGE“ am Ende von style.css. node --check ok. Offen: voller Browser-Test auf 390 px DE/EN/neutral durch Claude.
+Danach `git push -u origin feature/steckbrief-ansage`.

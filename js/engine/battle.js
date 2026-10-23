@@ -57,7 +57,10 @@ window.GL = window.GL || {};
       }
       // Unsichtbare Gehilfen: schwer zu treffen, solange niemand gezielt aufräumt
       if (M && M.id === 'larvae' && !M.c && u.ref && u.ref.larva && amount > 0) amount = Math.max(1, Math.round(amount * 0.35));
+      const before = u.hp;
       u.hp = Math.max(0, u.hp - amount);
+      // 2c-1 Unterbrechen: Schaden am Boss, der gerade eine Signatur auflädt, füllt den Balken
+      if (u.sigCharge && u.sigPending && before > u.hp) u.sigCharge.dealt += (before - u.hp) * (FOCUS === u ? 1 : SG.noFocus);
       return u.hp;
     }
     function heal(u, amount) {
@@ -550,13 +553,36 @@ window.GL = window.GL || {};
     const behindGuards = (u, target) => !pvp && FM.on && u.side === 'crew' && isLead(target) && alive(enemies).some(f => !isLead(f));
 
     // ---------- FIGHT: Signatur-Angriffe der Bosse (bei Wut und in der Endphase, eine Aktion vorher angekündigt) ----------
-    const SIG = GL.data.bossSigs || {}, SG = Object.assign({ final: 1.3 }, C.sig || {});
+    const SIG = GL.data.bossSigs || {}, SG = Object.assign({ final: 1.3, breakPct: 0.15, finalBreak: 1.3, noFocus: 0.33 }, C.sig || {});
+    let sigAct = 0;   // zählt Aktionen, damit eine Ansage nie im selben Zug losgeht (Zeit zum Unterbrechen)
     function sigWarn(e, m) {
       const S = SIG[e.id];
       if (!S || pvp || kind === 'duel' || C.sig === false) return;
       e.sigPending = m;
-      events.push({ k: 'plan', side: 'enemy', plan: 'sig', step: 'warn', to: idx(e), by: e.id,
-        text: `${nameOf(e)} bereitet ${S.name} vor …`, en: `${nameOf(e)} is preparing ${S.en} …` });
+      e.sigAct = sigAct;
+      // 2c-1 Unterbrechen: so viel Schaden muss der Boss selbst bis zu seiner nächsten Aktion einstecken
+      const need = SG.breakPct > 0 ? Math.max(1, Math.ceil(e.max * SG.breakPct * (m > 1 ? SG.finalBreak : 1))) : 0;
+      e.sigCharge = need ? { need, dealt: 0, last: 0 } : null;
+      events.push({ k: 'plan', side: 'enemy', plan: 'sig', step: 'warn', to: idx(e), by: e.id, need: need || undefined, foc: (need && FOCUS === e) || undefined,
+        text: `${nameOf(e)} bereitet ${S.name} vor … Fokus auf ihn und draufhauen, dann bricht es ab!`,
+        en: `${nameOf(e)} is preparing ${S.en} … Focus him and hit hard to interrupt it!` });
+    }
+    // Nach jeder Aktion: Balken melden, bei genug Schaden ist die Signatur abgebrochen und der Boss taumelt
+    function sigFlush() {
+      enemies.forEach(e => {
+        const c = e.sigCharge;
+        if (!c || !e.sigPending) return;
+        if (e.hp <= 0) { e.sigCharge = null; e.sigPending = 0; return; }
+        if (c.dealt === c.last) return;
+        c.last = c.dealt;
+        events.push({ k: 'sigprog', side: 'enemy', to: idx(e), by: e.id, dealt: Math.min(Math.floor(c.dealt), c.need), need: c.need, foc: FOCUS === e || undefined });
+        if (c.dealt < c.need) return;
+        const S = SIG[e.id] || {};
+        e.sigPending = 0; e.sigCharge = null;
+        e.status.stun = { rounds: 1, value: 0 };   // Taumeln: geht an Mut/Immunität vorbei, ist ja kein Zustand von außen
+        events.push({ k: 'status', side: 'enemy', list: [{ to: idx(e), key: 'stun', rounds: 1 }], by: 'sigbreak' });
+        events.push({ k: 'sig-break', side: 'enemy', to: idx(e), by: e.id, name: S.name, en: S.en });
+      });
     }
     function doSig(u) {
       const S = SIG[u.id], m = u.sigPending || 1;
@@ -941,9 +967,12 @@ window.GL = window.GL || {};
       } else queue.sort((a, b) => spdOf(b) - spdOf(a));
 
       for (const u of queue) {
+        sigFlush();
         if (!alive(enemies).length || !alive(crew).length) break;   // Kampf schon entschieden
-        if (TURNS) { turnNo++; events.push({ k: 'turn', t: turnNo }); if (CMDS.length) { cmdTurn(); if (!alive(enemies).length) break; } }
+        sigAct++;
+        if (TURNS) { turnNo++; events.push({ k: 'turn', t: turnNo }); if (CMDS.length) { cmdTurn(); sigFlush(); if (!alive(enemies).length) break; } }
         drama();
+        sigFlush();
         if (u.hp <= 0) continue;
         if (u.status.stun) {
           delete u.status.stun;
@@ -953,7 +982,7 @@ window.GL = window.GL || {};
         // Roboter kühlt nach dem grellen Schuss eine Aktion lang ab
         if (u.cool) { u.cool = false; if (PL) planEv('kuehlen', u, `${nameOf(u)} kühlt ab. Es dampft und riecht nach Lötzinn.`, `${nameOf(u)} cools down. It steams and smells of solder.`); continue; }
         // Boss-Signatur: angekündigt, kommt jetzt statt des normalen Angriffs
-        if (u.sigPending && u.side === 'enemy' && SIG[u.id]) { doSig(u); continue; }
+        if (u.sigPending && u.side === 'enemy' && SIG[u.id] && !(u.sigCharge && u.sigAct === sigAct)) { u.sigCharge = null; doSig(u); continue; }
         // Ulti: Bei voller Leiste zündet sie mit etwas Glück sofort, spätestens im übernächsten Zug.
         // Selten springt schon bei halb voller Leiste ein Funke über (Glücks-Ulti).
         if (MU && u.side === 'crew' && u.ult) {

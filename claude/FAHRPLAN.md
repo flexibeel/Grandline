@@ -4,7 +4,7 @@
 **Am Ende jedes Chats** wird sie aktualisiert und mitgepusht: Was ist fertig, was liegt auf welchem Zweig, was kommt als Nächstes.
 Felix und Jan arbeiten mit verschiedenen Claude-Accounts. Diese Datei ist das gemeinsame Gedächtnis, deshalb gehört hier alles rein, was der nächste Chat wissen muss.
 
-Stand: 23.10.2026 (23a live: ruhigere Meldungen; Grok ist an GitHub angebunden, A1 von ihm gebaut)
+Stand: 23.10.2026 (23a live; wartend fürs Sammel-Update: `feature/fahrtbrief` und `feature/kampf-unterbrechen`; A3 gebaut, wartet auf Prüfung)
 
 ## Wer macht was
 - **Felix:** entscheidet, was gebaut wird und was live geht („schalte live“), Kunst und Look.
@@ -26,6 +26,15 @@ Jan (23.10.): Erst weiterbauen, später **ein größeres Update** gebündelt liv
   - Dateien: `js/ui/render.js` (Phase `course`), neu `js/ui/inselwahl.js` (Verhalten: Mitte erkennen, Antippen, Szene, steht im `tail`-Bündel-Marker, landet beim Bündeln automatisch in `tools/bundles.json`), `css/style.css` (Block „22s“ am Ende), `i18n.js` (1 Text). Gewählt wird weiter über `data-act="pick"`, Spiellogik unverändert. Taste 1–9 wählt sofort (mit Szene). „Weniger Bewegung“ am Gerät: keine Animationen, keine Szene.
   - Geprüft per Headless-Browser 390 px, Deutsch und Englisch: Einflug, Wischen ändert Knopf und Punkte, Antippen klappt auf, Szene läuft und Run geht weiter, Taste 2, „weniger Bewegung“. Bündel per `node --check` in einer Testkopie gebaut (im Zweig ist `js/build/` unverändert, das macht `bump-version.py` beim Live-Gang).
   - Offen/klein: In der Kopfzeile wird der Ort am Handy bei vielen Chips gekürzt („Ostmeer · Ku…“), die Überschrift darunter nennt Meer und Insel aber ohnehin.
+
+- **`feature/kampf-unterbrechen` (2c-1): gebaut von Claude (Opus), Stand `77e095a`, Basis `main`.** Sagt ein Boss seine Signatur an, erscheint über ihm ein Aufladebalken mit dem Namen der Signatur. Schaden am Boss bis zu seiner nächsten Aktion füllt ihn, **mit Fokus auf dem Boss voll, ohne Fokus nur ⅓** (Jan per Klick, 23.10.). Voll = **„Unterbrochen!“**, Signatur fällt weg, Boss taumelt 1 Zug. Ohne Fokus steht „Fokus!“ (rot) am Balken, nach dem Antippen sofort die Prozentzahl.
+  - Engine `js/engine/battle.js`: `sigWarn` legt `e.sigCharge = { need, dealt }` an (`need = ceil(max × breakPct)`, Endphase × `finalBreak`), `damage()` zählt mit (`noFocus` ohne Fokus), `sigFlush()` nach jeder Aktion: Ereignisse `sigprog` (dealt/need/foc) und `sig-break` plus Betäubung (geht an Mut vorbei). **Neu:** Eine Ansage geht nie mehr im selben Zug los, in dem sie kam (`sigAct`), vorher konnte ein Boss ansagen und sofort zuschlagen. Kein neuer Würfel, also Replay-sicher; Duelle/PvP unverändert ohne Signaturen.
+  - Stellschrauben `config.sig`: `breakPct 0.15`, `finalBreak 1.3`, `noFocus 0.33` (`js/data/config.js`).
+  - Anzeige `js/ui/arena.js` (`sigDraw`, Zustand `sigMap` bis zum nächsten Kampfbeginn, übersteht das Neurechnen nach einem Fokus-Tipp), `main.js` (`sigprog` ohne Pause, `sig-break` als Wendepunkt, Fokus-Tipp schaltet Balken sofort um), `render.js` (Kampftext DE/EN), CSS-Block „2c-1 UNTERBRECHEN“ am Ende von `style.css`. Im ×2-Tempo kurzes Spruchband ohne Taumeln.
+  - **Messung** (1500 Bot-Runs, Deck-Start, gleiche Seeds, Node-Nachbau von `tools/balance.html`, Bot tippt nach jeder Ansage den Boss als Fokus an): Unterbrochen ohne Fokus **4,5 %**, mit Fokus **53 %** der entschiedenen Ansagen. Run-Siegquote ohne Fokus 66,1 → 65,1 %, mit Fokus 62,7 → 64,4 %. Fund dabei: Mit „jeder Schaden zählt“ machten Fokus und aufgesparte Ulti kaum Unterschied (32 % gegen 35 %), deshalb die Fokus-Regel. `tools/balance.html` selbst kennt keine Befehle, das Mess-Skript lag nur im Scratchpad.
+  - Geprüft im Headless-Browser 390 px, DE und EN: Balken mit neutralem Namen („Sturmschnitt“/„Tempest Cut“), „Fokus!“, Antippen, Füllen, „Unterbrochen!“ (für den Sichttest Schwelle nur in der Testkopie gesenkt), Log-Text, keine neuen Konsolenfehler.
+  - Fund, nicht angefasst: Ein Tipp auf einen Gegner im Feld setzt den Fokus **und** schaltet auf ×2 (das Feld trägt `data-act="faster"`). Das war schon vorher so, fällt mit „Fokus!“ aber mehr auf. Bei Bedarf kleiner Fix.
+  - Patchnote kommt beim Live-Gang (Kennung nach `2026-10-23b` für A2).
 
 **Offen für Felix (von Hand, Supabase-SQL-Editor):** `tools/neustart-2026-10-22.sql` **Teil 2** (löscht alle Konten, die vor Teil 1 angelegt wurden, außer NoNa, nicht rückgängig) **sofort nach dem Live-Gang**, am nächsten Tag **Teil 3** (Nachlauf Rangliste). Teil 1 ist gelaufen, `keep_id` = `0e7333bc`.
 
@@ -71,6 +80,7 @@ Figurenreise Teil 1 (22l) ist live. Dateien: `js/data/forms.js`, `js/engine/form
 
 ## Bauaufträge für Cursor
 Claude schreibt hier Aufträge, Cursor (Grok) baut sie, Claude prüft den Zweig im nächsten Chat, dann „schalte live“ durch Felix. Regeln für Cursor: `AGENTS.md`.
+Offene Aufträge: **A3** (Steckbrief-Zeile „Ansage“, Punkt 2c-2, Zweig `feature/steckbrief-ansage`). Die Texte stehen in `claude/BAUAUFTRAEGE.md`.
 Gut für Cursor: Inhalte nach bestehendem Muster, Texte und Übersetzungen, kleine Fixes, klar umrissene Punkte. Bei Claude bleiben: Vorschläge und Skizzen, Kampfsystem-Umbauten, Spielstände/Supabase, Prüfen vor dem Live-Gang.
 
 Vorlage (Claude füllt aus):
@@ -151,7 +161,8 @@ Felix (22.10.): Jetzt Inhalt aus dem Gesamtplan ins Spiel. Kampfstile Variante A
      - Anzeige (`arena.js`): Balken über dem Boss mit Name der Ansage („Donnergott … 6/15 %“), bei Erfolg großes Wort „Unterbrochen!“ und Taumeln, im schnellen Modus nur das Wort. Lesbarkeit wie in der Gesamtplan-Tafel „Zustände & Reaktionen“ (höchstens 3 Symbole über einer Figur).
      - Balance: mit `tools/balance.html` messen (Boss-Siegquote vorher/nachher, wie oft unterbrochen), Wert so setzen, dass Fokus **meist**, ohne Fokus **selten** reicht.
      - Neue Texte zweisprachig, Signatur-Namen laufen schon durch `neutral.js` (beim Bauen mit `?welt=neutral` prüfen, Markennamen wie „Rokuogan“, „Königshaki“, „Vogelkäfig“ dürfen nicht sichtbar bleiben).
-     - **2c-2 Steckbrief-Zeile (Cursor/Grok, erst nach 2c-1).** In der Inselwahl-Karte des Bösewichts (`js/ui/inselwahl.js`, Details zum Aufklappen) eine Zeile „Ansage“: Name und Kurztext der Signatur (`bossSigs[id]`) und ein Satz „Unterbrechen: ≥ 15 % Schaden an ihm, bevor sie losgeht (Fokus!)“. Reine Anzeige, DE/EN, Handy 390 px.
+     - **Stand 23.10.: 2c-1 gebaut auf `feature/kampf-unterbrechen` (siehe „Wartet“).** Abweichung vom Entwurf nach Messung und Jans Klick: Schaden zählt ohne Fokus nur ⅓.
+     - **2c-2 Steckbrief-Zeile (Cursor/Grok): Bauauftrag A3 geschrieben (23.10.), Status offen, Zweig `feature/steckbrief-ansage`, Basis `feature/kampf-unterbrechen`.** In der Inselwahl-Karte (Details zum Aufklappen) eine Zeile „Ansage“: Name und Kurztext der Signatur (`bossSigs[id]`) plus „Unterbrechen: Fokus auf ihn und mindestens 15 % Schaden, bevor sie losgeht“ (Prozentzahl aus `GL.config.sig.breakPct`). Reine Anzeige, DE/EN, Handy 390 px. Die Karte wird in `js/ui/render.js` (Phase `course`) gebaut, nicht in `inselwahl.js`. Auftrag in `claude/BAUAUFTRAEGE.md`.
      - Nicht jetzt: „Antwort wählen“ (Pause mit Verteidigen/Ulti/Fokus). Danach neu entscheiden, wenn sich Unterbrechen gut anfühlt.
 2b. ✓ live als 23a (Toast-Warteschlange). Rest bei Bedarf: Reihenfolge der Hafen-Fenster in `featureCheck()` (nicht angefasst). **Bug: Meldungen zu neuen Freischaltungen** wirken teils fehlerhaft (Jan, 22.10.). Genaue Fälle noch sammeln (doppelt? falscher Zeitpunkt? bleibt hängen?), dann gezielt prüfen.
 3. Nächstes Gesamtplan-Paket: Story-Drops (6er-Crew mit Kampfwert steckt im Deck), Kopfgeld als roter Faden, Endless aus Biomen oder 5 Kampfstile
@@ -164,7 +175,11 @@ Felix (22.10.): Jetzt Inhalt aus dem Gesamtplan ins Spiel. Kampfstile Variante A
 Die große Ideenliste ist das Claude-Doc **„Grand Line: Ideenwerkstatt“** im Account von Felix. Von anderen Accounts aus ist es nicht lesbar. Was dort beschlossen wird, kommt als Punkt in diese Warteschlange.
 
 ## Letzte Übergabe
+- 23.10. (Grok): A3 Steckbrief-Ansage auf feature/steckbrief-ansage gebaut (sigHint in render.js + CSS). Wartet auf Prüfung. A4 und A5 noch offen.
+
 _Hier schreibt der letzte Chat in 3 bis 5 Zeilen, wo er aufgehört hat._
+- 23.10. (Jan, 16. Chat): Nichts live geschaltet. Bauauftrag **A3** (2c-2, Steckbrief-Zeile „Ansage“ mit „Fokus auf ihn und ≥ 15 % Schaden, bevor sie losgeht“) für Grok geschrieben: `claude/BAUAUFTRAEGE.md`, Zweig `feature/steckbrief-ansage` (Basis `feature/kampf-unterbrechen`, enthält nur Fahrplan und Auftrag). Fund: Die Karte entsteht in `render.js` (Phase `course`), nicht in `inselwahl.js`. Risiko: A2 (`feature/fahrtbrief`) ändert dieselbe Phase, Eingriff deshalb winzig halten. Nächster Schritt: Jan gibt A3 an Grok, danach prüft Claude den Diff.
+- 23.10. (Jan, 15. Chat): Nichts live geschaltet (Sammel-Update). 2c-1 „Unterbrechen“ auf Opus gebaut: `feature/kampf-unterbrechen` (`77e095a`), gemessen und per Headless-Browser DE/EN geprüft. Jan hat per Klick entschieden: Fokus zählt voll, ohne Fokus ⅓, Schwelle 15 %. Wartet jetzt mit `feature/fahrtbrief` auf das größere Update. Nächstes Thema: 2c-2 Steckbrief-Zeile als Bauauftrag A3 für Grok schreiben, oder Jan spielt Unterbrechen erst im Zug an.
 - 23.10. (Jan, 14. Chat, Teil 3): Jan will erst weiterbauen und später **ein größeres Update** live schalten (kann erst im Zug zocken). `feature/fahrtbrief` (A2) geprüft, wartet. 2c Kampf mit Tiefe abgeglichen: Boss-Signaturen gibt es schon, es fehlt der Eingreif-Moment. Per Klick entschieden: **Unterbrechen** (2c-1) plus Steckbrief-Zeile (2c-2), Entwurf unter Punkt 2c. Nächster Schritt: 2c-1 bauen, **auf Opus** (Kampfsystem).
 - 23.10. (Jan, 14. Chat, Teil 2): Grok (Cursor) ist an GitHub angebunden (Test `cursor/verbindungstest` bestätigt, Autor „Grok“). A1 (Toast-Warteschlange F1 bis F5) von Grok auf `fix/freischalt-meldungen` gebaut (`1ff9a0a`), von Claude per Diff und Simulations-Test geprüft, live als 23a (Patchnote, `bump-version.py`, `node --check`, ff nach `main`). Ablauf Claude plant, Grok baut, Claude prüft und schaltet live funktioniert. Nächstes Thema: Jan/Felix wählen aus der Warteschlange (2a Run-Motivation, 2c Kampf mit Tiefe, erst Vorschlag).
 - 23.10. (Jan, 14. Chat): `feature/inselwahl-bilder` live als 22s (Patchnote, `bump-version.py`, Bündel per `node --check` geprüft, ff nach `main`). A1 (Hafen-Meldungen, Punkt 2b) noch offen: Jan nennt als Fall „mehrere gleichzeitig“. Zweig `fix/freischalt-meldungen` existiert (enthält nur `claude/BAUAUFTRAEGE.md` mit Toast-Fällen F1 bis F4, aus dem Code gelesen, nicht im Spiel bestätigt). Grok hat bisher nichts gepusht, Anbindung wird eingerichtet.

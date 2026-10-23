@@ -389,6 +389,24 @@ window.GL = window.GL || {};
     setTimeout(() => n.remove(), 1300);
   }
 
+  // ---------- 2c-1 Unterbrechen: Aufladebalken über dem Boss, solange eine Signatur angesagt ist ----------
+  // Nur Anzeige: lebt bis zum nächsten Kampfbeginn (übersteht Neuzeichnen und das Neurechnen nach einem Fokus-Tipp), nichts im Spielstand.
+  let sigMap = {};
+  const sigSt = () => sigMap;
+  function sigDraw(i) {
+    const s = sigSt()[i], u = fu('enemy', i);
+    if (!u) return;
+    let bar = u.querySelector('.fu-sig');
+    if (!s) { if (bar) bar.remove(); u.classList.remove('sigwarn'); return; }
+    u.classList.add('sigwarn');
+    if (!bar) { bar = document.createElement('div'); bar.className = 'fu-sig'; u.appendChild(bar); }
+    const S = (GL.data.bossSigs || {})[s.by] || {}, en = GL.i18n && GL.i18n.lang && GL.i18n.lang() === 'en';
+    const pct = Math.max(0, Math.min(100, Math.round(100 * s.dealt / s.need)));
+    const foc = s.foc || u.classList.contains('focus');   // nach dem Antippen sofort umschalten, die Engine zieht ab dem nächsten Zug nach
+    bar.classList.toggle('nofoc', !foc);
+    bar.innerHTML = `<small>✦ ${String((en ? S.en : S.name) || '').replace(/[<>&"]/g, '')}</small><span class="fs-track"><i style="width:${pct}%"></i></span><em>${foc ? pct + ' %' : (en ? 'Focus!' : 'Fokus!')}</em>`;
+  }
+
   // ---------- Zustände als kleine Abzeichen über der Figur ----------
   // Die Rundenzahl läuft mit den 'round'-Ereignissen herunter.
   const live = {};   // "side:i" -> { key: rounds }
@@ -975,6 +993,7 @@ window.GL = window.GL || {};
 
   GL.arena = {
     say, card,
+    sigRefresh: i => sigDraw(i),
     intents, intentHtml, intentText, intentIcon: k => INT_ICO[k] || '',
     html(run, anim) {
       curRun = run;
@@ -1001,6 +1020,7 @@ window.GL = window.GL || {};
       if (run.battle && fieldEl && waveDone) { const wev = (run.battle.events || []).find(e => e.k === 'weather'); if (wev) wxChip(fieldEl, wev, false); }
       if (run.battle && fieldEl && !run.battle.shown) {
         run.battle.shown = true;
+        sigMap = {};
         waveIn.clear();
         const b0 = run.battle.enemies.find(e => e.boss || e.raid) || run.battle.enemies[0];
         if (b0 && (b0.boss || b0.raid)) { const d = enemyData(b0.id) || crewData(b0.id); fieldEl.dataset.boss = (run.battle.kind === 'raid' ? 'Raid: ' : 'Boss: ') + (d ? d.name : ''); }
@@ -1023,6 +1043,7 @@ window.GL = window.GL || {};
       run.crew.forEach((u, i) => { const f = el('crew', i); if (f) f.dataset.max = u.max; });
       run.battle.enemies.forEach((u, i) => { const f = el('enemy', i); if (f) f.dataset.max = u.max; });
       markFront(root);
+      Object.keys(sigSt()).forEach(i => sigDraw(Number(i)));
     },
 
     play(ev) {
@@ -1216,8 +1237,8 @@ window.GL = window.GL || {};
         const en = GL.i18n && GL.i18n.lang() === 'en';
         if (ev.plan === 'sig') {
           const S = (GL.data.bossSigs || {})[ev.by] || {};
-          const u = fu('enemy', ev.to); if (u) u.classList.add('sigwarn');
-          tagAt('enemy', ev.to, '✦ ' + (en ? S.en : S.name) + ' …', 'debuff', 70);
+          if (ev.need) { sigSt()[ev.to] = { by: ev.by, need: ev.need, dealt: 0, foc: !!ev.foc }; sigDraw(ev.to); }
+          else { const u = fu('enemy', ev.to); if (u) u.classList.add('sigwarn'); tagAt('enemy', ev.to, '✦ ' + (en ? S.en : S.name) + ' …', 'debuff', 70); }
         } else {
           const P = (GL.data.foePlans || {})[ev.plan] || {};
           const SHORT = { netz: ['Netz!', 'Net!'], anlegen: ['legt an …', 'takes aim …'], salve: ['Salve!', 'Volley!'], rudel: ['Rudeljagd!', 'Pack hunt!'],
@@ -1231,12 +1252,28 @@ window.GL = window.GL || {};
         }
       } else if (ev.k === 'sig') {
         const en = GL.i18n && GL.i18n.lang() === 'en';
+        delete sigSt()[ev.from]; sigDraw(ev.from);
         const u = fu('enemy', ev.from); if (u) u.classList.remove('sigwarn');
         banner('them rage sig', `<small>✦ ${en ? 'Signature move' : 'Signatur-Angriff'}${ev.strong ? (en ? ' · stronger' : ' · stärker') : ''}</small><b>${String(en ? ev.en : ev.name).replace(/[<>&"]/g, '')}</b><em>${String(en ? ev.tEn : ev.text).replace(/[<>&"]/g, '')}</em>`, 1700);
         pulse(el('enemy', ev.from), 'lunge'); pulse(u, 'atk');
         const fld = $('#field'); if (fld) { pulse(fld, 'boss-slam'); fx('fx-flash', { x: 0, y: 0 }, 350); }
         juice('zoom');
         if (GL.sfx && GL.sfx.sting) GL.sfx.sting('dramatic');
+      } else if (ev.k === 'sigprog') {
+        const s = sigSt()[ev.to] || (sigSt()[ev.to] = { by: ev.by });
+        s.dealt = ev.dealt; s.need = ev.need; s.foc = !!ev.foc; sigDraw(ev.to);
+      } else if (ev.k === 'sig-break') {
+        // Unterbrochen: großes Wort, Boss taumelt (im schnellen Modus nur das Wort)
+        const en = GL.i18n && GL.i18n.lang() === 'en', u = fu('enemy', ev.to);
+        delete sigSt()[ev.to]; sigDraw(ev.to);
+        const fast = document.body.classList.contains('fast');
+        banner('us sig-break', `<small>✦ ${String((en ? ev.en : ev.name) || '').replace(/[<>&"]/g, '')}</small><b>${en ? 'Interrupted!' : 'Unterbrochen!'}</b>${fast ? '' : `<em>${en ? 'He staggers and loses his turn.' : 'Er taumelt und setzt einen Zug aus.'}</em>`}`, fast ? 900 : 1400);
+        if (!fast) {
+          if (u && !REDUCED()) { u.classList.remove('stagger'); void u.offsetWidth; u.classList.add('stagger'); setTimeout(() => u.classList.remove('stagger'), 1000); }
+          fx('fx-stars', center(u), 900);
+          juice('stop');
+        }
+        if (GL.sfx) GL.sfx.play('level');
       } else if (ev.k === 'duo') {
         const en = GL.i18n && GL.i18n.lang() === 'en', E = s => String(s || '').replace(/[<>&"]/g, '');
         const nmOf = i => { const u = curRun && curRun.crew && curRun.crew[i]; const d = u && (u.def || GL.data.crew.find(c => c.id === u.id)); return E(d ? (d.id === 'self' ? d.name : (GL.i18n && GL.i18n.t ? GL.i18n.t(d.name) : d.name)) : ''); };
