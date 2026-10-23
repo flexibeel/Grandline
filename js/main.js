@@ -451,37 +451,58 @@
   function flushRewards() {
     const list = rewardBuf; rewardBuf = [];
     if (!list.length) return;
-    if (run) ui.runRewards = (ui.runRewards || []).concat(list).slice(-20);
-    if (list.length === 1) return toastNow(list[0]);
-    const en = GL.i18n && GL.i18n.lang() === 'en';
-    toastNow(`<span><b>🎁 +${list.length} ${en ? 'profile rewards' : 'Profil-Belohnungen'}</b>${en ? 'The full list waits at the end of the run. Pirates collect first, read later.' : 'Die Liste gibt es am Run-Ende. Piraten sammeln erst und lesen später.'}</span>`);
+    if (run) {
+      ui.runRewards = (ui.runRewards || []).concat(list).slice(-20);
+      if (list.length === 1) return toastNow(list[0]);
+      const en = GL.i18n && GL.i18n.lang() === 'en';
+      toastNow(`<span><b>🎁 +${list.length} ${en ? 'profile rewards' : 'Profil-Belohnungen'}</b>${en ? 'The full list waits at the end of the run. Pirates collect first, read later.' : 'Die Liste gibt es am Run-Ende. Piraten sammeln erst und lesen später.'}</span>`);
+    } else {
+      // F3: Im Hafen einzeln nacheinander zeigen
+      list.forEach(html => toastNow(html));
+    }
   }
   function toast(html) {
     if (REWARD_RX.test(String(html))) { if (!rewardBuf.length) setTimeout(flushRewards, 80); rewardBuf.push(html); return; }
     toastNow(html);
   }
   let popWait = null;
+  function isBlocking() {
+    return document.getElementById('fpop') || document.getElementById('story') ||
+           (GL.story && GL.story.active && GL.story.active()) ||
+           (GL.greet && GL.greet.active && GL.greet.active());
+  }
   function waitPop() {
     if (popWait) return;
     popWait = setInterval(() => {
-      if (document.getElementById('fpop')) return;
+      if (isBlocking()) return;
       clearInterval(popWait); popWait = null;
       const box = document.getElementById('toasts');
-      if (toastQ.length && box && !box.querySelector('.toast:not(.out)')) toastNow(toastQ.shift());
+      if (toastQ.length && box && !box.querySelector('.toast:not(.out)')) toastNow(toastQ.shift(), true);
     }, 500);
   }
-  function toastNow(html) {
+  function enqueue(html, fromQueue) {
+    if (toastQ.length >= 30) return; // F2: Limit 30
+    if (toastQ.includes(html)) return; // F2: keine Duplikate
+    if (fromQueue) toastQ.unshift(html); // F1: aus Queue wieder vorne
+    else toastQ.push(html);
+  }
+  function toastNow(html, fromQueue) {
     const box = document.getElementById('toasts');
-    // Klar Schiff: immer nur eine Meldung zur Zeit. Ist gerade ein Fenster offen, wartet der Hinweis, bis es zu ist.
-    if (document.getElementById('fpop')) { if (toastQ.length < 12) toastQ.push(html); waitPop(); return; }
-    // Im Run höchstens ein Hinweis gleichzeitig (Handy: sonst ist die halbe Route zugedeckt)
-    if (box.querySelectorAll('.toast:not(.out)').length >= (inRun() ? 1 : 2)) { if (toastQ.length < 12) toastQ.push(html); return; }
+    // F5: Fenster (fpop, story, greet) oder Platz belegt → warten
+    if (isBlocking() || (box && box.querySelectorAll('.toast:not(.out)').length >= 1)) {
+      enqueue(html, fromQueue);
+      if (isBlocking()) waitPop();
+      return;
+    }
     const t = document.createElement('div');
     t.className = 'toast';
     t.innerHTML = html;
     box.appendChild(t);
-    setTimeout(() => t.classList.add('out'), 3400);
-    setTimeout(() => { t.remove(); if (toastQ.length) toastNow(toastQ.shift()); }, 3900);
+    // F4: Dauer nach Textlänge (3.4s + 40ms/Zeichen, max 6s)
+    const textLen = (t.textContent || '').length;
+    const showMs = Math.min(6000, 3400 + textLen * 40);
+    setTimeout(() => t.classList.add('out'), showMs);
+    setTimeout(() => { t.remove(); if (toastQ.length) toastNow(toastQ.shift(), true); }, showMs + 500);
   }
 
   function saveProfile() { if (profile.nickname) GL.code.ensure(profile); GL.save.storeProfile(profile); }
