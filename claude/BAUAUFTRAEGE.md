@@ -48,7 +48,7 @@ Kurz: welche Fälle bestätigt, welche nicht, welche Zeilen geändert, wie getes
 
 ---
 
-## A3: Steckbrief-Zeile „Ansage“ in der Inselwahl (2c-2)   Status: gebaut, wartet auf Prüfung
+## A3: Steckbrief-Zeile „Ansage“ in der Inselwahl (2c-2)   Status: geprüft (Claude, 23.10.), im Sammel-Update
 
 **Zweig:** `feature/steckbrief-ansage` existiert schon (dieser Auftrag liegt darauf). Dort weiterarbeiten, nicht neu abzweigen. Der Zweig baut auf `feature/kampf-unterbrechen` (2c-1) auf, nicht auf `main`: Nur dort gibt es `GL.config.sig.breakPct`, und nur dort stimmt der Satz „Unterbrechen“ mit dem Spiel überein.
 **Ziel:** Wer auf der Inselwahl-Karte eines Bösewichts oder Meeres-Bosses die Details aufklappt, sieht vor dem Kampf: Dieser Gegner hat eine **Ansage** (Signatur-Angriff), so heißt sie, das macht sie, und so unterbricht man sie: **Fokus auf ihn und mindestens 15 % Schaden, bevor sie losgeht.**
@@ -91,7 +91,7 @@ Danach `git push -u origin feature/steckbrief-ansage`.
 
 ---
 
-## A5: Offline-Modus mit Service Worker (Punkt 2d)   Status: gebaut, wartet auf Prüfung
+## A5: Offline-Modus mit Service Worker (Punkt 2d)   Status: geprüft (Claude, 23.10., mit Korrekturen), im Sammel-Update
 
 **Zweig:** `feature/offline-modus` (von `main`, dieser Auftrag liegt schon darauf). Dort weiterarbeiten, nicht neu abzweigen.
 **Entscheidung Jan, 23.10. (per Klick):** Grok baut, Claude prüft. Umfang: offline spielbar **plus kleiner Offline-Chip**.

@@ -1,6 +1,11 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-23b', date: '23.10.', title: 'Fahrtziel, Unterbrechen und offline segeln', items: [
+    '🎯 Vor dem Ablegen siehst du auf dem Deck dein Fahrtziel: die nächste Figur, den besten Auftrag oder den nächsten Rang. Tipp eine Zeile an, um dein Ziel zu wählen. Es läuft oben in der Kopfzeile mit, und wer es in der Fahrt schafft, bekommt +50 Taler obendrauf',
+    '⚡ Bosse kann man jetzt unterbrechen: Sagt ein Boss seine große Attacke an, erscheint ein Balken über ihm. Fokus auf ihn und genug Schaden, bevor sie losgeht, dann bricht sie ab und er taumelt. Ohne Fokus zählt nur ein Drittel',
+    '📴 Offline spielen: Einmal mit Netz geöffnet, startet das Spiel auch im Zug oder Flugzeug. Dein Stand wird auf dem Gerät gespeichert und gleicht sich ab, sobald du wieder Netz hast',
+    '📜 Auf der Inselkarte eines Bosses steht jetzt seine Ansage samt Tipp, wie du sie unterbrichst. Am Ende einer Fahrt zeigt „Als Nächstes freischalten“, wie viel du dieses Mal geschafft hast' ] },
   { v: '2026-10-23a', date: '23.10.', title: 'Ruhigere Meldungen', items: [
     '🔔 Hinweise kommen jetzt einzeln und der Reihe nach: Es steht immer nur einer auf dem Bildschirm, und sie überholen sich nicht mehr',
     '📖 Läuft gerade eine Story, ein Gruß oder ein Fenster, wartet der Hinweis höflich, bis es vorbei ist. Es geht keiner mehr verloren',
