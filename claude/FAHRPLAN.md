@@ -86,10 +86,6 @@ Nicht anfassen: <was ausdrücklich nicht dazugehört>
 Übergabe von Cursor: <3 bis 5 Zeilen>
 ```
 
-### A3: Texte-Prüfung eigene Welt und Englisch   Status: gebaut, wartet auf Prüfung
-Zweig: `feature/texte-pruefung`
-Übergabe von Cursor: 47 neue Einträge in neutral.js (Marco→Marko, Whitebeard→Weißbart, Mihawk→Falkenauge, Shanks→Rotbart, Hancock→Schlangenprinzessin, Thriller Bark→Geisterschiff, mehrere Früchte). node --check ok. Offen: viele Ulti-/Ability-Namen und kleinere Orte. Fund: GL.i18n.t fällt auf Originaltext zurück, wenn kein Wörterbucheintrag.
-
 ### A1: Pop-ups und Freischalt-Meldungen sauber hintereinander (Punkt 2b)   Status: offen
 Ausgangszweig: `feature/inselwahl-bilder` (dort liegen `AGENTS.md` und dieser Auftrag, ist noch nicht auf `main`). Neuer Zweig: `fix/freischalt-meldungen`.
 Ziel: Wer in den Hafen kommt, sieht Meldungen (Neu freigeschaltet, Story-Kapitel, Neuigkeiten, Willkommen, Gruß der Crew, Rang-Aufstieg, Toasts) **einzeln, in sinnvoller Reihenfolge, je einmal** und ohne dass etwas hängen bleibt oder sich überdeckt. Seit dem Neustart (22r) sind alle wieder frische Spieler, da kommt viel auf einmal.
