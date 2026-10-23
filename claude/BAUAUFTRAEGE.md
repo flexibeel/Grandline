@@ -72,3 +72,15 @@ Nur Texte und Namen ändern, **keine Logik**, keine IDs (`id:`-Werte, Datenschl�
 
 ### Abschluss von Grok
 Prüfskript (lokal, nicht im Repo): vorher ca. 80+ verdächtige Strings (viele IDs/false positives), nach 47 neuen Einträgen in neutral.js deutlich weniger sichtbare Original-Namen. Ergänzt: 47 Namen/Orte/Früchte (Marco→Marko, Whitebeard→Weißbart, Mihawk→Falkenauge, Shanks→Rotbart, Hancock→Schlangenprinzessin, Thriller Bark→Geisterschiff, Gum-Gum-Frucht→Gummi-Frucht u. a.). Offen: viele Ultis/Abilities-Namen, kleinere Inselorte, einige Events. Fund zu GL.i18n.t: fällt auf den Originaltext zurück, wenn kein Wörterbucheintrag existiert; wenn neutral.js den Namen nicht ersetzt hat, bleibt der Markenname auch im Englischen sichtbar. node --check auf neutral.js ok.
+
+---
+
+## A3b: Namensvorschläge für die Beinahe-Namen (nur Vorschläge, kein Code)   Status: offen
+
+**Zweig:** `feature/texte-pruefung` (dort weiterarbeiten, letzter Commit von Claude `eaab889`, vorher `git pull`).
+**Hintergrund:** A3 hat 47 Namen ergänzt, davon sind etwa 15 nur umgeschrieben und noch als Vorlage erkennbar. Claude hat `Killer`, `Dragon` (trifft Allerweltswörter) und die Dubletten `Koala`, `Vista`, `Drake` aus `neutral.js` entfernt. Jan will die Namen selbst aussuchen.
+**Aufgabe:** Lege die Datei `claude/NAMENSVORSCHLAEGE.md` an. Für **jeden** dieser Einträge aus `neutral.js` **zwei klar eigene Namen** im Cozy-Ton (locker, kurz, gut aussprechbar, nicht als Vorlage erkennbar, keine Schreibvariante des Originals): Marco→Marko, Cabaji→Cabo, Mohji→Moji, Bonney→Bonny, Hawkins→Hawks, Yasopp→Jasopp, Alvida→Alva, Ivankov→Iva, Hody Jones→Hody, Ben Beckman→Ben, Lucky Roo→Lucky, Eustass Kid→Kid, Gecko Moria→Moria, Dr. Hogback→Hogback, Sabo→Sabo der Flamme, Wano→Wano-Land. Dazu fehlende Figuren, die du dabei findest, mit Vorschlag. Format je Zeile: `Original | heute | Vorschlag A | Vorschlag B | Warum (ein Satz, Typ der Figur: Name sollte zur Rolle passen)`.
+**Nicht tun:** `neutral.js` oder anderen Code ändern. Nur diese eine Markdown-Datei. Jan wählt, danach trägt Claude oder du die Wahl ein.
+**Abnahme:** Datei existiert, alle genannten Einträge haben zwei Vorschläge, kein Vorschlag ist eine Schreibvariante oder ein Wort der Vorlage.
+**Abschluss:** Commit, `git push origin feature/texte-pruefung`, Beweis mit `git ls-remote origin feature/texte-pruefung`.
+
