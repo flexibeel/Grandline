@@ -170,6 +170,17 @@ Ohne Terminal: Auf GitHub unter „Branches“ die 38 Zweige aus Schritt 2 per M
 Danach bleiben: `main`, `archiv/neue-welt` (3D-Archiv), `feature/piratin` (steht noch auf der Wunschliste) und offene Arbeitszweige.
 Wiederherstellen eines Archivs: `git push origin archiv/<name>:refs/heads/feature/<name>`.
 
+## Planungs-Modus und Pläne (seit 23.10., Jan)
+**Erst planen, dann gebündelt bauen.** Jan (18. Chat): Die Systeme sind gut und gut eingebaut, aber der Anfang ist nicht durchdacht, alles fühlt sich wie Point-and-Click an. Deshalb jetzt **nur Pläne**, per Klick-Runden (Fragen mit Antwortknöpfen, gern viele und größere Sprünge), Looks per Vorschau-Board, Pläne als Dokument pro Thema hier im Ordner `claude/`. Gebaut wird erst, wenn ein Plan steht und Felix ihn freigibt, dann gebündelt.
+Ein neuer Chat liest **zuerst `claude/PLAN-FOLGEN.md`** (das Leitbild) und dann die Pläne zu seinem Thema:
+
+| Datei | Thema | Stand |
+|---|---|---|
+| `claude/PLAN-FOLGEN.md` | **Leitbild:** Entscheidungen mit Folgen, Welt erkunden, Weltgedächtnis, 4 Säulen, Logbuch | Plan, Fragen offen (Abschnitt 9) |
+| `claude/HAFEN-SKIZZE.md` | Hafen Schritt 1: vier Gebäude | Fragen beantwortet, freigegeben, nicht gebaut |
+| `claude/WELTBAU.md` | Eigenes Universum: Meere, Fraktionen, Namen | Fragen beantwortet, Wellen A bis C freigegeben, nicht gebaut |
+| `claude/ENDLESS-SKIZZE.md` | Endless aus Biomen und Wetter | Plan, Fragen offen (Abschnitt 6) |
+
 ## Warteschlange (Felix wählt die Reihenfolge)
 Felix (22.10.): Jetzt Inhalt aus dem Gesamtplan ins Spiel. Kampfstile Variante A (5 Stile) ist abgesegnet.
 1. Figurenreise Teil 2, Rest: Wahl-Boni (Felix/Jan 22.10.: bei jeder Form 1 von 2 Boni zur Wahl, im Dojo-Bildschirm), eigene Fähigkeit pro Form, Nebenfiguren. Looks der 6 Strohhüte sind live (22o)
