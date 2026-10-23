@@ -10385,3 +10385,10 @@ body.ult-hand .rc-ulthint { display: inline; }
     background: transparent !important; border: 0 !important; box-shadow: none !important; padding: 2px 5px !important; font-size: .86rem !important; min-height: 0; }
   body.in-run header .track .head-chips .lg-one, body.in-run header .track .head-chips .build-chip b { display: none; }
 }
+
+/* A5 OFFLINE */
+.offline-chip {
+  position: fixed; top: 8px; right: 8px; z-index: 9999;
+  background: #444; color: #fff; padding: .2em .5em; border-radius: 4px;
+  font-size: .75rem; pointer-events: none;
+}

@@ -75,7 +75,7 @@ Gut für Cursor: Inhalte nach bestehendem Muster, Texte und Übersetzungen, klei
 
 Vorlage (Claude füllt aus):
 ```
-### A<Nr>: <Titel>   Status: offen | gebaut, wartet auf Prüfung | geprüft | live
+### A<Nr>: <Titel>   Status: gebaut, wartet auf Prüfung | gebaut, wartet auf Prüfung | geprüft | live
 Zweig: feature/... oder fix/...
 Ziel: <1 bis 2 Sätze, was der Spieler danach erlebt>
 Dateien: <welche Dateien, wo ungefähr>

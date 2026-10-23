@@ -48,7 +48,7 @@ Kurz: welche Fälle bestätigt, welche nicht, welche Zeilen geändert, wie getes
 
 ---
 
-## A5: Offline-Modus mit Service Worker (Punkt 2d)   Status: offen
+## A5: Offline-Modus mit Service Worker (Punkt 2d)   Status: gebaut, wartet auf Prüfung
 
 **Zweig:** `feature/offline-modus` (von `main`, dieser Auftrag liegt schon darauf). Dort weiterarbeiten, nicht neu abzweigen.
 **Entscheidung Jan, 23.10. (per Klick):** Grok baut, Claude prüft. Umfang: offline spielbar **plus kleiner Offline-Chip**.
@@ -94,5 +94,5 @@ Kurz: welche Fälle bestätigt, welche nicht, welche Zeilen geändert, wie getes
 
 **Nicht anfassen:** Supabase/Online-Code (`js/ui/online.js`, nur lesen), Spielstand-Format (`save.js`), Kampf, Daten, `patchnotes.js`, `js/build/`, `css/style.min.css`, Zweige löschen.
 
-**Übergabe von Cursor:** _(hier eintragen: was gebaut, welche Zeilen, wie getestet, Funde, offene Hänger ohne Netz)_
+**Übergabe von Cursor:** sw.js Vorlage mit Platzhaltern, Registrierung in index.html, Offline-Chip in main.js (online/offline Events), CSS. bump-version.py nicht ausgeführt. node --check ok. Offen: voller Offline-Test mit lokalem Server + Headless durch Claude/Jan.
 Danach `git push -u origin feature/offline-modus`.
