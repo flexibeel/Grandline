@@ -177,6 +177,7 @@ Ein neuer Chat liest **zuerst `claude/PLAN-FOLGEN.md`** (das Leitbild) und dann 
 | Datei | Thema | Stand |
 |---|---|---|
 | `claude/PLAN-FOLGEN.md` | **Leitbild:** Entscheidungen mit Folgen, Welt erkunden, Weltgedächtnis, 4 Säulen, Logbuch | Plan, Fragen offen (Abschnitt 9) |
+| `claude/PLAN-WELT-MERKT.md` | Säule 4A: Bekannte aus den 10 Folgen kommen wieder, Orte nach dem Bösewicht (befreien/plündern) | Plan, Fragen offen (Abschnitt 6) |
 | `claude/HAFEN-SKIZZE.md` | Hafen Schritt 1: vier Gebäude | Fragen beantwortet, freigegeben, nicht gebaut |
 | `claude/WELTBAU.md` | Eigenes Universum: Meere, Fraktionen, Namen | Fragen beantwortet, Wellen A bis C freigegeben, nicht gebaut |
 | `claude/ENDLESS-SKIZZE.md` | Endless aus Biomen und Wetter | Plan, Fragen offen (Abschnitt 6) |

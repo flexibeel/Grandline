@@ -12,8 +12,9 @@ Stand 23.10.2026. **Nur Plan, nichts gebaut.** Leitbild für alles, was als Näc
   - **Folgen werden angekündigt und später erinnert**: „Das wird man sich merken …“, später „Du hast uns damals geholfen!“
 
 ## 2. Warum es sich heute folgenlos anfühlt (geprüft im Code)
-- **Ereignisse wirken nur sofort.** Jede Wahl in `js/data/events.js` (rund 20 Ereignisse, weitere in `events2.js` bis `events5.js`) hat ein `outcome` wie `berry`, `heal`, `hurt`, `xp`, `relic` oder ein Glücksspiel. Nichts davon wird gespeichert, nichts kommt später zurück.
-- **Es gibt kein Gedächtnis der Welt.** Das Profil kennt keine Merk-Liste für Orte, Fraktionen oder Taten.
+- **Ereignisse wirken fast nur sofort.** Jede Wahl in `js/data/events.js` (rund 20 Ereignisse) und den Crew-Zwischen-Events (`events2.js` bis `events5.js`) hat ein `outcome` wie `berry`, `heal`, `hurt`, `xp`, `relic` oder ein Glücksspiel.
+- **Ausnahme, und ein gutes Vorbild:** die **zehn Folgen** (`GL.data.crewEpisodes`, `events3.js`/`events4.js`) mit drei Teilen pro Insel. Eine Wahl setzt ein `flag`, das Ende hängt davon ab. Das wirkt aber nur **innerhalb einer Insel**, nach der Fahrt ist es vergessen (Details: `claude/PLAN-WELT-MERKT.md`).
+- **Es gibt kein Gedächtnis der Welt über Fahrten hinweg.** Das Profil kennt keine Merk-Liste für Orte, Fraktionen, Bekannte oder Taten.
 - **Bausteine fürs Erinnern gibt es schon, nur verstreut:**
   - **Seekarte der Gerüchte** (`js/data/seekarte.js`, `js/engine/seekarte.js`, `js/ui/seekarte.js`, Profilfeld `profile.sk`): eigene Karte pro Meer, der Nebel lichtet sich **dauerhaft**, Hinweise führen zu Landgang-Orten. Liegt heute als Fenster im Hauptquartier, getrennt von der eigentlichen Fahrt.
   - **Vertrautheit** je Figur (`profile.squadXp`, `GL.meta.squadBonus`) und **gemeinsame Momente** (`js/data/moments.js`), die damit freigeschaltet werden.
@@ -82,8 +83,10 @@ Jede Säule nutzt dasselbe Gedächtnis, wirkt kurz (in der Fahrt) und lang (in d
 ## 8. Looks per Vorschau-Board (Jan, 23.10.)
 Entscheidungen über Aussehen (Mütze, Begleiter, Farbe, Accessoire) laufen über **Vorschau-Boards**: Claude zeichnet mit der Sprite-Engine des Spiels (`GL.sprites.render`) pro Figur 3 bis 4 Varianten auf ein Blatt, zeigt es als Artefakt, Jan und Felix klicken die beste. So sieht die Vorschau genau wie im Spiel aus. Die Entscheidung kommt danach in den passenden Plan.
 
-## 9. Offene Fragen (nächste Klick-Runden)
-1. Mit welcher Säule fangen wir in der Planung an, um sie zu vertiefen (Beispiele, Texte, Zahlen)?
-2. Wie viele Ereignisse sollen in F1 „zurückkommen“, und welche?
-3. Soll das Logbuch eine eigene Seite sein oder in der Seekarte stecken?
-4. Wie viel Ruf ist sichtbar: Zahl, Stufenname oder nur Reaktionen der Welt?
+## 9. Entscheidungen der zweiten Klick-Runde (23.10., Jan, alle wie empfohlen)
+1. **Zuerst im Detail geplant wird 4A „Die Welt merkt sich das“**, eigener Plan: `claude/PLAN-WELT-MERKT.md`.
+2. **Das Logbuch steckt in der Seekarte**, keine eigene Seite. Jede Folge steht als Markierung an dem Ort, wo sie passiert ist; Antippen zeigt die Zeile. Für F0 heißt das: Die Seekarte (heute im Hauptquartier, später im Dock) bekommt die Logbuch-Markierungen, auch bevor sie umzieht.
+3. **Ruf zeigt einen Stufennamen, keine Zahl** („Gesucht“, „Geduldet“, „Freund“ …) plus die Reaktionen der Welt. Intern bleibt es eine kleine Zahl.
+4. **Crew-Gefühle: Pause und Versöhnung, nie Verlust.** Eine Figur kann aussetzen oder reden wollen, verlässt die Crew aber nie.
+
+Noch offen: wie viele und welche Ereignisse in F1 zurückkommen (wird in `PLAN-WELT-MERKT.md` vorgeschlagen).
