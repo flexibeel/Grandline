@@ -10493,9 +10493,13 @@ body.ult-hand .rc-ulthint { display: inline; }
 }
 
 /* A4 Fahrtziel */
-.fb-row.goal-row.on { outline: 2px solid var(--accent, #c45c26); background: rgba(196, 92, 38, .08); }
-.goal-chip { font-size: .75em; padding: .1em .4em; border-radius: 4px; background: #e8f0e0; }
-.goal-end { margin: .6em 0; padding: .4em .6em; border-radius: 6px; background: var(--paper, #fff8e7); }
+.fahrtbrief .fb-row[data-act="goal-set"] { cursor: pointer; }
+.fb-row.on { outline: 2px solid var(--gold, #d9a441); outline-offset: -2px; background: rgba(217, 164, 65, .14); }
+.trip-goal { font-style: normal; white-space: nowrap; }
+.trip-goal b { font-size: .8rem; }
+.trip-goal.ok b { color: #4f8a32; }
+.goal-end { margin: .6em 0; padding: .4em .6em; border-radius: 6px; background: var(--panel, #fff8e7); }
+.goal-end.ok { box-shadow: inset 3px 0 0 #6a9a4a; }
 
 /* A5 OFFLINE */
 .offline-chip {

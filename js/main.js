@@ -703,25 +703,16 @@
         profile.firstSeen = {};
       }
 
-      // A4b: +50 Berry wenn Fahrtziel in dieser Fahrt geschafft
-      if (ui.briefGoal && !run.daily && !run.duel && GL.config.goalBonus) {
-        const g = ui.briefGoal;
-        let achieved = false;
-        if (g.kind === 'fig' && g.have0 != null) {
-          const n = GL.meta.nextUnlocks(profile, 10).find(x => x.u.unlock === g.id);
-          achieved = !n || n.pr.have > g.have0; // freigeschaltet oder Fortschritt
-        } else if (g.kind === 'rank' && g.have0 != null) {
-          const rp = GL.meta.rankProgress(profile);
-          achieved = rp && rp.have > g.have0;
-        } else if (g.kind === 'quest') {
-          achieved = true; // vereinfacht
-        }
-        if (achieved) {
-          const bonus = GL.config.goalBonus || 50;
+      // A4b: +50 Berry, wenn das gewählte Fahrtziel in DIESER Fahrt erreicht wurde (einmal, nicht in der Engine: Replays bleiben gleich)
+      if (ui.briefGoal && run.deck && !run.daily && !run.duel && GL.deck && GL.deck.goalStatus) {
+        const st = GL.deck.goalStatus(profile, ui.briefGoal);
+        const bonus = st && st.done ? (GL.config.goalBonus | 0) : 0;
+        ui.goalResult = st ? { name: st.name, done: !!st.done, bonus } : null;
+        if (bonus > 0) {
           profile.berry = (profile.berry || 0) + bonus;
           ui.lastBerry = (ui.lastBerry || 0) + bonus;
-          setTimeout(() => toast(`<span><b>Fahrtziel geschafft</b>+${bonus} Berry</span>`), 800);
         }
+        ui.briefGoal = null;
       }
       if (run.daily) {
         const sc = GL.run.score(run);
@@ -783,7 +774,7 @@
     run = GL.run.create(seed >>> 0, { heat: 0 });
     run.duel = duelCode(seed);
     ui.newBest = false;
-    ui.lastBerry = null; ui.runRewards = []; ui.briefStart = null;
+    ui.lastBerry = null; ui.runRewards = []; ui.briefStart = null; ui.briefGoal = null; ui.goalResult = null;
     saveProfile();
     GL.save.storeRun(run);
     draw();
@@ -832,7 +823,7 @@
       profile.daily = { d: day, score: null, tries: 1 };
       profile.dailyPay = (profile.dailyPay || []).concat([day]).slice(-7);
     }
-    ui.newBest = false; ui.lastBerry = null; ui.runRewards = []; ui.briefStart = null; ui.restartArmed = false;
+    ui.newBest = false; ui.lastBerry = null; ui.runRewards = []; ui.briefStart = null; ui.briefGoal = null; ui.goalResult = null; ui.restartArmed = false;
     saveProfile();
     GL.save.storeRun(run);
     draw();
@@ -860,7 +851,7 @@
       deck: true, rank: GL.meta.rankIndex(profile)   // CREW-START: Crew vor dem Ablegen aufstellen
     });
     ui.newBest = false;
-    ui.lastBerry = null; ui.runRewards = []; ui.briefStart = null;
+    ui.lastBerry = null; ui.runRewards = []; ui.briefStart = null; ui.briefGoal = null; ui.goalResult = null;
     ui.restartArmed = false;
     saveProfile();
     GL.save.storeRun(run);
@@ -1613,7 +1604,7 @@
       case 'crew-name-open': ui.editTab = 'kampf'; ui.editSub = 'bande'; openProfile(); break;
       case 'login-open': ui.loginFrom = ui.screen || 'hq'; ui.screen = 'login'; draw(); break;
       case 'login-back': ui.screen = ui.loginFrom === 'hq' ? null : 'title'; draw(); break;
-      case 'deck-fig': case 'deck-slot': case 'deck-filter': case 'deck-go':   // CREW-START: das Deck (js/ui/deck.js)
+      case 'deck-fig': case 'deck-slot': case 'deck-filter': case 'deck-go': case 'goal-set':   // CREW-START: das Deck (js/ui/deck.js)
         if (run && run.deck && run.phase === 'starter' && GL.deck && GL.deck.click(type, el, run, ui, act, profile, saveProfile)) { ui.lastStage = null; draw(); }
         break;
       case 'cap-filter': ui.capFilter = el.dataset.v; ui.lastStage = null; draw(); break;
