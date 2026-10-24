@@ -13,7 +13,7 @@ window.GL = window.GL || {};
   const ageOf = r => { const t = Date.parse(r && r.updated); return isFinite(t) ? Date.now() - t : Infinity; };
   const isOn = r => ageOf(r) < 240000;
   const hash = s => { let h = 7; String(s).split('').forEach(c => { h = (h * 31 + c.charCodeAt(0)) | 0; }); return Math.abs(h); };
-  const SEA_EN = { 'Paradies': 'Paradise', 'Fischmenscheninsel': 'Fish-Man Island' };
+  const SEA_EN = { 'Ostmeer': 'Eastern Sea', 'Wilde See': 'Wild Sea', 'Tiefsee': 'Deep Sea', 'Gerichtsinsel': 'Court Isle', 'Gruselmeer': 'Spooky Sea' };
 
   // Karte: 360 × 250, drei Meere von links nach rechts, die Grand Line als gepunktete Route
   const W = 360, H = 250;
@@ -24,7 +24,7 @@ window.GL = window.GL || {};
     [[.12, .38], [.34, .24], [.58, .32], [.82, .22], [.86, .50], [.60, .58], [.30, .62], [.48, .86]],
     [[.14, .30], [.38, .40], [.62, .26], [.86, .36], [.74, .62], [.40, .66], [.20, .84], [.64, .86]]
   ];
-  const ALT_SLOT = [[.50, .86], [.48, .86], [.64, .86]];   // Nebenroute (Fischmenscheninsel, Thriller Bark) unten in der Region
+  const ALT_SLOT = [[.50, .86], [.48, .86], [.64, .86]];   // Nebenroute (Tiefsee, Gruselmeer) unten in der Region
   const HARBOR = { x: 10, y: 226 };                          // Heimathafen unten links
 
   function seas() {
