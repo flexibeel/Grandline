@@ -89,6 +89,7 @@ Figurenreise Teil 1 (22l) ist live. Dateien: `js/data/forms.js`, `js/engine/form
 ## Bauaufträge für Cursor
 Claude schreibt hier Aufträge, Cursor (Grok) baut sie, Claude prüft den Zweig im nächsten Chat, dann „schalte live“ durch Felix. Regeln für Cursor: `AGENTS.md`.
 Offene Aufträge: **A9** (Wiedersehen-Texte für die übrigen 8 Folgen, Zweig `feature/welt-f1-texte` von `feature/welt-f1`, nur `js/data/wiedersehen.js`). **A8** geprüft, 24.10. Älter: **A3** (Steckbrief-Zeile „Ansage“, Punkt 2c-2, Zweig `feature/steckbrief-ansage`). Die Texte stehen in `claude/BAUAUFTRAEGE.md`.
+Offene Aufträge: keine neuen (**A8** geprüft, 24.10.). Älter: **A3** (Steckbrief-Zeile „Ansage“, Punkt 2c-2, Zweig `feature/steckbrief-ansage`). Die Texte stehen in `claude/BAUAUFTRAEGE.md`.
 Gut für Cursor: Inhalte nach bestehendem Muster, Texte und Übersetzungen, kleine Fixes, klar umrissene Punkte. Bei Claude bleiben: Vorschläge und Skizzen, Kampfsystem-Umbauten, Spielstände/Supabase, Prüfen vor dem Live-Gang.
 
 Vorlage (Claude füllt aus):

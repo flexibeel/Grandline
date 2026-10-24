@@ -1378,6 +1378,14 @@ window.GL = window.GL || {};
         applyOutcome(run, ch.outcome, lines);
         if (ch.flag && run.epi) run.epi.flags.push(ch.flag);
         if (ev.wieder && run.epi && run.epi.wieder) merkFolge(run, ev.ep, ch.merk || run.epi.wieder);   // F1: Wiedersehen zählt als erlebt, merk kann das Ende ändern
+        // 4D G2: Wahl mit herz.b macht Figur B aus der Szene froh oder erschöpft (nur mit run.herz, sonst nichts)
+        if (ch.herz && run.herz && run.event.crew && run.event.cast) {
+          const bid = run.event.cast[1], g = ch.herz.b;
+          if ((g === 'froh' || g === 'muede') && (herzSet(run, bid, g, 'event') || (run.herz.f[bid] && run.herz.f[bid].g === g))) {
+            const c = byId(GL.data.crew, bid);
+            if (c) lines.push(`${c.name} ist ${g === 'froh' ? 'froh' : 'erschöpft'}`);
+          }
+        }
         run.notice = { title: ev.title, text: ch.text, lines };
         run.event = null;
         return true;

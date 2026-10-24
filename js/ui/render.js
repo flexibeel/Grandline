@@ -1837,6 +1837,7 @@ window.GL = window.GL || {};
     if ((m = /^Bis zum Ende der Insel: Ganze Crew ([+-]\d+) (Angriff|Leben|Tempo)/.exec(l))) { const s = EV_STAT[m[2]], v = +m[1]; return evChip(s, `${v > 0 ? '+' : '−'}${Math.abs(v)} ${en ? EV_STAT_EN[s] : m[2]}`, v >= 0 ? 'buff' : 'debuff', Object.assign(o, { until: true })); }
     if ((m = /^Ganze Crew ([+-]?\d+) (Angriff|Leben|Tempo)/.exec(l))) { const s = EV_STAT[m[2]], v = +m[1]; return evChip(s, `${v >= 0 ? '+' : '−'}${Math.abs(v)} ${en ? EV_STAT_EN[s] : m[2]}`, v >= 0 ? 'buff' : 'debuff', Object.assign(o, { arrow: v >= 0 ? 'up' : 'down' })); }
     if ((m = /^Schatz gefunden: (.+?) \((.+)\)$/.exec(l))) return evChip('treasure', esc(m[1]), 'gold', Object.assign(o, { big: true }));
+    if ((m = /^(.+) ist (froh|erschöpft)$/.exec(l))) { const f = m[2] === 'froh'; return evChip('mood', `${f ? '😊' : '😮‍💨'} ${esc(m[1])}`, f ? 'buff' : 'debuff', Object.assign(o, { tip: en ? `${m[1]} is ${f ? 'happy (+1 speed for 2 fights)' : 'tired (−20 % max HP next fight)'}` : `${m[1]} ist ${f ? 'froh (+1 Tempo für 2 Kämpfe)' : 'erschöpft (−20 % Höchstleben im nächsten Kampf)'}` })); }
     if (/^Glück gehabt/.test(l)) return evChip('luck', en ? 'Lucky!' : 'Glück!', 'buff', o);
     if (/^Pech gehabt/.test(l)) return evChip('unluck', en ? 'Unlucky' : 'Pech', 'debuff', o);
     return null;

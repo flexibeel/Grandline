@@ -33,7 +33,7 @@ GL.data.crewEvents = [
       ['A', 'Was ist das Schlimmste, was passieren kann?', 'What is the worst that could happen?']
     ],
     choices: [
-      { label: ['Probieren', 'Taste it'], hint: ['50 %: alle +4 Leben, sonst -12 % Leben', '50%: all +4 HP, else -12% HP'], outcome: { chance: 0.5, win: { buffAll: { stat: 'hp', value: 4 } }, lose: { hurt: 0.12 } }, text: ['Das Essen ist vorbei. Die Erinnerung bleibt.', 'The meal is over. The memory remains.'] },
+      { label: ['Probieren', 'Taste it'], hint: ['50 %: alle +4 Leben, sonst -12 % Leben · 😊 froh', '50%: all +4 HP, else -12% HP · 😊 happy'], outcome: { chance: 0.5, win: { buffAll: { stat: 'hp', value: 4 } }, lose: { hurt: 0.12 } }, herz: { b: 'froh' }, text: ['Das Essen ist vorbei. Die Erinnerung bleibt, und jemand grinst noch stundenlang.', 'The meal is over. The memory remains, and someone keeps grinning for hours.'] },
       { label: ['Höflich ablehnen', 'Politely decline'], hint: ['Crew heilt 15 %', 'Crew heals 15%'], outcome: { heal: 0.15 }, text: ['Ihr esst Zwieback. Sicher ist sicher.', 'You eat hardtack. Better safe than sorry.'] }
     ] },
   { id: 'ce-marine', bg: 'schiff', icon: 'elite', title: ['Marine-Kontrolle', 'Marine checkpoint'],
@@ -61,7 +61,7 @@ GL.data.crewEvents = [
       ['A', 'Hat er Fleisch dabei? Dann reden wir.', 'Does he have meat on him? Then we talk.']
     ],
     choices: [
-      { label: ['Kräftemessen', 'Arm wrestle'], hint: ['45 %: alle +1 Angriff, sonst -15 % Leben', '45%: all +1 attack, else -15% HP'], outcome: { chance: 0.45, win: { buffAll: { stat: 'atk', value: 1 } }, lose: { hurt: 0.15 } }, text: ['Der Tisch hat es nicht überlebt.', 'The table did not survive.'] },
+      { label: ['Kräftemessen', 'Arm wrestle'], hint: ['45 %: alle +1 Angriff, sonst -15 % Leben · 😊 froh', '45%: all +1 attack, else -15% HP · 😊 happy'], outcome: { chance: 0.45, win: { buffAll: { stat: 'atk', value: 1 } }, lose: { hurt: 0.15 } }, herz: { b: 'froh' }, text: ['Der Tisch hat es nicht überlebt. Jemand schon, und grinst immer noch.', 'The table did not survive. Someone did, and is still grinning.'] },
       { label: ['Wettessen', 'Eating contest'], hint: ['+16 Erfahrung', '+16 XP'], outcome: { xp: 16 }, text: ['Niemand hat gewonnen. Alle haben verloren. Besonders der Wirt.', 'Nobody won. Everybody lost. Especially the innkeeper.'] }
     ] },
   { id: 'ce-karte', bg: 'schiff', icon: 'chest', title: ['Eine halbe Schatzkarte', 'Half a treasure map'],
@@ -79,7 +79,7 @@ GL.data.crewEvents = [
       ['A', 'Gibt es danach Frühstück? Dann zwei.', 'Is there breakfast after? Then two.']
     ],
     choices: [
-      { label: ['Mittrainieren', 'Join in'], hint: ['Kapitän +1 Statuspunkt, -10 % Leben', 'Captain +1 stat point, -10% HP'], outcome: { points: 1, hurt: 0.1 }, text: ['Muskelkater: vorhanden. Moral: erstaunlich gut.', 'Sore muscles: present. Morale: surprisingly good.'] },
+      { label: ['Mittrainieren', 'Join in'], hint: ['Kapitän +1 Statuspunkt, -10 % Leben · 😮‍💨 erschöpft', 'Captain +1 stat point, -10% HP · 😮‍💨 tired'], outcome: { points: 1, hurt: 0.1 }, herz: { b: 'muede' }, text: ['Muskelkater: vorhanden. Moral: erstaunlich gut. Jemand kann danach kaum noch die Arme heben.', 'Sore muscles: present. Morale: surprisingly good. Someone can barely lift their arms afterwards.'] },
       { label: ['Zuschauen', 'Watch'], hint: ['+10 Erfahrung', '+10 XP'], outcome: { xp: 10 }, text: ['Zuschauen ist auch eine Art Training. Sagt die Wissenschaft. Vielleicht.', 'Watching is also a kind of training. Science says so. Probably.'] }
     ] },
   { id: 'ce-haendler', bg: 'hafen', icon: 'recruit', title: ['Ein Händler mit Haken', 'A merchant with a catch'],
@@ -116,7 +116,7 @@ GL.data.crewEvents = [
       ['A', 'Ich wette, du triffst das Schiff.', 'I bet you hit the ship.']
     ],
     choices: [
-      { label: ['Wette annehmen', 'Take the bet'], hint: ['50 %: +18 Gold, sonst -8 Gold', '50%: +18 gold, else -8 gold'], outcome: { chance: 0.5, win: { gold: 18 }, lose: { gold: -8 } }, text: ['Die Flasche ist heil. Das Schiff auch. Gerade so.', 'The bottle is fine. So is the ship. Barely.'] },
+      { label: ['Wette annehmen', 'Take the bet'], hint: ['50 %: +18 Gold, sonst -8 Gold · 😊 froh', '50%: +18 gold, else -8 gold · 😊 happy'], outcome: { chance: 0.5, win: { gold: 18 }, lose: { gold: -8 } }, herz: { b: 'froh' }, text: ['Die Flasche ist heil. Das Schiff auch. Gerade so. Jemand strahlt trotzdem.', 'The bottle is fine. So is the ship. Barely. Someone is still beaming.'] },
       { label: ['Zielübungen', 'Target practice'], hint: ['Alle +4 % Krit', 'All +4% crit'], outcome: { crit: 0.04 }, text: ['Nach drei Stunden trifft jeder die Flasche. Die Flasche nimmt es persönlich.', 'After three hours everyone hits the bottle. The bottle takes it personally.'] }
     ] },
   { id: 'ce-lied', bg: 'nacht', icon: 'rest', title: ['Abend an Deck', 'Evening on deck'],
@@ -125,7 +125,7 @@ GL.data.crewEvents = [
       ['A', 'Dann singen wir die drei Strophen. Sehr laut.', 'Then we sing those three verses. Very loudly.']
     ],
     choices: [
-      { label: ['Mitsingen', 'Sing along'], hint: ['Crew heilt 20 %', 'Crew heals 20%'], outcome: { heal: 0.2 }, text: ['Die Möwen haben sich beschwert. Die Crew fühlt sich großartig.', 'The seagulls complained. The crew feels great.'] },
+      { label: ['Mitsingen', 'Sing along'], hint: ['Crew heilt 20 % · 😊 froh', 'Crew heals 20% · 😊 happy'], outcome: { heal: 0.2 }, herz: { b: 'froh' }, text: ['Die Möwen haben sich beschwert. Die Crew fühlt sich großartig, und jemand summt den ganzen Abend vor sich hin.', 'The seagulls complained. The crew feels great, and someone hums the whole evening.'] },
       { label: ['Sterne lesen', 'Read the stars'], hint: ['+10 Erfahrung, +10 Berry', '+10 XP, +10 Berry'], outcome: { xp: 10, berry: 10 }, text: ['Ihr findet ein Sternbild, das wie ein Steak aussieht. Navigation gelungen.', 'You find a constellation that looks like a steak. Navigation complete.'] }
     ] },
   { id: 'ce-kanone', bg: 'schiff', icon: 'battle', title: ['Eine alte Kanone', 'An old cannon'],
@@ -143,7 +143,7 @@ GL.data.crewEvents = [
       ['A', 'Dann rudern wir! Oder wir angeln. Angeln klingt besser.', 'Then we row! Or we fish. Fishing sounds better.']
     ],
     choices: [
-      { label: ['Rudern', 'Row'], hint: ['+16 Erfahrung, -8 % Leben', '+16 XP, -8% HP'], outcome: { xp: 16, hurt: 0.08 }, text: ['Ihr seid schneller angekommen und habt jetzt Arme wie Fässer.', 'You arrived sooner and now have arms like barrels.'] },
+      { label: ['Rudern', 'Row'], hint: ['+16 Erfahrung, -8 % Leben · 😮‍💨 erschöpft', '+16 XP, -8% HP · 😮‍💨 tired'], outcome: { xp: 16, hurt: 0.08 }, herz: { b: 'muede' }, text: ['Ihr seid schneller angekommen und habt jetzt Arme wie Fässer. Jemand schnauft noch die ganze Nacht.', 'You arrived sooner and now have arms like barrels. Someone is still panting all night.'] },
       { label: ['Angeln', 'Fish'], hint: ['Alle +3 Leben', 'All +3 HP'], outcome: { buffAll: { stat: 'hp', value: 3 } }, text: ['Ein Fisch, so groß wie das Beiboot. Abendessen für drei Tage.', 'A fish as big as the dinghy. Dinner for three days.'] }
     ] },
   { id: 'ce-steckbrief', bg: 'hafen', icon: 'elite', title: ['Neue Steckbriefe', 'New wanted posters'],
@@ -152,7 +152,7 @@ GL.data.crewEvents = [
       ['A', 'Ich sehe gut aus. Ich sehe immer gut aus.', 'I look good. I always look good.']
     ],
     choices: [
-      { label: ['Stolz posieren', 'Pose proudly'], hint: ['+12 Erfahrung', '+12 XP'], outcome: { xp: 12 }, text: ['Ein Kind will ein Autogramm. Die Mutter ruft die Marine. Ein guter Tag.', 'A kid wants an autograph. The mother calls the Marines. A good day.'] },
+      { label: ['Stolz posieren', 'Pose proudly'], hint: ['+12 Erfahrung · 😊 froh', '+12 XP · 😊 happy'], outcome: { xp: 12 }, herz: { b: 'froh' }, text: ['Ein Kind will ein Autogramm. Die Mutter ruft die Marine. Ein guter Tag, und jemand posiert noch lange weiter.', 'A kid wants an autograph. The mother calls the Marines. A good day, and someone keeps posing for ages.'] },
       { label: ['Plakate einsammeln', 'Collect the posters'], hint: ['+20 Berry', '+20 Berry'], outcome: { berry: 20 }, text: ['Sammler zahlen erstaunlich viel für dein Gesicht.', 'Collectors pay surprisingly well for your face.'] }
     ] },
   { id: 'ce-meerjungfrau', bg: 'insel', icon: 'chest', title: ['Ein Lied aus dem Wasser', 'A song from the water'],
@@ -162,6 +162,6 @@ GL.data.crewEvents = [
     ],
     choices: [
       { label: ['Nachsehen', 'Take a look'], hint: ['35 %: epischer Schatz, sonst -25 % Leben', '35%: epic treasure, else -25% HP'], outcome: { chance: 0.35, win: { relic: 2 }, lose: { hurt: 0.25 } }, text: ['Es war ein Seekönig. Mit Talent. Und Zähnen.', 'It was a sea king. With talent. And teeth.'] },
-      { label: ['Zuhören und weiter', 'Listen and sail on'], hint: ['Crew heilt 15 %', 'Crew heals 15%'], outcome: { heal: 0.15 }, text: ['Ein schönes Lied. Ihr summt es noch Tage später.', 'A lovely song. You hum it for days.'] }
+      { label: ['Zuhören und weiter', 'Listen and sail on'], hint: ['Crew heilt 15 % · 😊 froh', 'Crew heals 15% · 😊 happy'], outcome: { heal: 0.15 }, herz: { b: 'froh' }, text: ['Ein schönes Lied. Ihr summt es noch Tage später, und jemand lächelt dabei die ganze Zeit.', 'A lovely song. You hum it for days, and someone smiles the whole time.'] }
     ] }
 ];
