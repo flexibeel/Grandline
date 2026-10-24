@@ -255,11 +255,11 @@ Alle fünf sind schon frei von Markennamen, nur EN wird ergänzt. Keine Änderun
 | Kürzel in render.js | `FAC_SHORT`: Strohhut, Marine, CP9, Baroque, Weißbart, Samurai, Buggy, Arlong, Revolution | Sturmmöwen, Kronwacht, Schatten, Barock, Gischt, Freibeuter, Pomp, Flossen, Gegenwind (Rothaar → Rotmantel, Thriller → Schauer, Supernova → Wildfang) | render.js:493 |
 | Bandennamen in Unlock-Texten | Buggy-Piraten, Weißbart-Bande, Schlimmste Generation, Thriller Bark, Revolutionsarmee, Rothaar-Piraten | Pomp-Truppe, Gischt-Flotte, Die Wildfänge, Schauerbarke, Gegenwind, Rotmantel-Flotte | unlocks.js |
 
-## 7. Offene Fragen für Felix (höchstens 4)
-1. **Gegenwind (Revolution) im Barock-Bund?** Es gibt nur 8 Fraktionen, die Rebellen mussten irgendwo hin. Empfehlung: ja, als Untergrund-Flügel des Bundes. Alternative: eigene 9. Fraktion Gegenwind (dann hat der Spieler 9 Leitfarben).
-2. **Wildfänge (Supernova) im Zirkus der Narren?** Masken, Karten und Mundharmonika passen zum Schminke-Chaos. Empfehlung: ja. Alternative: bei den Freibeutern der Krone (dort wären es dann 16 Figuren).
-3. **Welche Flotte gehört Käpt'n Schlund (Welle B)?** Empfehlung: die Gischt-Flotte, er war dort Küchenjunge und hat sich satt gegessen. Die Rotmantel-Flotte bleibt frei.
-4. **Sirokk (Bande baroque) und Dämmerling (Bande thriller) sind in Welle B „Freibeuter der Krone“.** Die Synergie hängt an der Bande, nicht an der Geschichte. Empfehlung: Synergie bleibt wie sie ist, im Text steht „früher Barock-Bund“ bzw. „heuert die Schauerbarke für die Krone“.
+## 7. Entschieden (24.10., Felix per Klick)
+1. **Gegenwind** (heute Revolution) ist Unter-Bande im **Barock-Bund**, es bleibt bei 8 Fraktionen.
+2. **Die Wildfänge** (heute Supernovas) sind Unter-Bande im **Zirkus der Narren**.
+3. **Käpt'n Schlund** gehört zu keiner der zwei Flotten, er ist eine **eigene, dritte Kraft** auf See (Raid-Boss, keine anheuerbare Figur, also keine Synergie betroffen). Text in C2 entsprechend: „Die zwei Flotten“ meint Gischt- und Rotmantel-Flotte, Schlund frisst sich dazwischen durch.
+4. **Sirokk und Dämmerling:** Synergie-Bande bleibt (Barock-Bund bzw. Schauerbarke), der Text erklärt die Krone („früher Barock-Bund“, „heuert die Schauerbarke für die Krone“).
 
 ## 8. Auffälligkeiten beim Lesen
 - Okko heißt in Welle B „Acht-Arm“, die Fähigkeit spricht aber von sechs Armen und sechs Schwertern. Vorschlag: in C2 den Text auf acht ändern (Werte bleiben, `kind: chain` bleibt).
