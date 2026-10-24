@@ -1831,7 +1831,7 @@
           if (f > 1) squad.forEach(r => { r.max = r.hp = Math.round(r.max * f); r.atk = Math.round(r.atk * f); });
           // Die Marine hat auch eine Taktik (meistens). Sie steht in der Vorschau, damit man kontern kann.
           squad.tactic = ['sturm', 'mauer', 'list', null][Math.floor(Math.random() * 4)];
-          row = ui.npcRow = { id: 'npc-marine', squadTactic: squad.tactic, name: 'Übungscrew der Marine', rank: 'Marine-Ausbilder', squad, squadPower: GL.meta.squadPower(squad), npc: true };
+          row = ui.npcRow = { id: 'npc-marine', squadTactic: squad.tactic, name: 'Übungscrew der Kronwacht', rank: 'Ausbilder der Kronwacht', squad, squadPower: GL.meta.squadPower(squad), npc: true };
         }
         // Erst zeigen, wer es ist und wie die Chancen stehen, dann angreifen oder weitersuchen
         ui.matchRow = row;

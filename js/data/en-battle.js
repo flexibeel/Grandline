@@ -7,7 +7,7 @@ GL.data.en = Object.assign(GL.data.en || {}, {
 });
 // FIGHT: Pläne, Kampf-Launen, Stil-Taktik
 GL.data.en = Object.assign(GL.data.en || {}, {
-  'Die Marine-Salve': 'The Marine volley', 'Die Welle': 'The wave', 'Das Pulverfass': 'The powder keg',
+  'Die Kronen-Salve': 'The Crown volley', 'Die Welle': 'The wave', 'Das Pulverfass': 'The powder keg',
   'Pulverfass': 'Powder keg', 'Möwenangriff': 'Gull attack', 'Glitschiges Deck': 'Slippery deck', 'Zweikampf': 'Duel',
   'In Runde 2 fliegt ein Fass in die Luft. Vorne wird es heiß, auf beiden Seiten.': 'In round 2 a barrel goes up. It gets hot at the front, on both sides.',
   'Möwen picken wahllos zu. Wer erwischt wird, setzt aus.': 'Gulls peck at random. Whoever gets hit sits out a turn.',

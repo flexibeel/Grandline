@@ -490,7 +490,7 @@ window.GL = window.GL || {};
 
   // ---------- Karten im Sammelkarten-Stil ----------
   // Figurenkarte: Bild, Name, Fähigkeit, Angriff unten links, Leben unten rechts
-  const FAC_SHORT = { strohhut: 'Strohhut', marine: 'Marine', cp9: 'CP9', baroque: 'Baroque', weissbart: 'Weißbart', samurai: 'Samurai', buggy: 'Buggy', fischmensch: 'Arlong', revolution: 'Revolution', rothaar: 'Rothaar', supernova: 'Supernova', thriller: 'Thriller Bark' };
+  const FAC_SHORT = { strohhut: 'Strohhut', marine: 'Kronwacht', cp9: 'Schatten', baroque: 'Barock', weissbart: 'Gischt', samurai: 'Freibeuter', buggy: 'Pomp', fischmensch: 'Flossen', revolution: 'Gegenwind', rothaar: 'Rotmantel', supernova: 'Wildfang', thriller: 'Schauer' };
   // Figurenkarte: Rahmen in der Farbe der Bande, oben das Banden-Band, unten klare Werte-Leiste
   // Erster Satz, ohne Klammern, höchstens ~56 Zeichen
   function shortText(t) {
@@ -1181,7 +1181,7 @@ window.GL = window.GL || {};
         <span class="hl-rw">${rw.map(r => `<i title="${esc(r.name)}">${rwIco[r.k]}</i>`).join('')}${st === 'ok' || st === 'cur' ? '<em>✓</em>' : st === 'next' ? '<em>▲</em>' : '<em>🔒</em>'}</span></div>`;
     }).join('');
     return `<div class="fpop-card hl-pop"><span class="event-kicker">Kopfgeld-Leiter</span><h3>Wie hoch traust du dich?</h3>
-      <p class="hl-sub">Gewinne auf deiner höchsten Stufe, dann wartet die nächste Sprosse. Jede Stufe legt eine Regel drauf und zahlt Berry. Die Marine führt Buch.</p>
+      <p class="hl-sub">Gewinne auf deiner höchsten Stufe, dann wartet die nächste Sprosse. Jede Stufe legt eine Regel drauf und zahlt Berry. Die Kronwacht führt Buch.</p>
       <div class="hl-mast"><div class="hl-rope" aria-hidden="true"></div>${rows}</div>
       <div class="fpop-btns"><button class="btn" data-act="pop-close">Zurück an Deck</button></div></div>`;
   }
@@ -1385,7 +1385,7 @@ window.GL = window.GL || {};
     helfer: 'Ein Helfer',
     bleed: 'Wunden, Gift und Feuer',
     special: 'Der Spezialangriff',
-    salve: 'Die Marine-Salve', welle: 'Die Welle', pulver: 'Das Pulverfass'
+    salve: 'Die Kronen-Salve', welle: 'Die Welle', pulver: 'Das Pulverfass'
   };
 
   let windupN = -1;
@@ -3012,7 +3012,7 @@ window.GL = window.GL || {};
     if (res) return `<div class="pcard-bg" data-act="lb-view-close"><div class="pcard" data-act="noop">
         <button class="link pcard-close" data-act="lb-view-close">✕</button>
         ${duelReport(res, x.name || 'Gegner')}
-        ${sf && sf.ratingDelta != null ? `<p class="duel-rating">🤝 Freundschaftsduell · zählt nicht für die Liga</p>` : sf && sf.practice ? `<p class="duel-rating">Übungskampf: Ab 1100 zählt die Marine nicht mehr für die Liga.</p>` : ''}
+        ${sf && sf.ratingDelta != null ? `<p class="duel-rating">🤝 Freundschaftsduell · zählt nicht für die Liga</p>` : sf && sf.practice ? `<p class="duel-rating">Übungskampf: Ab 1100 zählt die Kronwacht nicht mehr für die Liga.</p>` : ''}
         ${sf && sf.xp ? `<p class="duel-xp">Stammcrew-EP: +${sf.xp.gain} für jede Figur${sf.xp.ups.length ? ` · <b>Level-up: ${sf.xp.ups.map(esc).join(', ')}</b>` : ''}</p>` : ''}
         <div class="duel-actions"><button class="btn" data-act="squad-match">⚔ Nächster Gegner</button><button class="btn ghost" data-act="squad-fight" data-id="${esc(x.id)}">Nochmal</button>
           <button class="btn ghost" data-act="squad-back">Zur Visitenkarte</button></div>
@@ -3796,7 +3796,7 @@ window.GL = window.GL || {};
         <div class="wr-line">${DG.map(d => `<span class="wr-chip${profile && profile.dungeons && profile.dungeons[d.id] ? ' on' : ''}">${esc(d.name)}</span>`).join('')}</div></section>
       <section class="wk-sec"><h3>Tageskarte</h3><p>Einmal am Tag: Alle starten mit derselben Karte, egal welcher Rang. Dafür gibt es Berry, Rang-EP und eine Tagesbeute für deine Crew. Bei einem Sieg ist sie sicher episch, mit Glück legendär.</p></section>`;
   }
-  const STRAT_NAME = { kraft: 'Kraft-Team', klinge: 'Klingen-Team', technik: 'Technik-Team', mix: 'Bunte Mischung', brecher: 'Viele Brecher', kaempfer: 'Viele Kämpfer', helfer: 'Viele Helfer', greedy: 'Boni sammeln', strohhut: 'Strohhutbande', marine: 'Marine', cp9: 'CP9', baroque: 'Baroque Works' };
+  const STRAT_NAME = { kraft: 'Kraft-Team', klinge: 'Klingen-Team', technik: 'Technik-Team', mix: 'Bunte Mischung', brecher: 'Viele Brecher', kaempfer: 'Viele Kämpfer', helfer: 'Viele Helfer', greedy: 'Boni sammeln', strohhut: 'Strohhutbande', marine: 'Kronwacht', cp9: 'Schattenkorps', baroque: 'Barock-Bund' };
   const stratName = id => id.startsWith('f_') ? (GL.data.factions[id.slice(2)] || {}).name || id : STRAT_NAME[id] || id;
   function wikiPop(tab, profile) {
     const t = tab || 'basis';
@@ -4568,7 +4568,7 @@ window.GL = window.GL || {};
     }
     if (want('jagd') && GL.meta.featureOpen(profile, 'jagd')) {
       const t = profile.hunt && GL.data.raids.find(r => r.id === profile.hunt);
-      tiles.push(`<button class="ad-tile" data-act="hunt-open"><i class="ad-ico">${t ? GL.sprites.render(t) : '🎯'}</i><b>Raid</b><small>${t ? esc(t.name.replace(/^Admiral |^Rothaar /, '')) : 'kein Ziel'}</small></button>`);
+      tiles.push(`<button class="ad-tile" data-act="hunt-open"><i class="ad-ico">${t ? GL.sprites.render(t) : '🎯'}</i><b>Raid</b><small>${t ? esc(t.name.replace(/^Großadmiral |^Admiral |^Rotmantel /, '')) : 'kein Ziel'}</small></button>`);
     }
     return tiles.length ? `<div class="action-dock${kinds ? ' room-acts' : ''}">${tiles.join('')}</div>` : '';
   }
@@ -4630,7 +4630,7 @@ window.GL = window.GL || {};
     if (!GL.meta.featureOpen(profile, 'jagd')) return '';
     const cur = profile.hunt || null;
     const chips = GL.meta.huntTargets(profile).map(({ raid, open }) => open
-      ? `<button class="hunt-chip${cur === raid.id ? ' on' : ''}" data-act="hunt-pick" data-id="${raid.id}" aria-pressed="${cur === raid.id}">${GL.sprites.render(raid)}<span>${esc(raid.name.replace(/^Admiral |^Rothaar /, ''))}</span></button>`
+      ? `<button class="hunt-chip${cur === raid.id ? ' on' : ''}" data-act="hunt-pick" data-id="${raid.id}" aria-pressed="${cur === raid.id}">${GL.sprites.render(raid)}<span>${esc(raid.name.replace(/^Großadmiral |^Admiral |^Rotmantel /, ''))}</span></button>`
       : `<span class="hunt-chip locked" title="Einmal zufällig im Raid besiegen, dann jagbar">${GL.sprites.render(raid)}<span>???</span></span>`).join('');
     const t = cur && GL.data.raids.find(r => r.id === cur);
     const have = profile.loot || {};

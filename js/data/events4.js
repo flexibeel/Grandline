@@ -59,7 +59,7 @@ GL.data = GL.data || {};
       choices: [C(['Still wünschen', 'Wish quietly'], ['Crew heilt 15 %', 'Crew heals 15%'], { heal: 0.15 }, ['Am nächsten Morgen liegt ein Schinken an Deck. Niemand gibt es zu.', 'Next morning there is a ham on deck. Nobody admits it.']),
         C(['Sterne zählen', 'Count stars'], ['+10 Erfahrung', '+10 XP'], { xp: 10 }, ['Bei 412 schläft die halbe Crew. Bei 413 der Rest.', 'At 412 half the crew is asleep. At 413 the rest.'])] },
     { id: 'ce4-meerjungfrau', bg: 'schiff', icon: 'recruit', title: ['Eine Meerjungfrau fragt nach dem Weg', 'A mermaid asks for directions'],
-      lines: [['B', 'Sie sucht die Fischmenscheninsel.', 'She is looking for Fishman Island.'], ['A', 'Wir auch! Irgendwann. Unten, glaube ich.', 'So are we! Eventually. Down, I think.']],
+      lines: [['B', 'Sie sucht die Tiefsee.', 'She is looking for the Deep Sea.'], ['A', 'Wir auch! Irgendwann. Unten, glaube ich.', 'So are we! Eventually. Down, I think.']],
       choices: [C(['Karte zeigen', 'Show the map'], ['alle +1 Tempo', 'all +1 speed'], { buffAll: { stat: 'spd', value: 1 } }, ['Sie zeigt euch eine Strömung. Das Schiff gleitet.', 'She shows you a current. The ship glides.']),
         C(['Ein Stück begleiten', 'Escort her a bit'], ['+14 Gold', '+14 gold'], { gold: 14 }, ['Sie bedankt sich mit Perlen. Und einem sehr lauten Lied.', 'She thanks you with pearls. And a very loud song.'])] },
     { id: 'ce4-leere-insel', bg: 'insel', icon: 'map', title: ['Eine Insel, die zu klein ist', 'An island that is too small'],

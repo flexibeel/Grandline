@@ -654,10 +654,10 @@ window.GL = window.GL || {};
       if (k === 'marine') {
         if (n === 1) {
           const t = alive(crew).reduce((a, b) => (b.spd > a.spd ? b : a));
-          planEv('netz', g0, `Formation! Die Marine wirft ein Netz über ${nameOf(t)}.`, `Formation! The Marines throw a net over ${nameOf(t)}.`, true);
+          planEv('netz', g0, `Formation! Die Kronwacht wirft ein Netz über ${nameOf(t)}.`, `Formation! The Crown Watch throws a net over ${nameOf(t)}.`, true);
           const got = addStatus(t, 'stun', 1);
           if (got) events.push({ k: 'status', side: 'crew', list: [got], by: g0.id, plan: 'netz' });
-        } else if (n % 3 === 2) planEv('anlegen', g0, 'Die Marine legt an … Nächste Runde knallt es.', 'The Marines take aim … next round it goes bang.');
+        } else if (n % 3 === 2) planEv('anlegen', g0, 'Die Kronwacht legt an … Nächste Runde knallt es.', 'The Crown Watch takes aim … next round it goes bang.');
         else if (n % 3 === 0) {
           const acc = {};
           G.forEach(s => {
@@ -666,7 +666,7 @@ window.GL = window.GL || {};
             const d = Math.max(1, Math.round(s.atk * PV.salvo * (1 - (t.guard || 0))) - (t.armor || 0));
             acc[idx(t)] = foeCap(t, (acc[idx(t)] || 0) + d, true);   // GEGNER-WERTE: Salve gesammelt gedeckelt
           });
-          planEv('salve', g0, 'Salve! Die ganze Marine-Truppe feuert auf einmal.', 'Volley! The whole Marine squad fires at once.', !PL.bigUsed);
+          planEv('salve', g0, 'Salve! Die ganze Kronwacht-Truppe feuert auf einmal.', 'Volley! The whole Crown Watch squad fires at once.', !PL.bigUsed);
           PL.bigUsed = true;
           const list = Object.keys(acc).map(i => { const t = crew[+i]; return { to: +i, dmg: Math.min(t.hp, acc[i]), hp: damage(t, acc[i]) }; });
           if (list.length) { events.push({ k: 'dmg', side: 'crew', list, by: 'salve' }); checkRevives(); }
@@ -806,7 +806,7 @@ window.GL = window.GL || {};
         if (r % 3 === 1 && r > 1) mechEv('vor', B, nm + ' spannt jeden Muskel an …', nm + ' tenses every muscle …', false, ['spannt an …', 'tenses …']);
         if (before) {
           if (M.c) mechEv('finte', B, 'Finte! ' + nm + ' wird zu früh zu Eisen und muss wieder lockerlassen.', 'Feint! ' + nm + ' turns to iron too early and has to let go.', true, ['Verpufft!', 'Fizzled!']);
-          else { M.iron = true; mechEv('eisen', B, 'Tekkai! ' + nm + ' ist diese Runde aus Eisen.', 'Tekkai! ' + nm + ' is made of iron this round.', true, ['Eisen!', 'Iron!']); }
+          else { M.iron = true; mechEv('eisen', B, 'Eisenkörper! ' + nm + ' ist diese Runde aus Eisen.', 'Iron Body! ' + nm + ' is made of iron this round.', true, ['Eisen!', 'Iron!']); }
         }
       } else if (M.id === 'vanish') {
         M.hidden = !M.c && r % 2 === 0;

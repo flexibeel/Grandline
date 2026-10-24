@@ -19,11 +19,11 @@ GL.data.ranks = [
   { name: 'Rookie',                   xp: 1100,  reward: { berry: 260 } },
   { name: 'Kopfgeld-Neuling',         xp: 1500,  reward: { berry: 300 } },
   // Gold: Stern
-  { name: 'Supernova',                xp: 2750,  reward: { berry: 340, gear: 'fruchtkorb' } },
+  { name: 'Wildfang',                xp: 2750,  reward: { berry: 340, gear: 'fruchtkorb' } },
   { name: 'Schrecken des Ostmeers',  xp: 3350,  reward: { berry: 380 } },
   { name: 'Held der Wilden See',        xp: 4000,  reward: { berry: 420 } },
   { name: 'Bezwinger der CP9',        xp: 4700,  reward: { berry: 460 } },
-  { name: 'Samurai der Meere',        xp: 5450,  reward: { berry: 500, gear: 'bordkanone' } },
+  { name: 'Freibeuter der Krone',        xp: 5450,  reward: { berry: 500, gear: 'bordkanone' } },
   // Legende: Totenkopf mit Krone
   { name: 'Vize-Kapitän der Flotte',  xp: 6250,  reward: { berry: 550 } },
   { name: 'Kommandant eines Kaisers', xp: 7100,  reward: { berry: 600 } },

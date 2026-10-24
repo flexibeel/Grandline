@@ -27,7 +27,7 @@ GL.data.styles = {
   vivi: 'Heilt die Crew gleich zum Start. Sanft, aber verlässlich.',
   mr1: 'Ein Körper wie eine Klinge: schwer zu verletzen und trifft oft kritisch.',
   smoker: 'Hüllt den Vordersten in Rauch und betäubt ihn regelmäßig.',
-  arlong: 'Beißt zu und lässt bluten. Fischmenschen machen ihn noch stärker.',
+  arlong: 'Beißt zu und lässt bluten. Flosslinge machen ihn noch stärker.',
   crocodile: 'Saugt Leben aus seinen Treffern und jagt der Crew Angst ein.',
   enel: 'Blitze springen von Gegner zu Gegner, und regelmäßig steht einer still.',
   'rob-lucci': 'Schlägt zweimal pro Runde zu. Wenige Leben, enormer Druck.',

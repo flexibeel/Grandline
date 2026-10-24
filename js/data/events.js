@@ -92,10 +92,10 @@ GL.data.events = [
     ]
   },
   {
-    id: 'kontrolle', title: 'Marine-Kontrolle',
-    text: 'Ein Marineschiff fordert euch auf beizudrehen. Der Kapitän sieht bestechlich aus.',
+    id: 'kontrolle', title: 'Kronwacht-Kontrolle',
+    text: 'Ein Schiff der Kronwacht fordert euch auf beizudrehen. Der Kapitän sieht bestechlich aus.',
     choices: [
-      { label: 'Bestechen', hint: '-30 Berry', outcome: { berry: -30 }, text: 'Die Marine sieht in die andere Richtung.' },
+      { label: 'Bestechen', hint: '-30 Berry', outcome: { berry: -30 }, text: 'Die Kronwacht sieht in die andere Richtung.' },
       { label: 'Durchbrechen', hint: '-15 % Leben, +16 Erfahrung', outcome: { hurt: 0.15, xp: 16 }, text: 'Mit Kanonendonner geht es durch die Blockade.' }
     ]
   },

@@ -42,7 +42,7 @@ GL.data.forms = {
     item: { name: ['Schwarzes Bandana', 'Black bandana'], text: ['Wird erst zum Kampf um den Arm gebunden.', 'Only tied on for a real fight.'],
       art: ['............', '............', '...kkkkkk...', '..kddddddk..', '.kdk....kdk.', '.kdk....kdk.', '..kddddddkk.', '...kkkkkkdk.', '.........kdk', '........kdk.', '.........k..', '............'] },
     forms: [
-      { title: ['Bezwinger aus Alabasta', 'Victor of Alabasta'], boss: 'crocodile', need: 10, look: { facc: ['bauchbinde'] }, boni: ['atk', 'hp'] },
+      { title: ['Bezwinger des Wüstenreichs', 'Victor of the Desert Kingdom'], boss: 'crocodile', need: 10, look: { facc: ['bauchbinde'] }, boni: ['atk', 'hp'] },
       { title: ['Dämonen-Schwertkämpfer', 'Demon swordsman'], boss: 'rob-lucci', need: 25, look: { facc: ['bauchbinde', 'ohrringe'], shirt: '#3a4a3a' }, boni: ['atk', 'spd'] }
     ] },
   nami: {
@@ -56,7 +56,7 @@ GL.data.forms = {
     item: { name: ['Schleuder', 'Slingshot'], text: ['Kabuto ist größer. Die hier war die erste.', 'Kabuto is bigger. This one came first.'],
       art: ['............', '..W.....W...', '..Wr...rW...', '..W.rrr.W...', '..Ww...wW...', '...Ww.wW....', '....WwW.....', '.....W......', '.....W......', '.....w......', '....ww......', '............'] },
     forms: [
-      { title: ['Kapitän der Lysop-Bande', 'Captain of the Usopp Pirates'], boss: 'arlong', need: 10, look: { facc: ['langnase', 'gurt'] }, boni: ['spd', 'hp'] },
+      { title: ['Kapitän der Lasse-Bande', 'Captain of the Lasse Gang'], boss: 'arlong', need: 10, look: { facc: ['langnase', 'gurt'] }, boni: ['spd', 'hp'] },
       { title: ['Sogeking', 'Sniper King'], boss: 'rob-lucci', need: 25, look: { shirt: '#5a7a3a', facc: ['maske', 'umhang', 'langnase'] }, boni: ['atk', 'spd'] }
     ] },
   sanji: {
@@ -77,7 +77,7 @@ GL.data.forms = {
     item: { name: ['Altes Geschichtsbuch', 'Old history book'], text: ['Die Seiten sind voller Fragen.', 'The pages are full of questions.'],
       art: ['............', '..bbbbbbbb..', '..bBBBBBBbl.', '..bBggggBbl.', '..bBBBBBBbl.', '..bBBBBBBbl.', '..bBBBBBBbl.', '..bBBBBBBbl.', '..bBBBBBBbl.', '..bbbbbbbbl.', '...llllllll.', '............'] },
     forms: [
-      { title: ['Archäologin von Ohara', 'Archaeologist of Ohara'], boss: 'enel', need: 10, look: { facc: ['haarband', 'buch'] }, boni: ['spd', 'atk'] },
+      { title: ['Archäologin der Bücherinsel', 'Archaeologist of Book Island'], boss: 'enel', need: 10, look: { facc: ['haarband', 'buch'] }, boni: ['spd', 'atk'] },
       { title: ['Die leben will', 'She who wants to live'], boss: 'rob-lucci', need: 25, look: { facc: ['haarband', 'extraarme', 'blueten'] }, boni: ['hp', 'atk'] }
     ] },
   franky: {

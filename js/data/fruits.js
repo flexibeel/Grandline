@@ -28,7 +28,7 @@ GL.data.fruits = [
     effect: { type: 'crit', value: 'p' }, fam: 'zoan', mech: 'Wut: Wer unter 40 % Leben fällt, schlägt 30 % härter zu.' },
   { id: 'hie-hie',   name: 'Hie-Hie-Frucht',   vals: { v: [6, 10, 15, 22] }, text: '+{v} Leben für das erste Crewmitglied',
     effect: { type: 'buffFront', stat: 'hp', value: 'v' }, fam: 'logia', mech: 'Eis: Treffer frieren Gegner manchmal eine Runde ein.' },
-  { id: 'bara-bara',  name: 'Bara-Bara-Frucht',  vals: { p: [0.05, 0.08, 0.12, 0.18] }, text: '+{p} Chance auf doppelten Schaden',
+  { id: 'bara-bara',  name: 'Zerlegefrucht',  vals: { p: [0.05, 0.08, 0.12, 0.18] }, text: '+{p} Chance auf doppelten Schaden',
     effect: { type: 'crit', value: 'p' }, fam: 'paramecia', mech: 'Zerlegen: Die Crew weicht 6 % der Angriffe aus. Der Rest ist Gewöhnungssache.' },
   { id: 'hito-hito',  name: 'Hito-Hito-Frucht',  vals: { v: [4, 7, 10, 15] }, text: '+{v} Leben für die ganze Crew',
     effect: { type: 'buffAll', stat: 'hp', value: 'v' }, fam: 'zoan', mech: 'Doktor: Am Rundenende wird der Verletzteste ein bisschen geflickt.' },
@@ -44,7 +44,7 @@ GL.data.fruits = [
     effect: { type: 'multi', list: [{ type: 'buffAll', stat: 'atk', value: 3 }, { type: 'crit', value: 0.2 }] }, fam: 'logia', base: 'mera-mera', mech: 'Feuer: Treffer setzen Gegner in Brand.' },
   { id: 'yami-yami-epic', name: 'Erwachte Finsternis-Frucht', awakened: true, text: '+3 Angriff und +14 Leben für die ganze Crew',
     effect: { type: 'multi', list: [{ type: 'buffAll', stat: 'atk', value: 3 }, { type: 'buffAll', stat: 'hp', value: 14 }] }, fam: 'logia', mech: 'Finsternis: zählt als Logia.' },
-  { id: 'haki-epic',      name: 'Erwachtes Königs-Haki',     awakened: true, text: '+2 Angriff, +12 Leben für die ganze Crew und +10 % Krit-Chance',
+  { id: 'haki-epic',      name: 'Erwachtes Machtwort',     awakened: true, text: '+2 Angriff, +12 Leben für die ganze Crew und +10 % Krit-Chance',
     effect: { type: 'multi', list: [{ type: 'buffAll', stat: 'atk', value: 2 }, { type: 'buffAll', stat: 'hp', value: 12 }, { type: 'crit', value: 0.1 }] } }
 ];
 

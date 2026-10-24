@@ -29,12 +29,8 @@ GL.worlds.neutral = {
     'Teufelsfrüchte': 'Zauberfrüchte',
     'Teufelsfrucht': 'Zauberfrucht',
     'Piratenkönig': 'König der Freibeuter',
-    'Samurai der Meere': 'Freibeuter der Krone',
     'Kommandant eines Kaisers': 'Kommandant einer Herrscherin',
     'Kaiser der Meere': 'Herrscher der Meere',
-    'Supernova': 'Sturmvogel',
-    'Weltregierung': 'Kronrat',
-    'Haki': 'Willenskraft',
     'Seestein': 'Bannstein',
     'Seekönig': 'Seeungeheuer',
     'Teleschnecke': 'Funkmuschel',
@@ -67,41 +63,38 @@ GL.worlds.neutral = {
     'CP9': 'Schattenkorps',
     // ---------- Crew ----------
     'Ruffys': 'Rafes', 'Ruffy': 'Rafe',
-    'Zorros': 'Sorens', 'Namis': 'Nelas', 'Lysops': 'Lasses', 'Sanjis': 'Santos', 'Choppers': 'Pipos', 'Robins': 'Rubinas', 'Frankys': 'Bolzens', 'Brooks': 'Brunos', 'Vivis': 'Vinas', 'Jinbeis': 'Jonahs', 'Aces': 'Aschs',
+    'Zorros': 'Sorens', 'Namis': 'Nelas', 'Lysops': 'Lasses', 'Sanjis': 'Santos', 'Choppers': 'Pipos', 'Robins': 'Rubinas', 'Frankys': 'Bolzens', 'Brooks': 'Brunos',
     'Zorro': 'Soren', 'Nami': 'Nela', 'Lysop': 'Lasse', 'Sanji': 'Santo', 'Chopper': 'Pipo',
     // Figurenreise (js/data/forms.js)
     'Schwarzbein': 'Dunkelbein', 'Black Leg': 'Dark Leg', 'Seelenkönig': 'Klangkönig', 'Soul King': 'Sound King', 'Monster-Punkt': 'Riesenform', 'Drum': 'Trommelberg', 'Yohoho': 'Johoho',
-    'Gear Second': 'Zweiter Gang', 'Sogeking': 'Maskenkönig', 'Sniper King': 'Mask King', 'Ohara': 'Bücherinsel', 'Strohhüte': 'Sturmmöwen', 'Straw Hat': 'Storm Gull',
+    'Gear Second': 'Zweiter Gang', 'Sogeking': 'Maskenkönig', 'Sniper King': 'Mask King', 'Strohhüte': 'Sturmmöwen', 'Straw Hat': 'Storm Gull',
     'Bellemeres': 'Bellas', 'Bell-mère': 'Bella', 'Kabuto': 'Donnerschleuder', 'Usopp': 'Lasse',
-    'Robin': 'Rubina', 'Franky': 'Bolzen', 'Brook': 'Bruno', 'Garp': 'Grimm', 'Hina': 'Hilde',
-    'Tashigi': 'Tessa', 'Koby': 'Kian', 'Kalifa': 'Kalina', 'Kumadori': 'Kordo', 'Blueno': 'Blaun',
-    'Jabra': 'Jago', 'Bon Clay': 'Mimo', 'Mr. 5': 'Herr Fünf', 'Mr. 1': 'Herr Eins', 'Mr. 3': 'Herr Drei',
-    'Vivi': 'Vina', 'Jinbei': 'Jonah', 'Ace': 'Asch', 'Law': 'Lorn',
+    'Robin': 'Rubina', 'Franky': 'Bolzen', 'Brook': 'Bruno',
+    'Blueno': 'Blaun',
+    'Jabra': 'Jago', 'Mr. 1': 'Herr Eins', 'Mr. 3': 'Herr Drei',
     // ---------- Bosse und Kopfgeld-Ziele ----------
     'Smokers': 'Ruß’', 'Smoker': 'Ruß', 'Arlongs': 'Hairos', 'Arlong': 'Hairo',
     'Crocodiles': 'Sahirs', 'Crocodile': 'Sahir', 'Enels': 'Tonars', 'Enel': 'Tonar',
     'Rob Lucci': 'Lux Varo', 'Luccis': 'Lux’', 'Lucci': 'Lux', 'Kakus': 'Kalos', 'Kaku': 'Kalo',
     'Admiral Kizaru': 'Admiral Glanz', 'Kizarus': 'Glanz’', 'Kizaru': 'Glanz',
     'Doflamingos': 'Dorians', 'Doflamingo': 'Dorian',
-    'Jangos': 'Jonkos', 'Jango': 'Jonko', 'Kuroobi': 'Schwarzgurt',
+    'Jangos': 'Jonkos', 'Jango': 'Jonko',
     'Buggys': 'Bunkos', 'Buggy': 'Bunko', 'Kuro': 'Kral', 'Don Kriegs': 'Kapitän Kregs', 'Don Krieg': 'Kapitän Kreg',
     'Axt-Hand Morgan': 'Axt-Hand Morten', 'Morgan': 'Morten',
     'Wapols': 'Wansts', 'Wapol': 'Wanst', 'Bellamy': 'Bello', 'Fukuro': 'Fugo', 'Spandam': 'Spanner',
     'Foxy': 'Fuchs', 'Nero': 'Neri',
     // ---------- Früchte ----------
     'Gum-Gum': 'Gummi', 'Hana-Hana': 'Blüten', 'Suna-Suna': 'Sand', 'Mera-Mera': 'Flammen',
-    'Zoan-Frucht': 'Tierfrucht', 'Mane-Mane-Frucht': 'Spiegelfrucht', 'Bara-Bara-Frucht': 'Zerlegefrucht',
+    'Zoan-Frucht': 'Tierfrucht',
     'Baku-Baku-Frucht': 'Fressfrucht',
     // ---------- Schätze und Fähigkeiten ----------
     'Vivre Card': 'Lebenskarte', 'Log Port': 'Kompassperle', 'Impact Dial': 'Stoßmuschel', 'Dial': 'Muschel',
     'Wado Ichimonji': 'Ehrenklinge', 'Sunny-Bauplan': 'Bauplan der Sonnenbrigg', 'Sunny': 'Sonnenbrigg',
-    'Rumble Ball': 'Kraftpille', 'Rokushiki': 'Sechs Künste', 'Room': 'Raumkuppel', 'Soru': 'Blitzschritt',
+    'Rumble Ball': 'Kraftpille',
     'Tekkai': 'Eisenkörper', 'Noro-Noro-Strahl': 'Lahmstrahl', 'Shakushi': 'Katzenkrallen',
     'Santoryu: Oni Giri': 'Dreiklingen-Hieb', 'Gatling': 'Trommelfeuer', 'Thunderbolt Tempo': 'Donnerschlag',
     'Diable Jambe': 'Höllentritt', 'Cien Fleur: Clutch': 'Hundert Hände', 'Radikal Beam': 'Kanonenstrahl',
-    'White Blow': 'Rauchschlag', 'Desert Spada': 'Sandklinge', 'El Thor': 'Himmelsblitz', 'Rokuogan': 'Königsstoß',
-    'Amaashi': 'Windbein', 'Shark on Darts': 'Haipfeil', 'Hiken': 'Feuerfaust', 'Gamma Knife': 'Strahlenmesser',
-    'Monster Point': 'Riesenform', 'Fischmenschen-Karate': 'Wellen-Karate', 'Fischmenschen': 'Meervolk'
+    'Monster Point': 'Riesenform', 'Fischmenschen': 'Meervolk'
   }
 };
 

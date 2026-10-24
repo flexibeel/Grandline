@@ -9,8 +9,8 @@ Object.assign(GL.data.en, {
   'Wirtin Rosi: Wer hier sitzt, will mit. Meistens.': 'Rosi the innkeeper: Whoever sits here wants to come along. Mostly.',
   // ART3: Inselbewohner
   'Wüstenskorpion': 'Desert scorpion', 'Schneewolf': 'Snow wolf', 'Sumpfaffe': 'Swamp ape', 'Wolkenwächter': 'Cloud warden', 'Giftqualle': 'Venom jelly',
-  'Fischmensch': 'Fishman', 'Zombie-Matrose': 'Zombie sailor', 'Labor-Roboter': 'Lab robot',
-  'Giftstachel': 'Venom sting', 'Eisheulen': 'Ice howl', 'Affenwut': 'Ape rage', 'Wolkenspeer': 'Cloud spear', 'Nesseln': 'Nettles', 'Fischmenschen-Karate': 'Fishman karate', 'Schon tot': 'Already dead', 'Panzerplatten': 'Armor plates',
+  'Zombie-Matrose': 'Zombie sailor', 'Labor-Roboter': 'Lab robot',
+  'Giftstachel': 'Venom sting', 'Eisheulen': 'Ice howl', 'Affenwut': 'Ape rage', 'Wolkenspeer': 'Cloud spear', 'Nesseln': 'Nettles', 'Strömungs-Karate': 'Current Karate', 'Schon tot': 'Already dead', 'Panzerplatten': 'Armor plates',
   'Sticht giftig: Treffer lassen manchmal bluten (2 Schaden pro Runde, 2 Runden). Freundlich ist er nur zu Sand.': 'Venomous: hits sometimes cause bleeding (2 damage per round, 2 rounds). He is only friendly to sand.',
   'Heult so kalt, dass Treffer manchmal Furcht auslösen. Chopper kennt ihn. Chopper ist nicht begeistert.': 'Howls so coldly that hits sometimes cause fear. Chopper knows him. Chopper is not thrilled.',
   'Wird mit jedem Treffer wütender: +1 Angriff pro Treffer. Hat Gründe. Sagt sie nicht.': 'Gets angrier with every hit: +1 attack per hit. Has reasons. Won\'t say.',

@@ -8,7 +8,7 @@ GL.data.coop = {
   triesPerDay: 3,        // Versuche pro Tag
   perTeam: 3,            // so viele Figuren bringt jede Crew mit (die stärksten)
   bosses: [
-    { id: 'coop-seeking', name: 'Tiefseeriese der Calm Belt', short: 'Tiefseeriese', type: 'klinge', hp: 2200, atk: 16, spd: 5,
+    { id: 'coop-seeking', name: 'Tiefseeriese der Stillen Zone', short: 'Tiefseeriese', type: 'klinge', hp: 2200, atk: 16, spd: 5,
       ability: 'burn', power: 0.3, abilityName: 'Schwanzschlag',
       text: 'Sein Schwanz trifft alle in der Reihe mit. Groß, nass, schlecht gelaunt.',
       tip: 'Viel Leben und Heilung halten länger durch. Bollwerk vorne hilft.',

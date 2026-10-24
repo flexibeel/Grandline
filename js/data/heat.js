@@ -22,7 +22,7 @@ GL.data.heat = [
   { lvl: 9,  icon: '✚', name: 'Zähes Pack',           text: 'Gegner heilen sich jede Runde ein wenig und haben 6 % mehr Angriff.',   mod: { enemyRegen: 0.03, enemyAtk: 0.06 } },   // GEGNER-WERTE: +6 % Angriff (Treffer-Deckel nimmt Spitzen weg)
   { lvl: 10, icon: '🌀', name: 'Nachschub ohne Ende',  text: 'Gegnerwellen bringen einen Gegner mehr, Gegner +8 % Angriff.', mod: { waveExtra: 1, enemyAtk: 0.08 } },
   { lvl: 11, icon: '🍺', name: 'Teure Häfen',          text: 'Die Taverne verlangt 25 % mehr.',            mod: { shopCost: 0.25 } },
-  { lvl: 12, icon: '⛓', name: 'Gepanzerte Marine',    text: 'Gegner haben 1 Rüstung.',                    mod: { enemyArmor: 1 } },
+  { lvl: 12, icon: '⛓', name: 'Gepanzerte Kronwacht',    text: 'Gegner haben 1 Rüstung.',                    mod: { enemyArmor: 1 } },
   { lvl: 13, icon: '🪙', name: 'Mageres Kopfgeld',     text: 'Siege bringen 20 % weniger Gold.',           mod: { goldMult: -0.2 } },
   { lvl: 14, icon: '🗡', name: 'Scharfe Klingen',      text: 'Gegner treffen öfter kritisch.',             mod: { enemyCrit: 0.08 } },
   { lvl: 15, icon: '🏴', name: 'Kaiserliches Gefolge', text: 'Bosse: ein Begleiter mehr und 20 % mehr Leben, Kopfgeldjäger etwas stärker.', mod: { bossEscort: 1, bossHp: 0.2, eliteMult: 0.05 } },   // GEGNER-WERTE: Rest von Stufe 5

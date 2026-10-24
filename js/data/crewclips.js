@@ -19,7 +19,7 @@ GL.data.crewClips = [
   { id: 'cm-nami-orchard', home: 'nami', title: ['Mandarinenernte', 'Tangerine harvest'], lines: [
     ['nami', 'Jede Mandarine ist gezählt. Jede.', 'Every tangerine is counted. Every single one.', '💰'],
     ['lysop', 'Auch die, die runtergefallen ist und die ich zufällig gerettet habe?', 'Even the one that fell down and that I happened to rescue?', '💦'],
-    ['nami', 'Die ganz besonders. Das macht 2.000 Berry.', 'That one especially. That is 2,000 Berry.', '', 'zoom']
+    ['nami', 'Die ganz besonders. Das macht 2.000 Taler.', 'That one especially. That is 2,000 Taler.', '', 'zoom']
   ] },
   { id: 'cm-lysop-syrup', home: 'lysop', title: ['Zielübungen in Syrup', 'Target practice in Syrup'], lines: [
     ['lysop', 'Mitten ins Schwarze. Aus achthundert Metern. Mit verbundenen Augen.', 'Bullseye. From eight hundred meters. Blindfolded.', '✨'],
@@ -57,13 +57,13 @@ GL.data.crewClips = [
     ['zorro', 'Ich weiß. Ich nehm den Panoramaweg.', 'I know. I am taking the scenic route.']
   ] },
   { id: 'cm-vivi-desert', home: 'vivi', title: ['Wüstenwind', 'Desert wind'], lines: [
-    ['vivi', 'In Alabasta sagt man: Wer Durst teilt, teilt auch das Wasser.', 'In Alabasta they say: whoever shares thirst shares the water too.'],
+    ['vivi', 'Im Wüstenreich sagt man: Wer Durst teilt, teilt auch das Wasser.', 'In the Desert Kingdom they say: whoever shares thirst shares the water too.'],
     ['ruffy', 'Und wer Hunger teilt?', 'And whoever shares hunger?'],
     ['vivi', 'Der teilt nicht mit dir. Das hab ich gelernt.', 'Does not share with you. I learned that.', '', 'boing']
   ] },
-  { id: 'cm-ace-whale', home: 'ace', title: ['Feuerfaust an Deck', 'Fire Fist on deck'], lines: [
+  { id: 'cm-ace-whale', home: 'ace', title: ['Glut an Deck', 'Embers on deck'], lines: [
     ['ace', 'Ich halte nur kurz Wache. Wenn ich einschlafe, weck mich.', 'I am only keeping watch for a bit. If I fall asleep, wake me.'],
-    ['self', 'Ace? … Ace?', 'Ace? … Ace?'],
+    ['self', 'Asch? … Asch?', 'Asch? … Asch?'],
     ['ace', 'Zz… Bin wach. Total wach. Wo war ich?', 'Zz… I’m awake. Totally awake. Where was I?', 'Zz', 'boing']
   ] },
   { id: 'cm-sanji-hearts', home: 'sanji', title: ['Sanji kocht für alle', 'Sanji cooks for everyone'], lines: [

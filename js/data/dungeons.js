@@ -56,15 +56,15 @@ GL.data.dungeonLines = {
   buggy:   { go: ['Ich, der große Pomp, führe euch an!'], ok: ['Natürlich! Ich bin genial!'], no: ['Das war nicht ich! Meine Hand war das!'], boss: ['Ich lenke ihn ab. Von sehr weit weg.'], end: ['Alles meins! Ach so, teilen.'] },
   vivi:    { go: ['Ich komme mit. Ich bin eure Freundin.'], ok: ['Wir sind ein gutes Team!'], no: ['Gebt nicht auf!'], boss: ['Für meine Freunde!'], end: ['Danke, dass ich dabei sein durfte.'] },
   ace:     { go: ['Lasst euch nicht aufhalten.'], ok: ['Heiß, oder?'], no: ['…Zzz. Oh, bin ich eingeschlafen?'], boss: ['Feuerfaust!'], end: ['Danke fürs Mitnehmen.'] },
-  law:     { go: ['Das war nicht mein Plan.'], ok: ['Wie berechnet.'], no: ['Hört auf, ohne Plan loszurennen.'], boss: ['Room.'], end: ['…Das war gar nicht schlecht.'] },
-  jinbei:  { go: ['Ich halte euch den Rücken frei.'], ok: ['Sauber gemacht.'], no: ['Ruhig bleiben. Durchatmen.'], boss: ['Fischmenschen-Karate!'], end: ['Ein guter Tag zur See.'] },
-  koby:    { go: ['Ich… ich schaff das! Ich will Admiral werden!'], ok: ['Ich hab es geschafft!'], no: ['Ich übe noch!'], boss: ['Nicht weglaufen, Koby!'], end: ['Danke, dass ihr an mich glaubt.'] },
+  law:     { go: ['Das war nicht mein Plan.'], ok: ['Wie berechnet.'], no: ['Hört auf, ohne Plan loszurennen.'], boss: ['Kuppel.'], end: ['…Das war gar nicht schlecht.'] },
+  jinbei:  { go: ['Ich halte euch den Rücken frei.'], ok: ['Sauber gemacht.'], no: ['Ruhig bleiben. Durchatmen.'], boss: ['Wellen-Karate!'], end: ['Ein guter Tag zur See.'] },
+  koby:    { go: ['Ich… ich schaff das! Ich will Admiral werden!'], ok: ['Ich hab es geschafft!'], no: ['Ich übe noch!'], boss: ['Nicht weglaufen, Kian!'], end: ['Danke, dass ihr an mich glaubt.'] },
   garp:    { go: ['Bwahaha! Wer will Kekse?'], ok: ['Faust der Liebe!'], no: ['Zzz… was? Weiter!'], boss: ['Den erziehe ich.'], end: ['Kekse für alle!'] },
   smoker:  { go: ['Keine Dummheiten.'], ok: ['Hm.'], no: ['Tch.'], boss: ['Rußwolke!'], end: ['Ich hab euch im Auge.'] },
   crocodile: { go: ['Beeilt euch. Ich hasse Zeitverschwendung.'], ok: ['Kukuku.'], no: ['Erbärmlich.'], boss: ['Sand frisst alles.'], end: ['Ich nehme meinen Anteil.'] },
   hancock: { go: ['Ich gehe nur mit, weil Ruffy hier ist.'], ok: ['Natürlich. Ich bin schön.'], no: ['Das verzeihe ich euch, weil ich schön bin.'], boss: ['Liebespfeil!'], end: ['War Ruffy beeindruckt?'] },
   perona:  { go: ['Ist es da drin süß? Nein? Langweilig.'], ok: ['Horohoho!'], no: ['Negativ… so negativ.'], boss: ['Geister, los!'], end: ['Ich will was Süßes.'] },
-  sabo:    { go: ['Für die Freiheit!'], ok: ['Sauber!'], no: ['Nicht schlimm, wir ziehen das durch.'], boss: ['Drachenklaue!'], end: ['Grüßt Ruffy von mir.'] },
+  sabo:    { go: ['Für die Freiheit!'], ok: ['Sauber!'], no: ['Nicht schlimm, wir ziehen das durch.'], boss: ['Flammenklaue!'], end: ['Grüßt Ruffy von mir.'] },
   mihawk:  { go: ['Ich begleite euch. Aus Langeweile.'], ok: ['…'], no: ['Schwach.'], boss: ['Ein Schnitt genügt.'], end: ['Akzeptabel.'] },
   whitebeard: { go: ['Gurarara! Meine Söhne, los!'], ok: ['Gurarara!'], no: ['Kein Grund zur Sorge.'], boss: ['Das Meer bebt!'], end: ['Familie ist alles.'] },
   kid:     { go: ['Aus dem Weg!'], ok: ['Ha! Zu leicht.'], no: ['Wer war das?!'], boss: ['Jetzt wird es laut!'], end: ['Nächstes Mal was Härteres.'] },
@@ -193,7 +193,7 @@ GL.data.dungeons = [
     bossText: 'Ulf wird unsichtbar. Irgendwo kichert es. „Wo bin ich wohl?“',
     bossC: [{ l: 'Mehl verstreuen', k: 'technik', p: 0.6, ok: '{who} pustet Mehl in die Luft. Da ist er! Er gibt auf.', no: 'Jetzt sind alle weiß. Ulf auch, aber er lacht.', r: 'g' },
             { l: 'Wild um sich hauen', k: 'kraft', p: 0.4, ok: 'Treffer! {who} hat tatsächlich etwas erwischt.', no: '{who} trifft nur den Kronleuchter.', r: 'g' },
-            { l: 'Mit Haki spüren', k: 'kaempfer', p: 0.5, ok: '{who} schließt die Augen. „Links.“ Bumm. Sieg.', no: '„Rechts.“ Es war links.', r: 'g' }],
+            { l: 'Mit Willenskraft spüren', k: 'kaempfer', p: 0.5, ok: '{who} schließt die Augen. „Links.“ Bumm. Sieg.', no: '„Rechts.“ Es war links.', r: 'g' }],
     find: { id: 'schattenglas', name: 'Schatten im Glas', text: 'Er zappelt, wenn man das Glas schüttelt.',
       art: ['...ssss.....', '...SSSS.....', '..SllllS....', '..SlkklS....', '..SkkkkS....', '..SlkklS....', '..SkllkS....', '..SllllS....', '..SSSSSS....', '............', '............', '............'] } },
 
@@ -211,7 +211,7 @@ GL.data.dungeons = [
     bossText: 'Rako, der Schwertkämpfer mit acht Armen, schwankt heran. Er hat wohl zu viel Gift getrunken.',
     bossC: [{ l: 'Acht gegen drei', k: 'klinge', p: 0.5, ok: '{who} pariert jede Klinge. Rako fällt um und schnarcht.', no: 'Acht Klingen sind viel. Sehr viel.', r: 'g' },
             { l: 'Wasser reichen', k: 'helfer', p: 0.55, ok: '{who} reicht ihm Wasser. Er wird nüchtern, schämt sich und geht.', no: 'Er nimmt das Wasser und kämpft weiter.', r: 'g' },
-            { l: 'Mit Fischmenschen-Karate', k: 'fischmensch', p: 0.5, ok: 'Ein Wasserstoß von {who}. Rako wird an Land gespült.', no: 'Das Wasser hört nicht auf {who}.', r: 'g' }],
+            { l: 'Mit Wellen-Karate', k: 'fischmensch', p: 0.5, ok: 'Ein Wasserstoß von {who}. Rako wird an Land gespült.', no: 'Das Wasser hört nicht auf {who}.', r: 'g' }],
     find: { id: 'perlmuschel', name: 'Schimmernde Muschel', text: 'Hält man sie ans Ohr, hört man die Tiefsee.',
       art: ['............', '............', '....PPPP....', '..PPpPpPPP..', '.PpPPpPPpPP.', '.PPpPPpPPpP.', 'PpPPpxxPPpPP', 'PPpPxxxxPpPP', '.PPPPxxPPPP.', '..PPPPPPPP..', '............', '............'] } },
 
@@ -226,8 +226,8 @@ GL.data.dungeons = [
         c: [{ l: 'Befreien', k: 'helfer', p: 0.55, ok: '{who} öffnet die Zelle. Der Gefangene verrät ein Versteck.', no: 'Es war ein Wärter in Verkleidung. Mist.', r: 'g' },
             { l: 'Erst ausfragen', k: 'technik', p: 0.6, ok: '{who} fragt geschickt nach. Er verrät, wo die Vorräte liegen.', no: 'Er erzählt nur von seiner Katze.', r: 'h' }] }
     ],
-    bossText: 'Ein Wärter mit explodierender Nase stellt sich in den Weg. Mr. 5, im Nebenjob.',
-    bossC: [{ l: 'Nasenspray anbieten', k: 'helfer', p: 0.5, ok: '{who} reicht ein Taschentuch. Mr. 5 ist gerührt und lässt euch vorbei.', no: 'Er niest. Es explodiert.', r: 'g' },
+    bossText: 'Ein Wärter mit explodierender Nase stellt sich in den Weg. Herr Freitag, im Nebenjob.',
+    bossC: [{ l: 'Nasenspray anbieten', k: 'helfer', p: 0.5, ok: '{who} reicht ein Taschentuch. Herr Freitag ist gerührt und lässt euch vorbei.', no: 'Er niest. Es explodiert.', r: 'g' },
             { l: 'Vorbeistürmen', k: 'kraft', p: 0.5, ok: '{who} rammt sich durch. Die Schatzkammer steht offen!', no: 'Bumm. Bumm. Bumm.', r: 'g' },
             { l: 'Säbel kreuzen', k: 'klinge', p: 0.45, ok: '{who} schneidet die Lunte seiner Nase ab. Problem gelöst.', no: 'Er niest auf die Klinge. Igitt.', r: 'g' }],
     find: { id: 'zellenschluessel', name: 'Großer Zellenschlüssel', text: 'Passt in jede Zelle von Ebene 1 bis 5. Angeblich.',
@@ -243,7 +243,7 @@ GL.data.dungeonSpecials = {
   drumm:   { kind: 'lifesteal', power: 0.4,  tag: 'drain',  name: 'Alles-Fresser',   text: 'Frisst sich satt: heilt sich um 40 % seines Schadens.' },
   graeber: { kind: 'double',    power: 1,    tag: 'single', name: 'Klingenkörper',   text: 'Schlägt zweimal pro Runde zu, immer auf dasselbe arme Ziel.' },
   ruinen:  { kind: 'burn',      power: 0.3,  tag: 'aoe',    name: 'Eisenwolken',     text: 'Jeder Treffer prasselt mit 30 % auf die ganze restliche Crew.' },
-  kanaele: { kind: 'thorns',    power: 3,    tag: 'thorns', name: 'Tekkai-Bauch',    text: 'Wer ihn haut, kriegt 3 Schaden zurück. Schnelle Mehrfachschläger leiden.' },
+  kanaele: { kind: 'thorns',    power: 3,    tag: 'thorns', name: 'Eisenbauch',    text: 'Wer ihn haut, kriegt 3 Schaden zurück. Schnelle Mehrfachschläger leiden.' },
   gruft:   { kind: 'revive',    power: 0.35, tag: 'revive', name: 'Unsichtbares Comeback', text: 'Steht einmal mit 35 % Leben wieder auf. Er hat es nicht so mit dem Liegenbleiben.' },
   koralle: { kind: 'burn',      power: 0.25, tag: 'aoe',    name: 'Acht Gift-Klingen', text: 'Acht Arme, acht Schwerter: jeder Treffer streift die ganze Crew (25 %).' },
   impel:   { kind: 'burn',      power: 0.35, tag: 'aoe',    name: 'Nasenpopel-Bombe', text: 'Explodiert alles, was er anfasst: 35 % Flächenschaden. Ja, wirklich mit der Nase.' }
@@ -256,10 +256,10 @@ GL.data.dungeonMechs = {
   drumm:   { id: 'feast', ico: '🍖', name: 'Fressattacke', en: 'Feeding frenzy', counter: 'feint', txt: 'Alle drei Runden frisst Mampf sich gesund. Mit Besteck.', tEn: 'Every third round Munch eats himself healthy. With cutlery.', crack: 'Wer zum Biss ansetzt, lässt sich gern ablenken.', cEn: 'Anyone about to bite is easy to distract.' },
   graeber: { id: 'whirl', ico: '🌀', name: 'Klingenwirbel', en: 'Blade whirl', counter: 'guard', txt: 'Alle drei Runden wirbelt Herr Sonntag durch die ganze Crew.', tEn: 'Every third round Mister Sunday whirls through the whole crew.', crack: 'Gegen Klingen von allen Seiten hilft nur eine Wand aus Schilden.', cEn: 'Against blades from all sides only a wall of shields helps.' },
   ruinen:  { id: 'storm', ico: '⚡', name: 'Gewitterwolke', en: 'Thundercloud', counter: 'spread', txt: 'Alle drei Runden schlägt ein Blitz in die Vordersten ein.', tEn: 'Every third round lightning strikes the front line.', crack: 'Blitze lieben Grüppchen. Steht nicht so eng.', cEn: 'Lightning loves huddles. Don’t stand so close.' },
-  kanaele: { id: 'tekkai', ico: '🛡', name: 'Tekkai', en: 'Tekkai', counter: 'feint', txt: 'Alle drei Runden wird Plapper zu Eisen und ist unverwundbar.', tEn: 'Every third round Chatter turns to iron and is invulnerable.', crack: 'Wer zu früh hart wird, muss wieder weich werden.', cEn: 'Whoever hardens too early has to soften again.' },
+  kanaele: { id: 'tekkai', ico: '🛡', name: 'Eisenkörper', en: 'Iron Body', counter: 'feint', txt: 'Alle drei Runden wird Plapper zu Eisen und ist unverwundbar.', tEn: 'Every third round Chatter turns to iron and is invulnerable.', crack: 'Wer zu früh hart wird, muss wieder weich werden.', cEn: 'Whoever hardens too early has to soften again.' },
   gruft:   { id: 'vanish', ico: '👻', name: 'Unsichtbar', en: 'Invisible', counter: 'focus', txt: 'Ulf verschwindet jede zweite Runde. Was man nicht sieht, trifft man schlecht.', tEn: 'Ulf vanishes every second round. What you can’t see, you can’t hit.', crack: 'Wer ihn nie aus den Augen lässt, verliert ihn auch nicht.', cEn: 'Never take your eyes off him and you won’t lose him.' },
   koralle: { id: 'flood', ico: '🌊', name: 'Flutwelle', en: 'Flood wave', counter: 'guard', txt: 'Alle drei Runden rollt eine Flutwelle über die Crew.', tEn: 'Every third round a flood wave rolls over the crew.', crack: 'Wasser kommt in Wellen. Schilde auch.', cEn: 'Water comes in waves. So do shields.' },
-  impel:   { id: 'powder', ico: '🧨', name: 'Pulverfässer', en: 'Powder kegs', counter: 'spread', txt: 'Jeder Treffer auf Mr. 5 kann ein Fass hochgehen lassen. Alle in der Nähe fliegen mit.', tEn: 'Every hit on Mr. 5 may set off a keg. Everyone nearby goes flying.', crack: 'Bei Explosionen hilft Abstand mehr als Mut.', cEn: 'With explosions, distance helps more than courage.' }
+  impel:   { id: 'powder', ico: '🧨', name: 'Pulverfässer', en: 'Powder kegs', counter: 'spread', txt: 'Jeder Treffer auf Herrn Freitag kann ein Fass hochgehen lassen. Alle in der Nähe fliegen mit.', tEn: 'Every hit on Mister Friday may set off a keg. Everyone nearby goes flying.', crack: 'Bei Explosionen hilft Abstand mehr als Mut.', cEn: 'With explosions, distance helps more than courage.' }
 };
 GL.data.dungeonPlans = {
   focus:  { ico: '🎯', name: 'Fokus', en: 'Focus', txt: 'Das Wichtigste nie aus den Augen lassen', tEn: 'Never lose sight of what matters' },

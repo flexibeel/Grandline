@@ -17,7 +17,7 @@ GL.data.news = {
       text: ['🔥 Logia, 🌀 Paramecia, 🐾 Zoan: Sammle zwei oder drei aus einer Familie und sie werden richtig gemein. Jede Frucht hat dazu ihre Eigenheit, vom Brand bis zum Phönix, der einmal wieder aufsteht.', '🔥 Logia, 🌀 Paramecia, 🐾 Zoan: collect two or three of one family and they get properly mean. Every fruit also has its quirk, from burning to a phoenix that rises once more.'] },
     { art: { crew: ['ruffy', 'lysop', 'sanji'] }, tone: 'sea',
       kicker: ['Unterwegs', 'On the way'], title: ['Die Crew redet mit', 'The crew has opinions'],
-      text: ['16 kleine Szenen auf der Route: eine fremde Frucht am Strand, ein Händler mit Haken, eine Marine-Kontrolle. Du entscheidest, die Crew kommentiert.', '16 little scenes on the route: a strange fruit on the beach, a merchant with a catch, a marine checkpoint. You decide, the crew comments.'] },
+      text: ['16 kleine Szenen auf der Route: eine fremde Frucht am Strand, ein Händler mit Haken, eine Kronwacht-Kontrolle. Du entscheidest, die Crew kommentiert.', '16 little scenes on the route: a strange fruit on the beach, a merchant with a catch, a marine checkpoint. You decide, the crew comments.'] },
     { art: { emoji: '🔱' }, tone: 'gold',
       kicker: ['Gemeinschaft', 'Together'], title: ['Welt-Boss der Woche', 'World boss of the week'],
       text: ['Bis zu vier Stammcrews gegen einen Riesen: du und deine Segelkumpane. Landgänge haben jetzt Expeditionen und zeigen vorher ehrlich, ob ihr eine Chance habt.', 'Up to four home crews against a giant: you and your sailing buddies. Shore leaves now have expeditions and tell you honestly beforehand whether you stand a chance.'] },

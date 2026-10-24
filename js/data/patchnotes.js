@@ -76,7 +76,7 @@ GL.patchNotes = [
     '⚡ Ultis kommen seltener, treffen dafür 1,6-mal so hart. Das Antippen lohnt sich jetzt richtig',
     '💚 Helfer heilen auch ohne Ulti: Ist jemand unter 50 % Leben, verarzten sie ihn statt anzugreifen',
     '💥 Reaktionen: Brand + Gift = Explosion, Frost + Schock = Zersplittern, Brand + Frost = Dampf, Geschwächt + Furcht = Panik',
-    '❄ Neue Zustände Frost, Schock und Blind. Zum Start bei Aokiji, Nami, Zirrus und Glanz' ] },
+    '❄ Neue Zustände Frost, Schock und Blind. Zum Start bei Reif, Nami, Zirrus und Glanz' ] },
   { v: '2026-10-22g', date: '22.10.', title: 'Ulti auf Zuruf', items: [
     '⚡ Ultis zündest du jetzt selbst: Leuchtet eine Figur, tippst du sie an und die Ulti kommt im nächsten Zug. Wer zu lange wartet, dem nimmt die Crew das nach ein paar Zügen ab',
     '🔁 Lieber zuschauen? Unter der Arena schaltest du „Ultis: auto“ ein, auch mitten im Kampf',
@@ -180,7 +180,7 @@ GL.patchNotes = [
     '☠ Totenkopf-Flaggen im Nebel: Wer da wohnt, sieht man erst von nahem. Schon bekannte Landgänge bleiben natürlich offen, die alte Liste liegt unter „☰ Liste“' ] },
   { v: '2026-10-21h', date: '19.10.', title: 'Weniger „Wer war das?“', items: [
     '🛡 Gegner treffen nicht mehr über 60 % deines Lebens auf einmal, angekündigte Brocken nicht über 80 %. Wer dich umhauen will, muss jetzt zweimal fragen',
-    '🎯 Gegner-Krits ×1,75 statt ×2. Die Marine hat ihre Lupen abgegeben, die Fäuste hat sie behalten',
+    '🎯 Gegner-Krits ×1,75 statt ×2. Die Kronwacht hat ihre Lupen abgegeben, die Fäuste hat sie behalten',
     '⚖ Dafür schlagen normale Gegner ab dem zweiten Meer etwas fester zu. Gleiche Schwierigkeit, nur weniger Überraschungs-K.O.',
     '🔥 Kopfgeld-Stufe 5 ist keine Klippe mehr. Auf hohen Stufen wird der Deckel lockerer, damit sich dort niemand zu wohl fühlt' ] },
   { v: '2026-10-21g', date: '19.10.', title: 'Offene See macht Pause', items: [

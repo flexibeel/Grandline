@@ -59,7 +59,7 @@ window.GL = window.GL || {};
           L(`${n} hat einen Inselboss besiegt und dabei kaum geflucht.`, `${n} defeated an island boss and barely swore.`)], h);
       case 'win': return pick([L(`${n} hat die Grand Line bezwungen. Angeblich ohne Karte.`, `${n} conquered the Grand Line. Reportedly without a map.`),
         L(`${n} ist ganz durchgesegelt. Die Möwen gratulieren, wenn auch laut.`, `${n} sailed all the way through. The gulls congratulate, loudly.`)], h);
-      case 'league': return L(`${n} spielt jetzt in der ${esc(v)}. Die Marine legt eine Akte an.`, `${n} is now in the ${esc(v)}. The Marines have opened a file.`);
+      case 'league': return L(`${n} spielt jetzt in der ${esc(v)}. Die Kronwacht legt eine Akte an.`, `${n} is now in the ${esc(v)}. The Crown Watch has opened a file.`);
       case 'crew': return L(`${n} segelt jetzt als „${esc(v)}“. Die Flagge ist noch nicht trocken.`, `${n} now sails as “${esc(v)}”. The flag is still drying.`);
       case 'sea': return L(`${n} hat ein ganzes Meer abgehakt. Das Meer nimmt es gelassen.`, `${n} ticked off an entire sea. The sea is taking it well.`);
       case 'land': return L(`${n} war auf Landgang und kam mit vollen Taschen zurück.`, `${n} went ashore and came back with full pockets.`);

@@ -36,13 +36,13 @@ GL.data.crewEvents = [
       { label: ['Probieren', 'Taste it'], hint: ['50 %: alle +4 Leben, sonst -12 % Leben · 😊 froh', '50%: all +4 HP, else -12% HP · 😊 happy'], outcome: { chance: 0.5, win: { buffAll: { stat: 'hp', value: 4 } }, lose: { hurt: 0.12 } }, herz: { b: 'froh' }, text: ['Das Essen ist vorbei. Die Erinnerung bleibt, und jemand grinst noch stundenlang.', 'The meal is over. The memory remains, and someone keeps grinning for hours.'] },
       { label: ['Höflich ablehnen', 'Politely decline'], hint: ['Crew heilt 15 %', 'Crew heals 15%'], outcome: { heal: 0.15 }, text: ['Ihr esst Zwieback. Sicher ist sicher.', 'You eat hardtack. Better safe than sorry.'] }
     ] },
-  { id: 'ce-marine', bg: 'schiff', icon: 'elite', title: ['Marine-Kontrolle', 'Marine checkpoint'],
+  { id: 'ce-marine', bg: 'schiff', icon: 'elite', title: ['Kronwacht-Kontrolle', 'Crown Watch checkpoint'],
     lines: [
-      ['kalle', 'KRAA! Marine-Kontrolle voraus! Bitte Flaggen und Ausreden bereithalten!', 'KRAA! Marine checkpoint ahead! Please have flags and excuses ready!'],
+      ['kalle', 'KRAA! Kronwacht-Kontrolle voraus! Bitte Flaggen und Ausreden bereithalten!', 'KRAA! Crown Watch checkpoint ahead! Please have flags and excuses ready!'],
       ['A', 'Wir sind ein ganz normales Fischerboot. Mit Totenkopf.', 'We are a completely normal fishing boat. With a skull.']
     ],
     choices: [
-      { label: ['Durchbrechen', 'Break through'], hint: ['-12 % Leben, +14 Erfahrung', '-12% HP, +14 XP'], outcome: { hurt: 0.12, xp: 14 }, text: ['Die Marine schreibt einen sehr langen Bericht über euch.', 'The Marines write a very long report about you.'] },
+      { label: ['Durchbrechen', 'Break through'], hint: ['-12 % Leben, +14 Erfahrung', '-12% HP, +14 XP'], outcome: { hurt: 0.12, xp: 14 }, text: ['Die Kronwacht schreibt einen sehr langen Bericht über euch.', 'The Crown Watch writes a very long report about you.'] },
       { label: ['Bestechen', 'Bribe'], hint: ['-8 Gold, nichts passiert', '-8 gold, nothing happens'], outcome: { gold: -8 }, text: ['Der Soldat zählt nach, nickt und hat euch nie gesehen.', 'The soldier counts twice, nods and never saw you.'] },
       { label: ['Verstecken', 'Hide'], hint: ['50 %: +20 Berry, sonst -15 % Leben', '50%: +20 Berry, else -15% HP'], outcome: { chance: 0.5, win: { berry: 20 }, lose: { hurt: 0.15 } }, text: ['Das Fass war kleiner als gedacht.', 'The barrel was smaller than expected.'] }
     ] },
@@ -152,7 +152,7 @@ GL.data.crewEvents = [
       ['A', 'Ich sehe gut aus. Ich sehe immer gut aus.', 'I look good. I always look good.']
     ],
     choices: [
-      { label: ['Stolz posieren', 'Pose proudly'], hint: ['+12 Erfahrung · 😊 froh', '+12 XP · 😊 happy'], outcome: { xp: 12 }, herz: { b: 'froh' }, text: ['Ein Kind will ein Autogramm. Die Mutter ruft die Marine. Ein guter Tag, und jemand posiert noch lange weiter.', 'A kid wants an autograph. The mother calls the Marines. A good day, and someone keeps posing for ages.'] },
+      { label: ['Stolz posieren', 'Pose proudly'], hint: ['+12 Erfahrung · 😊 froh', '+12 XP · 😊 happy'], outcome: { xp: 12 }, herz: { b: 'froh' }, text: ['Ein Kind will ein Autogramm. Die Mutter ruft die Kronwacht. Ein guter Tag, und jemand posiert noch lange weiter.', 'A kid wants an autograph. The mother calls the Crown Watch. A good day, and someone keeps posing for ages.'] },
       { label: ['Plakate einsammeln', 'Collect the posters'], hint: ['+20 Berry', '+20 Berry'], outcome: { berry: 20 }, text: ['Sammler zahlen erstaunlich viel für dein Gesicht.', 'Collectors pay surprisingly well for your face.'] }
     ] },
   { id: 'ce-meerjungfrau', bg: 'insel', icon: 'chest', title: ['Ein Lied aus dem Wasser', 'A song from the water'],

@@ -15,7 +15,7 @@ GL.data.en = Object.assign(GL.data.en || {}, {
   'segeln gerade': 'are sailing right now', 'segelt gerade': 'is sailing right now',
   'Schläger': 'Thug',
   'Normale Gegner, normale Beute': 'Normal foes, normal loot', 'Gegner stärker': 'Stronger foes', 'Mehr Gold pro Sieg': 'More gold per win', 'Mehr Kopfgeld': 'More bounty', 'Bösewicht lässt oft einen Extra-Schatz fallen': 'The villain often drops an extra treasure',
-  'Übungskampf: Ab 1100 zählt die Marine nicht mehr für die Liga.': 'Practice bout: above 1100 the Marines no longer count for the league.',
+  'Übungskampf: Ab 1100 zählt die Kronwacht nicht mehr für die Liga.': 'Practice bout: above 1100 the Crown Watch no longer counts for the league.',
   'Veteran der Testfahrt': 'Test Voyage Veteran', 'Erstsegler': 'First Sailor', 'Erste Fahrt': 'Maiden Voyage',
   'Vor dem großen Neustart gesegelt': 'Sailed before the big relaunch', 'Am Startabend (18./19.10.) gesegelt': 'Sailed on launch night (Oct 18/19)',
   '⛵ Flagge „Erste Fahrt“': '⛵ “Maiden Voyage” flag',
@@ -68,11 +68,11 @@ Object.assign(GL.data.en, { 'Deine Crew ist gerade gesund': 'Your crew is health
 // END: Kopfgeld-Leiter und Meisterschaft
 Object.assign(GL.data.en, {
   'Kopfgeld-Leiter': 'Bounty ladder', 'Wie hoch traust du dich?': 'How high do you dare?', 'Zurück an Deck': 'Back on deck',
-  'Gewinne auf deiner höchsten Stufe, dann wartet die nächste Sprosse. Jede Stufe legt eine Regel drauf und zahlt Berry. Die Marine führt Buch.': 'Win on your highest level and the next rung awaits. Every level adds a rule and pays Berry. The Marines keep records.',
+  'Gewinne auf deiner höchsten Stufe, dann wartet die nächste Sprosse. Jede Stufe legt eine Regel drauf und zahlt Berry. Die Kronwacht führt Buch.': 'Win on your highest level and the next rung awaits. Every level adds a rule and pays Berry. The Crown Watch keeps records.',
   'Meisterschaft': 'Mastery', 'Zähes Pack': 'Tough Crowd', 'Gegner heilen sich jede Runde ein wenig.': 'Enemies heal a little every round.',
   'Nachschub ohne Ende': 'Endless Reinforcements', 'Gegnerwellen bringen einen Gegner mehr, Gegner +8 % Angriff.': 'Enemy waves bring one more foe, enemies +8 % attack.',
   'Teure Häfen': 'Pricey Harbors', 'Die Taverne verlangt 25 % mehr.': 'The tavern charges 25 % more.',
-  'Gepanzerte Marine': 'Armored Marines', 'Gegner haben 1 Rüstung.': 'Enemies have 1 armor.',
+  'Gepanzerte Kronwacht': 'Armored Crown Watch', 'Gegner haben 1 Rüstung.': 'Enemies have 1 armor.',
   'Mageres Kopfgeld': 'Lean Bounties', 'Siege bringen 20 % weniger Gold.': 'Wins pay 20 % less gold.',
   'Scharfe Klingen': 'Sharp Blades', 'Gegner treffen öfter kritisch.': 'Enemies crit more often.',
   'Kaiserliches Gefolge': 'Imperial Retinue', 'Bosse: ein Begleiter mehr und 20 % mehr Leben.': 'Bosses: one more escort and 20 % more health.',

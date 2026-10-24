@@ -73,10 +73,10 @@ GL.data = GL.data || {};
         choices: [C(['Den Kapitän erlösen', 'Set the captain free'], ['+15 Erfahrung, der Fluch ist weg', '+15 XP, the curse is lifted'], { xp: 15 }, ['Ein ordentliches Hallo, eine Verbeugung. Der Nebel wird heller. Die Arme leichter.', 'A proper hello, a bow. The fog brightens. Arms feel lighter.'], 'erloest'),
           C(['Ignorieren', 'Ignore it'], ['bis zum Ende der Insel: Ganze Crew -1 Angriff', 'until the island ends: whole crew -1 attack'], { temp: { stat: 'atk', value: -1 } }, ['Der Nebel bleibt beleidigt. Die Arme auch.', 'The fog stays offended. So do the arms.'])] }
     ],
-    // Das Teufelsgewürz
+    // Das Zaubergewürz
     gewuerz: [
       { need: ['festmahl'], bg: 'kueche', icon: 'rest',
-        erinnert: ['Damals habt ihr ein Festmahl mit einer Prise Teufelsgewürz gekocht.', 'Back then you cooked a feast with a pinch of devil spice.'],
+        erinnert: ['Damals habt ihr ein Festmahl mit einer Prise Zaubergewürz gekocht.', 'Back then you cooked a feast with a pinch of magic spice.'],
         lines: [['B', 'Der Händler vom Hafen winkt. Er hat ein neues Glas dabei. Es brummt im Takt.', 'The merchant from the harbour is waving. He brought a new jar. It hums in time.'],
           ['A', 'Ist das die Zunge, die ich damals nicht gespürt habe?', 'Is that the tongue I could not feel back then?']],
         choices: [C(['Wieder ein Festmahl', 'Another feast'], ['Crew heilt 15 %, -3 Gold', 'crew heals 15%, -3 gold'], { heal: 0.15, gold: -3 }, ['Die Küche brummt. Die Crew auch. Alle sind satt und ein bisschen warm.', 'The galley hums. So does the crew. Everyone is full and a little warm.']),
@@ -125,7 +125,7 @@ GL.data = GL.data || {};
         erinnert: ['Damals hat sich der Kapitän in Heldenpose fotografieren lassen.', 'Back then the captain struck a heroic pose for the photo.'],
         lines: [['B', 'Ein Kind zeigt auf dich. Es macht deine Pose nach. Sehr schlecht.', 'A child points at you. It copies your pose. Very badly.'],
           ['A', 'Man muss die Hüfte vorschieben. Und den Blick in die Ferne.', 'You have to push your hip out. And gaze into the distance.']],
-        choices: [C(['Posen-Unterricht geben', 'Give a posing lesson'], ['+12 Erfahrung', '+12 XP'], { xp: 12 }, ['Eine halbe Stunde später posiert der halbe Hafen. Die Marine fotografiert mit.', 'Half an hour later half the harbour is posing. The marines are taking photos too.']),
+        choices: [C(['Posen-Unterricht geben', 'Give a posing lesson'], ['+12 Erfahrung', '+12 XP'], { xp: 12 }, ['Eine halbe Stunde später posiert der halbe Hafen. Die Kronwacht fotografiert mit.', 'Half an hour later half the harbour is posing. The marines are taking photos too.']),
           C(['Autogramme verkaufen', 'Sell autographs'], ['+8 Gold, -6 % Leben', '+8 gold, -6% HP'], { gold: 8, hurt: 0.06 }, ['Der Andrang ist groß. Das Gedränge auch. Eine Hand kneift.', 'The crowd is huge. So is the crush. Someone pinches.'])] },
       { need: ['grimasse'], bg: 'hafen', icon: 'elite',
         erinnert: ['Damals habt ihr für den Steckbrief eine Grimasse gezogen.', 'Back then you pulled a face for the wanted poster.'],

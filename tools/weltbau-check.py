@@ -3,6 +3,7 @@
 
 Aufruf:  python3 tools/weltbau-check.py            (alle Wellen)
          python3 tools/weltbau-check.py A          (nur Welle A: Meere, Inseln, Orte)
+         python3 tools/weltbau-check.py C          (nur Welle C: Figuren, Banden, Fähigkeiten, Duos)
 
 Gibt pro Fund Datei, Zeile und Begriff aus. Code-Kommentare und js/world/neutral.js
 (die alte Ersetzungsliste) werden übersprungen. Neue Wellen ergänzen ihre Liste unten.
@@ -34,14 +35,37 @@ WELLEN = {
         'Energy Steroids', 'Ursus', 'Vogelkäfig', 'Birdcage',
         'Schwarzes Loch', 'Black Hole', 'Königshaki',
     ],
+    'C': [  # Figuren, Banden, Bündnisse, Fähigkeiten, Ultis, Team-Aktionen (auch übersetzte Formen)
+        # Figuren (die 56 ohne Sturmmöwen) und alte Ersatznamen aus neutral.js
+        'Garp', 'Hina', 'Tashigi', 'Koby', 'Aokiji', 'Kalifa', 'Kumadori', 'Bon Clay', 'Mr. 5', 'Vivi', 'Sabo',
+        'Ivankov', 'Iva', 'Koala', 'Dragon', 'Kuroobi', 'Chu', 'Alvida', 'Cabaji', 'Mohji', 'Eustass', 'Kid', 'Killer',
+        'Bonney', 'Drake', 'Hawkins', 'Scratchmen', 'Apoo', 'Ace', 'Marco', 'Whitebeard', 'Weißbart', 'Vista',
+        'Beckman', 'Lucky Roo', 'Roo', 'Yasopp', 'Jinbei', 'Jinbe', 'Law', 'Mihawk', 'Hancock', 'Richie',
+        'Blaun', 'Jago', 'Herr Fünf', 'Herr Eins', 'Herr Drei',
+        # Banden, Bündnisse, Duos, Orte aus Figuren-Geschichten
+        'Marine', 'Baroque Works', 'Baroque-', 'Revolutionsarmee', 'Revolutionär', 'Revolutionäre', 'Revolutionären', 'Revolutionary',
+        'Rothaar', 'Red-Haired', 'Samurai', 'Supernova', 'Supernovas', 'Schlimmste Generation', 'Worst Generation',
+        'Sturmvogel', 'Thriller-Bark', 'Fischmensch', 'Fischmenschen', 'Fish-Man', 'Fishman', 'Meervolk',
+        'Weltregierung', 'World Government', 'Monkey', 'Wille des D.', 'Rogers', 'Roger', 'Kreuz-Gilde',
+        'Sonnenpiraten', 'Sun Pirates', 'Okama', 'Mellorine', 'Ohara', 'Kuraigana', 'Calm Belt', 'Lysop-Bande',
+        # Fähigkeiten, Ultis, Team-Aktionen
+        'Haki', 'Königs-Haki', 'Observations-Haki', 'Fessel-Frucht', 'Tekkai', 'Wolfs-Frucht', 'Mane-Mane',
+        'Bomben-Frucht', 'Room', 'Rokushiki', 'Giraffen-Klinge', 'Nikyu-Nikyu', 'Negative Hollows', 'Bara-Bara',
+        'Gura-Gura', 'Mero-Mero', 'Magnet-Frucht', 'Massacre Soldier', 'Alters-Frucht', 'Ton-Ton', 'Sube-Sube',
+        'Senbonzuke', 'Hormon-Frucht', 'Ice Age', 'Shigure', 'Soru', 'Golden Away', 'Seimei Kikan', 'Okama Kenpo',
+        'Nose Fancy Cannon', 'Atlas-Klinge', 'Vagabundendrill', 'Hiken', 'Gamma Knife', 'Kokuto', 'Slave Arrow',
+        'Kamusari', 'White Blow', 'Shark on Darts', 'Desert Spada', 'El Thor', 'Yakuzame', 'Brick Bat', 'Rokuogan',
+        'Amaashi', 'Muggy Ball', 'Takoyaki', 'Death Wink', 'Gyojin', 'Ice Time', 'Jugon', 'Punk Gibson', 'Kamazo',
+        'Age Twister', 'Allosaurus', 'Tonkatsu', 'Ghost Rap', 'Buster Call',
+    ],
 }
 
-# Was zu einer späteren Welle gehört und hier noch stehen darf (Welle C: Fraktionen, Figuren-Fähigkeiten).
-SPAETER = {
-    'B': {'dateien': ('factions.js', 'teammoves.js', 'ultis.js', 'abilities.js'),
-          'danach': ('-Piraten', ' Pirates', '-Bande', '-Kanone'),
-          'zeilen': ('FAC_SHORT',)},
-}
+# Gewöhnliche Wörter, die nur zufällig wie ein Originalbegriff aussehen (werden vor der Suche ausgeblendet).
+ERLAUBT = ('Jolly Roger', 'Training Room', 'Throne Room', 'Freezer Room', 'Stitching Room',
+           'Operating Room', 'Room for', "'Drache': 'Dragon'", '"Drache": "Dragon"')
+
+# Was zu einer späteren Welle gehört und dort noch stehen darf (seit Welle C leer).
+SPAETER = {}
 
 def main():
     welle = sys.argv[1].upper() if len(sys.argv) > 1 else None
@@ -55,6 +79,7 @@ def main():
     for f in dateien:
         for nr, zeile in enumerate(open(f, encoding='utf8'), 1):
             code = '' if zeile.lstrip().startswith('//') else zeile
+            for e in ERLAUBT: code = code.replace(e, '#' * len(e))
             for m in rx.finditer(code):
                 sp = SPAETER.get(welle_von[m.group(1)])
                 if sp and (f.endswith(sp['dateien']) or code[m.end():].startswith(sp['danach'])

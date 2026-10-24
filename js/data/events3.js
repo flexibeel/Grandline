@@ -86,17 +86,17 @@ GL.data = GL.data || {};
         C(['Die Möwe bestechen', 'Bribe the gull'], ['-10 Gold, +22 Berry', '-10 gold, +22 Berry'], { gold: -10, berry: 22 }, ['Kalle zieht das Gewinnerlos. Zufällig eures. Kalle ist sehr zufällig.', 'Kalle draws the winning ticket. Coincidentally yours. Kalle is very coincidental.'])], when: gold(10) },
 
     // ---------- Marine & Kopfgeld ----------
-    { id: 'ce3-rekrut', bg: 'hafen', icon: 'elite', title: ['Ein Marine-Rekrut', 'A marine recruit'],
-      lines: [['B', 'Der kleine Marine da will uns verhaften. Er zittert.', 'That little marine wants to arrest us. He is shaking.'], ['A', 'Hast du Hunger? Wir haben Fleisch.', 'Are you hungry? We have meat.']],
+    { id: 'ce3-rekrut', bg: 'hafen', icon: 'elite', title: ['Ein Kronwacht-Rekrut', 'A Crown Watch recruit'],
+      lines: [['B', 'Der kleine Wachmann da will uns verhaften. Er zittert.', 'That little watchman wants to arrest us. He is shaking.'], ['A', 'Hast du Hunger? Wir haben Fleisch.', 'Are you hungry? We have meat.']],
       choices: [C(['Mit ihm essen', 'Eat with him'], ['+12 Erfahrung, Crew heilt 10 %', '+12 XP, crew heals 10%'], { xp: 12, heal: 0.1 }, ['Er erzählt alles über die Patrouillen. Dann merkt er, was er getan hat.', 'He tells you everything about the patrols. Then he realises what he did.']),
-        C(['Ihn trainieren', 'Train him'], ['Alle +3 % Krit', 'All +3% crit'], { crit: 0.03 }, ['Er wird ein guter Marine. Und ihr bessere Piraten. Alle verlieren ein bisschen.', 'He becomes a good marine. And you better pirates. Everyone loses a little.'])] },
+        C(['Ihn trainieren', 'Train him'], ['Alle +3 % Krit', 'All +3% crit'], { crit: 0.03 }, ['Er wird ein guter Wachmann. Und ihr bessere Piraten. Alle verlieren ein bisschen.', 'He becomes a good watchman. And you better pirates. Everyone loses a little.'])] },
     { id: 'ce3-jaeger', bg: 'insel', icon: 'battle', title: ['Kopfgeldjäger im Gebüsch', 'Bounty hunters in the bushes'],
       lines: [['B', 'Da raschelt was. Mit Waffen.', 'Something is rustling. With weapons.'], ['A', 'Sag ihnen, wir sind teurer als sie denken.', 'Tell them we are more expensive than they think.']],
       choices: [C(['Angreifen', 'Attack'], ['+18 Erfahrung, -15 % Leben', '+18 XP, -15% HP'], { xp: 18, hurt: 0.15 }, ['Sie hatten euren Steckbrief dabei. Er ist jetzt etwas verknittert.', 'They had your wanted poster. It is a bit crumpled now.']),
         C(['Sich als jemand anders ausgeben', 'Pretend to be someone else'], ['50 %: +20 Gold, sonst -12 % Leben', '50%: +20 gold, else -12% HP'], { chance: 0.5, win: { gold: 20 }, lose: { hurt: 0.12 } }, ['Ihr seid „ganz normale Touristen“. Mit Schwertern. Und Kanone.', 'You are “completely normal tourists”. With swords. And a cannon.'])] },
     { id: 'ce3-steckbrieffehler', bg: 'hafen', icon: 'elite', title: ['Ein Fehler im Steckbrief', 'A typo on the poster'],
       lines: [['B', 'Auf deinem Steckbrief steht 3 Berry.', 'Your wanted poster says 3 Berry.'], ['A', 'DREI?', 'THREE?'], ['B', 'Es fehlen ein paar Nullen. Oder Respekt.', 'A few zeros are missing. Or respect.']],
-      choices: [C(['Beschweren', 'Complain'], ['+14 Erfahrung, -8 % Leben', '+14 XP, -8% HP'], { xp: 14, hurt: 0.08 }, ['Die Marine korrigiert den Fehler. Mit einer Verfolgungsjagd.', 'The marines fix the typo. With a chase.']),
+      choices: [C(['Beschweren', 'Complain'], ['+14 Erfahrung, -8 % Leben', '+14 XP, -8% HP'], { xp: 14, hurt: 0.08 }, ['Die Kronwacht korrigiert den Fehler. Mit einer Verfolgungsjagd.', 'The Crown Watch fixes the typo. With a chase.']),
         C(['Ausnutzen', 'Take advantage'], ['+20 Gold (niemand jagt dich)', '+20 gold (nobody hunts you)'], { gold: 20 }, ['Für 3 Berry steht niemand früh auf. Ihr kauft in Ruhe ein.', 'Nobody gets up early for 3 Berry. You shop in peace.'])] },
 
     // ---------- Crew & Figuren ----------
@@ -162,7 +162,7 @@ GL.data = GL.data || {};
     { id: 'ce3-kinder', bg: 'hafen', icon: 'recruit', title: ['Kinder wollen Piraten sein', 'Kids want to be pirates'],
       lines: [['B', 'Die Kinder fragen, ob wir echte Piraten sind.', 'The kids ask if we are real pirates.'], ['A', 'Die echtesten! Wollt ihr was sehen?', 'The realest! Want to see something?']],
       choices: [C(['Vorführung', 'Show off'], ['+12 Erfahrung', '+12 XP'], { xp: 12 }, ['Großer Applaus. Kleiner Brand. Großer Applaus für den Brand.', 'Big applause. Small fire. Big applause for the fire.']),
-        C(['Süßigkeiten verteilen', 'Hand out sweets'], ['-6 Gold, alle +3 % Krit (gute Laune)', '-6 gold, all +3% crit (good mood)'], { gold: -6, crit: 0.03 }, ['Die Kinder malen eure Flagge an jede Wand. Die Marine ist nicht begeistert.', 'The kids paint your flag on every wall. The marines are not thrilled.'])] },
+        C(['Süßigkeiten verteilen', 'Hand out sweets'], ['-6 Gold, alle +3 % Krit (gute Laune)', '-6 gold, all +3% crit (good mood)'], { gold: -6, crit: 0.03 }, ['Die Kinder malen eure Flagge an jede Wand. Die Kronwacht ist nicht begeistert.', 'The kids paint your flag on every wall. The Crown Watch is not thrilled.'])] },
     { id: 'ce3-raetsel', bg: 'insel', icon: 'map', title: ['Das Rätseltor', 'The riddle gate'],
       lines: [['B', 'Am Tor steht: „Was hat Zähne, aber beißt nicht?“', 'The gate says: “What has teeth but does not bite?”'], ['A', 'Sanji, wenn er nicht kocht.', 'Sanji, when he is not cooking.'], ['B', 'Es ist ein Kamm. Das Tor ist trotzdem aufgegangen.', 'It is a comb. The gate opened anyway.']],
       choices: [C(['Durch das Tor', 'Through the gate'], ['seltener Schatz, -10 % Leben', 'rare treasure, -10% HP'], { relic: 1, hurt: 0.1 }, ['Hinter dem Tor war noch ein Tor. Und eine Falle. Und ein Schatz. In dieser Reihenfolge.', 'Behind the gate was another gate. And a trap. And a treasure. In that order.']),
@@ -294,16 +294,16 @@ GL.data = GL.data || {};
       ] }
     ] },
     { id: 'foto', icon: 'elite', title: ['Das Steckbrief-Foto', 'The wanted poster photo'], parts: [
-      { bg: 'hafen', icon: 'elite', lines: [['B', 'Ein Marine-Fotograf will ein neues Foto für deinen Steckbrief.', 'A marine photographer wants a new photo for your wanted poster.'], ['A', 'Darf ich lächeln?', 'May I smile?']],
+      { bg: 'hafen', icon: 'elite', lines: [['B', 'Ein Fotograf der Kronwacht will ein neues Foto für deinen Steckbrief.', 'A Crown Watch photographer wants a new photo for your wanted poster.'], ['A', 'Darf ich lächeln?', 'May I smile?']],
         choices: [C(['Heldenpose', 'Heroic pose'], ['+8 Erfahrung', '+8 XP'], { xp: 8 }, ['Sehr eindrucksvoll. Sehr erkennbar.', 'Very impressive. Very recognisable.'], 'pose'),
           C(['Grimasse', 'Pull a face'], ['+8 Berry', '+8 Berry'], { berry: 8 }, ['Der Fotograf verlangt Geld zurück. Ihr gebt ihm Gesichtscreme.', 'The photographer wants a refund. You give him face cream.'], 'grimasse')] },
       { bg: 'hafen', icon: 'elite', lines: [['kalle', 'KRAA! Die neuen Steckbriefe sind gedruckt!', 'KRAA! The new posters are printed!'], ['B', 'Man erkennt dich… sehr deutlich. Oder gar nicht.', 'You are… very clearly recognisable. Or not at all.']],
         choices: [C(['Plakate signieren', 'Sign the posters'], ['+10 Gold', '+10 gold'], { gold: 10 }, ['Signierte Steckbriefe verkaufen sich gut. Bei Kopfgeldjägern.', 'Signed posters sell well. To bounty hunters.']),
-          C(['Plakate abreißen', 'Tear them down'], ['+6 Erfahrung', '+6 XP'], { xp: 6 }, ['Ihr reißt alle ab. Bis auf die an der Marine-Basis.', 'You tear them all down. Except the ones at the marine base.'])] },
+          C(['Plakate abreißen', 'Tear them down'], ['+6 Erfahrung', '+6 XP'], { xp: 6 }, ['Ihr reißt alle ab. Bis auf die am Posten der Kronwacht.', 'You tear them all down. Except the ones at the Crown Watch post.'])] },
       { variants: [
         { need: 'pose', bg: 'insel', icon: 'battle', lines: [['B', 'Kopfgeldjäger! Sie haben dich an der Pose erkannt.', 'Bounty hunters! They recognised you by the pose.'], ['A', 'Dann posiere ich eben weiter. Im Kampf.', 'Then I will keep posing. In battle.']],
           choices: [C(['Ruhm verpflichtet', 'Fame obliges'], ['bis zum Ende der Insel: Ganze Crew +1 Angriff, -10 % Leben', 'until the island ends: whole crew +1 attack, -10% HP'], { temp: { stat: 'atk', value: 1 }, hurt: 0.1 }, ['Sie hatten keine Chance. Das Foto auch nicht.', 'They had no chance. Neither did the photo.'])] },
-        { need: 'grimasse', bg: 'hafen', icon: 'chest', lines: [['B', 'Niemand erkennt dich. Nicht mal die Marine.', 'Nobody recognises you. Not even the marines.'], ['A', 'Endlich in Ruhe einkaufen!', 'Finally, shopping in peace!']],
+        { need: 'grimasse', bg: 'hafen', icon: 'chest', lines: [['B', 'Niemand erkennt dich. Nicht mal die Kronwacht.', 'Nobody recognises you. Not even the Crown Watch.'], ['A', 'Endlich in Ruhe einkaufen!', 'Finally, shopping in peace!']],
           choices: [C(['Einkaufsbummel', 'Shopping trip'], ['+20 Berry, Crew heilt 15 %', '+20 Berry, crew heals 15%'], { berry: 20, heal: 0.15 }, ['Ihr bekommt sogar Rabatt. „Für den Herrn mit dem lustigen Gesicht.“', 'You even get a discount. “For the gentleman with the funny face.”'])] },
         { bg: 'hafen', icon: 'elite', lines: [['B', 'Das Foto ist … okay.', 'The photo is… okay.'], ['A', 'Okay ist gut. Okay ist ehrlich.', 'Okay is good. Okay is honest.']],
           choices: [C(['Weiter', 'Onwards'], ['+12 Erfahrung', '+12 XP'], { xp: 12 }, ['Ein durchschnittlicher Steckbrief für einen überdurchschnittlichen Piraten.', 'An average poster for an above-average pirate.'])] }

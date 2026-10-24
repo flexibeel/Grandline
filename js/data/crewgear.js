@@ -23,7 +23,7 @@ GL.data.crewGear = {
     'schatten-splitter': { name: 'Finsternis',        text: '+2 Rüstung',                                      gb: { armor: 2 } },
     'blackbeard-flagge': { name: 'Drei Schädel',      text: '+3 Rüstung, +8 % Krit-Chance',                     gb: { armor: 3, crit: 0.08 } },
     'strohhut-band':     { name: 'Versprechen',       text: 'heilt sich 3 pro Runde',                          gb: { regen: 3 } },
-    'gryphon':           { name: 'Haki des Kaisers',  text: '+30 % Krit-Schaden, +8 % Schaden',                 gb: { critMult: 0.3, dmgPct: 0.08 } }
+    'gryphon':           { name: 'Aura des Herrschers',  text: '+30 % Krit-Schaden, +8 % Schaden',                 gb: { critMult: 0.3, dmgPct: 0.08 } }
   },
   bases: [
     { id: 'saebel',   slot: 'waffe',   name: 'Säbel',          g: 'm', main: 'atk',   art: 'sword' },

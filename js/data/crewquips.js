@@ -63,7 +63,7 @@ GL.data.crewQuips = {
     ko: [['{n}! Ich lasse niemanden zurück!', '{n}! I leave no one behind!'], ['Bitte halte durch!', 'Please hold on!']],
     close: [['Das war knapper als die Wüste trocken ist.', 'That was closer than the desert is dry.']],
     boss: [['Für alle, die zu Hause warten!', 'For everyone waiting at home!']],
-    party: [['Ein Boss gefallen. Alabasta wäre stolz.', 'A boss has fallen. Alabasta would be proud.']]
+    party: [['Ein Boss gefallen. Das Wüstenreich wäre stolz.', 'A boss has fallen. The Desert Kingdom would be proud.']]
   },
   ace: {
     ko: [['{n}! Das zahl ich dir heim!', '{n}! I\'ll pay them back for that!'], ['Jetzt wird\'s mir warm.', 'Now I\'m getting warm.']],
@@ -74,7 +74,7 @@ GL.data.crewQuips = {
   law: {
     ko: [['{n}. Ich operiere später. Bleib liegen.', '{n}. I\'ll operate later. Stay down.']],
     close: [['Medizinisch gesehen: zu knapp.', 'Medically speaking: too close.']],
-    boss: [['Room geschlossen.', 'Room closed.']],
+    boss: [['Kuppel geschlossen.', 'Dome closed.']],
     party: [['Wir feiern. Kurz. Dann wird geplant.', 'We celebrate. Briefly. Then we plan.']]
   },
   jinbei: {

@@ -2,7 +2,7 @@
 window.GL = window.GL || {};
 GL.data = GL.data || {};
 GL.data.en = Object.assign(GL.data.en || {}, {
-  'Hie-Hie-Frucht': 'Ice-Ice Fruit', 'Bara-Bara-Frucht': 'Chop-Chop Fruit', 'Hito-Hito-Frucht': 'Human-Human Fruit', 'Tori-Tori-Frucht (Phönix)': 'Bird-Bird Fruit (Phoenix)',
+  'Hie-Hie-Frucht': 'Ice-Ice Fruit', 'Zerleg-Trick': 'Split Trick', 'Hito-Hito-Frucht': 'Human-Human Fruit', 'Tori-Tori-Frucht (Phönix)': 'Bird-Bird Fruit (Phoenix)',
   '+{n} Leben für das erste Crewmitglied': '+{n} HP for the first crew member',
   'Gummi: Wer dich trifft, kriegt manchmal einen Teil zurück.': 'Rubber: whoever hits you sometimes gets some of it back.',
   'Extra-Arm: Treffer erwischen manchmal noch einen zweiten Gegner.': 'Extra arm: hits sometimes catch a second enemy too.',

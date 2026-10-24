@@ -62,8 +62,8 @@ window.GL = window.GL || {};
     'Funk zur Flotte': 'Contacting the fleet', 'ab Rang 2': 'from rank 2', 'Rangliste ab Rang 2': 'Leaderboard from rank 2',
     // Werte, Stile, Rollen, Banden
     'Kraft': 'Power', 'Klinge': 'Blade', 'Technik': 'Tech', 'Brecher': 'Breaker', 'Kämpfer': 'Fighter', 'Helfer': 'Support',
-    'Strohhutbande': 'Straw Hat Pirates', 'Marine': 'Marines', 'CP9': 'CP9', 'Weißbart-Bande': 'Whitebeard Pirates', 'Samurai der Meere': 'Warlords of the Sea',
-    'Baroque Works': 'Baroque Works', 'Buggy-Piraten': 'Buggy Pirates', 'Arlong-Bande': 'Arlong Pirates', 'Revolutionsarmee': 'Revolutionary Army', 'Rothaar-Piraten': 'Red Hair Pirates',
+    'Strohhutbande': 'Straw Hat Pirates', 'Kronwacht': 'Crown Watch', 'Schattenkorps': 'Shadow Corps', 'Gischt-Flotte': 'Spray Fleet', 'Freibeuter der Krone': 'Corsairs of the Crown',
+    'Barock-Bund': 'Baroque League', 'Pomp-Truppe': 'Pomp Troupe', 'Flossenvolk': 'Finfolk', 'Rotmantel-Flotte': 'Redcloak Fleet',
     'Furcht': 'Fear', 'Blutung': 'Bleed', 'Gift': 'Poison', 'Brand': 'Burn', 'Geschwächt': 'Weakened', 'Mut': 'Courage',
     // Wiki
     'Wiki': 'Wiki', 'Nachschlagen': 'Look things up', 'Grundlagen': 'Basics', 'Meta': 'Meta', 'Kampfstile': 'Fighting styles', 'Rollen': 'Roles', 'So läuft ein Run': 'How a run works',
@@ -80,12 +80,12 @@ window.GL = window.GL || {};
     'K.o.s': 'KOs', 'Raids': 'Raids', 'Inseln': 'Islands', 'Was ist neu?': 'What’s new?', 'Schön': 'Nice', 'Verstanden': 'Got it', 'Senden': 'Send',
     'Neuling auf See': 'Rookie at sea', 'Raufbold': 'Brawler', 'Kopfgeldjäger': 'Bounty hunter', 'Bossbezwinger': 'Boss slayer', 'Sammler': 'Collector', 'Der Wuchtige': 'The Mighty',
     'Legende der Meere': 'Legend of the seas', 'Matrose': 'Sailor', 'Super-Rookie': 'Super rookie', 'Entdecker': 'Explorer', 'Schatzjäger': 'Treasure hunter', 'Kartograph': 'Cartographer',
-    'Hitzkopf': 'Hothead', 'Sturmbezwinger': 'Storm tamer', 'Ein-Schlag-Samurai': 'One-strike samurai', 'Albtraum der Marine': 'Navy’s nightmare', 'Weltreisender': 'World traveler',
-    'Unermüdlich': 'Tireless', 'Kaiser der Meere': 'Emperor of the seas', 'Piratenkönig': 'Pirate King', 'Großer Clown': 'Great clown', 'Revolutionär': 'Revolutionary',
+    'Hitzkopf': 'Hothead', 'Sturmbezwinger': 'Storm tamer', 'Ein-Schlag-Freibeuter': 'One-Hit Corsair', 'Albtraum der Kronwacht': 'Crown Watch\'s Nightmare', 'Weltreisender': 'World traveler',
+    'Unermüdlich': 'Tireless', 'Kaiser der Meere': 'Emperor of the seas', 'Piratenkönig': 'Pirate King', 'Großer Clown': 'Great clown', 'Rebell': 'Rebel',
     'Vizekapitän': 'First mate', 'Gemütlicher Kapitän': 'Cozy captain', 'Faust der Meere': 'Fist of the seas', 'Hundert Inseln': 'Hundred islands', 'Unbeugsam': 'Unbreakable',
     'Gastgeber der Grand Line': 'Host of the Grand Line', 'Herr der Flotte': 'Lord of the fleet', 'Schiffsjunge': 'Cabin boy',
     // Figurennamen wie im englischen Original
-    'Ruffy': 'Luffy', 'Zorro': 'Zoro', 'Lysop': 'Usopp', 'Bon Clay': 'Bon Clay', 'Whitebeard': 'Whitebeard', 'Agent Krall': 'Agent Krall', 'Hancock': 'Hancock',
+    'Ruffy': 'Luffy', 'Zorro': 'Zoro', 'Lysop': 'Usopp', 'Agent Krall': 'Agent Krall', 
     'Vollbild': 'Fullscreen', '⛶ Vollbild': '⛶ Fullscreen', 'Vollbild beenden': 'Exit fullscreen', '🔒 Kopfgeld-Stufen': '🔒 Bounty tiers', 'Kopfgeld-Stufen': 'Bounty tiers', 'Weiterspielen': 'Continue', 'Rechtliches & Datenschutz': 'Legal & privacy',
     'Inoffizielles Fanprojekt, kostenlos und ohne kommerzielle Absicht. One Piece gehört seinen Rechteinhabern.': 'Unofficial fan project, free and non-commercial. One Piece belongs to its rights holders.',
     'Willkommen zurück': 'Welcome back', 'Neu anfangen': 'Start over', 'Alle Neuigkeiten': 'All news', '★ Spiel bewerten': '★ Rate the game', 'Update verfügbar': 'Update available'
@@ -154,7 +154,7 @@ window.GL = window.GL || {};
     [/^Angriff (\d+)$/, 'Attack $1'], [/^Tempo (\d+)$/, 'Speed $1'], [/^HP (\d+)\/(\d+)$/, 'HP $1/$2'],
     [/^(\d+) Leben$/, '$1 HP'], [/^(\d+) Angriff$/, '$1 attack'], [/^(\d+) Tempo$/, '$1 speed'],
     [/^Leben (\d+), Angriff (\d+), Tempo (\d+)$/, 'HP $1, attack $2, speed $3'],
-    [/^(.+) · Lv (\d+)$/, (m, a, n) => `${({ Strohhut: 'Straw Hats', Weißbart: 'Whitebeard', Rothaar: 'Red Hair', Marine: 'Marines', Samurai: 'Warlords' })[a] || tr(a)} · Lv ${n}`],
+    [/^(.+) · Lv (\d+)$/, (m, a, n) => `${({ Strohhut: 'Straw Hats' })[a] || tr(a)} · Lv ${n}`],
     [/^Lv (\d+) · wähle ein Training(?: · danach noch (\d+) weitere?)?$/, (m, l, n) => `Lv ${l} · pick a training${n ? ` · then ${n} more` : ''}`],
     [/^Gerücht: (.+?) auf (.+)$/, (m, pet, isl) => `Rumor: ${tr(pet)} on ${tr(isl)}`],
     [/^Auf (.+) soll (?:ein|eine) (.+) leben$/, (m, i, p) => `A ${tr(p)} is said to live on ${tr(i)}`],

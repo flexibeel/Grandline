@@ -14,7 +14,7 @@ GL.data.en = Object.assign(GL.data.en || {}, {
   'Die Flotte setzt die Segel …': 'The fleet sets sail …', 'Zurück in den Hafen': 'Back to the harbor',
   'Beute gibt es einmal am Tag. Ruhm gibt es immer.': 'Loot once a day. Glory always.',
   'Flotte voll': 'Fleet full', 'Mehr als vier Crews passen nicht auf die Karte. Wir haben es versucht.': 'More than four crews do not fit on the map. We tried.',
-  'Tiefseeriese der Calm Belt': 'Deep Giant of the Calm Belt', 'Riesenkrake Surume': 'Giant Kraken Surume', 'Eisberg-Riese Oars': 'Iceberg Giant Oars',
+  'Tiefseeriese der Stillen Zone': 'Deep Giant of the Hush', 'Riesenkrake Surume': 'Giant Kraken Surume', 'Eisberg-Riese Oars': 'Iceberg Giant Oars',
   'Tiefseeriese': 'Deep Giant', 'Riesenkrake': 'Giant kraken', 'Riese': 'Giant',
   'Schwanzschlag': 'Tail slap', 'Acht Arme, acht Meinungen': 'Eight arms, eight opinions', 'Eisige Haut': 'Icy skin',
   'Sein Schwanz trifft alle in der Reihe mit. Groß, nass, schlecht gelaunt.': 'His tail hits the whole line. Big, wet, grumpy.',
