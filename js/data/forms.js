@@ -35,7 +35,7 @@ GL.data.forms = {
     item: { name: ['Fleischkeule', 'Meat on the bone'], text: ['Riecht nach Abenteuer. Und nach Grill.', 'Smells like adventure. And barbecue.'],
       art: ['............', '.........ll.', '........lxxl', '.......lxll.', '...WWWlxl...', '..WWwWWl....', '.WwWWWwW....', '.WWWwWWW....', '.wWWWWWw....', '..wwWWw.....', '...www......', '............'] },
     forms: [
-      { title: ['Bezwinger von Arlong Park', 'Conqueror of Arlong Park'], boss: 'arlong', need: 10, look: { facc: ['weste'] }, boni: ['hp', 'atk'] },
+      { title: ['Bezwinger von Flossenriff', 'Conqueror of Fin Reef'], boss: 'arlong', need: 10, look: { facc: ['weste'] }, boni: ['hp', 'atk'] },
       { title: ['Gear Second', 'Gear Second'], boss: 'rob-lucci', need: 25, look: { facc: ['weste', 'dampf'], skin: '#f4b4a4' }, boni: ['atk', 'spd'] }
     ] },
   zorro: {
@@ -49,7 +49,7 @@ GL.data.forms = {
     item: { name: ['Mandarine', 'Tangerine'], text: ['Aus Bellemeres Garten. Nicht anfassen!', "From Bell-mère's grove. Hands off!"],
       art: ['............', '......wnN...', '......wNN...', '....oooo....', '..ooOOoooo..', '.ooOOoooooo.', '.oOoooooooo.', '.ooooooooqo.', '.oooooooqqo.', '..oooooqqo..', '...oooqqo...', '............'] },
     forms: [
-      { title: ['Befreit von Arlong Park', 'Freed from Arlong Park'], boss: 'arlong', need: 10, look: { shirt: '#f2f2ee', facc: ['tattoo'] }, boni: ['spd', 'hp'] },
+      { title: ['Befreit von Flossenriff', 'Freed from Fin Reef'], boss: 'arlong', need: 10, look: { shirt: '#f2f2ee', facc: ['tattoo'] }, boni: ['spd', 'hp'] },
       { title: ['Wetterhexe', 'Weather witch'], boss: 'enel', need: 25, look: { shirt: '#f2f2ee', facc: ['tattoo', 'taktstock'] }, boni: ['atk', 'spd'] }
     ] },
   lysop: {

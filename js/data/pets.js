@@ -83,7 +83,7 @@ GL.data.pets = [
     say: 'Hat eine direkte Leitung zum Schatz. Sagt sie.', hint: 'Belohnung im Sammelalbum.',
     art: { c: { G: '#f2d24a', g: '#c9a22a', S: '#e8a43a', s: '#a06a1a', K: '#1a1a1a', W: '#ffffff' },
       rows: ['.K.K........', '.G.G..SSSS..', '.GGG.SSssSS.', 'GKWG.SsSSsS.', 'GGGG.SsSSsS.', '.GGG.SSssSS.', '.GGGGGSSSSg.', '..gGGGGGGGGg'] } },
-  { id: 'seekoenig', name: 'Mini-Seekönig', book: true,
+  { id: 'seekoenig', name: 'Mini-Tiefseeriese', book: true,
     say: 'Der Schrecken der Meere. In klein. Frisst Fischstäbchen.', hint: 'Belohnung im Sammelalbum.',
     art: { c: { S: '#5aa0c8', s: '#3a7098', K: '#1a1a1a', W: '#f6eedc', R: '#d0473a' },
       rows: ['....SSS.....', '...SKSSS....', '..RSSSSS....', '.WWSSSS.....', '.....SSs....', '......SSs...', '.SS....SSs..', 'SSSS....SSs.', '.SSSSSSSSSs.', '...sSSSSSs..'] } },

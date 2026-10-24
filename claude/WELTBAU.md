@@ -47,4 +47,4 @@ Pro Figur ein Markenzeichen (Hut, Farbe oder Gegenstand), höchstens 4 Accessoir
 
 **Stand Welle A (24.10., Felix/Jan per Klick):** gebaut auf `feature/weltbau-a`. Zuordnung: Ostmeer, Wilde See (Nebenroute **Tiefsee**, Heimat des Flossenvolks), Gerichtsinsel (Nebenroute **Gruselmeer**), der **Spiegel-Archipel** ist die große Insel am Ende des Gruselmeers. Prüfskript: `tools/weltbau-check.py`.
 
-**Stand Welle B (24.10., Felix/Jan per Klick):** Namensliste in `claude/WELTBAU-B.md` (Zweig `feature/weltbau-b`), wartet auf Felix. Namen überall neu, Raid-Bosse gehören zur Krone, Fußvolk mit dabei.
+**Stand Welle B (24.10., Felix/Jan per Klick):** gebaut auf `feature/weltbau-b` nach `claude/WELTBAU-B.md` (von Felix abgesegnet). Prüfskript Liste B: 0 Funde. Namen überall neu, Raid-Bosse gehören zur Krone, Fußvolk mit dabei.

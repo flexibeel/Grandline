@@ -29,7 +29,7 @@ GL.data.routeLines = {
     lysop: [
       ['M-meine Ich-darf-nicht-auf-diese-Insel-Krankheit meldet sich. Nur so als Info.', 'M-my can’t-go-on-this-island disease is acting up. Just so you know.'],
       ['Ich, der große Kapitän Lysop, habe die Lage gecheckt. Sie ist… lagig.', 'I, the great Captain Usopp, have scouted the area. It is… very area-ish.'],
-      ['Hinter dem Hügel? Achttausend Marinesoldaten. Oder Möwen. Eins von beiden.', 'Behind the hill? Eight thousand marines. Or seagulls. One of the two.']
+      ['Hinter dem Hügel? Achttausend Kronwächter. Oder Möwen. Eins von beiden.', 'Behind the hill? Eight thousand crown guards. Or seagulls. One of the two.']
     ],
     sanji: [
       ['Die Vorräte reichen noch. Für alle außer Ruffy.', 'Supplies will last. For everyone except Luffy.'],
@@ -94,7 +94,7 @@ GL.data.routeLines = {
       ['Kopfgeldjäger-Lehrlinge. Sie üben noch. An uns.', 'Bounty hunter apprentices. Still practising. On us.'],
       ['Ein Kontrollposten. Papiere haben wir keine. Fäuste schon.', 'A checkpoint. We have no papers. We do have fists.'],
       ['Jemand hat Ruffy „Gummi-Junge“ genannt. Jetzt gibt es Streit.', 'Someone called Luffy “rubber boy”. Now there is a fight.'],
-      ['Ein Haufen Marinesoldaten, die gerade einen Kuchen teilen. Bald nicht mehr.', 'A bunch of marines sharing a cake. Not for long.']
+      ['Ein Haufen Kronwächter, die gerade einen Kuchen teilen. Bald nicht mehr.', 'A bunch of crown guards sharing a cake. Not for long.']
     ],
     elite: [
       ['{foe} trainiert am Strand. Mit Felsbrocken. Und mit Passanten.', '{foe} is training on the beach. With boulders. And passers-by.'],

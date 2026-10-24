@@ -541,5 +541,21 @@ GL.data.en = Object.assign(GL.data.en || {}, {
   'Im Hafen unter „Kontor“ abholen': 'Collect it in the harbor under “Counting house”',
   'Nach jedem Run: Kram wird Bernstein, Wertsachen werden Berry': 'After every run: odds and ends become amber, valuables become Berry',
   'Bernstein frischt Landgänge auf: noch einmal volle Beute': 'Amber refreshes Shore Leave spots: full loot once more',
-  'Kontor · Schiff entladen': 'Counting house · ship unloaded', 'Steht jetzt in der Vitrine im Kontor': 'Now on display in the counting house'
+  'Kontor · Schiff entladen': 'Counting house · ship unloaded', 'Steht jetzt in der Vitrine im Kontor': 'Now on display in the counting house',
+  // Weltbau Welle B: Gegner und Bosse (volle Namen mit Beinamen)
+  'Flossling': 'Finling', 'Hauptmann Russ': 'Captain Russ', 'Zackenmaul Brack': 'Sawjaw Brack', 'Sandbaron Sirokk': 'Sand Baron Sirokk',
+  'Himmelsherr Zirrus': 'Sky Lord Zirrus', 'Agent Krall': 'Agent Krall', 'Agent Stelz': 'Agent Stelz', 'Grimmflosse': 'Grimfin',
+  'Kapitän Ankerlos': 'Captain Anchorless', 'Graf Dämmerling': 'Count Dusk', 'Tatz, der stille Bär': 'Tatz, the Silent Bear', 'Großadmiral Glanz': 'Grand Admiral Glanz',
+  'Fadenkönig Rosé': 'Thread King Rosé', 'Käpt’n Schlund, der Nimmersatt': 'Captain Schlund, the Bottomless', 'Rotmantel Fenn': 'Redcloak Fenn', 'Beil-Bodo': 'Hatchet Bodo',
+  'Gaukler Pomp': 'Pomp the Juggler', 'Diener Fingerling': 'Fingerling the Butler', 'Don Bollwerk': 'Don Bulwark', 'Acht-Arm Okko': 'Eight-Arm Okko',
+  'Pendel-Pit': 'Pendulum Pit', 'Knüppel-Kuno': 'Cudgel Kuno', 'Topfdeckel-Tom': 'Potlid Tom', 'Spuckfisch Plitsch': 'Spitfish Plitsch',
+  'Herr Donnerstag & Bello': 'Mister Thursday & Bello', 'Herr Montag': 'Mister Monday', 'Herr Sonntag': 'Mister Sunday', 'Priester Funk': 'Priest Funk',
+  'Herr Mittwoch': 'Mister Wednesday', 'König Mampf': 'King Munch', 'Fräulein Samstag': 'Miss Saturday', 'Sprungfeder Bax': 'Springheel Bax',
+  'Tintenklinge Rako': 'Inkblade Rako', 'Tarnfisch Lumi': 'Camo-fish Lumi', 'Buddelhai Mops': 'Digger Shark Mops', 'Hammerhai Bumm': 'Hammerhead Bumm',
+  'Kalmar Zehnfuß': 'Tenfoot the Squid', 'Agent Plapper': 'Agent Chatter', 'Agent Stichel': 'Agent Needle', 'Oberamtmann Wichtig': 'Chief Clerk Wichtig',
+  'Agent Riegel': 'Agent Bolt', 'Agent Wolfram': 'Agent Wolfram', 'Käpt’n Schummel': 'Captain Fiddle', 'Agent Nudel': 'Agent Noodle',
+  'Unsichtbar-Ulf': 'Invisible Ulf', 'Fräulein Huschel': 'Miss Hush', 'Doktor Flick': 'Doctor Patch', 'Masken-Moritz': 'Masked Moritz',
+  'Der Baron & Herr Sonntag': 'The Baron & Mister Sunday',
+  // Weltbau Welle B: Kurznamen der Figuren
+  'Plapper': 'Chatter', 'Riegel': 'Bolt', 'Huschel': 'Hush', 'Dämmerling': 'Dusk', 'Ankerlos': 'Anchorless', 'Mampf': 'Munch', 'Stichel': 'Needle', 'Zehnfuß': 'Tenfoot'
 });

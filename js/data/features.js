@@ -39,7 +39,7 @@ GL.data.features = [
   { id: 'route',     lvl: 8, name: 'Neue Route: Gruselmeer', art: 'flag', text: 'Im dritten Meer kannst du jetzt zwischen zwei Routen wählen: Gerichtsinsel oder Gruselmeer mit neuen Bossen.',
     steps: ['Beim Kurs setzen im dritten Meer', 'Eine Insel aus jeder Route steht zur Wahl', 'Neue Gegner, neues Kopfgeld'] },
   { id: 'route2',    lvl: 12, name: 'Neue Route: Tiefsee', art: 'flag', text: 'Im zweiten Meer geht es jetzt auch nach unten: in die Tiefsee, zum Flossenvolk unter der Strömung.',
-    steps: ['Beim Kurs setzen im zweiten Meer', 'Eine Insel aus jeder Route steht zur Wahl', 'Neue Bosse: Hody Jones und Vander Decken'] },
+    steps: ['Beim Kurs setzen im zweiten Meer', 'Eine Insel aus jeder Route steht zur Wahl', 'Neue Bosse: Grimmflosse und Kapitän Ankerlos'] },
   { id: 'endlos',    runs: 4, lvl: 4, name: 'Endlos-Fahrt', art: 'flag', text: 'Segle ein Meer, das du geschafft hast, immer wieder. Jede Runde härter. Tiefere Meere bringen mehr Punkte und bessere Beute. Neue Kapitäne und Freischaltungen gibt es aber nur auf den normalen Routen.',
     steps: ['Unter „Leinen los“: Endlos-Fahrt', 'Meer wählen, im Hafen die Crew anheuern', 'Wie viele Runden schaffst du?'],
     req: p => GL.meta.seasCleared(p).length > 0 },

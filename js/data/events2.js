@@ -158,10 +158,10 @@ GL.data.crewEvents = [
   { id: 'ce-meerjungfrau', bg: 'insel', icon: 'chest', title: ['Ein Lied aus dem Wasser', 'A song from the water'],
     lines: [
       ['B', 'Hört ihr das? Aus dem Wasser singt jemand.', 'Do you hear that? Someone is singing from the water.'],
-      ['A', 'Das ist entweder romantisch oder ein Seekönig mit Talent.', 'That is either romantic or a sea king with talent.']
+      ['A', 'Das ist entweder romantisch oder ein Tiefseeriese mit Talent.', 'That is either romantic or a deep giant with talent.']
     ],
     choices: [
-      { label: ['Nachsehen', 'Take a look'], hint: ['35 %: epischer Schatz, sonst -25 % Leben', '35%: epic treasure, else -25% HP'], outcome: { chance: 0.35, win: { relic: 2 }, lose: { hurt: 0.25 } }, text: ['Es war ein Seekönig. Mit Talent. Und Zähnen.', 'It was a sea king. With talent. And teeth.'] },
+      { label: ['Nachsehen', 'Take a look'], hint: ['35 %: epischer Schatz, sonst -25 % Leben', '35%: epic treasure, else -25% HP'], outcome: { chance: 0.35, win: { relic: 2 }, lose: { hurt: 0.25 } }, text: ['Es war ein Tiefseeriese. Mit Talent. Und Zähnen.', 'It was a deep giant. With talent. And teeth.'] },
       { label: ['Zuhören und weiter', 'Listen and sail on'], hint: ['Crew heilt 15 % · 😊 froh', 'Crew heals 15% · 😊 happy'], outcome: { heal: 0.15 }, herz: { b: 'froh' }, text: ['Ein schönes Lied. Ihr summt es noch Tage später, und jemand lächelt dabei die ganze Zeit.', 'A lovely song. You hum it for days, and someone smiles the whole time.'] }
     ] }
 ];

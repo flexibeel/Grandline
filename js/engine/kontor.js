@@ -21,7 +21,7 @@ window.GL = window.GL || {};
   GL.data.kontorFinds = {
     kram: [['Tauwerk', 'Rope'], ['Kerzen', 'Candles'], ['Nägel', 'Nails'], ['Segeltuch', 'Sailcloth'], ['Fass Pökelfleisch', 'Barrel of salt meat'], ['Flasche Rum', 'Bottle of rum'], ['Verband', 'Bandage']],
     wert: [['Goldene Taschenuhr', 'Golden pocket watch', 90], ['Elfenbein-Kompass', 'Ivory compass', 110], ['Perlenkette', 'Pearl necklace', 140], ['Silberner Kerzenleuchter', 'Silver candlestick', 70], ['Versiegelte Schatzkarte', 'Sealed treasure map', 160]],
-    rare: [['Seekönig-Zahn', 'Sea King tooth', 'gold'], ['Flaschenschiff', 'Ship in a bottle', 'gold'], ['Goldener Anker', 'Golden anchor', 'gold'], ['Uralte Flagge', 'Ancient flag', 'gold'], ['Sturmglas', 'Storm glass', 'gold'], ['Herz des Meeres', 'Heart of the Sea', 'red']]
+    rare: [['Tiefseeriesen-Zahn', 'Deep Giant tooth', 'gold'], ['Flaschenschiff', 'Ship in a bottle', 'gold'], ['Goldener Anker', 'Golden anchor', 'gold'], ['Uralte Flagge', 'Ancient flag', 'gold'], ['Sturmglas', 'Storm glass', 'gold'], ['Herz des Meeres', 'Heart of the Sea', 'red']]
   };
 
   const now = () => Date.now();

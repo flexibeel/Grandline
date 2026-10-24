@@ -41,7 +41,7 @@ GL.data.seekarte = {
     delfine:   { w: 3, more: 'B', name: ['Delfine', 'Dolphins'], text: ['Delfine schieben das Schiff ein Stück. Gratis. Verdächtig. +1 Proviant.', 'Dolphins push the ship along. For free. Suspicious. +1 supply.'] },
     strudel:   { w: 2, more: 'T', name: ['Strudel', 'Whirlpool'], text: ['Ein Strudel dreht das Schiff einmal im Kreis und spuckt es woanders aus. Die Karte freut sich.', 'A whirlpool spins the ship around and spits it out elsewhere. The chart is delighted.'] },
     moewe:     { w: 2, more: 'N', name: ['Schwatzmöwe', 'Gossip gull'], text: ['Eine Möwe landet auf dem Mast und erzählt Dinge. Eines davon ist nützlich.', 'A gull lands on the mast and talks. One thing it says is useful.'] },
-    seekoenig: { w: 1, more: 'T', name: ['Seekönig', 'Sea king'], text: ['Ein Seekönig taucht auf, gähnt und spuckt ein paar Münzen aus. Dann taucht er wieder ab. Ein guter Tag.', 'A sea king surfaces, yawns and spits out a few coins. Then it dives again. A good day.'] },
+    seekoenig: { w: 1, more: 'T', name: ['Tiefseeriese', 'Deep giant'], text: ['Ein Tiefseeriese taucht auf, gähnt und spuckt ein paar Münzen aus. Dann taucht er wieder ab. Ein guter Tag.', 'A deep giant surfaces, yawns and spits out a few coins. Then it dives again. A good day.'] },
     flaute:    { w: 2, more: 'S', name: ['Flaute', 'Doldrums'], text: ['Kein Wind. Die Crew spielt Karten. Zorro verliert und behauptet, er habe geschlafen.', 'No wind. The crew plays cards. Zorro loses and claims he was asleep.'] }
   },
   // Treibgut pro Fahrt. w = Gewicht

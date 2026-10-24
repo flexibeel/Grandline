@@ -15,7 +15,7 @@ GL.data.en = Object.assign(GL.data.en || {}, {
   'Zeitungsmöwe': 'News Coo', 'Kleiner Wachhund': 'Little Guard Dog', 'Laubfrosch': 'Tree Frog', 'Seestern': 'Starfish', 'Mandarinenkrabbe': 'Tangerine Crab',
   'Schneehase': 'Snow Hare', 'Mini-Dino': 'Mini Dino', 'Südvogel': 'South Bird', 'Fleckschnabel-Ente': 'Spot-Billed Duck', 'Wolkenfuchs': 'Cloud Fox',
   'Teleschnecke': 'Den Den Mushi', 'Taube mit Zylinder': 'Pigeon in a Top Hat', 'Kleines Gespenst': 'Little Ghost', 'Schattenfledermaus': 'Shadow Bat',
-  'Blasen-Kugelfisch': 'Bubble Pufferfish', 'Glitzerqualle': 'Glitter Jellyfish', 'Schatzkrabbe': 'Treasure Crab', 'Goldene Teleschnecke': 'Golden Den Den Mushi', 'Mini-Seekönig': 'Mini Sea King',
+  'Blasen-Kugelfisch': 'Bubble Pufferfish', 'Glitzerqualle': 'Glitter Jellyfish', 'Schatzkrabbe': 'Treasure Crab', 'Goldene Teleschnecke': 'Golden Den Den Mushi', 'Mini-Tiefseeriese': 'Mini Deep Giant',
   '„Bringt jeden Morgen die Zeitung. Will dafür einen Keks.“': '“Brings the paper every morning. Wants a cookie for it.”',
   '„Bewacht treu den Laden. Jetzt eben dein Schiff.“': '“Loyally guarded the shop. Now it guards your ship.”',
   '„Quakt immer genau dann, wenn es spannend wird.“': '“Always croaks right when it gets exciting.”',

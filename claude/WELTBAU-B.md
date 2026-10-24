@@ -1,6 +1,6 @@
 # Weltbau Welle B: Gegner und Bosse (Namensliste zum Lesen)
 
-Stand 24.10.2026, Vorschlag von Claude. **Noch nichts gebaut.** Felix liest, streicht, ändert, dann baut Claude nach dieser Liste.
+Stand 24.10.2026. **Von Felix abgesegnet und gebaut** auf `feature/weltbau-b`. Eine Abweichung: „Knüppel-Kalle“ heißt **Knüppel-Kuno**, weil Kalle schon die Möwe der Crew ist.
 Entschieden per Klick (Felix/Jan, 24.10.): **Name überall neu** (auch wo ein Gegner anheuerbare Figur ist, Look kommt erst mit Welle C) · **erst Liste, dann bauen** · **Raid-Bosse gehören zur Krone** (Kronwacht-Admirale, Rotmantel als freier Rivale) · **Fußvolk kommt mit rein**.
 Regeln: ids, Werte, Looks und Fähigkeiten bleiben, nur Name und Text ändern sich. Eigennamen gleich in DE und EN, nur Beinamen werden übersetzt. ★ = ist auch anheuerbare Figur (`crew.js`), heißt dort dann genauso.
 
@@ -27,7 +27,7 @@ Regeln: ids, Werte, Looks und Fähigkeiten bleiben, nur Name und Text ändern si
 | shanks ★ | Rothaar Shanks | Rotmantel Fenn / Redcloak Fenn | die andere Flotte (frei) | Strenger Blick / Stern Gaze |
 
 ## Gejagte (`GL.data.hunted`)
-**Ostmeer:** morgan Axt-Hand Morgan → Beil-Bodo / Hatchet Bodo (Kronwacht) · buggy ★ Buggy → Gaukler Pomp / Pomp the Juggler (Zirkus der Narren) · kuro Kuro → Diener Fingerling / Fingerling the Butler · krieg Don Krieg → Don Bollwerk / Don Bulwark · hatchan ★ Hatchan → Acht-Arm Okko / Eight-Arm Okko (Flossenvolk) · jango Jango → Pendel-Pit / Pendulum Pit · gin Dämon Gin → Knüppel-Kalle / Cudgel Kalle · pearl Eisenwand Pearl → Topfdeckel-Tom / Potlid Tom · chew Chew → Spuckfisch Plitsch / Spitfish Plitsch.
+**Ostmeer:** morgan Axt-Hand Morgan → Beil-Bodo / Hatchet Bodo (Kronwacht) · buggy ★ Buggy → Gaukler Pomp / Pomp the Juggler (Zirkus der Narren) · kuro Kuro → Diener Fingerling / Fingerling the Butler · krieg Don Krieg → Don Bollwerk / Don Bulwark · hatchan ★ Hatchan → Acht-Arm Okko / Eight-Arm Okko (Flossenvolk) · jango Jango → Pendel-Pit / Pendulum Pit · gin Dämon Gin → Knüppel-Kuno / Cudgel Kuno · pearl Eisenwand Pearl → Topfdeckel-Tom / Potlid Tom · chew Chew → Spuckfisch Plitsch / Spitfish Plitsch.
 **Wilde See (Barock-Bund, Agenten nach Wochentagen):** mr1 ★ Mr. 1 → Herr Sonntag / Mister Sunday · mr3 Mr. 3 → Herr Mittwoch / Mister Wednesday · mr4 Mr. 4 & Lassoo → Herr Donnerstag & Bello / Mister Thursday & Bello · mr9 Mr. 9 → Herr Montag / Mister Monday · zala Miss Doublefinger → Fräulein Samstag / Miss Saturday · ohm Ohm → Priester Funk / Priest Funk · wapol Wapol → König Mampf / King Munch · bellamy Bellamy → Sprungfeder Bax / Springheel Bax.
 **Tiefsee (Flossenvolk):** hyouzou Hyouzou → Tintenklinge Rako / Inkblade Rako · zeo Zeo → Tarnfisch Lumi / Camo-fish Lumi · daruma Daruma → Buddelhai Mops / Digger Shark Mops · dosun Dosun → Hammerhai Bumm / Hammerhead Bumm · ikaros Ikaros Much → Kalmar Zehnfuß / Tenfoot the Squid.
 **Gerichtsinsel (Schattenkorps):** fukuro ★ Fukuro → Agent Plapper / Agent Chatter · nero Nero → Agent Stichel / Agent Needle · spandam Spandam → Oberamtmann Wichtig / Chief Clerk Wichtig · blueno ★ Blueno → Agent Riegel / Agent Bolt · jabra ★ Jabra → Agent Wolfram · wanze Wanze → Agent Nudel / Agent Noodle · foxy Foxy → Käpt'n Schummel / Captain Fiddle.
@@ -42,6 +42,8 @@ marine Marinesoldat → Kronwächter / Crown Guard · seaking Seekönig → Tief
 - Beinamen der Figuren in `crew.js` (★) bekommen den neuen Namen, Look und Fähigkeitsnamen der Figur bleiben bis Welle C.
 - Prüfung: Prüfskript, `node --check`, Replays unverändert (nur Texte), Kampf am Handy einmal in DE/EN mit Signatur-Ansage.
 
-## Fragen an Felix (beim Lesen)
-1. Passen die Wochentags-Agenten für den Barock-Bund?
-2. Welche Namen streichen oder ändern? Einfach in dieser Datei markieren oder im Chat sagen.
+## Gebaut (24.10.)
+- Namen in Gegner-Dateien, Figuren (`crew.js`), Duos, Artefakten, Ausrüstung, Verliesen, Freischaltungen, Ereignissen, Neuigkeiten und allen Englisch-Wörterbüchern. Englisch für die vollen Namen am Ende von `js/data/en-run.js`.
+- Raid-Schätze ohne Markennamen: Funkeljuwel (statt Juwel von Yasakani), Säbel Sturmfeder (statt Gryphon), Federmantel lacht „Hihihi“.
+- Bleibt für **Welle C** stehen (Prüfskript lässt es durch): Fraktionsnamen (Buggy-Piraten, Arlong-Bande, Kürzel in `render.js`), Fähigkeiten, Ultis und Team-Aktionen der Figuren (z. B. Rokuogan, White Blow, Ursus), „Fischmensch“ als Figuren-Fraktion, „Königs-Haki“.
+- Hinweis für Welle C: `neutral.js` nennt Mr. 5 „Herr Fünf“, passend zu den Wochentagen wäre **Herr Freitag**. „Calm Belt“ (Ko-op-Boss) steht noch im Spiel.

@@ -4,7 +4,7 @@ window.GL = window.GL || {};
 GL.data = GL.data || {};
 
 GL.data.grunts = [
-  { id: 'marine',    name: 'Marinesoldat', type: 'technik',
+  { id: 'marine',    name: 'Kronwächter', type: 'technik',
     look: { hair: '#6b4a2a', skin: '#f2c9a0', shirt: '#f0f0f0', pants: '#2f4a7a', hat: 'cap', hatColor: '#f0f0f0' } },
   { id: 'pirate',    name: 'Pirat',        type: 'klinge',
     look: { hair: '#222222', skin: '#d9a87a', shirt: '#8a2a2a', pants: '#3a3a3a', hat: 'band', hatColor: '#c0392b' } },
@@ -23,19 +23,19 @@ GL.data.grunts = [
     art: { c: { W: '#f4f4f0', G: '#9aa7b4', K: '#1a1a1a', O: '#f29a2e' },
       rows: ['................', '.......WWW......', '......WWWWW.....', '.....KWWWWW.....', '...OOWWWWWW.....', '.....WWWWWWG....', '....WWWWWWWGGG..', '....WWWWWWGGGGG.', '.....WWWWWWGGGGG', '......WWWWWWGG..', '.......WWWW.....', '........O.O.....', '........O.O.....', '.......OO.OO....'] } },
   // Remix: Seekuh Momoo (East Blue) und Kampfaffe (Paradies)
-  { id: 'momoo', name: 'Seekuh Momoo', type: 'kraft', seas: [0],
+  { id: 'momoo', name: 'Seekuh Muhli', type: 'kraft', seas: [0],
     art: { c: { B: '#7f9fc4', b: '#4f6f94', W: '#f4f0e0', E: '#1a1a1a', P: '#e8a0a8', Y: '#f2d24a', w: '#9fd2ee' },
       rows: ['................', '..W..........W..', '..WW........WW..', '...BBBBBBBBBB...', '..BBBBBBBBBBBB..', '.BBEBBBBBBBBEBB.', '.BBBBBBBBBBBBBB.', '.bBBPPPPPPPPBBb.', '..bPPEPPPPEPPb..', '..bPPPPYYPPPPb..', '...bPPPYYPPPb...', '....bbbbbbbb....', 'wwwwwwwwwwwwwwww', '.ww.wwww.www.ww.', '................', '................'] } },
   { id: 'kampfaffe', name: 'Kampfaffe', type: 'kraft', seas: [1, 2],
     art: { c: { F: '#8a5a34', f: '#5a3a1e', S: '#e8c09a', E: '#1a1a1a', R: '#c0392b', k: '#2a1a10' },
       rows: ['................', '.....FFFFFF.....', '....FFFFFFFF....', '...FFSSSSSSFF...', '..FFSESSSSESFF..', '..FFSSSSSSSSFF..', '...FSSSkkSSSF...', '....FSSSSSSF....', '..RRRFFFFFFRRR..', '.RRFFFFFFFFFFRR.', '.SS.FFFFFFFF.SS.', '.SS.FFFFFFFF.SS.', '....FF....FF....', '....ff....ff....', '...kkk....kkk...', '................'] } },
-  { id: 'bananacroc', name: 'Bananen-Krokodil', type: 'kraft', seas: [1, 2],
+  { id: 'bananacroc', name: 'Gelbkamm-Krokodil', type: 'kraft', seas: [1, 2],
     art: { c: { G: '#5c9a42', g: '#2f5a24', E: '#f2d24a', T: '#f4f0e0', Y: '#f2d24a', y: '#c9a22a' },
       rows: ['................', '..........YY....', '.........YYYy...', '........YYyy....', '..GGGGG..GGG....', '.GGEGGGGGGGGG...', 'GGGGGGGGGGGGGGG.', 'TGTGTGGGGGGGGGGG', 'GGGGGGGGGGGGGGGg', '.gGGGGGGGGGGGGgg', '..GG..GGGG..GGg.', '..gg..gg....gg..', '................', '................'] } },
   { id: 'wolf', name: 'Steppenwolf', type: 'technik', seas: [1, 2],
     art: { c: { G: '#8a939e', g: '#5a636e', E: '#f2d24a', N: '#1a1a1a', W: '#d8dde2', k: '#2a2a2a' },
       rows: ['................', '...g............', '..gG............', '.GGGG...........', 'GEGGGG..........', 'NGGGGGGGGGGGG.g.', '.GGGGGGGGGGGGGg.', '..GGGGGGGGGGGGg.', '..GGWWWWWGGGGG..', '..GG.....GG.GG..', '..GG.....GG.GG..', '..kk.....kk.kk..', '................', '................'] } },
-  { id: 'seaking', name: 'Seekönig', type: 'klinge', seas: [2],
+  { id: 'seaking', name: 'Tiefseeriese', type: 'klinge', seas: [2],
     art: { c: { P: '#6a8ac0', p: '#3a5a8a', E: '#f2d24a', T: '#f4f0e0', b: '#e8d0a0', W: '#4f9ccf', w: '#2f6f9f' },
       rows: ['................', '.....PPPP.......', '...PPPPPPPP.....', '..PPEPPPPPPP....', '.PPPPPPPPPPPp...', 'TPTPTPPPPPPPp...', '.......PPPPPp...', 'TPTPTPPPPPPPp...', '.PPPPPPPPPPpp...', '....bPPPPPpp....', '....bPPPPpp.....', '....bPPPpp......', 'WWWWWbPPPpWWWWWW', 'wWWWWWWWWWWWWWWw'] } },
   { id: 'bat', name: 'Riesenfledermaus', type: 'technik', seas: [2],
@@ -47,7 +47,7 @@ GL.data.grunts = [
   { id: 'mo-sumpfaffe', name: 'Sumpfaffe', type: 'kraft', seas: [1], isles: ['jaya'], monster: 'sumpfaffe' },
   { id: 'mo-wolke', name: 'Wolkenwächter', type: 'technik', seas: [1], isles: ['skypiea'], monster: 'wolkenwaechter' },
   { id: 'mo-qualle', name: 'Giftqualle', type: 'technik', seas: [1], isles: ['tiefsee', 'korallenhuegel', 'meerwald'], monster: 'giftqualle' },
-  { id: 'mo-fischmensch', name: 'Fischmensch', type: 'kraft', seas: [0, 1], isles: ['arlong-park', 'fischmenschen-viertel'], monster: 'fischmensch' },
+  { id: 'mo-fischmensch', name: 'Flossling', type: 'kraft', seas: [0, 1], isles: ['arlong-park', 'fischmenschen-viertel'], monster: 'fischmensch' },
   { id: 'mo-zombie', name: 'Zombie-Matrose', type: 'klinge', seas: [2], isles: ['florian', 'grusel-garten', 'mangroven'], monster: 'zombiematrose' },
   { id: 'mo-roboter', name: 'Labor-Roboter', type: 'kraft', seas: [2], isles: ['hogback-labor', 'water-7'], monster: 'roboter' }
 ];
@@ -103,41 +103,41 @@ GL.data.foeDef = e => {
 // escort = Anzahl normaler Gegner, die den Boss begleiten
 // Welche Insel welche Bosse hat, steht in islands.js. Fähigkeiten in abilities.js.
 GL.data.bosses = [
-  { id: 'smoker',    name: 'Smoker',    type: 'klinge',  hp: 48,  atk: 6,  spd: 6, escort: 1,
+  { id: 'smoker',    name: 'Hauptmann Russ',    type: 'klinge',  hp: 48,  atk: 6,  spd: 6, escort: 1,
     look: { hair: '#dddddd', skin: '#f2c9a0', shirt: '#3a4a3a', pants: '#3a4a3a', mask: 'cloud' } },
-  { id: 'arlong',    name: 'Arlong',    type: 'kraft',   hp: 52,  atk: 7,  spd: 5, escort: 1,
+  { id: 'arlong',    name: 'Zackenmaul Brack',    type: 'kraft',   hp: 52,  atk: 7,  spd: 5, escort: 1,
     look: { hair: '#1a1a1a', skin: '#6aa0c8', shirt: '#e8d070', pants: '#3a5a3a', mask: 'shark' } },
-  { id: 'crocodile', name: 'Crocodile', type: 'technik', hp: 115, atk: 14, spd: 6, escort: 2,
+  { id: 'crocodile', name: 'Sandbaron Sirokk', type: 'technik', hp: 115, atk: 14, spd: 6, escort: 2,
     look: { hair: '#111111', skin: '#f2c9a0', shirt: '#8a6d2f', pants: '#222222', mask: 'croc' } },
-  { id: 'enel',      name: 'Enel',      type: 'kraft',   hp: 110, atk: 14, spd: 7, escort: 2,
+  { id: 'enel',      name: 'Himmelsherr Zirrus',      type: 'kraft',   hp: 110, atk: 14, spd: 7, escort: 2,
     look: { hair: '#f0f0f0', skin: '#f2c9a0', shirt: '#e8b030', pants: '#e8b030', hat: 'band', hatColor: '#e8e8e8', mask: 'bolt' } },
-  { id: 'rob-lucci', name: 'Rob Lucci', type: 'kraft',   hp: 165, atk: 18, spd: 6, escort: 2,
+  { id: 'rob-lucci', name: 'Agent Krall', type: 'kraft',   hp: 165, atk: 18, spd: 6, escort: 2,
     look: { hair: '#222222', skin: '#f2c9a0', shirt: '#e8e8e8', pants: '#222222', hat: 'cap', hatColor: '#222222', mask: 'leopard' } },
-  { id: 'kaku',      name: 'Kaku',      type: 'klinge',  hp: 160, atk: 17, spd: 7, escort: 2,
+  { id: 'kaku',      name: 'Agent Stelz',      type: 'klinge',  hp: 160, atk: 17, spd: 7, escort: 2,
     look: { hair: '#8a5a2a', skin: '#f2c9a0', shirt: '#222222', pants: '#222222', hat: 'cap', hatColor: '#f0f0f0', mask: 'giraffe' } },
   // Fischmenscheninsel (zweite Route des zweiten Meeres)
-  { id: 'hody',      name: 'Hody Jones', type: 'kraft',   hp: 112, atk: 14, spd: 6, escort: 2,
+  { id: 'hody',      name: 'Grimmflosse', type: 'kraft',   hp: 112, atk: 14, spd: 6, escort: 2,
     look: { hair: '#1a1a2a', skin: '#7aa0c8', shirt: '#2a2a3a', pants: '#5a4a7a', mask: 'shark' } },
-  { id: 'vander',    name: 'Vander Decken IX', type: 'technik', hp: 114, atk: 14, spd: 7, escort: 2,
+  { id: 'vander',    name: 'Kapitän Ankerlos', type: 'technik', hp: 114, atk: 14, spd: 7, escort: 2,
     look: { hair: '#d0d0d0', skin: '#8a9ac0', shirt: '#4a3a2a', pants: '#2a2a3a', hat: 'tricorn', hatColor: '#2a2a2a' } },
   // Thriller Bark (zweite Route des dritten Meeres)
-  { id: 'moria',     name: 'Gecko Moria', type: 'technik', hp: 175, atk: 16, spd: 5, escort: 2,
+  { id: 'moria',     name: 'Graf Dämmerling', type: 'technik', hp: 175, atk: 16, spd: 5, escort: 2,
     look: { hair: '#1a1a2a', skin: '#c8b8d8', shirt: '#2a1a3a', pants: '#2a1a3a', mask: 'bat' } },
-  { id: 'kuma',      name: 'Bartholomew Kuma', type: 'kraft', hp: 190, atk: 15, spd: 5, escort: 2,
+  { id: 'kuma',      name: 'Tatz, der stille Bär', type: 'kraft', hp: 190, atk: 15, spd: 5, escort: 2,
     look: { hair: '#2a2a2a', skin: '#c89a70', shirt: '#3a3a4a', pants: '#2a2a3a', hat: 'cap', hatColor: '#3a3a4a', mask: 'bear' } }
 ];
 
 // Raid-Bosse: seltene Spezialkämpfe. reward = id der epischen Frucht (fruits.js),
 // die man beim Sieg bekommt und die danach dauerhaft freigeschaltet bleibt.
 GL.data.raids = [
-  { id: 'kizaru',     name: 'Admiral Kizaru', type: 'technik', hp: 150, atk: 12, spd: 10, escort: 1, raid: true, reward: 'gum-gum-epic',
+  { id: 'kizaru',     name: 'Großadmiral Glanz', type: 'technik', hp: 150, atk: 12, spd: 10, escort: 1, raid: true, reward: 'gum-gum-epic',
     look: { hair: '#2a2a2a', skin: '#f2c9a0', shirt: '#e8d030', pants: '#e8d030', hat: 'cap', hatColor: '#f0f0f0' } },
-  { id: 'doflamingo', name: 'Doflamingo',     type: 'klinge',  hp: 170, atk: 13, spd: 7,  escort: 1, raid: true, reward: 'mera-mera-epic',
+  { id: 'doflamingo', name: 'Fadenkönig Rosé',     type: 'klinge',  hp: 170, atk: 13, spd: 7,  escort: 1, raid: true, reward: 'mera-mera-epic',
     look: { hair: '#e8d070', skin: '#f2c9a0', shirt: '#e870a0', pants: '#f0f0f0' } },
   // Selten (siehe config.rareRaidChance): wer Shanks besiegt, schaltet ihn als Kapitän frei
-  { id: 'teach',      name: 'Blackbeard',     type: 'kraft',   hp: 200, atk: 14, spd: 6,  escort: 1, raid: true, reward: 'yami-yami-epic',
+  { id: 'teach',      name: 'Käpt’n Schlund, der Nimmersatt',     type: 'kraft',   hp: 200, atk: 14, spd: 6,  escort: 1, raid: true, reward: 'yami-yami-epic',
     look: { hair: '#1a1a1a', skin: '#e0b088', shirt: '#e8e8e8', pants: '#3a2a1a', hat: 'band', hatColor: '#c0392b' } },
-  { id: 'shanks',     name: 'Rothaar Shanks', type: 'klinge',  hp: 190, atk: 14, spd: 8,  escort: 2, raid: true, rare: true, reward: 'haki-epic',
+  { id: 'shanks',     name: 'Rotmantel Fenn', type: 'klinge',  hp: 190, atk: 14, spd: 8,  escort: 2, raid: true, rare: true, reward: 'haki-epic',
     look: { hair: '#c0302a', skin: '#f2c9a0', shirt: '#f0f0f0', pants: '#3a3a3a' } }
 ];
 
@@ -171,32 +171,32 @@ GL.data.foePlanOf = id => { const P = GL.data.foePlans; return Object.keys(P).fi
 // front (vorderste n), multi (n Einzeltreffer), status, drain (Schaden heilt den Boss), self (Angriff +x),
 // stun (n Figuren setzen aus), purge (gute Zustände der Crew weg)
 GL.data.bossSigs = {
-  smoker:      { name: 'Weißer Rauch', en: 'White Smoke', t: 'Rauch überall. Deine Crew sieht nichts und kassiert mehr.', tEn: 'Smoke everywhere. Your crew sees nothing and takes more.',
+  smoker:      { name: 'Rußwolke', en: 'Soot Cloud', t: 'Rauch überall. Deine Crew sieht nichts und kassiert mehr.', tEn: 'Smoke everywhere. Your crew sees nothing and takes more.',
     fx: [{ do: 'status', key: 'weak', rounds: 2, target: 'all' }, { do: 'aoe', m: 0.45 }] },
   arlong:      { name: 'Sägezahn-Sturm', en: 'Sawtooth Storm', t: 'Er beißt sich durch die Reihe. Alle bluten.', tEn: 'He bites his way down the line. Everyone bleeds.',
     fx: [{ do: 'aoe', m: 0.5 }, { do: 'status', key: 'bleed', rounds: 3, value: 3, target: 'all' }] },
-  crocodile:   { name: 'Wüstensarg', en: 'Desert Coffin', t: 'Sand saugt deiner Crew das Leben aus. Ihm schmeckt es.', tEn: 'Sand drains the life from your crew. He enjoys it.',
+  crocodile:   { name: 'Sandgrab', en: 'Sand Grave', t: 'Sand saugt deiner Crew das Leben aus. Ihm schmeckt es.', tEn: 'Sand drains the life from your crew. He enjoys it.',
     fx: [{ do: 'drain', m: 0.5 }] },
-  enel:        { name: 'Donnergott', en: 'God of Thunder', t: 'Ein Blitz für alle, und einer bleibt kurz stehen.', tEn: 'A bolt for everyone, and one of them freezes for a moment.',
+  enel:        { name: 'Wolkenbruch', en: 'Cloudburst', t: 'Ein Blitz für alle, und einer bleibt kurz stehen.', tEn: 'A bolt for everyone, and one of them freezes for a moment.',
     fx: [{ do: 'aoe', m: 0.75 }, { do: 'stun', n: 1 }] },
-  'rob-lucci': { name: 'Rokuogan', en: 'Rokuogan', t: 'Ein Schlag, gezielt auf deine Stärkste. Er hat geübt.', tEn: 'One strike, aimed at your strongest. He has practised.',
+  'rob-lucci': { name: 'Krallenhieb', en: 'Talon Strike', t: 'Ein Schlag, gezielt auf deine Stärkste. Er hat geübt.', tEn: 'One strike, aimed at your strongest. He has practised.',
     fx: [{ do: 'single', m: 2.3, pick: 'strong' }] },
   kaku:        { name: 'Sturmschnitt', en: 'Tempest Cut', t: 'Ein Schnitt durch die ersten beiden. Lang und unhöflich.', tEn: 'One cut through the first two. Long and impolite.',
     fx: [{ do: 'front', m: 1.25, n: 2 }] },
-  hody:        { name: 'Energie-Steroide', en: 'Energy Steroids', t: 'Er schluckt eine Pille und wird unangenehm.', tEn: 'He swallows a pill and becomes unpleasant.',
+  hody:        { name: 'Wutpille', en: 'Rage Pill', t: 'Er schluckt eine Pille und wird unangenehm.', tEn: 'He swallows a pill and becomes unpleasant.',
     fx: [{ do: 'self', atk: 0.3 }, { do: 'aoe', m: 0.4 }] },
   vander:      { name: 'Zielmarke', en: 'Target Mark', t: 'Er markiert die Schwächste. Alles fliegt jetzt dorthin.', tEn: 'He marks the weakest. Everything flies that way now.',
     fx: [{ do: 'status', key: 'weak', rounds: 3, target: 'low' }, { do: 'single', m: 1.5, pick: 'low' }] },
-  moria:       { name: 'Schattenraub', en: 'Shadow Theft', t: 'Er stiehlt den Schatten deiner Stärksten. Sie steht kurz bedeppert da.', tEn: 'He steals the shadow of your strongest. They stand there, baffled.',
+  moria:       { name: 'Dämmerklau', en: 'Dusk Snatch', t: 'Er klaut den Schatten deiner Stärksten. Sie steht kurz bedeppert da.', tEn: 'He snatches the shadow of your strongest. They stand there, baffled.',
     fx: [{ do: 'stun', n: 1, pick: 'strong' }, { do: 'self', atk: 0.2 }] },
-  kuma:        { name: 'Ursus-Schock', en: 'Ursus Shock', t: 'Eine Luftblase aus Schmerz. Sie platzt über allen.', tEn: 'A bubble of pain. It bursts over everyone.',
+  kuma:        { name: 'Bärenblase', en: 'Bear Bubble', t: 'Eine Luftblase aus Schmerz. Sie platzt über allen.', tEn: 'A bubble of pain. It bursts over everyone.',
     fx: [{ do: 'aoe', m: 0.85 }] },
-  kizaru:      { name: 'Lichtgeschwindigkeit', en: 'Speed of Light', t: 'Drei Tritte, schneller als jede Ausrede.', tEn: 'Three kicks, faster than any excuse.',
+  kizaru:      { name: 'Funkentritte', en: 'Spark Kicks', t: 'Drei Tritte, schneller als jede Ausrede.', tEn: 'Three kicks, faster than any excuse.',
     fx: [{ do: 'multi', m: 0.75, n: 3 }] },
-  doflamingo:  { name: 'Vogelkäfig', en: 'Birdcage', t: 'Fäden überall. Zwei von euch hängen kurz fest.', tEn: 'Strings everywhere. Two of you are stuck for a moment.',
+  doflamingo:  { name: 'Fadennetz', en: 'Thread Net', t: 'Fäden überall. Zwei von euch hängen kurz fest.', tEn: 'Strings everywhere. Two of you are stuck for a moment.',
     fx: [{ do: 'aoe', m: 0.45 }, { do: 'stun', n: 2 }] },
-  teach:       { name: 'Schwarzes Loch', en: 'Black Hole', t: 'Er schluckt alles Gute. Mut, Schilde, Laune.', tEn: 'He swallows everything good. Courage, shields, mood.',
+  teach:       { name: 'Großer Happen', en: 'Big Gulp', t: 'Er schluckt alles Gute. Mut, Schilde, Laune.', tEn: 'He swallows everything good. Courage, shields, mood.',
     fx: [{ do: 'purge' }, { do: 'aoe', m: 0.6 }] },
-  shanks:      { name: 'Königshaki', en: 'Conqueror\'s Haki', t: 'Er schaut nur. Das reicht.', tEn: 'He just looks. That is enough.',
+  shanks:      { name: 'Strenger Blick', en: 'Stern Gaze', t: 'Er schaut nur. Das reicht.', tEn: 'He just looks. That is enough.',
     fx: [{ do: 'status', key: 'fear', rounds: 2, target: 'all' }, { do: 'aoe', m: 0.35 }] }
 };

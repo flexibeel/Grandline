@@ -11,11 +11,11 @@ GL.data.huntPal = { k: '#3a2c20', d: '#6a5a4a', m: '#a89a88', l: '#e8e0d4', w: '
 GL.data.huntLoot = [
   { id: 'licht-splitter', raid: 'kizaru', r: 2, name: 'Lichtsplitter', text: 'Ein Splitter, der nie aufhört zu leuchten.',
     art: ['............', '.....YY.....', '....YyyY....', '...YyxxyY...', '..YyxYYxyY..', '..YyYyyYyY..', '..YyxYYxyY..', '...YyxxyY...', '....YyyY....', '.....YY.....', '............', '............'] },
-  { id: 'yasakani', raid: 'kizaru', r: 3, name: 'Juwel von Yasakani', text: 'Wer es hält, sieht die Welt in Lichtgeschwindigkeit.',
+  { id: 'yasakani', raid: 'kizaru', r: 3, name: 'Funkeljuwel', text: 'Wer es hält, sieht die Welt in Lichtgeschwindigkeit.',
     art: ['............', '....GGGG....', '..GGyyyyGG..', '.GyyYxxYyyG.', '.GyYxxxxYyG.', 'GyyxxYYxxyyG', 'GyyxxYYxxyyG', '.GyYxxxxYyG.', '.GyyYxxYyyG.', '..GGyyyyGG..', '....GGGG....', '............'] },
   { id: 'faden-spule', raid: 'doflamingo', r: 2, name: 'Faden-Spule', text: 'Feiner als Seide, stärker als Stahl.',
     art: ['............', '...wwwwww...', '...WWWWWW...', '....PpPp....', '....pPpP....', '....PpPp....', '....pPpP....', '....PpPp....', '...WWWWWW...', '...wwwwww...', '.........P..', '..........P.'] },
-  { id: 'federmantel', raid: 'doflamingo', r: 3, name: 'Rosa Federmantel', text: 'Fffuffuffu. Er raschelt bei jedem Schritt.',
+  { id: 'federmantel', raid: 'doflamingo', r: 3, name: 'Rosa Federmantel', text: 'Hihihi. Er raschelt bei jedem Schritt.',
     art: ['............', '..PPP..PPP..', '.PpppPPpppP.', 'PppPpppPpppP', 'PpPPpkkpPPpP', 'PppPpkkpPppP', '.PpPpkkpPpP.', '.PppPkkPppP.', '..PpPkkPpP..', '..PPpkkpPP..', '...PPkkPP...', '............'] },
   { id: 'schatten-splitter', raid: 'teach', r: 2, name: 'Schwarzer Splitter', text: 'Er schluckt das Licht um sich herum.',
     art: ['............', '.....kk.....', '....kddk....', '...kdkkdk...', '..kdkkkkdk..', '..kdkmmkdk..', '..kdkkkkdk..', '...kdkkdk...', '....kddk....', '.....kk.....', '............', '............'] },
@@ -23,7 +23,7 @@ GL.data.huntLoot = [
     art: ['.k..........', '.kkkkkkkkkk.', '.kklklklkkk.', '.kkxkxkxkkk.', '.kkkkkkkkkk.', '.kkkrkkrkkk.', '.kkkkrrkkkk.', '.kkkkkkkkkk.', '.k..........', '.k..........', '.k..........', 'kkk.........'] },
   { id: 'strohhut-band', raid: 'shanks', r: 2, name: 'Rotes Hutband', text: 'Ein Versprechen, das um die Welt segelt.',
     art: ['............', '............', '....GGGG....', '...GGGGGG...', '..GGGGGGGG..', '..rrrrrrrr..', '.GGGGGGGGGG.', 'GGGGGGGGGGGG', '.GGGGGGGGGG.', '............', '............', '............'] },
-  { id: 'gryphon', raid: 'shanks', r: 3, name: 'Säbel Gryphon', text: 'Die Klinge eines Kaisers. Schwer, ruhig, unbesiegt.',
+  { id: 'gryphon', raid: 'shanks', r: 3, name: 'Säbel Sturmfeder', text: 'Die Klinge eines Kaisers. Schwer, ruhig, unbesiegt.',
     art: ['..........Sx', '.........SxS', '........SxS.', '.......SxS..', '......SxS...', '.....SxS....', '..g.SxS.....', '..ggxS......', '...gg.......', '..kgGg......', '.kk..g......', 'kk..........'] }
 ];
 GL.data.huntFor = raidId => GL.data.huntLoot.filter(x => x.raid === raidId);

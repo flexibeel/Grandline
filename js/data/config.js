@@ -42,7 +42,7 @@ GL.config = {
   specialBossCut: 0.22,   // Anteil Max-Leben, den der Boss verliert
   specialEscortCut: 0.6,  // Anteil Max-Leben bei Begleitern
   raidChance: 0.5,
-  rareRaidChance: 0.15,   // Anteil der Raids, die gegen den seltenen Raid-Boss (Shanks) gehen        // Chance pro Insel ab der 2. Insel, dass ein Raid auf der Seekarte liegt
+  rareRaidChance: 0.15,   // Anteil der Raids, die gegen den seltenen Raid-Boss (Rotmantel Fenn) gehen        // Chance pro Insel ab der 2. Insel, dass ein Raid auf der Seekarte liegt
   raidEscapeHp: 0.25,
   // Endlos-Modus: Zuschlag pro Runde auf Leben/Angriff aller Gegner
   // Endlos-Fahrt: eigener Modus pro geschafftem Meer. Jede Runde stärkere Gegner (hp/atk je Runde)

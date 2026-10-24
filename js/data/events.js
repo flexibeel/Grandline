@@ -32,12 +32,12 @@ GL.data.events = [
     ]
   },
   {
-    id: 'seekoenig', title: 'Ein Seekönig taucht auf!',
+    id: 'seekoenig', title: 'Ein Tiefseeriese taucht auf!',
     text: 'Ein riesiges Seeungeheuer versperrt den Weg. In seinem Bauch sollen Schätze liegen.',
     choices: [
       { label: 'Angreifen', hint: '55 %: epischer Schatz, sonst -30 % Leben',
         outcome: { chance: 0.55, win: { relic: 2 }, lose: { hurt: 0.3 } },
-        text: 'Der Kampf gegen den Seekönig ist vorbei.' },
+        text: 'Der Kampf gegen den Tiefseeriesen ist vorbei.' },
       { label: 'Fliehen', hint: 'Nichts passiert', outcome: {}, text: 'Mit vollen Segeln entkommt ihr.' }
     ]
   },

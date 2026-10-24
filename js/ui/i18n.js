@@ -85,7 +85,7 @@ window.GL = window.GL || {};
     'Vizekapitän': 'First mate', 'Gemütlicher Kapitän': 'Cozy captain', 'Faust der Meere': 'Fist of the seas', 'Hundert Inseln': 'Hundred islands', 'Unbeugsam': 'Unbreakable',
     'Gastgeber der Grand Line': 'Host of the Grand Line', 'Herr der Flotte': 'Lord of the fleet', 'Schiffsjunge': 'Cabin boy',
     // Figurennamen wie im englischen Original
-    'Ruffy': 'Luffy', 'Zorro': 'Zoro', 'Lysop': 'Usopp', 'Bon Clay': 'Bon Clay', 'Whitebeard': 'Whitebeard', 'Rob Lucci': 'Rob Lucci', 'Hancock': 'Hancock',
+    'Ruffy': 'Luffy', 'Zorro': 'Zoro', 'Lysop': 'Usopp', 'Bon Clay': 'Bon Clay', 'Whitebeard': 'Whitebeard', 'Agent Krall': 'Agent Krall', 'Hancock': 'Hancock',
     'Vollbild': 'Fullscreen', '⛶ Vollbild': '⛶ Fullscreen', 'Vollbild beenden': 'Exit fullscreen', '🔒 Kopfgeld-Stufen': '🔒 Bounty tiers', 'Kopfgeld-Stufen': 'Bounty tiers', 'Weiterspielen': 'Continue', 'Rechtliches & Datenschutz': 'Legal & privacy',
     'Inoffizielles Fanprojekt, kostenlos und ohne kommerzielle Absicht. One Piece gehört seinen Rechteinhabern.': 'Unofficial fan project, free and non-commercial. One Piece belongs to its rights holders.',
     'Willkommen zurück': 'Welcome back', 'Neu anfangen': 'Start over', 'Alle Neuigkeiten': 'All news', '★ Spiel bewerten': '★ Rate the game', 'Update verfügbar': 'Update available'

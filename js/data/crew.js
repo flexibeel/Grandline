@@ -51,9 +51,9 @@ GL.data.crew = [
     look: { hair: '#e8d070', skin: '#f2c9a0', shirt: '#2a2a2a', pants: '#2a2a2a', longHair: true } },
   { id: 'kumadori',name: 'Kumadori', type: 'technik', role: 'brecher',  faction: 'cp9',      hp: 30, atk: 6,  spd: 5,
     look: { hair: '#d84a2a', skin: '#f0f0f0', shirt: '#e8b030', pants: '#7a3a2a', hat: 'afro' } },
-  { id: 'blueno',  name: 'Blueno',   type: 'kraft',   role: 'brecher',  faction: 'cp9',      hp: 36, atk: 6,  spd: 4,
+  { id: 'blueno',  name: 'Riegel',   type: 'kraft',   role: 'brecher',  faction: 'cp9',      hp: 36, atk: 6,  spd: 4,
     look: { hair: '#1a1a1a', skin: '#e8c0a0', shirt: '#1a1a1a', pants: '#1a1a1a', hat: 'band', hatColor: '#1a1a1a' } },
-  { id: 'jabra',   name: 'Jabra',    type: 'kraft',   role: 'kaempfer', faction: 'cp9',      hp: 28, atk: 8,  spd: 6,
+  { id: 'jabra',   name: 'Wolfram',    type: 'kraft',   role: 'kaempfer', faction: 'cp9',      hp: 28, atk: 8,  spd: 6,
     look: { hair: '#1a1a1a', skin: '#d9a87a', shirt: '#2a2a2a', pants: '#2a2a2a', longHair: true } },
 
   // Baroque Works
@@ -63,22 +63,22 @@ GL.data.crew = [
     look: { hair: '#1a1a1a', skin: '#f2c9a0', shirt: '#e8d070', pants: '#3a3a3a', hat: 'cap', hatColor: '#3a3a3a' } },
   { id: 'vivi',    name: 'Vivi',     type: 'klinge',  role: 'helfer',   faction: 'baroque',  hp: 24, atk: 6,  spd: 7,
     look: { hair: '#6fc6e0', skin: '#f2c9a0', shirt: '#e8e0f0', pants: '#7a5aa0', longHair: true } },
-  { id: 'mr1',     name: 'Mr. 1',    type: 'klinge',  role: 'kaempfer', faction: 'baroque',  hp: 30, atk: 8,  spd: 5,
+  { id: 'mr1',     name: 'Herr Sonntag',    type: 'klinge',  role: 'kaempfer', faction: 'baroque',  hp: 30, atk: 8,  spd: 5,
     look: { hair: '#1a1a1a', skin: '#a8785a', shirt: '#3a3a3a', pants: '#3a3a3a' } },
 
   // ---- Freischaltbar (locked: true). Bedingungen stehen in unlocks.js ----
   // Danach als Kapitän wählbar und bei der Rekrutierung im Angebot.
-  { id: 'smoker',    name: 'Smoker',    type: 'klinge',  role: 'brecher',  faction: 'marine',  hp: 34, atk: 7, spd: 5, locked: true,
+  { id: 'smoker',    name: 'Russ',    type: 'klinge',  role: 'brecher',  faction: 'marine',  hp: 34, atk: 7, spd: 5, locked: true,
     look: { hair: '#dddddd', skin: '#f2c9a0', shirt: '#3a4a3a', pants: '#3a4a3a' } },
-  { id: 'arlong',    name: 'Arlong',    type: 'kraft',   role: 'kaempfer', faction: 'fischmensch', hp: 32, atk: 7, spd: 5, locked: true,
+  { id: 'arlong',    name: 'Brack',    type: 'kraft',   role: 'kaempfer', faction: 'fischmensch', hp: 32, atk: 7, spd: 5, locked: true,
     look: { hair: '#1a1a1a', skin: '#6aa0c8', shirt: '#e8d070', pants: '#3a5a3a' } },
-  { id: 'crocodile', name: 'Crocodile', type: 'technik', role: 'kaempfer', faction: 'baroque', hp: 30, atk: 7, spd: 6, locked: true,
+  { id: 'crocodile', name: 'Sirokk', type: 'technik', role: 'kaempfer', faction: 'baroque', hp: 30, atk: 7, spd: 6, locked: true,
     look: { hair: '#111111', skin: '#f2c9a0', shirt: '#8a6d2f', pants: '#222222' } },
-  { id: 'enel',      name: 'Enel',      type: 'kraft',   role: 'kaempfer',                    hp: 26, atk: 8, spd: 7, locked: true,
+  { id: 'enel',      name: 'Zirrus',      type: 'kraft',   role: 'kaempfer',                    hp: 26, atk: 8, spd: 7, locked: true,
     look: { hair: '#f0f0f0', skin: '#f2c9a0', shirt: '#e8b030', pants: '#e8b030', hat: 'band', hatColor: '#e8e8e8' } },
-  { id: 'rob-lucci', name: 'Rob Lucci', type: 'kraft',   role: 'kaempfer', faction: 'cp9',     hp: 30, atk: 5, spd: 6, locked: true,
+  { id: 'rob-lucci', name: 'Agent Krall', type: 'kraft',   role: 'kaempfer', faction: 'cp9',     hp: 30, atk: 5, spd: 6, locked: true,
     look: { hair: '#222222', skin: '#f2c9a0', shirt: '#e8e8e8', pants: '#222222', hat: 'cap', hatColor: '#222222' } },
-  { id: 'kaku',      name: 'Kaku',      type: 'klinge',  role: 'kaempfer', faction: 'cp9',     hp: 28, atk: 8, spd: 7, locked: true,
+  { id: 'kaku',      name: 'Stelz',      type: 'klinge',  role: 'kaempfer', faction: 'cp9',     hp: 28, atk: 8, spd: 7, locked: true,
     look: { hair: '#8a5a2a', skin: '#f2c9a0', shirt: '#222222', pants: '#222222', hat: 'cap', hatColor: '#f0f0f0' } },
   { id: 'jinbei',    name: 'Jinbei',    type: 'kraft',   role: 'brecher',  faction: 'samurai', hp: 40, atk: 7, spd: 4, locked: true,
     look: { hair: '#1a1a1a', skin: '#5a8fc2', shirt: '#e0e0d0', pants: '#2a3a5a' } },
@@ -96,14 +96,14 @@ GL.data.crew = [
     look: { hair: '#1a1a1a', skin: '#f2c9a0', shirt: '#2a2a2a', pants: '#3a2a1a', hat: 'cap', hatColor: '#3a2a1a' } },
   { id: 'hancock',    name: 'Hancock',     type: 'technik', role: 'kaempfer', faction: 'samurai',   hp: 28, atk: 9,  spd: 7, locked: true,
     look: { hair: '#1a1a1a', skin: '#f6d2b0', shirt: '#c0304a', pants: '#e8e8e8', longHair: true } },
-  { id: 'doflamingo', name: 'Doflamingo',  type: 'klinge',  role: 'kaempfer', faction: 'samurai',   hp: 30, atk: 9,  spd: 7, locked: true,
+  { id: 'doflamingo', name: 'Rosé',  type: 'klinge',  role: 'kaempfer', faction: 'samurai',   hp: 30, atk: 9,  spd: 7, locked: true,
     look: { hair: '#e8d070', skin: '#f2c9a0', shirt: '#e870a0', pants: '#f0f0f0' } },
-  { id: 'shanks',     name: 'Shanks',      type: 'klinge',  role: 'kaempfer', faction: 'rothaar',   hp: 34, atk: 10, spd: 7, locked: true,
+  { id: 'shanks',     name: 'Fenn',      type: 'klinge',  role: 'kaempfer', faction: 'rothaar',   hp: 34, atk: 10, spd: 7, locked: true,
     look: { hair: '#c0302a', skin: '#f2c9a0', shirt: '#f0f0f0', pants: '#3a3a3a' } },
 
   // ---- Großes Inhalts-Update: neue Banden und bekannte Gesichter ----
   // Buggy-Piraten
-  { id: 'buggy',     name: 'Buggy',       type: 'technik', role: 'kaempfer', faction: 'buggy',      hp: 26, atk: 7,  spd: 6, locked: true,
+  { id: 'buggy',     name: 'Pomp',       type: 'technik', role: 'kaempfer', faction: 'buggy',      hp: 26, atk: 7,  spd: 6, locked: true,
     look: { hair: '#2f5aa8', skin: '#f6e6da', shirt: '#c0392b', pants: '#3a2a5a', hat: 'tricorn', hatColor: '#e8a030', nose: '#e0302a' } },
   { id: 'alvida',    name: 'Alvida',      type: 'kraft',   role: 'brecher',  faction: 'buggy',      hp: 34, atk: 5,  spd: 4, locked: true,
     look: { hair: '#1a1a1a', skin: '#f6d8c0', shirt: '#e8e8e8', pants: '#c04a6a', hat: 'cap', hatColor: '#e8e0d0', longHair: true } },
@@ -112,13 +112,13 @@ GL.data.crew = [
   { id: 'mohji',     name: 'Mohji',       type: 'kraft',   role: 'helfer',   faction: 'buggy',      hp: 30, atk: 7,  spd: 5, locked: true,
     look: { hair: '#e8e8e8', skin: '#f2c9a0', shirt: '#8a6a3a', pants: '#5a4a3a', hat: 'ears', hatColor: '#f0f0f0' } },
   // Arlong-Bande (Fischmenschen)
-  { id: 'hatchan',   name: 'Hatchan',     type: 'klinge',  role: 'kaempfer', faction: 'fischmensch', hp: 32, atk: 7, spd: 5, locked: true,
+  { id: 'hatchan',   name: 'Okko',     type: 'klinge',  role: 'kaempfer', faction: 'fischmensch', hp: 32, atk: 7, spd: 5, locked: true,
     look: { hair: '#c0392b', skin: '#e89a8a', shirt: '#e8c040', pants: '#3a5a8a', mask: 'octo' } },
   { id: 'kuroobi',   name: 'Kuroobi',     type: 'kraft',   role: 'brecher',  faction: 'fischmensch', hp: 38, atk: 6, spd: 4, locked: true,
     look: { hair: '#1a1a1a', skin: '#7aa0c0', shirt: '#2a2a2a', pants: '#2a2a2a', hat: 'band', hatColor: '#1a1a1a' } },
   { id: 'chu',       name: 'Chu',         type: 'technik', role: 'kaempfer', faction: 'fischmensch', hp: 25, atk: 9, spd: 7, locked: true,
     look: { hair: '#2a2a2a', skin: '#8ab0c8', shirt: '#e86a3a', pants: '#3a3a5a', nose: '#e86a7a' } },
-  { id: 'hody',      name: 'Hody Jones',  type: 'kraft',   role: 'kaempfer', faction: 'fischmensch', hp: 30, atk: 8, spd: 5, locked: true,
+  { id: 'hody',      name: 'Grimmflosse',  type: 'kraft',   role: 'kaempfer', faction: 'fischmensch', hp: 30, atk: 8, spd: 5, locked: true,
     look: { hair: '#1a1a2a', skin: '#7aa0c8', shirt: '#2a2a3a', pants: '#5a4a7a', mask: 'shark' } },
   // Revolutionsarmee
   { id: 'sabo',      name: 'Sabo',        type: 'kraft',   role: 'kaempfer', faction: 'revolution', hp: 30, atk: 9,  spd: 7, locked: true,
@@ -139,13 +139,13 @@ GL.data.crew = [
   // Neue Gesichter für bekannte Banden
   { id: 'aokiji',    name: 'Aokiji',      type: 'technik', role: 'brecher',  faction: 'marine',     hp: 38, atk: 7,  spd: 5, locked: true,
     look: { hair: '#1a1a1a', skin: '#c89a70', shirt: '#e8f0f8', pants: '#e8f0f8', hat: 'band', hatColor: '#7ab0e0' } },
-  { id: 'fukuro',    name: 'Fukuro',      type: 'kraft',   role: 'brecher',  faction: 'cp9',        hp: 36, atk: 6,  spd: 5, locked: true,
+  { id: 'fukuro',    name: 'Plapper',      type: 'kraft',   role: 'brecher',  faction: 'cp9',        hp: 36, atk: 6,  spd: 5, locked: true,
     look: { hair: '#2a2a2a', skin: '#f2c9a0', shirt: '#2a2a2a', pants: '#2a2a2a', beard: '#3a3a3a' } },
   { id: 'vista',     name: 'Vista',       type: 'klinge',  role: 'kaempfer', faction: 'weissbart',  hp: 30, atk: 9,  spd: 6, locked: true,
     look: { hair: '#1a1a1a', skin: '#f2c9a0', shirt: '#e8e8e8', pants: '#3a3a5a', hat: 'tophat', hatColor: '#2a2a2a', beard: '#1a1a1a' } },
-  { id: 'kuma',      name: 'Kuma',        type: 'kraft',   role: 'brecher',  faction: 'samurai',    hp: 46, atk: 7,  spd: 3, locked: true,
+  { id: 'kuma',      name: 'Tatz',        type: 'kraft',   role: 'brecher',  faction: 'samurai',    hp: 46, atk: 7,  spd: 3, locked: true,
     look: { hair: '#2a2a2a', skin: '#c8a080', shirt: '#4a3a2a', pants: '#3a3a3a', mask: 'bear' } },
-  { id: 'perona',    name: 'Perona',      type: 'technik', role: 'helfer',   faction: 'thriller',   hp: 22, atk: 6,  spd: 7, locked: true,
+  { id: 'perona',    name: 'Huschel',      type: 'technik', role: 'helfer',   faction: 'thriller',   hp: 22, atk: 6,  spd: 7, locked: true,
     look: { hair: '#e870a0', skin: '#f2d0b8', shirt: '#2a1a2a', pants: '#e870a0', longHair: true, hat: 'cap', hatColor: '#c04a7a' } },
 
   // Schlimmste Generation (Supernovas von Sabaody)
@@ -162,10 +162,10 @@ GL.data.crew = [
   { id: 'apoo',      name: 'Scratchmen Apoo', type: 'technik', role: 'kaempfer', faction: 'supernova', hp: 26, atk: 8, spd: 7, locked: true,
     look: { hair: '#1a1a1a', skin: '#c89a70', shirt: '#e8c040', pants: '#3a3a5a', hat: 'band', hatColor: '#d0302a', acc: 'ohrring' } },
   // Thriller-Bark-Piraten
-  { id: 'moria',     name: 'Gecko Moria', type: 'technik', role: 'brecher',  faction: 'thriller', hp: 44, atk: 7, spd: 3, locked: true,
+  { id: 'moria',     name: 'Graf Dämmerling', type: 'technik', role: 'brecher',  faction: 'thriller', hp: 44, atk: 7, spd: 3, locked: true,
     look: { hair: '#3a2a4a', skin: '#b8b0c8', shirt: '#2a2030', pants: '#4a2a3a', mask: 'bat' } },
-  { id: 'absalom',   name: 'Absalom',     type: 'klinge',  role: 'kaempfer', faction: 'thriller', hp: 28, atk: 8, spd: 7, locked: true,
+  { id: 'absalom',   name: 'Ulf',     type: 'klinge',  role: 'kaempfer', faction: 'thriller', hp: 28, atk: 8, spd: 7, locked: true,
     look: { hair: '#e8c060', skin: '#f2c9a0', shirt: '#e8e0d0', pants: '#4a3a2a', mask: 'leopard' } },
-  { id: 'hogback',   name: 'Dr. Hogback', type: 'technik', role: 'helfer',   faction: 'thriller', hp: 30, atk: 5, spd: 5, locked: true,
+  { id: 'hogback',   name: 'Doktor Flick', type: 'technik', role: 'helfer',   faction: 'thriller', hp: 30, atk: 5, spd: 5, locked: true,
     look: { hair: '#2a2a2a', skin: '#f2c9a0', shirt: '#e8e8e8', pants: '#2a2a2a', acc: 'brille' } }
 ];

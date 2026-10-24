@@ -68,16 +68,16 @@ GL.data.crewGear = {
 // Steht es auf deiner Wunschliste, legt sich der Boss mehr ins Zeug (mehr Episches, öfter das Fundstück).
 //   base: Grundteil (Platz + Hauptwert), extra: fester Zusatzwert, text: ein trockener Satz
 GL.data.crewGear.sigs = [
-  { id: 'sig-jitte',     boss: 'smoker',    base: 'saebel',      extra: 'armor',  name: 'Smokers Jitte',          text: 'Riecht nach Zigarre. Hält trotzdem.' },
-  { id: 'sig-kiribachi', boss: 'arlong',    base: 'dreizack',    extra: 'dmgPct', name: 'Arlongs Kiribachi',      text: 'Eine Säge mit Ambitionen.' },
-  { id: 'sig-sandring',  boss: 'crocodile', base: 'ring',        extra: 'dodge',  name: 'Crocodiles Sandring',    text: 'Rinnt dir nie durch die Finger. Alles andere schon.' },
-  { id: 'sig-trommel',   boss: 'enel',      base: 'amulett',     extra: 'spd',    name: 'Enels Trommelamulett',   text: 'Brummt leise, wenn es gewittert. Also ständig.' },
-  { id: 'sig-haiweste',  boss: 'hody',      base: 'weste',       extra: 'atk',    name: 'Hodys Haifischweste',    text: 'Zäh, nass und schlecht gelaunt.' },
-  { id: 'sig-zielkompass', boss: 'vander',  base: 'kompass',     extra: 'crit',   name: 'Vanders Zielkompass',    text: 'Zeigt immer auf das, was du gerade angefasst hast.' },
-  { id: 'sig-taubentuch', boss: 'rob-lucci', base: 'kopftuch',   extra: 'dodge',  name: 'Luccis Taubenhalstuch',  text: 'Die Taube ist nicht im Lieferumfang.' },
-  { id: 'sig-stierhorn', boss: 'kaku',      base: 'entermesser', extra: 'spd',    name: 'Kakus Stierhorn-Klinge', text: 'Mit eckigem Griff. Wie die Nase.' },
-  { id: 'sig-schatten',  boss: 'moria',     base: 'perlen',      extra: 'dodge',  name: 'Morias Schattenkette',   text: 'Wirft einen Schatten. Manchmal sogar den eigenen.' },
-  { id: 'sig-bibel',     boss: 'kuma',      base: 'mantel',      extra: 'armor',  name: 'Kumas Bibelmantel',      text: 'Schwer, ruhig und völlig unbeeindruckt.' }
+  { id: 'sig-jitte',     boss: 'smoker',    base: 'saebel',      extra: 'armor',  name: 'Russ’ Jitte',          text: 'Riecht nach Zigarre. Hält trotzdem.' },
+  { id: 'sig-kiribachi', boss: 'arlong',    base: 'dreizack',    extra: 'dmgPct', name: 'Bracks Kiribachi',      text: 'Eine Säge mit Ambitionen.' },
+  { id: 'sig-sandring',  boss: 'crocodile', base: 'ring',        extra: 'dodge',  name: 'Sirokks Sandring',    text: 'Rinnt dir nie durch die Finger. Alles andere schon.' },
+  { id: 'sig-trommel',   boss: 'enel',      base: 'amulett',     extra: 'spd',    name: 'Zirrus’ Trommelamulett',   text: 'Brummt leise, wenn es gewittert. Also ständig.' },
+  { id: 'sig-haiweste',  boss: 'hody',      base: 'weste',       extra: 'atk',    name: 'Grimmflosses Haifischweste',    text: 'Zäh, nass und schlecht gelaunt.' },
+  { id: 'sig-zielkompass', boss: 'vander',  base: 'kompass',     extra: 'crit',   name: 'Ankerlos’ Zielkompass',    text: 'Zeigt immer auf das, was du gerade angefasst hast.' },
+  { id: 'sig-taubentuch', boss: 'rob-lucci', base: 'kopftuch',   extra: 'dodge',  name: 'Kralls Taubenhalstuch',  text: 'Die Taube ist nicht im Lieferumfang.' },
+  { id: 'sig-stierhorn', boss: 'kaku',      base: 'entermesser', extra: 'spd',    name: 'Stelz’ Stierhorn-Klinge', text: 'Mit eckigem Griff. Wie die Nase.' },
+  { id: 'sig-schatten',  boss: 'moria',     base: 'perlen',      extra: 'dodge',  name: 'Dämmerlings Schattenkette',   text: 'Wirft einen Schatten. Manchmal sogar den eigenen.' },
+  { id: 'sig-bibel',     boss: 'kuma',      base: 'mantel',      extra: 'armor',  name: 'Tatz’ Bibelmantel',      text: 'Schwer, ruhig und völlig unbeeindruckt.' }
 ];
 GL.data.crewGear.sigChance = { base: 0.4, wish: 0.75 };   // Anteil der epischen/legendären Drops dieses Bosses, die sein Fundstück sind
 GL.data.crewGear.wishMax = 3;

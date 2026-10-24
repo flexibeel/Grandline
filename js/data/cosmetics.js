@@ -56,7 +56,7 @@ GL.data.cosmetics = {
     { id: 'saphir',     name: 'Saphir',            req: { artifacts: 9 } },
     { id: 'smaragd',    name: 'Smaragd',           req: { heat: 2 } },
     { id: 'feuer',      name: 'Feuer',             req: { kos: 500 } },
-    { id: 'regenbogen', name: 'Seekönig-Schuppen', req: { wins: 10 } },
+    { id: 'regenbogen', name: 'Tiefseeriesen-Schuppen', req: { wins: 10 } },
     { id: 'seetang',    name: 'Seetang',           req: { islands: 12, runs: 20 } },
     { id: 'knochen',    name: 'Knochen',           req: { kos: 1200 } },
     { id: 'kaiser',     name: 'Kaiserlich',        req: { rank: 18, wins: 15 } },

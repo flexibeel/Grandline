@@ -8,7 +8,7 @@ GL.data.crewQuips = {
   ruffy: {
     ko: [['{n}! Steh auf, es gibt gleich Fleisch!', '{n}! Get up, there\'s meat soon!'], ['Hey! Das war MEIN Freund!', 'Hey! That was MY friend!']],
     close: [['Knapp. Aber satt werd ich trotzdem.', 'Close. Still hungry though.'], ['Hahaha! Fast tot! Nochmal?', 'Hahaha! Nearly dead! Again?']],
-    boss: [['Geschafft! Wer hat Hunger?', 'Done! Who\'s hungry?'], ['Der war zäher als Seekönig-Steak.', 'Tougher than Sea King steak.']],
+    boss: [['Geschafft! Wer hat Hunger?', 'Done! Who\'s hungry?'], ['Der war zäher als Tiefseeriesen-Steak.', 'Tougher than Deep Giant steak.']],
     party: [['Wir sind jetzt richtig berühmt! Gibt\'s dafür Fleisch?', 'We\'re properly famous now! Does that come with meat?']]
   },
   zorro: {
