@@ -1950,7 +1950,6 @@
       case 'hq-tab': if (GL.meta.featureOpen(profile, el.dataset.tab)) {
         // Wie in einer App: Raum gleitet herein (seitlich innerhalb einer Gruppe, sonst von unten)
         const prevRoom = ui.hqRoom;
-        if (['stammcrew', 'schmiede', 'lager', 'kammer'].includes(el.dataset.tab)) ui.crewLast = el.dataset.tab;
         ui.hqTab = el.dataset.tab; ui.hqRoom = el.dataset.tab; draw(); window.scrollTo(0, 0);
         const st = document.getElementById('stage');
         if (st && prevRoom !== ui.hqRoom) { st.classList.remove('room-in', 'room-side'); void st.offsetWidth; st.classList.add(prevRoom && el.closest('.room-seg') ? 'room-side' : 'room-in'); } if (/rangliste|stammcrew/.test(ui.hqTab) && GL.online && GL.online.refresh) GL.online.refresh(); } break;
