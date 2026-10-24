@@ -3539,7 +3539,7 @@ window.GL = window.GL || {};
     const r = petRumor(profile), st = GL.meta.albumStep(profile);
     const FEM = ['moewe', 'krabbe', 'kaluente', 'teleschnecke', 'taube', 'fledermaus', 'qualle', 'goldschnecke', 'schatzkrabbe'];
     const nm = r ? r.name.replace(/^(Kleine[rs]?) /, m => m.toLowerCase()) : '';
-    const rumor = r ? `<button class="hook-row" data-act="album" data-tab="pets">
+    const rumor = r && !areaOpen(profile, 'taverne') ? `<button class="hook-row" data-act="album" data-tab="pets">
         <i class="hook-ico pet-sil">${petArt(r.id)}</i>
         <span><small>Hafengerücht</small><b>Auf ${esc(islName(r.isl))} soll ${FEM.includes(r.id) ? 'eine' : 'ein'} ${esc(nm)} leben</b></span></button>` : '';
     const nx = st.next;
@@ -4875,7 +4875,11 @@ window.GL = window.GL || {};
       sub: p => GL.meta.featureOpen(p, 'daily') && !GL.daily.done(p) ? 'Tageskarte offen' : GL.skills && GL.meta.featureOpen(p, 'gemuet') && GL.skills.free(p) ? `✦ ${GL.skills.free(p)} frei` : 'Ausbauten' },
     { id: 'tafel', name: 'Auftragstafel', short: 'Tafel', art: 'scroll', always: true, acts: ['landgang', 'jagd'], sub: p => ROOMS[0].sub(p) },
     { id: 'kontor', name: 'Kontor', art: 'chest', sub: (p, rooms) => rooms.includes('kontor') ? ROOMS.find(r => r.id === 'kontor').sub(p) : ROOMS.find(r => r.id === rooms[0]).sub(p) },
-    { id: 'taverne', name: 'Taverne', art: 'tavern', sub: (p, rooms) => rooms.includes('stammcrew') ? ROOMS.find(r => r.id === 'stammcrew').sub(p) : 'Rangliste' }
+    { id: 'taverne', name: 'Taverne', art: 'tavern', sub: (p, rooms) => {
+      const rum = petRumor(p);
+      if (rum) return `Gerücht: ${esc(rum.name)} auf ${esc(islName(rum.isl))}`;
+      return rooms.includes('stammcrew') ? ROOMS.find(x => x.id === 'stammcrew').sub(p) : 'Rangliste';
+    } }
   ];
   const areaArt = a => a === 'tavern' ? GL.sprites.icon('node', 'recruit') : roomArt(a);
   const groupOf = id => Object.keys(ROOM_GROUPS).find(g => ROOM_GROUPS[g].includes(id)) || null;

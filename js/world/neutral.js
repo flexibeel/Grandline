@@ -58,6 +58,8 @@ GL.worlds.neutral = {
     'Water 7': 'Wasserstadt',
     'Seezug Puffing Tom': 'Dampfzug',
     'Turm des Gerichts': 'Turm des Urteils',
+    'Sabaody Archipel': 'Blasenarchipel',
+    'Thriller Bark': 'Schauerbarke',
     // ---------- Banden ----------
     'Strohhutbande': 'Sturmmöwen',
     'Strohhut': 'Sturmmöwe',
