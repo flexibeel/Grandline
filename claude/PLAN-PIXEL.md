@@ -41,4 +41,4 @@ Board **„Pixel-Probe 24 × 30“** (Design-Artefakt in Felix' Account: claude.
 - Gesicht: Augen 2 × 3 (Lichtpunkt, Pupille, Iris), Brauen, Mund. Gefühle: normal, froh (Lächeln + Wangen), sauer (schräge Brauen, Mund runter), müde (Lider halb zu, Schweißtropfen), erschrocken (große weiße Augen, offener Mund). Blinzeln: Strich unten, Atmen: Oberkörper bis Gürtel 1 Pixel tiefer.
 - Leistung: Pixel einer Farbe werden zeilenweise zusammengefasst, eine Figur hat so 260–340 Rechtecke (heute ca. 150 je Bild, mit Angriffsbild doppelt). Also kein Problem im Kampf.
 - Nicht in der Probe: Angriffsposen (Schritt 4), weitere Hüte und Masken (Schritt 2). Hut, Stirnband und lange Haare sind nur für diese drei neu gezeichnet. Die Looks selbst (Strohhut usw.) sind noch die alten und werden in C4 eigenständig.
-- **Offen: Felix' Wahl** (siehe Fahrplan „Letzte Übergabe“).
+- **Entschieden (Felix per Klick, 24.10.):** Grundkörper so, alle 5 Gefühle so, Umriss und Schatten so, Augen 2 × 3 so. `px24.js` ist damit die Vorlage für den Umbau von `sprites.js` in C4.
