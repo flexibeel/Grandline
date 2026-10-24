@@ -63,6 +63,7 @@
   "js/engine/seekarte.js",
   "js/engine/crewgear.js",
   "js/engine/mastery.js",
+  "js/engine/gedaechtnis.js",
   "js/engine/meta.js",
   "js/engine/kontor.js",
   "js/engine/squad.js",

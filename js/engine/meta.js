@@ -183,6 +183,8 @@ window.GL = window.GL || {};
         Object.keys(other.dungeons).forEach(id => { const a = p.dungeons[id] || {}, b = other.dungeons[id] || {};
           p.dungeons[id] = { clears: Math.max(a.clears || 0, b.clears || 0), day: [a.day, b.day].filter(Boolean).sort().pop() || null }; });
       }
+      // F0 Weltgedächtnis: nichts vergessen, pro Eintrag der öfter erlebte Stand
+      if (GL.gedaechtnis && (base.world || other.world)) p.world = GL.gedaechtnis.merge(base.world, other.world);
       // DUNGEON-SUCHE: Seekarte vereinen (gefundene Orte, gelichteter Nebel)
       if (GL.seekarte) {
         const had = [base.sk, other.sk].filter(x => x && x.v).length;
@@ -898,6 +900,8 @@ window.GL = window.GL || {};
       profile.lastLoot = (run.loot || []).slice();
       // Crew-Ausrüstung für die Stammcrew (ab Freischaltung)
       profile.lastGear = GL.cgear && GL.meta.featureOpen(profile, 'stammcrew') ? GL.cgear.drops(profile, run).map(x => x.uid) : [];
+      // F0 Weltgedächtnis: was die Welt sich in dieser Fahrt gemerkt hat (auch bei abgebrochenen Fahrten)
+      profile.lastMerk = GL.gedaechtnis ? GL.gedaechtnis.apply(profile, run) : 0;
       // Lebenslange Rekorde für Kosmetik und Rangliste
       const S = run.stats || {};
       const R = profile.records || (profile.records = { kos: 0, maxHit: 0, dmg: 0 });

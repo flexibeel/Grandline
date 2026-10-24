@@ -848,6 +848,7 @@
       forms: GL.forms ? GL.forms.startMap(profile) : {},
       fboni: GL.forms ? GL.forms.startBoni(profile) : {},
       herz: ((profile.stats && profile.stats.runs) || 0) >= 1,   // 4D Crew mit Gefühlen ab Fahrt 2
+      world: GL.gedaechtnis ? GL.gedaechtnis.snap(profile) : undefined,   // F0 Weltgedächtnis (Kopie)
       ramp: true,
       deck: true, rank: GL.meta.rankIndex(profile)   // CREW-START: Crew vor dem Ablegen aufstellen
     });

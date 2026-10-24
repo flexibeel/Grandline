@@ -797,7 +797,11 @@ window.GL = window.GL || {};
     const ep = (GL.data.crewEpisodes || []).find(e => e.id === run.epi.id);
     if (!ep) { run.epi = null; return; }
     let id = `ep-${ep.id}-${n}`;
-    if (n === 3) { const v = ep.third.find(x => x.need && run.epi.flags.includes(x.need)) || ep.third.find(x => !x.need); id = v ? v.id : null; }
+    if (n === 3) {
+      const v = ep.third.find(x => x.need && run.epi.flags.includes(x.need)) || ep.third.find(x => !x.need); id = v ? v.id : null;
+      // F0: wie die Folge ausging, merkt sich die Welt (erst nach finishRun im Profil). Kein Zufallszug
+      if (v && GL.gedaechtnis) { const isl = chapterIsland(run) || GL.data.seaOf(run, islandIndex(run)); GL.gedaechtnis.note(run, { k: 'bekannte', id: ep.id, ende: v.need || 'neutral', wo: isl && isl.id }); }
+    }
     if (!id || !(GL.data.crewEvents || []).some(e => e.id === id)) { run.epi.part = n; return; }
     run.epi.part = n;
     run.ceChap = run.epi.chap;   // kein zusätzliches Zwischen-Event in diesem Kapitel
@@ -1521,6 +1525,8 @@ window.GL = window.GL || {};
           endlessSea: Number.isInteger(p.endlessSea) ? p.endlessSea : null,
           ramp: !!p.ramp,
           herz: !!p.herz,   // 4D Crew mit Gefühlen (ab Fahrt 2); fehlt in alten Replays = aus
+          // F0 Weltgedächtnis: Kopie beim Ablegen, die Fahrt liest nur diese. Fehlt in alten Replays = die Fahrt merkt nichts
+          world: p.world && GL.gedaechtnis ? GL.gedaechtnis.clean(p.world) : undefined,
           arts: (p.arts || []).map(a => ({ id: a.id, lvl: a.lvl })),
           items: (p.items || []).map(x => ({ uid: x.uid, id: x.id, r: x.r, lvl: x.lvl || 0 })),
           skills: skillBonus(p.skills),
