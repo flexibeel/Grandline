@@ -1,8 +1,8 @@
 // Service Worker: macht das Spiel offline spielbar (Seite, Skripte, Bilder bleiben zwischengespeichert).
 // Version und Dateiliste trägt tools/bump-version.py beim Live-Gang ein. Im Zweig stehen Platzhalter,
 // dann merkt sich der Worker nur ./ und index.html. NICHT von Hand eintragen.
-const V = '2026-10-24a';
-const FILES = [/*FILES*/"./","index.html","css/style.min.css?v=2026-10-24a","js/build/core.min.js?v=2026-10-24a","js/build/en.min.js?v=2026-10-24a","js/build/tail.min.js?v=2026-10-24a","manifest.webmanifest","legal.html","img/apple-touch-icon.png","img/icon-192.png","img/icon-512.png","img/icon-maskable.png","img/og-launch.png"/*END*/];
+const V = '2026-10-24b';
+const FILES = [/*FILES*/"./","index.html","css/style.min.css?v=2026-10-24b","js/build/core.min.js?v=2026-10-24b","js/build/en.min.js?v=2026-10-24b","js/build/tail.min.js?v=2026-10-24b","manifest.webmanifest","legal.html","img/apple-touch-icon.png","img/icon-192.png","img/icon-512.png","img/icon-maskable.png","img/og-launch.png"/*END*/];
 
 const CACHE = 'gl-' + V;
 const SAME = self.location.origin;

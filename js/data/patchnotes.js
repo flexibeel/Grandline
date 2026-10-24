@@ -1,6 +1,11 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-24b', date: '24.10.', title: 'Eine Welt, die sich erinnert', items: [
+    '⚓ Die Welt merkt sich, was du erlebt hast: Wie eine Folge unterwegs ausgegangen ist, bleibt gespeichert, auch wenn du die Fahrt abbrichst',
+    '👋 Triffst du später auf eine Folge, die du schon kennst, läuft sie nicht von vorn. Es gibt ein Wiedersehen: Kapitän Korken, der Leuchtturmwärter, der Nebelkapitän oder der Händler erinnern sich an damals, und deine neue Wahl kann ihr Verhältnis zu dir ändern',
+    '🔖 Wahlen, die sich die Welt merkt, tragen das Siegel „Das merkt sich die Welt“. Pro Fahrt gibt es höchstens ein Wiedersehen',
+    '😊 Auch Crew-Ereignisse machen Figuren froh oder erschöpft: Wer beim Probieren, Mitsingen oder Mittrainieren dabei war, zeigt es danach als Abzeichen im Ergebnis' ] },
   { v: '2026-10-24a', date: '24.10.', title: 'Eine Crew mit Gefühlen', items: [
     '😊 Deine Crew hat jetzt Gefühle: Ein Lieblingsessen bei der Rast oder ein starker Auftritt im Bosskampf macht eine Figur froh, dann ist sie für zwei Kämpfe +1 Tempo schneller',
     '😮‍💨 Wer in einer Fahrt zweimal K.o. geht, ohne dazwischen zu rasten, ist erschöpft und hat im nächsten Kampf 20 % weniger Leben. Eine Rast hilft. Der Kapitän bleibt immer standhaft',
