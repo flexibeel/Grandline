@@ -97,4 +97,18 @@ Board **„Storyboard: Die ersten 10 Minuten“** (Design-Artefakt in Jans Accou
 - **Wortwahl `mood`:** `run.mood` ist schon belegt (Meer-Stimmung wie „goldrausch“, „flaute“). Crew-Gefühle (Säule 4D) brauchen einen anderen Namen.
 - Die Taverne in Fahrt 1 zeigt drei Figuren mit kurzem Satz statt Werten. Preise bleiben (Gold ist schon in Fahrt 1 da).
 
-**Offen:** Felix schaut das Board an und nickt ab oder markiert, wo es hakt (Kommentare direkt am Board).
+**Felix' Klick-Runde (24.10., 20. Chat):** Alle drei Reihen **abgenickt wie gezeichnet**. Bunko bekommt eine **eigene leichte Signatur-Ansage** (Vorschlag „Konfetti-Kanone“), die erste Insel bleibt Orangenhafen. Das Board selbst war aus Felix' Account nicht lesbar (liegt bei Jan), abgestimmt wurde nach der Beschreibung oben.
+
+## 7. Taverne: nur wer dir schon begegnet ist (Felix, 24.10.)
+**Problem (Felix):** Beim Run-Start sitzen in der Taverne Leute, die man nie freigeschaltet oder getroffen hat. Grund im Code: `shopOffers` (`js/engine/run.js` ~Z. 190) zieht aus `availableCrew`, also allen Figuren ohne `locked` (rund 19 Grundfiguren) plus den freigeschalteten. Die Grundfiguren hat man nie kennengelernt.
+
+**Entschieden (Felix per Klick):**
+- **In der Taverne sitzt nur, wen du kennst.** Neue Figuren lernt man **unterwegs** kennen (auf Inseln, in den Folgen, als Bekannte aus `PLAN-WELT-MERKT.md`, durch Freischaltungen), erst danach tauchen sie in der Taverne auf. Passt zum Leitbild „Welt erkunden“.
+- **Startrunde in Fahrt 1: die feste Crew aus vier plus zwei Gäste**, die man in der ersten Taverne trifft (die zwei sind damit ab dann bekannt).
+
+**Für die Bau-Phase (Vorschlag, Opus):**
+- Neues Profilfeld `profile.kennt` (Liste von Figuren-IDs), Standard: **alle, die schon einmal in deiner Crew waren** (Schlüssel aus `profile.squadXp`) plus die Startrunde. So verliert kein bestehender Spieler eine Figur, keine Migration nötig.
+- `availableCrew` filtert zusätzlich auf `kennt`. `locked`/`unlocks.js` bleiben, eine Freischaltung setzt die Figur gleich mit auf `kennt`.
+- „Kennenlernen“ als Merkzeichen im Weltgedächtnis (F0): Begegnung auf einer Insel oder in einer Folge → nach `finishRun` auf `kennt`. In der Fahrt nur gelesen (Kopie in `run.start`), replay-sicher.
+- Damit die Taverne nicht leer läuft: Kennt man weniger Figuren als Plätze, füllt eine Begegnung den Rest auf („Neu im Hafen“, einmalig), danach ist sie bekannt.
+- Wechselwirkung: Banden-/Stil-Gewichtung (`factionWeight`, `typeWeight`) und Vertrauter (`run.buddy`) bleiben unverändert, sie arbeiten dann auf der kleineren Liste. Mit `tools/balance.html` prüfen, ob Banden-Boni bei kleiner Liste noch erreichbar sind.

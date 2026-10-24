@@ -1,6 +1,6 @@
 # Plan 4D: Crew mit Gefühlen
 
-Stand 24.10.2026. **Nur Plan, nichts gebaut.** Säule 4D aus dem Leitbild (`claude/PLAN-FOLGEN.md`), zwei Klick-Runden mit Jan (19. Chat), alle acht Antworten wie empfohlen. Grundregel aus dem Leitbild: **Pause und Versöhnung, nie Verlust.** Eine Figur verlässt die Crew nie.
+Stand 24.10.2026. **Nur Plan, nichts gebaut. Von Felix freigegeben (24.10., 20. Chat) mit zwei Änderungen: erschöpft milder, Streit seltener.** Säule 4D aus dem Leitbild (`claude/PLAN-FOLGEN.md`), zwei Klick-Runden mit Jan (19. Chat), alle acht Antworten wie empfohlen. Grundregel aus dem Leitbild: **Pause und Versöhnung, nie Verlust.** Eine Figur verlässt die Crew nie.
 
 ## 1. Was es schon gibt (geprüft im Code)
 - **Vertrautheit je Figur** `profile.squadXp`, Stufen über `GL.meta.squadBonus` (`js/engine/meta.js` ~Z. 431), wächst nach jeder Fahrt über `runBond`.
@@ -18,6 +18,8 @@ Stand 24.10.2026. **Nur Plan, nichts gebaut.** Säule 4D aus dem Leitbild (`clau
 | Wirkung im Kampf | **Klein, aber spürbar** |
 | Was bleibt nach der Fahrt | **Erinnerungen und Paare**, die Stimmung selbst gilt nur in der Fahrt |
 | Gefühle | **Drei: froh, erschöpft, verstimmt**, dazu „normal“ |
+| **Felix (24.10.): erschöpft** | **milder: −20 % Leben im nächsten Kampf** statt aussetzen |
+| **Felix (24.10.): Streit** | **seltener**: nicht jede Fahrt, höchstens jede zweite bis dritte |
 | Versöhnung | **Gespräch am Steg** mit Antwort-Wahl |
 | Streit zwischen Figuren | **Ja, selten, du schlichtest** |
 | Start | **Ab Fahrt 2 mit kurzer Szene**, in Fahrt 1 nur ein Hauch |
@@ -26,11 +28,11 @@ Stand 24.10.2026. **Nur Plan, nichts gebaut.** Säule 4D aus dem Leitbild (`clau
 | Gefühl | Wie es entsteht (Auslöser) | Wirkung in der Fahrt | Wie es endet |
 |---|---|---|---|
 | **froh** | Lieblingsessen bei der Rast, beste Figur im Bosskampf, eine Ereignis-Wahl zu ihren Gunsten | **+1 Tempo** (Startwert, mit `tools/balance.html` messen), Freudenspruch beim nächsten Kampf | nach 2 Kämpfen wieder normal |
-| **erschöpft** | **zweimal K.o. ohne Rast dazwischen** | **setzt den nächsten Kampf aus** (sitzt sichtbar an Deck), danach normal | nach dem ausgesetzten Kampf oder bei Rast |
+| **erschöpft** | **zweimal K.o. ohne Rast dazwischen** | **−20 % Leben im nächsten Kampf** (kämpft mit, sieht müde aus; Felix 24.10., statt aussetzen) | nach dem nächsten Kampf oder bei Rast |
 | **verstimmt** | eine Ereignis-Wahl gegen sie, ein Streit, bei dem du die andere Seite nimmst | **kein Duo-Schub und kein Duo-Spruch** mit ihr, sonst volle Werte | Ende der Fahrt, aber dann bleibt die **Bitte um ein Gespräch** am Steg |
 
 Regeln, damit es nie nervt:
-- **Höchstens eine erschöpfte Figur gleichzeitig**, und nie, wenn sonst weniger als 3 kämpfen würden. Der eigene Pirat (`self`) wird nie erschöpft oder verstimmt, er ist der Kapitän.
+- **Höchstens eine erschöpfte Figur gleichzeitig.** Der eigene Pirat (`self`) wird nie erschöpft oder verstimmt, er ist der Kapitän.
 - Gefühle **überschreiben sich**: Ein neues Gefühl ersetzt das alte. Keine Stapel.
 - **Paare:** Haben zwei Figuren hohe Paar-Vertrautheit (`pairXp`) und sind **beide froh**, gibt es einen Duo-Spruch und einen kleinen Schub (Vorschlag: beide +5 % Angriff in diesem Kampf). Das macht Freundschaften im Kampf sichtbar, ohne neue Systeme.
 
@@ -39,7 +41,7 @@ Regeln, damit es nie nervt:
 2. **Lieblingsessen:** Bei einer Rast kocht der Smutje manchmal das Lieblingsessen einer Figur (aus `crewlife.js`, `food`). Die Figur wird froh. Kein neuer Knoten nötig.
 3. **Beste Figur im Bosskampf:** wer den meisten Schaden gemacht hat, wird froh („Habt ihr das gesehen?!“).
 4. **Ereignis-Wahlen:** Ausgewählte Ereignisse bekommen ein Feld **`herz`** neben `outcome` (wie `merk` aus 4A), z. B. `{ herz: { froh: 'nami' } }` oder „die Figur, die du schickst, wird erschöpft“. Start mit **6 bis 8 Ereignissen**, Texte Sonnet.
-5. **Streit (höchstens einer pro Fahrt):** ein neues Crew-Zwischen-Ereignis „Zwei streiten“ (Muster `events2.js` bis `events5.js`): Zwei Figuren aus der Crew sind uneins (wer kocht, wer steuert, wer den Schatz trägt). Drei Antworten:
+5. **Streit (selten, Felix 24.10.: höchstens jede zweite bis dritte Fahrt, z. B. frühestens zwei Fahrten nach dem letzten Streit, gemerkt in `profile.world`):** ein neues Crew-Zwischen-Ereignis „Zwei streiten“ (Muster `events2.js` bis `events5.js`): Zwei Figuren aus der Crew sind uneins (wer kocht, wer steuert, wer den Schatz trägt). Drei Antworten:
    - Figur A recht geben: A froh, B verstimmt.
    - Figur B recht geben: B froh, A verstimmt.
    - **Schlichten:** kostet etwas (eine Runde Gold für alle oder die nächste Rast heilt weniger), beide bleiben normal, die Paar-Vertrautheit wächst ein Stück.
@@ -59,16 +61,16 @@ Regeln, damit es nie nervt:
 
 ## 7. Start ab Fahrt 2
 - **Fahrt 1:** nur ein Hauch. Die Antwort am Steg (Storyboard Minute 0,5) kommt als Spruch zurück, z. B. Santo backt dir in Fahrt 2 doch noch Kuchen. Keine Gefühle-Regeln.
-- **Fahrt 2:** Nach dem ersten Auslöser eine kurze Szene: Nela merkt, dass Rafe müde ist („Der hat zweimal einen Schlag kassiert. Lass ihn mal sitzen.“). Das erklärt das System einmal, danach läuft es still.
+- **Fahrt 2:** Nach dem ersten Auslöser eine kurze Szene: Nela merkt, dass Rafe müde ist („Der hat zweimal einen Schlag kassiert. Der pfeift aus dem letzten Loch.“). Das erklärt das System einmal, danach läuft es still.
 - Freischaltung über `features.js` (neuer Eintrag, `runs: 1`), damit Rückkehrer es auch sofort mit der Szene bekommen.
 
 ## 8. Technik und Sicherheit (für die Bau-Phase)
 - **Replay-sicher:** `run.herz` ändert sich nur in der Engine (`run.js`) aus Ereignissen, die schon im Seed und in den Wahlen stecken (K.o., Rast, Bossende, Ereignis-Wahl). Ein Kampf liest die Gefühle **beim Start** als Eingabe (wie Wahl-Boni `run.start.fboni`), `GL.battle.simulate` bleibt deterministisch. Duelle und PvP (`kind === 'duel'`) bleiben ohne Gefühle.
 - **Spielstand:** In der Fahrt nur `run.herz` (kein Profilfeld). Nach `finishRun` schreibt das Spiel die Bitten um ein Gespräch und Logbuch-Zeilen ins Weltgedächtnis (F0). Alte Stände: `{}` als Standard, keine Migration. Cloud-Sync wie bei F0.
-- **Balance:** +1 Tempo und +5 % Angriff mit `tools/balance.html` messen (Siegquote vorher/nachher). Erschöpft kostet einen Kampf ohne die Figur, das muss bei kleinen Crews ausgeschlossen sein (Regel oben).
+- **Balance:** +1 Tempo und +5 % Angriff mit `tools/balance.html` messen (Siegquote vorher/nachher). Erschöpft (−20 % Leben) ebenfalls messen.
 - Neue Texte zweisprachig `[de, en]`, Namen über `neutral.js` prüfen (`?welt=neutral`).
 
-## 9. Reihenfolge (Bauen erst nach Felix' Okay)
+## 9. Reihenfolge (Plan von Felix freigegeben 24.10., Bauen erst nach eigenem Okay)
 | Schritt | Inhalt | Wer | Hängt an |
 |---|---|---|---|
 | G0 | Vorschau-Board: drei Figuren × drei Gefühle im Gesicht | Opus (Pixel) | PLAN-PIXEL-Entscheidung |
