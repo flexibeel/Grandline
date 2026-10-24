@@ -25,7 +25,7 @@ GL.data.en = Object.assign(GL.data.en || {}, {
   'Insel-Twist': 'Island twist', 'Markttag': 'Market Day', 'Mehr Tavernen auf der Karte. Heute ist viel los im Hafen.': 'More taverns on the map. The harbor is busy today.',
   'Steckbrief-Woche': 'Wanted Week', 'Mehr Kopfgeldjäger unterwegs: starke Gegner, dafür mehr Schätze.': 'More bounty hunters around: strong foes, but more treasure.',
   'Schatzinsel': 'Treasure Island', 'Mehr Schatztruhen und Teufelsfrüchte auf der Karte.': 'More treasure chests and devil fruits on the map.',
-  'Marine-Razzia': 'Marine Raid', 'Mehr besondere Gegner: Leibwachen, Sanitäter, Raufbolde.': 'More special foes: bodyguards, medics, brawlers.',
+  'Kronwacht-Razzia': 'Crown Guard Raid', 'Mehr besondere Gegner: Leibwachen, Sanitäter, Raufbolde.': 'More special foes: bodyguards, medics, brawlers.',
   'Stille Bucht': 'Quiet Bay', 'Mehr Rastplätze, alle Gegner sind 1 Tempo langsamer.': 'More resting spots, all foes have 1 less speed.',
   'Sturmflut': 'Storm Surge', 'Alle Gegner sind 1 Tempo schneller, dafür treiben mehr Früchte an.': 'All foes have 1 more speed, but more fruits wash ashore.'
 });

@@ -1,5 +1,5 @@
 // Meere in der Reihenfolge, in der sie besucht werden. Jedes Meer besteht aus zwei Insel-Kapiteln
-// wie in der Serie: erst eine kleine Insel (am Ende wartet ihr Bösewicht), dann eine große Insel
+// immer gleich: erst eine kleine Insel (am Ende wartet ihr Bösewicht), dann eine große Insel
 // (am Ende wartet der Boss des Meeres). Vor jedem Kapitel wählt man den Kurs: welche Insel als Nächstes?
 //
 //   small: kleine Inseln, pro Run werden 2 davon zur Wahl gestellt
@@ -11,108 +11,108 @@ window.GL = window.GL || {};
 GL.data = GL.data || {};
 
 GL.data.islands = [
-  { id: 'east-blue', name: 'East Blue', bosses: ['smoker', 'arlong'],
-    tagline: 'Das ruhigste der vier Meere. Hier beginnt jede Legende.',
+  { id: 'east-blue', name: 'Ostmeer', bosses: ['smoker', 'arlong'],
+    tagline: 'Das ruhigste Meer der Welt. Hier kennt jeder jeden, sogar die Möwen.',
     small: [
-      { id: 'shells-town', name: 'Shells Town', villain: 'morgan', lair: 'Marine-Basis 153',
-        text: 'Ein Marine-Kapitän regiert die Stadt mit eiserner Axt.', places: ['Hafen', 'Marktgasse'], bias: ['battle'] },
-      { id: 'orange-town', name: 'Orange Town', villain: 'buggy', lair: 'Zirkuszelt',
-        text: 'Die Stadt ist leer, der Clown und seine Bande haben sie besetzt.', places: ['Verlassene Straßen', 'Tierladen'], bias: ['recruit'] },
-      { id: 'syrup', name: 'Syrup', villain: 'kuro', lair: 'Kayas Anwesen',
-        text: 'Ein friedliches Dorf. Doch der Butler plant etwas Finsteres.', places: ['Küstenhang', 'Dorfplatz'], bias: ['rest'] },
-      { id: 'baratie', name: 'Baratie', villain: 'krieg', lair: 'Restaurant-Deck',
-        text: 'Ein schwimmendes Restaurant. Ein ausgehungerter Pirat will es kapern.', places: ['Offene See', 'Küche'], bias: ['rest', 'fruit'] },
+      { id: 'shells-town', name: 'Zollhafen', villain: 'morgan', lair: 'Wachhaus am Pier',
+        text: 'Ein Hafen mit mehr Schranken als Schiffen. Die Kronwacht verzollt hier sogar das Wetter.', places: ['Hafen', 'Zollgasse'], bias: ['battle'] },
+      { id: 'orange-town', name: 'Gauklerbucht', villain: 'buggy', lair: 'Großes Zelt',
+        text: 'Die Stadt ist leer, nur die Zeltstangen klappern. Eine Narrenbande hat sich einquartiert und verlangt Applaus.', places: ['Leere Gassen', 'Tierladen'], bias: ['recruit'] },
+      { id: 'syrup', name: 'Honigtal', villain: 'kuro', lair: 'Herrenhaus am Hang',
+        text: 'Ein Dorf, in dem nachmittags alle schlafen. Nur im Herrenhaus brennt nachts noch verdächtig lange Licht.', places: ['Küstenhang', 'Dorfplatz'], bias: ['rest'] },
+      { id: 'baratie', name: 'Suppenkahn', villain: 'krieg', lair: 'Kombüsendeck',
+        text: 'Ein Wirtshaus auf dem Wasser. Hungrige Piraten zahlen hier mit Ärger statt mit Talern.', places: ['Offene See', 'Küche'], bias: ['rest', 'fruit'] },
       // Remix (Großer Neustart): zwei neue Inseln im East Blue
-      { id: 'gecko-klippen', name: 'Gecko-Klippen', villain: 'jango', lair: 'Mondscheinklippe',
-        text: 'Steile Klippen über dem Meer. Ein Hypnotiseur lässt hier ganze Dörfer schlafen.', places: ['Pendelpfad', 'Leuchtfeuer'], bias: ['fruit', 'rest'] },
-      { id: 'eisenbucht', name: 'Eisenbucht', villain: 'gin', lair: 'Rostiges Wrack',
-        text: 'Eine Bucht voller Schiffswracks. Ein ausgehungerter Kampfmeister lauert im Rost.', places: ['Wrackfeld', 'Ankerfriedhof'], bias: ['elite', 'battle'] }
+      { id: 'gecko-klippen', name: 'Dämmerklippe', villain: 'jango', lair: 'Pendelfelsen',
+        text: 'Steile Felsen im Abendrot. Wer hier zu lange aufs Meer starrt, schläft im Stehen ein.', places: ['Pendelpfad', 'Leuchtfeuer'], bias: ['fruit', 'rest'] },
+      { id: 'eisenbucht', name: 'Rostbucht', villain: 'gin', lair: 'Rostiges Wrack',
+        text: 'Eine Bucht voller Schiffswracks. Im Rost lauert jemand, der seit Tagen nichts gegessen hat und entsprechend gelaunt ist.', places: ['Wrackfeld', 'Ankerfriedhof'], bias: ['elite', 'battle'] }
     ],
     big: [
-      { id: 'loguetown', name: 'Loguetown', boss: 'smoker', lair: 'Hinrichtungsplatz', villains: ['buggy', 'pearl', 'morgan'], bias: ['recruit'],
-        text: 'Die Stadt des Anfangs und des Endes. Ein Marine-Jäger wartet.', places: ['Hafenviertel', 'Marktplatz'] },
-      { id: 'arlong-park', name: 'Arlong Park', boss: 'arlong', lair: 'Arlong Park', villains: ['hatchan', 'pearl', 'chew'], bias: ['battle'],
-        text: 'Fischmenschen haben die Inselgruppe unterworfen.', places: ['Kokos', 'Mandarinenhain'] }
+      { id: 'loguetown', name: 'Salzhafen', boss: 'smoker', lair: 'Glockenplatz', villains: ['buggy', 'pearl', 'morgan'], bias: ['recruit'],
+        text: 'Der letzte große Hafen vor der Strömung. Wer hier ablegt, kommt anders zurück, falls überhaupt.', places: ['Hafenviertel', 'Marktplatz'] },
+      { id: 'arlong-park', name: 'Flossenriff', boss: 'arlong', lair: 'Riff-Festung', villains: ['hatchan', 'pearl', 'chew'], bias: ['battle'],
+        text: 'Eine Bande aus der Tiefe hat die Dörfer am Riff besetzt. Sie verlangt Zoll in Muscheln, und zwar in großen.', places: ['Palmendorf', 'Zitronenhain'] }
     ] },
 
-  { id: 'paradies', name: 'Paradies', bosses: ['crocodile', 'enel'],
-    tagline: 'Die erste Hälfte der Grand Line. Wüsten, Himmelsinseln und Verrat.',
+  { id: 'paradies', name: 'Wilde See', bosses: ['crocodile', 'enel'],
+    tagline: 'Sand, Wolken und Dschungel. Hier ist das Wetter die lauteste Figur an Bord.',
     small: [
-      { id: 'whisky-peak', name: 'Whisky Peak', villain: 'mr9', lair: 'Festhalle',
-        text: 'Die Bewohner feiern jeden Piraten. Zu freundlich, um wahr zu sein.', places: ['Kakteenhafen', 'Willkommensfest'], bias: ['recruit'] },
-      { id: 'little-garden', name: 'Little Garden', villain: 'mr3', lair: 'Kerzenhaus',
-        text: 'Ein Urzeit-Dschungel, auf dem zwei Riesen seit hundert Jahren kämpfen.', places: ['Urwald', 'Riesenlager'], bias: ['fruit'] },
-      { id: 'drumm', name: 'Drumm', villain: 'wapol', lair: 'Schloss auf dem Gipfel',
-        text: 'Eine Winterinsel ohne Ärzte. Der alte König will zurück.', places: ['Schneefeld', 'Bighorn'], bias: ['rest'] },
-      { id: 'jaya', name: 'Jaya', villain: 'bellamy', lair: 'Mock Town',
-        text: 'Eine Stadt der Spötter, die nicht an Träume glauben.', places: ['Küstenwald', 'Tavernenviertel'], bias: ['treasure'] },
-      // Remix: der Eingang zur Grand Line als eigene Insel
-      { id: 'zwillingskap', name: 'Zwillingskap', villain: 'mr4', lair: 'Leuchtturm am Kap',
-        text: 'Ein Riesenwal rammt seit fünfzig Jahren den Red Line. Am Leuchtturm lauert ein Agent mit Bombenhund.', places: ['Walbauch', 'Rückwärtsberg'], bias: ['fruit', 'rest'] }
+      { id: 'whisky-peak', name: 'Feierspitze', villain: 'mr9', lair: 'Festhalle',
+        text: 'Die Bewohner feiern jeden Piraten, der anlegt. Zu freundlich, um wahr zu sein.', places: ['Willkommenstor', 'Lampiongasse'], bias: ['recruit'] },
+      { id: 'little-garden', name: 'Urwaldkap', villain: 'mr3', lair: 'Moosige Hütte',
+        text: 'Ein Dschungel, in dem die Bäume älter sind als jede Seekarte. Irgendwo grollt es seit hundert Jahren.', places: ['Urwald', 'Knochenlichtung'], bias: ['fruit'] },
+      { id: 'drumm', name: 'Frostspitze', villain: 'wapol', lair: 'Gipfelburg',
+        text: 'Eine Winterinsel ohne Ärzte, aber mit sehr viel Schnee. Oben auf dem Gipfel friert jemand beleidigt vor sich hin.', places: ['Schneefeld', 'Eisdorf'], bias: ['rest'] },
+      { id: 'jaya', name: 'Spötterküste', villain: 'bellamy', lair: 'Großmaul-Taverne',
+        text: 'Hier lacht man über jeden, der noch träumt. Am lautesten lachen die, die nie abgelegt haben.', places: ['Küstenwald', 'Tavernenviertel'], bias: ['treasure'] },
+      // Remix: der Eingang zur Strömung als eigene Insel
+      { id: 'zwillingskap', name: 'Walkap', villain: 'mr4', lair: 'Leuchtturm am Kap',
+        text: 'Hier biegt die Strömung bergauf ab. Ein Riesenwal schwimmt seit Jahren gegen den Fels, und am Leuchtturm wartet Ärger mit Zündschnur.', places: ['Walbauch', 'Steilstrom'], bias: ['fruit', 'rest'] }
     ],
     big: [
-      { id: 'alabasta', name: 'Alabasta', boss: 'crocodile', lair: 'Alubarna', villains: ['mr1', 'mr4', 'zala'], bias: ['treasure'],
-        text: 'Ein Wüstenkönigreich am Rand des Bürgerkriegs.', places: ['Sandora-Wüste', 'Rainbase'] },
-      { id: 'skypiea', name: 'Skypiea', boss: 'enel', lair: 'Upper Yard', villains: ['ohm'], bias: ['fruit'],
-        text: 'Eine Insel über den Wolken, beherrscht von einem selbsternannten Gott.', places: ['Weiße See', 'Angel Beach'] }
+      { id: 'alabasta', name: 'Glutwüste', boss: 'crocodile', lair: 'Sonnenpalast', villains: ['mr1', 'mr4', 'zala'], bias: ['treasure'],
+        text: 'Ein Wüstenkönigreich, in dem es seit Jahren nicht geregnet hat. Ein Sandsturm zieht durchs Land, und er hat einen Besitzer.', places: ['Dünenmeer', 'Spielstadt'] },
+      { id: 'skypiea', name: 'Wolkenhof', boss: 'enel', lair: 'Himmelstempel', villains: ['ohm'], bias: ['fruit'],
+        text: 'Eine Insel auf den Wolken, an nichts festgebunden. Wer hier oben das Wetter macht, hält sich für unfehlbar.', places: ['Wolkenmeer', 'Sonnenstrand'] }
     ],
     // Zweite Route für das zweite Meer (ab Rang 12, feature 'route2'): zehntausend Meter unter dem Meer
-    alt: { id: 'fischmenschen', name: 'Fischmenscheninsel', feature: 'route2', bosses: ['hody', 'vander'],
-      tagline: 'Zehntausend Meter tief, unter einer Blase aus Licht. Nicht jeder hier mag Menschen.',
+    alt: { id: 'fischmenschen', name: 'Tiefsee', feature: 'route2', bosses: ['hody', 'vander'],
+      tagline: 'Tief unter der Strömung, in einer Blase aus Licht. Das Flossenvolk mag Gäste, nur nicht alle.',
       small: [
-        { id: 'tiefsee', name: 'Tiefsee', villain: 'hyouzou', lair: 'Wrack im Dunkeln',
-          text: 'Je tiefer das Schiff sinkt, desto dunkler wird es. Ein Schwertkämpfer wartet im Wrack.', places: ['Laternenfische', 'Sinkende Blase'] },
-        { id: 'korallenhuegel', name: 'Korallenhügel', villain: 'zeo', lair: 'Korallentor',
-          text: 'Bunte Korallen und Meerjungfrauen-Cafés. Irgendwer ist hier unsichtbar.', places: ['Blasenstraße', 'Meerjungfrauen-Café'] },
-        { id: 'fischmenschen-viertel', name: 'Fischmenschen-Viertel', villain: 'daruma', lair: 'Verlassene Gasse',
-          text: 'Ein vergessenes Viertel am Rand der Insel. Hier gräbt sich einer durch den Boden.', places: ['Muschelmarkt', 'Alte Brunnen'] },
-        { id: 'meerwald', name: 'Meereswald', villain: 'dosun', lair: 'Lichtung der Wurzeln',
-          text: 'Ein stiller Wald aus Licht und Seetang. Ein Hammerhai bewacht den Weg.', places: ['Wurzelgrab', 'Schiffsfriedhof'] }
+        { id: 'tiefsee', name: 'Laternengrund', villain: 'hyouzou', lair: 'Wrack im Dunkeln',
+          text: 'Je tiefer das Schiff sinkt, desto dunkler wird es. Im Wrack wartet jemand mit sehr scharfem Werkzeug.', places: ['Laternenfische', 'Sinkende Blase'] },
+        { id: 'korallenhuegel', name: 'Korallengasse', villain: 'zeo', lair: 'Korallentor',
+          text: 'Bunte Korallen und Cafés mit Meerblick von unten. Hier verschwinden ständig Dinge, und niemand sieht, wer.', places: ['Blasenstraße', 'Muschelcafé'] },
+        { id: 'fischmenschen-viertel', name: 'Flossenviertel', villain: 'daruma', lair: 'Verlassene Gasse',
+          text: 'Ein vergessenes Viertel am Rand der Blase. Unter dem Pflaster gräbt sich einer durch den Boden.', places: ['Muschelmarkt', 'Alte Brunnen'] },
+        { id: 'meerwald', name: 'Tangwald', villain: 'dosun', lair: 'Lichtung der Wurzeln',
+          text: 'Ein stiller Wald aus Licht und Seetang. Ein Hai mit Hammerkopf bewacht den Weg und nimmt das sehr ernst.', places: ['Leuchtwurzeln', 'Schiffsfriedhof'] }
       ],
       big: [
-        { id: 'gyoncorde', name: 'Gyoncorde-Platz', boss: 'hody', lair: 'Platz vor dem Palast', villains: ['ikaros', 'dosun'],
-          text: 'Der große Platz der Insel. Ein Hai mit Hass im Herzen will alles übernehmen.', places: ['Fischmenschen-Straße', 'Tribünen'] },
-        { id: 'ryugu', name: 'Ryugu-Palast', boss: 'vander', lair: 'Über dem Palast', villains: ['ikaros', 'zeo'],
-          text: 'Der Palast des Königs in einer Riesenblase. Über ihm schwebt ein ganzes Schiff.', places: ['Muschelhalle', 'Palastgarten'] }
+        { id: 'gyoncorde', name: 'Perlenplatz', boss: 'hody', lair: 'Vor dem Palast', villains: ['ikaros', 'dosun'],
+          text: 'Der große Platz der Tiefe. Ein Hai mit Groll im Herzen will hier Reden halten, die keiner hören will.', places: ['Flossenstraße', 'Tribünen'] },
+        { id: 'ryugu', name: 'Blasenpalast', boss: 'vander', lair: 'Über dem Palast', villains: ['ikaros', 'zeo'],
+          text: 'Der Palast des Flossenvolks in einer Riesenblase. Über ihm hängt ein Schiff, das da nicht hingehört.', places: ['Muschelhalle', 'Palastgarten'] }
       ] } },
 
-  { id: 'enies-lobby', name: 'Enies Lobby', bosses: ['rob-lucci', 'kaku'],
-    tagline: 'Die Justizinsel der Weltregierung. Ab hier gibt es kein Zurück.',
+  { id: 'enies-lobby', name: 'Gerichtsinsel', bosses: ['rob-lucci', 'kaku'],
+    tagline: 'Der Amtssitz der Krone. Für alles gibt es ein Formular, für die Rückfahrt keins.',
     small: [
-      { id: 'long-ring', name: 'Long Ring Long Land', villain: 'foxy', lair: 'Davy-Back-Arena',
-        text: 'Ein langgestrecktes Land. Ein Pirat fordert zum Crew-Wettkampf.', places: ['Grasebene', 'Festplatz'] },
-      { id: 'water-7', name: 'Water 7', villain: 'fukuro', lair: 'Galley-La-Werft',
-        text: 'Die Stadt der Schiffsbauer. Hinter den Kulissen lauern Agenten.', places: ['Kanäle', 'Franky-Haus'] },
-      { id: 'puffing-tom', name: 'Puffing Tom', villain: 'nero', lair: 'Lokomotive',
-        text: 'Ein Seezug durch den Sturm, voller Marinesoldaten.', places: ['Letzter Waggon', 'Mittelwagen'] },
-      { id: 'enies-gate', name: 'Enies Lobby Vorplatz', villain: 'spandam', lair: 'Hauptgebäude',
-        text: 'Das Haupttor der Justizinsel. Hier gibt der Chef der CP9 die Befehle.', places: ['Haupttor', 'Gerichtsstadt'] }
+      { id: 'long-ring', name: 'Windebene', villain: 'foxy', lair: 'Wettkampfarena',
+        text: 'Ein flaches Land, über das ständig der Wind pfeift. Eine Bande fordert zum Crew-Wettkampf, Einsatz: ein Mitglied.', places: ['Grasebene', 'Festplatz'] },
+      { id: 'water-7', name: 'Messinghafen', villain: 'fukuro', lair: 'Große Werft',
+        text: 'Die Stadt der Schiffsbauer, alles glänzt nach Messing. Hinter den Kulissen tragen ein paar Arbeiter zu saubere Schuhe.', places: ['Kanäle', 'Bastlerhaus'] },
+      { id: 'puffing-tom', name: 'Meeresbahn', villain: 'nero', lair: 'Lokomotive',
+        text: 'Ein Zug, der übers Meer fährt, mitten durch den Sturm. Die Waggons sind voller Kronwacht, alle mit Fahrkarte.', places: ['Letzter Waggon', 'Mittelwagen'] },
+      { id: 'enies-gate', name: 'Aktentor', villain: 'spandam', lair: 'Stempelhalle',
+        text: 'Das Haupttor der Gerichtsinsel. Wer rein will, braucht drei Stempel, wer raus will, vier.', places: ['Haupttor', 'Amtsgasse'] }
     ],
     big: [
-      { id: 'tower', name: 'Turm des Gerichts', boss: 'rob-lucci', lair: 'Turmspitze', villains: ['jabra', 'wanze', 'blueno'],
-        text: 'Der stärkste Agent der Weltregierung erwartet euch.', places: ['Gerichtshof', 'Treppenhaus'] },
-      { id: 'tor', name: 'Tor der Gerechtigkeit', boss: 'kaku', lair: 'Dach des Turms', villains: ['blueno', 'wanze', 'jabra'],
-        text: 'Der Weg zum Tor führt über die Dächer, bewacht von der Giraffe.', places: ['Brücke', 'Dachgarten'] }
+      { id: 'tower', name: 'Siegelturm', boss: 'rob-lucci', lair: 'Turmspitze', villains: ['jabra', 'wanze', 'blueno'],
+        text: 'Der höchste Turm der Krone. Ganz oben wartet ihr bester Agent und hat dafür extra den Feierabend verschoben.', places: ['Gerichtssaal', 'Treppenhaus'] },
+      { id: 'tor', name: 'Brückentor', boss: 'kaku', lair: 'Torbogen', villains: ['blueno', 'wanze', 'jabra'],
+        text: 'Der Weg führt über die Dächer bis zum großen Tor. Wer es passiert, hat keine Akte mehr, nur noch Gegner.', places: ['Brücke', 'Dachgarten'] }
     ],
     // Zweite Route für das dritte Meer (ab Rang 8, siehe features.js): Beim Kurs setzen steht dann
     // eine Insel aus jeder Route zur Wahl. Die Wahl entscheidet, welches Meer man befährt.
-    alt: { id: 'thriller-bark', name: 'Thriller Bark', feature: 'route', bosses: ['moria', 'kuma'],
-      tagline: 'Nebel, Zombies und ein Schatten-Dieb. Danach wartet der Archipel vor der Neuen Welt.',
+    alt: { id: 'thriller-bark', name: 'Gruselmeer', feature: 'route', bosses: ['moria', 'kuma'],
+      tagline: 'Nebel, Spuk und Pilzwälder. Die Geister sind höflich, nur ihr Herr nicht. Dahinter liegt der Spiegel-Archipel.',
       small: [
-        { id: 'florian', name: 'Florian-Dreieck', villain: 'absalom', lair: 'Nebelwand',
-          text: 'Ein ewiger Nebel. Wer hier verschwindet, taucht nie wieder auf.', places: ['Nebelbank', 'Geisterschiff'] },
-        { id: 'grusel-garten', name: 'Gruselgarten', villain: 'perona', lair: 'Spukturm',
-          text: 'Kleine Geister schweben durch die Bäume. Sie machen jeden mutlos.', places: ['Friedhof', 'Zombiewald'] },
-        { id: 'hogback-labor', name: 'Hogbacks Labor', villain: 'hogback', lair: 'Operationssaal',
-          text: 'Ein berühmter Arzt flickt hier Zombies zusammen. Sie stehen immer wieder auf.', places: ['Kellergang', 'Kühlhaus'] },
-        { id: 'mangroven', name: 'Mangroven', villain: 'duval', lair: 'Blasenpark',
-          text: 'Seifenblasen steigen aus den Wurzeln. Eine Bande mit Eisenmaske lauert.', places: ['Wurzelpfad', 'Blasenufer'] }
+        { id: 'florian', name: 'Nebelkap', villain: 'absalom', lair: 'Nebelwand',
+          text: 'Ein Nebel, der nie aufzieht. Wer hier verschwindet, schickt höchstens noch eine sehr höfliche Postkarte.', places: ['Nebelbank', 'Geisterschiff'] },
+        { id: 'grusel-garten', name: 'Pilzwald', villain: 'perona', lair: 'Spukturm',
+          text: 'Kleine Geister schweben durch die Pilze und entschuldigen sich, wenn sie jemanden erschrecken. Mutlos wird man trotzdem.', places: ['Friedhof', 'Leuchtpilze'] },
+        { id: 'hogback-labor', name: 'Nadelkeller', villain: 'hogback', lair: 'Flickstube',
+          text: 'Ein Arzt näht hier Gespenster zusammen. Sie stehen immer wieder auf und bedanken sich jedes Mal.', places: ['Kellergang', 'Kühlhaus'] },
+        { id: 'mangroven', name: 'Wurzelmoor', villain: 'duval', lair: 'Blasenpark',
+          text: 'Seifenblasen steigen aus den Wurzeln. Eine Bande mit Eisenmaske lauert und hält sich für unwiderstehlich.', places: ['Wurzelpfad', 'Blasenufer'] }
       ],
       big: [
-        { id: 'thriller-schloss', name: 'Thriller Bark', boss: 'moria', lair: 'Thronsaal', villains: ['absalom', 'hogback'],
-          text: 'Ein riesiges Geisterschiff. Sein Herr stiehlt Schatten.', places: ['Schlosshof', 'Tanzsaal'] },
-        { id: 'sabaody', name: 'Sabaody Archipel', boss: 'kuma', lair: 'Mangrove 13', villains: ['duval', 'perona'],
-          text: 'Das Tor zur Neuen Welt. Ein stiller Riese räumt den Weg frei.', places: ['Auktionshaus', 'Vergnügungspark'] }
+        { id: 'thriller-schloss', name: 'Spukschloss', boss: 'moria', lair: 'Thronsaal', villains: ['absalom', 'hogback'],
+          text: 'Ein Schloss, so groß wie ein Schiff, das im Nebel treibt. Sein Herr sammelt Schatten wie andere Briefmarken.', places: ['Schlosshof', 'Tanzsaal'] },
+        { id: 'sabaody', name: 'Spiegel-Archipel', boss: 'kuma', lair: 'Großer Markt', villains: ['duval', 'perona'],
+          text: 'Ein Wald aus Seifenblasen, in dem alle Banden der Welt einkaufen. Hier gibt es alles, außer Ruhe. Ein stiller Riese räumt den Weg frei.', places: ['Blasenwald', 'Markt aller Meere'] }
       ] } }
 ];
 // Insel-Twists (Großer Neustart): jedes Insel-Kapitel bekommt aus dem Seed eine kleine Sonderregel,
@@ -122,7 +122,7 @@ GL.data.twists = [
   { id: 'markttag',   icon: '🏮', name: 'Markttag',        text: 'Mehr Tavernen auf der Karte. Heute ist viel los im Hafen.', types: ['recruit', 'recruit'] },
   { id: 'kopfgeld',   icon: '📜', name: 'Steckbrief-Woche', text: 'Mehr Kopfgeldjäger unterwegs: starke Gegner, dafür mehr Schätze.', types: ['elite', 'elite'] },
   { id: 'schatzinsel', icon: '💎', name: 'Schatzinsel',    text: 'Mehr Schatztruhen und Teufelsfrüchte auf der Karte.', types: ['treasure', 'fruit'] },
-  { id: 'patrouille', icon: '⚓', name: 'Marine-Razzia',    text: 'Mehr besondere Gegner: Leibwachen, Sanitäter, Raufbolde.', types: ['battle'], foeKinds: 0.18 },
+  { id: 'patrouille', icon: '⚓', name: 'Kronwacht-Razzia',    text: 'Mehr besondere Gegner: Leibwachen, Sanitäter, Raufbolde.', types: ['battle'], foeKinds: 0.18 },
   { id: 'ruhig',      icon: '🌙', name: 'Stille Bucht',     text: 'Mehr Rastplätze, alle Gegner sind 1 Tempo langsamer.', types: ['rest'], foeSpd: -1 },
   { id: 'sturm',      icon: '🌊', name: 'Sturmflut',        text: 'Alle Gegner sind 1 Tempo schneller, dafür treiben mehr Früchte an.', types: ['fruit', 'fruit'], foeSpd: 1, weather: 'storm' },
   // Wetter und Lage (Lage & Wetter): goldX = mehr/weniger Gold nach Siegen, restAdd = Rast heilt mehr/weniger, foeHp = Gegner-Leben
@@ -148,13 +148,13 @@ GL.data.twists = [
 ];
 // Daten eines Meeres im Run (berücksichtigt die gewählte Route)
 GL.data.seaOf = (run, idx) => { const S = GL.data.islands[idx]; return S && S.alt && run && run.alt && run.alt[idx] ? S.alt : S; };
-// Ist die zweite Route dieses Meeres im Run offen? Meer 2 (Thriller Bark) = run.altOpen, Meer 1 (Fischmenscheninsel) = run.altOpen1.
+// Ist die zweite Route dieses Meeres im Run offen? Meer 2 (Gruselmeer) = run.altOpen, Meer 1 (Tiefsee) = run.altOpen1.
 // Alte Spielstände kennen altOpen1 nicht -> false, damit ihre Würfe gleich bleiben.
 GL.data.altOpen = (run, idx) => { const S = GL.data.islands[idx]; if (!S || !S.alt || !run) return false; return S.alt.feature === 'route2' ? !!run.altOpen1 : !!run.altOpen; };
 
 // Texte für die Routen-Knoten auf der Karte
 GL.data.nodes = {
-  battle:   { title: 'Marine-Patrouille',  text: 'Kampf gegen Soldaten und Piraten.' },
+  battle:   { title: 'Kronwacht-Streife',  text: 'Kampf gegen Soldaten und Piraten.' },
   elite:    { title: 'Kopfgeldjäger',      text: 'Starker Gegner, dafür gibt es einen Schatz.' },
   recruit:  { title: 'Taverne',            text: 'Neue Crewmitglieder mit Gold anheuern.' },
   fruit:    { title: 'Teufelsfrucht',      text: 'Wähle 1 von 3.' },

@@ -29,7 +29,7 @@ GL.data.news = {
       text: ['Gecko-Klippen und Eisenbucht im East Blue, Zwillingskap am Eingang zur Grand Line. Jango, Dämon Gin, Pearl, Mr. 4 und Wanze jagen dich, Leibwachen, Raufbolde und Rudelführer kämpfen klüger.', 'Gecko Cliffs and Iron Bay in the East Blue, Twin Cape at the entrance to the Grand Line. Jango, Gin, Pearl, Mr. 4 and Wanze hunt you, bodyguards, brawlers and pack leaders fight smarter.'] },
     { art: { emoji: '🎲' }, tone: 'sea',
       kicker: ['Jede Fahrt anders', 'Every voyage different'], title: ['Insel-Twists', 'Island twists'],
-      text: ['Fast jede Insel hat eine Sonderregel: Markttag, Steckbrief-Woche, Schatzinsel, Marine-Razzia, Stille Bucht oder Sturmflut. Oben als Chip neben der Laune der See.', 'Almost every island has a special rule: market day, wanted week, treasure island, marine raid, quiet bay or storm surge. Shown as a chip next to the sea’s mood.'] },
+      text: ['Fast jede Insel hat eine Sonderregel: Markttag, Steckbrief-Woche, Schatzinsel, Kronwacht-Razzia, Stille Bucht oder Sturmflut. Oben als Chip neben der Laune der See.', 'Almost every island has a special rule: market day, wanted week, treasure island, Crown Guard raid, quiet bay or storm surge. Shown as a chip next to the sea’s mood.'] },
     { art: { self: true }, tone: 'warm',
       kicker: ['Dein Pirat', 'Your pirate'], title: ['Eigene Frucht, eigene Bande', 'Your own fruit, your own crew'],
       text: ['Im Profil unter „Kampf“: Zieh eine schon gegessene Teufelsfrucht auf deinen Piraten. Und gib deiner Bande einen Namen, er steht auf deiner Karte und in der Rangliste.', 'In your profile under “Combat”: drag a devil fruit you have eaten onto your pirate. And name your crew, it shows on your card and in the leaderboard.'] },

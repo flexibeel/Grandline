@@ -85,7 +85,7 @@ GL.data.routeLines = {
   ],
   node: {
     battle: [
-      ['Eine Marine-Patrouille macht Mittagspause. Wir könnten sie stören.', 'A marine patrol is on lunch break. We could interrupt.'],
+      ['Eine Kronwacht-Streife macht Mittagspause. Wir könnten sie stören.', 'A Crown Guard patrol is on lunch break. We could interrupt.'],
       ['Ein paar Piraten mit viel Muskeln und wenig Plan.', 'A few pirates with lots of muscle and very little plan.'],
       ['Leute mit Säbeln, die „Halt!“ rufen. Klassiker.', 'People with sabres shouting “Halt!”. A classic.'],
       ['Eine Schlägerei im Hafen. Man könnte mitmachen. Man sollte.', 'A harbour brawl. One could join. One should.'],
