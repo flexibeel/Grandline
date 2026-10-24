@@ -283,6 +283,24 @@ GL.data.en = Object.assign(GL.data.en || {}, {
   'Blasenwald': 'Bubble Wood',
   'Markt aller Meere': 'Market of All Seas',
 
+  // Weltbau Welle A: Randstellen
+  'Fliegt über den Zollhafen.': 'Flies over Customs Harbor.',
+  'Wartet vor einem Laden in der Gauklerbucht.': 'Waits outside a shop in Jesters’ Cove.',
+  'Sitzt am Küstenhang vom Honigtal.': 'Sits on the coastal slope of Honey Vale.',
+  'Hängt am Rumpf vom Suppenkahn.': 'Clings to the hull of the Soup Barge.',
+  'Krabbelt durch die Haine am Flossenriff.': 'Scuttles through the groves by Fin Reef.',
+  'Hoppelt durch den Schnee der Frostspitze.': 'Hops through the snow on Frost Peak.',
+  'Versteckt sich im Urwald vom Urwaldkap.': 'Hides in the jungle of Jungle Cape.',
+  'Ruft im Küstenwald der Spötterküste.': 'Calls out in the coastal forest of Mockers’ Coast.',
+  'Trinkt an einer Oase in der Glutwüste.': 'Drinks at an oasis in the Ember Desert.',
+  'Schläft auf den Wolken vom Wolkenhof.': 'Sleeps on the clouds of Cloud Court.',
+  'Klingelt irgendwo im Messinghafen.': 'Rings somewhere in Brass Harbor.',
+  'Sitzt auf dem Siegelturm.': 'Perches on the Seal Tower.',
+  'Schwebt durch den Pilzwald.': 'Floats through the Mushroom Wood.',
+  'Flattert durch das Spukschloss.': 'Flutters through Spook Castle.',
+  'Schwimmt zwischen den Blasen vom Spiegel-Archipel.': 'Swims between the bubbles of the Mirror Archipelago.',
+  'Treibt über der Korallengasse.': 'Drifts above Coral Lane.',
+
   // Orte auf den Inseln
   'Marine-Basis 153': 'Marine Base 153', 'Hafen': 'Harbor', 'Marktgasse': 'Market Lane', 'Verlassene Straßen': 'Empty Streets', 'Tierladen': 'Pet Shop',
   'Kayas Anwesen': 'Kaya’s Mansion', 'Küstenhang': 'Coastal Slope', 'Dorfplatz': 'Village Square', 'Restaurant-Deck': 'Restaurant Deck', 'Offene See': 'Open Sea',

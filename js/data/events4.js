@@ -73,7 +73,7 @@ GL.data = GL.data || {};
   ];
 
   const EP = [
-    { id: 'kochduell', icon: 'rest', title: ['Das Kochduell von Loguetown', 'The Loguetown cook-off'], parts: [
+    { id: 'kochduell', icon: 'rest', title: ['Das Kochduell vom Salzhafen', 'The Salt Harbor cook-off'], parts: [
       { bg: 'kueche', icon: 'rest', lines: [['B', 'Ein Kochwettbewerb! Preis: ein goldener Kochlöffel.', 'A cooking contest! Prize: a golden ladle.'], ['A', 'Wir melden uns an. Ich esse, ihr kocht.', 'We sign up. I eat, you cook.']],
         choices: [C(['Mit Fleisch antreten', 'Compete with meat'], ['+6 Erfahrung', '+6 XP'], { xp: 6 }, ['Die Jury notiert: „Mutig. Viel. Roh?“', 'The jury notes: “Bold. Lots. Raw?”'], 'fleisch'),
           C(['Mit Gemüse antreten', 'Compete with vegetables'], ['Crew heilt 10 %', 'Crew heals 10%'], { heal: 0.1 }, ['Ruffy spricht nicht mehr mit euch. Die Jury schon.', 'Luffy is not speaking to you. The jury is.'], 'gemuese')] },

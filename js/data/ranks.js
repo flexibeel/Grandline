@@ -20,14 +20,14 @@ GL.data.ranks = [
   { name: 'Kopfgeld-Neuling',         xp: 1500,  reward: { berry: 300 } },
   // Gold: Stern
   { name: 'Supernova',                xp: 2750,  reward: { berry: 340, gear: 'fruchtkorb' } },
-  { name: 'Schrecken des East Blue',  xp: 3350,  reward: { berry: 380 } },
-  { name: 'Held von Paradies',        xp: 4000,  reward: { berry: 420 } },
+  { name: 'Schrecken des Ostmeers',  xp: 3350,  reward: { berry: 380 } },
+  { name: 'Held der Wilden See',        xp: 4000,  reward: { berry: 420 } },
   { name: 'Bezwinger der CP9',        xp: 4700,  reward: { berry: 460 } },
   { name: 'Samurai der Meere',        xp: 5450,  reward: { berry: 500, gear: 'bordkanone' } },
   // Legende: Totenkopf mit Krone
   { name: 'Vize-Kapitän der Flotte',  xp: 6250,  reward: { berry: 550 } },
   { name: 'Kommandant eines Kaisers', xp: 7100,  reward: { berry: 600 } },
-  { name: 'Legende von Sabaody',      xp: 8000,  reward: { berry: 650, gear: 'proviant' } },
+  { name: 'Legende vom Spiegel-Archipel',      xp: 8000,  reward: { berry: 650, gear: 'proviant' } },
   { name: 'Pirat der Neuen Welt',     xp: 9000,  reward: { berry: 700 } },
   { name: 'Herausforderer der Kaiser', xp: 10100, reward: { berry: 800 } },
   // Mythisch: Strohhut

@@ -24,7 +24,7 @@ GL.data.unlocks = [
   { unlock: 'enel',      when: { defeated: 'enel', times: 2 },      text: 'Besiege Enel 2-mal.' },
   { unlock: 'rob-lucci', when: { defeated: 'rob-lucci', times: 2 }, text: 'Besiege Rob Lucci 2-mal.' },
   { unlock: 'kaku',      when: { defeated: 'kaku', times: 2 },      text: 'Besiege Kaku 2-mal.' },
-  { unlock: 'jinbei',    when: { reached: 2, times: 3 },            text: 'Erreiche Enies Lobby 3-mal.' },
+  { unlock: 'jinbei',    when: { reached: 2, times: 3 },            text: 'Erreiche die Gerichtsinsel 3-mal.' },
   { unlock: 'ace',       when: { win: true, times: 2 },             text: 'Gewinne 2 Runs.' },
   { unlock: 'marco',      when: { epics: 1 },                 text: 'Erwecke eine Teufelsfrucht (gewinne einen Raid).' },
   { unlock: 'hancock',    when: { epic: 'gum-gum-epic' },    text: 'Erwecke die Gum-Gum-Frucht (Raid gegen Kizaru).' },
@@ -38,11 +38,11 @@ GL.data.unlocks = [
   // Buggy-Piraten: früh und leicht zu bekommen, damit gleich nach den ersten Runs etwas Neues wartet
   { unlock: 'mohji',   when: { defeated: 'buggy', times: 1 },          text: 'Besiege Buggy in Orange Town.' },
   { unlock: 'cabaji',  when: { runs: 3 },                              text: 'Spiele 3 Runs.' },
-  { unlock: 'alvida',  when: { isle: 'orange-town', times: 3 },        text: 'Steuere 3-mal Orange Town an.' },
+  { unlock: 'alvida',  when: { isle: 'orange-town', times: 3 },        text: 'Steuere 3-mal die Gauklerbucht an.' },
   { unlock: 'buggy',   when: { winFaction: 'buggy', n: 2 },            text: 'Gewinne einen Run mit 2 Buggy-Piraten in der Crew.' },
   // Arlong-Bande
   { unlock: 'hatchan', when: { defeated: 'hatchan', times: 2 },        text: 'Besiege Hatchan 2-mal (Kopfgeld-Ziel in Arlong Park).' },
-  { unlock: 'chu',     when: { isle: 'arlong-park', times: 3 },        text: 'Steuere 3-mal Arlong Park an.' },
+  { unlock: 'chu',     when: { isle: 'arlong-park', times: 3 },        text: 'Steuere 3-mal das Flossenriff an.' },
   { unlock: 'kuroobi', when: { kos: 250 },                             text: 'Besiege insgesamt 250 Gegner.' },
   // Revolutionsarmee
   { unlock: 'koala',   when: { runs: 8 },                              text: 'Spiele 8 Runs.' },
@@ -60,7 +60,7 @@ GL.data.unlocks = [
   { unlock: 'kuma',    when: { defeated: 'kuma', times: 2 },           text: 'Besiege Kuma 2-mal (Sabaody).' },
   { unlock: 'perona',  when: { defeated: 'perona', times: 2 },         text: 'Besiege Perona 2-mal (Gruselgarten).' },
   // Schlimmste Generation
-  { unlock: 'kid',     when: { isle: 'sabaody', times: 2 },            text: 'Erreiche 2-mal den Sabaody Archipel.' },
+  { unlock: 'kid',     when: { isle: 'sabaody', times: 2 },            text: 'Erreiche 2-mal den Spiegel-Archipel.' },
   { unlock: 'killer',  when: { winWith: 'kid' },                       text: 'Gewinne einen Run mit Eustass Kid.' },
   { unlock: 'bonney',  when: { reached: 2, times: 6 },                 text: 'Erreiche 6-mal das dritte Meer.' },
   { unlock: 'drake',   when: { kos: 900 },                             text: 'Besiege insgesamt 900 Gegner.' },

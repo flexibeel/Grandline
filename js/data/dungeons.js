@@ -90,9 +90,9 @@ const DG_DECO = {
 };
 
 GL.data.dungeons = [
-  { id: 'zirkus', name: 'Buggys Zirkuszelt', sea: 0, need: { isl: ['shells-town', 'orange-town', 'syrup', 'baratie', 'loguetown', 'arlong-park'] }, needText: 'Fahre einmal durch den East Blue.',
+  { id: 'zirkus', name: 'Buggys Zirkuszelt', sea: 0, need: { isl: ['shells-town', 'orange-town', 'syrup', 'baratie', 'loguetown', 'arlong-park'] }, needText: 'Fahre einmal durch das Ostmeer.',
     scene: { sky: '#f6c88a', ground: '#c89a5a', deco: DG_DECO.zelt }, boss: 'buggy',
-    intro: 'Das Zirkuszelt in Orange Town ist verlassen. Fast. Drinnen kichert jemand.',
+    intro: 'Das Zirkuszelt in der Gauklerbucht ist verlassen. Fast. Drinnen kichert jemand.',
     steps: [
       { t: 'Ein Löwe auf einem Einrad versperrt die Manege.',
         c: [{ l: 'Löwen streicheln', k: 'helfer', p: 0.55, ok: '{who} krault ihn hinter dem Ohr. Er schnurrt und rollt weg.', no: 'Der Löwe mag {who} nicht. Gar nicht.', r: 'h' },
@@ -108,7 +108,7 @@ GL.data.dungeons = [
     find: { id: 'clownsnase', name: 'Rote Clownsnase', text: 'Quietscht, wenn man drückt. Buggy will sie zurück.',
       art: ['............', '............', '....rrrr....', '...rRRRrr...', '..rRxRRRrr..', '..rRRRRRrr..', '..rRRRRRrr..', '..rrRRRrrr..', '...rrrrrr...', '....rrrr....', '............', '............'] } },
 
-  { id: 'drumm', name: 'Gipfel von Drumm', sea: 1, need: { isl: ['drumm'] }, needText: 'Besuche Drumm.',
+  { id: 'drumm', name: 'Gipfel der Frostspitze', sea: 1, need: { isl: ['drumm'] }, needText: 'Besuche die Frostspitze.',
     scene: { sky: '#cfe0f4', ground: '#f4f6fb', deco: DG_DECO.berg }, boss: 'wapol',
     intro: 'Der Weg zum Schloss führt durch Schnee bis zur Hüfte. Oben brennt Licht.',
     steps: [
@@ -126,7 +126,7 @@ GL.data.dungeons = [
     find: { id: 'kirschblute', name: 'Schneekirschblüte', text: 'Eine rosa Blüte aus Schnee. Sie schmilzt nie.',
       art: ['............', '.....PP.....', '....PxxP....', '.PP.PppP.PP.', 'PxxPPppPPxxP', 'PppPpyypPppP', '.PPPpyypPPP.', '...PPppPP...', '..PxxPPxxP..', '..PppP.PppP.', '...PP...PP..', '............'] } },
 
-  { id: 'graeber', name: 'Gräber von Alabasta', sea: 1, need: { isl: ['alabasta'] }, needText: 'Besuche Alabasta.',
+  { id: 'graeber', name: 'Gräber der Glutwüste', sea: 1, need: { isl: ['alabasta'] }, needText: 'Besuche die Glutwüste.',
     scene: { sky: '#f6d890', ground: '#e8c87a', deco: DG_DECO.grab }, boss: 'mr1',
     intro: 'Unter dem Sand liegt eine Grabkammer. Es riecht nach altem Gold und Staub.',
     steps: [
@@ -141,12 +141,12 @@ GL.data.dungeons = [
     bossC: [{ l: 'Stahl gegen Stahl', k: 'klinge', p: 0.5, ok: '{who} schneidet durch, was nicht zu schneiden war. Mr. 1 nickt und geht.', no: 'Klingen prallen ab. Funken sprühen.', r: 'g' },
             { l: 'Mit Gewalt', k: 'kraft', p: 0.45, ok: '{who} schlägt zu, bis Mr. 1 Respekt zeigt.', no: 'Autsch. Er ist wirklich aus Stahl.', r: 'g' },
             { l: 'Ablenken und vorbei', k: 'technik', p: 0.5, ok: '{who} wirft Sand. Ihr huscht an Mr. 1 vorbei zum Schatz.', no: 'Er hat Sand in den Augen. Ihr auch.', r: 'g' }],
-    find: { id: 'koenigssiegel', name: 'Siegel von Alabasta', text: 'Ein goldenes Siegel mit dem Wappen des Königs.',
+    find: { id: 'koenigssiegel', name: 'Siegel der Glutwüste', text: 'Ein goldenes Siegel mit dem Wappen des Königs.',
       art: ['............', '....gggg....', '..ggGGGGgg..', '.gGGyyyyGGg.', '.gGyGGGGyGg.', 'gGyGGkkGGyGg', 'gGyGkGGkGyGg', '.gGyGGGGyGg.', '.gGGyyyyGGg.', '..ggGGGGgg..', '....gggg....', '............'] } },
 
-  { id: 'ruinen', name: 'Ruinen von Skypiea', sea: 1, need: { isl: ['skypiea'] }, needText: 'Besuche Skypiea.',
+  { id: 'ruinen', name: 'Ruinen vom Wolkenhof', sea: 1, need: { isl: ['skypiea'] }, needText: 'Besuche den Wolkenhof.',
     scene: { sky: '#bfe0f8', ground: '#7ab85a', deco: DG_DECO.ruine }, boss: 'ohm',
-    intro: 'Zwischen riesigen Ranken liegt die alte Stadt Shandora. Irgendwo läutet eine Glocke.',
+    intro: 'Zwischen riesigen Ranken liegt eine alte Wolkenstadt. Irgendwo läutet eine Glocke.',
     steps: [
       { t: 'Eine Wolkenstraße führt über den Abgrund. Wie fest ist eine Wolke?',
         c: [{ l: 'Einfach drauf', k: 'kaempfer', p: 0.5, ok: 'Sie trägt! {who} hüpft vergnügt weiter.', no: 'Eine Wolke ist… weich. Sehr weich.', r: 'b' },
@@ -162,9 +162,9 @@ GL.data.dungeons = [
     find: { id: 'goldglocke', name: 'Kleine Goldglocke', text: 'Ein Nachbau der großen Glocke. Klingt nach Zuhause.',
       art: ['.....kk.....', '.....gg.....', '....gGGg....', '...gGyyGg...', '...gGyyGg...', '..gGyyyyGg..', '..gGyyyyGg..', '.gGyyyyyyGg.', '.gggggggggg.', '.....kk.....', '....kkkk....', '............'] } },
 
-  { id: 'kanaele', name: 'Kanäle von Water 7', sea: 2, need: { isl: ['water-7', 'puffing-tom', 'enies-gate', 'long-ring'] }, needText: 'Besuche Water 7 oder eine Nachbarinsel.',
+  { id: 'kanaele', name: 'Kanäle vom Messinghafen', sea: 2, need: { isl: ['water-7', 'puffing-tom', 'enies-gate', 'long-ring'] }, needText: 'Besuche den Messinghafen oder eine Nachbarinsel.',
     scene: { sky: '#a8d0f0', ground: '#6a9ac8', deco: DG_DECO.kanal }, boss: 'fukuro',
-    intro: 'Mit einem Yagara-Bullen gleitet ihr durch die Kanäle. Unten im Wasser blitzt etwas.',
+    intro: 'Auf einem Kanalross gleitet ihr durch die Kanäle. Unten im Wasser blitzt etwas.',
     steps: [
       { t: 'Eine Aqua Laguna rollt heran. Die Welle ist riesig.',
         c: [{ l: 'Festhalten!', k: 'brecher', p: 0.55, ok: '{who} hält alle fest. Die Welle spült Treibgut an.', no: 'Alle sind klitschnass. Der Bulle lacht.', r: 'b' },
@@ -179,7 +179,7 @@ GL.data.dungeons = [
     find: { id: 'cola-flasche', name: 'Leere Colaflasche', text: 'Eine von Frankys Lieblingsflaschen. Super!',
       art: ['....kkkk....', '....bBBb....', '....bBBb....', '...bBBBBb...', '..bBxBBBBb..', '..bBxBBBBb..', '..brrrrrrb..', '..brxxxxrb..', '..brrrrrrb..', '..bBBBBBBb..', '..bbbbbbbb..', '............'] } },
 
-  { id: 'gruft', name: 'Gruft von Thriller Bark', sea: 2, alt: true, need: { isl: ['florian', 'grusel-garten', 'hogback-labor', 'mangroven', 'thriller-schloss'] }, needText: 'Besuche eine Insel von Thriller Bark.',
+  { id: 'gruft', name: 'Gruft im Gruselmeer', sea: 2, alt: true, need: { isl: ['florian', 'grusel-garten', 'hogback-labor', 'mangroven', 'thriller-schloss'] }, needText: 'Besuche eine Insel im Gruselmeer.',
     scene: { sky: '#3a2c4a', ground: '#5a4a6a', deco: DG_DECO.gruft }, boss: 'absalom',
     intro: 'Nebel kriecht über den Friedhof. Ein Grabstein steht offen, darunter führt eine Treppe nach unten.',
     steps: [
@@ -197,7 +197,7 @@ GL.data.dungeons = [
     find: { id: 'schattenglas', name: 'Schatten im Glas', text: 'Er zappelt, wenn man das Glas schüttelt.',
       art: ['...ssss.....', '...SSSS.....', '..SllllS....', '..SlkklS....', '..SkkkkS....', '..SlkklS....', '..SkllkS....', '..SllllS....', '..SSSSSS....', '............', '............', '............'] } },
 
-  { id: 'koralle', name: 'Korallenhöhle', sea: 1, alt: true, need: { isl: ['tiefsee', 'korallenhuegel', 'fischmenschen-viertel', 'meerwald', 'gyoncorde', 'ryugu'] }, needText: 'Besuche die Fischmenscheninsel.',
+  { id: 'koralle', name: 'Korallenhöhle', sea: 1, alt: true, need: { isl: ['tiefsee', 'korallenhuegel', 'fischmenschen-viertel', 'meerwald', 'gyoncorde', 'ryugu'] }, needText: 'Besuche die Tiefsee.',
     scene: { sky: '#3a7ab0', ground: '#2a5a8a', deco: DG_DECO.koralle }, boss: 'hyouzou',
     intro: 'Tief unter dem Meer leuchten die Korallen in allen Farben. Eine Blase hält die Luft für euch fest.',
     steps: [
@@ -212,10 +212,10 @@ GL.data.dungeons = [
     bossC: [{ l: 'Acht gegen drei', k: 'klinge', p: 0.5, ok: '{who} pariert jede Klinge. Hyouzou fällt um und schnarcht.', no: 'Acht Klingen sind viel. Sehr viel.', r: 'g' },
             { l: 'Wasser reichen', k: 'helfer', p: 0.55, ok: '{who} reicht ihm Wasser. Er wird nüchtern, schämt sich und geht.', no: 'Er nimmt das Wasser und kämpft weiter.', r: 'g' },
             { l: 'Mit Fischmenschen-Karate', k: 'fischmensch', p: 0.5, ok: 'Ein Wasserstoß von {who}. Hyouzou wird an Land gespült.', no: 'Das Wasser hört nicht auf {who}.', r: 'g' }],
-    find: { id: 'perlmuschel', name: 'Schimmernde Muschel', text: 'Hält man sie ans Ohr, hört man die Fischmenscheninsel.',
+    find: { id: 'perlmuschel', name: 'Schimmernde Muschel', text: 'Hält man sie ans Ohr, hört man die Tiefsee.',
       art: ['............', '............', '....PPPP....', '..PPpPpPPP..', '.PpPPpPPpPP.', '.PPpPPpPPpP.', 'PpPPpxxPPpPP', 'PPpPxxxxPpPP', '.PPPPxxPPPP.', '..PPPPPPPP..', '............', '............'] } },
 
-  { id: 'impel', name: 'Keller von Impel Down', sea: 2, need: { wins: 1 }, needText: 'Gewinne einen Run.',
+  { id: 'impel', name: 'Keller vom Tiefkerker', sea: 2, need: { wins: 1 }, needText: 'Gewinne einen Run.',
     scene: { sky: '#4a3a3a', ground: '#3a2c2c', deco: DG_DECO.gitter }, boss: 'mr5',
     intro: 'Das Unterwassergefängnis. Ganz unten, im vergessenen Keller, liegt die Schatzkammer der Wärter.',
     steps: [
