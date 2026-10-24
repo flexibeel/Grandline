@@ -133,8 +133,9 @@ window.GL = window.GL || {};
   const safeCol = c => (typeof c === 'string' && /^#[0-9a-f]{3,8}$/i.test(c)) ? c : '#888888';
   function safeLook(look) {
     const l = Object.assign({}, look || {});
-    ['hair', 'skin', 'shirt', 'pants', 'hatColor', 'beard', 'nose'].forEach(k => { if (l[k] != null) l[k] = safeCol(l[k]); });
+    ['hair', 'skin', 'shirt', 'pants', 'hatColor', 'beard', 'nose', 'coat', 'scarf'].forEach(k => { if (l[k] != null) l[k] = safeCol(l[k]); });
     ['hat', 'acc', 'mask', 'hairStyle', 'style', 'eyes'].forEach(k => { if (l[k] != null && !/^[a-z0-9_-]{0,24}$/i.test(String(l[k]))) delete l[k]; });
+    if (l.x != null) l.x = Array.isArray(l.x) ? l.x.filter(k => typeof k === 'string' && /^[a-z]{1,20}$/.test(k)).slice(0, 4) : [];
     if (l.facc != null) l.facc = Array.isArray(l.facc) ? l.facc.filter(k => typeof k === 'string' && FORM_ACC[k]).slice(0, 4) : [];
     return l;
   }
@@ -410,6 +411,11 @@ window.GL = window.GL || {};
       hood: { clear: [0, 1, 2, 3], px: sym(0, ['......BBBBBB', '....BBBBBBBB', '...BBBBBBBBB', '..BBBBBBBBBB', '..BBBBBBBBBB', '.BBBkkkkkkkk', '.BBk........', '.BBk........', '.BB.........', '.BB.........', '.BBk........', '.BBk........', '..BBk.......', '...BBBk.....', '....BBBB....', '...BBBB.....']) },
       tophat: { clear: [0, 1, 2, 3, 4], px: sym(0, ['......BBBBBB', '......BqBBBB', '......BqBBBB', '......BBBBBB', '......kkkkkk', '..BBBBBBBBBB']) },
       ears: { px: sym(0, ['..BB........', '.BqqB.......', '.BqqB.......', '..BBBBBBBBBB']) },
+      // C4 Kronwacht: Zweispitz, zu große Kappe, Zipfelmütze, Ohrenschützer
+      zweispitz: { clear: [0, 1, 2, 3], px: sym(0, ['......BBBBBB', '...BBBBBBBBB', 'BBBBBBBBBBBB', '.kkkkkkkkkkk', '...BBBBBBBBB']).concat(at([[1, 11, 'A'], [1, 12, 'A'], [2, 11, 'r'], [2, 12, 'r']])) },
+      grosskappe: { clear: [0, 1, 2, 3, 4, 5], px: sym(0, ['.......BBBBB', '.....BBBBBBB', '...BBBBBBBBB', '..BBBBBBBBBB', '..BBBBBBBBBB', '..BBBBBBBBBB', '.kkkkkkkkkkk']).concat(at([[2, 11, 'A'], [2, 12, 'A'], [3, 11, 'A'], [3, 12, 'A'], [7, 2, 'H'], [7, 3, 'H'], [8, 3, 'H'], [7, 20, 'H'], [7, 21, 'H'], [8, 20, 'H']])) },
+      zipfel: { clear: [0, 1, 2, 3], px: rows(0, ['.......BBBBBBBBBB.......', '.....BBqqBBqqBBBBBB.....', '....BBBBBBBBBBBBBBBBB...', '...BBBqqBBqqBBqqBBBBBB..', '...kkkkkkkkkkkkkkkkkkBB.', '......................B.', '.....................WW.', '.....................WW.']) },
+      ohrenschuetzer: { px: sym(1, ['.......kkkkk', '....kk......', '..kk........', '..k.........', '..k.........', 'qBB.........', 'BBBB........', 'BBBB........', 'BBBB........', 'qBB.........']) },
       tricorn: { clear: [0, 1, 2, 3], px: sym(0, ['.B......BBBB', '.BB...BBBBBB', '.BBBBBBBBBBB', 'BBBBBBBBBBBB', 'kkkkkkkkkkkk']).concat(at([[1, 11, 'A'], [1, 12, 'A']])) }
     };
     // Masken und Kostüme (eigene Farben je Maske): G hell, g dunkel, Y Augen, T Zähne, W Wolke
@@ -441,8 +447,36 @@ window.GL = window.GL || {};
     const BEARD = sym(8, ['...D........', '...D........', '...DD.......', '...DDDDDD...', '....DDDDDDDD', '......DDDDDD', '.........DDD']);
     const NOSE = at([[9, 11, 'N'], [9, 12, 'N'], [10, 11, 'N'], [10, 12, 'N']]);
     const LONGHAIR = [].concat(...[4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16].map(y => [[y, 2, 'H'], [y, 3, 'H'], [y, 20, 'H'], [y, 21, 'H']]), [[17, 2, 'H'], [17, 21, 'H'], [6, 4, 'H'], [6, 19, 'H']]);
-    // Fraktions-Abzeichen (Leitfarbe, je Fraktion ein Teil), wird je Fraktion im Board festgelegt
-    const BADGE = {};
+    // Frisuren (look.hairStyle): ändern die Grundform der Haare, bevor Hüte darüber kommen
+    const HAIR = {
+      glatze: g => { [0, 1].forEach(y => { g[y] = g[y].map(() => '.'); }); rows(2, ['.......SSSSSSSSSS.......', '.....SSSSSSSSSSSSSS.....', '....SSSSSSSSSSSSSSSS....', '...SSSSSSSSSSSSSSSSSS...']).forEach(([y, x, ch]) => { g[y][x] = ch; }); },
+      buerste: g => { [0, 1].forEach(y => { g[y] = g[y].map(() => '.'); }); sym(2, ['.....HHHHHHH', '....HHHHHHHH', '...HHHHHHHHH', '...HSSSSSSSS']).forEach(([y, x, ch]) => { g[y][x] = ch; }); },
+      dutt: g => { sym(0, ['..HH........', '.HHHH.......', '.HHHH.......', '..HH........']).forEach(([y, x, ch]) => { g[y][x] = ch; }); },
+      zopf: g => { rows(5, ['....................H...', '.....................HH.', '......................H.', '.....................aHH', '......................HH', '......................HH', '......................HH', '.....................HH.', '......................H.']).forEach(([y, x, ch]) => { if (g[y][x] === '.' || ch === 'a') g[y][x] = ch === 'a' ? 'F' : ch; }); },
+      bob: g => { sym(5, ['...HHHHHHHHH', '..HH........', '..HH........', '..HH........', '..HH........', '..HH........', '...H........']).forEach(([y, x, ch]) => { g[y][x] = ch; }); },
+      stachel: g => { rows(0, ['......H...HH...H..H.....', '......HHHHHHHHHHHH......']).forEach(([y, x, ch]) => { g[y][x] = ch; }); }
+    };
+    // Markenzeichen (look.x, höchstens 4): Q Mantel (look.coat), I Schal (look.scarf), M Metall, n Dose, p Pflaster, i Eis
+    const EXTRA = {
+      mantel: sym(16, ['.....QQ.....', '.....QQ.....', '.....QQ.....', '.....QQ.....', '.....QQ.....', '.....QQ.....', '....QQQ.....', '....QQ......', '....QQ......', '....QQ......', '....QQ......']),
+      schal: rows(14, ['........IIIIIIII........', '.......IIIIIIIIII.......', '...............II.......', '...............II.......', '...............I........']),
+      keksdose: rows(21, ['.....AAAA...............', '....nnnnnn..............', '....nAnnAn..............', '....nnnnnn..............', '.....nnnn...............']),
+      handschellen: rows(22, ['................MM.MM....', '...............M..M..M...', '...............M..M..M...', '................MM.MM....']),
+      kette: at([[15, 7, 'M'], [16, 8, 'M'], [17, 9, 'M'], [18, 10, 'M'], [19, 11, 'M'], [20, 12, 'M'], [21, 13, 'M'], [16, 7, 'M'], [18, 9, 'M'], [20, 11, 'M']]),
+      schwertruecken: at([[9, 22, 'V'], [10, 22, 'V'], [11, 22, 'V'], [12, 22, 'V'], [13, 21, 'A'], [13, 22, 'A'], [13, 23, 'A'], [14, 22, 'K'], [15, 22, 'F'], [15, 23, 'F'], [16, 23, 'F'], [14, 23, 'F']]),
+      dreigriffe: at([[9, 1, 'V'], [10, 1, 'V'], [11, 1, 'V'], [12, 1, 'A'], [11, 0, 'L'], [12, 0, 'L'], [13, 0, 'A'], [12, 2, 'K'], [13, 2, 'K'], [14, 2, 'A'], [13, 1, 'V'], [14, 1, 'V']]),
+      pflaster: at([[10, 16, 'p'], [10, 17, 'p'], [11, 16, 'p'], [11, 17, 'p'], [10, 18, 'p']]),
+      dampf: at([[14, 0, 'Z'], [15, 0, 'Z'], [15, 1, 'Z'], [13, 1, 'Z'], [14, 23, 'Z'], [13, 22, 'Z'], [13, 23, 'Z'], [12, 23, 'Z']]),
+      kessel: at([[11, 0, 'A'], [11, 1, 'A'], [12, 0, 'A'], [12, 1, 'A'], [13, 0, 'A'], [13, 1, 'A'], [14, 1, 'A'], [10, 1, 'K'], [8, 0, 'Z'], [7, 1, 'Z'], [6, 0, 'Z']]),
+      schnauzer: rows(10, ['......DDDDDDDDDDDD......', '.....DDDD......DDDD.....', '.....DD..........DD.....']),
+      eiszapfen: at([[15, 4, 'i'], [16, 4, 'i'], [17, 4, 'i'], [15, 19, 'i'], [16, 19, 'i'], [17, 19, 'i'], [16, 3, 'i'], [16, 20, 'i']])
+    };
+    // Fraktions-Abzeichen (Leitfarbe, je Fraktion ein Teil). Schlüssel = Banden-id, Varianten mit _a/_b fürs Board.
+    // r Leitfarbe, a Messing
+    const BADGE = {
+      marine_schaerpe: { px: at([[15, 6, 'r'], [16, 7, 'r'], [16, 6, 'r'], [17, 8, 'r'], [17, 7, 'r'], [18, 9, 'r'], [18, 8, 'r'], [19, 10, 'r'], [19, 9, 'r'], [20, 11, 'a'], [20, 10, 'a'], [21, 12, 'r'], [21, 11, 'r'], [22, 13, 'r'], [22, 12, 'r']]), c: { r: '#b8343a', a: '#d9a640' } },
+      marine_abzeichen: { px: at([[17, 7, 'a'], [17, 9, 'a'], [18, 7, 'a'], [18, 8, 'r'], [18, 9, 'a'], [19, 7, 'a'], [19, 8, 'a'], [19, 9, 'a']]), c: { r: '#b8343a', a: '#d9a640' } }
+    };
 
     // Kann das neue Raster diesen Look schon ganz zeichnen?
     function ok(look) {
@@ -455,6 +489,7 @@ window.GL = window.GL || {};
     function grid(look, mood, blink, fac) {
       const g = BASE.map(r => r.split(''));
       const put = list => list.forEach(([y, x, ch]) => { if (g[y] && x >= 0 && x < W) g[y][x] = ch; });
+      if (HAIR[look.hairStyle]) HAIR[look.hairStyle](g);
       if (look.longHair) put(LONGHAIR);
       const part = HATS[look.hat] || null, mask = MASKS[look.mask] || null;
       [part, mask].forEach(p => { if (p && p.clear) p.clear.forEach(y => { g[y] = g[y].map(() => '.'); }); });
@@ -463,6 +498,7 @@ window.GL = window.GL || {};
       if (look.beard) put(BEARD);
       if (look.nose) put(NOSE);
       if (ACC[look.acc]) put(ACC[look.acc]);
+      (Array.isArray(look.x) ? look.x : []).forEach(k => { if (EXTRA[k]) put(EXTRA[k]); });
       const bd = fac && BADGE[fac];
       if (bd) put(bd.px);
       const f = FACE[mood] || FACE.normal;
@@ -482,14 +518,15 @@ window.GL = window.GL || {};
       legs.forEach((r, i) => { g[23 + i] = r.split(''); });
       return g;
     }
-    const SHADE = 'HSCPUOBDGgN';
+    const SHADE = 'HSCPUOBDGgNQIn';
     function pixels(g, look, fac) {
       const skin = look.skin || '#f2c9a0', hat = look.hatColor || look.hair;
       const col = Object.assign({
         H: look.hair, S: skin, C: look.shirt, P: look.pants, U: mix(look.pants || '#555555', 'k', 0.45), O: '#3a2a1c',
         B: hat, k: mix(hat || '#888888', 'k', 0.35), q: mix(hat || '#888888', 'w', 0.35), D: look.beard || look.hair, N: look.nose || '#d8433a',
         E: '#1c1420', X: '#ffffff', J: '#3b4f7a', b: mix(look.hair || '#555555', 'k', 0.35), m: '#7a2e2a', c: '#f08f8a', l: mix(skin, 'k', 0.38), w: '#8fd3f4',
-        K: '#1a1a1a', R: '#b8463a', L: '#3a2a20', A: '#f2c94c', V: '#6a4424', F: '#e0483b', Z: '#e4e0dc'
+        K: '#1a1a1a', R: '#b8463a', L: '#3a2a20', A: '#f2c94c', V: '#6a4424', F: '#e0483b', Z: '#e4e0dc',
+        Q: look.coat || mix(look.shirt || '#888888', 'k', 0.3), I: look.scarf || '#7ab0e0', M: '#9aa4ae', n: '#3d6fb0', p: '#f2e2c4', i: '#cfeefc', r: '#b8343a', a: '#d9a640'
       }, MASK_COL[look.mask] || {}, (fac && BADGE[fac] && BADGE[fac].c) || {});
       const at = (x, y) => (y >= 0 && y < H && x >= 0 && x < W && g[y][x]) || '.';
       const fam = ch => 'EXJbmcl'.includes(ch) ? 'S' : ch;
@@ -507,7 +544,7 @@ window.GL = window.GL || {};
             else if (!same(2, 0) || !same(0, 2)) c = mix(c, 'k', 0.09);
             else if (eT && eL) c = mix(c, 'w', 0.26);
             else if (eT || eL) c = mix(c, 'w', 0.14);
-            if ((ch === 'S' && 'HBkGgD'.includes(above)) || (ch === 'S' && y === 14) || (ch === 'C' && y === 15 && x >= 9 && x <= 14)) c = mix(c, 'k', 0.2);
+            if ((ch === 'S' && 'HBkGgDI'.includes(above)) || (ch === 'S' && y === 14) || (ch === 'C' && y === 15 && x >= 9 && x <= 14)) c = mix(c, 'k', 0.2);
           }
           out.push([x, y, c, 1]);
           continue;
@@ -551,7 +588,7 @@ window.GL = window.GL || {};
       const atk = pixels(lunge(g), look, fac);
       return `<svg viewBox="${VB}" aria-hidden="true" class="spr p24" shape-rendering="crispEdges"><g class="sp-i"><g class="sp-l">${rects(low)}</g><g class="sp-u">${rects(up)}<g class="p24-blink">${rects(blink)}</g></g></g><g class="sp-a">${rects(atk)}</g></svg>`;
     }
-    return { W, H, ok, flat, shaded, grid, HATS, MASKS, ACC, BADGE, FACE };
+    return { W, H, ok, flat, shaded, grid, HATS, MASKS, ACC, BADGE, FACE, HAIR, EXTRA };
   })();
 
   GL.sprites = {
