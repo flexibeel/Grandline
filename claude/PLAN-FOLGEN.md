@@ -72,7 +72,7 @@ Jede Säule nutzt dasselbe Gedächtnis, wirkt kurz (in der Fahrt) und lang (in d
 ## 7. Reihenfolge (Planung, Bauen erst nach eigenem Okay)
 | Schritt | Inhalt | Wer | Hängt an |
 |---|---|---|---|
-| F0 | Weltgedächtnis `profile.world`, Kopie in `run.start`, Cloud-Sync, Logbuch-Seite | Opus | nichts |
+| F0 | Weltgedächtnis `profile.world`, Kopie in `run.start`, Cloud-Sync, Logbuch-Seite | Opus | nichts. **Gebaut 24.10.** (`feature/welt-f0`, `GL.gedaechtnis`, ohne Logbuch-Markierungen, die kommen mit F1/F2) |
 | F1 | 8 bis 10 bestehende Ereignisse bekommen `merk` und eine Rückkehr-Variante, Siegel und Erinnerungs-Sprechblase | Sonnet (Texte), Opus (Anzeige) | F0 |
 | F2 | Seekarte ins Dock, Fahrten decken sie auf, Folgen-Markierungen | Opus | F0, Hafen Schritt 1 |
 | F3 | Crew-Stimmung pro Fahrt, Erinnerungen der Figuren | Opus | F0 |

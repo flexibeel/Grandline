@@ -162,3 +162,37 @@ Danach `git push -u origin feature/offline-modus`.
 **Nicht anfassen:** `battle.js`, Balance. Keine Patchnote, kein `bump-version.py`, kein Merge.
 **Übergabe von Cursor:** Verworfen (23.10., Claude). Der Zweig `fix/fokus-ohne-tempo` enthielt keine Code-Änderung, nur eine Übergabe, die eine nicht gepushte Änderung beschrieb. Umgesetzt von Claude auf `fix/fokus-ohne-tempo-2`: `case 'faster'` in `js/main.js` ignoriert Tipps auf `.fu-enemy`.
 
+
+---
+
+## A8: G2-Texte, Gefühle an 6 bis 8 Crew-Ereignissen   Status: offen
+
+**Zweig:** `feature/herz-g2-texte` von `main` (G1 ist mit 24a live). Nur Daten und Texte, keine Engine.
+**Hintergrund:** Plan 4D (`claude/PLAN-GEFUEHLE.md`, Abschnitte 3, 4 und 11). Seit G1 kann eine Figur in einer Fahrt **froh** (+1 Tempo für 2 Kämpfe) oder **erschöpft** (−20 % Höchstleben im nächsten Kampf) sein. Jetzt sollen auch Ereignis-Wahlen Gefühle auslösen.
+**Aufgabe:** In `js/data/events2.js` (Liste `GL.data.crewEvents`, Ereignisse `ce-…`) bekommen **6 bis 8 Ereignisse an genau einer Wahl** ein neues Feld `herz` neben `outcome`:
+```js
+{ label: [...], hint: [...], outcome: { heal: 0.15 }, herz: { b: 'froh' }, text: [...] }
+```
+- Erlaubt sind nur `herz: { b: 'froh' }` und `herz: { b: 'muede' }`. `b` ist die Figur **B** aus der Szene (die mit dem Kapitän spricht). Kein `a` (der Kapitän wird nie erschöpft), kein `verstimmt` (kommt später).
+- **Froh** an Wahlen, die B gut tun oder B recht geben (B darf kochen, singen, gewinnt die Wette, wird gelobt). **Erschöpft** nur an Wahlen, die B etwas abverlangen (Nachtwache, Extra-Training, rudern in der Flaute). Höchstens **2** der Ereignisse mit `muede`, der Rest `froh`.
+- Bei Glücksspiel-Wahlen (`chance`) steht `herz` trotzdem auf der Wahl selbst, nie in `win`/`lose`.
+- Vorschlag zum Prüfen (bitte jeweils die passende Wahl selbst lesen, andere `ce-…` sind auch okay): `ce-koch` (Probieren → froh), `ce-lied`, `ce-wette`, `ce-training` (→ muede), `ce-flaute` (→ muede), `ce-rivale`, `ce-steckbrief`, `ce-meerjungfrau`.
+- **Hinweis-Text:** an `hint` (de und en) hinten anhängen: ` · 😊 froh` / ` · 😊 happy` bzw. ` · 😮‍💨 erschöpft` / ` · 😮‍💨 tired`. Kein `{B}` in `hint` oder `text` (wird dort nicht eingesetzt).
+- **Ergebnis-Text:** den vorhandenen `text` der Wahl um einen kurzen, witzigen Halbsatz ergänzen, der das Gefühl zeigt, ohne Namen (z. B. „… und jemand summt den ganzen Abend vor sich hin.“). Deutsch und Englisch, Ton wie die übrigen Ereignisse.
+- Werte (`outcome`) **nicht** ändern.
+
+**Fallen:**
+- Eigene Welt: keine Markennamen in neuen Texten. Neue Wörter, die nach Original klingen, mit einem Eintrag in `js/world/neutral.js` absichern oder weglassen. Prüfen: neue Texte durch die Ersetzungsliste schicken oder `index.html?welt=neutral`.
+- `index.html` lädt die Bündel aus `js/build/`. Die Änderung ist im Spiel erst nach dem Bündeln sichtbar, das macht Claude. Nicht `bump-version.py` ausführen.
+- Die Engine liest `herz` noch nicht. Den Leser (Wahl in `case 'event'` in `js/engine/run.js` ruft `herzSet` für `run.event.cast[1]`) baut Claude beim Prüfen. Bitte **nicht** selbst einbauen.
+
+**Fertig, wenn (Claude prüft genau das):**
+1. `git diff --stat origin/main` zeigt nur `js/data/events2.js` (und bei Bedarf `js/world/neutral.js`, `claude/BAUAUFTRAEGE.md`).
+2. 6 bis 8 Wahlen tragen `herz`, jede an einem anderen Ereignis, höchstens 2 mit `muede`, nur Schlüssel `b`.
+3. Jede geänderte Wahl hat den Zusatz in `hint` und den Halbsatz in `text`, beides in Deutsch und Englisch.
+4. `node --check js/data/events2.js` läuft durch, und `node -e "global.window=global;require('./js/data/events2.js');const c=GL.data.crewEvents.flatMap(e=>e.choices.filter(x=>x.herz));console.log(c.length, c.map(x=>JSON.stringify(x.herz)))"` zeigt 6 bis 8 Einträge.
+
+**Nicht anfassen:** `js/engine/`, `js/ui/`, `js/main.js`, Kampf, Balance, Spielstand, `patchnotes.js`, `js/build/`, `css/`. Keine Patchnote, kein `bump-version.py`, kein Merge, keine Zweige löschen.
+
+**Übergabe von Cursor:** _(hier eintragen: welche Ereignisse, welche Wahl, froh/muede)_
+Danach `git push -u origin feature/herz-g2-texte`.
