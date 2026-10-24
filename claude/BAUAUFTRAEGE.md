@@ -208,7 +208,7 @@ Danach `git push -u origin feature/herz-g2-texte`.
 
 ---
 
-## A9: Wiedersehen für die übrigen 8 Folgen (F1 Texte)   Status: offen
+## A9: Wiedersehen für die übrigen 8 Folgen (F1 Texte)   Status: von Claude (Sonnet) selbst geschrieben, Grok hat nichts geliefert; wartet auf Sichttest
 
 **Zweig:** `feature/welt-f1-texte` von `feature/welt-f1` (dort liegt die Mechanik). Nur Daten und Texte, keine Engine.
 **Hintergrund:** F1 aus `claude/PLAN-WELT-MERKT.md` (Abschnitt 3 und 6). Hat man eine Folge schon erlebt, läuft sie in einer späteren Fahrt nicht mehr von vorn, sondern als **ein Wiedersehen** passend zum alten Ende. Claude hat die Mechanik und 3 Folgen gebaut (`post`, `leuchtturm`, `geist`). Muster: `js/data/wiedersehen.js`, Liste `W`.
@@ -242,5 +242,5 @@ Danach `git push -u origin feature/herz-g2-texte`.
 
 **Nicht anfassen:** `js/engine/`, `js/ui/`, `js/main.js`, `css/`, die Folgen selbst in `events3/4/5.js`, Balance, Spielstand, `patchnotes.js`, `js/build/`. Keine Patchnote, kein `bump-version.py`, kein Merge, keine Zweige löschen.
 
-**Übergabe von Cursor:** _(hier eintragen: je Folge die zwei Szenen in einem Satz, welche Wahl `merk` trägt)_
-Danach `git push -u origin feature/welt-f1-texte`.
+**Übergabe (Claude, 24.10.):** Grok hat A9 nicht geliefert, Claude hat die 16 Szenen selbst geschrieben (nur `js/data/wiedersehen.js`). Je Folge zwei Szenen mit `erinnert`, 2 bis 3 Zeilen, 2 Wahlen: gewuerz (Festmahl/Gewürz), party (Tee/Fest), kompass (Streit/Suche), foto (Pose/Grimasse), wette (Eile/Wette), kochduell (fies/Gemüse), muschel (Lied/Muschel), geisterschiff (Karten/Frage). Einziges `merk`: kompass, „Entschuldigung annehmen“ setzt `versoehnt` (steht im `need` der Streit-Szene). Prüfung per Skript: alle 11 Folgen haben 2 Szenen mit passendem `need`, keine Markennamen in den Szenentexten (die Folgen-Titel „Log Port“/„Loguetown“ laufen schon durch `neutral.js`).
+Zweig `feature/welt-f1-texte`.
