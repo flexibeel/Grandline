@@ -48,6 +48,12 @@ Regeln, damit es nie nervt:
 
 ## 5. Anzeige: Gesicht und Spruch
 - **Gesicht:** Jede Figur zeigt ihr Gefühl im Gesicht. Auf den heutigen 12 × 14 Figuren reichen 1 bis 2 Pixel (Augen halb zu = erschöpft, Augenbraue schräg = verstimmt, Mund-Pixel = froh). Mit den geplanten 24 × 30 Figuren (`claude/PLAN-PIXEL.md`, „Gefühle im Gesicht“) wird es deutlicher. **Ein Vorschau-Board mit drei Figuren × drei Gefühlen** kommt vor dem Bauen (Felix entscheidet).
+- **Board G0 entschieden (Felix, 24.10.):** Board „Gefühle im Gesicht“ (Artefakt in Felix' Account: claude.ai/artifact/19328vs6wDVXHjAzBmgK11, Nela, Rafe, Soren im heutigen 12 × 14, mit `pixelsOf` aus `sprites.js` gezeichnet). Gewählt, als Ebene über dem Gesicht nach `applyLook` (Zeile, Spalte im `BASE`-Raster):
+  - **froh = B:** Lächeln (4,4) (4,7) (5,5) (5,6) in Mundfarbe `#6a2a22`, rote Wangen (4,3) (4,8) `#ec8a8e`.
+  - **erschöpft = B:** Augen zu (3,4) (3,7) und Augenringe (4,4) (4,7) in Hautfarbe 45 % dunkler, kleiner Mund (5,5), Schweißtropfen (2,10) (3,10) `#8fd3f4`.
+  - **verstimmt = A:** Brauen zusammen (2,5) (2,6) `#2a1a12`, Mund nach unten (4,5) (4,6) (5,4) (5,7). Kein Wutzeichen (überdeckt Hut/Haare).
+  - Die neuen Farben gehören in `NOSH` (ohne Schattierung). Bei Masken (`MASKS`) und Gesichts-Accessoires (Sonnenbrille, Maske, Augenhöhlen) nur die Pixel setzen, die noch Haut (`S`) sind.
+  - **Sprüche:** Ton der Beispiele auf dem Board passt (Felix), weitere Sätze im selben Ton.
 - **Spruch:** Wechselt das Gefühl, sagt die Figur einen Satz (kurze Sprechblase im Kampffeld oder auf der Karte). Pro Figur je Gefühl 2 bis 3 Sätze, neue Einträge in `crewlife.js` (`froh`, `muede`, `sauer`), Figuren ohne Eintrag nach Rolle (`crewLifeRole`).
 - **Keine Zahl, keine Leiste.** In der Werte-Tafel (22q) steht nur eine Zeile, z. B. „Froh: +1 Tempo“, damit die Wirkung nachlesbar ist.
 
@@ -73,7 +79,7 @@ Regeln, damit es nie nervt:
 ## 9. Reihenfolge (Plan von Felix freigegeben 24.10., Bauen erst nach eigenem Okay)
 | Schritt | Inhalt | Wer | Hängt an |
 |---|---|---|---|
-| G0 | Vorschau-Board: drei Figuren × drei Gefühle im Gesicht | Opus (Pixel) | PLAN-PIXEL-Entscheidung |
+| G0 | Vorschau-Board: drei Figuren × drei Gefühle im Gesicht | Opus (Pixel) | **erledigt 24.10.** (froh B, erschöpft B, verstimmt A, 12 × 14) |
 | G1 | `run.herz` in der Engine: Auslöser K.o./Rast/Boss/Lieblingsessen, Wirkung froh/erschöpft, Gesicht und Spruch im Kampffeld | Opus | nichts (läuft auch ohne F0) |
 | G2 | `herz`-Feld an 6 bis 8 Ereignissen, Ereignis „Zwei streiten“ mit Schlichten | Sonnet (Texte), Opus (Engine) | G1 |
 | G3 | Bitte um ein Gespräch, Szene am Steg, Logbuch-Zeile, Paar-Momente | Opus + Sonnet | G1, F0 |
@@ -82,4 +88,4 @@ Regeln, damit es nie nervt:
 
 ## 10. Noch offen
 - Welche 6 bis 8 Ereignisse bekommen ein `herz`-Feld (Vorschlag kommt mit G2).
-- Gesichter: Board G0 hängt an der Pixelgröße (12 × 14 heute oder 24 × 30 aus `PLAN-PIXEL.md`).
+- Gesichter im Raster 24 × 30 kommen mit Weltbau-Welle C (`PLAN-PIXEL.md`), bis dahin gelten die 12 × 14-Gesichter aus G0.
