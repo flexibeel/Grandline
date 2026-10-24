@@ -282,7 +282,7 @@ Zweig `feature/welt-f1-texte`.
 4. Frischer Spieler (0 Fahrten): Kontor und Taverne mit erkennbaren Fensterläden und „🔒 zu“, Gerücht steht unten im Logbuch. Spieler mit offener Taverne: Gerücht im Untertitel der Taverne, unten nicht mehr.
 5. DE und EN, Hell und Dunkel, `?welt=neutral`: alles lesbar, keine Markennamen, Konsole ohne Fehler.
 
-**Nicht anfassen:** `js/main.js`, `js/engine/`, `js/data/` (außer nichts), `deck.js`, Run und Kampf, Spielstand, Supabase, `patchnotes.js`, `js/build/`. Keine Patchnote, kein `bump-version.py`, kein Merge nach `main` oder `feature/hafen-gebaeude`, keine Zweige löschen.
+**Nicht anfassen:** `js/main.js`, `js/engine/`, `js/data/`, `deck.js`, Run und Kampf, Spielstand, Supabase, `patchnotes.js`, `js/build/`. Keine Patchnote, kein `bump-version.py`, kein Merge nach `main` oder `feature/hafen-gebaeude`, keine Zweige löschen.
 
 ### Abschluss von Grok
 Kurz: was zu C1 bis C5 geändert, welche Zeilen, wie getestet (Breiten, DE/EN, Hell/Dunkel, neutral), was offen blieb. Dann `git push -u origin feature/hafen-feinschliff`.
