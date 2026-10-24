@@ -10515,3 +10515,31 @@ body.ult-hand .rc-ulthint { display: inline; }
 .ce-mem { display: flex; gap: 8px; align-items: flex-start; margin: 0 0 8px; padding: 7px 11px; border-radius: 12px; border: 2px dashed var(--line); background: var(--panel-2); color: var(--mute); font-size: .84rem; line-height: 1.35; font-style: italic; }
 .ce-mem i { font-style: normal; flex: none; }
 .ce-seal { display: inline-block; margin-top: 3px; padding: 1px 7px; border-radius: 999px; background: #2f5f7a; color: #fff; font: 600 .68rem 'Fredoka', sans-serif; letter-spacing: .01em; }
+
+/* Hafen Schritt 1: vier Gebäude statt einzelner Schilder (2×2 am Handy, ab 900 px nebeneinander) */
+body:not(.in-run) .hq .hub-grid.bld, .hub-grid.bld { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 8px !important; }
+@media (min-width: 900px) { body:not(.in-run) .hq .hub-grid.bld, .hub-grid.bld { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; } }
+body:not(.in-run) .hq .hub-tile.bld, .hub-tile.bld { min-height: 96px !important; padding: 10px 6px 8px !important; gap: 3px !important; align-content: center; }
+body:not(.in-run) .hq .hub-tile.bld .hub-art, .hub-tile.bld .hub-art { width: 44px !important; height: 44px !important; }
+body:not(.in-run) .hq .hub-tile.bld .hub-art svg, body:not(.in-run) .hq .hub-tile.bld .hub-art canvas, body:not(.in-run) .hq .hub-tile.bld .hub-art img,
+.hub-tile.bld .hub-art svg, .hub-tile.bld .hub-art canvas, .hub-tile.bld .hub-art img { width: 44px !important; height: 44px !important; }
+body:not(.in-run) .hq .hub-tile.bld b, .hub-tile.bld b { font-size: .9rem !important; }
+body:not(.in-run) .hq .hub-tile.bld small, .hub-tile.bld small { font-size: .7rem !important; }
+/* Am Handy den langen Namen zeigen (Auftragstafel passt in die halbe Breite), nur ganz schmal die Kurzform */
+@media (max-width: 560px) {
+  body:not(.in-run) .hq .hub-tile.bld .ht-l { display: block !important; }
+  body:not(.in-run) .hq .hub-tile.bld .ht-s { display: none !important; }
+}
+@media (max-width: 340px) {
+  body:not(.in-run) .hq .hub-tile.bld .ht-l { display: none !important; }
+  body:not(.in-run) .hq .hub-tile.bld .ht-s { display: block !important; }
+}
+/* Gesperrt: geschlossene Fensterläden, kein Rang-Hinweis */
+.hub-tile.bld.shut { cursor: default; position: relative; overflow: hidden; filter: saturate(.55); }
+.hub-tile.bld.shut::after { content: ''; position: absolute; inset: 8px; pointer-events: none; opacity: .55;
+  background: repeating-linear-gradient(180deg, #8a6236 0 6px, #6e4a26 6px 8px); border-left: 2px solid #4a3018; border-right: 2px solid #4a3018;
+  -webkit-mask: linear-gradient(90deg, #000 calc(50% - 1px), transparent calc(50% - 1px) calc(50% + 1px), #000 calc(50% + 1px)); mask: linear-gradient(90deg, #000 calc(50% - 1px), transparent calc(50% - 1px) calc(50% + 1px), #000 calc(50% + 1px)); }
+.hub-tile.bld.shut:hover, .hub-tile.bld.shut:active { transform: none !important; filter: saturate(.55) !important; }
+.hub-tile.bld.shut b, .hub-tile.bld.shut small { position: relative; z-index: 1; }
+/* Fahrtarten im Dock bzw. an der Tafel, unter dem Umschalter */
+.action-dock.room-acts { margin: -4px 0 12px; }

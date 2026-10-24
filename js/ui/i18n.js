@@ -42,7 +42,7 @@ window.GL = window.GL || {};
     'Wut!': 'Rage!', 'Fast geschafft!': 'Almost done!', 'Konter!': 'Counter!', 'Letzter Wille': 'Last will', 'Die Crew gibt nicht auf!': 'The crew won’t give up!',
     'Gemütlich': 'Relaxed', 'Zügig': 'Brisk', 'Schnell': 'Fast', 'Turbo': 'Turbo', 'Besiegt': 'Defeated', 'Mit': 'With',
     // Hauptquartier
-    'Im Hafen': 'At the harbor', '‹ Hafen': '‹ Harbor', '‹ Zurück zum Hafen': '‹ Back to harbor', 'Stammcrew': 'Squad', 'Werft': 'Shipyard', 'Schmiede': 'Forge',
+    'Im Hafen': 'At the harbor', 'Gebäude im Hafen': 'Buildings at the harbor', 'Dock': 'Dock', 'Auftragstafel': 'Quest board', 'Tafel': 'Board', '🔒 zu': '🔒 closed', 'Tageskarte offen': 'Daily run open', '‹ Hafen': '‹ Harbor', '‹ Zurück zum Hafen': '‹ Back to harbor', 'Stammcrew': 'Squad', 'Werft': 'Shipyard', 'Schmiede': 'Forge',
     'Schatzkammer': 'Treasury', 'Lager': 'Storage', 'Händler': 'Merchant', 'Kapitänsbuch': 'Captain’s log', 'Rang, Code, Konto': 'Rank, code, account', 'Ausbauten': 'Upgrades', 'Proviant': 'Supplies',
     '⚓ Leinen los!': '⚓ Cast off!', 'Leinen los!': 'Cast off!', 'Die Grand Line ruft!': 'The Grand Line calls!', 'Dein Run läuft noch': 'Your run is still going', 'Raid-Ziel': 'Raid target', 'Heute offen': 'Open today',
     '✓ gespielt': '✓ played', 'Wie weit?': 'How far?', 'Einladen': 'Invite', 'Leistbar': 'Affordable', 'An Bord': 'On board', '📊 Statistik': '📊 Stats', '♥ Freunde': '♥ Friends',
