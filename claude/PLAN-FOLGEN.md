@@ -54,6 +54,7 @@ Jede Säule nutzt dasselbe Gedächtnis, wirkt kurz (in der Fahrt) und lang (in d
 - **Idee:** Figuren sind nicht nur Werte. Sie werden verletzt, mögen sich, streiten und erinnern sich.
 - **Beispiel:** Du schickst Nela zweimal in den Sturm. Kurz: Sie ist „erschöpft“ und setzt einen Kampf aus. Lang: Sie und Lasse wachsen zusammen (neuer gemeinsamer Moment), oder sie ist sauer und will in der Taverne neu verhandelt werden.
 - **Baut auf:** Vertrautheit (`profile.squadXp`), gemeinsame Momente (`moments.js`), Crew-Leben (`crewlife.js`) und Duos. Neu wäre nur eine kleine Stimmung pro Figur und Fahrt (nur `run`) plus Erinnerungen im Gedächtnis.
+- **Detailplan:** `claude/PLAN-GEFUEHLE.md` (24.10.).
 - **Vorsicht:** Eine Figur darf nie für immer verloren gehen. Höchstens Pause oder Bitte um Versöhnung, kein Dauerverlust (Spieler hängen an ihren Figuren).
 
 ## 5. Erkunden: die Seekarte wird die Karte der Welt
