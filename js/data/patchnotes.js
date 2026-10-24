@@ -1,6 +1,10 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-24a', date: '24.10.', title: 'Eine Crew mit Gefühlen', items: [
+    '😊 Deine Crew hat jetzt Gefühle: Ein Lieblingsessen bei der Rast oder ein starker Auftritt im Bosskampf macht eine Figur froh, dann ist sie für zwei Kämpfe +1 Tempo schneller',
+    '😮‍💨 Wer in einer Fahrt zweimal K.o. geht, ohne dazwischen zu rasten, ist erschöpft und hat im nächsten Kampf 20 % weniger Leben. Eine Rast hilft. Der Kapitän bleibt immer standhaft',
+    '💬 Du siehst es im Kampffeld am Gesicht, an einem kleinen Abzeichen und an einem Spruch. Los geht es ab deiner zweiten Fahrt' ] },
   { v: '2026-10-23c', date: '23.10.', title: 'Tipp auf den Gegner, nur Fokus', items: [
     '🎯 Im Kampf setzt ein Tipp auf einen Gegner im Feld jetzt nur noch den Fokus. Vorher sprang das Tempo gleich mit auf schnell, und das war bei Boss-Ansagen genau falsch. Schneller wird es weiter mit dem Tempo-Knopf oder einem Tipp auf freie Fläche',
     '🃏 Ein kleiner Fehler im Hintergrund ist weg: Beim Darüberfahren mit der Maus über manche Karten, zum Beispiel bei Ereignissen, kam jedes Mal eine Fehlermeldung. Jetzt bleibt es still' ] },
