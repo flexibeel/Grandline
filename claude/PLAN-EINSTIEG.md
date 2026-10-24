@@ -84,3 +84,17 @@ Heute dauert eine Fahrt etwa 20 Minuten (drei Meere, je zwei Inseln). Damit der 
 | 9 bis 10 | Hafen mit Dock und Taverne offen, die anderen Gebäude mit Fensterläden |
 
 Nächster Schritt in der Planung: ein **Storyboard** dieser 10 Minuten als Bild-Board (wie das Board der Bekannten), damit Felix den Ablauf sieht und abnicken kann.
+
+## 6. Storyboard (24.10., Bild-Board)
+Board **„Storyboard: Die ersten 10 Minuten“** (Design-Artefakt in Jans Account: claude.ai/artifact/EhmtQtBqcPNeZXKKXdjNR8): 13 Handy-Bildschirme (390 × 844) in drei Reihen, Figuren mit `GL.sprites.render` aus dem Spiel gezeichnet (Rafe, Soren, Nela, Lasse, Santo, Pipo, Bunko, Korken Look D, dein Pirat), unter jedem Bild ein Zettel mit der Folge oder Entdeckung. Die Knöpfe sind verlinkt, im Abspielen kann man den Ablauf durchklicken.
+1. **Ankommen (Min 0 bis 1,5):** Titel als Szene mit einem Knopf · Rafe fragt am Steg, drei Antworten mit Siegel · Nela fragt nach dem Hut (4 Hüte, 5 Farben, Vorschau auf der Bühne) · Name in der Sprechblase, „Anheuern“.
+2. **Erste Fahrt (Min 2 bis 5):** Seekarte im Nebel (ein Gerücht angetippt, zwei weitere als „?“, Fahrtziel-Zeile) · Ablegen mit fester Crew aus vier · Flaschenpost Teil 1 mit Siegel · Taverne „Zur Rostigen Möwe“ mit drei Figuren ohne Chips · Kampf: Ansage, Balken 9/15 %, „Fokus auf ihn!“, „Unterbrochen!“.
+3. **Folgen sehen (Min 6 bis 10):** Korken mit drei winzigen Matrosen (Kuchen-Zweig, der andere Zweig als Hinweis) · Insel-Wahl am Zirkus (Zelt abbauen, Artisten anheuern, Kasse mitnehmen) · Fest im Hafen mit aufgedeckter Karte, Herz-Markierung und Kapitel 2 · Hafen mit Dock und Taverne offen, Kontor und Auftragstafel mit Fensterläden, Tab-Leiste Hafen · Tafel · Taverne · Kapitän.
+
+**Funde beim Zeichnen (für die Bau-Phase):**
+- **Bunko (Orangenhafen) hat keine Signatur-Ansage.** `bossSigs` gibt es nur für 14 Bosse ab Ruß/Hairo. Für den Lernmoment in Minute 4 braucht der erste Bösewicht eine eigene, leichte Ansage (Vorschlag „Konfetti-Kanone“), sonst muss die erste Insel eine andere sein.
+- **Korken braucht die Größen-Option** (winzige Figuren), schon in `PLAN-WELT-MERKT.md` vermerkt. Auf dem Board einfach kleiner gezeichnet.
+- **Wortwahl `mood`:** `run.mood` ist schon belegt (Meer-Stimmung wie „goldrausch“, „flaute“). Crew-Gefühle (Säule 4D) brauchen einen anderen Namen.
+- Die Taverne in Fahrt 1 zeigt drei Figuren mit kurzem Satz statt Werten. Preise bleiben (Gold ist schon in Fahrt 1 da).
+
+**Offen:** Felix schaut das Board an und nickt ab oder markiert, wo es hakt (Kommentare direkt am Board).
