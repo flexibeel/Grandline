@@ -3539,7 +3539,7 @@ window.GL = window.GL || {};
     const r = petRumor(profile), st = GL.meta.albumStep(profile);
     const FEM = ['moewe', 'krabbe', 'kaluente', 'teleschnecke', 'taube', 'fledermaus', 'qualle', 'goldschnecke', 'schatzkrabbe'];
     const nm = r ? r.name.replace(/^(Kleine[rs]?) /, m => m.toLowerCase()) : '';
-    const rumor = r ? `<button class="hook-row" data-act="album" data-tab="pets">
+    const rumor = r && !areaOpen(profile, 'taverne') ? `<button class="hook-row" data-act="album" data-tab="pets">
         <i class="hook-ico pet-sil">${petArt(r.id)}</i>
         <span><small>Hafengerücht</small><b>Auf ${esc(islName(r.isl))} soll ${FEM.includes(r.id) ? 'eine' : 'ein'} ${esc(nm)} leben</b></span></button>` : '';
     const nx = st.next;
@@ -4549,28 +4549,28 @@ window.GL = window.GL || {};
   // Endlos-Fahrt: eigener Modus, freigeschaltet mit dem ersten besiegten Meeres-Boss (und Rang 4)
   // Kleiner Punkt am Reiter, wenn dort etwas Sinnvolles wartet (leistbarer Ausbau, neue Ausrüstung …)
   // Alle Arten abzulegen auf einen Blick: Endlos-Fahrt, Tageskarte, Raid-Ziel (jeweils ein kleines Schild, Details im Fenster)
-  function actionDock(profile) {
-    const tiles = [];
+  function actionDock(profile, kinds) {
+    const tiles = [], want = k => !kinds || kinds.includes(k);
     const seas = GL.meta.seasCleared(profile);
-    if (GL.meta.featureOpen(profile, 'endlos')) {
+    if (!want('endlos')) {} else if (GL.meta.featureOpen(profile, 'endlos')) {
       const rec = profile.endlessRec;
       tiles.push(`<button class="ad-tile" data-act="endless-open"><i class="ad-ico">∞</i><b>Endlos</b><small>${rec ? `${rec.loops} Runden` : 'Wie weit?'}</small></button>`);
     } else if (((profile.stats && profile.stats.runs) || 0) >= 4 && (seas.length || GL.meta.level(profile) >= 3)) {
       tiles.push(`<button class="ad-tile locked" data-act="endless-open"><i class="ad-ico">∞</i><b>Endlos</b><small>🔒 ${!seas.length ? 'Boss East Blue' : 'Rang 4'}</small></button>`);
     }
-    if (GL.meta.featureOpen(profile, 'daily')) {
+    if (want('daily') && GL.meta.featureOpen(profile, 'daily')) {
       const dd = GL.daily.done(profile);
       tiles.push(`<button class="ad-tile${dd ? ' done' : ' hot'}" data-act="${dd ? 'daily-info' : 'daily-start'}"><i class="ad-ico">${featureArt('scroll')}</i><b>Tageskarte</b><small>${dd ? '✓ gespielt' : 'Heute offen'}</small></button>`);
     }
-    if (GL.meta.featureOpen(profile, 'landgang')) {
+    if (want('landgang') && GL.meta.featureOpen(profile, 'landgang')) {
       const nOpen = GL.dungeonCount ? GL.dungeonCount(profile) : 0;
       tiles.push(`<button class="ad-tile" data-act="dg-open"><i class="ad-ico">${featureArt('compass')}</i><b>Landgang</b><small>${nOpen} ${nOpen === 1 ? 'Ort' : 'Orte'}</small></button>`);
     }
-    if (GL.meta.featureOpen(profile, 'jagd')) {
+    if (want('jagd') && GL.meta.featureOpen(profile, 'jagd')) {
       const t = profile.hunt && GL.data.raids.find(r => r.id === profile.hunt);
       tiles.push(`<button class="ad-tile" data-act="hunt-open"><i class="ad-ico">${t ? GL.sprites.render(t) : '🎯'}</i><b>Raid</b><small>${t ? esc(t.name.replace(/^Admiral |^Rothaar /, '')) : 'kein Ziel'}</small></button>`);
     }
-    return tiles.length ? `<div class="action-dock">${tiles.join('')}</div>` : '';
+    return tiles.length ? `<div class="action-dock${kinds ? ' room-acts' : ''}">${tiles.join('')}</div>` : '';
   }
   function endlessPop(profile) {
     const open = GL.meta.featureOpen(profile, 'endlos'), seas = GL.meta.seasCleared(profile);
@@ -4596,7 +4596,7 @@ window.GL = window.GL || {};
     if (id === 'stammcrew') return !!(GL.cgear && (profile.gearNew || []).length);
     if (id === 'gemuet') return !!(GL.skills && GL.skills.free(profile) > 0 && GL.skills.all().some(n => !GL.skills.blocker(profile, n.id)));
     if (id === 'schmiede') return GL.config.rarities.slice(0, -1).some((x, r) => GL.meta.fusable(profile, r).length >= 3 && profile.berry >= GL.meta.fuseCost(r));
-    if (id === 'crew') return ROOM_GROUPS.crew.some(x => GL.meta.featureOpen(profile, x) && tabAlert(profile, x));
+    if (ROOM_GROUPS[id]) return areaRooms(profile, id, true).some(x => tabAlert(profile, x));   // Gebäude: irgendein Raum darin
     if (id === 'auftraege') return GL.meta.featureOpen(profile, 'quests') && GL.meta.questsEnsure(profile).some(q => GL.meta.questProgress(profile, q).done);
     return false;
   }
@@ -4867,30 +4867,56 @@ window.GL = window.GL || {};
     { id: 'profil', name: 'Kapitänsbuch', art: 'scroll', sub: () => 'Rang & Konto' }
   ];
   const roomArt = a => a === 'ship' ? GL.sprites.ship() : featureArt(a);
-  // UX2: kurze Namen für die kleinen Handy-Kacheln
-  const HUB_SHORT = { gemeinschaft: 'Koop', gemuet: 'Skills', kammer: 'Kammer', profil: 'Kapitän', stammcrew: 'Crew' };
-  function hubTiles(profile, tab) {
-    const fresh = ((profile.stats && profile.stats.runs) || 0) < 1 && !(profile.seenFeatures || []).length;
-    const open = ROOMS.filter(r => GL.meta.featureOpen(profile, r.id) && !(fresh && r.id === 'werft'));
-    return `<nav class="hub" aria-label="Räume im Hauptquartier"><span class="hub-lbl">Im Hafen</span><div class="hub-grid">${open.map(r =>
-      `<button class="hub-tile" data-act="hq-tab" data-tab="${r.id}"><i class="hub-art">${roomArt(r.art)}</i><b class="ht-l">${r.name}</b><b class="ht-s">${HUB_SHORT[r.id] || r.name}</b>${r.sub(profile) ? `<small>${r.sub(profile)}</small>` : ''}${tabAlert(profile, r.id) ? '<i class="tab-dot" title="Hier gibt es etwas zu tun"></i>' : ''}</button>`).join('')}</div></nav>`;
-  }
-  // Räume, die zusammengehören: oben als Umschalter (wie Tabs in einer App)
-  const ROOM_GROUPS = { crew: ['stammcrew', 'schmiede', 'lager', 'kammer'], hafen: ['kontor', 'werft', 'gemuet', 'haendler'] };
-  const SEG_NAME = { stammcrew: 'Crew', schmiede: 'Schmiede', lager: 'Lager', kammer: 'Kammer', werft: 'Werft', gemuet: 'Skills', haendler: 'Händler', kontor: 'Kontor' };
+  // Hafen Schritt 1: vier Gebäude statt einzelner Schilder. Gebäude-ids sind nur Hülle, nie durch featureOpen schicken
+  // (unbekannte id = offen) und nie in features.js eintragen. Sprungziele bleiben die Raum-ids.
+  const ROOM_GROUPS = { dock: ['werft', 'gemuet', 'haendler'], tafel: ['auftraege', 'gemeinschaft'], kontor: ['kontor', 'lager', 'kammer', 'schmiede'], taverne: ['stammcrew', 'rangliste'] };
+  const AREAS = [
+    { id: 'dock', name: 'Dock', art: 'ship', always: true, acts: ['endlos', 'daily'],
+      sub: p => GL.meta.featureOpen(p, 'daily') && !GL.daily.done(p) ? 'Tageskarte offen' : GL.skills && GL.meta.featureOpen(p, 'gemuet') && GL.skills.free(p) ? `✦ ${GL.skills.free(p)} frei` : 'Ausbauten' },
+    { id: 'tafel', name: 'Auftragstafel', short: 'Tafel', art: 'scroll', always: true, acts: ['landgang', 'jagd'], sub: p => ROOMS[0].sub(p) },
+    { id: 'kontor', name: 'Kontor', art: 'chest', sub: (p, rooms) => rooms.includes('kontor') ? ROOMS.find(r => r.id === 'kontor').sub(p) : ROOMS.find(r => r.id === rooms[0]).sub(p) },
+    { id: 'taverne', name: 'Taverne', art: 'tavern', sub: (p, rooms) => {
+      const rum = petRumor(p);
+      if (rum) return `Gerücht: ${esc(rum.name)} auf ${esc(islName(rum.isl))}`;
+      return rooms.includes('stammcrew') ? ROOMS.find(x => x.id === 'stammcrew').sub(p) : 'Rangliste';
+    } }
+  ];
+  const areaArt = a => a === 'tavern' ? GL.sprites.icon('node', 'recruit') : roomArt(a);
   const groupOf = id => Object.keys(ROOM_GROUPS).find(g => ROOM_GROUPS[g].includes(id)) || null;
-  // Erster offener Raum der Crew-Gruppe (für den Crew-Knopf unten)
-  function crewRoom(profile, last) {
-    const open = ROOM_GROUPS.crew.filter(x => GL.meta.featureOpen(profile, x));
-    return open.includes(last) ? last : open[0] || null;
+  // Offene Räume eines Gebäudes (im Hafen bei 0 Runs ohne Werft, wie bisher)
+  function areaRooms(profile, g, hub) {
+    const fresh = hub && ((profile.stats && profile.stats.runs) || 0) < 1 && !(profile.seenFeatures || []).length;
+    return ROOM_GROUPS[g].filter(x => GL.meta.featureOpen(profile, x) && !(fresh && x === 'werft'));
+  }
+  const areaOpen = (profile, g) => areaRooms(profile, g, true).length > 0;
+  // Zuletzt besuchter Raum pro Gebäude, nur für diese Sitzung (kein Spielstand)
+  const areaLast = {};
+  function hubTiles(profile) {
+    const tiles = AREAS.map(a => {
+      const rooms = areaRooms(profile, a.id, true);
+      if (!rooms.length && !a.always) return `<div class="hub-tile bld shut b-${a.id}" aria-disabled="true"><i class="hub-art">${areaArt(a.art)}</i><b class="ht-l">${a.name}</b><b class="ht-s">${a.short || a.name}</b><small>🔒 zu</small></div>`;
+      const to = areaRoom(profile, a.id);
+      const sub = rooms.length ? a.sub(profile, rooms) : 'Ablegen';
+      const dot = rooms.some(x => tabAlert(profile, x));
+      return `<button class="hub-tile bld b-${a.id}" ${to ? `data-act="hq-tab" data-tab="${to}"` : 'data-act="sail"'}><i class="hub-art">${areaArt(a.art)}</i><b class="ht-l">${a.name}</b><b class="ht-s">${a.short || a.name}</b>${sub ? `<small>${sub}</small>` : ''}${dot ? '<i class="tab-dot" title="Hier gibt es etwas zu tun"></i>' : ''}</button>`;
+    });
+    return `<nav class="hub" aria-label="Gebäude im Hafen"><span class="hub-lbl">Im Hafen</span><div class="hub-grid bld">${tiles.join('')}</div></nav>`;
+  }
+  // Räume eines Gebäudes: oben als Umschalter (wie Tabs in einer App)
+  const SEG_NAME = { stammcrew: 'Crew', rangliste: 'Rangliste', schmiede: 'Schmiede', lager: 'Lager', kammer: 'Kammer', werft: 'Werft', gemuet: 'Skills', haendler: 'Händler', kontor: 'Kontor', auftraege: 'Aufträge', gemeinschaft: 'Koop' };
+  // Raum, in dem ein Gebäude aufgeht: zuletzt besuchter, sonst der erste offene (null = Gebäude noch zu)
+  function areaRoom(profile, g) {
+    const rooms = areaRooms(profile, g, true);
+    return rooms.includes(areaLast[g]) ? areaLast[g] : rooms[0] || null;
   }
   function roomHead(profile, tab) {
     const r = ROOMS.find(x => x.id === tab) || ROOMS[ROOMS.length - 1];
-    const g = groupOf(r.id);
-    const seg = g ? ROOM_GROUPS[g].filter(x => GL.meta.featureOpen(profile, x)).map(x => ROOMS.find(y => y.id === x)).filter(Boolean) : [];
+    const g = groupOf(r.id), A = g && AREAS.find(a => a.id === g);
+    if (g) areaLast[g] = r.id;
+    const seg = g ? areaRooms(profile, g).map(x => ROOMS.find(y => y.id === x)).filter(Boolean) : [];
     const segHtml = seg.length > 1 ? `<div class="room-seg seg-${seg.length}" role="tablist">${seg.map(x => `<button class="seg-btn${x.id === r.id ? ' on' : ''}" data-act="hq-tab" data-tab="${x.id}" role="tab" aria-selected="${x.id === r.id}"><i class="seg-ico">${roomArt(x.art)}</i><span>${SEG_NAME[x.id] || x.name}</span>${tabAlert(profile, x.id) ? '<i class="tab-dot"></i>' : ''}</button>`).join('')}</div>` : '';
-    return `<div class="room-head app-bar"><button class="room-back" data-act="hq-home" aria-label="Zurück zum Hafen">‹ <span>Hafen</span></button><span class="room-title"><i class="hub-art sm">${roomArt(r.art)}</i>${r.name}</span><span class="room-berry" title="Berry">${GL.sprites.coin()}<b>${Number(profile.berry || 0).toLocaleString('de-DE')}</b></span><button class="room-x" data-act="hq-home" aria-label="Schließen" title="Schließen (Esc)">✕</button></div>
-      ${segHtml}`;
+    return `<div class="room-head app-bar"><button class="room-back" data-act="hq-home" aria-label="Zurück zum Hafen">‹ <span>Hafen</span></button><span class="room-title"><i class="hub-art sm">${A ? areaArt(A.art) : roomArt(r.art)}</i>${A ? A.name : r.name}</span><span class="room-berry" title="Berry">${GL.sprites.coin()}<b>${Number(profile.berry || 0).toLocaleString('de-DE')}</b></span><button class="room-x" data-act="hq-home" aria-label="Schließen" title="Schließen (Esc)">✕</button></div>
+      ${segHtml}${A && A.acts ? actionDock(profile, A.acts) : ''}`;
   }
   // ---------- Kontor (Design-Fläche Baustein 6/7, Teil 1) ----------
   function kontorRoom(profile) {
@@ -5085,11 +5111,11 @@ window.GL = window.GL || {};
         <div class="sail-row">
           <button class="btn sail" data-act="sail">${pxIco('ship')}Leinen los! ${keyHint('Leertaste')}</button>
         </div>
-        ${friendsOnline(profile)}${GL.worldmap ? GL.worldmap.goalCard(profile) : ''}${actionDock(profile)}
+        ${friendsOnline(profile)}${GL.worldmap ? GL.worldmap.goalCard(profile) : ''}${areaOpen(profile, 'dock') ? '' : actionDock(profile, AREAS[0].acts)}
         <div class="sail-meta">${atSeaBox()}${heatBox}${board.length ? `<span class="sail-board"><span class="sb-lbl">An Bord</span>${board.join('')}</span>` : ''}${buddyChip(profile)}</div>`}
       </div>`}
 
-      ${room ? roomHead(profile, tab) : hubTiles(profile, tab)}
+      ${room ? roomHead(profile, tab) : uiRef && uiRef.peek ? '' : hubTiles(profile)}
       ${room ? '' : featureNextLine(profile)}
       ${room || (uiRef && uiRef.peek) ? '' : goalList(profile, 2).replace('goal-box pxf', 'goal-box pxf hq-goals')}
       ${room || (uiRef && uiRef.peek) ? '' : secureSign(profile, uiRef, 'hafen')}
@@ -5469,19 +5495,22 @@ window.GL = window.GL || {};
       document.body.classList.toggle('in-battle', !!(run && run.phase === 'battle' && !ui.screen));
       seenRef = ui.profile && ui.profile.seen; profRef = ui.profile || null;
       document.body.classList.toggle('in-room', !run && !ui.screen && !!ui.hqRoom && !!ui.profile && GL.meta.featureOpen(ui.profile, ui.hqRoom));
-      // Feste Leiste unten (nur im Hauptquartier): Hafen, Aufträge, Stammcrew, Rangliste, Kapitänsbuch
+      // Feste Leiste unten (nur im Hauptquartier): Hafen, Tafel, Taverne, Kapitänsbuch
       const tb = document.getElementById('tabbar');
       if (tb) {
         const showTb = !run && !ui.screen && ui.profile && ui.profile.nickname;
         tb.hidden = !showTb;
         document.body.classList.toggle('has-tabbar', !!showTb);
         if (showTb) {
-          const P = ui.profile, cur0 = ui.hqRoom || 'hafen', cur = groupOf(cur0) === 'crew' ? 'crew' : cur0;
-          const cr = crewRoom(P, ui.crewLast);
-          const items = [['hafen', 'Hafen', 'flag'], ['auftraege', 'Aufträge', 'scroll'], ['crew', 'Crew', 'flag2'], ['rangliste', 'Rangliste', 'podium'], ['profil', 'Kapitän', 'self']]
-            .filter(([id]) => id === 'hafen' || id === 'profil' || (id === 'crew' ? !!cr : GL.meta.featureOpen(P, id)));
-          const ico = a => a === 'self' ? GL.sprites.render({ id: 'self', look: lookOf(P) }) : a === 'flag' ? GL.sprites.ship() : featureArt(a === 'flag2' ? 'flag' : a);
-          const html = items.map(([id, name, art]) => `<button class="tb-btn${cur === id ? ' on' : ''}" data-act="${id === 'hafen' ? 'hq-home' : 'hq-tab'}" data-tab="${id === 'crew' ? cr : id}"><i class="tb-ico">${ico(art)}</i><span>${name}</span>${id !== 'hafen' && tabAlert(P, id) ? '<i class="tab-dot"></i>' : ''}</button>`).join('');
+          // Hafen Schritt 1 B: Hafen · Tafel · Taverne · Kapitän. Tafel/Taverne öffnen ihr Gebäude (letzter Raum),
+          // Dock und Kontor erreicht man über den Hafen, deshalb leuchtet dort „Hafen“.
+          const P = ui.profile, room = ui.hqRoom, g = room && groupOf(room);
+          const cur = !room ? 'hafen' : room === 'profil' ? 'profil' : g === 'tafel' || g === 'taverne' ? g : 'hafen';
+          const items = [['hafen', 'Hafen', 'flag'], ['tafel', 'Tafel', 'scroll'], ['taverne', 'Taverne', 'tavern'], ['profil', 'Kapitän', 'self']]
+            .map(([id, name, art]) => [id, name, art, !ROOM_GROUPS[id] ? id : g === id ? room : areaRoom(P, id)])
+            .filter(([id, , , to]) => !!to);
+          const ico = a => a === 'self' ? GL.sprites.render({ id: 'self', look: lookOf(P) }) : a === 'flag' ? GL.sprites.ship() : areaArt(a);
+          const html = items.map(([id, name, art, to]) => `<button class="tb-btn${cur === id ? ' on' : ''}" data-act="${id === 'hafen' ? 'hq-home' : 'hq-tab'}" data-tab="${to}"><i class="tb-ico">${ico(art)}</i><span>${name}</span>${id !== 'hafen' && tabAlert(P, id) ? '<i class="tab-dot"></i>' : ''}</button>`).join('');
           if (tb.dataset.last !== html) { tb.innerHTML = html; tb.dataset.last = html; }
         }
       }

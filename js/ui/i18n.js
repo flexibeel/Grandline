@@ -42,8 +42,8 @@ window.GL = window.GL || {};
     'Wut!': 'Rage!', 'Fast geschafft!': 'Almost done!', 'Konter!': 'Counter!', 'Letzter Wille': 'Last will', 'Die Crew gibt nicht auf!': 'The crew won’t give up!',
     'Gemütlich': 'Relaxed', 'Zügig': 'Brisk', 'Schnell': 'Fast', 'Turbo': 'Turbo', 'Besiegt': 'Defeated', 'Mit': 'With',
     // Hauptquartier
-    'Im Hafen': 'At the harbor', '‹ Hafen': '‹ Harbor', '‹ Zurück zum Hafen': '‹ Back to harbor', 'Stammcrew': 'Squad', 'Werft': 'Shipyard', 'Schmiede': 'Forge',
-    'Schatzkammer': 'Treasury', 'Lager': 'Storage', 'Händler': 'Merchant', 'Kapitänsbuch': 'Captain’s log', 'Rang, Code, Konto': 'Rank, code, account', 'Ausbauten': 'Upgrades', 'Proviant': 'Supplies',
+    'Im Hafen': 'At the harbor', 'Gebäude im Hafen': 'Buildings at the harbor', 'Dock': 'Dock', 'Auftragstafel': 'Quest board', 'Tafel': 'Board', '🔒 zu': '🔒 closed', 'Tageskarte offen': 'Daily run open', '‹ Hafen': '‹ Harbor', '‹ Zurück zum Hafen': '‹ Back to harbor', 'Stammcrew': 'Squad', 'Werft': 'Shipyard', 'Schmiede': 'Forge',
+    'Schatzkammer': 'Treasury', 'Lager': 'Storage', 'Händler': 'Merchant', 'Kapitänsbuch': 'Captain’s log', 'Rang, Code, Konto': 'Rank, code, account', 'Ausbauten': 'Upgrades', 'Proviant': 'Supplies', 'Gerücht': 'Rumor',
     '⚓ Leinen los!': '⚓ Cast off!', 'Leinen los!': 'Cast off!', 'Die Grand Line ruft!': 'The Grand Line calls!', 'Dein Run läuft noch': 'Your run is still going', 'Raid-Ziel': 'Raid target', 'Heute offen': 'Open today',
     '✓ gespielt': '✓ played', 'Wie weit?': 'How far?', 'Einladen': 'Invite', 'Leistbar': 'Affordable', 'An Bord': 'On board', '📊 Statistik': '📊 Stats', '♥ Freunde': '♥ Friends',
     'Pirat und Aussehen bearbeiten': 'Edit pirate and look', '★ Feedback': '★ Feedback', 'Rechtliches': 'Legal', 'Abholen': 'Claim', 'Ansehen': 'View',
@@ -156,6 +156,7 @@ window.GL = window.GL || {};
     [/^Leben (\d+), Angriff (\d+), Tempo (\d+)$/, 'HP $1, attack $2, speed $3'],
     [/^(.+) · Lv (\d+)$/, (m, a, n) => `${({ Strohhut: 'Straw Hats', Weißbart: 'Whitebeard', Rothaar: 'Red Hair', Marine: 'Marines', Samurai: 'Warlords' })[a] || tr(a)} · Lv ${n}`],
     [/^Lv (\d+) · wähle ein Training(?: · danach noch (\d+) weitere?)?$/, (m, l, n) => `Lv ${l} · pick a training${n ? ` · then ${n} more` : ''}`],
+    [/^Gerücht: (.+?) auf (.+)$/, (m, pet, isl) => `Rumor: ${tr(pet)} on ${tr(isl)}`],
     [/^Auf (.+) soll (?:ein|eine) (.+) leben$/, (m, i, p) => `A ${tr(p)} is said to live on ${tr(i)}`],
     [/^Schaltet frei: (.+)$/, (m, a) => `Unlocks: ${tr(a)}`],
     [/^Kopfgeld-Ziel: (.+?) \((.+?)\): ([^:]+): (.+)$/, (m, a, b, n, t) => `Bounty target: ${NM(a)} (${b}): ${tr(n)}: ${tr(t)}`],
