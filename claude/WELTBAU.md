@@ -46,3 +46,5 @@ Pro Figur ein Markenzeichen (Hut, Farbe oder Gegenstand), höchstens 4 Accessoir
 **Ergänzung (23.10., Jan per Klick):** Welle C (die 65 Figuren) entsteht gleich im **neuen Raster 24 × 30** mit Umrisslinie, Blinzeln, Atmen, Gefühlen im Gesicht und Angriffsposen. Details: `claude/PLAN-PIXEL.md`.
 
 **Stand Welle A (24.10., Felix/Jan per Klick):** gebaut auf `feature/weltbau-a`. Zuordnung: Ostmeer, Wilde See (Nebenroute **Tiefsee**, Heimat des Flossenvolks), Gerichtsinsel (Nebenroute **Gruselmeer**), der **Spiegel-Archipel** ist die große Insel am Ende des Gruselmeers. Prüfskript: `tools/weltbau-check.py`.
+
+**Stand Welle B (24.10., Felix/Jan per Klick):** Namensliste in `claude/WELTBAU-B.md` (Zweig `feature/weltbau-b`), wartet auf Felix. Namen überall neu, Raid-Bosse gehören zur Krone, Fußvolk mit dabei.
