@@ -42,3 +42,9 @@ Board **„Pixel-Probe 24 × 30“** (Design-Artefakt in Felix' Account: claude.
 - Leistung: Pixel einer Farbe werden zeilenweise zusammengefasst, eine Figur hat so 260–340 Rechtecke (heute ca. 150 je Bild, mit Angriffsbild doppelt). Also kein Problem im Kampf.
 - Nicht in der Probe: Angriffsposen (Schritt 4), weitere Hüte und Masken (Schritt 2). Hut, Stirnband und lange Haare sind nur für diese drei neu gezeichnet. Die Looks selbst (Strohhut usw.) sind noch die alten und werden in C4 eigenständig.
 - **Entschieden (Felix per Klick, 24.10.):** Grundkörper so, alle 5 Gefühle so, Umriss und Schatten so, Augen 2 × 3 so. `px24.js` ist damit die Vorlage für den Umbau von `sprites.js` in C4.
+
+## 7. C4 Looks pro Fraktion (24.10., 32. Chat, Opus)
+**Entschieden (Felix per Klick, 24.10.):**
+1. **Leitfarbe als Abzeichen:** Jede Figur behält eigene Farben, dazu ein festes Fraktions-Detail in Leitfarbe (Schärpe, Kragen oder Abzeichen, je Fraktion eins). Leitfarben siehe `WELTBAU-C.md` Abschnitt 1.
+2. **Reihenfolge:** zuerst **C4a Malwerk** (`px24.js` als Zeichner in `sprites.js`, gleiche Schnittstelle `render`/`renderShaded`/Gefühle, Rückfall auf 12 × 14 solange ein Teil fehlt, Angriffsbild Vorbeugen, alle heutigen Hüte, Masken und Zusätze neu), dann **Kronwacht** als erstes Fraktions-Board. Danach je Fraktion ein Board, Felix klickt ab, dann in `crew.js`. Sturmmöwen und ihre 30 Form-Teile zuletzt.
+3. **Nah am Original:** Für jede kritische Figur zwei eigene Varianten aufs Board, Felix wählt per Klick (z. B. Lorn, Asch, Rosé, Simon). Die vier rosa Schöpfe (Hilde, Kian, Lotta, Huschel) über Frisur und Hut unterscheiden.
