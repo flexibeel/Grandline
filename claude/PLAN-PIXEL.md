@@ -34,3 +34,11 @@ Das System bleibt: Look-Werte plus Teile. Nur die Teile werden neu und größer.
 3. Form-Accessoires.
 4. Angriffsposen und Waffen pro Kampfstil.
 5. Alte 12 × 14-Teile abbauen.
+
+## 6. C3 Probe (24.10., 31. Chat, Opus)
+Board **„Pixel-Probe 24 × 30“** (Design-Artefakt in Felix' Account: claude.ai/artifact/WmFDNV3btfZC5Xb7H8VcNQ), Figuren Rafe, Soren, Nela mit den heutigen Look-Werten. Drei Tafeln: alt 12 × 14 gegen neu (atmet und blinzelt), 5 Gefühle, Kampfgröße 64 × 75.
+- Code: `tools/pixel-probe/px24.js` (nicht im Spiel eingebunden, läuft im Browser als `PX24` und in Node). Linke Körperhälfte wird gespiegelt, Gesicht als Ebene nur auf Haut, Licht oben links, Schatten je Fläche automatisch (Rand unten/rechts 20–32 % dunkler, zweite Reihe 9 %), Schlagschatten unter Haar/Hut/Kinn, Umriss in der dunkleren Nachbarfarbe wie `pixelsOf`.
+- Gesicht: Augen 2 × 3 (Lichtpunkt, Pupille, Iris), Brauen, Mund. Gefühle: normal, froh (Lächeln + Wangen), sauer (schräge Brauen, Mund runter), müde (Lider halb zu, Schweißtropfen), erschrocken (große weiße Augen, offener Mund). Blinzeln: Strich unten, Atmen: Oberkörper bis Gürtel 1 Pixel tiefer.
+- Leistung: Pixel einer Farbe werden zeilenweise zusammengefasst, eine Figur hat so 260–340 Rechtecke (heute ca. 150 je Bild, mit Angriffsbild doppelt). Also kein Problem im Kampf.
+- Nicht in der Probe: Angriffsposen (Schritt 4), weitere Hüte und Masken (Schritt 2). Hut, Stirnband und lange Haare sind nur für diese drei neu gezeichnet. Die Looks selbst (Strohhut usw.) sind noch die alten und werden in C4 eigenständig.
+- **Offen: Felix' Wahl** (siehe Fahrplan „Letzte Übergabe“).
