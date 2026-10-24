@@ -774,7 +774,7 @@ window.GL = window.GL || {};
     const here = GL.run.chapterIsland(run);
     const island = here && run.phase !== 'course' ? here.name : GL.run.island(run).name;
     const pos = Math.min(GL.run.rowIdx(run) + 1, GL.config.chapterSteps);
-    return `${bars}${GL.worldmap ? `<button class="vy-map" data-act="worldmap" aria-label="Weltkarte" title="Weltkarte: Wie weit bin ich?">${GL.art && GL.art.prop ? GL.art.prop('karte') : '🗺'}</button>` : ''}<span class="track-loc">${island} · <b class="stop-name">${run.phase === 'course' ? 'Kurs setzen' : run.phase === 'starter' ? (run.deck ? 'Crew aufstellen' : run.mateMode ? 'Ersten Maat wählen' : 'Kapitän wählen') : GL.run.stopName(run)}</b>${run.phase === 'course' || run.phase === 'starter' ? '' : ` <small class="muted">(${pos}/${GL.config.chapterSteps})</small>`}</span>
+    return `${bars}${GL.worldmap ? `<button class="vy-map" data-act="worldmap" aria-label="Weltkarte" title="Weltkarte: Wie weit bin ich?">${GL.art && GL.art.prop ? GL.art.prop('karte') : '🗺'}</button>` : ''}<span class="track-loc"><span class="track-isl">${island}</span> · <b class="stop-name">${run.phase === 'course' ? 'Kurs setzen' : run.phase === 'starter' ? (run.deck ? 'Crew aufstellen' : run.mateMode ? 'Ersten Maat wählen' : 'Kapitän wählen') : GL.run.stopName(run)}</b>${run.phase === 'course' || run.phase === 'starter' ? '' : ` <small class="muted">(${pos}/${GL.config.chapterSteps})</small>`}</span>
       <span class="head-chips">
 
         ${(g => {

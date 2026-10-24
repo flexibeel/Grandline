@@ -1,6 +1,12 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-24c', date: '24.10.', title: 'Eigene Meere, neuer Hafen', items: [
+    '🗺 Die Welt hat ihre eigenen Namen bekommen: Ostmeer, Wilde See, Gruselmeer und die neue Tiefsee beim Flossenvolk. Alle 33 Inseln haben neue Namen, Orte und Geschichten. Dein Fortschritt bleibt, wie er ist',
+    '👑 Auch Gegner und Bosse heißen jetzt anders, samt ihren großen Attacken. Die Raid-Bosse dienen der Krone, und über 30 Gejagte haben neue Steckbriefe',
+    '🏘 Der Hafen ist umgebaut: Statt zwölf Schildern stehen dort jetzt vier Gebäude, Dock, Auftragstafel, Kontor und Taverne. Was noch zu ist, hat die Fensterläden noch geschlossen',
+    '🧭 Unten in der Leiste geht es direkt zu Hafen, Tafel, Taverne und Kapitän. Jedes Gebäude merkt sich, wo du zuletzt warst, und ein roter Punkt zeigt, wo etwas Neues wartet',
+    '🍺 An der Taverne hängt jetzt ein Gerücht aus, welches Tier auf welcher Insel gesichtet wurde' ] },
   { v: '2026-10-24b', date: '24.10.', title: 'Eine Welt, die sich erinnert', items: [
     '⚓ Die Welt merkt sich, was du erlebt hast: Wie eine Folge unterwegs ausgegangen ist, bleibt gespeichert, auch wenn du die Fahrt abbrichst',
     '👋 Triffst du später auf eine Folge, die du schon kennst, läuft sie nicht von vorn. Es gibt ein Wiedersehen: Kapitän Korken, der Leuchtturmwärter, der Nebelkapitän oder der Händler erinnern sich an damals, und deine neue Wahl kann ihr Verhältnis zu dir ändern',
