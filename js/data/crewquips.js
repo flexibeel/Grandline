@@ -131,6 +131,42 @@ GL.data.crewQuipsRole = {
   }
 };
 
+// 4D Crew mit Gefühlen (G1): ein Satz, wenn sich ein Gefühl ändert. Nach Rolle, der eigene Pirat eigen.
+// essen = Lieblingsessen bei der Rast, boss = beste Figur im Bosskampf, muede = zweimal K.o. ohne Rast.
+GL.data.herzQuips = {
+  self: {
+    froh: [['Ich hab ein gutes Gefühl bei diesem Kampf!', 'I have a good feeling about this fight!'], ['Heute segelt sich alles leichter.', 'Everything sails easier today.']],
+    boss: [['Habt ihr das gesehen?! Euer Kapitän!', 'Did you see that?! Your captain!'], ['Den nehm ich ins Logbuch. Mit Ausrufezeichen.', 'That goes in the log. With an exclamation mark.']]
+  },
+  kaempfer: {
+    froh: [['Heute bin ich nicht zu bremsen!', 'Nothing\'s stopping me today!'], ['Ich fühl mich leicht wie eine Möwe.', 'I feel light as a gull.']],
+    essen: [['Mein Lieblingsessen! Jetzt geht\'s los!', 'My favourite food! Let\'s go!'], ['Mit vollem Bauch kämpft sich\'s schneller.', 'A full belly fights faster.']],
+    boss: [['Habt ihr das gesehen?!', 'Did you see that?!'], ['Den hab ich ganz allein… fast allein.', 'I did that all by myself… almost.']],
+    muede: [['Zwei Schläge zu viel. Ich bin platt.', 'Two hits too many. I\'m beat.'], ['Nur kurz die Augen zu… nein, Kampf. Okay.', 'Just resting my eyes… no, fight. Okay.']]
+  },
+  helfer: {
+    froh: [['Was für ein schöner Tag zum Kämpfen!', 'What a lovely day for a fight!'], ['Ich summe. Merkt ihr das?', 'I\'m humming. Can you tell?']],
+    essen: [['Der Smutje hat an mich gedacht. Wie lieb!', 'The cook remembered me. How sweet!'], ['Ich hab extra Nachschlag. Für die Nerven.', 'I had seconds. For the nerves.']],
+    boss: [['Habt ihr das gesehen?! Ich auch nicht, ging so schnell!', 'Did you see that?! Me neither, too fast!'], ['Heute verbinde ich mal nicht, heute haue ich.', 'No bandaging today. Today I hit.']],
+    muede: [['Ich brauch selbst mal einen Verband.', 'I could use a bandage myself.'], ['Bitte bald eine Rast…', 'A rest soon, please…']]
+  },
+  brecher: {
+    froh: [['Heute geh ich vorne. Und zwar schnell.', 'Front line today. Fast.'], ['Gute Laune macht die Fäuste leicht.', 'Good mood, light fists.']],
+    essen: [['Doppelte Portion. Jetzt halte ich alles aus.', 'Double portion. Now I can take anything.'], ['Satt und glücklich. Wer will zuerst?', 'Full and happy. Who\'s first?']],
+    boss: [['Habt ihr das gesehen? Der steht nicht mehr.', 'Did you see that? He\'s not getting up.'], ['Hinter mir war es sicher. Vor mir nicht.', 'Safe behind me. Not in front.']],
+    muede: [['Ich halte noch. Gerade so.', 'Still standing. Barely.'], ['Meine Knochen sagen: Rast.', 'My bones say: rest.']]
+  },
+  // Erste Begegnung mit dem System (einmal pro Spieler): ein anderer aus der Crew erklärt es
+  intro: {
+    muede: ['{n} hat zweimal einen Schlag kassiert und pfeift aus dem letzten Loch.', '{n} took two big hits and is running on fumes.'],
+    froh: ['{n} strahlt ja richtig. Gute Laune macht schneller!', '{n} is beaming. Good mood makes you faster!']
+  },
+  tag: {
+    froh: ['Froh: +1 Tempo', 'Happy: +1 speed'],
+    muede: ['Erschöpft: −20 % Leben', 'Exhausted: −20 % HP']
+  }
+};
+
 // Steuerung: Budget pro Kampf, Ruhepause danach, kein Spruch bei schnellem Tempo
 (function () {
   const st = { used: true, speed: 2, rest: 0, run: null };
@@ -201,6 +237,32 @@ GL.data.crewQuipsRole = {
       if (conv.some(l => idx(l[0]) < 0)) return;
       duoMemo.said[key] = true; st.used = true;
       conv.forEach((l, k) => setTimeout(() => { if (GL.arena && GL.arena.say) GL.arena.say('crew', idx(l[0]), en ? l[2] : l[1], 1700); }, 900 + k * 1600));
+    },
+    // 4D: Gefühl hat sich seit dem letzten Kampf geändert (run.battle.herzNeu). Abzeichen über der Figur, ein Satz.
+    // intro = noch nie gesehen: ein anderer aus der Crew erklärt es (auch bei schnellem Tempo). Gibt 'intro' zurück, wenn erklärt.
+    herz(run, intro) {
+      const b = run && run.battle, H = GL.data.herzQuips;
+      if (!b || !H || b.kind === 'duel' || !b.herz || !(b.herzNeu || []).length) return false;
+      const k = en() ? 1 : 0;
+      const now = b.herzNeu.filter(x => b.herz[x.id] === x.g).map(x => ({ x, i: run.crew.findIndex((u, i) => u.id === x.id && (b.crewStart || [])[i] > 0) })).filter(o => o.i >= 0);
+      if (!now.length) return false;
+      now.forEach((o, n) => setTimeout(() => { if (GL.arena && GL.arena.float && H.tag[o.x.g]) GL.arena.float('crew', o.i, H.tag[o.x.g][k], o.x.g === 'froh' ? 'buff' : 'debuff'); }, 1300 + n * 500));
+      const main = now.find(o => o.x.g === 'muede') || now[now.length - 1];
+      const u = run.crew[main.i];
+      st.used = true;
+      if (intro && H.intro[main.x.g]) {
+        setTimeout(() => {
+          const others = alive(main.i), mate = others.find(i => run.crew[i].id === 'nami');   // am liebsten erklärt es die Navigatorin
+          const by = mate != null ? mate : others.length ? others[0] : main.i;
+          if (GL.arena && GL.arena.say) GL.arena.say('crew', by, H.intro[main.x.g][k].replace('{n}', nameOf(u)), 3400);
+        }, 1700);
+        return 'intro';
+      }
+      if (st.speed >= 3) return false;
+      const R = u.id === 'self' ? H.self : (H[roleOf(u)] || H.kaempfer);
+      const list = R[main.x.why] || R[main.x.g] || (H.kaempfer[main.x.why] || H.kaempfer[main.x.g]);
+      if (list && list.length) setTimeout(() => { if (GL.arena && GL.arena.say) GL.arena.say('crew', main.i, pick(list)[k], 2400); }, 1700);
+      return true;
     },
     speed(v) { st.speed = v || 2; },
     line: lineFor

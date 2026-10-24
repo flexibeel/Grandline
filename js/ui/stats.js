@@ -97,8 +97,8 @@ window.GL = window.GL || {};
     const fmtD = v => d.pct ? (k === 'critMult' ? sgn(v, x => P(x)) : sgn(v, P)) : sgn(v, N);
     let lines = [], total, cap = null, over = null, note = null;
     if (k === 'hp' || k === 'atk' || k === 'spd') {
-      lines = baseLines(run, i, k).concat(k === 'hp' ? [] : rows(u, k));
-      total = k === 'hp' ? run.crew[i].max : u[k];
+      lines = baseLines(run, i, k).concat(k === 'hp' ? rows(u, 'herzHp') : rows(u, k));
+      total = k === 'hp' ? run.crew[i].max + ((u.trace && u.trace.herzHp) || []).reduce((t, x) => t + x.v, 0) : u[k];
       if (k !== 'hp') note = L('Im Kampf kommen Befehle, Schwung und Wetter dazu.', 'In battle, orders, momentum and weather add on top.');
     } else if (k === 'crit') {
       lines = [{ ico: '🎲', name: L('Grund-Krit für alle', 'Base crit for all'), v: C.baseCrit || 0 }].concat(rows(u, k));

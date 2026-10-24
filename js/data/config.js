@@ -86,6 +86,8 @@ GL.config = {
   reviveAfterBoss: 0.5,   // Gefallene kommen nach einem Inselboss mit diesem Anteil zurück
   reviveAfterWin: 0.1,    // Gefallene rappeln sich nach jedem gewonnenen Kampf mit diesem Anteil auf
   reviveAtRest: 0.3,      // Rast an Land weckt Gefallene mit diesem Anteil
+  // 4D Crew mit Gefühlen (G1, claude/PLAN-GEFUEHLE.md): nur in Fahrten mit run.start.herz (ab Fahrt 2)
+  herz: { frohSpd: 1, frohFights: 2, muedeHp: 0.2, koNeed: 2, essen: 0.5 },
   doctor: { chopper: 0.25, lazarett: 0.2, lazarett4: 0.3, lazarettN: 3, hito: 0.2 },   // Feldarzt: einmal pro Kampf holt er einen Gefallenen zurück
   // Gegnerwellen: normale Kämpfe ab dieser Etappe kommen in zwei Wellen (Welle 2 etwas schwächer, später mit Elite)
   waves: { fromStep: 2, extra: 2, hp: 0.85, atk: 0.95, eliteHp: 1.45, eliteAtk: 1.2, eliteFromSea: 1, raidHp: 1.2, raidExtra: 2 },

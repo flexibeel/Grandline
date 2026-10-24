@@ -847,6 +847,7 @@
       endlessSea: Number.isInteger(endlessSea) && GL.meta.seasCleared(profile).includes(endlessSea) ? endlessSea : undefined,
       forms: GL.forms ? GL.forms.startMap(profile) : {},
       fboni: GL.forms ? GL.forms.startBoni(profile) : {},
+      herz: ((profile.stats && profile.stats.runs) || 0) >= 1,   // 4D Crew mit Gefühlen ab Fahrt 2
       ramp: true,
       deck: true, rank: GL.meta.rankIndex(profile)   // CREW-START: Crew vor dem Ablegen aufstellen
     });
@@ -891,7 +892,12 @@
     document.body.classList.toggle('fast', anim.speed >= 3);
     anim.rn = 0;
     setTimeout(showSpeed, 50);
-    if (GL.quips) { GL.quips.start(run, anim.speed); if (GL.quips.duo) { try { GL.quips.duo(run); } catch (e) { /* nur Deko */ } } }
+    if (GL.quips) {
+      GL.quips.start(run, anim.speed);
+      // 4D: neues Gefühl in der Crew (Abzeichen und ein Satz, beim allerersten Mal mit Erklärung)
+      if (GL.quips.herz) { try { if (GL.quips.herz(run, !profile.seenHerz) === 'intro') { profile.seenHerz = 1; saveProfile(); } } catch (e) { /* nur Deko */ } }
+      if (GL.quips.duo) { try { GL.quips.duo(run); } catch (e) { /* nur Deko */ } }
+    }
     anim.timer = setTimeout(stepAnim, SPEED.normal * SPEEDF[anim.speed]);
   }
   function setSpeed(v) {

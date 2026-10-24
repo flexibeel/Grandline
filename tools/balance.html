@@ -20,6 +20,7 @@ Nach Änderungen in <code>js/data/config.js</code> einfach neu laden.</p>
 <p>Start „Deck“ ist der aktuelle Crew-Start (zufällig aufgestellte Crew im Kampfwert-Budget). „Taverne gezielt ansteuern“ spielt wie ein Spieler, der eine sichtbare Taverne immer nimmt. Ohne den Haken läuft der Bot blind durch die Karte und trifft die Taverne nur zufällig.</p>
 <label>Start <select id="mode"><option value="deck">Deck (aktuell)</option><option value="old">Klassisch (Maat-Wahl)</option></select></label>
 <label><input id="steer" type="checkbox" checked> Taverne gezielt ansteuern</label><br>
+<label><input id="herz" type="checkbox"> Crew mit Gefühlen (4D, wie ab Fahrt 2)</label><br>
 <label>Anzahl Runs <input id="n" type="number" value="2000" min="100" step="100"></label>
 <button id="go">Starten</button>
 <div id="out"></div>
@@ -54,8 +55,8 @@ Nach Änderungen in <code>js/data/config.js</code> einfach neu laden.</p>
 const SELF = { name: 'Testpirat', type: 'kraft', role: 'kaempfer', hp: 30, atk: 7, spd: 5, look: {}, rally: 2 };
 const st = { taverns: 0, buys: 0, merges: 0, stuck: 0 };
 
-function playRandom(seed, mode, steer) {
-  const run = GL.run.create(seed, mode === 'deck' ? { self: SELF, deck: true, rank: seed % 12, ramp: true } : { ramp: true });
+function playRandom(seed, mode, steer, herz) {
+  const run = GL.run.create(seed, Object.assign(mode === 'deck' ? { self: SELF, deck: true, rank: seed % 12, ramp: true } : { ramp: true }, herz ? { herz: true } : {}));
   const pickRng = { rng: seed ^ 0x9e3779b9 };
   const I = (a, b) => GL.rng.int(pickRng, a, b);
   const act = a => GL.run.act(run, a);
@@ -103,13 +104,13 @@ function playRandom(seed, mode, steer) {
 
 document.getElementById('go').onclick = () => {
   const n = Math.max(1, Number(document.getElementById('n').value) || 1000);
-  const mode = document.getElementById('mode').value, steer = document.getElementById('steer').checked;
+  const mode = document.getElementById('mode').value, steer = document.getElementById('steer').checked, herz = document.getElementById('herz').checked;
   const islands = GL.data.islands;
   const died = islands.map(() => 0);
   Object.assign(st, { taverns: 0, buys: 0, merges: 0, stuck: 0 });
   let wins = 0, crew = 0, steps = 0;
   for (let s = 1; s <= n; s++) {
-    const run = playRandom(s, mode, steer);
+    const run = playRandom(s, mode, steer, herz);
     if (run.phase === 'win') wins++;
     else died[Math.min(Math.floor(run.step / GL.config.stepsPerIsland), islands.length - 1)]++;
     crew += run.crew.length; steps += run.step;

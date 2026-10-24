@@ -494,6 +494,8 @@ window.GL = window.GL || {};
   };
   // Formation: der Anführer steht hinten (eigener Platz), sein Gefolge vorne mit kleinem Schild
   let leadAt = -1;
+  // 4D: Gefühl der Figur in diesem Kampf (Kopie in run.battle.herz, gilt ab Fahrt 2)
+  const moodOf = (side, unit) => (side === 'crew' && curRun && curRun.battle && curRun.battle.herz && unit && curRun.battle.herz[unit.id]) || '';
   function fieldUnit(side, i, entry, unit, hp) {
     const slots = side === 'crew' ? CREW_SLOTS : FOE_SLOTS;
     const backLead = side === 'enemy' && i === leadAt && i > 0;
@@ -505,7 +507,7 @@ window.GL = window.GL || {};
         style="left:${x}%;bottom:${y}%;z-index:${200 - y};--s:${scale.toFixed(2)}">
       <div class="fu-shadow"></div>${hp <= 0 ? (GL.arenaFx ? GL.arenaFx.koMark() : '<span class="fu-ko">K.O.</span>') : ''}
       <div class="fu-aura"></div>${side === 'enemy' ? '<i class="fu-mark" aria-hidden="true"></i>' : ''}
-      <div class="fu-body" style="--d:${(i * 0.37 + (side === 'crew' ? 0 : 0.5)).toFixed(2)}s">${GL.sprites.renderShaded ? GL.sprites.renderShaded(entry) : GL.sprites.render(entry)}</div>
+      <div class="fu-body" style="--d:${(i * 0.37 + (side === 'crew' ? 0 : 0.5)).toFixed(2)}s">${GL.sprites.renderShaded ? GL.sprites.renderShaded(entry, moodOf(side, unit)) : GL.sprites.render(entry)}</div>
       <div class="fu-bar"><i style="width:${pct}%"></i></div>
       ${side === 'enemy' && hp > 0 && curRun && curRun.battle ? intentHtml(unit, curRun.battle.enemies, { pvp: curRun.battle.kind === 'duel' }, 'fu-int') : ''}
     </div>`;
@@ -624,6 +626,8 @@ window.GL = window.GL || {};
     const word = !/^[-+]\d/.test(String(text));
     const n = fx((word ? 'ptag ' : 'fnum ') + (cls || ''), { x: p.x + (word ? 0 : Math.random() * 30 - 15), y: p.y - (word ? 40 : 24) }, word ? 1000 : 1100);
     if (n) n.textContent = text;
+    // Lange Abzeichen am Rand nicht abschneiden (z. B. „Erschöpft: −20 % Leben“ über der Figur ganz links)
+    if (n && word) { const W = n.parentNode.clientWidth, w = n.offsetWidth; if (W && w && w < W) n.style.left = Math.max(w / 2 + 4, Math.min(W - w / 2 - 4, p.x)) + 'px'; }
     // ART2: Zahlen als Pixel-Ziffern (Text bleibt als Fallback/Vorlese-Label)
     if (n && !word && GL.art && GL.art.digits) {
       const c = cls || '', kind = /crit|lucky/.test(c) ? 'crit' : /heal/.test(c) ? 'heal' : /burn/.test(c) ? 'burn' : /poison|gift/.test(c) ? 'poison' : /block|shield/.test(c) ? 'shield' : 'normal';
@@ -992,7 +996,7 @@ window.GL = window.GL || {};
   }
 
   GL.arena = {
-    say, card,
+    say, card, float: fieldFloat,
     sigRefresh: i => sigDraw(i),
     intents, intentHtml, intentText, intentIcon: k => INT_ICO[k] || '',
     html(run, anim) {

@@ -199,13 +199,29 @@ window.GL = window.GL || {};
     if (g[6][11] === '.') g[6][11] = 'S';
     return g;
   }
-  function svgShaded(look) {
+  // 4D Gefühle im Gesicht (Board G0, Felix 24.10.): Ebene nach applyLook, [Zeile, Spalte, Zeichen].
+  // Gesetzt wird nur auf Haut/Augen (Masken, Brillen und Accessoires bleiben), der Schweißtropfen nur neben den Kopf.
+  // m Mund, c Wangen, s Haut 45 % dunkler, w Schweiß, b Brauen
+  const MOOD = {
+    froh: [[4, 4, 'm'], [4, 7, 'm'], [5, 5, 'm'], [5, 6, 'm'], [4, 3, 'c'], [4, 8, 'c']],
+    muede: [[3, 4, 's'], [3, 7, 's'], [4, 4, 's'], [4, 7, 's'], [5, 5, 'm'], [2, 10, 'w'], [3, 10, 'w']],
+    sauer: [[2, 5, 'b'], [2, 6, 'b'], [4, 5, 'm'], [4, 6, 'm'], [5, 4, 'm'], [5, 7, 'm']]
+  };
+  function applyMood(grid, g) {
+    (MOOD[g] || []).forEach(([y, x, ch]) => {
+      const was = grid[y] && grid[y][x];
+      if (ch === 'w' ? was === '.' : (was === 'S' || was === 'E')) grid[y][x] = ch;
+    });
+  }
+  function svgShaded(look, mood) {
     look = safeLook(look);
     const grid = BASE.map(r => r.split(''));
     applyLook(grid, look);
-    const colors = Object.assign({ H: look.hair, S: look.skin, E: '#1a1a1a', C: look.shirt, P: look.pants, O: '#2a1f14', B: look.hatColor || look.hair, D: look.beard, N: look.nose }, ACC_COL, MASK_COL[look.mask] || {});
+    if (mood) applyMood(grid, mood);
+    const colors = Object.assign({ H: look.hair, S: look.skin, E: '#1a1a1a', C: look.shirt, P: look.pants, O: '#2a1f14', B: look.hatColor || look.hair, D: look.beard, N: look.nose }, ACC_COL, MASK_COL[look.mask] || {},
+      mood ? { m: '#6a2a22', c: '#ec8a8e', s: mix(look.skin || '#e8b98a', 'k', 0.45), w: '#8fd3f4', b: '#2a1a12' } : {});
     const colorOf = ch => colors[ch] || '#888888';
-    const NOSH = 'EYTKRGWFQLAI';
+    const NOSH = 'EYTKRGWFQLAImcswb';
     // Ruhebild: Oberkörper (bis Gürtel) und Beine getrennt, damit der Oberkörper beim Atmen um einen Pixel sinkt
     const idle = pixelsOf(grid, 12, 14, colorOf, NOSH);
     const up = idle.filter(p => p[1] <= 9), low = idle.filter(p => p[1] > 9);
@@ -432,14 +448,16 @@ window.GL = window.GL || {};
 
     // entry: Eintrag aus GL.data (crew, grunts oder bosses)
     // Plastische Variante fürs Kampffeld
-    renderShaded(entry) {
+    // mood: 4D-Gefühl ('froh' | 'muede' | 'sauer'), nur für Figuren mit Pixel-Look
+    renderShaded(entry, mood) {
       if (!entry) return '';
       if (entry.art) return artSvg(entry.art, true);
       if (entry.monster && GL.art && GL.art.monsterArt) { const ma = GL.art.monsterArt(entry.monster); if (ma) return artSvg(ma, true); }
       if (entry.image) return `<img src="${entry.image}" alt="" class="sprite-img">`;
       const lk = mlook(entry);
-      const key = 'sh:' + entry.id + ':' + JSON.stringify(lk);
-      if (!cache[key]) cache[key] = svgShaded(lk);
+      const md = mood && MOOD[mood] ? mood : '';
+      const key = 'sh:' + entry.id + ':' + JSON.stringify(lk) + md;
+      if (!cache[key]) cache[key] = svgShaded(lk, md);
       return cache[key];
     },
     render(entry) {

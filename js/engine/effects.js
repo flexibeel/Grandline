@@ -234,6 +234,18 @@ window.GL = window.GL || {};
       const sm = synergyMods(enemyRefs);
       enemies.forEach(u => sm.forEach(m => { if (applies(m.scope, u)) applyMod(u, m, run); }));
     }
+    // 4D Crew mit Gefühlen (G1): froh = schneller, erschöpft = 20 % weniger Höchstleben in diesem Kampf
+    const HZ = run.herz && run.herz.f, HC = GL.config.herz || {};
+    if (HZ) crew.forEach(u => {
+      const h = HZ[u.id];
+      if (!h) return;
+      if (h.g === 'froh') { u.spd += HC.frohSpd || 1; note(u, 'spd', { ico: '😊', name: 'Froh' }, HC.frohSpd || 1); }
+      if (h.g === 'muede') {
+        const cut = Math.max(1, Math.round(u.max * (HC.muedeHp || 0.2)));
+        u.max = Math.max(1, u.max - cut); u.hp = Math.min(u.hp, u.max);
+        note(u, 'herzHp', { ico: '😮‍💨', name: 'Erschöpft' }, -cut);
+      }
+    });
     // NEXT: Deckel gegen Stapel-Explosionen (sonst wird aus vielen kleinen Boni Unsterblichkeit oder ein 4×-Krit)
     const K = GL.config.caps || {};
     crew.concat(enemies).forEach(u => {

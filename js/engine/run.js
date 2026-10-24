@@ -677,6 +677,62 @@ window.GL = window.GL || {};
     });
   }
 
+  // ---------- 4D Crew mit Gefühlen (G1) ----------
+  // run.herz = { f: { id: { g: 'froh'|'muede', n: Kämpfe übrig } }, ko: { id: K.o. seit der letzten Rast }, neu: [{ id, g, why }] }
+  // Nur in Fahrten mit run.start.herz (alte Replays haben das Feld nicht und laufen wie damals). Kein Zufallszug aus dem Seed.
+  function herzSet(run, id, g, why) {
+    const H = run.herz, C = GL.config.herz || {};
+    if (!H || !id || !run.crew.some(u => u.id === id)) return false;
+    if (g === 'muede' && (id === 'self' || Object.keys(H.f).some(k => k !== id && H.f[k].g === 'muede'))) return false;   // Kapitän nie, höchstens eine erschöpfte Figur
+    if (H.f[id] && H.f[id].g === g) { H.f[id].n = g === 'froh' ? (C.frohFights || 2) : 1; return false; }   // schon so: nur auffrischen, kein neuer Spruch
+    H.f[id] = { g, n: g === 'froh' ? (C.frohFights || 2) : 1 };
+    H.neu = (H.neu || []).filter(x => x.id !== id).concat([{ id, g, why }]).slice(-4);
+    return true;
+  }
+  // Fester Wurf ohne Zufallszug (wie beim Haustier): gleiche Fahrt, gleiche Stelle = gleiches Ergebnis
+  function herzHash(run, salt) {
+    let h = (run.seed ^ 0x51f15e) >>> 0;
+    const key = salt + ':' + (run.step || 0) + ':' + (run.loop || 0);
+    for (let i = 0; i < key.length; i++) h = Math.imul(h ^ key.charCodeAt(i), 2654435761) >>> 0;
+    return (Math.imul(h ^ (h >>> 15), 2246822519) >>> 0) / 4294967296;
+  }
+  // Rast: K.o.-Zähler weg, Erschöpfung vorbei, manchmal kocht der Smutje ein Lieblingsessen
+  function herzRest(run) {
+    const H = run.herz;
+    if (!H) return;
+    H.ko = {};
+    Object.keys(H.f).forEach(id => { if (H.f[id].g === 'muede') delete H.f[id]; });
+    const C = GL.config.herz || {};
+    if (herzHash(run, 'essen') >= (C.essen == null ? 0.5 : C.essen)) return;
+    const who = run.crew.filter(u => u.id !== 'self' && u.hp > 0);
+    if (who.length) herzSet(run, who[Math.floor(herzHash(run, 'wer') * who.length)].id, 'froh', 'essen');
+  }
+  // Nach einem Kampf: Gefühle verbrauchen, dann K.o. zählen und den besten Boss-Kämpfer feiern
+  function herzAfter(run, kind, res, crewStart) {
+    const H = run.herz, C = GL.config.herz || {};
+    if (!H) return;
+    Object.keys(H.f).forEach(id => { if (--H.f[id].n <= 0) delete H.f[id]; });
+    const fell = new Set(), dmg = {};
+    res.events.forEach(ev => {
+      if (ev.k === 'hit' && ev.side === 'enemy' && ev.hp <= 0 && ev.dmg > 0) fell.add(ev.to);
+      if (ev.k === 'dmg' && ev.side === 'crew') (ev.list || []).forEach(x => { if (x.hp <= 0 && x.dmg > 0) fell.add(x.to); });
+      if (ev.k === 'hit' && ev.side === 'crew' && ev.dmg > 0) dmg[ev.from] = (dmg[ev.from] || 0) + ev.dmg;
+    });
+    run.crew.forEach((u, k) => { if (crewStart[k] > 0 && u.hp <= 0) fell.add(k); });
+    fell.forEach(k => {
+      const u = run.crew[k];
+      if (!u || !(crewStart[k] > 0)) return;
+      H.ko[u.id] = (H.ko[u.id] || 0) + 1;
+      if (H.ko[u.id] >= (C.koNeed || 2) && herzSet(run, u.id, 'muede', 'ko')) H.ko[u.id] = 0;
+    });
+    if (kind === 'boss' && res.win) {
+      let best = -1, top = 0;
+      Object.keys(dmg).forEach(k => { if (dmg[k] > top) { top = dmg[k]; best = +k; } });
+      const u = run.crew[best];
+      if (u && u.hp > 0) herzSet(run, u.id, 'froh', 'boss');
+    }
+  }
+
   function applyEffect(run, e) {
     const front = run.crew.find(u => u.hp > 0) || run.crew[0];
     if (e.type === 'buffFront' && !front) return;
@@ -1202,6 +1258,7 @@ window.GL = window.GL || {};
         } else if (node === 'rest') {
           heal(run, Math.max(0.05, C.restHeal + (run.mood === 'flaute' ? 0.2 : 0) + (run.bonus ? run.bonus.restHeal : 0) + ((twistOf(run) || {}).restAdd || 0)) * Math.max(0, 1 + (run.H ? run.H.restHeal : 0)));
           run.crew.forEach(u => { if (u.hp <= 0) u.hp = Math.max(1, Math.ceil(u.max * (C.reviveAtRest || 0))); });   // Rast weckt Gefallene
+          herzRest(run);   // 4D: Rast beruhigt, manchmal Lieblingsessen
           advance(run);
         }
         return true;
@@ -1240,6 +1297,10 @@ window.GL = window.GL || {};
             .concat(raw.filter(c => okAt(c) && UC.includes(c.cmd)).slice(0, 40).map(c => (c.cmd === 'ult' ? { at: c.at, cmd: 'ult', who: Math.max(0, Math.min(9, c.who | 0)) } : { at: c.at, cmd: c.cmd })))
             .sort((x, y) => x.at - y.at);
           const focus = run.pending.focus != null ? run.pending.focus : null;
+          // 4D: Gefühle gelten beim Start dieses Kampfs (effects.setup liest run.herz), Anzeige bekommt eine Kopie
+          const herzNow = run.herz ? run.crew.reduce((o, u) => { const h = run.herz.f[u.id]; if (h) o[u.id] = h.g; return o; }, {}) : null;
+          const herzNeu = run.herz ? (run.herz.neu || []) : null;
+          if (run.herz) run.herz.neu = [];
           const res = GL.battle.simulate(run, run.crew, enemies.filter(e => e.wave !== 2), run.pending.kind, { special, reserve, turns: true, cmds, focus, manualUlt: !!a.mu, burst: GL.battle.burstKind ? GL.battle.burstKind(run.crew) : 'strike' });
           // Werte für die Rangliste: Schaden, härtester Treffer, K.o.s, Krits
           const S = run.stats || (run.stats = { dmg: 0, maxHit: 0, kos: 0, crits: 0, taken: 0, fights: 0 });
@@ -1266,9 +1327,11 @@ window.GL = window.GL || {};
             const gain = run.pending.kind === 'elite' ? 2 : run.pending.kind === 'battle' ? 1 : 0;
             run.charge = Math.min(C.specialMax, (run.charge || 0) + gain);
           }
+          herzAfter(run, run.pending.kind, res, crewStart);   // 4D: K.o. zählen, Boss-Held feiern
           const before = run.crew.map(u => ({ lvl: u.lvl, xp: u.xp }));
           run.battle = {
             kind: run.pending.kind,
+            herz: herzNow, herzNeu,
             special,
             enemies: start,
             enemyEnd: enemies.map(e => e.hp),
@@ -1457,6 +1520,7 @@ window.GL = window.GL || {};
           upgrades: Object.assign({}, up), gear: Array.isArray(p.gear) ? p.gear.slice() : [], heat: p.heat || 0, hunt: p.hunt || null, altOpen: !!p.altOpen, altOpen1: !!p.altOpen1, buddy: typeof p.buddy === 'string' && p.buddy !== 'self' ? p.buddy : null,
           endlessSea: Number.isInteger(p.endlessSea) ? p.endlessSea : null,
           ramp: !!p.ramp,
+          herz: !!p.herz,   // 4D Crew mit Gefühlen (ab Fahrt 2); fehlt in alten Replays = aus
           arts: (p.arts || []).map(a => ({ id: a.id, lvl: a.lvl })),
           items: (p.items || []).map(x => ({ uid: x.uid, id: x.id, r: x.r, lvl: x.lvl || 0 })),
           skills: skillBonus(p.skills),
@@ -1486,6 +1550,7 @@ window.GL = window.GL || {};
         actions: []
       };
       run.H = heatMods(run.heat);
+      if (run.start.herz) run.herz = { f: {}, ko: {}, neu: [] };
       // Laune der See: ohne Zufallszug aus dem Seed, damit Replays gleich bleiben
       const M = GL.config.moods || [];
       const moodId = p.mood !== undefined ? p.mood : (M.length && ((p.stats && p.stats.runs) || 0) >= 2 && run.endlessSea == null ? M[s % M.length].id : null);

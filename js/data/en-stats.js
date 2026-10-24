@@ -13,5 +13,7 @@ GL.data.en = Object.assign(GL.data.en || {}, {
   'max': 'max',
   'Früchte & Ereignisse': 'Fruits & events',
   'Feinschliff': 'Fine-tuning',
+  'Froh': 'Happy',
+  'Erschöpft': 'Exhausted',
   'Crew-Ausrüstung': 'Crew gear'
 });
