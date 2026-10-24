@@ -1,6 +1,6 @@
 # Plan 4D: Crew mit Gefühlen
 
-Stand 24.10.2026. **Nur Plan, nichts gebaut. Von Felix freigegeben (24.10., 20. Chat) mit zwei Änderungen: erschöpft milder, Streit seltener.** Säule 4D aus dem Leitbild (`claude/PLAN-FOLGEN.md`), zwei Klick-Runden mit Jan (19. Chat), alle acht Antworten wie empfohlen. Grundregel aus dem Leitbild: **Pause und Versöhnung, nie Verlust.** Eine Figur verlässt die Crew nie.
+Stand 24.10.2026. **G1 gebaut (21. Chat, `feature/herz-g1`, wartet auf „schalte live“), G2 und G3 nur Plan. Von Felix freigegeben (24.10., 20. Chat) mit zwei Änderungen: erschöpft milder, Streit seltener.** Säule 4D aus dem Leitbild (`claude/PLAN-FOLGEN.md`), zwei Klick-Runden mit Jan (19. Chat), alle acht Antworten wie empfohlen. Grundregel aus dem Leitbild: **Pause und Versöhnung, nie Verlust.** Eine Figur verlässt die Crew nie.
 
 ## 1. Was es schon gibt (geprüft im Code)
 - **Vertrautheit je Figur** `profile.squadXp`, Stufen über `GL.meta.squadBonus` (`js/engine/meta.js` ~Z. 431), wächst nach jeder Fahrt über `runBond`.
@@ -80,12 +80,23 @@ Regeln, damit es nie nervt:
 | Schritt | Inhalt | Wer | Hängt an |
 |---|---|---|---|
 | G0 | Vorschau-Board: drei Figuren × drei Gefühle im Gesicht | Opus (Pixel) | **erledigt 24.10.** (froh B, erschöpft B, verstimmt A, 12 × 14) |
-| G1 | `run.herz` in der Engine: Auslöser K.o./Rast/Boss/Lieblingsessen, Wirkung froh/erschöpft, Gesicht und Spruch im Kampffeld | Opus | nichts (läuft auch ohne F0) |
+| G1 | `run.herz` in der Engine: Auslöser K.o./Rast/Boss/Lieblingsessen, Wirkung froh/erschöpft, Gesicht und Spruch im Kampffeld | Opus | **gebaut 24.10.** (`feature/herz-g1`, Abschnitt 11) |
 | G2 | `herz`-Feld an 6 bis 8 Ereignissen, Ereignis „Zwei streiten“ mit Schlichten | Sonnet (Texte), Opus (Engine) | G1 |
 | G3 | Bitte um ein Gespräch, Szene am Steg, Logbuch-Zeile, Paar-Momente | Opus + Sonnet | G1, F0 |
 
 **Bündelung:** G1 kann allein live gehen (spürt man sofort im Kampf). G2 und G3 passen in das Sammel-Update „Eine Welt, die sich erinnert“ (Hafen Schritt 1, F0, F1).
 
 ## 10. Noch offen
+- **Duo-Schub** (zwei frohe Freunde: Spruch und +5 % Angriff) kommt mit G2 (Klick 24.10.), dafür braucht `run.start` die Paar-Vertrautheit.
 - Welche 6 bis 8 Ereignisse bekommen ein `herz`-Feld (Vorschlag kommt mit G2).
 - Gesichter im Raster 24 × 30 kommen mit Weltbau-Welle C (`PLAN-PIXEL.md`), bis dahin gelten die 12 × 14-Gesichter aus G0.
+
+## 11. G1 gebaut (24.10., 21. Chat, Opus, `feature/herz-g1`)
+Klick-Antworten vor dem Bau (alle wie empfohlen): erschöpft = **Höchstleben −20 % nur in diesem Kampf** (Leben darüber wird gekappt), Lieblingsessen **etwa jede 2. Rast**, Fahrt 2 nur **einmalige Erklärung als Sprechblase** (Szene kommt mit G3), Duo-Schub **später mit G2**.
+- **Engine** `js/engine/run.js`: `herzSet`, `herzRest`, `herzAfter` neben `heal()`. `run.herz = { f: { id: { g, n } }, ko: {}, neu: [] }` nur, wenn `run.start.herz` (alte Replays: aus, Ergebnis aufs Zehntel gleich wie `main`). Lieblingsessen per Hash aus Seed und Etappe (kein Zufallszug, Würfel-Strom unverändert). Kampf: Kopie für die Anzeige in `run.battle.herz` und `run.battle.herzNeu`.
+- **Wirkung** `js/engine/effects.js` (`setup`, vor den Deckeln): froh `spd +1`, erschöpft `max −20 %`. Werte-Tafel zeigt „Froh“ beim Tempo und „Erschöpft“ beim Leben (`js/ui/stats.js`, Trace `herzHp`).
+- **Werte** in `GL.config.herz` (`js/data/config.js`): `frohSpd 1, frohFights 2, muedeHp 0.2, koNeed 2, essen 0.5`.
+- **Freischaltung:** ab der zweiten Fahrt (`profile.stats.runs >= 1` in `js/main.js`), **ohne** Eintrag in `features.js`, damit kein Pop-up kommt. Rückkehrer haben es sofort. Erklärung einmal pro Spieler (`profile.seenHerz`), am liebsten von Nela.
+- **Anzeige:** Gesichter aus Board G0 in `js/ui/sprites.js` (`MOOD`, `renderShaded(entry, mood)`), Abzeichen „Froh: +1 Tempo“ / „Erschöpft: −20 % Leben“ und ein Satz nach Rolle in `js/data/crewquips.js` (`GL.data.herzQuips`, de/en). Lange Abzeichen werden am Feldrand nicht mehr abgeschnitten (`fieldFloat`).
+- **Gemessen:** Node-Lauf 1.500 Fahrten ohne Taverne-Steuerung 48,2 → 46,6 %, `tools/balance.html` 1.000 Fahrten mit Steuerung 64,7 → 66,3 %, also im Rauschen (±1,5 Punkte). In 200 Fahrten: rund 2,3-mal froh und 0,8-mal erschöpft pro Fahrt, Gefühl in 39 % der Kämpfe. Replays: 0 Abweichungen. Neuer Schalter „Crew mit Gefühlen“ in `tools/balance.html`.
+
