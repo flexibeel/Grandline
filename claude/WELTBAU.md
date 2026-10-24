@@ -50,3 +50,5 @@ Pro Figur ein Markenzeichen (Hut, Farbe oder Gegenstand), höchstens 4 Accessoir
 **Stand Welle B (24.10., Felix/Jan per Klick):** gebaut auf `feature/weltbau-b` nach `claude/WELTBAU-B.md` (von Felix abgesegnet). Prüfskript Liste B: 0 Funde. Namen überall neu, Raid-Bosse gehören zur Krone, Fußvolk mit dabei.
 
 **Stand Welle C (24.10., Felix per Klick):** In vier Paketen: **C1** Namensliste `claude/WELTBAU-C.md` zum Lesen (Namen der 56 Figuren ohne die 9 Sturmmöwen, Fähigkeiten, Ultis, Team-Aktionen, Duos, Kombos, Fraktionen), **C2** Namen einbauen (nur Texte, ids bleiben), **C3** Pixel-Probe 24 × 30 an 3 Figuren als Board, **C4** Looks pro Fraktion, Sturmmöwen zuletzt. Entschieden: **Start mit C1**, **alle 56 in einer Liste**, **12 Banden werden zu den 8 Fraktionen** aus Abschnitt 4 (Synergie-Stufen und Werte bleiben, nur Name und Geschichte). Noch nichts gebaut.
+
+**Stand C2 (24.10., 30. Chat, Opus):** Namen eingebaut auf `feature/weltbau-c` (nur Texte, ids bleiben). Prüfskript Liste C: 0 Funde, Liste B: 0 Funde. Abweichungen und Reste stehen im Fahrplan unter „Wartet“. Als Nächstes C3 Pixel-Probe.

@@ -1,6 +1,6 @@
 # Weltbau Welle C, Paket C1: Namensliste der 56 Figuren (zum Lesen)
 
-Stand 24.10.2026. **Entwurf zum Lesen, nichts gebaut.** Für Felix. Danach folgen C2 (Namen einbauen), C3 (Pixel-Probe), C4 (Looks).
+Stand 24.10.2026. **C2 ist gebaut** (30. Chat, `feature/weltbau-c`), die Liste gilt so mit den Abweichungen unten in Abschnitt 9. Für Felix. Danach folgen C2 (Namen einbauen), C3 (Pixel-Probe), C4 (Looks).
 
 ## Regeln
 - ids, Werte, Synergie-Stufen und Typen bleiben. Nur Name, Beiname, Fähigkeits- und Ulti-Name und Geschichte ändern sich. Spielstände bleiben gültig.
@@ -269,3 +269,10 @@ Alle fünf sind schon frei von Markennamen, nur EN wird ergänzt. Keine Änderun
 - Mehrere Figuren haben rosa Haare (Hilde, Kian, Lotta, Huschel). Im Look in C4 über Frisur und Hut unterscheiden.
 - Doppelte Fähigkeits- oder Ulti-Namen im Original (z. B. Hiken bei Ace und Sabo, Tekkai bei Riegel und Plapper) sind aufgelöst, jede Figur hat jetzt einen eigenen Namen.
 - Prüfskript: `tools/weltbau-check.py` bekommt für C2 eine Liste C aus den „heute“-Spalten oben.
+
+## 9. Beim Einbau (C2) geändert
+- EN „Eiszeit“ = *Deep Freeze* (statt *Ice Age*, Originalname), „Recht und Ordnung“ = *Rule and Order* und „Paukenwelle“ = *Beat Wave* (`neutral.js` hätte „Law“ und „Drum“ im Englischen verbogen).
+- Bündnis supernova + strohhut heißt **Chaos im Spiegel-Archipel** (die Insel heißt seit Welle A so, „Blasenarchipel“ gibt es im Spiel nicht mehr). Tatz-Freischaltung ebenso.
+- Mira (Hancock): Fähigkeit und Ulti „verdrehen den Kopf“ bzw. „verliebt“ statt „versteinern“. Okko: acht Arme, acht Fäuste. Pomp: „zerlegt sich wie ein Zaubertrick“.
+- Mit erledigt, obwohl nicht in der Liste: Ränge (Wildfang, Freibeuter der Krone), Frucht „Zerlegefrucht“, Titel (Machtwort, Ein-Schlag-Freibeuter, Albtraum der Kronwacht, Freund der Flosslinge, Rebell), Boss-Fähigkeiten von Nero, Mr. 9 und Pendel-Pit.
+- Beinamen sind nicht eingebaut (kein Feld im Code), sie bleiben hier für Steckbrief und C4.
