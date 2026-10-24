@@ -1902,6 +1902,8 @@ window.GL = window.GL || {};
     const fig = key => {
       if (key === 'B' && bId === 'kalle') key = 'kalle';
       if (key === 'kalle') return { name: en ? 'Kalle the News Coo' : 'Kalle, die Zeitungsmöwe', spr: gull ? GL.sprites.render({ id: 'pet-moewe', art: gull.art }) : '' };
+      if (String(key).indexOf('bek:') === 0) { const bk = (GL.data.bekannte || {})[key.slice(4)];   // F1: Bekannte mit eigenem Gesicht
+        if (bk) return { name: bk.name[en ? 1 : 0], spr: `<span class="bek-face${bk.klein ? ' klein' : ''}${bk.geist ? ' geist' : ''}">${GL.sprites.render({ id: 'bek-' + key.slice(4), look: bk.look })}</span>` }; }
       if (String(key).indexOf('npc:') === 0) { const nid = key.slice(4), nn = (GL.data.npcNames || {})[nid];
         return { name: nn ? nn[en ? 1 : 0] : nid, spr: GL.art && GL.art.npc ? `<span class="npc-face">${GL.art.npc(nid)}</span>` : '' }; }
       const d = crewData(key === 'A' ? aId : key === 'B' ? bId : key) || {};   // auch feste Sprecher wie 'zorro' (events3.js)
@@ -1915,12 +1917,17 @@ window.GL = window.GL || {};
     const lines = ev.lines.map((l, k) => { const f = fig(l[0]); const side = cast.indexOf(nk(l[0])) % 2 ? 'r' : 'l';
       return `<div class="ce-line ${side}" style="--k:${k}"><i class="ce-face">${f.spr}</i><span class="ce-bub"><b>${esc(f.name)}</b>${fill(en ? l[2] : l[1])}</span></div>`; }).join('');
     const ico = (CE_ICON[ev.icon] || CE_ICON.map)();
+    // F1 Siegel: Wahl, die sich die Welt merkt (entscheidet ein Folgen-Ende oder ändert es), nur in Fahrten mit Weltgedächtnis
+    const epInfo = ev.ep && run.start && run.start.world ? (GL.data.crewEpisodes || []).find(e => e.id === ev.ep) : null;
+    const sealed = c => !!epInfo && (!!c.merk || (!!c.flag && (epInfo.third || []).some(t => t.need === c.flag)));
+    const seal = `<span class="ce-seal">⚓ ${en ? 'The world will remember' : 'Das merkt sich die Welt'}</span>`;
+    const mem = ev.wieder && ev.erinnert ? `<div class="ce-mem"><i aria-hidden="true">💭</i><span>${esc(L2(ev.erinnert))}</span></div>` : '';
     const opts = ev.choices.map((c, i) => `<button class="opt ce-opt" data-act="pick" data-i="${i}">${i < 9 ? `<kbd class="key">${i + 1}</kbd>` : ''}
-        <span class="ce-opt-b"><b>${esc(L2(c.label))}</b><small>${esc(L2(c.hint))}</small>${(pv => pv ? `<span class="ev-chips sm">${pv}</span>` : '')(outcomePreview(c.outcome, en))}</span><i class="ce-go" aria-hidden="true">›</i></button>`).join('');
+        <span class="ce-opt-b"><b>${esc(L2(c.label))}</b><small>${esc(L2(c.hint))}</small>${sealed(c) ? seal : ''}${(pv => pv ? `<span class="ev-chips sm">${pv}</span>` : '')(outcomePreview(c.outcome, en))}</span><i class="ce-go" aria-hidden="true">›</i></button>`).join('');
     return `<div class="event ce-event">
-      <div class="ce-head"><i class="ce-ico">${ico}</i><span><small>${ev.ep ? `<span class="ev-ep">📜 ${en ? 'Episode' : 'Folge'}<i class="ev-ep-dots">${[1, 2, 3].map(k => `<i class="${k <= ev.part ? 'on' : ''}"></i>`).join('')}</i>${ev.part}/3</span>` : (en ? 'On the way' : 'Unterwegs')}</small><h2>${esc(L2(ev.title))}</h2></span></div>
+      <div class="ce-head"><i class="ce-ico">${ico}</i><span><small>${ev.wieder ? `<span class="ev-ep">⚓ ${en ? 'Reunion' : 'Wiedersehen'}</span>` : ev.ep ? `<span class="ev-ep">📜 ${en ? 'Episode' : 'Folge'}<i class="ev-ep-dots">${[1, 2, 3].map(k => `<i class="${k <= ev.part ? 'on' : ''}"></i>`).join('')}</i>${ev.part}/3</span>` : (en ? 'On the way' : 'Unterwegs')}</small><h2>${esc(L2(ev.title))}</h2></span></div>
       <div class="ce-stage bg-${ev.bg || 'insel'}">${ceSceneArt(ev.bg)}<span class="ce-cast">${cast.map(k => `<i class="ce-who">${fig(k).spr}</i>`).join('')}</span></div>
-      <div class="ce-lines">${lines}</div>
+      ${mem}<div class="ce-lines">${lines}</div>
       <div class="ce-opts">${opts}</div>
     </div>`;
   }

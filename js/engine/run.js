@@ -766,7 +766,7 @@ window.GL = window.GL || {};
     if (run.epi && run.epi.chap === chap && run.epi.part < 3 && (rI === 1 || rI === GL.config.chapterSteps - 2)) { episodePart(run, rI === 1 ? 2 : 3); run.sceneStep = run.step; return; }
     // Dichte in Maßen (Felix): Kapitel mit Folge bekommen keine weiteren Szenen,
     // sonst ein Crew-Event vor dem Bösewicht und höchstens ein Ereignis auf See, nie zwei Szenen direkt hintereinander
-    if (run.epi && run.epi.chap === chap) return;
+    if (run.epi && run.epi.chap === chap && !run.epi.wieder) return;
     const calm = run.sceneStep === run.step - 1;
     if (CE.length && rI === GL.config.chapterSteps - 2 && run.ceChap !== chap && !calm) { startCrewEvent(run, chap); run.sceneStep = run.step; return; }
     // Gelegentlich ein Ereignis auf See (nicht direkt vor dem Bösewicht oder Boss)
@@ -800,17 +800,32 @@ window.GL = window.GL || {};
     if (n === 3) {
       const v = ep.third.find(x => x.need && run.epi.flags.includes(x.need)) || ep.third.find(x => !x.need); id = v ? v.id : null;
       // F0: wie die Folge ausging, merkt sich die Welt (erst nach finishRun im Profil). Kein Zufallszug
-      if (v && GL.gedaechtnis) { const isl = chapterIsland(run) || GL.data.seaOf(run, islandIndex(run)); GL.gedaechtnis.note(run, { k: 'bekannte', id: ep.id, ende: v.need || 'neutral', wo: isl && isl.id }); }
+      if (v) merkFolge(run, ep.id, v.need || 'neutral');
+    }
+    // F1 Wiedersehen: schon erlebte Folge, passendes altes Ende, noch keins in dieser Fahrt → eine Szene statt drei Teilen.
+    // Liest nur run.start.world (Replay-sicher), die Auswahl der Folge selbst bleibt wie vorher. Kein Zufallszug.
+    let wieder = null;
+    if (n === 1 && !run.wieder && GL.gedaechtnis) {
+      const k = GL.gedaechtnis.kennt(run, ep.id), L = (GL.data.wiedersehen || {})[ep.id];
+      const w = k && L && L.find(x => x.need.includes(k.ende));
+      if (w) { id = w.id; wieder = k.ende; }
     }
     if (!id || !(GL.data.crewEvents || []).some(e => e.id === id)) { run.epi.part = n; return; }
     run.epi.part = n;
-    run.ceChap = run.epi.chap;   // kein zusätzliches Zwischen-Event in diesem Kapitel
+    if (wieder) { run.wieder = ep.id; run.epi.wieder = wieder; run.epi.part = 3; }   // keine Teile 2 und 3, das Kapitel darf ein normales Crew-Event haben
+    else run.ceChap = run.epi.chap;   // kein zusätzliches Zwischen-Event in diesem Kapitel
     const alive = run.crew.filter(u => u.hp > 0);
     const a = (alive[0] || run.crew[0] || {}).id || 'ruffy';
     const others = alive.filter(u => u.id !== a);
     const b = others.length ? others[R.int(run, 0, others.length - 1)].id : 'kalle';
     run.event = { id, crew: true, cast: [a, b] };
     run.phase = 'event';
+  }
+  // F0/F1: wie eine Folge ausging, merkt sich die Welt (erst nach finishRun im Profil)
+  function merkFolge(run, epId, ende) {
+    if (!GL.gedaechtnis) return;
+    const isl = chapterIsland(run) || GL.data.seaOf(run, islandIndex(run));
+    GL.gedaechtnis.note(run, { k: 'bekannte', id: epId, ende, wo: isl && isl.id });
   }
   // Kapitel vorbei: Folge abschließen und Boni „bis zum Ende der Insel“ zurücknehmen
   function endEpisode(run) {
@@ -1362,6 +1377,7 @@ window.GL = window.GL || {};
         run.phase = 'map';
         applyOutcome(run, ch.outcome, lines);
         if (ch.flag && run.epi) run.epi.flags.push(ch.flag);
+        if (ev.wieder && run.epi && run.epi.wieder) merkFolge(run, ev.ep, ch.merk || run.epi.wieder);   // F1: Wiedersehen zählt als erlebt, merk kann das Ende ändern
         run.notice = { title: ev.title, text: ch.text, lines };
         run.event = null;
         return true;

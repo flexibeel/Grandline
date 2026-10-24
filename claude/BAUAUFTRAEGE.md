@@ -194,5 +194,53 @@ Danach `git push -u origin feature/offline-modus`.
 
 **Nicht anfassen:** `js/engine/`, `js/ui/`, `js/main.js`, Kampf, Balance, Spielstand, `patchnotes.js`, `js/build/`, `css/`. Keine Patchnote, kein `bump-version.py`, kein Merge, keine Zweige löschen.
 
-**Übergabe von Cursor:** _(hier eintragen: welche Ereignisse, welche Wahl, froh/muede)_
+**Übergabe von Cursor:** 8 Ereignisse, je eine Wahl mit `herz`:
+- ce-koch: „Probieren“ → froh
+- ce-lied: „Mitsingen“ → froh
+- ce-wette: „Wette annehmen“ → froh
+- ce-rivale: „Kräftemessen“ → froh
+- ce-steckbrief: „Stolz posieren“ → froh
+- ce-meerjungfrau: „Zuhören und weiter“ → froh
+- ce-training: „Mittrainieren“ → muede
+- ce-flaute: „Rudern“ → muede
+Prüfbefehle (Punkt 4) ok: node --check durch, 8 Einträge (6 froh, 2 muede).
 Danach `git push -u origin feature/herz-g2-texte`.
+
+---
+
+## A9: Wiedersehen für die übrigen 8 Folgen (F1 Texte)   Status: offen
+
+**Zweig:** `feature/welt-f1-texte` von `feature/welt-f1` (dort liegt die Mechanik). Nur Daten und Texte, keine Engine.
+**Hintergrund:** F1 aus `claude/PLAN-WELT-MERKT.md` (Abschnitt 3 und 6). Hat man eine Folge schon erlebt, läuft sie in einer späteren Fahrt nicht mehr von vorn, sondern als **ein Wiedersehen** passend zum alten Ende. Claude hat die Mechanik und 3 Folgen gebaut (`post`, `leuchtturm`, `geist`). Muster: `js/data/wiedersehen.js`, Liste `W`.
+**Aufgabe:** In `js/data/wiedersehen.js` bekommt die Liste `W` je einen Eintrag für diese 8 Folgen, mit **genau 2 Szenen**, je eine für jedes benannte Ende (das neutrale Ende bekommt keine):
+| Folge (Datei) | Ende 1 | Ende 2 |
+|---|---|---|
+| `gewuerz` (events3) | `festmahl` | `gewuerz` |
+| `party` (events3) | `tee` | `party` |
+| `kompass` (events3) | `streit` | `suche` |
+| `foto` (events3) | `pose` | `grimasse` |
+| `wette` (events3) | `eile` | `wette` |
+| `kochduell` (events4) | `fies` | `gemuese` |
+| `muschel` (events4) | `lied` | `muschel` |
+| `geisterschiff` (events5) | `karten` | `frage` |
+- Erst die Folge in ihrer Datei lesen (welche Wahl setzt das Flag, wie geht Teil 3 dazu aus), dann die Szene so schreiben, dass man **damals** wiedererkennt.
+- Jede Szene: `need: ['<ende>']`, `bg` und `icon` aus der Folge, `erinnert: [de, en]` (ein Satz, beginnt mit „Damals …“ / „Back then …“), 2 bis 3 `lines`, **2 Wahlen**.
+- Sprecher nur `'A'`, `'B'`, `'kalle'` oder vorhandene `'npc:<id>'` aus `GL.data.npcNames` (events5.js). **Keine neuen `bek:`-Figuren** (Gesichter macht Claude).
+- Ergebnisse nur mit vorhandenen Arten (`xp`, `gold`, `heal`, `hurt`, `points`, `crit`, `relic`, `temp`, `buffAll`, `chance` mit `win`/`lose`), ungefähr so stark wie die Teil-3-Varianten der Folge. Der `hint` nennt die Wirkung wie überall.
+- Pro Folge darf **höchstens eine** Wahl ein `merk` tragen (5. Argument von `C`), wenn sich das Verhältnis ändert, z. B. Versöhnung. Wert klein, nur `a-z`, z. B. `'versoehnt'`. Wird ein Ende per `merk` neu, muss es in einem `need` derselben Folge vorkommen (wie `post`: `need: ['empfang', 'versoehnt']`).
+- Ton wie die übrigen Ereignisse: kurz, trocken, witzig, Deutsch und Englisch. `{A}`/`{B}` nur in `lines`, nie in `hint` oder `text`.
+
+**Fallen:**
+- Eigene Welt: keine Markennamen. Mehrere Folgen-Titel enthalten noch Vorlagen-Namen (z. B. „Log Port“, „Loguetown“), die **nicht** in neue Texte übernehmen. Prüfen: neue Texte durch die Ersetzungsliste in `js/world/neutral.js` schicken.
+- `index.html` lädt die Bündel aus `js/build/`. Nicht `bump-version.py` ausführen, das bündelt Claude.
+- Die Mechanik (`js/engine/run.js`, `render.js`, CSS) ist fertig, nicht anfassen.
+
+**Fertig, wenn (Claude prüft genau das):**
+1. `git diff --stat origin/feature/welt-f1` zeigt nur `js/data/wiedersehen.js` (und bei Bedarf `claude/BAUAUFTRAEGE.md`).
+2. `node --check js/data/wiedersehen.js` läuft durch, und `node -e "global.window=global;global.GL={data:{}};['events2','events3','events4','events5','wiedersehen'].forEach(f=>require('./js/data/'+f+'.js'));GL.data.crewEpisodes.forEach(e=>console.log(e.id,(GL.data.wiedersehen[e.id]||[]).map(w=>w.need.join('/')).join(' | ')))"` zeigt für alle 11 Folgen 2 Szenen, deren `need` zu den Enden der Tabelle passt.
+3. Jede Szene hat `erinnert`, 2 bis 3 `lines` und 2 Wahlen, alles DE und EN.
+
+**Nicht anfassen:** `js/engine/`, `js/ui/`, `js/main.js`, `css/`, die Folgen selbst in `events3/4/5.js`, Balance, Spielstand, `patchnotes.js`, `js/build/`. Keine Patchnote, kein `bump-version.py`, kein Merge, keine Zweige löschen.
+
+**Übergabe von Cursor:** _(hier eintragen: je Folge die zwei Szenen in einem Satz, welche Wahl `merk` trägt)_
+Danach `git push -u origin feature/welt-f1-texte`.

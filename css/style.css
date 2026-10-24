@@ -10507,3 +10507,11 @@ body.ult-hand .rc-ulthint { display: inline; }
   font-style: normal; font-size: .68rem; font-weight: 700; line-height: 1; white-space: nowrap;
   padding: 3px 8px; border-radius: 999px; background: #4a4036; color: #fff6dc; box-shadow: 0 1px 0 rgba(0,0,0,.25);
 }
+
+/* F1 WIEDERSEHEN: Bekannte, Erinnerung, Siegel */
+.bek-face { display: block; }
+.bek-face.klein svg { transform: scale(.62); transform-origin: 50% 100%; }
+.bek-face.geist { opacity: .78; filter: drop-shadow(0 0 3px #e6f2ff) drop-shadow(0 0 6px rgba(200, 225, 255, .7)); }
+.ce-mem { display: flex; gap: 8px; align-items: flex-start; margin: 0 0 8px; padding: 7px 11px; border-radius: 12px; border: 2px dashed var(--line); background: var(--panel-2); color: var(--mute); font-size: .84rem; line-height: 1.35; font-style: italic; }
+.ce-mem i { font-style: normal; flex: none; }
+.ce-seal { display: inline-block; margin-top: 3px; padding: 1px 7px; border-radius: 999px; background: #2f5f7a; color: #fff; font: 600 .68rem 'Fredoka', sans-serif; letter-spacing: .01em; }
