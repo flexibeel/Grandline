@@ -244,3 +244,45 @@ Danach `git push -u origin feature/herz-g2-texte`.
 
 **Übergabe (Claude, 24.10.):** Grok hat A9 nicht geliefert, Claude hat die 16 Szenen selbst geschrieben (nur `js/data/wiedersehen.js`). Je Folge zwei Szenen mit `erinnert`, 2 bis 3 Zeilen, 2 Wahlen: gewuerz (Festmahl/Gewürz), party (Tee/Fest), kompass (Streit/Suche), foto (Pose/Grimasse), wette (Eile/Wette), kochduell (fies/Gemüse), muschel (Lied/Muschel), geisterschiff (Karten/Frage). Einziges `merk`: kompass, „Entschuldigung annehmen“ setzt `versoehnt` (steht im `need` der Streit-Szene). Prüfung per Skript: alle 11 Folgen haben 2 Szenen mit passendem `need`, keine Markennamen in den Szenentexten (die Folgen-Titel „Log Port“/„Loguetown“ laufen schon durch `neutral.js`).
 Zweig `feature/welt-f1-texte`.
+
+---
+
+## A10: Hafen Schritt 1, Häppchen C: Feinschliff der vier Gebäude (`feature/hafen-feinschliff`)
+
+**Zweig:** neu `feature/hafen-feinschliff`, abgezweigt von `feature/hafen-gebaeude` (dort liegen Häppchen A und B und dieser Auftrag). **Nicht** von `main` abzweigen.
+**Umfang:** klein. `css/style.css` (nur der Block „Hafen Schritt 1“ am Ende und, falls nötig, neue Regeln direkt darunter), in `js/ui/render.js` nur `AREAS` (Eintrag `taverne`, `sub`) und `hookLines`, dazu neue Wörter in `js/ui/i18n.js`. Regeln für dich: `AGENTS.md`. Hintergrund: `claude/HAFEN-SKIZZE.md`.
+**Ausgangslage:** Im Hafen stehen vier Gebäude-Kacheln (`.hub-tile.bld`, Klassen `b-dock`, `b-tafel`, `b-kontor`, `b-taverne`), gesperrte haben zusätzlich `.shut` (Fensterläden per `::after`). Tab-Leiste unten: Hafen · Tafel · Taverne · Kapitän. Logik ist fertig, hier geht es nur um Aussehen und einen Untertitel.
+
+### Aufgaben
+
+**C1: Fensterläden schöner.** Die gesperrte Kachel (`.hub-tile.bld.shut`) zeigt heute einen halb durchsichtigen Streifen-Verlauf. Ziel: zwei erkennbare Holzläden (linke und rechte Hälfte, waagerechte Latten, dunkler Rahmen, kleiner Spalt in der Mitte), Bild und Name des Gebäudes bleiben lesbar dahinter oder darüber, „🔒 zu“ gut lesbar. Pixel-Look wie der Rest (harte Kanten, keine weichen Schatten, keine Rundungen in den Läden). Nur CSS, kein neues Bild. Kein Hover-/Tipp-Effekt auf gesperrten Kacheln (ist schon so, bleibt so).
+
+**C2: Querformat am Handy.** Am Handy quer (z. B. 844 × 390) nehmen die vier Kacheln als 2×2 mit `min-height: 96px` fast die ganze Höhe ein. Ziel: Bei `(orientation: landscape) and (max-height: 500px)` alle vier **nebeneinander**, flacher (Bild ca. 32 px, `min-height` ca. 64 px), Namen nicht abgeschnitten. Achtung: Es gibt eine ältere Regel im Block `@media (max-width: 560px)` ab ca. Zeile 8864 („Räume: 4 kleine Kacheln pro Reihe“) und eine Querformat-Regel ab ca. Zeile 9249. Die Gebäude-Regeln setzen sich heute per `!important` durch. Neue Regel **unter** den Block „Hafen Schritt 1“ schreiben, die alten Regeln nicht ändern. Am Handy hochkant (390 × 844) bleibt alles wie jetzt (2×2). Ab 900 px Breite bleibt es bei 4 nebeneinander.
+
+**C3: Hafengerücht als Untertitel der Taverne.** Das Gerücht kommt aus `petRumor(profile)` (in `render.js`, wird in `hookLines` benutzt: Begleiter-Tier und Insel). 
+- In `AREAS`, Eintrag `taverne`: Gibt es ein Gerücht, ist der Untertitel kurz `Gerücht: <Tiername> auf <Insel>` (Insel mit `islName(r.isl)`, beides mit `esc(...)`; so kurz, dass er in die halbe Handy-Breite passt, sonst per CSS mit `…` kürzen). Ohne Gerücht bleibt der heutige Untertitel.
+- In `hookLines`: Die Gerücht-Zeile (`rumor`) unten im Logbuch nur noch zeigen, wenn die Taverne **zu** ist (`!areaOpen(profile, 'taverne')`), damit es nicht doppelt steht. Die Sammelalbum-Zeile (`book`) bleibt immer.
+- Tipp auf die Taverne-Kachel öffnet wie bisher die Taverne (nicht das Album).
+- Englisch: neue deutsche Texte in `js/ui/i18n.js` beim Block „Hauptquartier“ eintragen (z. B. `'Gerücht': 'Rumor'`), so wie die übrigen Einträge dort. Prüfen, ob der zusammengesetzte Satz im Englischen richtig ankommt; wenn die Übersetzung nur ganze Texte kennt, den Untertitel aus Teilen bauen, die einzeln übersetzt werden (`GL.i18n` bzw. `en()` wie im übrigen Code nachsehen).
+
+**C4: Eigene Welt prüfen.** `index.html?welt=neutral`: In den vier Kacheln, im Raum-Kopf, in der Tab-Leiste und im neuen Untertitel darf kein Markenname stehen (Tiernamen, Inseln, „Berry“ wird zu „Taler“). Falls etwas durchrutscht: Eintrag in `js/world/neutral.js` nach bestehendem Muster, nichts sonst.
+
+**C5: Hell und Dunkel.** Kacheln, gesperrte Kacheln mit Läden, Untertitel und Tab-Leiste in beiden Themes lesbar (Dunkel über `:root[data-theme="dark"]`, siehe Anfang von `style.css`). Wo nötig eigene Farben für Dunkel ergänzen, im selben Block.
+
+### Fallen
+- `index.html` lädt nur die Bündel aus `js/build/`. Zum Ansehen eine **Kopie** des Repos anlegen und dort `python3 tools/bundle.py` laufen lassen. Im Repo selbst **nicht** bündeln und **nicht** `bump-version.py` ausführen.
+- Gebäude-ids (`dock`, `tafel`, `kontor`, `taverne`) nie in `features.js` eintragen und nie durch `featureOpen` schicken.
+- `ROOM_GROUPS`, `areaRooms`, `areaRoom`, `roomHead`, Tab-Leiste und `js/main.js` sind fertig (Häppchen B), nicht anfassen.
+- Streamer-Modus (`body.streamer`) und Run-Vorschau (`peek`) nicht verändern.
+
+### Fertig, wenn (Claude prüft genau das)
+1. `git diff --stat origin/feature/hafen-gebaeude` zeigt nur `css/style.css`, `js/ui/render.js`, `js/ui/i18n.js` (und bei Bedarf `js/world/neutral.js`, `claude/BAUAUFTRAEGE.md`).
+2. `node --check js/ui/render.js` und `node --check js/ui/i18n.js` laufen durch.
+3. In einer gebündelten Testkopie: 390 × 844 hochkant 2×2 wie vorher, 844 × 390 quer 4 nebeneinander ohne abgeschnittene Namen, 1100 px 4 nebeneinander; nirgends waagerechtes Scrollen.
+4. Frischer Spieler (0 Fahrten): Kontor und Taverne mit erkennbaren Fensterläden und „🔒 zu“, Gerücht steht unten im Logbuch. Spieler mit offener Taverne: Gerücht im Untertitel der Taverne, unten nicht mehr.
+5. DE und EN, Hell und Dunkel, `?welt=neutral`: alles lesbar, keine Markennamen, Konsole ohne Fehler.
+
+**Nicht anfassen:** `js/main.js`, `js/engine/`, `js/data/` (außer nichts), `deck.js`, Run und Kampf, Spielstand, Supabase, `patchnotes.js`, `js/build/`. Keine Patchnote, kein `bump-version.py`, kein Merge nach `main` oder `feature/hafen-gebaeude`, keine Zweige löschen.
+
+### Abschluss von Grok
+Kurz: was zu C1 bis C5 geändert, welche Zeilen, wie getestet (Breiten, DE/EN, Hell/Dunkel, neutral), was offen blieb. Dann `git push -u origin feature/hafen-feinschliff`.
