@@ -165,7 +165,7 @@ Danach `git push -u origin feature/offline-modus`.
 
 ---
 
-## A8: G2-Texte, Gefühle an 6 bis 8 Crew-Ereignissen   Status: offen
+## A8: G2-Texte, Gefühle an 6 bis 8 Crew-Ereignissen   Status: geprüft (Claude, 24.10.), Leser eingebaut, wartet auf „schalte live“
 
 **Zweig:** `feature/herz-g2-texte` von `main` (G1 ist mit 24a live). Nur Daten und Texte, keine Engine.
 **Hintergrund:** Plan 4D (`claude/PLAN-GEFUEHLE.md`, Abschnitte 3, 4 und 11). Seit G1 kann eine Figur in einer Fahrt **froh** (+1 Tempo für 2 Kämpfe) oder **erschöpft** (−20 % Höchstleben im nächsten Kampf) sein. Jetzt sollen auch Ereignis-Wahlen Gefühle auslösen.
