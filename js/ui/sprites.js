@@ -362,7 +362,200 @@ window.GL = window.GL || {};
     const f = GL.forms && GL.forms.lookOf(entry.id);
     return f ? Object.assign({}, look, f) : look;
   }
+  // ===================== C4a: Malwerk 24 × 30 (Vorlage tools/pixel-probe/px24.js, Felix 24.10.) =====================
+  // Gleiches System wie oben (Grundkörper + Look-Werte + Teile), nur doppelt so fein. Licht oben links, Umriss in der
+  // dunkleren Nachbarfarbe, Gesicht als Ebene (5 Gefühle), Blinzeln, Atmen, Angriffsbild.
+  // Rückfall: Kennt das neue Raster einen Teil des Looks noch nicht (z. B. Form-Accessoires der Sturmmöwen),
+  // zeichnet die Engine die Figur weiter im alten 12 × 14 (p24ok).
+  const P24 = (function () {
+    const W = 24, H = 30;
+    // Linke Hälfte, rechts gespiegelt. H Haare, S Haut, C Oberteil, P Hose, U Gürtel, O Schuhe
+    const HALF = [
+      '........HHHH', '......HHHHHH', '.....HHHHHHH', '....HHHHHHHH', '...HHHHHHHHH',
+      '...HHSHHHSHH', '...HSSSSSSSS', '...HSSSSSSSS', '..SSSSSSSSSS', '..SSSSSSSSSS',
+      '...SSSSSSSSS', '...SSSSSSSSS', '....SSSSSSSS', '......SSSSSS', '.........SSS',
+      '.....CCCCCCC', '...CCCCCCCCC', '..CCCCCCCCCC', '..CC.CCCCCCC', '..SS.CCCCCCC',
+      '..SS.CCCCCCC', '..SS.CCCCCCC', '.....UUUUUUU', '.....PPPPPPP', '.....PPPPPP.',
+      '.....PPPPP..', '.....PPPPP..', '.....PPPPP..', '....OOOOOO..', '....OOOOOO..'
+    ];
+    const flip = s => s.split('').reverse().join('');
+    const BASE = HALF.map(r => r + flip(r));
+    const UPPER = 22;
+    const mir = list => list.concat(list.map(([y, x, ch]) => [y, W - 1 - x, ch]));
+    const EYES = mir([[7, 8, 'X'], [7, 9, 'E'], [8, 8, 'E'], [8, 9, 'E'], [9, 8, 'J'], [9, 9, 'J']]);
+    EYES.forEach(p => { if (p[0] === 7 && p[1] === 14) p[2] = 'X'; if (p[0] === 7 && p[1] === 15) p[2] = 'E'; });
+    const FACE = {
+      normal: { eyes: EYES, add: mir([[6, 8, 'b'], [6, 9, 'b']]).concat([[11, 11, 'm'], [11, 12, 'm']]) },
+      froh: { eyes: EYES, add: mir([[6, 8, 'b'], [6, 9, 'b'], [10, 6, 'c'], [10, 7, 'c'], [11, 10, 'm'], [12, 11, 'm']]) },
+      sauer: { eyes: EYES.filter(([y, x]) => !(y === 7 && (x === 9 || x === 14))),
+        add: mir([[6, 7, 'b'], [6, 8, 'b'], [7, 9, 'b']]).concat([[11, 11, 'm'], [11, 12, 'm'], [12, 10, 'm'], [12, 13, 'm']]) },
+      muede: { eyes: EYES.filter(([y]) => y === 9).map(([y, x]) => [y, x, 'E']),
+        add: mir([[7, 8, 'l'], [7, 9, 'l'], [8, 8, 'l'], [8, 9, 'l'], [6, 7, 'b'], [6, 8, 'b']]).concat([[11, 11, 'm'], [11, 12, 'm'], [6, 21, 'w'], [7, 21, 'w'], [7, 22, 'w']]) },
+      schreck: { eyes: mir([[7, 8, 'X'], [7, 9, 'X'], [8, 8, 'X'], [8, 9, 'E'], [9, 8, 'X'], [9, 9, 'X']]),
+        add: mir([[5, 8, 'b'], [5, 9, 'b']]).concat([[11, 11, 'm'], [11, 12, 'm'], [12, 11, 'm'], [12, 12, 'm']]) }
+    };
+    const BLINK = mir([[9, 8, 'E'], [9, 9, 'E']]);
+
+    // Teile schreiben: Zeilen ab Zeile y0, '.' bleibt durchsichtig. sym = linke Hälfte (12), wird gespiegelt.
+    const rows = (y0, list) => { const a = []; list.forEach((r, i) => r.split('').forEach((ch, x) => { if (ch !== '.') a.push([y0 + i, x, ch]); })); return a; };
+    const sym = (y0, list) => rows(y0, list.map(r => r + flip(r)));
+    const at = (pts) => pts; // [y, x, ch] direkt
+
+    // Hüte: B Hut, k Hut dunkel (Krempe, Band), q Hut hell. clear = Zeilen, die vorher ganz geleert werden.
+    const HATS = {
+      straw: { clear: [0, 1, 2, 3], px: sym(0, ['........BBBB', '.......BBBBB', '......BBBBBB', '.....kkkkkkk', '.BBBBBBBBBBB', '..kkkkkkkkkk']) },
+      band: { px: rows(4, ['...BBBBBBBBBBBBBBBBBB...', '...kkkkkkkkkkkkkkkkkkB..', '.....................BB.', '......................B.', '......................B.']) },
+      cap: { px: sym(0, ['.......BBBBB', '.....BBBBBqB', '....BBBBBBBB', '...BBBBBBBBB', '..kkkkkkkkkk']) },
+      afro: { px: sym(0, ['....HHHHHHHH', '..HHHHHHHHHH', '.HHHHHHHHHHH', 'HHHHHHHHHHHH', 'HHHHHHHHHHHH', 'HHHHHSHHHSHH', 'HHH.........', 'HHH.........', 'HH..........', 'HH..........', '.HH.........']) },
+      hood: { clear: [0, 1, 2, 3], px: sym(0, ['......BBBBBB', '....BBBBBBBB', '...BBBBBBBBB', '..BBBBBBBBBB', '..BBBBBBBBBB', '.BBBkkkkkkkk', '.BBk........', '.BBk........', '.BB.........', '.BB.........', '.BBk........', '.BBk........', '..BBk.......', '...BBBk.....', '....BBBB....', '...BBBB.....']) },
+      tophat: { clear: [0, 1, 2, 3, 4], px: sym(0, ['......BBBBBB', '......BqBBBB', '......BqBBBB', '......BBBBBB', '......kkkkkk', '..BBBBBBBBBB']) },
+      ears: { px: sym(0, ['..BB........', '.BqqB.......', '.BqqB.......', '..BBBBBBBBBB']) },
+      tricorn: { clear: [0, 1, 2, 3], px: sym(0, ['.B......BBBB', '.BB...BBBBBB', '.BBBBBBBBBBB', 'BBBBBBBBBBBB', 'kkkkkkkkkkkk']).concat(at([[1, 11, 'A'], [1, 12, 'A']])) }
+    };
+    // Masken und Kostüme (eigene Farben je Maske): G hell, g dunkel, Y Augen, T Zähne, W Wolke
+    const MASKS = {
+      croc: { clear: [0, 1, 2, 3, 4], px: sym(0, ['....gYg.....', '..GGGGGGGGGG', '.GGGGgGGGGGG', 'GGGGGGGGGGGG', 'GGGGGGGGGGGG', 'GTGTGTGTGTGT', 'Gg..........', 'Gg..........', 'Gg..........', 'Gg..........', 'GgT.........', 'GGT.........', '.GGT........', '..GGGTT.....']) },
+      shark: { clear: [0, 1, 2], px: rows(0, ['..........GG............', '.........GGGG...........', '.....GGGGGGGGGGGGG......', '....GGGGGGGGGGGGGGGG....', '...GGGGGGGGGGGGGGGGGG...', '...TgTgTgTgTgTgTgTgTg...']) },
+      leopard: { clear: [0, 1], px: sym(0, ['...GG.......', '..GYGG......', '..GGGGGgGGGG', '...GgGGGGGgG', '...GGGGgGGGG', '...GGgGGGGGG']) },
+      giraffe: { px: sym(0, ['.....g......', '.....G......', '.....G......', '....GGgGGGGG', '...GGGGGGgGG', '...gGGGGGGGG']) },
+      bat: { clear: [0, 1], px: sym(0, ['G...........', 'GG..........', 'GGG...GGGGGG', '.GGGGGGGGGGG', '..GGGGGGGGGG', '...GgGGGGGGG', '...G........', '...G........']) },
+      cloud: { px: sym(0, ['.....WW..WWW', '..WWWWWWWWWW', '.WWWWWWWWWWW', 'WWWWWWWWWWWW', '.WW.........']) },
+      bolt: { px: sym(0, ['..Y....Y....', '..YY...YY..Y', '...YY.YYYYYY', '...YYYYYYYYY']) },
+      bear: { clear: [0], px: sym(0, ['..GG........', '.GgGG.......', '.GGGGGGGGGGG', '..GGGGGGGGGG', '...GGGGGGGGG']) },
+      octo: { clear: [0, 1, 2], px: sym(0, ['......GGGGGG', '....GGGGGGGG', '...GGGgGGGGG', '..GGGGGGGGGG', '..GGGGGGGGGG', '.gGGg.gGGg..', '.g..........', 'g...........', '.g..........', 'g...........', '.g..........']) }
+    };
+    const MASK_COL = {
+      croc: { G: '#5c9a42', g: '#2f5a24', Y: '#f2d24a', T: '#f4f0e0' }, shark: { G: '#6f8fb0', g: '#4a6680', T: '#f4f0e0' },
+      leopard: { G: '#e0b040', g: '#6a4a1a', Y: '#f4d98a' }, giraffe: { G: '#e8c060', g: '#8a5a2a' }, bat: { G: '#4a3260', g: '#2e1e3e' },
+      cloud: { W: '#eef0f2' }, bolt: { Y: '#f2d24a' }, bear: { G: '#6a4a30', g: '#c89a70' }, octo: { G: '#e88a9a', g: '#b85a6a' }
+    };
+    // Kleine Zusätze (eigener Pirat und Figuren): K schwarz, R Narbe, L Brillengestell, A Gold, V Holz, F Blüte, Z Rauch
+    const ACC = {
+      augenklappe: rows(6, ['...KKKKKKKKKKKKKKKKKK...', '.......KKKK.............', '.......KKKK.............', '.......KKKK.............', '........KK..............']),
+      narbe: at([[7, 6, 'R'], [8, 6, 'R'], [9, 7, 'R'], [10, 7, 'R'], [11, 8, 'R']]),
+      brille: sym(6, ['.......LLLL.', '.......L..L.', '.......L..LL', '.......L..L.', '.......LLLL.']),
+      ohrring: at([[10, 2, 'A'], [11, 2, 'A'], [10, 21, 'A'], [11, 21, 'A']]),
+      pfeife: at([[12, 13, 'V'], [12, 14, 'V'], [12, 15, 'V'], [12, 16, 'V'], [11, 17, 'V'], [12, 17, 'V'], [11, 18, 'V'], [12, 18, 'V'], [9, 19, 'Z'], [8, 20, 'Z'], [7, 19, 'Z']]),
+      blume: at([[2, 17, 'F'], [3, 16, 'F'], [3, 18, 'F'], [4, 17, 'F'], [3, 17, 'A']])
+    };
+    const BEARD = sym(8, ['...D........', '...D........', '...DD.......', '...DDDDDD...', '....DDDDDDDD', '......DDDDDD', '.........DDD']);
+    const NOSE = at([[9, 11, 'N'], [9, 12, 'N'], [10, 11, 'N'], [10, 12, 'N']]);
+    const LONGHAIR = [].concat(...[4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16].map(y => [[y, 2, 'H'], [y, 3, 'H'], [y, 20, 'H'], [y, 21, 'H']]), [[17, 2, 'H'], [17, 21, 'H'], [6, 4, 'H'], [6, 19, 'H']]);
+    // Fraktions-Abzeichen (Leitfarbe, je Fraktion ein Teil), wird je Fraktion im Board festgelegt
+    const BADGE = {};
+
+    // Kann das neue Raster diesen Look schon ganz zeichnen?
+    function ok(look) {
+      if (look.hat && !HATS[look.hat]) return false;
+      if (look.mask && !MASKS[look.mask]) return false;
+      if (look.acc && !ACC[look.acc]) return false;
+      if (Array.isArray(look.facc) && look.facc.length) return false; // Form-Teile der Sturmmöwen: kommen zuletzt
+      return true;
+    }
+    function grid(look, mood, blink, fac) {
+      const g = BASE.map(r => r.split(''));
+      const put = list => list.forEach(([y, x, ch]) => { if (g[y] && x >= 0 && x < W) g[y][x] = ch; });
+      if (look.longHair) put(LONGHAIR);
+      const part = HATS[look.hat] || null, mask = MASKS[look.mask] || null;
+      [part, mask].forEach(p => { if (p && p.clear) p.clear.forEach(y => { g[y] = g[y].map(() => '.'); }); });
+      if (part) put(part.px);
+      if (mask) put(mask.px);
+      if (look.beard) put(BEARD);
+      if (look.nose) put(NOSE);
+      if (ACC[look.acc]) put(ACC[look.acc]);
+      const bd = fac && BADGE[fac];
+      if (bd) put(bd.px);
+      const f = FACE[mood] || FACE.normal;
+      const onFace = list => list.forEach(([y, x, ch]) => { const was = g[y] && g[y][x]; if (ch === 'w' ? was === '.' : was === 'S') g[y][x] = ch; });
+      onFace(blink ? BLINK : f.eyes);
+      onFace(f.add.filter(([, , ch]) => !(blink && ch === 'l')));
+      return g;
+    }
+    // Angriffsbild: Oberkörper 1 Pixel vor, vorderer Arm als Faust nach vorn, Ausfallschritt
+    function lunge(g0) {
+      const g = g0.map(r => r.slice());
+      for (let y = 0; y <= UPPER; y++) g[y] = ['.'].concat(g0[y].slice(0, W - 1));
+      for (let y = 17; y <= 21; y++) { g[y][21] = '.'; g[y][22] = '.'; g[y][23] = '.'; }
+      [[16, 19], [16, 20], [16, 21], [17, 19], [17, 20], [17, 21]].forEach(([y, x]) => { g[y][x] = 'C'; });
+      [[15, 22], [16, 22], [17, 22], [15, 23], [16, 23], [17, 23]].forEach(([y, x]) => { g[y][x] = 'S'; });
+      const legs = ['......PPPPPPPPPPPPPP....', '.....PPPPPP..PPPPPP.....', '....PPPPP.....PPPPPP....', '...PPPPP.......PPPPP....', '..PPPPP.........PPPPP...', '.OOOOOO.........OOOOOO..', '.OOOOOO.........OOOOOO..'];
+      legs.forEach((r, i) => { g[23 + i] = r.split(''); });
+      return g;
+    }
+    const SHADE = 'HSCPUOBDGgN';
+    function pixels(g, look, fac) {
+      const skin = look.skin || '#f2c9a0', hat = look.hatColor || look.hair;
+      const col = Object.assign({
+        H: look.hair, S: skin, C: look.shirt, P: look.pants, U: mix(look.pants || '#555555', 'k', 0.45), O: '#3a2a1c',
+        B: hat, k: mix(hat || '#888888', 'k', 0.35), q: mix(hat || '#888888', 'w', 0.35), D: look.beard || look.hair, N: look.nose || '#d8433a',
+        E: '#1c1420', X: '#ffffff', J: '#3b4f7a', b: mix(look.hair || '#555555', 'k', 0.35), m: '#7a2e2a', c: '#f08f8a', l: mix(skin, 'k', 0.38), w: '#8fd3f4',
+        K: '#1a1a1a', R: '#b8463a', L: '#3a2a20', A: '#f2c94c', V: '#6a4424', F: '#e0483b', Z: '#e4e0dc'
+      }, MASK_COL[look.mask] || {}, (fac && BADGE[fac] && BADGE[fac].c) || {});
+      const at = (x, y) => (y >= 0 && y < H && x >= 0 && x < W && g[y][x]) || '.';
+      const fam = ch => 'EXJbmcl'.includes(ch) ? 'S' : ch;
+      const out = [];
+      for (let y = -1; y <= H; y++) for (let x = -1; x <= W; x++) {
+        const ch = at(x, y);
+        if (ch !== '.') {
+          let c = col[ch] || '#888888';
+          if (SHADE.includes(ch)) {
+            const same = (dx, dy) => fam(at(x + dx, y + dy)) === ch;
+            const eR = !same(1, 0), eB = !same(0, 1), eL = !same(-1, 0), eT = !same(0, -1);
+            const above = at(x, y - 1);
+            if (eR && eB) c = mix(c, 'k', 0.32);
+            else if (eR || eB) c = mix(c, 'k', 0.2);
+            else if (!same(2, 0) || !same(0, 2)) c = mix(c, 'k', 0.09);
+            else if (eT && eL) c = mix(c, 'w', 0.26);
+            else if (eT || eL) c = mix(c, 'w', 0.14);
+            if ((ch === 'S' && 'HBkGgD'.includes(above)) || (ch === 'S' && y === 14) || (ch === 'C' && y === 15 && x >= 9 && x <= 14)) c = mix(c, 'k', 0.2);
+          }
+          out.push([x, y, c, 1]);
+          continue;
+        }
+        const nb = [[0, 1], [1, 0], [-1, 0], [0, -1]].find(([dx, dy]) => at(x + dx, y + dy) !== '.');
+        if (!nb) continue;
+        const n = at(x + nb[0], y + nb[1]);
+        const shadow = x > W / 2 || y > H * 0.6;
+        const k = 'wZ'.includes(n) ? 0.35 : (shadow ? 0.7 : 0.6);
+        out.push([x, y, mix(col[n] || '#888888', 'k', k), shadow ? 1 : 0.94]);
+      }
+      return out;
+    }
+    // Pixel einer Farbe in einer Zeile zu einem Rechteck zusammenfassen
+    function rects(list) {
+      const by = {};
+      list.forEach(p => { (by[p[1]] = by[p[1]] || []).push(p); });
+      let s = '';
+      Object.keys(by).forEach(y => {
+        const r = by[y].sort((a, b) => a[0] - b[0]);
+        for (let i = 0; i < r.length; i++) {
+          let j = i;
+          while (j + 1 < r.length && r[j + 1][0] === r[j][0] + 1 && r[j + 1][2] === r[i][2] && r[j + 1][3] === r[i][3]) j++;
+          s += `<rect x="${r[i][0]}" y="${y}" width="${j - i + 1}" height="1" fill="${r[i][2]}"${r[i][3] < 1 ? ` fill-opacity="${r[i][3]}"` : ''}/>`;
+          i = j;
+        }
+      });
+      return s;
+    }
+    // Gleiches Seitenverhältnis wie das alte Raster (14 : 16), damit nichts im Layout springt
+    const VB = '-2 -1 28 32';
+    function flat(look, fac) {
+      return `<svg viewBox="${VB}" aria-hidden="true" class="p24" shape-rendering="crispEdges">${rects(pixels(grid(look, 'normal', false, fac), look, fac))}</svg>`;
+    }
+    function shaded(look, mood, fac) {
+      const g = grid(look, mood, false, fac);
+      const open = pixels(g, look, fac), shut = pixels(grid(look, mood, true, fac), look, fac);
+      const seen = new Set(open.map(p => p[0] + ',' + p[1] + p[2]));
+      const blink = shut.filter(p => !seen.has(p[0] + ',' + p[1] + p[2]) && p[1] >= 5 && p[1] <= 13);
+      const up = open.filter(p => p[1] <= UPPER), low = open.filter(p => p[1] > UPPER);
+      const atk = pixels(lunge(g), look, fac);
+      return `<svg viewBox="${VB}" aria-hidden="true" class="spr p24" shape-rendering="crispEdges"><g class="sp-i"><g class="sp-l">${rects(low)}</g><g class="sp-u">${rects(up)}<g class="p24-blink">${rects(blink)}</g></g></g><g class="sp-a">${rects(atk)}</g></svg>`;
+    }
+    return { W, H, ok, flat, shaded, grid, HATS, MASKS, ACC, BADGE, FACE };
+  })();
+
   GL.sprites = {
+    p24: P24,
     // Schiff mit eigenen Teilen (look = { sail, hull, flag, deco } aus GL.data.shipParts); ohne Angabe: das eigene Schiff
     ship(look) {
       const L = look || GL.sprites.myShip || {};
@@ -456,8 +649,8 @@ window.GL = window.GL || {};
       if (entry.image) return `<img src="${entry.image}" alt="" class="sprite-img">`;
       const lk = mlook(entry);
       const md = mood && MOOD[mood] ? mood : '';
-      const key = 'sh:' + entry.id + ':' + JSON.stringify(lk) + md;
-      if (!cache[key]) cache[key] = svgShaded(lk, md);
+      const key = 'sh:' + entry.id + ':' + JSON.stringify(lk) + md + ':' + (entry.faction || '');
+      if (!cache[key]) { const sl = safeLook(lk); cache[key] = P24.ok(sl) ? P24.shaded(sl, md || 'normal', entry.faction) : svgShaded(lk, md); }
       return cache[key];
     },
     render(entry) {
@@ -468,8 +661,8 @@ window.GL = window.GL || {};
       // Der eigene Pirat kann sein Aussehen ändern: Aussehen gehört mit zum Schlüssel
       // Schlüssel mit Aussehen: Figuren mit gleicher id (z. B. Buggy als Gegner und als Crew) bleiben getrennt
       const lk = mlook(entry);
-      const key = entry.id + ':' + JSON.stringify(lk);
-      if (!cache[key]) cache[key] = svg(lk);
+      const key = entry.id + ':' + JSON.stringify(lk) + ':' + (entry.faction || '');
+      if (!cache[key]) { const sl = safeLook(lk); cache[key] = P24.ok(sl) ? P24.flat(sl, entry.faction) : svg(lk); }
       return cache[key];
     }
   };

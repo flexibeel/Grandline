@@ -10563,3 +10563,10 @@ body:not(.in-run) .hq .hub-tile.bld small, .hub-tile.bld small { font-size: .7re
 :root[data-theme="dark"] .tb-btn.on .tb-ico { background: #e6c27a; box-shadow: 0 0 0 2px #8a5a28; }
 /* Fahrtarten im Dock bzw. an der Tafel, unter dem Umschalter */
 .action-dock.room-acts { margin: -4px 0 12px; }
+
+/* ===== C4a: Figuren 24 × 30 (Blinzeln nur im Kampffeld) ===== */
+.p24 .p24-blink { display: none; }
+.field.v3 .fu-body .p24 .p24-blink { display: inline; opacity: 0; animation: p24Blink 4.6s steps(1) infinite; animation-delay: calc(var(--d, 0s) * 3); }
+@keyframes p24Blink { 0%, 94% { opacity: 0; } 95%, 98% { opacity: 1; } 99%, 100% { opacity: 0; } }
+.field.v3 .fu.ko .fu-body .p24 .p24-blink, .field.v3 .fu.spr-atk .fu-body .p24 .p24-blink { animation: none; opacity: 0; }
+@media (prefers-reduced-motion: reduce) { .field.v3 .fu-body .p24 .p24-blink { animation: none !important; opacity: 0; } }
