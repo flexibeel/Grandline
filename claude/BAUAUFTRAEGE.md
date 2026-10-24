@@ -194,5 +194,14 @@ Danach `git push -u origin feature/offline-modus`.
 
 **Nicht anfassen:** `js/engine/`, `js/ui/`, `js/main.js`, Kampf, Balance, Spielstand, `patchnotes.js`, `js/build/`, `css/`. Keine Patchnote, kein `bump-version.py`, kein Merge, keine Zweige löschen.
 
-**Übergabe von Cursor:** _(hier eintragen: welche Ereignisse, welche Wahl, froh/muede)_
+**Übergabe von Cursor:** 8 Ereignisse, je eine Wahl mit `herz`:
+- ce-koch: „Probieren“ → froh
+- ce-lied: „Mitsingen“ → froh
+- ce-wette: „Wette annehmen“ → froh
+- ce-rivale: „Kräftemessen“ → froh
+- ce-steckbrief: „Stolz posieren“ → froh
+- ce-meerjungfrau: „Zuhören und weiter“ → froh
+- ce-training: „Mittrainieren“ → muede
+- ce-flaute: „Rudern“ → muede
+Prüfbefehle (Punkt 4) ok: node --check durch, 8 Einträge (6 froh, 2 muede).
 Danach `git push -u origin feature/herz-g2-texte`.
