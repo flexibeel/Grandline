@@ -247,7 +247,7 @@ Zweig `feature/welt-f1-texte`.
 
 ---
 
-## A10: Hafen Schritt 1, Häppchen C: Feinschliff der vier Gebäude (`feature/hafen-feinschliff`)
+## A10: Hafen Schritt 1, Häppchen C: Feinschliff der vier Gebäude (`feature/hafen-feinschliff`)   Status: geprüft (Claude, 24.10.), liegt mit A+B auf `release/hafen-schritt1`
 
 **Zweig:** neu `feature/hafen-feinschliff`, abgezweigt von `feature/hafen-gebaeude` (dort liegen Häppchen A und B und dieser Auftrag). **Nicht** von `main` abzweigen.
 **Umfang:** klein. `css/style.css` (nur der Block „Hafen Schritt 1“ am Ende und, falls nötig, neue Regeln direkt darunter), in `js/ui/render.js` nur `AREAS` (Eintrag `taverne`, `sub`) und `hookLines`, dazu neue Wörter in `js/ui/i18n.js`. Regeln für dich: `AGENTS.md`. Hintergrund: `claude/HAFEN-SKIZZE.md`.
