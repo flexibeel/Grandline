@@ -104,13 +104,13 @@ GL.data.crew = [
   // ---- Großes Inhalts-Update: neue Banden und bekannte Gesichter ----
   // Buggy-Piraten
   { id: 'buggy',     name: 'Pomp',       type: 'technik', role: 'kaempfer', faction: 'buggy',      hp: 26, atk: 7,  spd: 6, locked: true,
-    look: { hair: '#2f5aa8', skin: '#f6e6da', shirt: '#c0392b', pants: '#3a2a5a', hat: 'tricorn', hatColor: '#e8a030', nose: '#e0302a' } },
+    look: { hairStyle: 'buerste', hair: '#e07a2c', skin: '#f6e6da', shirt: '#f4f0e0', pants: '#3a2a5a', hat: 'narrenkappe', hatColor: '#c2318a', nose: '#e0302a', x: ['baelle', 'konfetti'] } },
   { id: 'alvida',    name: 'Hanne',      type: 'kraft',   role: 'brecher',  faction: 'buggy',      hp: 34, atk: 5,  spd: 4, locked: true,
-    look: { hair: '#1a1a1a', skin: '#f6d8c0', shirt: '#e8e8e8', pants: '#c04a6a', hat: 'cap', hatColor: '#e8e0d0', longHair: true } },
+    look: { hairStyle: 'locken', hair: '#c0603a', skin: '#f0c8a8', shirt: '#4a9a8a', pants: '#e87aa0', hat: 'sonnenhut', hatColor: '#f4f0e0', x: ['keule', 'schaum'] } },
   { id: 'cabaji',    name: 'Jockel',      type: 'klinge',  role: 'kaempfer', faction: 'buggy',      hp: 27, atk: 8,  spd: 7, locked: true,
-    look: { hair: '#4a7a3a', skin: '#f2c9a0', shirt: '#e8e8d8', pants: '#3a3a5a', hat: 'band', hatColor: '#c0392b' } },
+    look: { hairStyle: 'tolle', hair: '#2a2a3a', skin: '#e8b890', shirt: '#f2d24a', pants: '#3a2a5a', x: ['messer', 'fackel'] } },
   { id: 'mohji',     name: 'Poldi',       type: 'kraft',   role: 'helfer',   faction: 'buggy',      hp: 30, atk: 7,  spd: 5, locked: true,
-    look: { hair: '#e8e8e8', skin: '#f2c9a0', shirt: '#8a6a3a', pants: '#5a4a3a', hat: 'ears', hatColor: '#f0f0f0' } },
+    look: { hairStyle: 'kranz', hair: '#f0f0f0', skin: '#f2c9a0', shirt: '#f4f0e0', pants: '#2a2a2a', hat: 'tophat', hatColor: '#2a2a2a', coat: '#b8343a', x: ['mantel', 'schnauzer', 'peitsche'] } },
   // Arlong-Bande (Fischmenschen)
   { id: 'hatchan',   name: 'Okko',     type: 'klinge',  role: 'kaempfer', faction: 'fischmensch', hp: 32, atk: 7, spd: 5, locked: true,
     look: { hairStyle: 'dutt', hair: '#7a3a8a', skin: '#c87aa0', shirt: '#e8c040', pants: '#3a5a8a', x: ['aermel', 'tinte'] } },
@@ -150,17 +150,17 @@ GL.data.crew = [
 
   // Schlimmste Generation (Supernovas von Sabaody)
   { id: 'kid',       name: 'Magnus', type: 'kraft',   role: 'kaempfer', faction: 'supernova', hp: 32, atk: 9, spd: 6, locked: true,
-    look: { hair: '#d0302a', skin: '#f2c9a0', shirt: '#2a2a2a', pants: '#5a3a2a', hat: 'afro', acc: 'narbe' } },
+    look: { hairStyle: 'buerste', hair: '#3a4a6a', skin: '#e8c0a0', shirt: '#6a6a7a', pants: '#2a2a2a', x: ['schutzbrille', 'metallarm', 'magnet'] } },
   { id: 'killer',    name: 'Simon',      type: 'klinge',  role: 'kaempfer', faction: 'supernova', hp: 27, atk: 9, spd: 8, locked: true,
-    look: { hair: '#f2d24a', skin: '#f2c9a0', shirt: '#e8a0b0', pants: '#2a3a5a', longHair: true, acc: 'brille' } },
+    look: { hair: '#3a2a3a', skin: '#e8c0a0', shirt: '#3a3a3a', pants: '#2a2a3a', hat: 'hood', hatColor: '#4a2a4a', x: ['domino', 'sicheln'] } },
   { id: 'bonney',    name: 'Lotta',      type: 'technik', role: 'helfer',   faction: 'supernova', hp: 28, atk: 6, spd: 7, locked: true,
-    look: { hair: '#e870a0', skin: '#f6d8c0', shirt: '#3a3a3a', pants: '#3a6a3a', hat: 'cap', hatColor: '#4a8a4a', longHair: true } },
+    look: { hairStyle: 'zoepfe', hair: '#e8904a', skin: '#f6d8c0', shirt: '#f4f0e0', pants: '#3a6a8a', hat: 'ohrenkappe', hatColor: '#4a8a4a', x: ['fleischkeule', 'pflaster'] } },
   { id: 'drake',     name: 'Gregor',       type: 'kraft',   role: 'brecher',  faction: 'supernova', hp: 40, atk: 7, spd: 4, locked: true,
-    look: { hair: '#c08040', skin: '#e0b088', shirt: '#4a3a2a', pants: '#2a2a2a', hat: 'tricorn', hatColor: '#3a2a1a', acc: 'narbe' } },
+    look: { hairStyle: 'buerste', hair: '#5a3a2a', skin: '#d8a878', shirt: '#e8dcb0', pants: '#3a4a3a', beard: '#5a3a2a', coat: '#4a7a4a', x: ['mantel', 'schwanz', 'zahnkette'] } },
   { id: 'hawkins',   name: 'Olin',     type: 'technik', role: 'helfer',   faction: 'supernova', hp: 30, atk: 6, spd: 5, locked: true,
-    look: { hair: '#f4e8b0', skin: '#f6e0c8', shirt: '#6a3a8a', pants: '#3a2a4a', longHair: true } },
+    look: { hairStyle: 'bob', hair: '#2a2a3a', skin: '#f0d8c0', shirt: '#e8e0d0', pants: '#3a2a4a', coat: '#2a6a6a', x: ['mantel', 'karten', 'puppe'] } },
   { id: 'apoo',      name: 'Rondo', type: 'technik', role: 'kaempfer', faction: 'supernova', hp: 26, atk: 8, spd: 7, locked: true,
-    look: { hair: '#1a1a1a', skin: '#c89a70', shirt: '#e8c040', pants: '#3a3a5a', hat: 'band', hatColor: '#d0302a', acc: 'ohrring' } },
+    look: { hairStyle: 'zoepfe', hair: '#2a2a2a', skin: '#a87a58', shirt: '#4a8ac0', pants: '#3a3a5a', hat: 'ohrenschuetzer', hatColor: '#c2318a', x: ['trommel'] } },
   // Thriller-Bark-Piraten
   { id: 'moria',     name: 'Graf Dämmerling', type: 'technik', role: 'brecher',  faction: 'thriller', hp: 44, atk: 7, spd: 3, locked: true,
     look: { hair: '#3a2a4a', skin: '#b8b0c8', shirt: '#2a2030', pants: '#4a2a3a', mask: 'bat' } },

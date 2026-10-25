@@ -559,6 +559,7 @@ window.GL = window.GL || {};
     BADGE.buggy_raute = { px: RAUTE, c: { r: '#c2318a', a: '#f4f0e0' } };
     BADGE.supernova_kragen = { px: RUFF, c: { r: '#c2318a', a: '#f2d24a' } };
     BADGE.supernova_raute = { px: RAUTE, c: { r: '#c2318a', a: '#f2d24a' } };
+    BADGE.buggy = BADGE.buggy_kragen; BADGE.supernova = BADGE.supernova_kragen; // Zirkus der Narren: Rüschenkragen (Felix, 25.10.)
     BADGE.baroque = BADGE.baroque_schleife; BADGE.revolution = BADGE.revolution_schleife; // Barock-Bund: Halsschleife (Felix, 25.10.)
     BADGE.cp9 = BADGE.cp9_krawatte; // Schattenkorps: Krawatte (Felix, 25.10.)
     BADGE.marine = BADGE.marine_schaerpe; // Kronwacht: Schärpe (Felix, 25.10.)
