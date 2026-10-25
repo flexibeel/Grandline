@@ -610,6 +610,9 @@ window.GL = window.GL || {};
     BADGE.samurai_klappe = { px: KLAPPE, c: { r: '#2f6a4a', a: '#d9a640' } };
     BADGE.thriller_siegel = { px: SIEGEL, c: { r: '#2f6a4a', a: '#a8b0b8' } };
     BADGE.thriller_klappe = { px: KLAPPE, c: { r: '#2f6a4a', a: '#a8b0b8' } };
+    // Sturmmöwen: Blau mit Weiß (Vorschläge fürs Board, aktiv erst nach Felix' Wahl)
+    BADGE.strohhut_moewe = { px: at([[16, 6, 'r'], [16, 7, 'r'], [16, 8, 'r'], [16, 9, 'r'], [17, 6, 'a'], [17, 7, 'r'], [17, 8, 'r'], [17, 9, 'a'], [18, 6, 'r'], [18, 7, 'a'], [18, 8, 'a'], [18, 9, 'r'], [19, 6, 'r'], [19, 7, 'r'], [19, 8, 'r'], [19, 9, 'r']]), c: { r: '#2f6ab0', a: '#f4f4f0' } };
+    BADGE.strohhut_kragen = { px: rows(15, ['.....' + 'ra'.repeat(7) + '.....']), c: { r: '#2f6ab0', a: '#f4f4f0' } };
     BADGE.samurai = BADGE.samurai_siegel; BADGE.thriller = BADGE.thriller_siegel; // Freibeuter der Krone: Kaperbrief-Siegel (Felix, 25.10.)
     BADGE.weissbart = BADGE.weissbart_tuch; BADGE.rothaar = BADGE.rothaar_tuch; // Die zwei Flotten: Halstuch (Felix, 25.10.)
     BADGE.buggy = BADGE.buggy_kragen; BADGE.supernova = BADGE.supernova_kragen; // Zirkus der Narren: Rüschenkragen (Felix, 25.10.)
