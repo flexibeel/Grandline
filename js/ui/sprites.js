@@ -580,6 +580,7 @@ window.GL = window.GL || {};
     BADGE.weissbart_wimpel = { px: WIMPEL, c: { r: '#ece3cc', a: '#2f5a9a' } };
     BADGE.rothaar_tuch = { px: TUCH, c: { r: '#c8302c', a: '#f4f0e0' } };
     BADGE.rothaar_wimpel = { px: WIMPEL, c: { r: '#c8302c', a: '#f4f0e0' } };
+    BADGE.weissbart = BADGE.weissbart_tuch; BADGE.rothaar = BADGE.rothaar_tuch; // Die zwei Flotten: Halstuch (Felix, 25.10.)
     BADGE.buggy = BADGE.buggy_kragen; BADGE.supernova = BADGE.supernova_kragen; // Zirkus der Narren: Rüschenkragen (Felix, 25.10.)
     BADGE.baroque = BADGE.baroque_schleife; BADGE.revolution = BADGE.revolution_schleife; // Barock-Bund: Halsschleife (Felix, 25.10.)
     BADGE.cp9 = BADGE.cp9_krawatte; // Schattenkorps: Krawatte (Felix, 25.10.)
