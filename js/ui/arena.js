@@ -565,9 +565,9 @@ window.GL = window.GL || {};
     const isl = GL.run.island(run).id;
     const th = themeOf(run);
     const n = Math.max(run.crew.length, b.enemies.length);
-    return `<div class="field v3 th-${th} isl-${isl}${(() => { try { const s = GL.ui && GL.ui.lageSky ? GL.ui.lageSky(run) : {}; return s.weather ? ' lw-' + s.weather : ''; } catch (e) { return ''; } })()}${b.kind === 'raid' ? ' raid' : b.kind === 'boss' ? ' bossfight' : ''}${n >= 6 ? ' crowd' : n >= 5 ? ' busy' : ''}" id="field" aria-hidden="true" data-act="faster">
+    return `<div class="field v3 th-${th} isl-${isl}${(() => { try { const s = GL.ui && GL.ui.lageSky ? GL.ui.lageSky(run) : {}; return s.weather ? ' lw-' + s.weather : ''; } catch (e) { return ''; } })()}${b.kind === 'raid' ? ' raid' : b.kind === 'boss' ? ' bossfight' : b.kind === 'elite' ? ' elitefight' : ''}${n >= 6 ? ' crowd' : n >= 5 ? ' busy' : ''}" id="field" aria-hidden="true" data-act="faster">
       <div class="f-stage">
-        <div class="b3"><i class="b3-sky"></i><i class="b3-sun"></i><i class="b3-cloud c1"></i><i class="b3-cloud c2"></i><i class="b3-cloud c3"></i><i class="b3-sea"><i></i></i><i class="b3-ground"></i><span class="b3-props">${PROPS[th] || ''}</span>${b.kind === 'boss' || b.kind === 'raid' ? '<i class="b3-flag"></i>' : ''}</div>
+        <div class="b3"><i class="b3-sky"></i><i class="b3-sun"></i><i class="b3-cloud c1"></i><i class="b3-cloud c2"></i><i class="b3-cloud c3"></i>${b.kind === 'boss' ? keepHtml(isl) : ''}<i class="b3-sea"><i></i></i><i class="b3-ground"></i><span class="b3-props">${PROPS[th] || ''}</span>${b.kind === 'boss' || b.kind === 'raid' ? '<i class="b3-flag"></i>' : ''}</div>
         <div class="f-sky"></div>
         <div class="f-sun"></div>
         <div class="f-clouds c1"></div><div class="f-clouds c2"></div>
@@ -584,6 +584,33 @@ window.GL = window.GL || {};
       ${bossBar(run, enemyHp)}
       <span class="f-round" id="f-round"></span>
     </div>`;
+  }
+  // 9e B: Boss-Bühne je Meer. Eine Festung als Pixel-Silhouette am Horizont (über dem Wasser), mit warm beleuchteten Fenstern.
+  // Reine Anzeige, statisch (keine Dauer-Animation). Himmel, Mond und Lichtkegel kommen per CSS (Block „9e B“).
+  function keepHtml(isl) {
+    const R = (x, y, w, h) => `<rect x="${x}" y="${y}" width="${w}" height="${h}"/>`;
+    const crenel = (x, y, w) => { let o = ''; for (let i = 0; i < w; i += 4) o += R(x + i, y - 3, 2, 3); return o; };
+    const stakes = (x0, x1, y, h) => { let o = ''; for (let x = x0; x < x1; x += 5) o += `<polygon points="${x},${y + h} ${x},${y} ${x + 2},${y - 3} ${x + 4},${y} ${x + 4},${y + h}"/>`; return o; };
+    const win = list => list.map(([x, y, w, h]) => R(x, y, w || 2, h || 3)).join('');
+    const K = {
+      // Ostmeer: Palisaden-Fort auf einem Hügel, Wachturm mit Fahne
+      'east-blue': { body: '#1b1530', win: '#ffd36a', shape: '<path d="M0 48 L0 40 Q30 33 60 35 Q90 33 120 40 L120 48Z"/>' + stakes(18, 98, 28, 10) + R(60, 10, 16, 26) + '<polygon points="57,11 68,2 79,11"/>' + R(67, -2, 1, 6) + '<polygon points="68,-2 75,0 68,2"/>' + R(26, 22, 10, 14) + '<polygon points="24,23 31,17 38,23"/>',
+        lit: [[66, 15, 4, 4], [64, 24], [71, 24], [30, 27]] },
+      // Wilde See: Felsnadeln im Sturm, oben eine Räuberburg
+      'paradies': { body: '#0f1a1f', win: '#ffcf70', shape: '<polygon points="0,48 0,34 10,27 16,31 22,16 28,24 34,6 42,22 50,18 56,28 64,12 72,26 80,20 88,30 96,24 106,32 120,30 120,48"/>' + R(28, 0, 12, 10) + crenel(28, 0, 12) + R(60, 6, 9, 8) + crenel(60, 6, 9),
+        lit: [[31, 3], [36, 3], [63, 8], [82, 28], [40, 30]] },
+      // Tiefsee: Korallenpalast mit Kuppeln, kalt leuchtend
+      'fischmenschen': { body: '#06131f', win: '#7ae0e8', shape: '<path d="M0 48 L0 38 Q20 34 40 36 L80 36 Q100 34 120 38 L120 48Z"/>' + R(40, 18, 40, 20) + '<path d="M44 19 Q60 -2 76 19Z"/>' + R(26, 24, 12, 14) + '<path d="M26 25 Q32 14 38 25Z"/>' + R(82, 22, 12, 16) + '<path d="M82 23 Q88 11 94 23Z"/>' + R(59, 0, 2, 6) + '<circle cx="60" cy="0" r="2"/>',
+        lit: [[50, 24, 3, 4], [58, 22, 4, 5], [67, 24, 3, 4], [31, 28], [87, 27], [54, 31], [64, 31]] },
+      // Gerichtsinsel: Gerichtsgebäude mit Säulen und hohem Turm
+      'enies-lobby': { body: '#0a0e1a', win: '#ffe9a0', shape: '<path d="M0 48 L0 40 L120 40 L120 48Z"/>' + R(18, 26, 84, 14) + '<polygon points="16,27 60,17 104,27"/>' + R(53, 0, 14, 20) + '<polygon points="51,1 60,-8 69,1"/>',
+        lit: [[24, 30, 3, 6], [32, 30, 3, 6], [40, 30, 3, 6], [77, 30, 3, 6], [85, 30, 3, 6], [93, 30, 3, 6], [58, 5, 4, 4], [58, 12, 4, 4]] },
+      // Gruselmeer: schiefe Spukburg, grünes Fensterlicht, toter Baum
+      'thriller-bark': { body: '#0d0614', win: '#c8f07a', shape: '<path d="M0 48 L0 38 Q40 32 70 36 Q100 33 120 38 L120 48Z"/>' + '<polygon points="34,36 36,14 48,13 50,36"/>' + '<polygon points="33,15 40,2 50,14"/>' + '<polygon points="52,36 54,22 74,21 76,36"/>' + '<polygon points="70,22 74,6 84,7 82,36 76,36"/>' + '<polygon points="72,7 80,-4 86,8"/>' + R(98, 22, 2, 14) + '<path d="M99 24 L93 18 M99 22 L104 15 M99 27 L106 24" stroke="currentColor" stroke-width="1.5" fill="none"/>',
+        lit: [[40, 19], [44, 26], [60, 27, 3, 3], [77, 12], [78, 22]] }
+    };
+    const k = K[isl] || K['east-blue'];
+    return `<i class="b3-keep k-${K[isl] ? isl : 'east-blue'}"><svg viewBox="0 -10 120 58" preserveAspectRatio="xMidYMax meet" shape-rendering="crispEdges" style="color:${k.body}"><g fill="${k.body}">${k.shape}</g><g fill="${k.win}">${win(k.lit)}</g></svg></i>`;
   }
   // Silhouetten am Horizont, je nach Meer
   function horizon(isl, kind) {

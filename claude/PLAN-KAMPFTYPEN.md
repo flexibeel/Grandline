@@ -43,3 +43,13 @@ Felix per Klick: **1.** ein gemeinsamer **Boss-Look je Meer** (nicht je Boss ein
 - `main.js`: Kartenzeile der Boss-Show heißt bei Elite „Elite · Kopfgeld-Ziel“ (Bösewicht der Insel, Boss, Raid unverändert). `i18n.js`: zwei neue Texte.
 - Das Wort „Raid“ steht schon als „Raid-Boss“ auf der Boss-Show, das Duell hat seinen Auftritt („Begegnung auf See“), beide unverändert.
 - Offen: B (Boss-Look je Meer, Elite-Look, Größe, Opus), C (Ton, Vorschläge sammeln).
+
+## Häppchen B: Stand (43. Chat, Opus, 25.10.)
+Felix per Klick: Boss-Bühne **deutlich** abheben, Boss/Raid-Gegner **1,3× größer**, Elite mit **leichtem Goldstich**.
+**Gebaut** auf `feature/boss-buehne` (von `main` 25e, nur Anzeige, nicht live):
+- `arena.js`: `keepHtml(isl)` legt im Bosskampf eine Festung als Pixel-Silhouette (SVG, `crispEdges`) mit beleuchteten Fenstern an den Horizont, je Meer eigen: Ostmeer Palisaden-Fort mit Wachturm, Wilde See Felsnadeln mit Räuberburg, Tiefsee Korallenpalast (kalt leuchtend), Gerichtsinsel Gericht mit Säulen und Turm, Gruselmeer schiefe Spukburg mit grünem Licht und totem Baum. Unbekanntes Meer fällt aufs Ostmeer zurück. Das Feld trägt bei Elite jetzt auch `elitefight`.
+- CSS-Block „9e B“ am Ende: Himmel und Wasser je Meer dunkel (Variablen `--bk-sky`/`--bk-sea`), Mond statt Sonne (Tiefsee: Lichtschein), Wolken blass, Boden und Requisiten abgedunkelt, **Lichtkegel von oben auf den Boss** (`.fu.boss::before`, wächst mit seiner Größe, blendet einmal ein). Elite: warmer Abendton über dem Himmel, goldene Sonne. Alles statisch, nur ein einmaliges Einblenden, mit „Weniger Bewegung“ aus.
+- **Größe nicht geändert:** Bosse stehen im Feld schon **1,6×** groß (`fieldUnit`, hinten als Anführer rund 1,4×), Kopfgeld-Ziele 1,15×. Noch größer wird es am Handy neben 5 Crew eng. Bei Bedarf Stellschraube in `fieldUnit` (`unit.boss ? 1.6`).
+- Raid unverändert (hat schon sein violettes Feld).
+- Geprüft: Testkopie gebündelt, Headless 390 px, alle 5 Meere plus Elite und Normal gerendert, 0 `pageerror`.
+- Offen: C (Ton, Vorschläge zum Anhören).
