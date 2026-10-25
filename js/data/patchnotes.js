@@ -1,6 +1,10 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-25b', date: '25.10.', title: 'Kühler Kopf, klarer Titel', items: [
+    '🔋 Das Handy wird im Leerlauf nicht mehr so warm: Wolken, Möwen, Fische und andere Deko schweben jetzt sparsamer über den Bildschirm. Der Akku sagt danke',
+    '🇬🇧 Der Titelbildschirm ist jetzt auch auf Englisch komplett, mit „Space“ und der Fußzeile',
+    '🧭 In der Kopfzeile während der Fahrt steht der Ort am Handy in zwei Zeilen, kleine Insel oben, fetter Halt darunter. Schluss mit „Gauklerb…“' ] },
   { v: '2026-10-25a', date: '25.10.', title: 'Neue Gesichter für alle', items: [
     '🎨 Alle 65 Figuren sind neu gezeichnet, größer und feiner als vorher. Jede trägt das Abzeichen ihrer Fraktion, vom Möwen-Anstecker bis zum Kaperbrief-Siegel',
     '✨ Auch die 18 Story-Formen der Sturmmöwen haben neue Looks bekommen. Im Dojo kannst du sie dir in Ruhe ansehen',
