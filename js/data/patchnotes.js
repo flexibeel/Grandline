@@ -1,6 +1,10 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-25d', date: '25.10.', title: 'Starke Gegner, großer Auftritt', items: [
+    '⭐ Elite-Kämpfe melden sich jetzt an: Ein kurzes Banner „Elite“ fährt ins Bild, und die Namen der Gegner tragen einen goldenen Rand mit Stern',
+    '💥 Wenn ein Raid-Boss einfährt, gibt es einen Schlag aufs Bild. Das Wackeln merkt man, auch ohne hinzusehen',
+    '🎯 Bei einem Elite-Gegner mit Kopfgeld steht auf der Boss-Show jetzt „Elite · Kopfgeld-Ziel“. Normale Kämpfe bleiben schlicht und gehen direkt los' ] },
   { v: '2026-10-25c', date: '25.10.', title: 'Freie Sicht in der Story', items: [
     '📖 In den Story-Szenen sitzen „Auto“ und „Überspringen“ jetzt als kleine Holzplanken in der Textleiste und verdecken nicht mehr das Bild',
     '⏭ Überspringen ist ein schlankes Symbol, Auto leuchtet gelb, wenn es an ist' ] },
