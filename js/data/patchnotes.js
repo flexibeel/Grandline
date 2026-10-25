@@ -1,6 +1,10 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-25g', date: '25.10.', title: 'Alle Mann an Deck', items: [
+    '👆 Beim Aufstellen der Crew kannst du Figuren jetzt mit dem Finger packen und aufs Deck ziehen. Kurz halten oder seitlich ziehen, senkrecht wischen scrollt wie gewohnt',
+    '🔄 Zieh eine Figur auf einen besetzten Platz, und die beiden tauschen. Ziehst du sie zurück auf den Steg, geht sie an Land',
+    '💨 Wer landet, federt kurz ein und wirbelt ein Staubwölkchen auf. Ist eine Figur zu teuer, leuchtet der Platz rot und sie federt zurück. Tippen klappt natürlich weiterhin' ] },
   { v: '2026-10-25f', date: '25.10.', title: 'Bühne frei für den Boss', items: [
     '🌙 Bosskämpfe finden jetzt unter Nachthimmel statt: Mond, dunkles Wasser und am Horizont die Festung des Bosses mit Licht in den Fenstern',
     '🏰 Jedes Meer hat seine eigene Festung, vom Palisaden-Fort im Ostmeer bis zur schiefen Spukburg im Gruselmeer',
