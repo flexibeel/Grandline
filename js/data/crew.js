@@ -58,13 +58,13 @@ GL.data.crew = [
 
   // Baroque Works
   { id: 'bonclay', name: 'Mimo', type: 'technik', role: 'brecher',  faction: 'baroque',  hp: 34, atk: 5,  spd: 5,
-    look: { hair: '#1a1a1a', skin: '#f2c9a0', shirt: '#e8789a', pants: '#f0f0f0' } },
+    look: { hairStyle: 'dutt', hair: '#3a2a5a', skin: '#f2c9a0', shirt: '#f0e8f0', pants: '#e8789a', scarf: '#e85a8a', x: ['boa', 'spitzenschuhe'] } },
   { id: 'mr5',     name: 'Herr Freitag',    type: 'kraft',   role: 'kaempfer', faction: 'baroque',  hp: 28, atk: 9,  spd: 6,
-    look: { hair: '#1a1a1a', skin: '#f2c9a0', shirt: '#e8d070', pants: '#3a3a3a', hat: 'cap', hatColor: '#3a3a3a' } },
+    look: { hairStyle: 'buerste', hair: '#3a3a3a', skin: '#f2c9a0', shirt: '#e8e0d0', pants: '#3a3a3a', acc: 'brille', coat: '#d8a030', x: ['mantel', 'russ', 'dampf'] } },
   { id: 'vivi',    name: 'Vina',     type: 'klinge',  role: 'helfer',   faction: 'baroque',  hp: 24, atk: 6,  spd: 7,
-    look: { hair: '#6fc6e0', skin: '#f2c9a0', shirt: '#e8e0f0', pants: '#7a5aa0', longHair: true } },
+    look: { hairStyle: 'zoepfe', hair: '#6fc6e0', skin: '#f2c9a0', shirt: '#e8e0f0', pants: '#7a5aa0', x: ['schleier'] } },
   { id: 'mr1',     name: 'Herr Sonntag',    type: 'klinge',  role: 'kaempfer', faction: 'baroque',  hp: 30, atk: 8,  spd: 5,
-    look: { hair: '#1a1a1a', skin: '#a8785a', shirt: '#3a3a3a', pants: '#3a3a3a' } },
+    look: { hairStyle: 'buerste', hair: '#e8e8e8', skin: '#e8c0a0', shirt: '#4a4a52', pants: '#4a4a52', coat: '#6a6a72', x: ['mantel', 'klingen'] } },
 
   // ---- Freischaltbar (locked: true). Bedingungen stehen in unlocks.js ----
   // Danach als Kapitän wählbar und bei der Rekrutierung im Angebot.
@@ -73,7 +73,7 @@ GL.data.crew = [
   { id: 'arlong',    name: 'Brack',    type: 'kraft',   role: 'kaempfer', faction: 'fischmensch', hp: 32, atk: 7, spd: 5, locked: true,
     look: { hair: '#1a1a1a', skin: '#6aa0c8', shirt: '#e8d070', pants: '#3a5a3a' } },
   { id: 'crocodile', name: 'Sirokk', type: 'technik', role: 'kaempfer', faction: 'baroque', hp: 30, atk: 7, spd: 6, locked: true,
-    look: { hair: '#111111', skin: '#f2c9a0', shirt: '#8a6d2f', pants: '#222222' } },
+    look: { hairStyle: 'buerste', hair: '#c8a060', skin: '#d9a87a', shirt: '#2a2a2a', pants: '#222222', coat: '#7a1f35', scarf: '#e8d8b0', acc: 'narbe', x: ['mantel', 'pelz', 'sanduhr'] } },
   { id: 'enel',      name: 'Zirrus',      type: 'kraft',   role: 'kaempfer',                    hp: 26, atk: 8, spd: 7, locked: true,
     look: { hair: '#f0f0f0', skin: '#f2c9a0', shirt: '#e8b030', pants: '#e8b030', hat: 'band', hatColor: '#e8e8e8' } },
   { id: 'rob-lucci', name: 'Agent Krall', type: 'kraft',   role: 'kaempfer', faction: 'cp9',     hp: 30, atk: 5, spd: 6, locked: true,
@@ -122,13 +122,13 @@ GL.data.crew = [
     look: { hair: '#1a1a2a', skin: '#7aa0c8', shirt: '#2a2a3a', pants: '#5a4a7a', mask: 'shark' } },
   // Revolutionsarmee
   { id: 'sabo',      name: 'Jorin',        type: 'kraft',   role: 'kaempfer', faction: 'revolution', hp: 30, atk: 9,  spd: 7, locked: true,
-    look: { hair: '#f0d070', skin: '#f2c9a0', shirt: '#2a4a8a', pants: '#e8e8e8', hat: 'tophat', hatColor: '#2a2a3a' } },
+    look: { hair: '#3a2a20', skin: '#f2c9a0', shirt: '#e8e0d0', pants: '#3a3a3a', hat: 'tophat', hatColor: '#7a1f35', coat: '#2f5a4a', x: ['mantel', 'schutzbrille'] } },
   { id: 'ivankov',   name: 'Lila',     type: 'technik', role: 'helfer',   faction: 'revolution', hp: 36, atk: 6,  spd: 5, locked: true,
-    look: { hair: '#7a3a9a', skin: '#f6d8c0', shirt: '#e85a8a', pants: '#2a2a2a', hat: 'afro' } },
+    look: { hair: '#ece4f4', skin: '#f6d8c0', shirt: '#7a1f35', pants: '#2a2a2a', hat: 'afro', scarf: '#d9a640', x: ['federkragen', 'lippen'] } },
   { id: 'koala',     name: 'Tilda',       type: 'kraft',   role: 'kaempfer', faction: 'revolution', hp: 28, atk: 8,  spd: 7, locked: true,
-    look: { hair: '#e8a060', skin: '#f6d8c0', shirt: '#e8e8e8', pants: '#3a5a8a', hat: 'cap', hatColor: '#e8a040', longHair: true } },
+    look: { hairStyle: 'zoepfe', hair: '#d87a3a', skin: '#f6d8c0', shirt: '#e8e8e8', pants: '#3a5a8a', hat: 'cap', hatColor: '#8fb08a', x: ['notizbuch'] } },
   { id: 'dragon',    name: 'Rian',      type: 'technik', role: 'kaempfer', faction: 'revolution', hp: 34, atk: 9,  spd: 7, locked: true,
-    look: { hair: '#1a1a1a', skin: '#c89a70', shirt: '#2f5a3a', pants: '#2a2a2a', hat: 'hood', hatColor: '#2f5a3a' } },
+    look: { hair: '#1a1a1a', skin: '#c89a70', shirt: '#3a4a3a', pants: '#2a2a2a', hat: 'hood', hatColor: '#5a6a50', scarf: '#7a1f35', x: ['schal', 'windwirbel'] } },
   // Rothaar-Piraten
   { id: 'beckman',   name: 'Lenz', type: 'technik', role: 'helfer',   faction: 'rothaar',    hp: 30, atk: 8,  spd: 6, locked: true,
     look: { hair: '#2a2a2a', skin: '#f2c9a0', shirt: '#3a3a3a', pants: '#3a3a3a', beard: '#2a2a2a' } },

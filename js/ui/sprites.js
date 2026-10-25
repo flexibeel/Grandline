@@ -517,6 +517,7 @@ window.GL = window.GL || {};
     BADGE.baroque_guertel = { px: BELT, c: { r: '#7a1f35', a: '#d9a640' } };
     BADGE.revolution_schleife = { px: BOW, c: { r: '#7a1f35', a: '#8fb08a' } };
     BADGE.revolution_guertel = { px: BELT, c: { r: '#7a1f35', a: '#8fb08a' } };
+    BADGE.baroque = BADGE.baroque_schleife; BADGE.revolution = BADGE.revolution_schleife; // Barock-Bund: Halsschleife (Felix, 25.10.)
     BADGE.cp9 = BADGE.cp9_krawatte; // Schattenkorps: Krawatte (Felix, 25.10.)
     BADGE.marine = BADGE.marine_schaerpe; // Kronwacht: Schärpe (Felix, 25.10.)
 
