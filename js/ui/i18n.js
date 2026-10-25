@@ -88,6 +88,8 @@ window.GL = window.GL || {};
     'Ruffy': 'Luffy', 'Zorro': 'Zoro', 'Lysop': 'Usopp', 'Agent Krall': 'Agent Krall', 
     'Vollbild': 'Fullscreen', '⛶ Vollbild': '⛶ Fullscreen', 'Vollbild beenden': 'Exit fullscreen', '🔒 Kopfgeld-Stufen': '🔒 Bounty tiers', 'Kopfgeld-Stufen': 'Bounty tiers', 'Weiterspielen': 'Continue', 'Rechtliches & Datenschutz': 'Legal & privacy',
     'Inoffizielles Fanprojekt, kostenlos und ohne kommerzielle Absicht. One Piece gehört seinen Rechteinhabern.': 'Unofficial fan project, free and non-commercial. One Piece belongs to its rights holders.',
+    'Ein kostenloses Indie-Spiel ohne Werbung. Alle Figuren, Namen und Orte sind frei erfunden.': 'A free indie game without ads. All characters, names and places are made up.',
+    'Leertaste': 'Space',
     'Willkommen zurück': 'Welcome back', 'Neu anfangen': 'Start over', 'Alle Neuigkeiten': 'All news', '★ Spiel bewerten': '★ Rate the game', 'Update verfügbar': 'Update available'
   };
   // Ausrüstungsnamen (Stammcrew): Eigenschaft + Grundteil
