@@ -10601,3 +10601,33 @@ body:not(.in-run) .hq .hub-tile.bld small, .hub-tile.bld small { font-size: .7re
 .boss-show.raid.in { animation: bs-slam .45s ease-out .62s; }
 @keyframes bs-slam { 0% { translate: 0 0; } 15% { translate: -8px 5px; } 30% { translate: 7px -5px; } 48% { translate: -5px 3px; } 66% { translate: 3px -2px; } 100% { translate: 0 0; } }
 @media (prefers-reduced-motion: reduce) { .kind-intro { display: none; } .boss-show.raid.in { animation: none; } }
+
+/* 9c A+B: Ablege-Szene. Nur transform/opacity/translate, kurzlebig (rund 2 s), nichts Dauerndes (Lehre aus 9a). */
+.ablegen { position: fixed; inset: 0; z-index: 1300; overflow: hidden; cursor: pointer; user-select: none; background: linear-gradient(#9fd4ef 0 58%, #4f9cc8 58% 100%); opacity: 0; transition: opacity .25s; }
+.ablegen.in { opacity: 1; }
+.abl-cloud { position: absolute; top: 12%; left: 8%; width: 90px; height: 24px; border-radius: 14px; background: rgba(255, 255, 255, .88); box-shadow: 34px -10px 0 6px rgba(255, 255, 255, .88); }
+.abl-cloud.b { top: 26%; left: 62%; scale: .7; }
+.abl-sea { position: absolute; left: -30%; right: -30%; bottom: 0; height: 42%; background: repeating-linear-gradient(90deg, rgba(255, 255, 255, .2) 0 24px, transparent 24px 60px), linear-gradient(#4f9cc8, #3a7cae); }
+.abl-dock { position: absolute; left: -4%; bottom: 36%; width: 34%; height: 16px; background: #8a6a3e; border-top: 4px solid #a98655; box-shadow: 0 6px 0 #5a3a1c; }
+.abl-dock::before, .abl-dock::after { content: ''; position: absolute; top: 12px; width: 10px; height: 46px; background: #5a3a1c; }
+.abl-dock::before { left: 14%; }
+.abl-dock::after { right: 14%; }
+.abl-ship { position: absolute; left: 50%; bottom: 33%; width: min(66vw, 300px); translate: -50% 0; }
+.abl-boat { position: relative; }
+.abl-boat > svg { width: 100%; height: auto; display: block; shape-rendering: crispEdges; }
+.abl-crew { position: absolute; left: 10%; right: 10%; bottom: 40%; display: flex; justify-content: center; align-items: flex-end; gap: 1%; }
+.abl-who { position: relative; flex: 0 1 18%; min-width: 0; }
+.abl-spr svg { width: 100%; height: auto; aspect-ratio: 14 / 16; shape-rendering: crispEdges; display: block; }
+.abl-say { position: absolute; left: 50%; bottom: calc(100% + 2px + var(--lift, 0px)); translate: -50% 0; width: max-content; max-width: 124px; padding: 4px 8px; border-radius: 10px; border: 2px solid #3a2410; background: #fffbe9; color: #2a1a0a; font-style: normal; font-size: .7rem; font-weight: 800; line-height: 1.15; text-align: center; opacity: 0; scale: .6; z-index: 2; pointer-events: none; }
+.abl-say.on { animation: abl-say 1.2s ease-out var(--d, .3s) forwards; }
+.abl-hint { position: absolute; left: 0; right: 0; bottom: 14px; text-align: center; font-size: .7rem; font-weight: 800; letter-spacing: .06em; color: rgba(255, 255, 255, .85); text-shadow: 0 1px 2px rgba(0, 0, 0, .5); pointer-events: none; }
+.ablegen.go .abl-boat { animation: abl-sail 1.6s cubic-bezier(.5, 0, .9, .6) forwards; }
+.ablegen.go .abl-dock { animation: abl-dock 1.6s ease-in forwards; }
+.ablegen.go .abl-sea { animation: abl-sea 1.6s linear forwards; }
+.ablegen.go .abl-cloud { animation: abl-cloud 1.6s linear forwards; }
+@keyframes abl-say { 0% { opacity: 0; scale: .6; } 14% { opacity: 1; scale: 1; } 82% { opacity: 1; scale: 1; } 100% { opacity: 0; scale: 1; } }
+@keyframes abl-sail { 0% { translate: 0 0; rotate: 0deg; } 18% { translate: -3px -4px; rotate: -1deg; } 100% { translate: 130vw -6px; rotate: 1deg; } }
+@keyframes abl-dock { to { translate: -130% 0; } }
+@keyframes abl-sea { to { translate: -120px 0; } }
+@keyframes abl-cloud { to { translate: -70px 0; } }
+@media (prefers-reduced-motion: reduce) { .ablegen, .ablegen.go .abl-boat, .ablegen.go .abl-dock, .ablegen.go .abl-sea, .ablegen.go .abl-cloud { animation: none; transition: opacity .2s; } }

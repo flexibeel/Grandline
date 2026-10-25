@@ -283,7 +283,9 @@ window.GL = window.GL || {};
       ui.goalResult = null;
       ui.briefGoal = profile && GL.meta ? goalStart(profile, currentGoal(profile, ui)) : null;
       ui.deck = null;
-      act({ type: 'deck', ids });
+      // 9c A+B: erst die kurze Ablege-Szene (antippbar), danach wie bisher die Aktion; ohne Szene sofort
+      const go = () => act({ type: 'deck', ids });
+      if (GL.ablegen && GL.ablegen.play) GL.ablegen.play(ids, run, profile, go); else go();
       return false;
     }
     return false;
