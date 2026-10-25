@@ -29,3 +29,7 @@ Reine Anzeige im Hafenbild: **Tageszeit nach der Uhr des Geräts** (Morgen, Tag,
 1. **Reihenfolge:** A zuerst (klein, sofort sichtbar), dann B (die Kajüte), dann C? Oder die Kajüte vor allem anderen?
 2. **Kajüte:** Querschnitt wie ein Puppenhaus (Empfehlung) oder Blick von oben?
 3. **Schiffsname:** nur für dich sichtbar, oder auch für andere (Rangliste, Freunde)? Das bringt den Textfilter ins Spiel.
+
+## Entscheidungen (46. Chat, 25.10.)
+Felix per Klick, alle wie empfohlen: **1.** Reihenfolge **A, dann B, dann C** (D später). **2.** Kajüte als **Querschnitt wie ein Puppenhaus**. **3.** Schiffsname **nur für den Spieler sichtbar** (kein Textfilter, nicht in `online.js`, nicht in Rangliste oder Freundesliste).
+Damit ist Häppchen A freigegeben: `profile.shipName` und `profile.showcase` (bis zu 3 Vitrinen-Stücke), nur lokal, `migrate()` mit Standardwert, Profilkarte zeigt Schiff, Name, Titel, Rahmen und die ausgestellten Stücke. Sonnet reicht. Zweig `feature/zuhause-schaufenster` von `main`.
