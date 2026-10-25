@@ -527,7 +527,7 @@ window.GL = window.GL || {};
   // 9e A: Auftritt je Kampfart. Boss, Raid und Bösewicht haben ihren großen Auftritt schon vor dem Kampf (startFight in main.js,
   // Raid mit Schlag aufs Bild), das Duell mit dem Rivalen kommt unten in der Kampf-Einrichtung. Hier der kurze Auftritt für Elite.
   // Normale Kämpfe bleiben ohne Banner (direkt los). Reine Anzeige, keine Spiellogik.
-  const KIND = { elite: { cls: 'elite', kicker: 'Starke Gegner', word: 'Elite', ms: 1100 } };
+  const KIND = { elite: { cls: 'elite', kicker: 'Starke Gegner', word: 'Elite', ms: 1100, snd: 'kind-elite' } };
   function kindIntro(run, field) {
     const b = run && run.battle, k = b && KIND[b.kind];
     if (!k || !field || (run.pending && run.pending.rival)) return;
@@ -536,6 +536,7 @@ window.GL = window.GL || {};
     n.className = 'kind-intro ' + k.cls;
     n.innerHTML = `<span class="ki-card"><small>${k.kicker}</small><b>${k.word}</b></span>`;
     field.appendChild(n);
+    if (k.snd && GL.sfx) GL.sfx.sting(k.snd);   // 9e C: Ton zum Auftritt (bei „Ton aus“ still)
     setTimeout(() => n.remove(), k.ms);
   }
   // Spannung: Wird es knapp, pocht der Rand rot. Ist der Boss fast besiegt, leuchtet seine Leiste.
@@ -1064,6 +1065,7 @@ window.GL = window.GL || {};
           n.className = 'boss-intro rival';
           n.innerHTML = `<i class="bi-bar top"></i><i class="bi-bar bot"></i><span class="bi-card"><small>Begegnung auf See</small><b>${String(run.pending.rival.name).replace(/[<>&"]/g, '')}</b><em>Stammcrew eines Mitspielers</em></span>`;
           fieldEl.appendChild(n); setTimeout(() => n.remove(), 2300);
+          if (GL.sfx) GL.sfx.sting('kind-duell');   // 9e C: Trommelwirbel zur Begegnung auf See
         }
         kindIntro(run, fieldEl);
         fieldEl.classList.add('enter');

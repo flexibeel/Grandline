@@ -143,6 +143,19 @@ window.GL = window.GL || {};
     else if (name === 'flash' || name === 'sparkle') { [0, 0.06, 0.12].forEach((t, k) => tone(1047 + k * 260, 1200 + k * 260, 0.12, 'sine', 0.08, t)); }
     else if (name === 'zoom') { tone(300, 700, 0.16, 'sine', 0.07); }
     else if (name === 'jump') { [0, 0.08, 0.16].forEach((t, k) => tone(440 + k * 90, 620 + k * 90, 0.07, 'square', 0.04, t)); }
+    // 9e C: Ton je Kampfart (Felix' Wahl aus der Hörprobe tools/kampfton-probe.html). Normale Kämpfe bleiben still.
+    else if (name === 'kind-elite') {   // E3 „Zwei Schläge“ (~0,8 s): zweimal dumpf, dann ein hoher Warnton
+      tone(196, 120, 0.16, 'triangle', 0.24, 0); tone(196, 120, 0.16, 'triangle', 0.24, 0.2); tone(784, 784, 0.25, 'square', 0.04, 0.4);
+    } else if (name === 'kind-boss') {   // B1 „Dumpfe Trommel“ (~1,8 s): drei tiefe Schläge, jeder lauter, dann Grollen
+      [0, 0.3, 0.6].forEach((t, k) => { tone(120, 45, 0.28, 'sine', 0.34 + k * 0.04, t); noise(0.08, 180, 0.12, t); });
+      tone(65, 60, 0.8, 'triangle', 0.12, 0.9);
+    } else if (name === 'kind-raid') {   // R2 „Kriegshorn und Schlag“: der Boom fällt auf den Schlag aufs Bild (bs-slam startet 0,62 s nach dem Einblenden)
+      tone(98, 196, 0.62, 'sawtooth', 0.07, 0); tone(147, 294, 0.62, 'square', 0.03, 0); tone(98, 98, 0.4, 'sawtooth', 0.07, 0.62);
+      tone(90, 35, 0.6, 'sine', 0.38, 0.62); noise(0.25, 150, 0.2, 0.62);
+    } else if (name === 'kind-duell') {   // D2 „Trommelwirbel“ (~1 s): kurzer Wirbel, der anschwillt, dann ein Schlag
+      for (let k = 0; k < 10; k++) noise(0.04, 400, 0.04 + k * 0.012, k * 0.055);
+      tone(150, 60, 0.2, 'sine', 0.34, 0.6); noise(0.1, 900, 0.15, 0.6);
+    }
   }
   GL.sfx = { play, battle, toggle, voice, sting, isOn: () => on };
 })();

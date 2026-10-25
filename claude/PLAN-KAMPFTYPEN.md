@@ -64,3 +64,9 @@ Felix per Klick (41. Chat): Claude sammelt Vorschläge zum Anhören. **Gebaut** 
   - **Duell:** D1 Zwei Klingen, D2 Trommelwirbel, D3 Tief gegen Hoch.
   - **Normal:** bleibt still.
 - Einbau nach Felix' Wahl: Die gewählten Klänge als neue Namen in `sting` (`js/ui/sfx.js`), Aufruf je Kampfart dort, wo der Auftritt beginnt (`kindIntro` in `arena.js`, Boss-Show in `startFight` in `main.js`). Nur Anzeige und Ton, keine Kampfrechnung, kein Spielstand. „Ton aus“ gilt automatisch (`ready()` liefert dann nichts).
+
+## Häppchen C eingebaut (47. Chat, Sonnet, 25.10.)
+Felix' Wahl (per Klick): **Elite E3 „Zwei Schläge“, Boss B1 „Dumpfe Trommel“, Raid R2 „Kriegshorn und Schlag“, Duell D2 „Trommelwirbel“**, Normal bleibt still. Zweig `feature/kampfton-einbau`, nicht live.
+- `GL.sfx.sting`: `kind-elite`, `kind-boss`, `kind-raid`, `kind-duell` in `js/ui/sfx.js`. Aufrufe in `startFight` (`main.js`, Boss-Show, mit dem Einblenden), `kindIntro` (`arena.js`, Elite ohne Kopfgeld-Ziel) und der Rivalen-Einblendung (`arena.js`, Duell).
+- Raid: Boom im Spiel bei 0,62 s (statt 0,9 s in der Hörprobe), damit er auf den Schlag `bs-slam` fällt, das Horn steigt dafür schneller.
+- Nur Ton, keine Kampfrechnung, kein Spielstand, „Ton aus“ gilt automatisch.

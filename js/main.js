@@ -140,7 +140,9 @@
     el.addEventListener('touchend', e => { if (Date.now() - shownAt > 250) go(e); }, { passive: false });
     const shownAt = Date.now();
     document.body.appendChild(el);
-    requestAnimationFrame(() => el.classList.add('in'));
+    // 9e C: Ton je Kampfart, gleichzeitig mit dem Einblenden (der Raid-Boom fällt auf den Schlag aufs Bild). Normale Kopfgeld-Ziele bleiben still.
+    const snd = p.kind === 'raid' ? 'kind-raid' : (p.kind === 'boss' || p.gate) ? 'kind-boss' : p.kind === 'elite' ? 'kind-elite' : null;
+    requestAnimationFrame(() => { el.classList.add('in'); if (snd && GL.sfx) GL.sfx.sting(snd); });
     const auto = setTimeout(() => go(), document.body.classList.contains('fast') ? 1200 : 2000);
   }
   function autoArrange() {
