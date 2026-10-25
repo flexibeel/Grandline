@@ -31,6 +31,9 @@ Ziel: erst **Web-App** (wie Grandline, installierbar, offline), später zusätzl
 - **Wendungen (alle vier):** **Alibi-Trick**, **geschlossener Raum**, **Doppelleben**, **Fälschung** (gefälschter oder platzierter Beweis). Jeder Fall nutzt eine bis zwei davon.
 - **Ton gemischt:** je nach Fall düster, ernst oder skurril-liebevoll, nie grausam im Bild.
 - **Fall-Längen gemischt:** Kurzfall (20 bis 30 Minuten, ein Abend), Tagesfall (1 bis 3 Tage, passt zum Fernspiel mit Tagestakt), Serienfall (bis zu einer Woche, mehrere Kapitel).
+- **Figuren:** Jeder Fall bekommt **neu erzeugte Verdächtige** (Gesichter, Namen). Der vorhandene Pixel-Renderer kann Aussehen aus Parametern bauen, das spart Handarbeit.
+- **Größter Aha-Moment: der Widerspruch.** Zwei Hinweise von **verschiedenen Spielern** passen plötzlich nicht zusammen (Aussage gegen Protokoll). Folge für den Generator: Jeder Fall hat eine **Widerspruchskette** als Kern (Fall 01: Marlenes Aussage gegen PC-Sperre, Schlüsselkarte und Personaltreppe), und der Täter muss mindestens einen Widerspruch zwischen Quellen **verschiedener Rollen** haben. Die Wendungen (Alibi, Fälschung, Doppelleben, geschlossener Raum) sind verschiedene Arten, diesen Widerspruch zu verstecken.
+
 - **Folge für den Generator:** Die Wendungen werden Bausteine („Module“), die der Fallgenerator kombiniert. Ehrliche Reihenfolge nach Schwierigkeit für den Prüfer: **Alibi-Trick** (Fall 01 ist schon einer) → **Fälschung** → **Doppelleben** → **geschlossener Raum** zuletzt, weil er ein Raummodell braucht (wer kann wo rein und raus).
 
 ## Der Haken (was es von anderen unterscheidet)
