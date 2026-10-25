@@ -1,6 +1,11 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-25a', date: '25.10.', title: 'Neue Gesichter für alle', items: [
+    '🎨 Alle 65 Figuren sind neu gezeichnet, größer und feiner als vorher. Jede trägt das Abzeichen ihrer Fraktion, vom Möwen-Anstecker bis zum Kaperbrief-Siegel',
+    '✨ Auch die 18 Story-Formen der Sturmmöwen haben neue Looks bekommen. Im Dojo kannst du sie dir in Ruhe ansehen',
+    '🏴 Figuren, Banden und Fähigkeiten tragen jetzt eigene Namen. Aus zwölf Banden sind Fraktionen wie Kronwacht, Schattenkorps, Barock-Bund und Zirkus der Narren geworden, und auch Duos, Ultis und Team-Aktionen heißen neu',
+    '🐙 Dein Fortschritt bleibt, wie er ist: Wer schon in deiner Crew war, bleibt es, nur mit neuem Namen und neuem Gesicht. Okko hat übrigens jetzt acht Arme. Fragt nicht' ] },
   { v: '2026-10-24c', date: '24.10.', title: 'Eigene Meere, neuer Hafen', items: [
     '🗺 Die Welt hat ihre eigenen Namen bekommen: Ostmeer, Wilde See, Gruselmeer und die neue Tiefsee beim Flossenvolk. Alle 33 Inseln haben neue Namen, Orte und Geschichten. Dein Fortschritt bleibt, wie er ist',
     '👑 Auch Gegner und Bosse heißen jetzt anders, samt ihren großen Attacken. Die Raid-Bosse dienen der Krone, und über 30 Gejagte haben neue Steckbriefe',
