@@ -530,6 +530,7 @@ window.GL = window.GL || {};
     BADGE.revolution_guertel = { px: BELT, c: { r: '#7a1f35', a: '#8fb08a' } };
     BADGE.fischmensch_muschel = { px: at([[15, 11, 'a'], [16, 11, 'r'], [16, 12, 'r'], [17, 10, 'r'], [17, 11, 'a'], [17, 12, 'r'], [17, 13, 'r'], [18, 11, 'r'], [18, 12, 'r']]), c: { r: '#2fb8b0', a: '#f4f0e0' } };
     BADGE.fischmensch_armband = { px: at([[17, 2, 'r'], [17, 3, 'r'], [18, 2, 'a'], [18, 3, 'r'], [17, 20, 'r'], [17, 21, 'r'], [18, 20, 'r'], [18, 21, 'a']]), c: { r: '#2fb8b0', a: '#f4f0e0' } };
+    BADGE.fischmensch = BADGE.fischmensch_muschel; // Flossenvolk: Muschel (Felix, 25.10.)
     BADGE.baroque = BADGE.baroque_schleife; BADGE.revolution = BADGE.revolution_schleife; // Barock-Bund: Halsschleife (Felix, 25.10.)
     BADGE.cp9 = BADGE.cp9_krawatte; // Schattenkorps: Krawatte (Felix, 25.10.)
     BADGE.marine = BADGE.marine_schaerpe; // Kronwacht: Schärpe (Felix, 25.10.)
