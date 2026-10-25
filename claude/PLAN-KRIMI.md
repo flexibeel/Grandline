@@ -14,6 +14,15 @@ Felix (18:04): Er findet die Idee gut und möchte, dass **mehr als 2** mitspiele
 ## Entscheidungen Felix (18:06)
 **Ton: True Crime** (ernster, fiktiver Mordfall, keine echten Fälle oder Personen, nichts Grausames im Bild), cozy bleibt die Verpackung. **Hauptspiel-Paar:** Felix und ein Kumpel, die **200 km auseinander** wohnen, also Online-Coop über Entfernung (Telefon oder Sprachchat nebenher). Der Papiertest M0 geht deshalb ohne Spiel: Jeder bekommt nur seine eigenen Hinweise, ihr redet darüber.
 
+## Spannung und Takt (Felix, 18:09)
+**Es muss spannend sein, escape-room-mäßig, und es muss auch weitergehen, wenn der Partner 2 Tage offline ist, ohne dass einer durchrusht und der andere abends nichts mehr zu tun hat.** Noch nicht entschieden („mal schauen“), hier die Bausteine zur Auswahl:
+- **Spannung:** Rätselschlösser (Code für Tresor oder Tür, den man aus Hinweisen beider ableitet), ein Fall-Wecker („die Polizei trifft erst morgen früh ein“, der Täter könnte fliehen) nur als Atmosphäre ohne Strafe, Räume, die sich erst durch einen Fund öffnen, ein großes „Aha“ am Ende (Zusammenführen auf der Pinnwand). Fall 01 ist bewusst nur ein **Logiktest**, Rätsel und Wecker kommen in Fall 02.
+- **Tagestakt gegen Durchrushen:** Jeder Spieler hat pro Tag nur wenige Aktionen (etwa 3 bis 4), ungenutzte verfallen nicht ganz, sammeln sich aber nur bis zu einem Deckel. Dadurch kann niemand den Fall an einem Abend allein „leerspielen“.
+- **Kapitel-Türen:** Ein Fall hat 3 bis 4 Kapitel. Das nächste öffnet, wenn der Pinnwand-Stand eine Bedingung erfüllt, damit nicht alles auf einmal offen liegt.
+- **Partner offline (Vertretung):** Fehlt der Partner länger als etwa 24 Stunden, übernimmt ein **Assistent seine Rolle, aber nur als Kurzfassung** („Es gibt eine Aussage von Jonas, sie widerspricht etwas“, ohne den Wortlaut) und höchstens ein Hinweis pro Tag. Die Details bleiben für den Partner reserviert. Er hat bei seiner Rückkehr also etwas zu tun, und der Solo-Spieler kommt trotzdem langsam voran.
+- **Anklage:** Jeder darf anklagen, mit gemeinsamem Fehlversuch-Zähler. Die Lösung zählt als Teamsieg, auch wenn einer sie allein findet; der Partner sieht „Hinweis X hätte es verraten“.
+- **Ehrlich:** Das ist der heikelste Teil des Spiels. Zu eng gebaut, wartet man ständig, zu locker gebaut, rusht einer durch. Wir testen den Takt erst mit M1 bis M3, nicht auf Papier.
+
 ## Der Haken (was es von anderen unterscheidet)
 **Wissen ist verteilt.** Eine Rolle sieht nur Tatort-Spuren, eine nur Aussagen, eine nur Akten und Alibis. Jeder Hinweis allein sagt wenig, zwei Hinweise zusammen entlarven eine Lüge. Man muss also reden, zeigen, vergleichen. Das ist der Spaß, nicht der Zufall und nicht das Reaktionsvermögen.
 
@@ -40,7 +49,7 @@ Kein Zeitdruck, keine Kämpfe, kein Game Over. Pixel-Büro mit Pinnwand, Regen a
 - **Wird nicht gebraucht:** Kampf-Engine, Run-Karte, Crew, Hafen.
 
 ## Meilensteine (klein anfangen, der Spaß zuerst)
-- **M0 Papiertest (Sonnet, ohne Code):** Ich erzeuge einen Fall von Hand als Text, jede Rolle bekommt ihre Hinweise getrennt. Felix und Jan spielen ihn im Chat oder am Tisch durch. **Wenn das keinen Spaß macht, hören wir hier auf**, bevor etwas gebaut ist.
+- **M0 Papiertest (Sonnet, ohne Code), Fall 01 „Hotel Möwenruh“ liegt in `claude/papiertest/` (Gemeinsam, Akte A für Felix, Akte B für den Kumpel, SPOILER nicht lesen):** Ich erzeuge einen Fall von Hand als Text, jede Rolle bekommt ihre Hinweise getrennt. Felix und Jan spielen ihn im Chat oder am Tisch durch. **Wenn das keinen Spaß macht, hören wir hier auf**, bevor etwas gebaut ist.
 - **M1 Generator und Prüfer (Opus):** In Node, ohne Oberfläche. Erzeugt Fälle, prüft Eindeutigkeit, schreibt sie als Text.
 - **M2 Solo-Oberfläche (Opus):** Pinnwand und Aktionen für eine Person, alle Rollen zugleich.
 - **M3 Coop online (Opus):** Gemeinsamer Fallstand über Supabase, Rollen getrennt sichtbar. Nur nach ausdrücklichem Okay (Datenbank).
