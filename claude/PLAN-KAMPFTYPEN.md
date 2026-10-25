@@ -53,3 +53,14 @@ Felix per Klick: Boss-Bühne **deutlich** abheben, Boss/Raid-Gegner **1,3× grö
 - Raid unverändert (hat schon sein violettes Feld).
 - Geprüft: Testkopie gebündelt, Headless 390 px, alle 5 Meere plus Elite und Normal gerendert, 0 `pageerror`.
 - Offen: C (Ton, Vorschläge zum Anhören).
+
+## Häppchen C: Vorschlagssammlung Ton (46. Chat, Sonnet, 25.10.)
+Felix per Klick (41. Chat): Claude sammelt Vorschläge zum Anhören. **Gebaut** auf `feature/kampfton-vorschlaege`, nur Doku und Hörprobe, im Spiel ist nichts geändert.
+- Ist-Stand: `GL.sfx.sting` kennt `boing`, `shake`, `dramatic`, `flash`/`sparkle`, `zoom`, `jump`. Nichts davon ist an eine Kampfart gebunden (`dramatic` läuft nur beim Nachschub einer zweiten Welle).
+- `tools/kampfton-probe.html`: Hörprobe mit denselben Bausteinen und derselben Klangkette wie `js/ui/sfx.js`. Je Kampfart drei Vorschläge, ein Favorit wählbar, eine Zeile zum Kopieren.
+  - **Elite** (rund 1 s): E1 Goldfanfare, E2 Münzglocke, E3 Zwei Schläge.
+  - **Boss** (rund 2 s, Boss-Show): B1 Dumpfe Trommel, B2 Hornruf, B3 Moll-Treppe.
+  - **Raid** (Boom fällt auf den Schlag aufs Bild, `bs-slam`): R1 Sirene, R2 Kriegshorn und Schlag, R3 Alarmglocke.
+  - **Duell:** D1 Zwei Klingen, D2 Trommelwirbel, D3 Tief gegen Hoch.
+  - **Normal:** bleibt still.
+- Einbau nach Felix' Wahl: Die gewählten Klänge als neue Namen in `sting` (`js/ui/sfx.js`), Aufruf je Kampfart dort, wo der Auftritt beginnt (`kindIntro` in `arena.js`, Boss-Show in `startFight` in `main.js`). Nur Anzeige und Ton, keine Kampfrechnung, kein Spielstand. „Ton aus“ gilt automatisch (`ready()` liefert dann nichts).

@@ -1,0 +1,255 @@
+<title>Kampfton-Hörprobe</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@500;700&family=Figtree:wght@400;600&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: eine schmale Spalte, vier Abschnitte (je Kampfart), je drei Hörkarten mit großem Abspielknopf, am Ende die Wahl zum Kopieren. */
+:root {
+  --bg: #eaf1f2;
+  --surface: #f6fafa;
+  --ink: #12283a;
+  --muted: #4f6674;
+  --line: #c5d6da;
+  --accent: #0f6f86;
+  --accent-ink: #ffffff;
+  --f-display: 'Pixelify Sans', 'Courier New', monospace;
+  --f-body: 'Figtree', system-ui, sans-serif;
+  --f-mono: 'JetBrains Mono', ui-monospace, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e1c28; --surface: #14293a; --ink: #e4eef2; --muted: #93a9b5; --line: #254255;
+    --accent: #5cc4dc; --accent-ink: #072230; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0e1c28; --surface: #14293a; --ink: #e4eef2; --muted: #93a9b5; --line: #254255;
+  --accent: #5cc4dc; --accent-ink: #072230; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 16px; line-height: 1.5;
+  padding-block: 28px 56px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+main { max-width: 560px; margin: 0 auto; display: grid; gap: 32px; }
+h1, h2 { font-family: var(--f-display); font-weight: 700; margin: 0; text-wrap: balance; }
+h1 { font-size: 2rem; line-height: 1.1; }
+h2 { font-size: 1.35rem; }
+p { margin: 0; }
+.intro { display: grid; gap: 10px; }
+.intro p { color: var(--muted); max-width: 65ch; }
+.sec { display: grid; gap: 12px; }
+.sec-head { display: grid; gap: 2px; }
+.sec-head p { color: var(--muted); font-size: .9rem; }
+.list { display: grid; gap: 10px; list-style: none; margin: 0; padding: 0; }
+.card {
+  display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; align-items: center;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px;
+}
+.card.pick { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.play {
+  grid-row: span 2; width: 52px; height: 52px; border-radius: 50%; border: 0; cursor: pointer;
+  background: var(--accent); color: var(--accent-ink); display: grid; place-items: center; position: relative; overflow: hidden;
+}
+.play svg { width: 20px; height: 20px; fill: currentColor; position: relative; }
+.play .fill { position: absolute; inset: 0; background: var(--ink); opacity: .22; transform: scaleX(0); transform-origin: left; }
+.play.on .fill { animation: run var(--d, 1s) linear forwards; }
+@keyframes run { to { transform: scaleX(1); } }
+.meta { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 10px; min-width: 0; }
+.meta b { font-family: var(--f-display); font-size: 1.05rem; font-weight: 500; }
+.meta code { font-family: var(--f-mono); font-size: .75rem; color: var(--muted); }
+.desc { color: var(--muted); font-size: .92rem; grid-column: 2; min-width: 0; }
+.fav {
+  grid-column: 2; justify-self: start; margin-top: 4px; font: inherit; font-size: .85rem; font-weight: 600; cursor: pointer;
+  background: transparent; color: var(--ink); border: 1px solid var(--line); border-radius: 999px; padding: 5px 12px;
+}
+.fav[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.still { color: var(--muted); font-size: .92rem; border-left: 3px solid var(--line); padding-left: 12px; }
+.result { display: grid; gap: 12px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px; }
+.result output { font-family: var(--f-mono); font-size: .95rem; display: block; overflow-wrap: anywhere; }
+.row { display: flex; flex-wrap: wrap; gap: 10px; }
+.btn {
+  font: inherit; font-weight: 600; cursor: pointer; border-radius: 8px; padding: 10px 16px;
+  border: 1px solid var(--accent); background: var(--accent); color: var(--accent-ink);
+}
+.btn.alt { background: transparent; color: var(--ink); border-color: var(--line); }
+.btn:disabled { opacity: .45; cursor: default; }
+.note { color: var(--muted); font-size: .85rem; }
+@media (prefers-reduced-motion: reduce) { .play.on .fill { animation: none; transform: scaleX(1); } }
+</style>
+
+<main>
+  <header class="intro">
+    <h1>Kampfton-Hörprobe</h1>
+    <p>Drei Vorschläge je Kampfart für den Auftritt vor dem Kampf. Sie klingen mit denselben Bausteinen wie im Spiel: gleiche Filter, gleiche Lautstärke. Stell dein Handy so laut wie sonst beim Spielen, tippe auf ▶ und merke dir deinen Favoriten je Abschnitt.</p>
+  </header>
+
+  <div id="sections" style="display:grid;gap:32px"></div>
+
+  <p class="still"><b>Normaler Kampf:</b> bleibt ohne Klang. So hebt sich jede andere Kampfart vom Alltag ab.</p>
+
+  <section class="sec" aria-labelledby="wahl-h">
+    <h2 id="wahl-h">Deine Wahl</h2>
+    <div class="result">
+      <output id="wahl" aria-live="polite">Noch nichts gewählt.</output>
+      <div class="row">
+        <button class="btn" id="seq" type="button" disabled>Favoriten nacheinander</button>
+        <button class="btn alt" id="copy" type="button" disabled>Wahl kopieren</button>
+      </div>
+      <p class="note" id="msg">Schick mir die kopierte Zeile in den Chat, dann baue ich genau diese Töne ins Spiel.</p>
+    </div>
+  </section>
+</main>
+
+<script>
+(function () {
+  // Klangkette wie in js/ui/sfx.js: Tiefpass 3200 Hz, Kompressor, Lautstärke 0,32
+  var ctx = null, out = null, noiseBuf = null, VOL = 0.32;
+  function ready() {
+    if (!ctx) {
+      var AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return null;
+      try { ctx = new AC(); } catch (e) { return null; }
+      out = ctx.createGain(); out.gain.value = VOL;
+      var lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 3200;
+      var comp = ctx.createDynamicsCompressor(); comp.threshold.value = -20; comp.ratio.value = 4;
+      out.connect(lp); lp.connect(comp); comp.connect(ctx.destination);
+    }
+    if (ctx.state === 'suspended') ctx.resume();
+    return ctx;
+  }
+  function tone(f0, f1, dur, type, vol, at) {
+    var c = ready(); if (!c) return;
+    var t = c.currentTime + (at || 0), o = c.createOscillator(), g = c.createGain();
+    o.type = type || 'sine';
+    o.frequency.setValueAtTime(f0, t);
+    if (f1 && f1 !== f0) o.frequency.exponentialRampToValueAtTime(Math.max(20, f1), t + dur);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(vol || 0.3, t + 0.008);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g); g.connect(out); o.start(t); o.stop(t + dur + 0.02);
+  }
+  function noise(dur, freq, vol, at) {
+    var c = ready(); if (!c) return;
+    if (!noiseBuf) {
+      noiseBuf = c.createBuffer(1, c.sampleRate * 0.3, c.sampleRate);
+      var d = noiseBuf.getChannelData(0);
+      for (var i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+    }
+    var t = c.currentTime + (at || 0), s = c.createBufferSource(), f = c.createBiquadFilter(), g = c.createGain();
+    s.buffer = noiseBuf; f.type = 'bandpass'; f.frequency.value = freq || 900; f.Q.value = 1.2;
+    g.gain.setValueAtTime(vol || 0.2, t); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    s.connect(f); f.connect(g); g.connect(out); s.start(t); s.stop(t + dur + 0.02);
+  }
+  function notes(list, step, type, vol, at0) { list.forEach(function (f, i) { tone(f, f, step * 1.6, type || 'triangle', vol || 0.18, (at0 || 0) + i * step); }); }
+  function boom(at, vol) { tone(90, 35, 0.6, 'sine', vol || 0.38, at); noise(0.25, 150, 0.2, at); }
+
+  var KINDS = [
+    { id: 'elite', title: 'Elite', hint: 'Starker Gegner. Läuft mit dem kurzen Banner und dem goldenen Rand (rund 1 Sekunde).', code: 'E' },
+    { id: 'boss', title: 'Boss', hint: 'Der Bösewicht der Insel fährt ins Bild (Boss-Show, rund 2 Sekunden).', code: 'B' },
+    { id: 'raid', title: 'Raid', hint: 'Raid-Boss mit Schlag aufs Bild. Der Boom am Ende fällt auf den Schlag.', code: 'R' },
+    { id: 'duell', title: 'Duell', hint: 'Begegnung auf See: zwei Seiten, kein Monster.', code: 'D' }
+  ];
+  var SOUNDS = [
+    { id: 'E1', kind: 'elite', name: 'Goldfanfare', dur: 0.8, desc: 'Drei helle Stufen nach oben, oben ein feines Glitzern. Wie ein kleiner Ritterruf.',
+      fn: function () { notes([392, 523, 659], 0.09, 'triangle', 0.16); tone(1568, 1568, 0.3, 'sine', 0.06, 0.3); } },
+    { id: 'E2', kind: 'elite', name: 'Münzglocke', dur: 1.0, desc: 'Zwei Glockenschläge im Abstand einer Quinte, sie klingen lange nach. Glänzt wie Gold.',
+      fn: function () { tone(784, 784, 0.7, 'sine', 0.14, 0); tone(1568, 1568, 0.5, 'sine', 0.05, 0); tone(1175, 1175, 0.7, 'sine', 0.12, 0.12); tone(2350, 2350, 0.4, 'sine', 0.03, 0.12); noise(0.03, 4000, 0.05, 0); } },
+    { id: 'E3', kind: 'elite', name: 'Zwei Schläge', dur: 0.8, desc: 'Zweimal dumpf angeschlagen, dann ein hoher Warnton. Knapp und ernst.',
+      fn: function () { tone(196, 120, 0.16, 'triangle', 0.24, 0); tone(196, 120, 0.16, 'triangle', 0.24, 0.2); tone(784, 784, 0.25, 'square', 0.04, 0.4); } },
+
+    { id: 'B1', kind: 'boss', name: 'Dumpfe Trommel', dur: 1.8, desc: 'Drei tiefe Trommelschläge, jeder etwas lauter, dann ein langes Grollen.',
+      fn: function () { [0, 0.3, 0.6].forEach(function (t, k) { tone(120, 45, 0.28, 'sine', 0.34 + k * 0.04, t); noise(0.08, 180, 0.12, t); }); tone(65, 60, 0.8, 'triangle', 0.12, 0.9); } },
+    { id: 'B2', kind: 'boss', name: 'Hornruf', dur: 1.3, desc: 'Ein tiefes Horn schwillt an und steigt langsam. Klingt nach Festung am Horizont.',
+      fn: function () { tone(98, 131, 1.1, 'sawtooth', 0.07, 0); tone(49, 66, 1.1, 'square', 0.05, 0); tone(147, 196, 0.9, 'sawtooth', 0.04, 0.2); } },
+    { id: 'B3', kind: 'boss', name: 'Moll-Treppe', dur: 1.6, desc: 'Drei Töne treppab in Moll, am Ende ein schwerer Boom. Verwandt mit dem Nachschub-Klang, nur größer.',
+      fn: function () { [[220, 0], [208, 0.22], [165, 0.44]].forEach(function (p) { tone(p[0], p[0], 0.3, 'triangle', 0.18, p[1]); }); tone(82, 40, 0.7, 'sine', 0.34, 0.7); noise(0.2, 160, 0.14, 0.7); } },
+
+    { id: 'R1', kind: 'raid', name: 'Sirene', dur: 1.9, desc: 'Zwei Mal rauf und runter wie ein Alarm, danach der Boom. Das ist der Klang für „Gefahr“.',
+      fn: function () { for (var i = 0; i < 2; i++) { tone(440, 660, 0.28, 'triangle', 0.13, i * 0.56); tone(660, 440, 0.28, 'triangle', 0.13, i * 0.56 + 0.28); } boom(1.15); } },
+    { id: 'R2', kind: 'raid', name: 'Kriegshorn und Schlag', dur: 1.6, desc: 'Ein Horn steigt eine Oktave hoch und bricht in den Boom. Groß und feierlich.',
+      fn: function () { tone(98, 196, 0.9, 'sawtooth', 0.07, 0); tone(147, 294, 0.9, 'square', 0.03, 0); tone(98, 98, 0.4, 'sawtooth', 0.07, 0.9); boom(0.9); } },
+    { id: 'R3', kind: 'raid', name: 'Alarmglocke', dur: 1.4, desc: 'Fünf schnelle Glockentöne im Wechsel, nervös, dann der Boom.',
+      fn: function () { [880, 784, 880, 784, 880].forEach(function (f, i) { tone(f, f, 0.12, 'square', 0.06, i * 0.12); }); boom(0.75); } },
+
+    { id: 'D1', kind: 'duell', name: 'Zwei Klingen', dur: 0.9, desc: 'Zweimal Metall auf Metall, hoch und etwas tiefer. Fair und blank.',
+      fn: function () { noise(0.06, 3000, 0.18, 0); tone(1568, 1568, 0.35, 'sine', 0.1, 0); noise(0.06, 2600, 0.18, 0.22); tone(1175, 1175, 0.45, 'sine', 0.1, 0.22); } },
+    { id: 'D2', kind: 'duell', name: 'Trommelwirbel', dur: 1.0, desc: 'Ein kurzer Wirbel, der anschwillt, dann ein einzelner Schlag. Spannung wie vor dem Zug.',
+      fn: function () { for (var k = 0; k < 10; k++) noise(0.04, 400, 0.04 + k * 0.012, k * 0.055); tone(150, 60, 0.2, 'sine', 0.34, 0.6); noise(0.1, 900, 0.15, 0.6); } },
+    { id: 'D3', kind: 'duell', name: 'Tief gegen Hoch', dur: 1.3, desc: 'Ein tiefer und ein höherer Ton antworten einander und klingen am Ende zusammen. Zwei Gegenspieler.',
+      fn: function () { tone(220, 220, 0.4, 'triangle', 0.16, 0); tone(330, 330, 0.4, 'triangle', 0.16, 0.35); tone(220, 220, 0.5, 'triangle', 0.12, 0.7); tone(330, 330, 0.5, 'triangle', 0.12, 0.7); } }
+  ];
+  var byId = {}; SOUNDS.forEach(function (s) { byId[s.id] = s; });
+  var picks = {};
+  try { var raw = JSON.parse(localStorage.getItem('kampfton-picks') || '{}'); KINDS.forEach(function (k) { if (raw[k.id] && byId[raw[k.id]] && byId[raw[k.id]].kind === k.id) picks[k.id] = raw[k.id]; }); } catch (e) { /* ohne Speicher */ }
+
+  var root = document.getElementById('sections');
+  var PLAY = '<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 2.5v15l13-7.5z"/></svg>';
+  function h(tag, cls, html) { var e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; }
+
+  KINDS.forEach(function (k) {
+    var sec = h('section', 'sec');
+    sec.setAttribute('aria-labelledby', 'h-' + k.id);
+    var head = h('div', 'sec-head', '<h2 id="h-' + k.id + '">' + k.title + '</h2><p>' + k.hint + '</p>');
+    var ul = h('ul', 'list');
+    SOUNDS.filter(function (s) { return s.kind === k.id; }).forEach(function (s) {
+      var li = h('li', 'card'); li.dataset.id = s.id;
+      var play = h('button', 'play', '<i class="fill"></i>' + PLAY);
+      play.type = 'button'; play.setAttribute('aria-label', s.name + ' anhören'); play.style.setProperty('--d', s.dur + 's');
+      play.addEventListener('click', function () { playSound(s, play); });
+      var meta = h('div', 'meta', '<b></b><code>' + s.id + ' · ' + s.dur.toFixed(1).replace('.', ',') + ' s</code>');
+      meta.firstChild.textContent = s.name;
+      var desc = h('p', 'desc'); desc.textContent = s.desc;
+      var fav = h('button', 'fav', 'Mein Favorit'); fav.type = 'button'; fav.id = 'fav-' + s.id;
+      fav.addEventListener('click', function () { if (picks[k.id] === s.id) delete picks[k.id]; else picks[k.id] = s.id; save(); paint(); });
+      li.appendChild(play); li.appendChild(meta); li.appendChild(desc); li.appendChild(fav);
+      ul.appendChild(li);
+    });
+    sec.appendChild(head); sec.appendChild(ul); root.appendChild(sec);
+  });
+
+  var timers = [];
+  function playSound(s, btn) {
+    if (!ready()) { document.getElementById('msg').textContent = 'Dein Browser spielt hier keinen Ton ab. Probier es in Safari oder Chrome direkt.'; return; }
+    s.fn();
+    btn.classList.remove('on'); void btn.offsetWidth; btn.classList.add('on');
+    setTimeout(function () { btn.classList.remove('on'); }, s.dur * 1000 + 50);
+  }
+  function save() { try { localStorage.setItem('kampfton-picks', JSON.stringify(picks)); } catch (e) { /* egal */ } }
+  function line() {
+    return 'Ton je Kampfart: ' + KINDS.map(function (k) { return k.title + ' ' + (picks[k.id] ? picks[k.id] + ' (' + byId[picks[k.id]].name + ')' : 'offen'); }).join(', ');
+  }
+  function paint() {
+    document.querySelectorAll('.card').forEach(function (li) {
+      var s = byId[li.dataset.id], on = picks[s.kind] === s.id;
+      li.classList.toggle('pick', on);
+      var f = li.querySelector('.fav'); f.setAttribute('aria-pressed', on ? 'true' : 'false'); f.textContent = on ? 'Dein Favorit' : 'Mein Favorit';
+    });
+    var n = Object.keys(picks).length;
+    document.getElementById('wahl').textContent = n ? line() : 'Noch nichts gewählt.';
+    document.getElementById('seq').disabled = !n; document.getElementById('copy').disabled = !n;
+  }
+  document.getElementById('seq').addEventListener('click', function () {
+    timers.forEach(clearTimeout); timers = [];
+    var t = 0;
+    KINDS.forEach(function (k) {
+      var s = picks[k.id] && byId[picks[k.id]]; if (!s) return;
+      var btn = document.querySelector('.card[data-id="' + s.id + '"] .play');
+      timers.push(setTimeout(function () { playSound(s, btn); }, t));
+      t += s.dur * 1000 + 700;
+    });
+  });
+  document.getElementById('copy').addEventListener('click', function () {
+    var msg = document.getElementById('msg'), txt = line();
+    function fallback() {
+      var r = document.createRange(); r.selectNodeContents(document.getElementById('wahl'));
+      var sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(r);
+      msg.textContent = 'Kopieren hat nicht geklappt. Die Zeile ist markiert, bitte von Hand kopieren.';
+    }
+    try { navigator.clipboard.writeText(txt).then(function () { msg.textContent = 'Kopiert. Füg die Zeile im Chat ein.'; }, fallback); } catch (e) { fallback(); }
+  });
+  paint();
+})();
+</script>
