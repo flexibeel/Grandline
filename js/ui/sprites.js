@@ -416,6 +416,9 @@ window.GL = window.GL || {};
       grosskappe: { clear: [0, 1, 2, 3, 4, 5], px: sym(0, ['.......BBBBB', '.....BBBBBBB', '...BBBBBBBBB', '..BBBBBBBBBB', '..BBBBBBBBBB', '..BBBBBBBBBB', '.kkkkkkkkkkk']).concat(at([[2, 11, 'A'], [2, 12, 'A'], [3, 11, 'A'], [3, 12, 'A'], [7, 2, 'H'], [7, 3, 'H'], [8, 3, 'H'], [7, 20, 'H'], [7, 21, 'H'], [8, 20, 'H']])) },
       zipfel: { clear: [0, 1, 2, 3], px: rows(0, ['.......BBBBBBBBBB.......', '.....BBqqBBqqBBBBBB.....', '....BBBBBBBBBBBBBBBBB...', '...BBBqqBBqqBBqqBBBBBB..', '...kkkkkkkkkkkkkkkkkkBB.', '......................B.', '.....................WW.', '.....................WW.']) },
       ohrenschuetzer: { px: sym(1, ['.......kkkkk', '....kk......', '..kk........', '..k.........', '..k.........', 'qBB.........', 'BBBB........', 'BBBB........', 'BBBB........', 'qBB.........']) },
+      // C4 Schattenkorps: Melone, Kappe mit Öhrchen
+      melone: { clear: [0, 1, 2, 3], px: sym(0, ['........BBBB', '......BBBBBB', '.....BqBBBBB', '.....kkkkkkk', '..BBBBBBBBBB']) },
+      ohrenkappe: { clear: [0, 1, 2, 3], px: sym(0, ['...BB.......', '...BqBBBBBBB', '...BBBBBBBBB', '...BBBBBBBBB', '..kkkkkkkkkk']) },
       tricorn: { clear: [0, 1, 2, 3], px: sym(0, ['.B......BBBB', '.BB...BBBBBB', '.BBBBBBBBBBB', 'BBBBBBBBBBBB', 'kkkkkkkkkkkk']).concat(at([[1, 11, 'A'], [1, 12, 'A']])) }
     };
     // Masken und Kostüme (eigene Farben je Maske): G hell, g dunkel, Y Augen, T Zähne, W Wolke
@@ -454,6 +457,8 @@ window.GL = window.GL || {};
       dutt: g => { sym(0, ['..HH........', '.HHHH.......', '.HHHH.......', '..HH........']).forEach(([y, x, ch]) => { g[y][x] = ch; }); },
       zopf: g => { rows(5, ['....................H...', '.....................HH.', '......................H.', '.....................aHH', '......................HH', '......................HH', '......................HH', '.....................HH.', '......................H.']).forEach(([y, x, ch]) => { if (g[y][x] === '.' || ch === 'a') g[y][x] = ch === 'a' ? 'F' : ch; }); },
       bob: g => { sym(5, ['...HHHHHHHHH', '..HH........', '..HH........', '..HH........', '..HH........', '..HH........', '...H........']).forEach(([y, x, ch]) => { g[y][x] = ch; }); },
+      locken: g => { sym(3, ['...HH.......', '..HHH.......', '..HH........', '.HHH........', '.HH.........', '.HHH........', '..HH........', '.HHH........', '..HH........', '...H........']).forEach(([y, x, ch]) => { g[y][x] = ch; }); },
+      tolle: g => { rows(0, ['.....HHHHHHHHHHHH.......', '...HHHHHHHHHHHHHHH......', '..HHHHHHHHHHHHHHHHH.....', '.HHHHH..................']).forEach(([y, x, ch]) => { g[y][x] = ch; }); },
       stachel: g => { rows(0, ['......H...HH...H..H.....', '......HHHHHHHHHHHH......']).forEach(([y, x, ch]) => { g[y][x] = ch; }); }
     };
     // Markenzeichen (look.x, höchstens 4): Q Mantel (look.coat), I Schal (look.scarf), M Metall, n Dose, p Pflaster, i Eis
@@ -469,6 +474,17 @@ window.GL = window.GL || {};
       dampf: at([[14, 0, 'Z'], [15, 0, 'Z'], [15, 1, 'Z'], [13, 1, 'Z'], [14, 23, 'Z'], [13, 22, 'Z'], [13, 23, 'Z'], [12, 23, 'Z']]),
       kessel: at([[11, 0, 'A'], [11, 1, 'A'], [12, 0, 'A'], [12, 1, 'A'], [13, 0, 'A'], [13, 1, 'A'], [14, 1, 'A'], [10, 1, 'K'], [8, 0, 'Z'], [7, 1, 'Z'], [6, 0, 'Z']]),
       schnauzer: rows(10, ['......DDDDDDDDDDDD......', '.....DDDD......DDDD.....', '.....DD..........DD.....']),
+      // C4 Schattenkorps
+      mappe: rows(21, ['.....................LL.', '...................VVVVV', '...................VAVVV', '...................VVVVV', '...................VVVVV']),
+      schaum: at([[12, 21, 'i'], [11, 22, 'i'], [13, 22, 'i'], [12, 23, 'i'], [8, 22, 'i'], [9, 23, 'i'], [5, 21, 'i']]),
+      schminke: at([[6, 11, 'R'], [6, 12, 'R'], [9, 6, 'R'], [10, 6, 'R'], [10, 7, 'R'], [9, 17, 'R'], [10, 17, 'R'], [10, 16, 'R']]),
+      faecher: at([[15, 0, 'F'], [15, 1, 'A'], [15, 2, 'F'], [16, 0, 'A'], [16, 1, 'F'], [16, 2, 'A'], [17, 1, 'F'], [17, 2, 'F'], [18, 2, 'V']]),
+      schluessel: at([[22, 6, 'A'], [23, 6, 'A'], [23, 5, 'A'], [24, 6, 'A'], [24, 7, 'A'], [23, 7, 'M'], [25, 6, 'M'], [25, 7, 'M']]),
+      klauen: at([[19, 2, 'K'], [19, 3, 'K'], [20, 2, 'K'], [20, 3, 'K'], [21, 2, 'K'], [21, 3, 'K'], [22, 1, 'M'], [22, 3, 'M'], [23, 1, 'M'], [23, 3, 'M'],
+        [19, 20, 'K'], [19, 21, 'K'], [20, 20, 'K'], [20, 21, 'K'], [21, 20, 'K'], [21, 21, 'K'], [22, 20, 'M'], [22, 22, 'M'], [23, 20, 'M'], [23, 22, 'M']]),
+      stiefel: sym(23, ['.....AAAAA..', '.....OOOOO..', '.....OOOOO..', '.....OOOOO..', '.....OOOOO..']),
+      reissverschluss: rows(11, ['.........MKMKMK.........']).concat(at([[12, 14, 'M']])),
+      mundpflaster: at([[10, 10, 'p'], [10, 13, 'p'], [11, 11, 'p'], [11, 12, 'p'], [12, 10, 'p'], [12, 13, 'p']]),
       eiszapfen: at([[15, 4, 'i'], [16, 4, 'i'], [17, 4, 'i'], [15, 19, 'i'], [16, 19, 'i'], [17, 19, 'i'], [16, 3, 'i'], [16, 20, 'i']])
     };
     // Fraktions-Abzeichen (Leitfarbe, je Fraktion ein Teil). Schlüssel = Banden-id, Varianten mit _a/_b fürs Board.
@@ -477,6 +493,9 @@ window.GL = window.GL || {};
       marine_schaerpe: { px: at([[15, 6, 'r'], [16, 7, 'r'], [16, 6, 'r'], [17, 8, 'r'], [17, 7, 'r'], [18, 9, 'r'], [18, 8, 'r'], [19, 10, 'r'], [19, 9, 'r'], [20, 11, 'a'], [20, 10, 'a'], [21, 12, 'r'], [21, 11, 'r'], [22, 13, 'r'], [22, 12, 'r']]), c: { r: '#b8343a', a: '#d9a640' } },
       marine_abzeichen: { px: at([[17, 7, 'a'], [17, 9, 'a'], [18, 7, 'a'], [18, 8, 'r'], [18, 9, 'a'], [19, 7, 'a'], [19, 8, 'a'], [19, 9, 'a']]), c: { r: '#b8343a', a: '#d9a640' } }
     };
+    BADGE.cp9_krawatte = { px: at([[15, 10, 'a'], [15, 13, 'a'], [15, 11, 'r'], [15, 12, 'r'], [16, 11, 'r'], [16, 12, 'r'], [17, 11, 'r'], [17, 12, 'r'], [18, 11, 'r'], [18, 12, 'r'], [19, 11, 'r'], [19, 12, 'r'], [20, 11, 'r'], [20, 12, 'r'], [21, 11, 'r']]), c: { r: '#6a3fa0', a: '#cfd6dc' } };
+    BADGE.cp9_nadel = { px: at([[16, 7, 'a'], [17, 6, 'r'], [17, 7, 'r'], [17, 8, 'r'], [18, 7, 'a']]), c: { r: '#8a5ac8', a: '#cfd6dc' } };
+    BADGE.cp9 = BADGE.cp9_krawatte; // Schattenkorps: Krawatte (Felix, 25.10.)
     BADGE.marine = BADGE.marine_schaerpe; // Kronwacht: Schärpe (Felix, 25.10.)
 
     // Kann das neue Raster diesen Look schon ganz zeichnen?

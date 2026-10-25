@@ -48,13 +48,13 @@ GL.data.crew = [
 
   // CP9
   { id: 'kalifa',  name: 'Kalina',   type: 'klinge',  role: 'kaempfer', faction: 'cp9',      hp: 24, atk: 8,  spd: 7,
-    look: { hair: '#e8d070', skin: '#f2c9a0', shirt: '#2a2a2a', pants: '#2a2a2a', longHair: true } },
+    look: { hairStyle: 'bob', hair: '#c86a3a', skin: '#f2c9a0', shirt: '#3a3048', pants: '#2a2a2a', acc: 'brille', x: ['mappe', 'schaum'] } },
   { id: 'kumadori',name: 'Kordo', type: 'technik', role: 'brecher',  faction: 'cp9',      hp: 30, atk: 6,  spd: 5,
-    look: { hair: '#d84a2a', skin: '#f0f0f0', shirt: '#e8b030', pants: '#7a3a2a', hat: 'afro' } },
+    look: { hairStyle: 'tolle', hair: '#5a3a8a', skin: '#f0e6d8', shirt: '#3a3048', pants: '#2a2a2a', x: ['schminke', 'faecher'] } },
   { id: 'blueno',  name: 'Riegel',   type: 'kraft',   role: 'brecher',  faction: 'cp9',      hp: 36, atk: 6,  spd: 4,
-    look: { hair: '#1a1a1a', skin: '#e8c0a0', shirt: '#1a1a1a', pants: '#1a1a1a', hat: 'band', hatColor: '#1a1a1a' } },
+    look: { hair: '#1a1a1a', skin: '#e8c0a0', shirt: '#1a1a1a', pants: '#1a1a1a', hat: 'melone', hatColor: '#5a4632', x: ['schluessel'] } },
   { id: 'jabra',   name: 'Wolfram',    type: 'kraft',   role: 'kaempfer', faction: 'cp9',      hp: 28, atk: 8,  spd: 6,
-    look: { hair: '#1a1a1a', skin: '#d9a87a', shirt: '#2a2a2a', pants: '#2a2a2a', longHair: true } },
+    look: { hairStyle: 'stachel', hair: '#6a6a72', skin: '#d9a87a', shirt: '#3a3048', pants: '#2a2a2a', longHair: true, x: ['klauen'] } },
 
   // Baroque Works
   { id: 'bonclay', name: 'Mimo', type: 'technik', role: 'brecher',  faction: 'baroque',  hp: 34, atk: 5,  spd: 5,
@@ -77,9 +77,9 @@ GL.data.crew = [
   { id: 'enel',      name: 'Zirrus',      type: 'kraft',   role: 'kaempfer',                    hp: 26, atk: 8, spd: 7, locked: true,
     look: { hair: '#f0f0f0', skin: '#f2c9a0', shirt: '#e8b030', pants: '#e8b030', hat: 'band', hatColor: '#e8e8e8' } },
   { id: 'rob-lucci', name: 'Agent Krall', type: 'kraft',   role: 'kaempfer', faction: 'cp9',     hp: 30, atk: 5, spd: 6, locked: true,
-    look: { hair: '#222222', skin: '#f2c9a0', shirt: '#e8e8e8', pants: '#222222', hat: 'cap', hatColor: '#222222' } },
+    look: { hairStyle: 'bob', hair: '#222222', skin: '#f2c9a0', shirt: '#e8e8e8', pants: '#2e2a3a', hat: 'ohrenkappe', hatColor: '#3a3048', coat: '#2a2a2a', x: ['mantel'] } },
   { id: 'kaku',      name: 'Stelz',      type: 'klinge',  role: 'kaempfer', faction: 'cp9',     hp: 28, atk: 8, spd: 7, locked: true,
-    look: { hair: '#8a5a2a', skin: '#f2c9a0', shirt: '#222222', pants: '#222222', hat: 'cap', hatColor: '#f0f0f0' } },
+    look: { hairStyle: 'zopf', hair: '#c8703a', skin: '#f2c9a0', shirt: '#2e2a3a', pants: '#222222', hat: 'cap', hatColor: '#e8e0d0', x: ['stiefel', 'schwertruecken'] } },
   { id: 'jinbei',    name: 'Jonah',    type: 'kraft',   role: 'brecher',  faction: 'samurai', hp: 40, atk: 7, spd: 4, locked: true,
     look: { hair: '#1a1a1a', skin: '#5a8fc2', shirt: '#e0e0d0', pants: '#2a3a5a' } },
   { id: 'ace',       name: 'Asch',       type: 'kraft',   role: 'kaempfer', faction: 'weissbart', hp: 28, atk: 9, spd: 6, locked: true,
@@ -140,7 +140,7 @@ GL.data.crew = [
   { id: 'aokiji',    name: 'Reif',      type: 'technik', role: 'brecher',  faction: 'marine',     hp: 38, atk: 7,  spd: 5, locked: true,
     look: { hair: '#2a2a3a', skin: '#c89a70', shirt: '#e8f0f8', pants: '#a8c8e0', hat: 'zipfel', hatColor: '#8ac0e8', scarf: '#5a90c8', x: ['schal'] } },
   { id: 'fukuro',    name: 'Plapper',      type: 'kraft',   role: 'brecher',  faction: 'cp9',        hp: 36, atk: 6,  spd: 5, locked: true,
-    look: { hair: '#2a2a2a', skin: '#f2c9a0', shirt: '#2a2a2a', pants: '#2a2a2a', beard: '#3a3a3a' } },
+    look: { hairStyle: 'glatze', hair: '#2a2a2a', skin: '#f2c9a0', shirt: '#3a3048', pants: '#2a2a2a', beard: '#5a4a3a', x: ['mundpflaster'] } },
   { id: 'vista',     name: 'Veit',       type: 'klinge',  role: 'kaempfer', faction: 'weissbart',  hp: 30, atk: 9,  spd: 6, locked: true,
     look: { hair: '#1a1a1a', skin: '#f2c9a0', shirt: '#e8e8e8', pants: '#3a3a5a', hat: 'tophat', hatColor: '#2a2a2a', beard: '#1a1a1a' } },
   { id: 'kuma',      name: 'Tatz',        type: 'kraft',   role: 'brecher',  faction: 'samurai',    hp: 46, atk: 7,  spd: 3, locked: true,

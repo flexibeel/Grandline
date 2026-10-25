@@ -57,3 +57,7 @@ Board **„Pixel-Probe 24 × 30“** (Design-Artefakt in Felix' Account: claude.
 
 ### 7b. Kronwacht entschieden (25.10., 33. Chat, Opus)
 Felix per Klick, alles wie empfohlen: **Schärpe** als Abzeichen (`BADGE.marine`), Grimm A (Glatze, Mantel), Hilde B (weinroter Zopf), Tessa B (Petrol-Bob, drei Griffe), Kian B (türkise Stacheln), Russ B (Kessel), Reif A (Zipfelmütze, Schal). Eingetragen in `crew.js`, geprüft per Node (alle sechs im 24 × 30-Raster mit Schärpe). Nächstes Fraktions-Board: Schattenkorps (Nachtviolett).
+
+### 7c. Schattenkorps entschieden (25.10., 33. Chat, Opus)
+Board **„Schattenkorps 24 × 30“** (Artefakt in Felix' Account: claude.ai/artifact/16AdS18sgbjqUJz592RWen), Varianten in `tools/pixel-probe/c4-schattenkorps.js`. Neu im Malwerk: Hüte `melone`, `ohrenkappe`; Frisuren `locken`, `tolle`; Markenzeichen `mappe`, `schaum`, `schminke`, `faecher`, `schluessel`, `klauen`, `stiefel`, `reissverschluss`, `mundpflaster`; Abzeichen `cp9_krawatte`/`cp9_nadel`.
+Felix per Klick, alles wie empfohlen: **Krawatte** (`BADGE.cp9`), Kalina B (Kupfer-Bob, Seifenblasen), Kordo B (violette Tolle, Fächer), Riegel A (Melone, Schlüssel), Wolfram B (graue Stacheln, Klauen), Krall B (violette Öhrchen-Kappe, Mantel), Stelz B (Zopf, Schwert, Stiefel), Plapper B (Glatze, Pflasterkreuz). Eingetragen in `crew.js`, alle 65 Figuren per Node gezeichnet. Nächstes Board: Barock-Bund (9, mit Gegenwind).
