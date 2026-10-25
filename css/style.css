@@ -10684,3 +10684,16 @@ body.dk-dragging, body.dk-dragging * { cursor: grabbing !important; }
 .dk-slot.dk-land::after { right: 8px; --dk-dx: 10px; }
 @keyframes dk-dust { 0% { opacity: .95; transform: translate(0, 0) scale(.6); } 100% { opacity: 0; transform: translate(var(--dk-dx, -10px), -8px) scale(1.2); } }
 @media (prefers-reduced-motion: reduce) { .dk-slot.dk-land, .dk-slot.dk-shake, .dk-slot.dk-land::before, .dk-slot.dk-land::after { animation: none; } }
+
+/* 9c D: Kurswahl als Fahrt. Meeresband über den Wisch-Karten (inselwahl.js baut es). Nichts läuft dauerhaft:
+   Die Ebenen bekommen ihr transform nur beim Wischen, das Schiff neigt sich kurz in Fahrtrichtung. */
+.kf-band { height: 68px; margin: 2px -16px 0; overflow: hidden; border-bottom: 3px solid #2c6e9e; }
+.kf-band svg { display: block; width: 100%; height: 100%; shape-rendering: crispEdges; }
+.kf-ship { transform-box: fill-box; transform-origin: 50% 100%; transition: transform .3s ease-out; }
+.kf-band.l .kf-ship { transform: scaleX(-1); }
+.kf-band.r.mv .kf-ship { transform: rotate(4deg); }
+.kf-band.l.mv .kf-ship { transform: scaleX(-1) rotate(4deg); }
+.kf-wake { opacity: 0; transition: opacity .25s; }
+.kf-band.mv .kf-wake { opacity: 1; }
+@media (min-width: 900px) { .kf-band { margin: 2px 0 0; border-radius: 8px 8px 0 0; } }
+@media (prefers-reduced-motion: reduce) { .kf-ship, .kf-wake { transition: none; } .kf-band.mv .kf-ship { transform: none; } .kf-band.l.mv .kf-ship { transform: scaleX(-1); } }

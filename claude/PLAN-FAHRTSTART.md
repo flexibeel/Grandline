@@ -47,3 +47,11 @@ Felix per Klick, alle wie empfohlen: **alles ziehbar** (Steg → Deck, an Deck t
 - CSS-Block „9c C“: `touch-action: pan-y`, kein Lupe/Markieren, Geist, Hervorhebung, Rüttler, Einfedern, Pixel-Staub. Mit „Weniger Bewegung“ keine Animationen.
 - Geprüft: Testkopie gebündelt, Headless 390 px auf echtem Deck: Maus tauschen und an Land, Finger halten und ziehen, Wischen ändert nichts, Regeltests, 0 `pageerror`.
 - Offen: am Handy ausprobieren. Danach D (Kurswahl als Fahrt, Opus).
+
+## Häppchen D: Stand (45. Chat, Opus, 25.10.)
+Felix per Klick, alle wie empfohlen: **Meeresband über den Karten**, Bewegung **nur beim Wischen**, **Insel der mittleren Karte am Horizont**.
+**Gebaut** auf `feature/kurswahl-fahrt` (von `main` 25g, nur Anzeige, nicht live):
+- `inselwahl.js`: `band(tr)` baut beim Start der Kurswahl ein Pixel-SVG (160 × 28, 68 px hoch) über `.isl-swipe`: Himmel, Wolken (Ebene 1), je Karte eine Horizont-Insel nach Kulisse (Ebene 2: Strand, Schnee, Wüste, Spuk, Riff, Himmel, Stadt, Wal, Restaurant-Schiff, Zirkus, Bambus), Wellen (Ebene 3), eigenes Schiff links (x ≈ 40). `drift(tr)` koppelt die Ebenen an die Wisch-Position (Faktor 10 / 70 / 98 px je Karte), die Insel der Mitte steht bei x = 104. Schiff schaut in Fahrtrichtung und neigt sich nur während des Wischens, Kielwasser nur dann.
+- `render.js`: nur `data-th` (Kulisse) an jeder Karte.
+- CSS-Block „9c D“: nur `transform`/`opacity` mit kurzen Übergängen, keine Dauer-Animation. „Weniger Bewegung“: keine Neigung.
+- Geprüft: Testkopie gebündelt, Headless 390 px mit Musterkarten (5 Kulissen): Band da, Insel wechselt beim Wischen, Klassen fallen nach dem Wischen ab, 0 `pageerror`. Offen: in einer echten Kurswahl am Handy ansehen.

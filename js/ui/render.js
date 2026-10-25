@@ -2028,7 +2028,7 @@ window.GL = window.GL || {};
           // Inselwahl als Wisch-Karten (22s): vorne nur Bild, Name und Bösewicht, alles andere klappt beim Antippen auf
           const sigChip = (() => { const sg = ch === 1 && GL.cgear && profRef ? GL.cgear.sigOf(isl.boss) : null; if (!sg) return ''; const wish = GL.cgear.wishes(profRef).includes(sg.id); return wish ? `<span class="co-wish" title="${esc(sg.name)}">🎯 ${esc(sg.name)}</span>` : (GL.cgear.atlas(profRef)[sg.id] == null ? `<span class="co-sig" title="Fundstück: ${esc(sg.name)}">🎁 Fundstück</span>` : ''); })();
           const marks = `${route ? `<span class="co-routechip">${esc(route)}</span>` : ''}${isNewIsl(isl) ? '<span class="new-chip co-new" title="Hier warst du noch nie">Neue Insel</span>' : ''}${pet}${sigChip}`;
-          return `<button class="opt isl-card co2" data-i="${i}" style="--k:${i}" aria-label="${esc(isl.name)}">
+          return `<button class="opt isl-card co2" data-i="${i}" data-th="${th}" style="--k:${i}" aria-label="${esc(isl.name)}">
             ${i < 9 ? `<kbd class="key">${i + 1}</kbd>` : ''}
             <span class="co-scene isl-scene">${cardStage({ id: 'isl-' + isl.id }, th)}
               <span class="isl-boss"><i class="isl-shine" aria-hidden="true"></i><i class="co-boss-sh" aria-hidden="true"></i><span class="isl-boss-spr">${GL.sprites.render(foe)}</span></span>
