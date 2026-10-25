@@ -1,6 +1,7 @@
 // C4 Sturmmöwen, Board 2: die 18 Story-Formen auf den gewählten B-Looks (Node: node tools/pixel-probe/c4-formen.js <ziel.html>)
 // Je Figur zwei Wege A/B, jeweils Form 1 und Form 2 (Form 2 baut auf Form 1 auf). Form-Teile stehen in sprites.js (P24.FACC).
 // A = die Idee der heutigen Form, neu gezeichnet und entschärft. B = eigene Idee, passend zum neuen Grund-Look.
+// Felix, 25.10.: Lasse A, alle anderen B. Nicht gewählte Teile sind aus sprites.js entfernt (werden hier nicht mehr gezeichnet).
 // Bewusst weg: lange Nase, Skelett, Geweih-Rentier, Extra-Arme, Zigarette, Strähne-Koch-Anzug (nur in A als Zitat-Rest sichtbar).
 global.window = global; global.GL = global.GL || { data: {} };
 require('../../js/ui/sprites.js');

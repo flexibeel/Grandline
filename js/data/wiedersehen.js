@@ -21,7 +21,7 @@ GL.data = GL.data || {};
     nebel: { name: ['Der Nebelkapitän', 'The fog captain'], geist: true,
       look: { hat: 'hood', hatColor: '#a9bccf', shirt: '#a9bccf', pants: '#7e93a3', hair: '#ffffff', longHair: true, skin: '#dde9ee' } },
     haendler: { name: ['Der dankbare Händler', 'The grateful merchant'],
-      look: { hat: 'hood', hatColor: '#7a3a9a', shirt: '#c9a23a', pants: '#3a2a4a', hair: '#1a1a1a', skin: '#c98a5a', facc: ['ohrringe'] } }
+      look: { hat: 'hood', hatColor: '#7a3a9a', shirt: '#c9a23a', pants: '#3a2a4a', hair: '#1a1a1a', skin: '#c98a5a', acc: 'ohrring' } }
   };
 
   const W = {

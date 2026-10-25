@@ -6,7 +6,7 @@
 //
 //   item  = Erinnerungsstück: name [de, en], art = 12x12 Pixelbild (Farben aus GL.data.formPal)
 //   forms = Formen der Reihe nach: title [de, en], boss = Boss-id (einmal besiegt), need = Stücke,
-//           look = Änderungen am Aussehen (wird über den Grund-Look gelegt; facc = Form-Accessoires aus sprites.js (FORM_ACC))
+//           look = Änderungen am Aussehen (wird über den Grund-Look gelegt; facc = Form-Teile aus sprites.js (P24.FACC, 24 × 30, Sturmmöwen-Formen von Felix am 25.10. gewählt))
 //           boni = zwei Wahl-Boni (hp, atk, spd), eins davon wählt der Spieler im Dojo, jederzeit umstellbar
 //   Pilot: die neun Strohhüte, alle mit Look-Details (Teil 2). Weitere Figuren kommen Arc für Arc dazu.
 window.GL = window.GL || {};
@@ -35,63 +35,63 @@ GL.data.forms = {
     item: { name: ['Fleischkeule', 'Meat on the bone'], text: ['Riecht nach Abenteuer. Und nach Grill.', 'Smells like adventure. And barbecue.'],
       art: ['............', '.........ll.', '........lxxl', '.......lxll.', '...WWWlxl...', '..WWwWWl....', '.WwWWWwW....', '.WWWwWWW....', '.wWWWWWw....', '..wwWWw.....', '...www......', '............'] },
     forms: [
-      { title: ['Bezwinger von Flossenriff', 'Conqueror of Fin Reef'], boss: 'arlong', need: 10, look: { facc: ['weste'] }, boni: ['hp', 'atk'] },
-      { title: ['Gear Second', 'Gear Second'], boss: 'rob-lucci', need: 25, look: { facc: ['weste', 'dampf'], skin: '#f4b4a4' }, boni: ['atk', 'spd'] }
+      { title: ['Bezwinger von Flossenriff', 'Conqueror of Fin Reef'], boss: 'arlong', need: 10, look: { facc: ['faustband'] }, boni: ['hp', 'atk'] },
+      { title: ['Gear Second', 'Gear Second'], boss: 'rob-lucci', need: 25, look: { facc: ['faustband', 'wirbel'] }, boni: ['atk', 'spd'] }
     ] },
   zorro: {
     item: { name: ['Schwarzes Bandana', 'Black bandana'], text: ['Wird erst zum Kampf um den Arm gebunden.', 'Only tied on for a real fight.'],
       art: ['............', '............', '...kkkkkk...', '..kddddddk..', '.kdk....kdk.', '.kdk....kdk.', '..kddddddkk.', '...kkkkkkdk.', '.........kdk', '........kdk.', '.........k..', '............'] },
     forms: [
-      { title: ['Bezwinger des Wüstenreichs', 'Victor of the Desert Kingdom'], boss: 'crocodile', need: 10, look: { facc: ['bauchbinde'] }, boni: ['atk', 'hp'] },
-      { title: ['Dämonen-Schwertkämpfer', 'Demon swordsman'], boss: 'rob-lucci', need: 25, look: { facc: ['bauchbinde', 'ohrringe'], shirt: '#3a4a3a' }, boni: ['atk', 'spd'] }
+      { title: ['Bezwinger des Wüstenreichs', 'Victor of the Desert Kingdom'], boss: 'crocodile', need: 10, look: { facc: ['armtuch'] }, boni: ['atk', 'hp'] },
+      { title: ['Dämonen-Schwertkämpfer', 'Demon swordsman'], boss: 'rob-lucci', need: 25, look: { facc: ['armtuch', 'daemon'], shirt: '#2e2e3a' }, boni: ['atk', 'spd'] }
     ] },
   nami: {
     item: { name: ['Mandarine', 'Tangerine'], text: ['Aus Bellemeres Garten. Nicht anfassen!', "From Bell-mère's grove. Hands off!"],
       art: ['............', '......wnN...', '......wNN...', '....oooo....', '..ooOOoooo..', '.ooOOoooooo.', '.oOoooooooo.', '.ooooooooqo.', '.oooooooqqo.', '..oooooqqo..', '...oooqqo...', '............'] },
     forms: [
-      { title: ['Befreit von Flossenriff', 'Freed from Fin Reef'], boss: 'arlong', need: 10, look: { shirt: '#f2f2ee', facc: ['tattoo'] }, boni: ['spd', 'hp'] },
-      { title: ['Wetterhexe', 'Weather witch'], boss: 'enel', need: 25, look: { shirt: '#f2f2ee', facc: ['tattoo', 'taktstock'] }, boni: ['atk', 'spd'] }
+      { title: ['Befreit von Flossenriff', 'Freed from Fin Reef'], boss: 'arlong', need: 10, look: { facc: ['kompass'] }, boni: ['spd', 'hp'] },
+      { title: ['Wetterhexe', 'Weather witch'], boss: 'enel', need: 25, look: { facc: ['kompass', 'regenwolke'] }, boni: ['atk', 'spd'] }
     ] },
   lysop: {
     item: { name: ['Schleuder', 'Slingshot'], text: ['Kabuto ist größer. Die hier war die erste.', 'Kabuto is bigger. This one came first.'],
       art: ['............', '..W.....W...', '..Wr...rW...', '..W.rrr.W...', '..Ww...wW...', '...Ww.wW....', '....WwW.....', '.....W......', '.....W......', '.....w......', '....ww......', '............'] },
     forms: [
-      { title: ['Kapitän der Lasse-Bande', 'Captain of the Lasse Gang'], boss: 'arlong', need: 10, look: { facc: ['langnase', 'gurt'] }, boni: ['spd', 'hp'] },
-      { title: ['Sogeking', 'Sniper King'], boss: 'rob-lucci', need: 25, look: { shirt: '#5a7a3a', facc: ['maske', 'umhang', 'langnase'] }, boni: ['atk', 'spd'] }
+      { title: ['Kapitän der Lasse-Bande', 'Captain of the Lasse Gang'], boss: 'arlong', need: 10, look: { facc: ['gurt', 'schleuder'] }, boni: ['spd', 'hp'] },
+      { title: ['Sogeking', 'Sniper King'], boss: 'rob-lucci', need: 25, look: { facc: ['heldenmaske', 'umhang', 'schleuder'] }, boni: ['atk', 'spd'] }
     ] },
   sanji: {
     item: { name: ['Kochlöffel', 'Wooden spoon'], text: ['Wer Hunger hat, bekommt zu essen. Immer.', 'Anyone hungry gets fed. Always.'],
       art: ['............', '........WW..', '.......WwwW.', '.......WwwW.', '........WW..', '.......w....', '......w.....', '.....w......', '....w.......', '...w........', '..w.........', '............'] },
     forms: [
-      { title: ['Schwarzbein', 'Black Leg'], boss: 'arlong', need: 10, look: { facc: ['straehne', 'hemd', 'zigarette'] }, boni: ['spd', 'hp'] },
-      { title: ['Diable Jambe', 'Diable Jambe'], boss: 'rob-lucci', need: 25, look: { facc: ['straehne', 'hemd', 'zigarette', 'feuerbein'] }, boni: ['atk', 'spd'] }
+      { title: ['Schwarzbein', 'Black Leg'], boss: 'arlong', need: 10, look: { facc: ['schuerze', 'schwarzstiefel'] }, boni: ['spd', 'hp'] },
+      { title: ['Diable Jambe', 'Diable Jambe'], boss: 'rob-lucci', need: 25, look: { facc: ['schuerze', 'schwarzstiefel', 'wirbeltritt'] }, boni: ['atk', 'spd'] }
     ] },
   chopper: {
     item: { name: ['Kirschblüte von Drumm', 'Drum cherry blossom'], text: ['Rot geschneit, für einen Doktor.', 'Snowed down pink, for a doctor.'],
       art: ['............', '.....PP.....', '....PppP....', '.PP..pp..PP.', 'PppPyyyyPppP', '.PPpyYYypPP.', '...pyYYyp...', '..PpyyyypP..', '.PppP..PppP.', '.PPP....PPP.', '............', '............'] },
     forms: [
-      { title: ['Arzt von Drumm', 'Doctor of Drum'], boss: 'crocodile', need: 10, look: { facc: ['kreuz', 'arzttasche'] }, boni: ['hp', 'spd'] },
-      { title: ['Monster-Punkt', 'Monster Point'], boss: 'rob-lucci', need: 25, look: { skin: '#a8703f', facc: ['geweih', 'fell', 'kreuz'] }, boni: ['hp', 'atk'] }
+      { title: ['Arzt von Drumm', 'Doctor of Drum'], boss: 'crocodile', need: 10, look: { facc: ['stethoskop'] }, boni: ['hp', 'spd'] },
+      { title: ['Monster-Punkt', 'Monster Point'], boss: 'rob-lucci', need: 25, look: { facc: ['stethoskop', 'trank', 'gruenaura'] }, boni: ['hp', 'atk'] }
     ] },
   robin: {
     item: { name: ['Altes Geschichtsbuch', 'Old history book'], text: ['Die Seiten sind voller Fragen.', 'The pages are full of questions.'],
       art: ['............', '..bbbbbbbb..', '..bBBBBBBbl.', '..bBggggBbl.', '..bBBBBBBbl.', '..bBBBBBBbl.', '..bBBBBBBbl.', '..bBBBBBBbl.', '..bBBBBBBbl.', '..bbbbbbbbl.', '...llllllll.', '............'] },
     forms: [
-      { title: ['Archäologin der Bücherinsel', 'Archaeologist of Book Island'], boss: 'enel', need: 10, look: { facc: ['haarband', 'buch'] }, boni: ['spd', 'atk'] },
-      { title: ['Die leben will', 'She who wants to live'], boss: 'rob-lucci', need: 25, look: { facc: ['haarband', 'extraarme', 'blueten'] }, boni: ['hp', 'atk'] }
+      { title: ['Archäologin der Bücherinsel', 'Archaeologist of Book Island'], boss: 'enel', need: 10, look: { facc: ['pinsel', 'schriftrolle'] }, boni: ['spd', 'atk'] },
+      { title: ['Die leben will', 'She who wants to live'], boss: 'rob-lucci', need: 25, look: { facc: ['pinsel', 'schriftrolle', 'ranken'] }, boni: ['hp', 'atk'] }
     ] },
   franky: {
     item: { name: ['Cola-Flasche', 'Cola bottle'], text: ['Treibstoff. Ganz offiziell.', 'Fuel. Officially.'],
       art: ['.....kk.....', '.....SS.....', '.....SS.....', '....SddS....', '...SddddS...', '...SrrrrS...', '...SrxxrS...', '...SrrrrS...', '...SddddS...', '...SddddS...', '...SSSSSS...', '............'] },
     forms: [
-      { title: ['Cyborg von Water 7', 'Cyborg of Water 7'], boss: 'rob-lucci', need: 10, look: { facc: ['sonnenbrille', 'metallarm'] }, boni: ['hp', 'atk'] },
-      { title: ['Erbauer der Sunny', 'Builder of the Sunny'], boss: 'moria', need: 25, look: { facc: ['sonnenbrille', 'metallarm', 'brustplatte', 'werkzeug'] }, boni: ['hp', 'spd'] }
+      { title: ['Cyborg von Water 7', 'Cyborg of Water 7'], boss: 'rob-lucci', need: 10, look: { facc: ['zahnrad', 'oelkanne'] }, boni: ['hp', 'atk'] },
+      { title: ['Erbauer der Sunny', 'Builder of the Sunny'], boss: 'moria', need: 25, look: { facc: ['zahnrad', 'werkzeuggurt', 'bauplan', 'hammer'] }, boni: ['hp', 'spd'] }
     ] },
   brook: {
     item: { name: ['Teetasse', 'Teacup'], text: ['Yohoho! Mit Milch, bitte.', 'Yohoho! With milk, please.'],
       art: ['....m..m....', '.....m..m...', '....m..m....', '............', '..xxxxxxx...', '..xllllllxx.', '..xlggggl.x.', '..xllllllxx.', '...xllllx...', '.mmmmmmmmmm.', '..mmmmmmmm..', '............'] },
     forms: [
-      { title: ['Seelenkönig', 'Soul King'], boss: 'moria', need: 10, look: { facc: ['augenhoehlen', 'rippen'] }, boni: ['spd', 'atk'] },
-      { title: ['Musikant der Strohhüte', 'Straw Hat musician'], boss: 'kuma', need: 25, look: { facc: ['augenhoehlen', 'rippen', 'geige', 'noten'] }, boni: ['spd', 'hp'] }
+      { title: ['Seelenkönig', 'Soul King'], boss: 'moria', need: 10, look: { facc: ['buehnenbrille', 'mikro'] }, boni: ['spd', 'atk'] },
+      { title: ['Musikant der Strohhüte', 'Straw Hat musician'], boss: 'kuma', need: 25, look: { facc: ['buehnenbrille', 'akkordeon', 'noten'] }, boni: ['spd', 'hp'] }
     ] }
 };

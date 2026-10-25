@@ -70,50 +70,8 @@ window.GL = window.GL || {};
       brille: [[3, 3, 'G'], [3, 5, 'G'], [3, 6, 'G'], [3, 8, 'G'], [2, 4, 'G'], [2, 7, 'G']], ohrring: [[4, 2, 'Y'], [5, 2, 'Y']], pfeife: [[5, 8, 'W'], [5, 9, 'W'], [5, 10, 'W'], [4, 10, 'W'], [4, 11, 'W'], [3, 11, 'Q']],
       blume: [[1, 9, 'F'], [0, 9, 'F'], [1, 10, 'F'], [1, 8, 'Y']] }[look.acc];
     if (A) A.forEach(([y, x, ch]) => { if (grid[y]) grid[y][x] = ch; });
-    // Story-Formen (js/data/forms.js): mehrere kleine Details auf einmal
-    (Array.isArray(look.facc) ? look.facc : []).forEach(k => (FORM_ACC[k] || []).forEach(([y, x, ch]) => { if (grid[y]) grid[y][x] = ch; }));
+    // Story-Formen (look.facc) zeichnet seit C4 Board 2 (25.10.) nur noch das 24 × 30-Raster (P24.FACC)
   }
-  // y, x, Farbe. S = Haut der Figur, H = Haarfarbe, X Dampf, Z Bauchbinde, V Taktstock/Tattoo/Buch, Y Gold,
-  // M Metall, L hell (Hemd, Maske, Knochen), A Bernstein (Band, Umhang, Flammen), I Blüten-Rosa
-  const rowOf = (y, x0, x1, ch) => { const a = []; for (let x = x0; x <= x1; x++) a.push([y, x, ch]); return a; };
-  const FORM_ACC = {
-    weste: [[6, 5, 'S'], [6, 6, 'S'], [7, 5, 'S'], [7, 6, 'S'], [8, 5, 'S'], [8, 6, 'S']],
-    dampf: [[0, 0, 'X'], [0, 11, 'X'], [2, 0, 'X'], [3, 11, 'X'], [1, 11, 'X']],
-    bauchbinde: [2, 3, 4, 5, 6, 7, 8, 9].map(x => [9, x, 'Z']),
-    ohrringe: [[4, 2, 'Y'], [5, 2, 'Y'], [3, 1, 'Y']],
-    tattoo: [[7, 1, 'V']],
-    taktstock: [[5, 11, 'V'], [6, 11, 'V'], [7, 11, 'V'], [8, 11, 'V'], [9, 11, 'V'], [10, 11, 'V'], [11, 11, 'V']],
-    // Lysop: lange Nase, Gürtel mit Beutel, Maske und Umhang
-    langnase: [[4, 10, 'S'], [4, 11, 'S']],
-    gurt: rowOf(9, 2, 9, 'W').concat([[10, 2, 'W'], [10, 3, 'W']]),
-    maske: [[3, 2, 'L'], [3, 3, 'L'], [3, 4, 'K'], [3, 5, 'L'], [3, 6, 'L'], [3, 7, 'K'], [3, 8, 'L'], [3, 9, 'L']].concat(rowOf(4, 2, 9, 'L')),
-    umhang: [[6, 1, 'A'], [6, 10, 'A'], [7, 0, 'A'], [7, 11, 'A'], [8, 0, 'A'], [8, 11, 'A'], [9, 0, 'A'], [9, 11, 'A']],
-    // Sanji: Haarsträhne über dem Auge, weißes Hemd, Zigarette, brennendes Bein
-    straehne: [[2, 6, 'H'], [2, 7, 'H'], [2, 8, 'H'], [3, 7, 'H'], [3, 8, 'H']],
-    hemd: [[6, 5, 'L'], [6, 6, 'L'], [7, 5, 'L'], [7, 6, 'L'], [8, 5, 'L'], [8, 6, 'L']],
-    zigarette: [[5, 8, 'L'], [5, 9, 'L'], [5, 10, 'R']],
-    feuerbein: [[11, 2, 'F'], [11, 3, 'A'], [12, 2, 'A'], [12, 3, 'F'], [13, 2, 'F'], [13, 3, 'A']],
-    // Chopper: Kreuz auf dem Hut, Arzttasche, Geweih, Fell
-    kreuz: [[0, 5, 'L'], [0, 6, 'L'], [1, 4, 'L'], [1, 5, 'L'], [1, 6, 'L'], [1, 7, 'L']],
-    arzttasche: [[10, 10, 'W'], [10, 11, 'Y'], [11, 10, 'W'], [11, 11, 'W']],
-    geweih: [[0, 1, 'W'], [0, 2, 'W'], [1, 1, 'W'], [0, 9, 'W'], [0, 10, 'W'], [1, 10, 'W']],
-    fell: [[6, 0, 'W'], [7, 0, 'W'], [8, 0, 'W'], [6, 11, 'W'], [7, 11, 'W'], [8, 11, 'W']],
-    // Robin: Stirnband, Buch, zusätzliche Arme, Blüten
-    haarband: rowOf(2, 3, 8, 'A'),
-    buch: [[7, 11, 'V'], [8, 11, 'V'], [9, 11, 'V'], [9, 10, 'L']],
-    extraarme: [[4, 0, 'S'], [5, 1, 'S'], [6, 0, 'S'], [4, 11, 'S'], [5, 10, 'S'], [6, 11, 'S']],
-    blueten: [[0, 0, 'I'], [2, 0, 'I'], [0, 11, 'I'], [2, 11, 'I']],
-    // Franky: Sonnenbrille, Metallarme, Brustplatte, Schraubenschlüssel
-    sonnenbrille: rowOf(3, 2, 9, 'K'),
-    metallarm: [[7, 1, 'M'], [8, 1, 'M'], [7, 10, 'M'], [8, 10, 'M']],
-    brustplatte: rowOf(7, 4, 7, 'M').concat(rowOf(8, 4, 7, 'M')),
-    werkzeug: [[5, 10, 'M'], [5, 11, 'M'], [6, 11, 'M'], [7, 11, 'M'], [8, 11, 'M']],
-    // Brook: leere Augenhöhlen, Rippen, Geige mit Bogen, Noten
-    augenhoehlen: [[3, 3, 'K'], [3, 4, 'K'], [3, 7, 'K'], [3, 8, 'K']],
-    rippen: rowOf(6, 4, 7, 'L').concat([[7, 5, 'L'], [7, 6, 'L']], rowOf(8, 4, 7, 'L')),
-    geige: [[6, 0, 'W'], [7, 0, 'W'], [8, 0, 'W'], [9, 0, 'W'], [6, 11, 'K'], [7, 11, 'K'], [8, 11, 'K'], [9, 11, 'K']],
-    noten: [[3, 0, 'Y'], [4, 0, 'Y'], [2, 11, 'Y'], [3, 11, 'Y']]
-  };
   const ACC_COL = { K: '#1a1a1a', R: '#c0392b', G: '#3a2a20', Y: '#f2d24a', W: '#6a4424', F: '#e0483b', Q: '#d8d8d8', X: '#f2eeee', Z: '#3f8f4f', V: '#2f6fb0',
     M: '#8a96a4', L: '#f4f0e6', A: '#e8a030', I: '#f08ab4' };
   // Dunkler Pixel-Umriss um alles Gezeichnete: kräftiger, klarer Look (wie in Stardew oder Dwarves)
@@ -136,7 +94,7 @@ window.GL = window.GL || {};
     ['hair', 'skin', 'shirt', 'pants', 'hatColor', 'beard', 'nose', 'coat', 'scarf'].forEach(k => { if (l[k] != null) l[k] = safeCol(l[k]); });
     ['hat', 'acc', 'mask', 'hairStyle', 'style', 'eyes'].forEach(k => { if (l[k] != null && !/^[a-z0-9_-]{0,24}$/i.test(String(l[k]))) delete l[k]; });
     if (l.x != null) l.x = Array.isArray(l.x) ? l.x.filter(k => typeof k === 'string' && /^[a-z]{1,20}$/.test(k)).slice(0, 4) : [];
-    if (l.facc != null) l.facc = Array.isArray(l.facc) ? l.facc.filter(k => typeof k === 'string' && FORM_ACC[k]).slice(0, 4) : [];
+    if (l.facc != null) l.facc = Array.isArray(l.facc) ? l.facc.filter(k => typeof k === 'string' && P24.FACC[k]).slice(0, 4) : [];
     return l;
   }
   function svg(look) {
@@ -572,7 +530,7 @@ window.GL = window.GL || {};
       wolkenkragen: rows(14, ['......ZZZZZZZZZZZZ......', '.....ZZZ.ZZZZZZ.ZZZ.....']),
       blitze: at([[1, 1, 'A'], [2, 2, 'A'], [3, 1, 'A'], [4, 2, 'A'], [10, 22, 'A'], [11, 23, 'A'], [12, 22, 'A'], [13, 23, 'A'], [22, 1, 'A'], [23, 0, 'A'], [24, 1, 'A']])
     };
-    // C4 Sturmmöwen Board 2: Form-Teile der Story-Formen (look.facc, höchstens 4), gezeichnet nach look.x und vor dem Abzeichen.
+    // C4 Sturmmöwen Board 2 (Felix, 25.10.: Lasse A, alle anderen B): Form-Teile der Story-Formen (look.facc, höchstens 4), gezeichnet nach look.x und vor dem Abzeichen.
     // Liste oder Funktion g => ... (z. B. nur leere Felder füllen). Neue Farben: o Orange, v Blattgrün, e Dunkelgrün,
     // t Türkis, u Violett, s Stahl dunkel, d Leder, y Trankgrün
     const swap = (from, to, list) => g => list.forEach(([y, x]) => { if (g[y] && from.includes(g[y][x])) g[y][x] = to; });
@@ -581,72 +539,45 @@ window.GL = window.GL || {};
     const many = (...fs) => g => fs.forEach(f => (typeof f === 'function' ? f(g) : f.forEach(([y, x, ch]) => { if (g[y] && x >= 0 && x < W) g[y][x] = ch; })));
     const aura = c => at([[2, 0, c], [4, 1, c], [6, 0, c], [9, 1, c], [12, 0, c], [15, 1, c], [1, 23, c], [3, 22, c], [5, 23, c], [18, 23, c], [20, 22, c], [22, 23, c]]);
     const FACC = {
-      // Rafe: A offene Weste, Glut | B Faustbandagen, Wirbelfäuste
-      weste: many(swap('C', 'n', span(15, 21, [4, 5, 6, 7, 8, 15, 16, 17, 18, 19])), swap('C', 'S', span(19, 21, [10, 11, 12, 13]))),
-      glut: at([[14, 1, 'o'], [12, 0, 'o'], [10, 1, 'o'], [13, 22, 'o'], [11, 23, 'o'], [9, 22, 'o'], [16, 0, 'A'], [11, 1, 'A'], [15, 23, 'A'], [8, 23, 'A'], [7, 1, 'Z'], [6, 0, 'Z'], [6, 22, 'Z'], [5, 23, 'Z']]),
+      // Rafe: Faustbandagen, Wirbelfäuste
       faustband: many(span(19, 21, [2, 3, 20, 21]).map(([y, x]) => [y, x, y === 20 ? 'n' : 'X'])),
       wirbel: mir([[16, 1, 'n'], [17, 0, 'w'], [18, 1, 'n'], [19, 0, 'w'], [20, 1, 'n'], [21, 0, 'w'], [22, 1, 'w']]),
-      // Soren: A Bauchbinde, Ohrringe | B Armtuch (das Erinnerungsstück), Dämonen-Schimmer
-      bauchbinde: many(swap('C', 'R', span(20, 21, [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18])), at([[22, 7, 'R'], [23, 7, 'R'], [24, 6, 'R']])),
-      ohrringe: at([[9, 1, 'A'], [10, 2, 'A'], [11, 2, 'A']]),
+      // Soren: Armtuch (das Erinnerungsstück), Dämonen-Schimmer
       armtuch: at([[16, 2, 'K'], [16, 3, 'K'], [17, 2, 'K'], [17, 3, 'K'], [17, 1, 'K'], [18, 0, 'K'], [18, 1, 'K']]),
       daemon: aura('u'),
-      // Nela: A Windrosen-Tattoo, Wetterstab | B Kompass am Gürtel, Regenwolke
-      tattoo: many(swap('C', 'S', span(16, 18, [2, 3, 20, 21])), at([[16, 3, 'n'], [17, 2, 'n'], [17, 3, 't'], [18, 3, 'n']])),
-      wetterstab: at([5, 6, 7].map(y => [y, 22, 'Z']).concat([[6, 21, 'Z'], [6, 23, 'Z']], [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24].map(y => [y, 22, y === 13 || y === 19 ? 'X' : 'n']))),
+      // Nela: Kompass am Gürtel, Regenwolke
       kompass: at([[19, 16, 'L'], [20, 16, 'L'], [21, 15, 'A'], [21, 16, 'A'], [21, 17, 'A'], [22, 15, 'A'], [22, 16, 'X'], [22, 17, 'A'], [23, 15, 'A'], [23, 16, 'F'], [23, 17, 'A']]),
       regenwolke: at([[4, 1, 'Z'], [4, 2, 'Z'], [5, 0, 'Z'], [5, 1, 's'], [5, 2, 's'], [6, 0, 's'], [6, 1, 's'], [6, 2, 's'], [7, 0, 's'], [7, 1, 's'], [8, 0, 'w'], [9, 1, 'A'], [10, 1, 'A'], [11, 0, 'w'], [12, 1, 'w'], [13, 0, 'w']]),
-      // Lasse: A Gurt, Schleuder, Heldenmaske, Umhang | B Holzschwert, große Schleuder, Nebel (dazu Hut papierhut/hood)
+      // Lasse: Gurt, Schleuder, Heldenmaske, Umhang
       gurt: at([15, 16, 17, 18, 19, 20, 21].map(y => [[y, 17 - (y - 15), 'd'], [y, 18 - (y - 15), 'd']]).flat().concat([[16, 17, 'A'], [19, 15, 'V'], [20, 15, 'V'], [20, 14, 'V']])),
       schleuder: at([[13, 21, 'V'], [13, 22, 'F'], [13, 23, 'V'], [14, 21, 'V'], [14, 23, 'V'], [15, 22, 'V'], [16, 22, 'V'], [17, 22, 'V'], [18, 22, 'd']]),
       heldenmaske: at(span(7, 9, [6, 7, 10, 11, 12, 13, 16, 17]).map(([y, x]) => [y, x, 'n']).concat([[6, 7, 'n'], [6, 8, 'n'], [6, 9, 'n'], [6, 14, 'n'], [6, 15, 'n'], [6, 16, 'n'], [10, 7, 'n'], [10, 8, 'n'], [10, 9, 'n'], [10, 14, 'n'], [10, 15, 'n'], [10, 16, 'n'], [8, 5, 'n'], [9, 4, 'n'], [8, 18, 'n'], [9, 19, 'n']])),
       umhang: free(span(15, 27, [0, 1, 2, 3, 4, 19, 20, 21, 22, 23]).filter(([y, x]) => x >= 3 - Math.floor((y - 15) / 4) && x <= 20 + Math.floor((y - 15) / 4)).map(([y, x]) => [y, x, 'F']).concat(at([[14, 5, 'F'], [14, 6, 'F'], [14, 17, 'F'], [14, 18, 'F']]))),
-      holzschwert: at([7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17].map(y => [y, 22, 'V']).concat([[6, 22, 'p'], [18, 21, 'd'], [18, 22, 'd'], [18, 23, 'd'], [19, 22, 'd'], [20, 22, 'd']])),
-      grossschleuder: at([[9, 21, 'V'], [9, 22, 'F'], [9, 23, 'V'], [10, 21, 'V'], [10, 23, 'V'], [11, 21, 'V'], [11, 23, 'V'], [12, 21, 'V'], [12, 22, 'V'], [12, 23, 'V'], [13, 22, 'V'], [14, 22, 'd'], [15, 22, 'd'], [16, 22, 'V'], [17, 22, 'V']]),
-      nebel: free([[27, 1, 'Z'], [27, 2, 'Z'], [28, 0, 'Z'], [28, 1, 'Z'], [28, 2, 'Z'], [28, 3, 'Z'], [29, 0, 'Z'], [29, 2, 'Z'], [27, 21, 'Z'], [27, 22, 'Z'], [28, 20, 'Z'], [28, 21, 'Z'], [28, 22, 'Z'], [28, 23, 'Z'], [29, 21, 'Z'], [29, 23, 'Z'], [29, 11, 'Z'], [29, 12, 'Z'], [28, 11, 'Z']]),
-      // Santo: A Strähne, dunkle Weste, Flammenbein | B Kochschürze, schwarze Stiefel, Wirbeltritt
-      straehne: at([[6, 13, 'H'], [6, 14, 'H'], [6, 15, 'H'], [6, 16, 'H'], [7, 14, 'H'], [7, 15, 'H'], [7, 16, 'H'], [8, 14, 'H'], [8, 15, 'H'], [9, 15, 'H']]),
-      anzug: many(swap('C', 'K', span(15, 21, [4, 5, 6, 7, 8, 15, 16, 17, 18, 19])), at([[19, 9, 'A'], [21, 9, 'A']])),
-      feuerbein: free([[22, 19, 'A'], [23, 19, 'o'], [24, 19, 'F'], [25, 19, 'o'], [26, 19, 'F'], [27, 19, 'o'], [28, 20, 'F'], [29, 20, 'o'], [27, 20, 'A'], [25, 20, 'A'], [23, 20, 'F'], [25, 13, 'F'], [26, 13, 'o'], [27, 13, 'F'], [28, 13, 'A']]),
+      // Santo: Kochschürze, schwarze Stiefel, Wirbeltritt
       schuerze: at(span(22, 27, [8, 9, 10, 11, 12, 13, 14, 15]).map(([y, x]) => [y, x, y === 24 && x >= 10 && x <= 13 ? 'p' : 'X']).concat([5, 6, 7, 16, 17, 18].map(x => [22, x, 'X']), [[23, 6, 'X'], [24, 6, 'X']])),
       schwarzstiefel: many(swap('POAc', 'K', span(24, 29, [4, 5, 6, 7, 8, 9, 14, 15, 16, 17, 18, 19])), at([[26, 7, 'A'], [26, 16, 'A']])),
       wirbeltritt: mir([[22, 2, 'w'], [23, 1, 'w'], [24, 0, 'w'], [25, 0, 'X'], [26, 0, 'w'], [27, 1, 'w'], [28, 2, 'X']]),
-      // Pipo: A Kreuz, Arzttasche, Geweih-Mütze, Fellkragen | B Stethoskop, Wundertrank, grüner Schimmer
-      kreuz: at([[16, 14, 'X'], [17, 13, 'X'], [17, 14, 'X'], [17, 15, 'X'], [18, 14, 'X']]),
-      arzttasche: rows(21, ['....................dd..', '...................KKKKK', '...................KKXKK', '...................KXXXK', '...................KKXKK', '...................KKKKK']).concat(at([[21, 19, 'd'], [21, 22, 'd']])),
-      geweih: sym(0, ['..V.V.......', '...VV.......', '....VV......']),
-      fell: rows(14, ['......dddddddddddd......', '....dddddddddddddddd....', '...dd..............dd...']),
+      // Pipo: Stethoskop, Wundertrank, grüner Schimmer
       stethoskop: at([[15, 9, 'K'], [15, 14, 'K'], [16, 14, 'K'], [17, 15, 'K'], [18, 15, 'K'], [19, 15, 'K'], [20, 14, 'M'], [20, 15, 'M'], [21, 14, 'M'], [21, 15, 'M'], [20, 16, 'K']]),
       trank: at([[15, 1, 'X'], [16, 0, 'X'], [17, 1, 'p'], [18, 0, 'v'], [18, 1, 'v'], [19, 0, 'v'], [19, 1, 'y'], [20, 0, 'v'], [20, 1, 'v'], [21, 0, 'e'], [21, 1, 'e']]),
       gruenaura: aura('v'),
-      // Rubina: A dickes Buch, Lupe, Blütenwirbel | B Pinsel, Schriftrolle, Ranken
-      buch: rows(16, ['nnn', 'nAn', 'nnn', 'nnn', 'nnn', 'ppp']),
-      lupe: at([[14, 21, 'M'], [14, 22, 'M'], [14, 23, 'M'], [15, 21, 'M'], [15, 22, 'i'], [15, 23, 'M'], [16, 21, 'M'], [16, 22, 'M'], [16, 23, 'M'], [17, 22, 'V'], [18, 22, 'V'], [19, 22, 'V']]),
-      bluetenwirbel: at([[6, 0, 'c'], [9, 1, 'X'], [12, 0, 'c'], [5, 23, 'X'], [8, 22, 'c'], [13, 23, 'c'], [20, 0, 'X'], [22, 23, 'c'], [25, 1, 'c'], [27, 22, 'X']]),
+      // Rubina: Pinsel, Schriftrolle, Ranken
       pinsel: at([[13, 22, 'L'], [14, 22, 'p'], [15, 22, 'p'], [16, 22, 'A'], [17, 22, 'V'], [18, 22, 'V'], [19, 22, 'V'], [20, 22, 'V']]),
       schriftrolle: rows(16, ['Vp.', 'pp.', 'pL.', 'pp.', 'pL.', 'Vp.']).concat(at([[18, 2, 'S'], [19, 2, 'S']])),
       ranken: free([[27, 4, 'v'], [26, 4, 'e'], [25, 4, 'v'], [24, 4, 'v'], [23, 4, 'e'], [22, 4, 'v'], [21, 4, 'v'], [20, 4, 'e'], [19, 4, 'v'], [18, 4, 'v'], [17, 1, 'v'], [16, 1, 'e'], [15, 1, 'v'], [24, 3, 'c'], [20, 4, 'F'], [15, 0, 'c'],
         [27, 19, 'v'], [26, 19, 'v'], [25, 19, 'e'], [24, 19, 'v'], [23, 19, 'v'], [22, 19, 'e'], [21, 19, 'v'], [20, 19, 'c'], [19, 19, 'v'], [18, 19, 'e'], [23, 20, 'F'], [29, 3, 'e'], [29, 20, 'e']]),
-      // Bolzen: A Stahlarm, Schraubenschlüssel, Brustplatte, Werkzeuggurt | B Zahnrad-Schulter, Ölkanne, Bauplan, Hammer
-      stahlarm: at(span(16, 21, [2, 3]).map(([y, x]) => [y, x, (y === 17 && x === 2) || (y === 20 && x === 3) ? 'K' : 'M']).concat([[15, 4, 'A']])),
-      schluessel: at([[11, 21, 'M'], [11, 23, 'M'], [12, 21, 'M'], [12, 22, 'M'], [12, 23, 'M']].concat([13, 14, 15, 16, 17, 18, 19].map(y => [y, 22, y === 16 ? 's' : 'M']))),
-      brustplatte: rows(15, ['.........MMMMMM.........', '.........MKMMKM.........', '.........MMMMMM.........', '.........MMMMMM.........', '.........MKMMKM.........']),
+      // Bolzen: Zahnrad-Schulter, Ölkanne, Werkzeuggurt, Bauplan, Hammer
       werkzeuggurt: rows(22, ['.....dddddddddddddd.....']).concat(at([[22, 11, 'A'], [22, 12, 'A'], [23, 5, 's'], [23, 6, 's'], [23, 7, 's'], [24, 6, 'V'], [25, 6, 'V'], [23, 9, 'd'], [23, 10, 'd'], [24, 9, 'd'], [24, 10, 'd'], [23, 17, 'M'], [24, 17, 'M'], [25, 17, 'M'], [25, 16, 'M'], [25, 18, 'M']])),
       zahnrad: at([[14, 20, 'M'], [15, 19, 'M'], [15, 20, 'M'], [15, 21, 'M'], [16, 18, 'M'], [16, 19, 'M'], [16, 20, 'K'], [16, 21, 'M'], [16, 22, 'M'], [17, 19, 'M'], [17, 20, 'M'], [17, 21, 'M'], [18, 20, 'M'], [14, 18, 's'], [14, 22, 's'], [18, 18, 's'], [18, 22, 's']]),
       oelkanne: at([[16, 0, 'A'], [17, 1, 'A'], [18, 0, 'A'], [18, 1, 'A'], [19, 0, 'F'], [19, 1, 'A'], [20, 0, 'F'], [20, 1, 'A'], [21, 0, 'A'], [21, 1, 'A']]),
       bauplan: rows(15, ['ww', 'nn', 'nX', 'nn', 'Xn', 'nn', 'ww']),
       hammer: at([[14, 21, 's'], [14, 22, 's'], [14, 23, 's'], [15, 21, 's'], [15, 22, 's'], [15, 23, 's'], [16, 22, 'V'], [17, 22, 'V'], [18, 22, 'V'], [19, 22, 'V'], [20, 22, 'V']]),
-      // Bruno: A Knochenkette, Seelenhauch, Geige, Noten | B Bühnenbrille, Mikrofon, Akkordeon, Noten
-      knochenkette: rows(15, ['........XpXpXpXp........']).concat(at([[16, 11, 'X'], [16, 12, 'X']])),
-      geisterhauch: at([[7, 0, 'i'], [8, 0, 'Z'], [10, 0, 'i'], [12, 0, 'Z'], [13, 1, 'i'], [14, 0, 'i'], [7, 23, 'i'], [8, 23, 'Z'], [10, 23, 'i'], [12, 23, 'Z'], [13, 22, 'i']]),
-      geige: at([[12, 1, 'K'], [13, 1, 'K'], [14, 1, 'K'], [15, 1, 'V'], [16, 0, 'V'], [16, 1, 'd'], [16, 2, 'V'], [17, 1, 'V'], [18, 0, 'V'], [18, 1, 'd'], [18, 2, 'V'], [19, 1, 'V'], [12, 23, 'L'], [13, 22, 'p'], [14, 22, 'p'], [15, 21, 'p']]),
+      // Bruno: Bühnenbrille, Mikrofon, Akkordeon, Noten
       noten: free([[1, 1, 'A'], [2, 1, 'A'], [3, 1, 'A'], [3, 0, 'A'], [1, 2, 'A'], [0, 22, 'A'], [1, 22, 'A'], [2, 22, 'A'], [2, 21, 'A'], [0, 23, 'A'], [24, 1, 'A'], [25, 1, 'A'], [25, 0, 'A']]),
       buehnenbrille: rows(7, ['.......KKKK..KKKK.......', '.......KKKKAAKKKK.......']),
       mikro: at([[10, 22, 's'], [10, 23, 's'], [11, 22, 'K'], [11, 23, 'K'], [12, 22, 'A']].concat([13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28].map(y => [y, 22, 'M']), [[29, 20, 'M'], [29, 21, 'M'], [29, 22, 'M'], [29, 23, 'M']])),
       akkordeon: rows(18, Array(6).fill('......KFdFdFdFdFdK......')).concat(at([[19, 6, 'A'], [21, 6, 'A'], [19, 17, 'A'], [21, 17, 'A']]))
     };
-    // Papierhut (Lasse, Kapitän der Kinderbande)
-    HATS.papierhut = { clear: [0, 1, 2, 3], px: sym(0, ['...........q', '.........BBB', '.......BBBBq', '.....BBBBBBB', '...BBBBBBBBB', '..kkkkkkkkkk']) };
     // Fraktions-Abzeichen (Leitfarbe, je Fraktion ein Teil). Schlüssel = Banden-id, Varianten mit _a/_b fürs Board.
     // r Leitfarbe, a Messing
     const BADGE = {
@@ -701,7 +632,7 @@ window.GL = window.GL || {};
       if (look.hat && !HATS[look.hat]) return false;
       if (look.mask && !MASKS[look.mask]) return false;
       if (look.acc && !ACC[look.acc]) return false;
-      if (Array.isArray(look.facc) && look.facc.length) return false; // Form-Teile der Sturmmöwen: kommen zuletzt
+      if (Array.isArray(look.facc) && look.facc.some(k => !FACC[k])) return false;
       return true;
     }
     function grid(look, mood, blink, fac) {
