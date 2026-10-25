@@ -459,6 +459,7 @@ window.GL = window.GL || {};
       bob: g => { sym(5, ['...HHHHHHHHH', '..HH........', '..HH........', '..HH........', '..HH........', '..HH........', '...H........']).forEach(([y, x, ch]) => { g[y][x] = ch; }); },
       locken: g => { sym(3, ['...HH.......', '..HHH.......', '..HH........', '.HHH........', '.HH.........', '.HHH........', '..HH........', '.HHH........', '..HH........', '...H........']).forEach(([y, x, ch]) => { g[y][x] = ch; }); },
       tolle: g => { rows(0, ['.....HHHHHHHHHHHH.......', '...HHHHHHHHHHHHHHH......', '..HHHHHHHHHHHHHHHHH.....', '.HHHHH..................']).forEach(([y, x, ch]) => { g[y][x] = ch; }); },
+      zoepfe: g => { [9, 10, 11, 12, 13, 14, 15, 16].forEach(y => { g[y][2] = 'H'; g[y][3] = y % 2 ? 'H' : 'b'; g[y][21] = 'H'; g[y][20] = y % 2 ? 'H' : 'b'; }); g[17][2] = g[17][21] = 'F'; },
       stachel: g => { rows(0, ['......H...HH...H..H.....', '......HHHHHHHHHHHH......']).forEach(([y, x, ch]) => { g[y][x] = ch; }); }
     };
     // Markenzeichen (look.x, höchstens 4): Q Mantel (look.coat), I Schal (look.scarf), M Metall, n Dose, p Pflaster, i Eis
@@ -485,6 +486,21 @@ window.GL = window.GL || {};
       stiefel: sym(23, ['.....AAAAA..', '.....OOOOO..', '.....OOOOO..', '.....OOOOO..', '.....OOOOO..']),
       reissverschluss: rows(11, ['.........MKMKMK.........']).concat(at([[12, 14, 'M']])),
       mundpflaster: at([[10, 10, 'p'], [10, 13, 'p'], [11, 11, 'p'], [11, 12, 'p'], [12, 10, 'p'], [12, 13, 'p']]),
+      // C4 Barock-Bund
+      boa: rows(14, ['......II.IIIIII.II......', '....IIIIIIIIIIIIIIII....', '...II..............II...', '..II................II..', '..I..................I..']),
+      spitzenschuhe: sym(25, ['......c.....', '.....c.c....', '......c.....', '....cccccc..', '....cccccc..']),
+      russ: at([[10, 7, 'l'], [10, 8, 'l'], [6, 15, 'l'], [18, 7, 'K'], [19, 8, 'K'], [20, 16, 'K'], [24, 6, 'K'], [25, 16, 'K']]),
+      schleier: sym(1, ['.....ZZZZZZZ', '...ZZZZZZZZZ', '..ZZ........', '..Z.........', '.ZZ.........', '.ZZ.........', '.ZZ.........', '.ZZ.........']),
+      klingen: at([[22, 2, 'M'], [23, 1, 'M'], [24, 1, 'M'], [25, 0, 'M'], [22, 3, 'M'], [23, 3, 'M'], [24, 3, 'M'], [22, 21, 'M'], [23, 22, 'M'], [24, 22, 'M'], [25, 23, 'M'], [22, 20, 'M'], [23, 20, 'M'], [24, 20, 'M']]),
+      pelz: rows(14, ['......IIIIIIIIIIII......', '....IIIIIIIIIIIIIIII....', '....II............II....']),
+      sanduhr: at([[22, 15, 'A'], [22, 16, 'A'], [23, 15, 'p'], [23, 16, 'p'], [24, 15, 'A'], [24, 16, 'A']]),
+      narbequer: at([[11, 6, 'R'], [11, 7, 'R'], [10, 8, 'R'], [10, 9, 'R'], [10, 10, 'R'], [10, 11, 'R'], [10, 12, 'R'], [10, 13, 'R'], [10, 14, 'R'], [10, 15, 'R'], [9, 16, 'R'], [9, 17, 'R']]),
+      schutzbrille: at([[3, 8, 'M'], [3, 9, 'i'], [3, 10, 'M'], [3, 13, 'M'], [3, 14, 'i'], [3, 15, 'M'], [4, 8, 'M'], [4, 9, 'M'], [4, 10, 'M'], [4, 11, 'K'], [4, 12, 'K'], [4, 13, 'M'], [4, 14, 'M'], [4, 15, 'M']]),
+      federkragen: rows(13, ['...I..I..........I..I...', '...IIIII........IIIII...', '..IIIIIIII....IIIIIIII..', '....IIII........IIII....']),
+      lippen: at([[11, 10, 'F'], [11, 11, 'F'], [11, 12, 'F'], [11, 13, 'F'], [12, 11, 'F'], [12, 12, 'F']]),
+      notizbuch: rows(18, ['VVV', 'VpV', 'VpV', 'VVV']),
+      tattoo: at([[6, 5, 'R'], [7, 5, 'R'], [8, 5, 'R'], [8, 6, 'R'], [9, 6, 'R'], [10, 7, 'R'], [11, 7, 'R']]),
+      windwirbel: at([[16, 0, 'Z'], [15, 1, 'Z'], [16, 2, 'Z'], [17, 1, 'Z'], [18, 0, 'Z'], [18, 23, 'Z'], [17, 22, 'Z'], [19, 22, 'Z'], [18, 21, 'Z']]),
       eiszapfen: at([[15, 4, 'i'], [16, 4, 'i'], [17, 4, 'i'], [15, 19, 'i'], [16, 19, 'i'], [17, 19, 'i'], [16, 3, 'i'], [16, 20, 'i']])
     };
     // Fraktions-Abzeichen (Leitfarbe, je Fraktion ein Teil). Schlüssel = Banden-id, Varianten mit _a/_b fürs Board.
@@ -495,6 +511,12 @@ window.GL = window.GL || {};
     };
     BADGE.cp9_krawatte = { px: at([[15, 10, 'a'], [15, 13, 'a'], [15, 11, 'r'], [15, 12, 'r'], [16, 11, 'r'], [16, 12, 'r'], [17, 11, 'r'], [17, 12, 'r'], [18, 11, 'r'], [18, 12, 'r'], [19, 11, 'r'], [19, 12, 'r'], [20, 11, 'r'], [20, 12, 'r'], [21, 11, 'r']]), c: { r: '#6a3fa0', a: '#cfd6dc' } };
     BADGE.cp9_nadel = { px: at([[16, 7, 'a'], [17, 6, 'r'], [17, 7, 'r'], [17, 8, 'r'], [18, 7, 'a']]), c: { r: '#8a5ac8', a: '#cfd6dc' } };
+    const BOW = at([[15, 9, 'r'], [15, 10, 'r'], [15, 13, 'r'], [15, 14, 'r'], [15, 11, 'a'], [15, 12, 'a'], [16, 10, 'r'], [16, 11, 'r'], [16, 12, 'r'], [16, 13, 'r'], [17, 11, 'r'], [17, 12, 'r']]);
+    const BELT = rows(22, ['.....rrrrrraarrrrrr.....']).concat(at([[21, 11, 'a'], [21, 12, 'a']]));
+    BADGE.baroque_schleife = { px: BOW, c: { r: '#7a1f35', a: '#d9a640' } };
+    BADGE.baroque_guertel = { px: BELT, c: { r: '#7a1f35', a: '#d9a640' } };
+    BADGE.revolution_schleife = { px: BOW, c: { r: '#7a1f35', a: '#8fb08a' } };
+    BADGE.revolution_guertel = { px: BELT, c: { r: '#7a1f35', a: '#8fb08a' } };
     BADGE.cp9 = BADGE.cp9_krawatte; // Schattenkorps: Krawatte (Felix, 25.10.)
     BADGE.marine = BADGE.marine_schaerpe; // Kronwacht: Schärpe (Felix, 25.10.)
 
