@@ -38,3 +38,12 @@ Felix per Klick, alle wie empfohlen: **1.** Reihenfolge A+B, dann C, dann D. **2
 - CSS-Block „9c A+B“ am Ende von `style.css`, nur `transform`/`opacity`/`translate`, nichts Dauerndes. „Weniger Bewegung“: nur kurzes Einblenden (1,1 s), das Schiff bleibt liegen.
 - Geprüft: Testkopie gebündelt, Headless 390 px DE/EN: Szene läuft 2000 ms, Überspringen ruft `onDone` genau einmal, Overlay verschwindet, Blasen überlappen nicht (gestaffelt), echter Haken mit Deck-Run: `act` erst nach ~2 s mit allen Figuren, 0 `pageerror`.
 - Offen: am Handy ansehen. Patchnote und `bump-version.py` kommen beim Live-Gang. Danach C (Karten einrasten, Opus), D (Kurswahl als Fahrt, Opus).
+
+## Häppchen C: Stand (44. Chat, Opus, 25.10.)
+Felix per Klick, alle wie empfohlen: **alles ziehbar** (Steg → Deck, an Deck tauschen, Deck → Steg), Einrasten mit **Federn + Staubwölkchen** (+ kurzes Vibrieren, wo das Gerät es kann), zu teuer: **rot und zurückfedern mit Rüttler**.
+**Gebaut** auf `feature/karten-einrasten` (von `main` 25f, nur Bedienung, nicht live):
+- `deck.js`: `dropNext(st, src, to, B)` ist die eine Regel (Kapitän nie an Land und nie ersetzt, Tauschen an Deck kostet nichts, sonst `cost() <= B`). Zieh-Code: Maus ab 5 px, Finger nach 170 ms Halten oder seitlich, senkrecht = Scrollen. Kopie der Karte folgt dem Finger (nur `transform`), Zielplatz gelb oder rot, Steg gestrichelt beim Zurückziehen. Ablegen schickt `deck-drop` als unsichtbaren Knopf durch den Klick-Weg in `main.js`, damit neu gezeichnet wird; der echte Klick danach wird geschluckt. `st.landed` lässt den Platz einmal einfedern (auch beim Tippen).
+- Zu teure Figuren: `aria-disabled` statt `disabled`, damit man sie greifen kann (beim Ersetzen einer teuren Figur passen sie ja). Tippen darauf bleibt wirkungslos.
+- CSS-Block „9c C“: `touch-action: pan-y`, kein Lupe/Markieren, Geist, Hervorhebung, Rüttler, Einfedern, Pixel-Staub. Mit „Weniger Bewegung“ keine Animationen.
+- Geprüft: Testkopie gebündelt, Headless 390 px auf echtem Deck: Maus tauschen und an Land, Finger halten und ziehen, Wischen ändert nichts, Regeltests, 0 `pageerror`.
+- Offen: am Handy ausprobieren. Danach D (Kurswahl als Fahrt, Opus).

@@ -52,7 +52,7 @@ window.GL = window.GL || {};
 
   function slotHtml(st, i) {
     const id = st.slots[i], d = id && crewData(id), sel = st.sel && st.sel.slot === i;
-    const target = st.sel && st.sel.fig ? ' dk-target' : '';
+    const target = (st.sel && st.sel.fig ? ' dk-target' : '') + (d && st.landed === i ? ' dk-land' : '');
     if (!d) {
       return `<button class="dk-slot dk-empty${target}${sel ? ' on' : ''}" data-act="deck-slot" data-i="${i}" aria-label="${en() ? 'Empty spot' : 'Freier Platz'}">
         <span class="dk-plus" aria-hidden="true">+</span><small>${en() ? 'free' : 'frei'}</small></button>`;
@@ -172,6 +172,8 @@ window.GL = window.GL || {};
 
   function stage(run, ui) {
     const st = state(run, ui), B = run.deckBudget, used = cost(st.slots);
+    ctx = { run, ui };
+    setTimeout(() => { st.landed = null; }, 0);   // Einfeder-Effekt nur bei diesem einen Zeichnen
     const onDeck = st.slots.filter(Boolean);
     const pool = GL.run.deckPool(run);
     const T = GL.data.types;
@@ -186,13 +188,13 @@ window.GL = window.GL || {};
       const d = crewData(id), k = GL.run.kw(id), here = st.slots.includes(id);
       const tooDear = !here && used + k > B && !(st.sel && st.sel.slot != null && st.slots[st.sel.slot] && used - GL.run.kw(st.slots[st.sel.slot]) + k <= B);
       const sel = st.sel && st.sel.fig === id;
-      return `<button class="dk-fig${here ? ' here' : ''}${tooDear ? ' dear' : ''}${sel ? ' on' : ''}" data-act="deck-fig" data-v="${esc(id)}"${tooDear ? ' disabled' : ''}
+      return `<button class="dk-fig${here ? ' here' : ''}${tooDear ? ' dear' : ''}${sel ? ' on' : ''}" data-act="deck-fig" data-v="${esc(id)}"${tooDear ? ' aria-disabled="true"' : ''}
         title="${esc(d.name)} · ${k} KW${GL.data.abilities && GL.data.abilities[id] ? ' · ' + esc(GL.data.abilities[id].name) : ''}">
         <i class="dk-spr">${sprite(d)}</i><span class="dk-name">${esc(d.name)}</span><span class="dk-fkw">${here ? '✓' : k}</span></button>`;
     }).join('');
     const hint = st.sel && st.sel.fig ? (en() ? 'Now tap a spot on deck.' : 'Jetzt einen Platz an Deck antippen.')
       : st.sel && st.sel.slot != null ? (en() ? 'Tap another spot to swap, tap again to send ashore.' : 'Anderen Platz antippen zum Tauschen, nochmal tippen schickt an Land.')
-      : (en() ? 'Tap a figure on the jetty, it jumps aboard.' : 'Figur am Steg antippen, sie springt an Bord.');
+      : (en() ? 'Tap or drag a figure from the jetty aboard.' : 'Figur am Steg antippen oder an Bord ziehen.');
     return `<div class="dk">
       <div class="dk-sky">
         <div class="dk-pens">${penHtml}</div>
@@ -233,16 +235,17 @@ window.GL = window.GL || {};
       if (!id || id === 'self' || !GL.run.deckPool(run).includes(id)) return false;
       const here = st.slots.indexOf(id);
       if (here >= 0) { st.slots[here] = null; st.sel = null; return true; }   // schon an Deck: zurück an den Steg
+      if (el.classList.contains('dear') && !(st.sel && st.sel.slot != null)) return false;   // zu teuer, wie früher „disabled“
       // Ausgewählter Platz an Deck: Figur ersetzt ihn
       if (st.sel && st.sel.slot != null && st.slots[st.sel.slot] !== 'self') {
         const next = st.slots.slice(); next[st.sel.slot] = id;
-        if (fits(next)) { st.slots = next; st.sel = null; return true; }
+        if (fits(next)) { st.landed = st.sel.slot; st.slots = next; st.sel = null; return true; }
       }
       // Sonst direkt auf den ersten freien Platz, wenn Budget reicht; bei vollem Deck erst Platz wählen
       const at = st.slots.indexOf(null);
       if (at >= 0) {
         const next = st.slots.slice(); next[at] = id;
-        if (fits(next)) { st.slots = next; st.sel = null; return true; }
+        if (fits(next)) { st.landed = at; st.slots = next; st.sel = null; return true; }
       }
       st.sel = st.sel && st.sel.fig === id ? null : { fig: id };
       return true;
@@ -253,7 +256,7 @@ window.GL = window.GL || {};
       if (st.sel && st.sel.fig) {
         if (st.slots[i] === 'self') { st.sel = null; return true; }
         const next = st.slots.slice(); next[i] = st.sel.fig;
-        if (fits(next)) st.slots = next;
+        if (fits(next)) { st.slots = next; st.landed = i; }
         st.sel = null; return true;
       }
       if (st.sel && st.sel.slot != null) {
@@ -266,6 +269,14 @@ window.GL = window.GL || {};
       return true;
     }
 
+    // 9c C: Ziehen und Ablegen (kommt als unsichtbarer Knopf aus dem Zieh-Code unten)
+    if (type === 'deck-drop') {
+      const next = dropNext(st, el.dataset.src, el.dataset.to, B);
+      if (!next) return false;
+      st.slots = next; st.sel = null;
+      st.landed = /^s:\d$/.test(el.dataset.to) ? Number(el.dataset.to.slice(2)) : null;
+      return true;
+    }
     if (type === 'goal-set') {
       const kind = el.dataset.kind, id = el.dataset.id;
       if (!kind || !id) return false;
@@ -291,5 +302,138 @@ window.GL = window.GL || {};
     return false;
   }
 
-  GL.deck = { stage, click, state, goalStatus };
+  // 9c C: Wohin darf eine gezogene Karte? Gibt die neuen Plätze zurück oder null (nicht erlaubt / nichts zu tun).
+  // src: 'f:<id>' (vom Steg) oder 's:<i>' (von Deck), to: 's:<i>' oder 'steg'. Budget wie beim Tippen über cost().
+  function dropNext(st, src, to, B) {
+    const pool = ctx && ctx.run ? GL.run.deckPool(ctx.run) : [];
+    let from = null, id = null;
+    if (/^s:\d$/.test(src)) { from = Number(src.slice(2)); id = st.slots[from]; }
+    else if (src && src.slice(0, 2) === 'f:') {
+      id = src.slice(2);
+      if (!id || id === 'self' || !pool.includes(id)) return null;
+      const here = st.slots.indexOf(id); if (here >= 0) from = here;   // Karte ist schon an Deck: wie Ziehen von dort
+    }
+    if (!id) return null;
+    const next = st.slots.slice();
+    if (to === 'steg') {
+      if (from == null || id === 'self') return null;   // der Kapitän bleibt immer an Bord
+      next[from] = null; return next;
+    }
+    if (!/^s:\d$/.test(to)) return null;
+    const i = Number(to.slice(2));
+    if (!(i >= 0 && i < N()) || i === from) return null;
+    if (from != null) { [next[i], next[from]] = [next[from], next[i]]; return next; }   // an Deck tauschen, Kosten bleiben
+    if (next[i] === 'self') return null;
+    next[i] = id;
+    return cost(next) <= B ? next : null;
+  }
+
+  // 9c C: Karten ziehen. Maus: ab 5 px Bewegung. Finger: kurz halten (170 ms) oder zur Seite ziehen,
+  // senkrechtes Wischen bleibt Scrollen. Tippen geht weiter über data-act wie bisher.
+  let ctx = null, drag = null, eatClick = 0;
+  const reduced = () => !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  function dropTarget(x, y) {
+    const hit = document.elementFromPoint(x, y);
+    if (!hit || !hit.closest) return null;
+    const slot = hit.closest('.dk-slot');
+    if (slot) return { el: slot, to: 's:' + slot.dataset.i };
+    const steg = hit.closest('.dk-steg');
+    return steg ? { el: steg, to: 'steg' } : null;
+  }
+  function mark(t) {
+    if (drag.over && drag.over.el !== (t && t.el)) drag.over.el.classList.remove('dk-drop', 'dk-no');
+    drag.over = t;
+    if (!t) return;
+    const st = ctx && ctx.ui && ctx.ui.deck;
+    const ok = st && dropNext(st, drag.src, t.to, ctx.run.deckBudget);
+    const pointless = t.to === 'steg' && drag.src.slice(0, 2) === 'f:' && !(st && st.slots.includes(drag.src.slice(2)));
+    t.el.classList.toggle('dk-drop', !!ok);
+    t.el.classList.toggle('dk-no', !ok && !pointless && (t.to !== 'steg'));
+  }
+  function lift(e) {
+    const r = drag.el.getBoundingClientRect();
+    const g = document.createElement('div');
+    g.className = 'dk-ghost';
+    g.setAttribute('aria-hidden', 'true');
+    g.innerHTML = (drag.el.querySelector('.dk-spr') || {}).outerHTML || '';
+    const nm = drag.el.querySelector('.dk-name'); if (nm) g.insertAdjacentHTML('beforeend', `<span class="dk-name">${esc(nm.textContent)}</span>`);
+    g.style.width = Math.min(r.width, 96) + 'px';
+    document.body.appendChild(g);
+    drag.ghost = g; drag.gw = g.offsetWidth; drag.gh = g.offsetHeight;
+    drag.home = { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+    drag.el.classList.add('dk-lift');
+    document.body.classList.add('dk-dragging');
+    drag.on = true;
+    clearTimeout(drag.hold);
+    if (navigator.vibrate) try { navigator.vibrate(8); } catch (err) {}
+    follow(e.clientX, e.clientY);
+  }
+  function follow(x, y) {
+    drag.x = x; drag.y = y;
+    drag.ghost.style.transform = `translate3d(${x - drag.gw / 2}px, ${y - drag.gh * 0.75}px, 0) rotate(-4deg) scale(1.08)`;
+    mark(dropTarget(x, y));
+  }
+  function end(commit) {
+    const d = drag; drag = null;
+    if (!d) return;
+    clearTimeout(d.hold);
+    if (!d.on) return;
+    eatClick = performance.now() + 400;
+    document.body.classList.remove('dk-dragging');
+    const t = commit ? d.over : null;
+    if (t) t.el.classList.remove('dk-drop', 'dk-no');
+    const st = ctx && ctx.ui && ctx.ui.deck;
+    const ok = t && st && dropNext(st, d.src, t.to, ctx.run.deckBudget);
+    if (ok) {
+      d.ghost.remove();
+      if (navigator.vibrate && t.to !== 'steg') try { navigator.vibrate(14); } catch (err) {}
+      const b = document.createElement('button');   // läuft durch den normalen Klick-Weg (main.js), damit neu gezeichnet wird
+      b.type = 'button'; b.hidden = true; b.dataset.act = 'deck-drop'; b.dataset.src = d.src; b.dataset.to = t.to; b.dataset.dkDrop = '1';
+      (document.querySelector('.dk') || document.body).appendChild(b);
+      b.click(); b.remove();
+      return;
+    }
+    // Nicht erlaubt (oder daneben): Platz rüttelt rot, Karte fliegt zurück an ihren Ort
+    if (t && t.to !== 'steg' && !reduced()) { t.el.classList.add('dk-shake'); setTimeout(() => t.el.classList.remove('dk-shake'), 420); }
+    const g = d.ghost;
+    if (reduced()) { g.remove(); d.el.classList.remove('dk-lift'); return; }
+    g.classList.add('dk-back');
+    g.style.transform = `translate3d(${d.home.x - d.gw / 2}px, ${d.home.y - d.gh / 2}px, 0)`;
+    setTimeout(() => { g.remove(); d.el.classList.remove('dk-lift'); }, 260);
+  }
+  function srcOf(el) {
+    if (el.classList.contains('dk-fig')) return el.dataset.v ? 'f:' + el.dataset.v : null;
+    if (el.classList.contains('dk-slot') && !el.classList.contains('dk-empty')) return 's:' + el.dataset.i;
+    return null;
+  }
+  if (typeof document !== 'undefined' && !GL.__deckDrag) {
+    GL.__deckDrag = true;
+    document.addEventListener('pointerdown', e => {
+      if (drag) end(false);
+      const el = e.target.closest && e.target.closest('.dk .dk-fig, .dk .dk-slot');
+      if (!el || (e.button !== undefined && e.button !== 0) || !ctx || !ctx.run || ctx.run.phase !== 'starter') return;
+      const src = srcOf(el); if (!src) return;
+      drag = { el, src, id: e.pointerId, sx: e.clientX, sy: e.clientY, x: e.clientX, y: e.clientY, mouse: e.pointerType === 'mouse', on: false, over: null };
+      if (!drag.mouse) drag.hold = setTimeout(() => { if (drag && !drag.on) lift({ clientX: drag.x, clientY: drag.y }); }, 170);
+    });
+    document.addEventListener('pointermove', e => {
+      if (!drag || e.pointerId !== drag.id) return;
+      if (drag.on) { follow(e.clientX, e.clientY); return; }
+      const dx = e.clientX - drag.sx, dy = e.clientY - drag.sy, dist = Math.hypot(dx, dy);
+      drag.x = e.clientX; drag.y = e.clientY;
+      if (drag.mouse ? dist >= 5 : (dist >= 8 && Math.abs(dx) > Math.abs(dy) * 1.2)) lift(e);
+      else if (!drag.mouse && dist >= 8) end(false);   // senkrecht gewischt: das ist Scrollen
+    });
+    document.addEventListener('pointerup', e => { if (drag && e.pointerId === drag.id) end(true); });
+    document.addEventListener('pointercancel', e => { if (drag && e.pointerId === drag.id) end(false); });
+    // Während gezogen wird, darf die Seite nicht scrollen (touch-action allein reicht für „halten, dann ziehen“ nicht)
+    document.addEventListener('touchmove', e => { if (drag && drag.on) e.preventDefault(); }, { passive: false });
+    document.addEventListener('contextmenu', e => { if (drag) e.preventDefault(); });
+    // Der Klick nach einem Ziehen ist kein Tipp
+    document.addEventListener('click', e => {
+      if (performance.now() < eatClick && !(e.target && e.target.dataset && e.target.dataset.dkDrop)) { e.stopPropagation(); e.preventDefault(); }
+    }, true);
+  }
+
+  GL.deck = { stage, click, state, goalStatus, dropNext };
 })();

@@ -1611,7 +1611,7 @@
       case 'crew-name-open': ui.editTab = 'kampf'; ui.editSub = 'bande'; openProfile(); break;
       case 'login-open': ui.loginFrom = ui.screen || 'hq'; ui.screen = 'login'; draw(); break;
       case 'login-back': ui.screen = ui.loginFrom === 'hq' ? null : 'title'; draw(); break;
-      case 'deck-fig': case 'deck-slot': case 'deck-filter': case 'deck-go': case 'goal-set':   // CREW-START: das Deck (js/ui/deck.js)
+      case 'deck-fig': case 'deck-slot': case 'deck-filter': case 'deck-go': case 'deck-drop': case 'goal-set':   // CREW-START: das Deck (js/ui/deck.js)
         if (run && run.deck && run.phase === 'starter' && GL.deck && GL.deck.click(type, el, run, ui, act, profile, saveProfile)) { ui.lastStage = null; draw(); }
         break;
       case 'cap-filter': ui.capFilter = el.dataset.v; ui.lastStage = null; draw(); break;

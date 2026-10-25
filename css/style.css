@@ -10659,3 +10659,28 @@ body:not(.in-run) .hq .hub-tile.bld small, .hub-tile.bld small { font-size: .7re
 .field.v3.elitefight .b3::after { content: ''; position: absolute; left: 0; right: 0; top: 0; bottom: 42%; z-index: 0; pointer-events: none; background: linear-gradient(rgba(255,196,110,.12), rgba(255,160,60,.4)); }
 .field.v3.elitefight .b3-sun { background: #ffe08a; box-shadow: 0 0 0 5px rgba(255,214,120,.3), 0 0 26px 8px rgba(255,190,90,.4); }
 @media (prefers-reduced-motion: reduce) { .field.v3.bossfight .fu.boss::before { animation: none; } }
+
+/* === 9c C: Karten einrasten (Ziehen aufs Deck, Tippen bleibt). Nur transform/opacity, nichts Dauerndes === */
+.dk .dk-fig, .dk .dk-slot { touch-action: pan-y; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
+.dk .dk-fig.dear { cursor: grab; }
+.dk-fig.dk-lift, .dk-slot.dk-lift { opacity: .3; }
+body.dk-dragging, body.dk-dragging * { cursor: grabbing !important; }
+.dk-ghost { position: fixed; left: 0; top: 0; z-index: 9999; pointer-events: none; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px 4px;
+  border-radius: 10px; background: #44555a; border: 2px solid #fbe6c4; color: #fff8e8; box-shadow: 0 12px 18px rgba(0,0,0,.35); will-change: transform; }
+.dk-ghost .dk-spr svg { width: 42px; height: auto; display: block; }
+.dk-ghost .dk-name { font-size: .7rem; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dk-ghost.dk-back { transition: transform .24s ease-in, opacity .24s; opacity: .6; }
+.dk-slot.dk-drop { border-color: #fff8e8; box-shadow: 0 0 0 3px #ffe08a inset, 0 0 14px rgba(255,224,138,.55); transform: translateY(-2px); }
+.dk-slot.dk-no { border-color: #e0574a; box-shadow: 0 0 0 3px rgba(224,87,74,.55) inset; }
+.dk-steg.dk-drop { outline: 3px dashed #ffe08a; outline-offset: -3px; }
+.dk-slot.dk-shake { animation: dk-shake .4s; }
+@keyframes dk-shake { 20% { translate: -5px 0; } 40% { translate: 4px 0; } 60% { translate: -3px 0; } 80% { translate: 2px 0; } }
+/* Einfedern auf dem Platz, dazu ein Pixel-Wölkchen Holzstaub links und rechts */
+.dk-slot.dk-land { position: relative; animation: dk-land .42s cubic-bezier(.3,1.6,.5,1); }
+@keyframes dk-land { 0% { transform: translateY(-14px) scale(1.08); } 55% { transform: translateY(2px) scale(.97, 1.03); } 100% { transform: none; } }
+.dk-slot.dk-land::before, .dk-slot.dk-land::after { content: ''; position: absolute; bottom: 4px; width: 4px; height: 4px; background: #f3dfb8; pointer-events: none; opacity: 0;
+  box-shadow: 4px -4px 0 #f3dfb8, -4px -3px 0 #e8cc98, 6px 2px 0 #e8cc98; animation: dk-dust .5s ease-out .12s; }
+.dk-slot.dk-land::before { left: 8px; }
+.dk-slot.dk-land::after { right: 8px; --dk-dx: 10px; }
+@keyframes dk-dust { 0% { opacity: .95; transform: translate(0, 0) scale(.6); } 100% { opacity: 0; transform: translate(var(--dk-dx, -10px), -8px) scale(1.2); } }
+@media (prefers-reduced-motion: reduce) { .dk-slot.dk-land, .dk-slot.dk-shake, .dk-slot.dk-land::before, .dk-slot.dk-land::after { animation: none; } }
