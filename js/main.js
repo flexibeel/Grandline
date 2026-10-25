@@ -119,7 +119,7 @@
     if (document.querySelector('.boss-show')) return;   // Auftritt läuft schon: doppeltes Tippen nicht durchreichen
     if (!big || p.rival) { act({ type: 'fight' }); return; }
     const d = (GL.data.bosses.concat(GL.data.raids || [], GL.data.hunted || [])).find(x => x.id === big.id) || GL.data.crew.find(x => x.id === big.id) || {};
-    const kind = p.kind === 'raid' ? 'Raid-Boss' : p.kind === 'boss' ? 'Boss des Meeres' : p.gate ? 'Bösewicht der Insel' : 'Kopfgeld-Ziel';
+    const kind = p.kind === 'raid' ? 'Raid-Boss' : p.kind === 'boss' ? 'Boss des Meeres' : p.gate ? 'Bösewicht der Insel' : p.kind === 'elite' ? 'Elite · Kopfgeld-Ziel' : 'Kopfgeld-Ziel';
     const ab = GL.data.abilities[big.id];
     const esc = t => String(t || '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
     const el = document.createElement('div');

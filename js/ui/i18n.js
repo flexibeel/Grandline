@@ -32,7 +32,7 @@ window.GL = window.GL || {};
     'Wähle deinen Kapitän': 'Choose your captain', 'Ereignis auf See': 'Event at sea', 'Neue Insel': 'New island', 'Taverne': 'Tavern', 'Hafentaverne': 'Harbor tavern',
     'Der erste Kauf ist gratis.': 'Your first hire is free.', 'Welche Frucht isst du?': 'Which fruit do you eat?', 'Je seltener die Frucht, desto stärker ihr Effekt.': 'The rarer the fruit, the stronger its effect.',
     'Welchen Schatz nimmst du mit?': 'Which treasure do you take?', 'Schätze wirken bis zum Ende des Runs. Je seltener, desto stärker.': 'Treasures last until the end of the run. The rarer, the stronger.',
-    'Begegnung auf See': 'Encounter at sea', 'Antippen zum Auswählen, dann bestätigen.': 'Tap to select, then confirm.', 'Aufstellung automatisch:': 'Automatic lineup:',
+    'Begegnung auf See': 'Encounter at sea', 'Starke Gegner': 'Strong foes', 'Elite · Kopfgeld-Ziel': 'Elite · Bounty target', 'Antippen zum Auswählen, dann bestätigen.': 'Tap to select, then confirm.', 'Aufstellung automatisch:': 'Automatic lineup:',
     'Brecher vorne': 'Breakers in front', 'Die Grand Line gehört dir': 'The Grand Line is yours', 'Die Crew ist untergegangen': 'Your crew went down',
     'Rang-Aufstieg!': 'Rank up!', 'Piratenrang:': 'Pirate rank:', 'Neue Ausrüstung für die Schmiede': 'New gear for the forge', 'Beute für deine Stammcrew': 'Loot for your squad',
     'Neu in der Schatzkammer': 'New in the treasury', 'Code teilen': 'Share code', 'Als Nächstes freischalten': 'Unlock next', 'Gegner gefunden': 'Opponent found',

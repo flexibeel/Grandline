@@ -10586,3 +10586,18 @@ body:not(.in-run) .hq .hub-tile.bld small, .hub-tile.bld small { font-size: .7re
   body.in-run header .track .track-stop { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   body.in-run header .track .head-chips { max-width: 56%; }
 }
+
+/* 9e A: Auftritt je Kampfart. Nur transform/opacity/translate, keine Dauer-Animation (Lehre aus 9a). */
+.kind-intro { position: absolute; inset: 0; z-index: 445; pointer-events: none; display: grid; place-items: center; animation: ki-fade 1.1s ease forwards; }
+.ki-card { display: grid; justify-items: center; gap: 2px; padding: 8px 26px 10px; border-radius: 12px; background: rgba(20, 12, 6, .78); border: 2px solid #e8c472; color: #fff; box-shadow: 0 8px 22px rgba(0, 0, 0, .4); animation: ki-card 1.1s cubic-bezier(.2, 1.4, .4, 1) forwards; }
+.ki-card small { font-size: .62rem; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: #f6c94a; }
+.ki-card b { font-family: var(--px); font-size: 1.7rem; line-height: 1; letter-spacing: .04em; color: #ffe9a8; text-shadow: 0 3px 0 rgba(0, 0, 0, .5); }
+@keyframes ki-fade { 0%, 80% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes ki-card { 0% { opacity: 0; transform: scale(1.5); } 22% { opacity: 1; transform: scale(1); } 100% { opacity: 1; transform: scale(1); } }
+/* Elite: goldener Rand am Namen der Gegner (wie der Stern der Anführer) */
+.arena.elitefight .fighter[data-side="enemy"] .f-name b { border-bottom: 2px solid #e8c472; padding-bottom: 1px; }
+.arena.elitefight .fighter[data-side="enemy"] .f-name b::before { content: '★ '; color: #c08a2e; }
+/* Raid: Schlag aufs Bild, wenn der Raid-Boss einfährt */
+.boss-show.raid.in { animation: bs-slam .45s ease-out .62s; }
+@keyframes bs-slam { 0% { translate: 0 0; } 15% { translate: -8px 5px; } 30% { translate: 7px -5px; } 48% { translate: -5px 3px; } 66% { translate: 3px -2px; } 100% { translate: 0 0; } }
+@media (prefers-reduced-motion: reduce) { .kind-intro { display: none; } .boss-show.raid.in { animation: none; } }

@@ -31,3 +31,15 @@ Kein Eingriff in die Kampfrechnung (`battle.js`), keine Balance, kein neuer Spie
 1. Soll **jeder** Boss ein eigenes Feld bekommen (Aufwand je Meer) oder reicht ein gemeinsamer „Boss-Look“ je Meer?
 2. Elite: eigener Auftritt (kurzes Wort) oder nur der goldene Rand?
 3. Ton: Gibt es einen Wunsch (dumpfe Trommel für Boss, Sirene für Raid), oder soll Claude Vorschläge zum Anhören sammeln?
+
+## Entscheidungen und Stand (41. Chat, Sonnet, 25.10.)
+Felix per Klick: **1.** ein gemeinsamer **Boss-Look je Meer** (nicht je Boss ein Feld, gilt für Häppchen B), **2.** Elite bekommt **kurzes Wort plus goldenen Rand**, **3.** Ton: **Claude sammelt Vorschläge zum Anhören** (Häppchen C).
+
+**Korrektur zum Ist-Stand:** Der große Auftritt für Boss, Raid und Bösewicht läuft schon vor dem Kampf in `startFight` (`js/main.js`, `.boss-show`: Figur fährt ins Bild, antippbar, nach 2 s automatisch). `bossIntro` in `arena.js` war toter Code (nirgends aufgerufen) und ist durch `kindIntro` ersetzt. Fast jeder Elite-Knoten trägt ein Kopfgeld-Ziel (`who`, in der Engine `mini`) und läuft deshalb auch durch `startFight`.
+
+**Häppchen A gebaut** auf `feature/kampftypen-auftritt` (nur Anzeige):
+- `arena.js`: Tabelle `KIND` und `kindIntro()`: Elite **ohne** Kopfgeld-Ziel bekommt ein kurzes Banner „Starke Gegner / Elite“ (1,1 s, nur `transform`/`opacity`). Normale Kämpfe bleiben ohne Banner. Elite-Arena trägt die Klasse `elitefight`.
+- CSS (Block „9e A“ am Ende): goldener Rand und ★ am Namen der Gegner im Elite-Kampf; **Raid:** Schlag aufs Bild (`bs-slam`, per `translate`) beim Einfahren des Raid-Bosses; mit „Weniger Bewegung“ alles aus.
+- `main.js`: Kartenzeile der Boss-Show heißt bei Elite „Elite · Kopfgeld-Ziel“ (Bösewicht der Insel, Boss, Raid unverändert). `i18n.js`: zwei neue Texte.
+- Das Wort „Raid“ steht schon als „Raid-Boss“ auf der Boss-Show, das Duell hat seinen Auftritt („Begegnung auf See“), beide unverändert.
+- Offen: B (Boss-Look je Meer, Elite-Look, Größe, Opus), C (Ton, Vorschläge sammeln).

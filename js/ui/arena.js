@@ -524,17 +524,19 @@ window.GL = window.GL || {};
       <span class="bb-track"><s style="width:${pct}%"></s><i style="width:${pct}%"></i><em class="bb-mark" title="Ab hier wird er wütend"></em></span>
     </div>`;
   }
-  function bossIntro(run) {
-    const field = $('#field'), bi = bossIdx(run);
-    if (!field || bi < 0) return;
-    const e = run.battle.enemies[bi], d = enemyData(e.id) || crewData(e.id) || {};
-    const raid = run.battle.kind === 'raid';
+  // 9e A: Auftritt je Kampfart. Boss, Raid und Bösewicht haben ihren großen Auftritt schon vor dem Kampf (startFight in main.js,
+  // Raid mit Schlag aufs Bild), das Duell mit dem Rivalen kommt unten in der Kampf-Einrichtung. Hier der kurze Auftritt für Elite.
+  // Normale Kämpfe bleiben ohne Banner (direkt los). Reine Anzeige, keine Spiellogik.
+  const KIND = { elite: { cls: 'elite', kicker: 'Starke Gegner', word: 'Elite', ms: 1100 } };
+  function kindIntro(run, field) {
+    const b = run && run.battle, k = b && KIND[b.kind];
+    if (!k || !field || (run.pending && run.pending.rival)) return;
+    if (b.enemies.some(e => e.boss || e.mini || e.raid)) return;   // die haben schon ihren Auftritt
     const n = document.createElement('div');
-    n.className = 'boss-intro' + (raid ? ' raid' : '');
-    n.innerHTML = `<i class="bi-bar top"></i><i class="bi-bar bot"></i>
-      <span class="bi-card"><small>${raid ? 'Raid-Boss' : 'Boss des Meeres'}</small><b>${d.name || ''}</b>${d.bounty ? `<em>Kopfgeld ${d.bounty} Mio. ฿</em>` : ''}</span>`;
+    n.className = 'kind-intro ' + k.cls;
+    n.innerHTML = `<span class="ki-card"><small>${k.kicker}</small><b>${k.word}</b></span>`;
     field.appendChild(n);
-    setTimeout(() => n.remove(), 2300);
+    setTimeout(() => n.remove(), k.ms);
   }
   // Spannung: Wird es knapp, pocht der Rand rot. Ist der Boss fast besiegt, leuchtet seine Leiste.
   let lowShown = false;
@@ -1008,7 +1010,7 @@ window.GL = window.GL || {};
       const enemyHp = done ? b.enemyEnd : anim.enemyHp;
       const crew = run.crew.map((u, i) => fighter('crew', i, u.def || crewData(u.id), u, crewHp[i])).join('');
       const foes = b.enemies.map((e, i) => fighter('enemy', i, e.def || GL.data.foeDef(e) || crewData(e.id), e, enemyHp[i])).join('');
-      return `<div class="battle3d${done && b.win ? ' won' : ''}">${fieldHtml(run, crewHp, enemyHp)}<div class="f-strip" id="f-strip">${teamBarHtml(run, done)}${moBarHtml(run, done)}</div><div class="arena hud isl-${GL.run.island(run).id}${b.kind === 'raid' ? ' raid' : b.kind === 'boss' ? ' bossfight' : ''}${done ? '' : ' entering'}" id="arena">
+      return `<div class="battle3d${done && b.win ? ' won' : ''}">${fieldHtml(run, crewHp, enemyHp)}<div class="f-strip" id="f-strip">${teamBarHtml(run, done)}${moBarHtml(run, done)}</div><div class="arena hud isl-${GL.run.island(run).id}${b.kind === 'raid' ? ' raid' : b.kind === 'boss' ? ' bossfight' : b.kind === 'elite' ? ' elitefight' : ''}${done ? '' : ' entering'}" id="arena">
         <div class="arena-sky" aria-hidden="true"></div>
         <div class="side side-crew">${crew}</div>
         <div class="side side-enemy">${foes}</div>
@@ -1036,6 +1038,7 @@ window.GL = window.GL || {};
           n.innerHTML = `<i class="bi-bar top"></i><i class="bi-bar bot"></i><span class="bi-card"><small>Begegnung auf See</small><b>${String(run.pending.rival.name).replace(/[<>&"]/g, '')}</b><em>Stammcrew eines Mitspielers</em></span>`;
           fieldEl.appendChild(n); setTimeout(() => n.remove(), 2300);
         }
+        kindIntro(run, fieldEl);
         fieldEl.classList.add('enter');
         setTimeout(() => fieldEl.classList.remove('enter'), 2500);
         hitMemo.last = null; hitMemo.ramp = {}; hitMemo.seen = {}; hitMemo.at = {};
