@@ -38,13 +38,13 @@ GL.data.crew = [
 
   // Marine
   { id: 'garp',    name: 'Grimm',     type: 'kraft',   role: 'brecher',  faction: 'marine',   hp: 40, atk: 7,  spd: 4,
-    look: { hair: '#d8d8d8', skin: '#e8b890', shirt: '#f0f0f0', pants: '#1f3a6a' } },
+    look: { hairStyle: 'glatze', hair: '#e8e8e8', skin: '#e8b890', shirt: '#f0f0f0', pants: '#1f3a6a', coat: '#24406e', x: ['mantel', 'keksdose', 'schnauzer'] } },
   { id: 'hina',    name: 'Hilde',     type: 'technik', role: 'brecher',  faction: 'marine',   hp: 34, atk: 6,  spd: 5,
-    look: { hair: '#e870a0', skin: '#f2c9a0', shirt: '#f0f0f0', pants: '#1f3a6a', longHair: true } },
+    look: { hairStyle: 'zopf', hair: '#8a2f4a', skin: '#f2c9a0', shirt: '#f0f0f0', pants: '#1f3a6a', x: ['kette', 'handschellen'] } },
   { id: 'tashigi', name: 'Tessa',  type: 'klinge',  role: 'helfer',   faction: 'marine',   hp: 22, atk: 6,  spd: 7,
-    look: { hair: '#1a1a2a', skin: '#f2c9a0', shirt: '#7aa0d0', pants: '#2a3a5a' } },
+    look: { hairStyle: 'bob', hair: '#2f6a6a', skin: '#f2c9a0', shirt: '#e8d8b0', pants: '#2a3a5a', acc: 'brille', x: ['dreigriffe'] } },
   { id: 'koby',    name: 'Kian',     type: 'kraft',   role: 'kaempfer', faction: 'marine',   hp: 26, atk: 8,  spd: 7,
-    look: { hair: '#e870a0', skin: '#f2c9a0', shirt: '#f0f0f0', pants: '#5a7aa0', hat: 'cap', hatColor: '#f0f0f0' } },
+    look: { hairStyle: 'stachel', hair: '#5fbfa0', skin: '#f2c9a0', shirt: '#f0f0f0', pants: '#5a7aa0', hat: 'grosskappe', hatColor: '#f4f4f4' } },
 
   // CP9
   { id: 'kalifa',  name: 'Kalina',   type: 'klinge',  role: 'kaempfer', faction: 'cp9',      hp: 24, atk: 8,  spd: 7,
@@ -69,7 +69,7 @@ GL.data.crew = [
   // ---- Freischaltbar (locked: true). Bedingungen stehen in unlocks.js ----
   // Danach als Kapitän wählbar und bei der Rekrutierung im Angebot.
   { id: 'smoker',    name: 'Russ',    type: 'klinge',  role: 'brecher',  faction: 'marine',  hp: 34, atk: 7, spd: 5, locked: true,
-    look: { hair: '#dddddd', skin: '#f2c9a0', shirt: '#3a4a3a', pants: '#3a4a3a' } },
+    look: { hairStyle: 'buerste', hair: '#3a3a3a', skin: '#f2c9a0', shirt: '#5a6a58', pants: '#3a4a3a', x: ['kessel', 'dampf'] } },
   { id: 'arlong',    name: 'Brack',    type: 'kraft',   role: 'kaempfer', faction: 'fischmensch', hp: 32, atk: 7, spd: 5, locked: true,
     look: { hair: '#1a1a1a', skin: '#6aa0c8', shirt: '#e8d070', pants: '#3a5a3a' } },
   { id: 'crocodile', name: 'Sirokk', type: 'technik', role: 'kaempfer', faction: 'baroque', hp: 30, atk: 7, spd: 6, locked: true,
@@ -138,7 +138,7 @@ GL.data.crew = [
     look: { hair: '#e8c070', skin: '#f2c9a0', shirt: '#4a6a3a', pants: '#3a2a1a', hat: 'band', hatColor: '#3a2a1a', longHair: true } },
   // Neue Gesichter für bekannte Banden
   { id: 'aokiji',    name: 'Reif',      type: 'technik', role: 'brecher',  faction: 'marine',     hp: 38, atk: 7,  spd: 5, locked: true,
-    look: { hair: '#1a1a1a', skin: '#c89a70', shirt: '#e8f0f8', pants: '#e8f0f8', hat: 'band', hatColor: '#7ab0e0' } },
+    look: { hair: '#2a2a3a', skin: '#c89a70', shirt: '#e8f0f8', pants: '#a8c8e0', hat: 'zipfel', hatColor: '#8ac0e8', scarf: '#5a90c8', x: ['schal'] } },
   { id: 'fukuro',    name: 'Plapper',      type: 'kraft',   role: 'brecher',  faction: 'cp9',        hp: 36, atk: 6,  spd: 5, locked: true,
     look: { hair: '#2a2a2a', skin: '#f2c9a0', shirt: '#2a2a2a', pants: '#2a2a2a', beard: '#3a3a3a' } },
   { id: 'vista',     name: 'Veit',       type: 'klinge',  role: 'kaempfer', faction: 'weissbart',  hp: 30, atk: 9,  spd: 6, locked: true,

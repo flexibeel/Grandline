@@ -477,6 +477,7 @@ window.GL = window.GL || {};
       marine_schaerpe: { px: at([[15, 6, 'r'], [16, 7, 'r'], [16, 6, 'r'], [17, 8, 'r'], [17, 7, 'r'], [18, 9, 'r'], [18, 8, 'r'], [19, 10, 'r'], [19, 9, 'r'], [20, 11, 'a'], [20, 10, 'a'], [21, 12, 'r'], [21, 11, 'r'], [22, 13, 'r'], [22, 12, 'r']]), c: { r: '#b8343a', a: '#d9a640' } },
       marine_abzeichen: { px: at([[17, 7, 'a'], [17, 9, 'a'], [18, 7, 'a'], [18, 8, 'r'], [18, 9, 'a'], [19, 7, 'a'], [19, 8, 'a'], [19, 9, 'a']]), c: { r: '#b8343a', a: '#d9a640' } }
     };
+    BADGE.marine = BADGE.marine_schaerpe; // Kronwacht: Schärpe (Felix, 25.10.)
 
     // Kann das neue Raster diesen Look schon ganz zeichnen?
     function ok(look) {

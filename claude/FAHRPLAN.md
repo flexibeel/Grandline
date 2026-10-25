@@ -4,7 +4,7 @@
 **Am Ende jedes Chats** wird sie aktualisiert und mitgepusht: Was ist fertig, was liegt auf welchem Zweig, was kommt als Nächstes.
 Felix und Jan arbeiten mit verschiedenen Claude-Accounts. Diese Datei ist das gemeinsame Gedächtnis, deshalb gehört hier alles rein, was der nächste Chat wissen muss.
 
-Stand: 24.10.2026 (**24c „Eigene Meere, neuer Hafen“ live** (Weltbau Welle A+B plus Hafen Schritt 1 Häppchen A–C). Hafen Häppchen D (Pixel-Schilder) offen. **Weltbau Welle C:** C1 Namensliste (`claude/WELTBAU-C.md`) und **C2 Namen eingebaut** liegen auf `feature/weltbau-c` (nicht live, siehe „Wartet“), **C3 Pixel-Probe 24 × 30** gezeichnet und von Felix abgenickt, danach C4 Looks pro Fraktion. Davor 24b „Eine Welt, die sich erinnert“ und 24a „Eine Crew mit Gefühlen“)
+Stand: 24.10.2026 (**24c „Eigene Meere, neuer Hafen“ live** (Weltbau Welle A+B plus Hafen Schritt 1 Häppchen A–C). Hafen Häppchen D (Pixel-Schilder) offen. **Weltbau Welle C:** C1 Namensliste (`claude/WELTBAU-C.md`) und **C2 Namen eingebaut** liegen auf `feature/weltbau-c` (nicht live, siehe „Wartet“), **C3 Pixel-Probe 24 × 30** abgenickt, **C4a Malwerk** gebaut, **Kronwacht** fertig (25.10.), weiter mit Schattenkorps. Davor 24b „Eine Welt, die sich erinnert“ und 24a „Eine Crew mit Gefühlen“)
 
 ## Wer macht was
 - **Felix:** entscheidet, was gebaut wird und was live geht („schalte live“), Kunst und Look.
@@ -278,6 +278,7 @@ Beide kamen von Jan, Entscheidung liegt bei Felix. Jan hat per Klick gewählt: *
 - 23.10. (Grok): A3 Steckbrief-Ansage auf feature/steckbrief-ansage gebaut (sigHint in render.js + CSS). Wartet auf Prüfung. A4 und A5 noch offen.
 
 _Hier schreibt der letzte Chat in 3 bis 5 Zeilen, wo er aufgehört hat._
+- 25.10. (33. Chat, Opus): Nichts live. **Kronwacht-Looks entschieden und eingebaut** (Felix per Klick, alles wie empfohlen, Details `claude/PLAN-PIXEL.md` 7b): Schärpe als Fraktions-Abzeichen, Varianten in `crew.js`. C4a-Malwerk + Kronwacht liegen auf `feature/weltbau-c`. Nächstes: Board Schattenkorps (7 Figuren), danach die übrigen Fraktionen, Sturmmöwen zuletzt.
 - 24.10. (32. Chat, Opus): Nichts live. **C4 vorgeschlagen und per Klick entschieden** (`claude/PLAN-PIXEL.md` Abschnitt 7): Leitfarbe als ein Abzeichen je Fraktion, erst C4a Malwerk + Kronwacht-Board, bei Figuren nah am Original zwei Varianten zur Wahl. Danach C4a begonnen.
 - 24.10. (31. Chat, Opus): Nichts live. C2-Abweichungen von Felix abgesegnet (EN-Namen bleiben, Spiegel-Archipel). **C3 Pixel-Probe gezeichnet:** `tools/pixel-probe/px24.js` und Board „Pixel-Probe 24 × 30“ (alt gegen neu, 5 Gefühle, Kampfgröße), Details `claude/PLAN-PIXEL.md` Abschnitt 6. Felix hat per Klick alles so abgenickt (Körper, 5 Gefühle, Umriss/Schatten, Augen 2 × 3). Nächstes: C4 Looks pro Fraktion (Opus), erst kurz vorschlagen (Leitfarben, Reihenfolge, wie `px24.js` in `sprites.js` kommt), dabei Hüte/Masken/Zusätze im neuen Raster.
 - 24.10. (25. Chat, Opus): Nichts live (Hafen Häppchen A+B liegen auf `feature/hafen-gebaeude`, Grok baut Häppchen C nach A10 auf `feature/hafen-feinschliff`). **Weltbau Welle A gebaut** auf `feature/weltbau-a` (von `main`, keine Hafen-Dateien), siehe „Wartet“. Nächstes: Weltbau Welle B (Gegner und Bosse: `enemies.js`, `hunted.js`, `bossSigs`, Fähigkeiten-Namen), danach Sammel-Update A+B. Tipp: Prüfskript `tools/weltbau-check.py` um Liste B ergänzen.
