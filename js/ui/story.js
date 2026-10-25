@@ -65,8 +65,7 @@ window.GL = window.GL || {};
       <div class="st-cast">${cast.map((c, i) => `<span class="st-who${(ch.late || []).includes(c) ? ' late' : ''}" data-w="${esc(c)}" style="--i:${i};--n:${cast.length};--from:${i < cast.length / 2 ? -1 : 1}"><i class="st-emote"></i><i class="st-spr">${W[c].spr}</i><i class="st-shadow"></i></span>`).join('')}</div>
       <div class="st-bar top"></div><div class="st-bar bot"></div>
       <div class="st-title"><small>${ch.kicker ? esc(L(ch.kicker)) : ch.home ? (en() ? 'Crew moment' : 'Crew-Moment') : (en() ? 'Chapter' : 'Kapitel') + ' ' + ch.no}</small><b>${esc(L(ch.title))}</b></div>
-      <div class="st-ctl"><button class="st-auto${auto ? ' on' : ''}" data-st="auto">${en() ? 'Auto' : 'Auto'} ▶</button><button class="st-skip" data-st="skip">${en() ? 'Skip' : 'Überspringen'} ⏭</button></div>
-      <div class="st-box" data-st="next"><span class="st-face"></span><div class="st-txt"><b class="st-name"></b><p class="st-line"></p></div><i class="st-more">▼</i></div>`;
+      <div class="st-box" data-st="next"><span class="st-face"></span><div class="st-txt"><b class="st-name"></b><p class="st-line"></p></div><div class="st-ctl"><button class="st-auto${auto ? ' on' : ''}" data-st="auto" aria-pressed="${auto ? 'true' : 'false'}" title="Auto">Auto ▶</button><button class="st-skip" data-st="skip" aria-label="${en() ? 'Skip' : 'Überspringen'}" title="${en() ? 'Skip' : 'Überspringen'}">⏭</button></div><i class="st-more">▼</i></div>`;
     document.body.appendChild(el);
     cur = { el, ch, i: -1, typing: null, profile, onDone, W, auto };
     requestAnimationFrame(() => el.classList.add('in'));
@@ -77,7 +76,7 @@ window.GL = window.GL || {};
       if (!cur) return;
       const b = e.target.closest('[data-st]');
       if (b && b.dataset.st === 'skip') return end();
-      if (b && b.dataset.st === 'auto') { cur.auto = !cur.auto; b.classList.toggle('on', cur.auto); try { localStorage.setItem('grandline.storyAuto', cur.auto ? '1' : '0'); } catch (e2) { /* egal */ } if (cur.auto && !cur.typing) cur.autoT = setTimeout(() => { if (cur && cur.auto) step(); }, 900); return; }
+      if (b && b.dataset.st === 'auto') { cur.auto = !cur.auto; b.classList.toggle('on', cur.auto); b.setAttribute('aria-pressed', cur.auto ? 'true' : 'false'); try { localStorage.setItem('grandline.storyAuto', cur.auto ? '1' : '0'); } catch (e2) { /* egal */ } if (cur.auto && !cur.typing) cur.autoT = setTimeout(() => { if (cur && cur.auto) step(); }, 900); return; }
       if (!el.classList.contains('go')) { el.classList.add('go'); return step(); }
       tap();
     });

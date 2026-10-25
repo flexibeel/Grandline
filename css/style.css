@@ -6136,10 +6136,13 @@ button.stb-row { cursor: pointer; } button.stb-row:active { transform: translate
 .track:has(.voy) { row-gap: 2px; }
 @media (min-width: 700px) { .voy { min-width: 420px; } }
 /* Story: Effekte */
-.st-ctl { position: absolute; top: calc(7vh + 10px); right: 12px; z-index: 5; display: flex; gap: 6px; }
-.st-ctl .st-skip { position: static; }
-.st-auto { padding: 6px 10px; font-weight: 800; font-size: .74rem; color: #4a2e16; background: linear-gradient(#fff6e0, #f0dcb0); border: 2px solid #8a5a2a; border-radius: 8px; box-shadow: 0 3px 0 #6b4422; cursor: pointer; opacity: .8; }
-.st-auto.on { background: linear-gradient(#ffe58a, #f0b52a); opacity: 1; }
+/* 9b: Auto und Überspringen sitzen klein in der Textleiste, nicht mehr über dem Bild */
+.st-ctl { position: absolute; top: 6px; right: 8px; z-index: 5; display: flex; gap: 5px; }
+.st-box.right .st-ctl { right: auto; left: 8px; }
+.st-ctl .st-skip, .st-ctl .st-auto { position: static; min-width: 36px; height: 30px; padding: 0 10px; display: inline-flex; align-items: center; justify-content: center; font: inherit; font-weight: 800; font-size: .7rem; line-height: 1; color: #fff6e0; text-shadow: 0 1px 0 rgba(58, 36, 16, .6); background: linear-gradient(#c58f55, #a56f3c); border: 2px solid #6b4422; border-radius: 7px; box-shadow: 0 2px 0 #4a2e16, inset 0 1px 0 rgba(255, 236, 200, .35); cursor: pointer; opacity: 1; }
+.st-ctl .st-skip { font-size: 1rem; padding: 0 9px; }
+.st-ctl .st-skip:active, .st-ctl .st-auto:active { transform: translateY(2px); box-shadow: 0 0 0 #4a2e16, inset 0 1px 0 rgba(255, 236, 200, .35); }
+.st-ctl .st-auto.on { background: linear-gradient(#ffe58a, #f0b52a); border-color: #8a5a2a; color: #4a2e16; text-shadow: none; box-shadow: 0 2px 0 #6b4422, inset 0 1px 0 rgba(255, 255, 255, .5); }
 .story.go .st-who { animation: stRunIn .55s cubic-bezier(.2,.8,.2,1.2) both; animation-delay: calc(var(--i) * .07s); }
 @keyframes stRunIn { from { opacity: 0; transform: translate(calc(-50% + var(--from) * 60vw), 0); } 70% { transform: translate(calc(-50% - var(--from) * 6px), -6px); } }
 .st-who.jumpall .st-spr { animation: stJumpAll .5s ease-out; animation-delay: var(--jd, 0s); }
