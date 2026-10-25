@@ -1,6 +1,10 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-25f', date: '25.10.', title: 'Bühne frei für den Boss', items: [
+    '🌙 Bosskämpfe finden jetzt unter Nachthimmel statt: Mond, dunkles Wasser und am Horizont die Festung des Bosses mit Licht in den Fenstern',
+    '🏰 Jedes Meer hat seine eigene Festung, vom Palisaden-Fort im Ostmeer bis zur schiefen Spukburg im Gruselmeer',
+    '🔦 Ein Lichtkegel fällt von oben auf den Boss. Elite-Kämpfe leuchten im warmen Abendlicht mit goldener Sonne' ] },
   { v: '2026-10-25e', date: '25.10.', title: 'Leinen los!', items: [
     '⛵ Nach „Ablegen“ legt dein Schiff jetzt richtig ab: Die Crew steht an Deck, die Leinen fallen, das Dock zieht davon und das Meer rauscht vorbei',
     '📣 Bis zu drei aus deiner Crew rufen dabei etwas, du als Kapitän zuerst. Jede Rolle hat ihre eigenen Sprüche',
