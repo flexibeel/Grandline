@@ -26,6 +26,13 @@ Felix (18:04): Er findet die Idee gut und möchte, dass **mehr als 2** mitspiele
 ## Plattform (Felix, 18:10)
 Ziel: erst **Web-App** (wie Grandline, installierbar, offline), später zusätzlich als **App in den Stores** (App-Hülle, zum Beispiel Capacitor, derselbe Spielcode). Wichtig für den Coop über Entfernung: **Benachrichtigungen** („dein Partner hat einen Hinweis gelegt“). Im Web nur eingeschränkt (iPhone nur bei installierter Web-App), in der App zuverlässiger. Store-Kosten grob: Apple etwa 99 $ pro Jahr, Google einmalig etwa 25 $, dazu Prüfung. Entscheidung erst, wenn der Spaß bewiesen ist (nach M0 bis M3).
 
+## Inhalts-Leitlinien (Frage-Antwort mit Felix, 18:10 bis 18:15)
+- **Vorbilder aus der Wirklichkeit:** Echte Fälle liefern **Muster**, nicht Geschichten. Namen, Opfer, Orte und Details werden immer neu erfunden (Respekt vor realen Opfern, keine Verleumdung, ungelöste Fälle sind nicht fair lösbar).
+- **Wendungen (alle vier):** **Alibi-Trick**, **geschlossener Raum**, **Doppelleben**, **Fälschung** (gefälschter oder platzierter Beweis). Jeder Fall nutzt eine bis zwei davon.
+- **Ton gemischt:** je nach Fall düster, ernst oder skurril-liebevoll, nie grausam im Bild.
+- **Fall-Längen gemischt:** Kurzfall (20 bis 30 Minuten, ein Abend), Tagesfall (1 bis 3 Tage, passt zum Fernspiel mit Tagestakt), Serienfall (bis zu einer Woche, mehrere Kapitel).
+- **Folge für den Generator:** Die Wendungen werden Bausteine („Module“), die der Fallgenerator kombiniert. Ehrliche Reihenfolge nach Schwierigkeit für den Prüfer: **Alibi-Trick** (Fall 01 ist schon einer) → **Fälschung** → **Doppelleben** → **geschlossener Raum** zuletzt, weil er ein Raummodell braucht (wer kann wo rein und raus).
+
 ## Der Haken (was es von anderen unterscheidet)
 **Wissen ist verteilt.** Eine Rolle sieht nur Tatort-Spuren, eine nur Aussagen, eine nur Akten und Alibis. Jeder Hinweis allein sagt wenig, zwei Hinweise zusammen entlarven eine Lüge. Man muss also reden, zeigen, vergleichen. Das ist der Spaß, nicht der Zufall und nicht das Reaktionsvermögen.
 
