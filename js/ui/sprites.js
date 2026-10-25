@@ -424,7 +424,10 @@ window.GL = window.GL || {};
       narrenkappe: { clear: [0, 1, 2, 3], px: rows(0, ['A......................A', '.BB..................qq.', '..BBB....BBBqqq....qqq..', '...BBBBBBBBBqqqqqqqqq...', '..kkkkkkkkkkkkkkkkkkkk..']) },
       sonnenhut: { clear: [0, 1, 2, 3], px: sym(0, ['.......BBBBB', '......BBBBBB', '......kkkkkk', 'BBBBBBBBBBBB']).concat(at([[2, 7, 'F'], [1, 7, 'F'], [2, 6, 'A']])) },
       // C4 Die zwei Flotten: Kochmütze
-      kochmuetze: { clear: [0, 1, 2, 3], px: sym(0, ['.....BqBBqBB', '....BBBBBBBB', '.....BBBBBBB', '.....qBBBBBB', '....kkkkkkkk']) }
+      kochmuetze: { clear: [0, 1, 2, 3], px: sym(0, ['.....BqBBqBB', '....BBBBBBBB', '.....BBBBBBB', '.....qBBBBBB', '....kkkkkkkk']) },
+      // C4 Freibeuter der Krone: Fellmütze mit Flecken, breiter Federhut
+      fellmuetze: { clear: [0, 1, 2, 3], px: sym(0, ['......BBBBBB', '....BqBBBBBB', '...BBBBBBBBB', '...BBBBBBBBB', '..kkkkkkkkkk']).concat(at([[1, 8, 'L'], [2, 14, 'L'], [3, 6, 'L'], [1, 16, 'L'], [3, 17, 'L'], [2, 10, 'L']])) },
+      federhut: { clear: [0, 1, 2, 3, 4], px: rows(0, ['.......BBBBBBBB....XX...', '......BBBBBBBBBB..XX....', '......kkkkkkkkkk.XX.....', '.BBBBBBBBBBBBBBBBBBBBBB.', '...kkBBBBBBBBBBBBBBkk...']) }
     };
     // Masken und Kostüme (eigene Farben je Maske): G hell, g dunkel, Y Augen, T Zähne, W Wolke
     const MASKS = {
@@ -547,7 +550,22 @@ window.GL = window.GL || {};
       zielglas: at([[6, 13, 'M'], [6, 14, 'M'], [6, 15, 'M'], [6, 16, 'M'], [7, 13, 'M'], [8, 13, 'M'], [9, 13, 'M'], [7, 16, 'M'], [8, 16, 'M'], [9, 16, 'M'], [10, 13, 'M'], [10, 14, 'M'], [10, 15, 'M'], [10, 16, 'M'], [8, 17, 'M'], [8, 18, 'M'], [8, 19, 'K']]),
       zielrohr: at([[0, 23, 'M'], [1, 23, 'M'], [2, 23, 'M'], [3, 22, 'M'], [4, 22, 'M'], [5, 22, 'K'], [6, 22, 'K'], [5, 21, 'K'], [6, 21, 'K'], [7, 22, 'M'], [8, 22, 'V'], [9, 22, 'V'], [10, 22, 'V'], [11, 22, 'V'], [12, 23, 'V'], [13, 23, 'V'], [14, 23, 'V']]),
       anker: at([[15, 1, 'M'], [16, 1, 'M'], [17, 0, 'M'], [17, 1, 'M'], [18, 1, 'M'], [19, 1, 'M'], [20, 1, 'M'], [21, 1, 'M'], [22, 1, 'M'], [23, 1, 'M'], [24, 0, 'M'], [24, 1, 'M'], [24, 2, 'M'], [23, 0, 'M'], [23, 2, 'M'], [14, 1, 'K']]),
-      domino: at([[6, 7, 'K'], [6, 8, 'K'], [6, 9, 'K'], [6, 10, 'K'], [6, 13, 'K'], [6, 14, 'K'], [6, 15, 'K'], [6, 16, 'K'], [7, 7, 'K'], [7, 10, 'K'], [7, 11, 'K'], [7, 12, 'K'], [7, 13, 'K'], [7, 16, 'K'], [8, 7, 'K'], [8, 10, 'K'], [8, 13, 'K'], [8, 16, 'K'], [9, 7, 'K'], [9, 10, 'K'], [9, 13, 'K'], [9, 16, 'K'], [10, 8, 'K'], [10, 9, 'K'], [10, 14, 'K'], [10, 15, 'K']])
+      domino: at([[6, 7, 'K'], [6, 8, 'K'], [6, 9, 'K'], [6, 10, 'K'], [6, 13, 'K'], [6, 14, 'K'], [6, 15, 'K'], [6, 16, 'K'], [7, 7, 'K'], [7, 10, 'K'], [7, 11, 'K'], [7, 12, 'K'], [7, 13, 'K'], [7, 16, 'K'], [8, 7, 'K'], [8, 10, 'K'], [8, 13, 'K'], [8, 16, 'K'], [9, 7, 'K'], [9, 10, 'K'], [9, 13, 'K'], [9, 16, 'K'], [10, 8, 'K'], [10, 9, 'K'], [10, 14, 'K'], [10, 15, 'K']]),
+      // C4 Freibeuter der Krone (I = look.scarf für Schlange und Schirm)
+      steuerrad: at([[18, 20, 'V'], [18, 21, 'V'], [18, 22, 'V'], [19, 19, 'V'], [19, 21, 'V'], [19, 23, 'V'], [20, 19, 'V'], [20, 20, 'V'], [20, 21, 'A'], [20, 22, 'V'], [20, 23, 'V'], [21, 19, 'V'], [21, 21, 'V'], [21, 23, 'V'], [22, 20, 'V'], [22, 21, 'V'], [22, 22, 'V'], [17, 21, 'V'], [23, 21, 'V']]),
+      grossschwert: at([[1, 22, 'A'], [2, 22, 'V'], [3, 22, 'V'], [4, 22, 'V'], [5, 21, 'A'], [5, 22, 'A'], [5, 23, 'A'], [6, 22, 'A']].concat([7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23].map(y => [y, 22, 'K']), [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22].map(y => [y, 23, 'K']), [[24, 22, 'K']])),
+      schlange: at([[13, 4, 'I'], [13, 5, 'K'], [14, 4, 'I'], [14, 5, 'I'], [14, 6, 'F'], [15, 4, 'I'], [16, 3, 'I'], [16, 2, 'I'], [17, 3, 'I'], [18, 2, 'I'], [18, 3, 'I'], [19, 3, 'I'], [20, 2, 'I']]),
+      herzen: at([[1, 1, 'F'], [1, 3, 'F'], [2, 1, 'F'], [2, 2, 'F'], [2, 3, 'F'], [3, 2, 'F'], [2, 20, 'F'], [2, 22, 'F'], [3, 20, 'F'], [3, 21, 'F'], [3, 22, 'F'], [4, 21, 'F'], [23, 1, 'c'], [23, 3, 'c'], [24, 2, 'c']]),
+      bogen: at([[14, 22, 'V'], [15, 23, 'V'], [16, 23, 'V'], [17, 23, 'V'], [18, 23, 'V'], [19, 23, 'V'], [20, 23, 'V'], [21, 23, 'V'], [22, 23, 'V'], [23, 22, 'V'], [15, 22, 'Z'], [16, 22, 'Z'], [17, 22, 'Z'], [18, 22, 'Z'], [20, 22, 'Z'], [21, 22, 'Z'], [22, 22, 'Z'], [19, 22, 'F'], [19, 21, 'V']]),
+      sonnenbrille: rows(6, ['......KKKKKKKKKKKK......', '.......KXKK..KXKK.......', '........KK....KK........']),
+      faden: mir([6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17].map(y => [y, 0, 'X']).concat([[18, 1, 'X'], [19, 1, 'X'], [5, 1, 'X']])),
+      pfoten: mir([[19, 1, 'L'], [19, 2, 'L'], [19, 3, 'L'], [19, 4, 'L'], [20, 1, 'L'], [20, 2, 'c'], [20, 3, 'c'], [20, 4, 'L'], [21, 1, 'L'], [21, 2, 'L'], [21, 3, 'L'], [21, 4, 'L'], [22, 2, 'L'], [22, 3, 'L'], [18, 2, 'L'], [18, 3, 'L']]),
+      schirm: at([[11, 23, 'K'], [12, 22, 'I'], [12, 23, 'I'], [13, 22, 'I'], [13, 23, 'I'], [14, 22, 'I'], [14, 23, 'I'], [15, 22, 'I'], [15, 23, 'X'], [16, 22, 'I'], [17, 22, 'X'], [18, 22, 'K'], [19, 22, 'K'], [20, 22, 'K'], [21, 22, 'K'], [22, 22, 'K'], [23, 22, 'K'], [23, 21, 'K']]),
+      teddy: at([[18, 0, 'V'], [18, 2, 'V'], [19, 0, 'V'], [19, 1, 'V'], [19, 2, 'V'], [20, 0, 'K'], [20, 1, 'V'], [20, 2, 'K'], [21, 0, 'V'], [21, 1, 'p'], [21, 2, 'V'], [22, 0, 'V'], [22, 1, 'V'], [22, 2, 'V'], [23, 0, 'V'], [23, 2, 'V']]),
+      geister: at([[2, 0, 'Z'], [2, 1, 'Z'], [2, 2, 'Z'], [3, 0, 'K'], [3, 1, 'Z'], [3, 2, 'K'], [4, 0, 'Z'], [4, 1, 'Z'], [4, 2, 'Z'], [5, 0, 'Z'], [5, 2, 'Z'], [23, 21, 'Z'], [23, 22, 'Z'], [23, 23, 'Z'], [24, 21, 'K'], [24, 22, 'Z'], [24, 23, 'K'], [25, 21, 'Z'], [25, 22, 'Z'], [25, 23, 'Z'], [26, 21, 'Z'], [26, 23, 'Z']]),
+      fledermaus: at([[1, 0, 'K'], [1, 4, 'K'], [2, 0, 'K'], [2, 1, 'K'], [2, 2, 'K'], [2, 3, 'K'], [2, 4, 'K'], [3, 1, 'K'], [3, 3, 'K'], [0, 18, 'K'], [0, 22, 'K'], [1, 18, 'K'], [1, 19, 'K'], [1, 20, 'K'], [1, 21, 'K'], [1, 22, 'K'], [2, 19, 'K'], [2, 21, 'K']]),
+      stehkragen: mir([[9, 1, 'Q'], [10, 1, 'Q'], [10, 2, 'Q'], [11, 1, 'Q'], [11, 2, 'Q'], [12, 2, 'Q'], [12, 3, 'Q'], [13, 3, 'Q'], [13, 4, 'Q'], [13, 5, 'Q'], [14, 4, 'Q'], [14, 5, 'Q'], [14, 6, 'Q'], [14, 7, 'Q']]),
+      nadel: at([[13, 23, 'M'], [14, 23, 'M'], [15, 22, 'M'], [16, 22, 'M'], [17, 22, 'M'], [18, 22, 'M'], [13, 22, 'F'], [12, 21, 'F'], [12, 22, 'F'], [19, 23, 'F'], [20, 23, 'F'], [21, 22, 'F']])
     };
     // Fraktions-Abzeichen (Leitfarbe, je Fraktion ein Teil). Schlüssel = Banden-id, Varianten mit _a/_b fürs Board.
     // r Leitfarbe, a Messing
@@ -580,6 +598,13 @@ window.GL = window.GL || {};
     BADGE.weissbart_wimpel = { px: WIMPEL, c: { r: '#ece3cc', a: '#2f5a9a' } };
     BADGE.rothaar_tuch = { px: TUCH, c: { r: '#c8302c', a: '#f4f0e0' } };
     BADGE.rothaar_wimpel = { px: WIMPEL, c: { r: '#c8302c', a: '#f4f0e0' } };
+    // Freibeuter der Krone: Tannengrün mit Gold, Schauerbarken-Bande Tannengrün mit Nebelgrau
+    const SIEGEL = at([[16, 13, 'r'], [16, 14, 'r'], [16, 15, 'r'], [17, 13, 'r'], [17, 14, 'a'], [17, 15, 'r'], [18, 13, 'r'], [18, 14, 'r'], [18, 15, 'r'], [19, 13, 'a'], [19, 15, 'a']]);
+    const KLAPPE = mir([[15, 5, 'a'], [15, 6, 'r'], [16, 3, 'r'], [16, 4, 'r'], [16, 5, 'r'], [16, 6, 'a'], [17, 3, 'a'], [17, 4, 'a']]);
+    BADGE.samurai_siegel = { px: SIEGEL, c: { r: '#2f6a4a', a: '#d9a640' } };
+    BADGE.samurai_klappe = { px: KLAPPE, c: { r: '#2f6a4a', a: '#d9a640' } };
+    BADGE.thriller_siegel = { px: SIEGEL, c: { r: '#2f6a4a', a: '#a8b0b8' } };
+    BADGE.thriller_klappe = { px: KLAPPE, c: { r: '#2f6a4a', a: '#a8b0b8' } };
     BADGE.weissbart = BADGE.weissbart_tuch; BADGE.rothaar = BADGE.rothaar_tuch; // Die zwei Flotten: Halstuch (Felix, 25.10.)
     BADGE.buggy = BADGE.buggy_kragen; BADGE.supernova = BADGE.supernova_kragen; // Zirkus der Narren: Rüschenkragen (Felix, 25.10.)
     BADGE.baroque = BADGE.baroque_schleife; BADGE.revolution = BADGE.revolution_schleife; // Barock-Bund: Halsschleife (Felix, 25.10.)
