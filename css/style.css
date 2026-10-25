@@ -10573,3 +10573,13 @@ body:not(.in-run) .hq .hub-tile.bld small, .hub-tile.bld small { font-size: .7re
 
 /* ===== 9a Leerlauf-Last: Wolken, Vögel, Fische und Glanz fliegen per translate statt left (kein Neuvermessen der Seite pro Bild). cqw braucht einen Container ===== */
 .sail-stage, .c3-stage, .jr-stage, .sz-stage, .st-sky, .os-map, .sk-map, .field.v3 .b3, .loot-tile .lt-art { container-type: inline-size; }
+
+/* 9a: Ort in der Kopfzeile. Trenner per CSS statt Text; am Handy zwei kleine Zeilen (Insel klein, Halt fett), damit beides in den schmalen Platz passt */
+.track-isl::after { content: ' · '; }
+@media (max-width: 560px) {
+  body.in-run header .track .track-loc { display: flex; flex-direction: column; justify-content: center; line-height: 1.12; min-width: 96px; }
+  body.in-run header .track .track-isl { font-size: .72rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  body.in-run header .track .track-isl::after { content: none; }
+  body.in-run header .track .track-stop { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  body.in-run header .track .head-chips { max-width: 56%; }
+}
