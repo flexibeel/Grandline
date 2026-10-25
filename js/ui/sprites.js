@@ -605,6 +605,7 @@ window.GL = window.GL || {};
     BADGE.samurai_klappe = { px: KLAPPE, c: { r: '#2f6a4a', a: '#d9a640' } };
     BADGE.thriller_siegel = { px: SIEGEL, c: { r: '#2f6a4a', a: '#a8b0b8' } };
     BADGE.thriller_klappe = { px: KLAPPE, c: { r: '#2f6a4a', a: '#a8b0b8' } };
+    BADGE.samurai = BADGE.samurai_siegel; BADGE.thriller = BADGE.thriller_siegel; // Freibeuter der Krone: Kaperbrief-Siegel (Felix, 25.10.)
     BADGE.weissbart = BADGE.weissbart_tuch; BADGE.rothaar = BADGE.rothaar_tuch; // Die zwei Flotten: Halstuch (Felix, 25.10.)
     BADGE.buggy = BADGE.buggy_kragen; BADGE.supernova = BADGE.supernova_kragen; // Zirkus der Narren: Rüschenkragen (Felix, 25.10.)
     BADGE.baroque = BADGE.baroque_schleife; BADGE.revolution = BADGE.revolution_schleife; // Barock-Bund: Halsschleife (Felix, 25.10.)

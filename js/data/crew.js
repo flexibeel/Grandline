@@ -81,11 +81,11 @@ GL.data.crew = [
   { id: 'kaku',      name: 'Stelz',      type: 'klinge',  role: 'kaempfer', faction: 'cp9',     hp: 28, atk: 8, spd: 7, locked: true,
     look: { hairStyle: 'zopf', hair: '#c8703a', skin: '#f2c9a0', shirt: '#2e2a3a', pants: '#222222', hat: 'cap', hatColor: '#e8e0d0', x: ['stiefel', 'schwertruecken'] } },
   { id: 'jinbei',    name: 'Jonah',    type: 'kraft',   role: 'brecher',  faction: 'samurai', hp: 40, atk: 7, spd: 4, locked: true,
-    look: { hair: '#1a1a1a', skin: '#5a8fc2', shirt: '#e0e0d0', pants: '#2a3a5a' } },
+    look: { hairStyle: 'zopf', hair: '#2a2a2a', skin: '#6aa0a0', beard: '#2a2a2a', shirt: '#2a5a7a', pants: '#e8e0c8', x: ['schwarzgurt', 'flosse', 'steuerrad'] } },
   { id: 'ace',       name: 'Asch',       type: 'kraft',   role: 'kaempfer', faction: 'weissbart', hp: 28, atk: 9, spd: 6, locked: true,
     look: { hairStyle: 'buerste', hair: '#b8b4ac', skin: '#e8b890', shirt: '#7a4a2a', pants: '#3a3a3a', x: ['russ', 'handschuhe', 'glut'] } },
   { id: 'law',       name: 'Lorn',       type: 'klinge',  role: 'helfer',   faction: 'samurai', hp: 26, atk: 7, spd: 6, locked: true,
-    look: { hair: '#1a1a1a', skin: '#e8c0a0', shirt: '#222222', pants: '#4a4030', hat: 'cap', hatColor: '#f0f0f0' } },
+    look: { hairStyle: 'tolle', hair: '#2a3a4a', skin: '#d8a878', shirt: '#e8e8e0', pants: '#3a3a44', coat: '#3a5a6a', acc: 'ohrring', x: ['mantel', 'handschuhe', 'schwertruecken'] } },
 
   // Neue Freischaltungen über Raids und erwachte Früchte
   { id: 'marco',      name: 'Falk',       type: 'technik', role: 'helfer',   faction: 'weissbart', hp: 32, atk: 6,  spd: 7, locked: true,
@@ -93,11 +93,11 @@ GL.data.crew = [
   { id: 'whitebeard', name: 'Gischt',  type: 'kraft',   role: 'brecher',  faction: 'weissbart', hp: 48, atk: 9,  spd: 3, locked: true,
     look: { hairStyle: 'kranz', hair: '#c8c8c0', skin: '#e0b088', beard: '#c8c8c0', shirt: '#4a7a8a', pants: '#2a2a3a', hat: 'cap', hatColor: '#2a3a5a', acc: 'pfeife', x: ['anker'] } },
   { id: 'mihawk',     name: 'Silas',      type: 'klinge',  role: 'kaempfer', faction: 'samurai',   hp: 30, atk: 11, spd: 6, locked: true,
-    look: { hair: '#1a1a1a', skin: '#f2c9a0', shirt: '#2a2a2a', pants: '#3a2a1a', hat: 'cap', hatColor: '#3a2a1a' } },
+    look: { hairStyle: 'zopf', hair: '#c8ccd8', skin: '#e8c8a8', shirt: '#2a2a44', pants: '#2a2a2a', hat: 'hood', hatColor: '#1e2238', scarf: '#3a3a5a', acc: 'narbe', x: ['schal', 'grossschwert'] } },
   { id: 'hancock',    name: 'Mira',     type: 'technik', role: 'kaempfer', faction: 'samurai',   hp: 28, atk: 9,  spd: 7, locked: true,
-    look: { hair: '#1a1a1a', skin: '#f6d2b0', shirt: '#c0304a', pants: '#e8e8e8', longHair: true } },
+    look: { hairStyle: 'dutt', hair: '#5a2a4a', skin: '#e8b890', shirt: '#e86a8a', pants: '#f4e8e0', acc: 'blume', x: ['herzen', 'bogen'] } },
   { id: 'doflamingo', name: 'Rosé',  type: 'klinge',  role: 'kaempfer', faction: 'samurai',   hp: 30, atk: 9,  spd: 7, locked: true,
-    look: { hair: '#e8d070', skin: '#f2c9a0', shirt: '#e870a0', pants: '#f0f0f0' } },
+    look: { hair: '#c8b8d8', skin: '#f0d0b8', shirt: '#f4f0e8', pants: '#3a2a3a', coat: '#d86a9a', hat: 'tophat', hatColor: '#3a2a3a', acc: 'blume', x: ['mantel', 'faden'] } },
   { id: 'shanks',     name: 'Fenn',      type: 'klinge',  role: 'kaempfer', faction: 'rothaar',   hp: 34, atk: 10, spd: 7, locked: true,
     look: { hairStyle: 'tolle', hair: '#c8ccd0', skin: '#e8c0a0', shirt: '#3a3a44', pants: '#2a2a2a', coat: '#c8302c', acc: 'ohrring', x: ['mantel', 'schwertruecken'] } },
 
@@ -144,9 +144,9 @@ GL.data.crew = [
   { id: 'vista',     name: 'Veit',       type: 'klinge',  role: 'kaempfer', faction: 'weissbart',  hp: 30, atk: 9,  spd: 6, locked: true,
     look: { hairStyle: 'bob', hair: '#a05a3a', skin: '#f0d0b0', shirt: '#6a8a4a', pants: '#3a3a3a', acc: 'blume', x: ['klingen', 'blueten'] } },
   { id: 'kuma',      name: 'Tatz',        type: 'kraft',   role: 'brecher',  faction: 'samurai',    hp: 46, atk: 7,  spd: 3, locked: true,
-    look: { hair: '#2a2a2a', skin: '#c8a080', shirt: '#4a3a2a', pants: '#3a3a3a', mask: 'bear' } },
+    look: { hair: '#3a2a1a', skin: '#c8a080', shirt: '#e8dcc8', pants: '#5a4a3a', hat: 'ohrenkappe', hatColor: '#7a5a3a', scarf: '#8a6a4a', acc: 'brille', x: ['schal', 'pfoten'] } },
   { id: 'perona',    name: 'Huschel',      type: 'technik', role: 'helfer',   faction: 'thriller',   hp: 22, atk: 6,  spd: 7, locked: true,
-    look: { hair: '#e870a0', skin: '#f2d0b8', shirt: '#2a1a2a', pants: '#e870a0', longHair: true, hat: 'cap', hatColor: '#c04a7a' } },
+    look: { hairStyle: 'bob', hair: '#c8b8e8', skin: '#f4e0d8', shirt: '#3a2a4a', pants: '#5a4a6a', scarf: '#2a2030', x: ['geister', 'schirm'] } },
 
   // Schlimmste Generation (Supernovas von Sabaody)
   { id: 'kid',       name: 'Magnus', type: 'kraft',   role: 'kaempfer', faction: 'supernova', hp: 32, atk: 9, spd: 6, locked: true,
@@ -163,9 +163,9 @@ GL.data.crew = [
     look: { hairStyle: 'zoepfe', hair: '#2a2a2a', skin: '#a87a58', shirt: '#4a8ac0', pants: '#3a3a5a', hat: 'ohrenschuetzer', hatColor: '#c2318a', x: ['trommel'] } },
   // Thriller-Bark-Piraten
   { id: 'moria',     name: 'Graf Dämmerling', type: 'technik', role: 'brecher',  faction: 'thriller', hp: 44, atk: 7, spd: 3, locked: true,
-    look: { hair: '#3a2a4a', skin: '#b8b0c8', shirt: '#2a2030', pants: '#4a2a3a', mask: 'bat' } },
+    look: { hairStyle: 'tolle', hair: '#4a2a5a', skin: '#c8c0d8', shirt: '#5a2030', pants: '#2a2030', coat: '#2a1a2a', x: ['stehkragen', 'mantel', 'fledermaus'] } },
   { id: 'absalom',   name: 'Ulf',     type: 'klinge',  role: 'kaempfer', faction: 'thriller', hp: 28, atk: 8, spd: 7, locked: true,
-    look: { hair: '#e8c060', skin: '#f2c9a0', shirt: '#e8e0d0', pants: '#4a3a2a', mask: 'leopard' } },
+    look: { hairStyle: 'locken', hair: '#e8c060', skin: '#e8c0a0', shirt: '#8a9098', pants: '#3a3a44', scarf: '#c8ccd0', acc: 'narbe', x: ['schal', 'handschuhe'] } },
   { id: 'hogback',   name: 'Doktor Flick', type: 'technik', role: 'helfer',   faction: 'thriller', hp: 30, atk: 5, spd: 5, locked: true,
-    look: { hair: '#2a2a2a', skin: '#f2c9a0', shirt: '#e8e8e8', pants: '#2a2a2a', acc: 'brille' } }
+    look: { hairStyle: 'glatze', hair: '#2a2a2a', skin: '#f2c9a0', shirt: '#7aa89a', pants: '#7aa89a', hat: 'cap', hatColor: '#6a9a8a', x: ['schutzbrille', 'nadel'] } }
 ];
