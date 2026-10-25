@@ -75,7 +75,7 @@ GL.data.crew = [
   { id: 'crocodile', name: 'Sirokk', type: 'technik', role: 'kaempfer', faction: 'baroque', hp: 30, atk: 7, spd: 6, locked: true,
     look: { hairStyle: 'buerste', hair: '#c8a060', skin: '#d9a87a', shirt: '#2a2a2a', pants: '#222222', coat: '#7a1f35', scarf: '#e8d8b0', acc: 'narbe', x: ['mantel', 'pelz', 'sanduhr'] } },
   { id: 'enel',      name: 'Zirrus',      type: 'kraft',   role: 'kaempfer',                    hp: 26, atk: 8, spd: 7, locked: true,
-    look: { hair: '#f0f0f0', skin: '#f2c9a0', shirt: '#e8b030', pants: '#e8b030', hat: 'band', hatColor: '#e8e8e8' } },
+    look: { hairStyle: 'dutt', hair: '#b8d8f0', skin: '#e8c0a0', shirt: '#f4f4f0', pants: '#3a5a8a', coat: '#5a8ac8', x: ['mantel', 'wolkenkragen', 'blitze'] } },
   { id: 'rob-lucci', name: 'Agent Krall', type: 'kraft',   role: 'kaempfer', faction: 'cp9',     hp: 30, atk: 5, spd: 6, locked: true,
     look: { hairStyle: 'bob', hair: '#222222', skin: '#f2c9a0', shirt: '#e8e8e8', pants: '#2e2a3a', hat: 'ohrenkappe', hatColor: '#3a3048', coat: '#2a2a2a', x: ['mantel'] } },
   { id: 'kaku',      name: 'Stelz',      type: 'klinge',  role: 'kaempfer', faction: 'cp9',     hp: 28, atk: 8, spd: 7, locked: true,
