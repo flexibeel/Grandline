@@ -55,3 +55,4 @@ Felix per Klick, alle wie empfohlen: **Meeresband über den Karten**, Bewegung *
 - `render.js`: nur `data-th` (Kulisse) an jeder Karte.
 - CSS-Block „9c D“: nur `transform`/`opacity` mit kurzen Übergängen, keine Dauer-Animation. „Weniger Bewegung“: keine Neigung.
 - Geprüft: Testkopie gebündelt, Headless 390 px mit Musterkarten (5 Kulissen): Band da, Insel wechselt beim Wischen, Klassen fallen nach dem Wischen ab, 0 `pageerror`. Offen: in einer echten Kurswahl am Handy ansehen.
+- **Live seit 25h** (46. Chat, 25.10.). Damit sind alle vier Häppchen (A bis D) von 9c live. Offen: am Handy in einer echten Kurswahl ansehen.

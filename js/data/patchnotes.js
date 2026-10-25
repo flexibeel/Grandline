@@ -1,6 +1,10 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-25h', date: '25.10.', title: 'Kurs auf den Horizont', items: [
+    '🌊 Über der Kurswahl segelt jetzt dein Schiff: Ein Meeresband mit Wolken, Wellen und Horizont-Inseln zieht beim Wischen mit, als würdest du wirklich auf die nächste Insel zusteuern',
+    '🏝️ Die Insel der mittleren Karte liegt immer am Horizont. Wisch weiter, und sie rückt vorbei, die nächste taucht auf',
+    '⛵ Das Schiff neigt sich beim Wischen in Fahrtrichtung und zieht ein Kielwasser hinter sich her. Steht die Karte still, kehrt Ruhe ein' ] },
   { v: '2026-10-25g', date: '25.10.', title: 'Alle Mann an Deck', items: [
     '👆 Beim Aufstellen der Crew kannst du Figuren jetzt mit dem Finger packen und aufs Deck ziehen. Kurz halten oder seitlich ziehen, senkrecht wischen scrollt wie gewohnt',
     '🔄 Zieh eine Figur auf einen besetzten Platz, und die beiden tauschen. Ziehst du sie zurück auf den Steg, geht sie an Land',
