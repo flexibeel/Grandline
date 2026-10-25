@@ -23,6 +23,9 @@ Felix (18:04): Er findet die Idee gut und möchte, dass **mehr als 2** mitspiele
 - **Anklage:** Jeder darf anklagen, mit gemeinsamem Fehlversuch-Zähler. Die Lösung zählt als Teamsieg, auch wenn einer sie allein findet; der Partner sieht „Hinweis X hätte es verraten“.
 - **Ehrlich:** Das ist der heikelste Teil des Spiels. Zu eng gebaut, wartet man ständig, zu locker gebaut, rusht einer durch. Wir testen den Takt erst mit M1 bis M3, nicht auf Papier.
 
+## Plattform (Felix, 18:10)
+Ziel: erst **Web-App** (wie Grandline, installierbar, offline), später zusätzlich als **App in den Stores** (App-Hülle, zum Beispiel Capacitor, derselbe Spielcode). Wichtig für den Coop über Entfernung: **Benachrichtigungen** („dein Partner hat einen Hinweis gelegt“). Im Web nur eingeschränkt (iPhone nur bei installierter Web-App), in der App zuverlässiger. Store-Kosten grob: Apple etwa 99 $ pro Jahr, Google einmalig etwa 25 $, dazu Prüfung. Entscheidung erst, wenn der Spaß bewiesen ist (nach M0 bis M3).
+
 ## Der Haken (was es von anderen unterscheidet)
 **Wissen ist verteilt.** Eine Rolle sieht nur Tatort-Spuren, eine nur Aussagen, eine nur Akten und Alibis. Jeder Hinweis allein sagt wenig, zwei Hinweise zusammen entlarven eine Lüge. Man muss also reden, zeigen, vergleichen. Das ist der Spaß, nicht der Zufall und nicht das Reaktionsvermögen.
 
