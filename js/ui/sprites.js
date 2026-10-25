@@ -422,7 +422,9 @@ window.GL = window.GL || {};
       tricorn: { clear: [0, 1, 2, 3], px: sym(0, ['.B......BBBB', '.BB...BBBBBB', '.BBBBBBBBBBB', 'BBBBBBBBBBBB', 'kkkkkkkkkkkk']).concat(at([[1, 11, 'A'], [1, 12, 'A']])) },
       // C4 Zirkus der Narren: Narrenkappe (zweifarbig, Schellen), Sonnenhut
       narrenkappe: { clear: [0, 1, 2, 3], px: rows(0, ['A......................A', '.BB..................qq.', '..BBB....BBBqqq....qqq..', '...BBBBBBBBBqqqqqqqqq...', '..kkkkkkkkkkkkkkkkkkkk..']) },
-      sonnenhut: { clear: [0, 1, 2, 3], px: sym(0, ['.......BBBBB', '......BBBBBB', '......kkkkkk', 'BBBBBBBBBBBB']).concat(at([[2, 7, 'F'], [1, 7, 'F'], [2, 6, 'A']])) }
+      sonnenhut: { clear: [0, 1, 2, 3], px: sym(0, ['.......BBBBB', '......BBBBBB', '......kkkkkk', 'BBBBBBBBBBBB']).concat(at([[2, 7, 'F'], [1, 7, 'F'], [2, 6, 'A']])) },
+      // C4 Die zwei Flotten: Kochmütze
+      kochmuetze: { clear: [0, 1, 2, 3], px: sym(0, ['.....BqBBqBB', '....BBBBBBBB', '.....BBBBBBB', '.....qBBBBBB', '....kkkkkkkk']) }
     };
     // Masken und Kostüme (eigene Farben je Maske): G hell, g dunkel, Y Augen, T Zähne, W Wolke
     const MASKS = {
@@ -533,6 +535,18 @@ window.GL = window.GL || {};
       puppe: at([[21, 4, 'p'], [22, 4, 'A'], [23, 3, 'A'], [23, 4, 'A'], [23, 5, 'A'], [24, 4, 'A'], [25, 3, 'A'], [25, 5, 'A']]),
       mundharmonika: at([[12, 10, 'M'], [12, 11, 'K'], [12, 12, 'M'], [12, 13, 'K'], [12, 14, 'M'], [12, 15, 'M']]),
       trommel: rows(19, ['........AAAAAAAA........', '........FXFFXFFX........', '........XFFXFFXF........', '........AAAAAAAA........']),
+      // C4 Die zwei Flotten
+      glut: at([[20, 2, 'F'], [21, 2, 'F'], [21, 3, 'A'], [19, 1, 'A'], [17, 0, 'F'], [14, 1, 'A'], [11, 0, 'F'], [9, 22, 'F'], [12, 23, 'A'], [6, 23, 'F']]),
+      blauflamme: mir([[21, 2, 'n'], [21, 3, 'n'], [20, 2, 'w'], [20, 1, 'n'], [19, 1, 'w'], [18, 1, 'n'], [17, 0, 'w'], [16, 1, 'w']]),
+      feder: at([[2, 22, 'X'], [3, 22, 'X'], [3, 21, 'X'], [4, 21, 'X'], [5, 21, 'X'], [6, 20, 'K'], [1, 22, 'K']]),
+      blueten: at([[2, 1, 'c'], [7, 0, 'c'], [11, 1, 'p'], [5, 22, 'c'], [10, 23, 'c'], [14, 22, 'p'], [24, 1, 'c'], [26, 22, 'c']]),
+      gewehr: at([[1, 23, 'M'], [2, 23, 'M'], [3, 23, 'M'], [4, 22, 'M'], [5, 22, 'M'], [6, 22, 'M'], [7, 22, 'V'], [8, 22, 'V'], [9, 22, 'V'], [10, 22, 'V'], [11, 23, 'V'], [12, 23, 'V'], [13, 23, 'V']]),
+      latz: rows(15, ['........P......P........', '........P......P........', '........PAPPPPAP........', '........PPPPPPPP........', '........PPPPPPPP........', '........PPPPPPPP........', '........PPPPPPPP........']),
+      pfanne: at([[20, 22, 'V'], [19, 22, 'V'], [18, 22, 'V'], [17, 21, 'K'], [17, 22, 'K'], [17, 23, 'K'], [16, 21, 'K'], [16, 22, 'K'], [16, 23, 'K'], [15, 22, 'K'], [14, 22, 'Z'], [13, 23, 'Z']]),
+      armbrust: at([[18, 19, 'V'], [18, 20, 'V'], [18, 21, 'V'], [18, 22, 'V'], [18, 23, 'M'], [15, 22, 'M'], [16, 22, 'M'], [17, 22, 'M'], [19, 22, 'M'], [20, 22, 'M'], [21, 22, 'M'], [16, 21, 'L'], [20, 21, 'L']]),
+      zielglas: at([[6, 13, 'M'], [6, 14, 'M'], [6, 15, 'M'], [6, 16, 'M'], [7, 13, 'M'], [8, 13, 'M'], [9, 13, 'M'], [7, 16, 'M'], [8, 16, 'M'], [9, 16, 'M'], [10, 13, 'M'], [10, 14, 'M'], [10, 15, 'M'], [10, 16, 'M'], [8, 17, 'M'], [8, 18, 'M'], [8, 19, 'K']]),
+      zielrohr: at([[0, 23, 'M'], [1, 23, 'M'], [2, 23, 'M'], [3, 22, 'M'], [4, 22, 'M'], [5, 22, 'K'], [6, 22, 'K'], [5, 21, 'K'], [6, 21, 'K'], [7, 22, 'M'], [8, 22, 'V'], [9, 22, 'V'], [10, 22, 'V'], [11, 22, 'V'], [12, 23, 'V'], [13, 23, 'V'], [14, 23, 'V']]),
+      anker: at([[15, 1, 'M'], [16, 1, 'M'], [17, 0, 'M'], [17, 1, 'M'], [18, 1, 'M'], [19, 1, 'M'], [20, 1, 'M'], [21, 1, 'M'], [22, 1, 'M'], [23, 1, 'M'], [24, 0, 'M'], [24, 1, 'M'], [24, 2, 'M'], [23, 0, 'M'], [23, 2, 'M'], [14, 1, 'K']]),
       domino: at([[6, 7, 'K'], [6, 8, 'K'], [6, 9, 'K'], [6, 10, 'K'], [6, 13, 'K'], [6, 14, 'K'], [6, 15, 'K'], [6, 16, 'K'], [7, 7, 'K'], [7, 10, 'K'], [7, 11, 'K'], [7, 12, 'K'], [7, 13, 'K'], [7, 16, 'K'], [8, 7, 'K'], [8, 10, 'K'], [8, 13, 'K'], [8, 16, 'K'], [9, 7, 'K'], [9, 10, 'K'], [9, 13, 'K'], [9, 16, 'K'], [10, 8, 'K'], [10, 9, 'K'], [10, 14, 'K'], [10, 15, 'K']])
     };
     // Fraktions-Abzeichen (Leitfarbe, je Fraktion ein Teil). Schlüssel = Banden-id, Varianten mit _a/_b fürs Board.
@@ -559,6 +573,13 @@ window.GL = window.GL || {};
     BADGE.buggy_raute = { px: RAUTE, c: { r: '#c2318a', a: '#f4f0e0' } };
     BADGE.supernova_kragen = { px: RUFF, c: { r: '#c2318a', a: '#f2d24a' } };
     BADGE.supernova_raute = { px: RAUTE, c: { r: '#c2318a', a: '#f2d24a' } };
+    // Die zwei Flotten: Gischt-Flotte Elfenbein mit Marineblau, Rotmantel-Flotte Mohnrot mit Creme
+    const TUCH = rows(15, ['........rrraarrr........', '.........rrrrrr.........', '..........rrrr..........', '...........rr...........']);
+    const WIMPEL = at([[16, 7, 'a'], [17, 7, 'a'], [18, 7, 'a'], [19, 7, 'a'], [16, 8, 'r'], [16, 9, 'r'], [16, 10, 'r'], [17, 8, 'r'], [17, 9, 'r']]);
+    BADGE.weissbart_tuch = { px: TUCH, c: { r: '#ece3cc', a: '#2f5a9a' } };
+    BADGE.weissbart_wimpel = { px: WIMPEL, c: { r: '#ece3cc', a: '#2f5a9a' } };
+    BADGE.rothaar_tuch = { px: TUCH, c: { r: '#c8302c', a: '#f4f0e0' } };
+    BADGE.rothaar_wimpel = { px: WIMPEL, c: { r: '#c8302c', a: '#f4f0e0' } };
     BADGE.buggy = BADGE.buggy_kragen; BADGE.supernova = BADGE.supernova_kragen; // Zirkus der Narren: Rüschenkragen (Felix, 25.10.)
     BADGE.baroque = BADGE.baroque_schleife; BADGE.revolution = BADGE.revolution_schleife; // Barock-Bund: Halsschleife (Felix, 25.10.)
     BADGE.cp9 = BADGE.cp9_krawatte; // Schattenkorps: Krawatte (Felix, 25.10.)
