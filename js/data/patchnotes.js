@@ -1,6 +1,10 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-25e', date: '25.10.', title: 'Leinen los!', items: [
+    '⛵ Nach „Ablegen“ legt dein Schiff jetzt richtig ab: Die Crew steht an Deck, die Leinen fallen, das Dock zieht davon und das Meer rauscht vorbei',
+    '📣 Bis zu drei aus deiner Crew rufen dabei etwas, du als Kapitän zuerst. Jede Rolle hat ihre eigenen Sprüche',
+    '👆 Die Szene dauert nur zwei Sekunden. Wer es eilig hat, tippt sie einfach weg' ] },
   { v: '2026-10-25d', date: '25.10.', title: 'Starke Gegner, großer Auftritt', items: [
     '⭐ Elite-Kämpfe melden sich jetzt an: Ein kurzes Banner „Elite“ fährt ins Bild, und die Namen der Gegner tragen einen goldenen Rand mit Stern',
     '💥 Wenn ein Raid-Boss einfährt, gibt es einen Schlag aufs Bild. Das Wackeln merkt man, auch ohne hinzusehen',
