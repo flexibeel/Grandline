@@ -419,7 +419,10 @@ window.GL = window.GL || {};
       // C4 Schattenkorps: Melone, Kappe mit Öhrchen
       melone: { clear: [0, 1, 2, 3], px: sym(0, ['........BBBB', '......BBBBBB', '.....BqBBBBB', '.....kkkkkkk', '..BBBBBBBBBB']) },
       ohrenkappe: { clear: [0, 1, 2, 3], px: sym(0, ['...BB.......', '...BqBBBBBBB', '...BBBBBBBBB', '...BBBBBBBBB', '..kkkkkkkkkk']) },
-      tricorn: { clear: [0, 1, 2, 3], px: sym(0, ['.B......BBBB', '.BB...BBBBBB', '.BBBBBBBBBBB', 'BBBBBBBBBBBB', 'kkkkkkkkkkkk']).concat(at([[1, 11, 'A'], [1, 12, 'A']])) }
+      tricorn: { clear: [0, 1, 2, 3], px: sym(0, ['.B......BBBB', '.BB...BBBBBB', '.BBBBBBBBBBB', 'BBBBBBBBBBBB', 'kkkkkkkkkkkk']).concat(at([[1, 11, 'A'], [1, 12, 'A']])) },
+      // C4 Zirkus der Narren: Narrenkappe (zweifarbig, Schellen), Sonnenhut
+      narrenkappe: { clear: [0, 1, 2, 3], px: rows(0, ['A......................A', '.BB..................qq.', '..BBB....BBBqqq....qqq..', '...BBBBBBBBBqqqqqqqqq...', '..kkkkkkkkkkkkkkkkkkkk..']) },
+      sonnenhut: { clear: [0, 1, 2, 3], px: sym(0, ['.......BBBBB', '......BBBBBB', '......kkkkkk', 'BBBBBBBBBBBB']).concat(at([[2, 7, 'F'], [1, 7, 'F'], [2, 6, 'A']])) }
     };
     // Masken und Kostüme (eigene Farben je Maske): G hell, g dunkel, Y Augen, T Zähne, W Wolke
     const MASKS = {
@@ -460,7 +463,8 @@ window.GL = window.GL || {};
       locken: g => { sym(3, ['...HH.......', '..HHH.......', '..HH........', '.HHH........', '.HH.........', '.HHH........', '..HH........', '.HHH........', '..HH........', '...H........']).forEach(([y, x, ch]) => { g[y][x] = ch; }); },
       tolle: g => { rows(0, ['.....HHHHHHHHHHHH.......', '...HHHHHHHHHHHHHHH......', '..HHHHHHHHHHHHHHHHH.....', '.HHHHH..................']).forEach(([y, x, ch]) => { g[y][x] = ch; }); },
       zoepfe: g => { [9, 10, 11, 12, 13, 14, 15, 16].forEach(y => { g[y][2] = 'H'; g[y][3] = y % 2 ? 'H' : 'b'; g[y][21] = 'H'; g[y][20] = y % 2 ? 'H' : 'b'; }); g[17][2] = g[17][21] = 'F'; },
-      stachel: g => { rows(0, ['......H...HH...H..H.....', '......HHHHHHHHHHHH......']).forEach(([y, x, ch]) => { g[y][x] = ch; }); }
+      stachel: g => { rows(0, ['......H...HH...H..H.....', '......HHHHHHHHHHHH......']).forEach(([y, x, ch]) => { g[y][x] = ch; }); },
+      kranz: g => { HAIR.glatze(g); sym(3, ['...H........', '..HHH.......', '..HH........', '..H.........']).forEach(([y, x, ch]) => { g[y][x] = ch; }); }
     };
     // Markenzeichen (look.x, höchstens 4): Q Mantel (look.coat), I Schal (look.scarf), M Metall, n Dose, p Pflaster, i Eis
     const EXTRA = {
@@ -512,7 +516,24 @@ window.GL = window.GL || {};
       flosse: rows(10, ['S.', 'SS', 'SSS', 'SSS']),
       schnorchel: at([[2, 21, 'A'], [3, 21, 'A'], [4, 21, 'A'], [5, 22, 'A'], [6, 22, 'A'], [7, 22, 'A'], [8, 22, 'A'], [9, 22, 'A'], [10, 21, 'A'], [11, 20, 'A'], [11, 19, 'A'], [11, 18, 'A'], [1, 21, 'F'], [1, 20, 'F']]),
       flasche: at([[20, 5, 'K'], [21, 5, 'F'], [21, 6, 'F'], [22, 5, 'F'], [22, 6, 'F'], [23, 5, 'F'], [23, 6, 'F'], [21, 4, 'F']]),
-      eiszapfen: at([[15, 4, 'i'], [16, 4, 'i'], [17, 4, 'i'], [15, 19, 'i'], [16, 19, 'i'], [17, 19, 'i'], [16, 3, 'i'], [16, 20, 'i']])
+      eiszapfen: at([[15, 4, 'i'], [16, 4, 'i'], [17, 4, 'i'], [15, 19, 'i'], [16, 19, 'i'], [17, 19, 'i'], [16, 3, 'i'], [16, 20, 'i']]),
+      // C4 Zirkus der Narren
+      baelle: at([[13, 1, 'F'], [14, 1, 'F'], [15, 0, 'A'], [16, 0, 'A'], [17, 1, 'n'], [18, 1, 'n']]),
+      konfetti: at([[2, 1, 'F'], [6, 0, 'A'], [9, 23, 'n'], [4, 22, 'A'], [12, 22, 'F'], [0, 4, 'n'], [25, 2, 'A'], [26, 21, 'F']]),
+      keule: rows(11, ['.....................VV.', '....................VVVV', '....................VLVV', '....................VVVV', '....................VVLV', '.....................VV.', '.....................V..', '.....................V..']).concat(at([[22, 21, 'V']])),
+      messer: at([[10, 0, 'M'], [11, 0, 'M'], [12, 0, 'V'], [14, 1, 'M'], [15, 1, 'M'], [16, 1, 'V']]),
+      fackel: at([[12, 22, 'A'], [13, 21, 'F'], [13, 22, 'A'], [13, 23, 'F'], [14, 22, 'F'], [15, 22, 'V'], [16, 22, 'V'], [17, 22, 'V'], [18, 22, 'V']]),
+      peitsche: at([[20, 1, 'V'], [21, 1, 'V'], [22, 0, 'L'], [23, 0, 'L'], [24, 1, 'L'], [25, 2, 'L'], [26, 2, 'L'], [27, 1, 'L'], [27, 0, 'L']]),
+      metallarm: at([[16, 3, 'M'], [17, 2, 'M'], [17, 3, 'M'], [18, 2, 'K'], [18, 3, 'M'], [19, 2, 'M'], [19, 3, 'M'], [20, 2, 'M'], [20, 3, 'K'], [21, 2, 'M'], [21, 3, 'M'], [22, 2, 'M'], [22, 3, 'M']]),
+      magnet: at([[18, 21, 'F'], [18, 22, 'F'], [18, 23, 'F'], [19, 21, 'F'], [19, 23, 'F'], [20, 21, 'M'], [20, 23, 'M'], [21, 22, 'Z'], [17, 23, 'Z']]),
+      sicheln: at([[15, 1, 'M'], [16, 0, 'M'], [17, 0, 'M'], [18, 1, 'M'], [20, 1, 'V'], [21, 1, 'V'], [15, 22, 'M'], [16, 23, 'M'], [17, 23, 'M'], [18, 22, 'M'], [20, 22, 'V'], [21, 22, 'V']]),
+      fleischkeule: at([[14, 21, 'V'], [14, 22, 'V'], [15, 20, 'V'], [15, 21, 'V'], [15, 22, 'V'], [15, 23, 'V'], [16, 20, 'V'], [16, 21, 'V'], [16, 22, 'V'], [16, 23, 'V'], [17, 21, 'V'], [17, 22, 'V'], [18, 22, 'X'], [19, 22, 'X'], [20, 22, 'X'], [20, 23, 'X'], [21, 23, 'X']]),
+      schwanz: at([[22, 4, 'Q'], [22, 3, 'Q'], [23, 3, 'Q'], [23, 2, 'Q'], [24, 2, 'Q'], [24, 1, 'Q'], [25, 1, 'Q'], [25, 0, 'Q'], [26, 0, 'Q'], [22, 2, 'k'], [23, 1, 'k'], [24, 0, 'k']]),
+      karten: at([[16, 21, 'X'], [15, 22, 'X'], [16, 22, 'F'], [15, 23, 'X'], [16, 23, 'X'], [17, 22, 'X'], [17, 23, 'n']]),
+      puppe: at([[21, 4, 'p'], [22, 4, 'A'], [23, 3, 'A'], [23, 4, 'A'], [23, 5, 'A'], [24, 4, 'A'], [25, 3, 'A'], [25, 5, 'A']]),
+      mundharmonika: at([[12, 10, 'M'], [12, 11, 'K'], [12, 12, 'M'], [12, 13, 'K'], [12, 14, 'M'], [12, 15, 'M']]),
+      trommel: rows(19, ['........AAAAAAAA........', '........FXFFXFFX........', '........XFFXFFXF........', '........AAAAAAAA........']),
+      domino: at([[6, 7, 'K'], [6, 8, 'K'], [6, 9, 'K'], [6, 10, 'K'], [6, 13, 'K'], [6, 14, 'K'], [6, 15, 'K'], [6, 16, 'K'], [7, 7, 'K'], [7, 10, 'K'], [7, 11, 'K'], [7, 12, 'K'], [7, 13, 'K'], [7, 16, 'K'], [8, 7, 'K'], [8, 10, 'K'], [8, 13, 'K'], [8, 16, 'K'], [9, 7, 'K'], [9, 10, 'K'], [9, 13, 'K'], [9, 16, 'K'], [10, 8, 'K'], [10, 9, 'K'], [10, 14, 'K'], [10, 15, 'K']])
     };
     // Fraktions-Abzeichen (Leitfarbe, je Fraktion ein Teil). Schlüssel = Banden-id, Varianten mit _a/_b fürs Board.
     // r Leitfarbe, a Messing
@@ -531,6 +552,13 @@ window.GL = window.GL || {};
     BADGE.fischmensch_muschel = { px: at([[15, 11, 'a'], [16, 11, 'r'], [16, 12, 'r'], [17, 10, 'r'], [17, 11, 'a'], [17, 12, 'r'], [17, 13, 'r'], [18, 11, 'r'], [18, 12, 'r']]), c: { r: '#2fb8b0', a: '#f4f0e0' } };
     BADGE.fischmensch_armband = { px: at([[17, 2, 'r'], [17, 3, 'r'], [18, 2, 'a'], [18, 3, 'r'], [17, 20, 'r'], [17, 21, 'r'], [18, 20, 'r'], [18, 21, 'a']]), c: { r: '#2fb8b0', a: '#f4f0e0' } };
     BADGE.fischmensch = BADGE.fischmensch_muschel; // Flossenvolk: Muschel (Felix, 25.10.)
+    // Zirkus der Narren: Magenta, Pomp-Truppe mit Creme, Wildfänge mit Gelb
+    const RUFF = sym(14, ['......rarara', '.....r.r.r.r']);
+    const RAUTE = at([[15, 11, 'r'], [15, 12, 'r'], [16, 10, 'r'], [16, 11, 'a'], [16, 12, 'a'], [16, 13, 'r'], [17, 10, 'r'], [17, 11, 'a'], [17, 12, 'a'], [17, 13, 'r'], [18, 11, 'r'], [18, 12, 'r']]);
+    BADGE.buggy_kragen = { px: RUFF, c: { r: '#c2318a', a: '#f4f0e0' } };
+    BADGE.buggy_raute = { px: RAUTE, c: { r: '#c2318a', a: '#f4f0e0' } };
+    BADGE.supernova_kragen = { px: RUFF, c: { r: '#c2318a', a: '#f2d24a' } };
+    BADGE.supernova_raute = { px: RAUTE, c: { r: '#c2318a', a: '#f2d24a' } };
     BADGE.baroque = BADGE.baroque_schleife; BADGE.revolution = BADGE.revolution_schleife; // Barock-Bund: Halsschleife (Felix, 25.10.)
     BADGE.cp9 = BADGE.cp9_krawatte; // Schattenkorps: Krawatte (Felix, 25.10.)
     BADGE.marine = BADGE.marine_schaerpe; // Kronwacht: Schärpe (Felix, 25.10.)
