@@ -11,6 +11,9 @@ Das **Spiel selbst ist digital** (Handy-App im Browser). „Papier“ meint nur 
 ## Spielerzahl
 Felix (18:04): Er findet die Idee gut und möchte, dass **mehr als 2** mitspielen können. Plan: 2 bis 4 Ermittler als Kern (jede Rolle einmal besetzt), 5 bis 6 später als Test (dann teilen sich Rollen Hinweise, oder es gibt mehr Rollen).
 
+## Entscheidungen Felix (18:06)
+**Ton: True Crime** (ernster, fiktiver Mordfall, keine echten Fälle oder Personen, nichts Grausames im Bild), cozy bleibt die Verpackung. **Hauptspiel-Paar:** Felix und ein Kumpel, die **200 km auseinander** wohnen, also Online-Coop über Entfernung (Telefon oder Sprachchat nebenher). Der Papiertest M0 geht deshalb ohne Spiel: Jeder bekommt nur seine eigenen Hinweise, ihr redet darüber.
+
 ## Der Haken (was es von anderen unterscheidet)
 **Wissen ist verteilt.** Eine Rolle sieht nur Tatort-Spuren, eine nur Aussagen, eine nur Akten und Alibis. Jeder Hinweis allein sagt wenig, zwei Hinweise zusammen entlarven eine Lüge. Man muss also reden, zeigen, vergleichen. Das ist der Spaß, nicht der Zufall und nicht das Reaktionsvermögen.
 
