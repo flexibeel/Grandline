@@ -8,6 +8,9 @@ Ihr seid ein kleines Ermittlerteam (2 bis 4 Leute, auch Jan und Felix zu zweit).
 ## Was „Papier“ hier heißt
 Das **Spiel selbst ist digital** (Handy-App im Browser). „Papier“ meint nur den Test M0: Wir prüfen die Idee zuerst als Text-Rätsel im Chat, ohne Code. Der Look kann trotzdem nach Pen-and-Paper aussehen: Ermittler-Notizbuch, Pinnwand mit Fäden, Kritzel-Pixel-Stil. Ein echtes Rollenspiel am Tisch ist es nicht.
 
+## Spielerzahl
+Felix (18:04): Er findet die Idee gut und möchte, dass **mehr als 2** mitspielen können. Plan: 2 bis 4 Ermittler als Kern (jede Rolle einmal besetzt), 5 bis 6 später als Test (dann teilen sich Rollen Hinweise, oder es gibt mehr Rollen).
+
 ## Der Haken (was es von anderen unterscheidet)
 **Wissen ist verteilt.** Eine Rolle sieht nur Tatort-Spuren, eine nur Aussagen, eine nur Akten und Alibis. Jeder Hinweis allein sagt wenig, zwei Hinweise zusammen entlarven eine Lüge. Man muss also reden, zeigen, vergleichen. Das ist der Spaß, nicht der Zufall und nicht das Reaktionsvermögen.
 
