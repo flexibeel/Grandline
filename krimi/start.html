@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex"><title>Krimi-Papiertest</title><style>
+:root{--paper:#f6efe0;--paper2:#efe4cc;--ink:#2b2218;--mute:#7a6a54;--line:#d9c9a8;--accent:#8a3b2e;--accent2:#5a2a22;--ok:#2f6b3f;--bad:#9a3326}
+@media (prefers-color-scheme:dark){:root{--paper:#1f1a14;--paper2:#2a231b;--ink:#efe6d2;--mute:#b3a58c;--line:#4a3e2e;--accent:#d98a73;--accent2:#f0b09c;--ok:#7fd096;--bad:#f08a7a}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:17px/1.55 Georgia,'Iowan Old Style','Times New Roman',serif;-webkit-text-size-adjust:100%}
+main{max-width:640px;margin:0 auto;padding:16px 16px 80px}
+h1{font-size:1.5rem;line-height:1.2;margin:.2rem 0 .3rem}
+h2{font-size:1.05rem;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);margin:1.6rem 0 .6rem;border-bottom:2px solid var(--line);padding-bottom:.3rem}
+.kicker{font:700 .72rem/1 system-ui,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
+.tag{display:inline-block;font:700 .8rem system-ui,sans-serif;background:var(--accent);color:#fff;border-radius:999px;padding:3px 10px;margin:.4rem 0}
+p{margin:.5rem 0}
+.hint{color:var(--mute);font-size:.92rem}
+.warn{background:var(--paper2);border-left:4px solid var(--accent);padding:.6rem .8rem;border-radius:4px;font-size:.95rem}
+ul.sus{list-style:none;padding:0;margin:.4rem 0}
+ul.sus li{padding:.35rem 0;border-bottom:1px dashed var(--line)}
+ul.sus b{font-weight:700}
+ol.rules{padding-left:1.2rem;margin:.4rem 0}
+.card{background:var(--paper2);border:1px solid var(--line);border-radius:10px;padding:.7rem .9rem;margin:.6rem 0;position:relative}
+.card.star{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent) inset}
+.card .id{font:700 .72rem system-ui,sans-serif;letter-spacing:.1em;color:var(--mute)}
+.card h3{margin:.1rem 0 .3rem;font-size:1.05rem;padding-right:3rem}
+.card p{white-space:pre-line;margin:.2rem 0}
+.starbtn{position:absolute;top:6px;right:6px;width:44px;height:44px;border:0;background:none;font-size:1.5rem;line-height:1;color:var(--mute);cursor:pointer;border-radius:8px}
+.card.star .starbtn{color:var(--accent)}
+textarea{width:100%;min-height:130px;background:var(--paper2);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:.6rem .8rem;font:16px/1.5 Georgia,serif;resize:vertical}
+label{display:block;font:700 .85rem system-ui,sans-serif;margin:.8rem 0 .25rem}
+select{width:100%;min-height:46px;font:16px system-ui,sans-serif;background:var(--paper2);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:0 .6rem}
+button.go{margin-top:1rem;width:100%;min-height:50px;border:0;border-radius:12px;background:var(--accent);color:#fff;font:700 1rem system-ui,sans-serif;cursor:pointer}
+button.go:active{background:var(--accent2)}
+#res{margin-top:.9rem;padding:.8rem 1rem;border-radius:10px;font-weight:700;display:none}
+#res.ok{display:block;background:rgba(47,107,63,.15);color:var(--ok)}
+#res.mid{display:block;background:var(--paper2);color:var(--ink)}
+.btnrow{display:grid;gap:.7rem;margin-top:1rem}
+a.big{display:block;text-align:center;text-decoration:none;min-height:56px;line-height:56px;border-radius:12px;background:var(--accent);color:#fff;font:700 1.05rem system-ui,sans-serif}
+a.big.alt{background:var(--paper2);color:var(--ink);border:2px solid var(--accent)}
+footer{margin-top:2rem;color:var(--mute);font-size:.82rem}
+</style></head>
+<body><main>
+<div class="kicker">Papiertest · Prototyp</div>
+<h1>Fall 01: Der Abend im Hotel Möwenruh</h1>
+<p>Ein Fall für zwei. Jeder hat eigene Hinweise, nur zusammen kommt ihr auf die Lösung. Redet am Telefon oder im Sprachchat darüber.</p>
+<div class="warn"><b>Wichtig:</b> Jeder öffnet nur <b>seine eigene</b> Seite. Schickt dem anderen nur seinen Link.</div>
+<div class="btnrow"><a class="big" href="fall01-a.html">Ich bin Ermittler A (Spurensucher, Archivar)</a>
+<a class="big alt" href="fall01-b.html">Ich bin Ermittler B (Befrager, Techniker)</a></div>
+<footer>Prototyp zum Testen der Spielidee. Es wird nichts online gespeichert.</footer>
+</main></body></html>

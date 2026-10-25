@@ -61,6 +61,9 @@ Kein Zeitdruck, keine Kämpfe, kein Game Over. Pixel-Büro mit Pinnwand, Regen a
 - **Neu:** Fallgenerator mit Prüfer, Pinnwand-Oberfläche, Coop-Sitzung (gemeinsamer Stand), Rollen.
 - **Wird nicht gebraucht:** Kampf-Engine, Run-Karte, Crew, Hafen.
 
+## Papiertest als Webseite (18:16)
+Felix: „Mach das über GitHub erstmal.“ Gebaut: `krimi/start.html`, `krimi/fall01-a.html`, `krimi/fall01-b.html`, erzeugt von `tools/krimi-papiertest-build.py`. Jede Seite enthält **nur die eigenen Karten**, die Lösung steckt nur als SHA-256-Wert drin (Prüfen-Knopf: „x von 3 stimmen“). Notizen und Sterne bleiben im Browser (localStorage), nichts online. `noindex`. **In `krimi/` nie eine `index.html` anlegen**, sonst merkt der Service Worker von Grandline sie als Spielseite. Online erst nach Felix' Okay: liegt auf `main` unter thegreatline.de/krimi/start.html.
+
 ## Meilensteine (klein anfangen, der Spaß zuerst)
 - **M0 Papiertest (Sonnet, ohne Code), Fall 01 „Hotel Möwenruh“ liegt in `claude/papiertest/` (Gemeinsam, Akte A für Felix, Akte B für den Kumpel, SPOILER nicht lesen):** Ich erzeuge einen Fall von Hand als Text, jede Rolle bekommt ihre Hinweise getrennt. Felix und Jan spielen ihn im Chat oder am Tisch durch. **Wenn das keinen Spaß macht, hören wir hier auf**, bevor etwas gebaut ist.
 - **M1 Generator und Prüfer (Opus):** In Node, ohne Oberfläche. Erzeugt Fälle, prüft Eindeutigkeit, schreibt sie als Text.

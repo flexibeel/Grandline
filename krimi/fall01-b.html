@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex"><title>Fall 01, Akte B</title><style>
+:root{--paper:#f6efe0;--paper2:#efe4cc;--ink:#2b2218;--mute:#7a6a54;--line:#d9c9a8;--accent:#8a3b2e;--accent2:#5a2a22;--ok:#2f6b3f;--bad:#9a3326}
+@media (prefers-color-scheme:dark){:root{--paper:#1f1a14;--paper2:#2a231b;--ink:#efe6d2;--mute:#b3a58c;--line:#4a3e2e;--accent:#d98a73;--accent2:#f0b09c;--ok:#7fd096;--bad:#f08a7a}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:17px/1.55 Georgia,'Iowan Old Style','Times New Roman',serif;-webkit-text-size-adjust:100%}
+main{max-width:640px;margin:0 auto;padding:16px 16px 80px}
+h1{font-size:1.5rem;line-height:1.2;margin:.2rem 0 .3rem}
+h2{font-size:1.05rem;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);margin:1.6rem 0 .6rem;border-bottom:2px solid var(--line);padding-bottom:.3rem}
+.kicker{font:700 .72rem/1 system-ui,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
+.tag{display:inline-block;font:700 .8rem system-ui,sans-serif;background:var(--accent);color:#fff;border-radius:999px;padding:3px 10px;margin:.4rem 0}
+p{margin:.5rem 0}
+.hint{color:var(--mute);font-size:.92rem}
+.warn{background:var(--paper2);border-left:4px solid var(--accent);padding:.6rem .8rem;border-radius:4px;font-size:.95rem}
+ul.sus{list-style:none;padding:0;margin:.4rem 0}
+ul.sus li{padding:.35rem 0;border-bottom:1px dashed var(--line)}
+ul.sus b{font-weight:700}
+ol.rules{padding-left:1.2rem;margin:.4rem 0}
+.card{background:var(--paper2);border:1px solid var(--line);border-radius:10px;padding:.7rem .9rem;margin:.6rem 0;position:relative}
+.card.star{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent) inset}
+.card .id{font:700 .72rem system-ui,sans-serif;letter-spacing:.1em;color:var(--mute)}
+.card h3{margin:.1rem 0 .3rem;font-size:1.05rem;padding-right:3rem}
+.card p{white-space:pre-line;margin:.2rem 0}
+.starbtn{position:absolute;top:6px;right:6px;width:44px;height:44px;border:0;background:none;font-size:1.5rem;line-height:1;color:var(--mute);cursor:pointer;border-radius:8px}
+.card.star .starbtn{color:var(--accent)}
+textarea{width:100%;min-height:130px;background:var(--paper2);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:.6rem .8rem;font:16px/1.5 Georgia,serif;resize:vertical}
+label{display:block;font:700 .85rem system-ui,sans-serif;margin:.8rem 0 .25rem}
+select{width:100%;min-height:46px;font:16px system-ui,sans-serif;background:var(--paper2);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:0 .6rem}
+button.go{margin-top:1rem;width:100%;min-height:50px;border:0;border-radius:12px;background:var(--accent);color:#fff;font:700 1rem system-ui,sans-serif;cursor:pointer}
+button.go:active{background:var(--accent2)}
+#res{margin-top:.9rem;padding:.8rem 1rem;border-radius:10px;font-weight:700;display:none}
+#res.ok{display:block;background:rgba(47,107,63,.15);color:var(--ok)}
+#res.mid{display:block;background:var(--paper2);color:var(--ink)}
+.btnrow{display:grid;gap:.7rem;margin-top:1rem}
+a.big{display:block;text-align:center;text-decoration:none;min-height:56px;line-height:56px;border-radius:12px;background:var(--accent);color:#fff;font:700 1.05rem system-ui,sans-serif}
+a.big.alt{background:var(--paper2);color:var(--ink);border:2px solid var(--accent)}
+footer{margin-top:2rem;color:var(--mute);font-size:.82rem}
+</style></head>
+<body><main>
+<div class="kicker">Fall 01 · Papiertest · Prototyp</div>
+<h1>Der Abend im Hotel Möwenruh</h1>
+<span class="tag">Akte B · Befrager und Techniker</span>
+<p class="hint">Du hörst die Verdächtigen und liest die Aufzeichnungen. Was am Tatort liegt und was in den Akten steht, weiß dein Partner. Erinnerung: Aussagen können gelogen sein, Protokolle nie.</p>
+<div class="warn">Öffne nur deine eigene Seite. Die Seite des anderen zu lesen verdirbt den Test.</div>
+<h2>Was passiert ist</h2><p>Ein Gewitter zieht über die Küste. Im kleinen Hotel Möwenruh wird um 23:38 Uhr der Besitzer Konrad Brandt (63) tot in seinem Büro im ersten Stock gefunden. Er hat eine Kopfverletzung. Die Polizei kommt wegen des Sturms erst am Morgen. Ihr zwei seid die Ermittler vor Ort. Zwischen 22:20 und 22:40 Uhr fiel im ganzen Haus der Strom aus.</p>
+<h2>Die fünf Verdächtigen</h2><ul class="sus"><li><b>Marlene Voss</b>, Geschäftsführerin, ihr Büro liegt im Erdgeschoss</li><li><b>Dr. Teo Lindner</b>, Hotelgast in Zimmer 12</li><li><b>Ilse Bachmann</b>, Köchin</li><li><b>Jonas Reuter</b>, Nachtportier am Empfang</li><li><b>Paula Brandt</b>, Nichte des Opfers, hat ihn gefunden</li></ul>
+<h2>Eure Aufgabe</h2><p>Findet gemeinsam heraus: <b>Wer</b> war es? <b>Warum</b>? <b>Womit</b>?</p>
+<ol class="rules"><li>Ihr habt verschiedene Hinweise. Erzählt euch alles in eigenen Worten, aber zeigt oder lest die Karten nicht vor.</li><li>Akten und Protokolle sind verlässlich. Aussagen können gelogen sein. Genau eine Person lügt über ihren Aufenthalt.</li><li>Es gibt nur eine Lösung, die zu allen Hinweisen passt.</li></ol>
+<h2>Befrager: Aussagen</h2><div class="card" data-id="B1"><button class="starbtn" aria-label="Als wichtig markieren" title="Als wichtig markieren">☆</button><div class="id">B1</div><h3>Marlene Voss</h3><p>„Von 21:50 bis 22:45 Uhr war ich in meinem Büro im Erdgeschoss und habe die Abrechnungen am Computer gemacht. Meine Schlüsselkarte habe ich nie aus der Hand gegeben. Der Chef war sehr zufrieden mit mir.“</p></div><div class="card" data-id="B2"><button class="starbtn" aria-label="Als wichtig markieren" title="Als wichtig markieren">☆</button><div class="id">B2</div><h3>Jonas Reuter</h3><p>„Ich saß die ganze Zeit am Empfang. Um 21:45 Uhr sah ich den Chef die Haupttreppe hochgehen. Danach ist niemand über die Haupttreppe nach oben gegangen.“</p></div><div class="card" data-id="B3"><button class="starbtn" aria-label="Als wichtig markieren" title="Als wichtig markieren">☆</button><div class="id">B3</div><h3>Ilse Bachmann</h3><p>„Ich stand in der Küche, der Abendservice lief bis 22:30 Uhr. Den Chef habe ich den ganzen Abend nicht gesehen. Eine Kündigung? Davon weiß ich nichts.“</p></div><div class="card" data-id="B4"><button class="starbtn" aria-label="Als wichtig markieren" title="Als wichtig markieren">☆</button><div class="id">B4</div><h3>Dr. Teo Lindner</h3><p>„Ich habe von 22:00 bis 22:30 Uhr in meinem Zimmer 12 telefoniert und dabei aus dem Fenster geschaut. Auf der Terrasse saß Paula mit ihrem Hund. Ja, Konrad hat mir vor zehn Jahren Geld abgenommen. Das ist lange her.“</p></div><div class="card" data-id="B5"><button class="starbtn" aria-label="Als wichtig markieren" title="Als wichtig markieren">☆</button><div class="id">B5</div><h3>Paula Brandt</h3><p>„Ich war mit dem Hund auf der Terrasse, bis es kurz nach 22:30 Uhr zu regnen anfing. Dann bin ich in mein Zimmer gegangen. Um 23:38 Uhr wollte ich meinem Onkel gute Nacht sagen und habe ihn gefunden.“</p></div><h2>Techniker: Protokolle und Aufzeichnungen</h2><div class="card" data-id="B6"><button class="starbtn" aria-label="Als wichtig markieren" title="Als wichtig markieren">☆</button><div class="id">B6</div><h3>Schlüsselkarten-Protokoll der Bürotür</h3><p>21:46 Uhr: Karte von Konrad Brandt.
+22:08 Uhr: geöffnet mit Generalschlüssel „Gen-2“.
+22:19 Uhr: geöffnet mit Generalschlüssel „Gen-2“.
+23:38 Uhr: Karte von Paula Brandt.</p></div><div class="card" data-id="B7"><button class="starbtn" aria-label="Als wichtig markieren" title="Als wichtig markieren">☆</button><div class="id">B7</div><h3>Kameras</h3><p>Die Empfangskamera zeigt Jonas Reuter von 21:50 bis 22:20 Uhr durchgehend am Empfang. Um 22:20 fällt sie mit dem Stromausfall aus. Die Terrassenkamera hat einen eigenen Akku und läuft bis 22:28 Uhr: Sie zeigt Paula mit dem Hund von 22:00 bis 22:28 Uhr durchgehend auf der Terrasse.</p></div><div class="card" data-id="B8"><button class="starbtn" aria-label="Als wichtig markieren" title="Als wichtig markieren">☆</button><div class="id">B8</div><h3>Telefon- und Küchenprotokoll</h3><p>Zimmer 12 hat von 22:03 bis 22:26 Uhr ein Gespräch über die Außenleitung geführt. Im Küchensystem hat Ilse Bachmann mit ihrer Anmeldung „Fertig“ gestempelt um 22:06, 22:08, 22:12 und 22:19 Uhr.</p></div><div class="card" data-id="B9"><button class="starbtn" aria-label="Als wichtig markieren" title="Als wichtig markieren">☆</button><div class="id">B9</div><h3>Computer von Marlene Voss</h3><p>Verwaltungsbüro im Erdgeschoss: Letzte Eingabe um 22:02 Uhr, der Bildschirm sperrte sich automatisch. Nächste Eingabe (Passwort) um 22:31 Uhr.</p></div><div class="card" data-id="B10"><button class="starbtn" aria-label="Als wichtig markieren" title="Als wichtig markieren">☆</button><div class="id">B10</div><h3>Grundriss</h3><p>Das Verwaltungsbüro im Erdgeschoss liegt neben einer Personaltreppe. Sie führt direkt in den Flur im ersten Stock und ist vom Empfang aus nicht einzusehen.</p></div>
+<h2>Deine Notizen</h2><p class="hint">Bleiben nur auf diesem Gerät. Tipp den Stern an einer Karte an, um sie als wichtig zu markieren.</p>
+<textarea id="notes" placeholder="Was fällt dir auf? Was passt nicht zusammen?"></textarea>
+<h2>Eure Lösung</h2>
+<label for="taeter">Wer war es?</label><select id="taeter"><option value="">Bitte wählen</option><option value="marlene">Marlene Voss</option><option value="lindner">Dr. Teo Lindner</option><option value="ilse">Ilse Bachmann</option><option value="jonas">Jonas Reuter</option><option value="paula">Paula Brandt</option></select><label for="motiv">Warum?</label><select id="motiv"><option value="">Bitte wählen</option><option value="unterschlagung">Eine Unterschlagung vertuschen</option><option value="erbe">Das Erbe</option><option value="rache">Rache für einen alten Verlust</option><option value="kuendigung">Wut über eine Kündigung</option></select><label for="mittel">Womit?</label><select id="mittel"><option value="">Bitte wählen</option><option value="anker">Messing-Anker</option><option value="briefoeffner">Brieföffner</option><option value="kerzenstaender">Kerzenständer</option><option value="gift">Gift im Whisky</option></select>
+<button class="go" id="check">Lösung prüfen</button><div id="res" role="status"></div>
+<footer>Prototyp zum Testen der Spielidee. Es wird nichts online gespeichert.</footer>
+</main><script>const D={"fall": "fall01", "role": "b", "hash": {"taeter": "20672f385e6d0976814640f34c20e79c40cfa41237437e1b7b80d795273ec134", "motiv": "a059a613d673631fa8c6adf94e22a5a5054685c353f286dc92d2c6167484e240", "mittel": "dbf5448b26fd9f2280da49a0469d15f4d989a0cdbf74ddc56799fe8a6e8bf5fb"}};
+const S=(k)=>{try{return localStorage.getItem(k)}catch(e){return null}},W=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};
+const KEY='krimi.'+D.fall+'.'+D.role;
+let stars=new Set(JSON.parse(S(KEY+'.stars')||'[]'));
+document.querySelectorAll('.card').forEach(c=>{
+  const id=c.dataset.id; if(stars.has(id))c.classList.add('star');
+  c.querySelector('.starbtn').addEventListener('click',()=>{
+    c.classList.toggle('star'); c.classList.contains('star')?stars.add(id):stars.delete(id);
+    W(KEY+'.stars',JSON.stringify([...stars]));
+  });
+});
+const nt=document.getElementById('notes'); nt.value=S(KEY+'.notes')||''; nt.addEventListener('input',()=>W(KEY+'.notes',nt.value));
+async function h(s){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s));return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}
+document.getElementById('check').addEventListener('click',async()=>{
+  const res=document.getElementById('res'); let ok=0;
+  for(const k of ['taeter','motiv','mittel']){
+    const v=document.getElementById(k).value; if(v && await h(D.fall+':'+k+':'+v)===D.hash[k]) ok++;
+  }
+  res.className=ok===3?'ok':'mid';
+  res.textContent=ok===3?'Richtig, alle drei! Fall gelöst. Sagt mir kurz, wie es für euch war.':ok+' von 3 stimmen. Redet noch mal über eure Hinweise und versucht es wieder.';
+});
+
+document.querySelectorAll('.card').forEach(c=>{const b=c.querySelector('.starbtn');const f=()=>b.textContent=c.classList.contains('star')?'★':'☆';f();b.addEventListener('click',f)});</script></body></html>
