@@ -16,6 +16,7 @@ window.GL = window.GL || {};
         current: { seed: null, counted: [] },   // was im laufenden Run schon gezählt wurde
         stats: { runs: 0, wins: 0, berryTotal: 0 },
         berry: 0,          // Währung im Hauptquartier
+        shipName: '',      // Schiffsname (9f A), nur lokal sichtbar, migrate() füllt alte Profile mit ''
         upgrades: {},      // Werft-Stufen { rumpf: 2 }
         gear: {},          // Lager: Anzahl je Ausrüstung { proviant: 2 }
         loadout: [],       // was beim nächsten Run mitkommt
@@ -155,6 +156,13 @@ window.GL = window.GL || {};
     crewName(profile) {
       const n = String((profile && profile.crewName) || '').replace(/[<>"'`&\\]/g, '').trim().slice(0, 20);
       return n || null;
+    },
+    // Schiffsname (9f A): nur für den Spieler sichtbar, nur Anzeige. Keine Sonderzeichen, die HTML stören, höchstens 16 Zeichen.
+    cleanShipName(v) {
+      return String(v || '').replace(/[<>"'`&\\]/g, '').replace(/\s+/g, ' ').trim().slice(0, 16);
+    },
+    shipName(profile) {
+      return GL.meta.cleanShipName(profile && profile.shipName) || null;
     },
 
     // Verbrauchte/zerlegte Teile merken, damit sie beim Zusammenführen zweier Spielstände nicht zurückkommen

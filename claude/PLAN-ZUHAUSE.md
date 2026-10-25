@@ -33,3 +33,9 @@ Reine Anzeige im Hafenbild: **Tageszeit nach der Uhr des Geräts** (Morgen, Tag,
 ## Entscheidungen (46. Chat, 25.10.)
 Felix per Klick, alle wie empfohlen: **1.** Reihenfolge **A, dann B, dann C** (D später). **2.** Kajüte als **Querschnitt wie ein Puppenhaus**. **3.** Schiffsname **nur für den Spieler sichtbar** (kein Textfilter, nicht in `online.js`, nicht in Rangliste oder Freundesliste).
 Damit ist Häppchen A freigegeben: `profile.shipName` und `profile.showcase` (bis zu 3 Vitrinen-Stücke), nur lokal, `migrate()` mit Standardwert, Profilkarte zeigt Schiff, Name, Titel, Rahmen und die ausgestellten Stücke. Sonnet reicht. Zweig `feature/zuhause-schaufenster` von `main`.
+
+## Häppchen A gebaut (47. Chat, Sonnet, 25.10.)
+Zweig `feature/zuhause-schaufenster`, nicht live. **Fund:** `profile.showcase` (bis zu 3 Vitrinen-Stücke, Klick `showcase`) und der Abschnitt „✦ Vitrine“ auf der Visitenkarte gab es schon, ebenso Titel und Rahmen. Neu ist deshalb vor allem der Schiffsname.
+- `profile.shipName` (`GL.meta.newProfile`, Standardwert `''`, `migrate()` füllt alte Profile), Hilfen `GL.meta.cleanShipName` / `GL.meta.shipName` (ohne `< > " ' ` & \`, höchstens 16 Zeichen). Nur lokal: kein Textfilter, nichts in `online.js`.
+- Editor (Reiter „Schiff“): Namensschild, Eingabe `#pf-ship`, Klick `ship-name`. Profilkarte: Schiffsstreifen (`.pc2-ship`) mit dem Schiff, auf der eigenen Karte mit Namen, ohne Namen der Knopf `ship-name-open`.
+- Offen für B (Kajüte): Der Schiffsname kann dort als Schild an der Wand auftauchen.

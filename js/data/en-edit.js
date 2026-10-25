@@ -15,10 +15,15 @@ GL.data.en = Object.assign(GL.data.en || {}, {
   'Deine Bande': 'Your crew', 'Noch ohne Namen': 'No name yet', 'Taufen': 'Name it', 'Bandenname': 'Crew name', 'z. B. Mandarinen-Piraten': 'e.g. Tangerine Pirates',
   'Der Name steht auf deiner Kapitänskarte, im Steckbrief und auf deiner Spielerkarte in der Rangliste. Er gilt nur für deine eigene Crew.': 'The name shows on your captain card, the wanted poster and your player card on the leaderboard. It is just for your own crew.',
   'Bandenname entfernt': 'Crew name removed', '🏴‍☠️ Bande getauft': '🏴‍☠️ Crew named', 'Frucht ablegen': 'Remove fruit', 'Fruchtplatz': 'Fruit slot',
-  'Dieser Name geht leider nicht.': 'Sorry, that name doesn’t work.'
+  'Dieser Name geht leider nicht.': 'Sorry, that name doesn’t work.',
+  // 9f A: Schiffsname
+  'Name deines Schiffs': 'Your ship’s name', 'Schiffsname': 'Ship name', 'z. B. Salzige Möwe': 'e.g. Salty Gull',
+  'Der Name ist nur für dich sichtbar: auf deiner eigenen Profilkarte. Andere sehen ihn nicht.': 'Only you can see this name, on your own profile card. Others don’t see it.',
+  'Mein Schiff': 'My ship', '⛵ Schiff taufen': '⛵ Name your ship', '⛵ Schiff getauft': '⛵ Ship named', 'Schiffsname entfernt': 'Ship name removed'
 });
 GL.i18nExtraP = (GL.i18nExtraP || []).concat([
   [/^Ihr seid jetzt die „(.+)“\.$/, 'You are now the “$1”.'],
+  [/^Dein Schiff heißt jetzt „(.+)“\.$/, 'Your ship is now called “$1”.'],
   [/^(.+) ausgerüstet$/, (m, n) => (GL.data.en[n] || n) + ' equipped'],
   [/^(.+)\. Wirkt, wenn dein Pirat Kapitän ist\.$/, (m, t) => (GL.i18n && GL.i18n.t ? GL.i18n.t(t) : t) + '. Works when your pirate is captain.']
 ]);

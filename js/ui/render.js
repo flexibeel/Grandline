@@ -3049,6 +3049,15 @@ window.GL = window.GL || {};
           </div>
         </div>
         ${kumpan}
+        ${(() => {
+          // 9f A: Schiff auf der Profilkarte. Der Name ist privat und steht nur auf der eigenen Karte.
+          const me = isMe && profRef ? profRef : null;
+          if (!x.ship && !me) return '';
+          const sn = me ? GL.meta.shipName(me) : null;
+          const art = GL.sprites.ship(Object.assign({}, x.ship || (me && me.ship) || {}, me ? { upg: me.upgrades } : {}));
+          const cap = sn ? `<small>Mein Schiff</small><b>${esc(sn)}</b>` : me ? `<button class="pc2-ship-name" data-act="ship-name-open">⛵ Schiff taufen</button>` : '';
+          return `<div class="pc2-ship${cap ? '' : ' solo'}"><span class="pc2-ship-art">${art}</span>${cap ? `<span class="pc2-ship-cap">${cap}</span>` : ''}</div>`;
+        })()}
         <div class="pc2-grid">
           ${tile('🏆', fmt(x.score), 'Bestwert', 'gold')}
           ${tile('★', fmt(x.wins), 'Siege')}
@@ -4242,6 +4251,7 @@ window.GL = window.GL || {};
   // Dein Schiff: Teile, die man im Laufe der Zeit freischaltet
   function shipBlock(profile, vals) {
     const P = GL.data.shipParts, cur = Object.assign({ sail: 'weiss', hull: 'eiche', flag: 'schwarz', deco: 'keine' }, profile.ship || {});
+    const sn = GL.meta.shipName(profile);
     const grp = (k, label) => `<div class="ship-grp"><span class="lbl">${label}</span><div class="cos-grid">${P[k].map(it => {
       const ok = GL.meta.cosmeticUnlocked(profile, it, vals);
       return `<button class="cos ship-opt${cur[k] === it.id ? ' on' : ''}${ok ? '' : ' locked'}" data-act="ship-pick" data-k="${k}" data-v="${it.id}"${ok ? '' : ' disabled'} title="${esc(it.name)}${ok ? '' : ': ' + GL.meta.reqText(it)}">
@@ -4249,6 +4259,12 @@ window.GL = window.GL || {};
     }).join('')}</div></div>`;
     return `<div class="cos-all ship-all"><span class="event-kicker">Dein Schiff</span>
       <div class="ship-big">${GL.sprites.ship(Object.assign({}, cur, { upg: profile.upgrades }))}</div>
+      <div class="sn-wrap">
+        <div class="sn-plate"><small>Name deines Schiffs</small><b>${sn ? esc(sn) : 'Noch ohne Namen'}</b></div>
+        <div class="cn-row"><input id="pf-ship" class="pe-name cn-inp" maxlength="16" autocomplete="off" placeholder="z. B. Salzige Möwe" aria-label="Schiffsname" value="${esc(sn || '')}">
+          <button class="btn cn-go" data-act="ship-name">Taufen</button></div>
+        <p class="pe-note">Der Name ist nur für dich sichtbar: auf deiner eigenen Profilkarte. Andere sehen ihn nicht.</p>
+      </div>
       <p class="hint">Dein Schiff segelt im Hauptquartier und auf der Seekarte. Neue Teile schaltest du mit Rängen, Siegen und Funden frei.</p>
       ${grp('sail', 'Segel')}${grp('hull', 'Rumpf')}${grp('flag', 'Flagge')}${grp('deco', 'Galionsfigur')}</div>`;
   }

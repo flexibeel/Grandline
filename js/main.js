@@ -1530,6 +1530,17 @@
         draw();
         break;
       }
+      case 'ship-name': {
+        // 9f A: Schiffsname, nur für den Spieler sichtbar (kein Textfilter nötig, nicht in online.js)
+        const inp = document.getElementById('pf-ship');
+        const v = GL.meta.cleanShipName(inp ? inp.value : '');
+        profile.shipName = v; saveProfile();
+        if (GL.sfx) GL.sfx.play('found');
+        toast(v ? `<span><b>⛵ Schiff getauft</b>Dein Schiff heißt jetzt „${esc2(v)}“.</span>` : '<span><b>Schiffsname entfernt</b></span>');
+        { const ni = document.getElementById('pf-name'); if (ni && ui.draft) ui.draft.name = ni.value; } { const t = document.getElementById('title'); if (t) t.dataset.last = ''; } ui.lastStage = null; draw();
+        break;
+      }
+      case 'ship-name-open': ui.viewPlayer = null; ui.editTab = 'schiff'; openProfile(); break;
       case 'endless-start': closePop(); sail(Number(el.dataset.i)); break;
       case 'endless-open': openGearPop(GL.ui.endlessPop(profile)); break;
       case 'hunt-open': openGearPop(GL.ui.huntPop(profile)); break;

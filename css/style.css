@@ -10697,3 +10697,17 @@ body.dk-dragging, body.dk-dragging * { cursor: grabbing !important; }
 .kf-band.mv .kf-wake { opacity: 1; }
 @media (min-width: 900px) { .kf-band { margin: 2px 0 0; border-radius: 8px 8px 0 0; } }
 @media (prefers-reduced-motion: reduce) { .kf-ship, .kf-wake { transition: none; } .kf-band.mv .kf-ship { transform: none; } .kf-band.l.mv .kf-ship { transform: scaleX(-1); } }
+
+/* 9f A: Schiffsname und Schiff auf der Profilkarte (nur Anzeige, nichts Dauerndes) */
+.sn-wrap { margin: 4px 0 8px; }
+.sn-plate { display: grid; justify-items: center; margin: 0 0 8px; padding: 6px 12px; background: linear-gradient(180deg, #7a5230, #5a3a1c); border: 2px solid #3a2a1c; border-radius: 8px; box-shadow: 0 2px 0 #2a1c10; color: #ffe9b8; }
+.sn-plate small { font-size: .62rem; letter-spacing: .12em; text-transform: uppercase; opacity: .75; }
+.sn-plate b { font: 400 1.35rem 'Pirata One', 'Fredoka', serif; line-height: 1.1; overflow-wrap: anywhere; text-align: center; }
+.pc2-ship { display: flex; align-items: center; gap: 10px; margin-top: 10px; padding: 6px 10px; background: linear-gradient(180deg, #d9ebf7, #a9cce4); border: 2px solid #8fb6d2; border-radius: 8px; }
+.pc2-ship.solo { justify-content: center; }
+.pc2-ship-art svg { display: block; width: 88px; height: 66px; shape-rendering: crispEdges; }
+.pc2-ship-cap { display: grid; min-width: 0; color: #3a2a1c; }
+.pc2-ship-cap small { font-size: .62rem; letter-spacing: .12em; text-transform: uppercase; opacity: .7; }
+.pc2-ship-cap b { font: 400 1.25rem 'Pirata One', 'Fredoka', serif; line-height: 1.1; overflow-wrap: anywhere; }
+.pc2-ship-name { min-height: 44px; padding: 6px 12px; font: inherit; font-size: .85rem; font-weight: 700; color: #5a3a1c; background: #fff6dc; border: 2px solid #c9953a; border-radius: 8px; cursor: pointer; }
+@media (max-width: 420px) { .pc2-ship { flex-direction: column; text-align: center; } .pc2-ship-cap { justify-items: center; } }
