@@ -37,12 +37,23 @@ Ohne Kämpfe fällt das Herzstück von Grandline weg (Kampf-Engine, Runs, Gegner
 - **Solo:** Man kann auch allein fahren, dann übernehmen Figuren die anderen Rollen.
 - **Spannung ohne Kampf:** Wetter, Proviant, Navigation, Geheimnisse und Rätsel, Wünsche der Bewohner, seltene Entdeckungen.
 
+## Update 26.10. (10:12): Herz des Spiels
+Felix fragte, ob eine **Sandbox mit simuliertem Ökosystem, Angeln, Hafenbau wie früher Animal Crossing** dazu passt. Einschätzung: thematisch sehr gut (Meer, Fische, Hafen, Inseln, Bewohner sind eine Welt), Risiko ist die **Menge** (vier Spiele in einem, der Grandline-Fehler). Deshalb ein Herz, alles andere wächst darum.
+Felix per Klick:
+- **Herz: Angeln + Hafen** (wie Animal Crossing: täglich fischen, sammeln, Hafen und Bewohner pflegen). **Expeditionen mit Rollen sind der gemeinsame Ausflug/Höhepunkt**, nicht der Alltag.
+- **Echtzeit-Uhr sehr wichtig:** echte Tageszeit (morgens andere Fische als nachts), Jahreszeiten, Feste an echten Tagen. Passt zum zeitversetzten Spielen.
+- **Ökosystem einfach statt echt simuliert (Vorschlag):** Fischbestände je Bucht reagieren auf Jahreszeit, Wetter und Befischung (leergefischt = eine Weile weniger), Pflege (z. B. Korallen) bringt seltene Arten zurück. Gefühl „die Welt lebt“, ohne teure Simulation (Handy-Wärme, siehe 9a).
+- **Sammlung:** Fische als Katalog/Aquarium wie das Museum in Animal Crossing (die Vitrine kann das werden).
+Damit verschiebt sich der erste kleine Test: **ein Angel-Tag im Hafen** (Uhrzeit zählt, ein paar Arten, ein Bewohner-Wunsch) statt eines Expeditionstags. Die Expedition kommt danach.
+
 ## Fragen für den nächsten Chat (mit Klick-Fragen)
 1. **Bestehendes Spiel:** Grandline ersetzen (gleiche Adresse, alte Spielstände übernehmen, was passt) oder als neuer Modus daneben, oder als eigenes neues Spiel (neue Adresse)?
 2. **Name und Welt:** Wie heißt das Spiel, wie sieht die Entdeckerwelt aus (Pixel-Look bleibt?)
 3. **Was genau tut jede Rolle pro Tag?** Für jede Rolle eine konkrete Handlung mit Entscheidung, sonst fühlt sich wieder alles gleich an.
 4. **Hafen:** Was baut man, wie wächst er (Stardew: Jahreszeiten, Feste, Freundschaften mit Bewohnern?)
-5. **Erster kleiner Test** (wie der Papiertest): Vorschlag: **ein Expeditionstag zum Anklicken**, eine Seite je Rolle, Felix und Kumpel spielen einen Tag zeitversetzt. Nur wenn das Spaß macht, wird groß gebaut.
+5. **Erster kleiner Test:** **ein Angel-Tag im Hafen** zum Anklicken (echte Uhrzeit, ein paar Fischarten, ein Bewohner-Wunsch, ein Bauteil für den Hafen). Nur wenn das Spaß macht, wird groß gebaut. Danach ein Expeditionstag mit Rollen.
+6. **Angeln selbst:** Wie fühlt es sich an (Timing-Spiel, Köder und Stellen wählen, Geduld)? Das ist der wichtigste Handgriff des ganzen Spiels.
+7. **Zusammen im Alltag:** Was macht der Kumpel im Hafen, wenn keine Expedition ist (gemeinsamer Hafen, Geschenke, Fische tauschen, Besuch)?
 
 ## Regeln
 - Erst der Kern mit Spaß (ein Expeditionstag), dann Hafen, dann Politur. Die Lehre aus Grandline.
