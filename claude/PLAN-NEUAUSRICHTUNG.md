@@ -63,7 +63,8 @@ Damit verschiebt sich der erste kleine Test: **ein Angel-Tag im Hafen** (Uhrzeit
 - Ziel des Tests: 5 Minuten spielen, dann die Frage „Will ich morgen wieder rein?“. Bauen mit **Opus** (Pixel-Art, Gefühl).
 
 ## Update 27.10. (50. Chat): Test gebaut
-- `prototyp/angeltag/index.html` steht, privater Artefakt-Link im Fahrplan („Letzte Übergabe“). Offen: Felix' Urteil nach 5 Minuten am Handy.
+- `prototyp/angeltag/index.html` steht, privater Artefakt-Link im Fahrplan („Letzte Übergabe“).
+- **Ergebnis (Felix, 27.10. abends): läuft, aber langweilig.** Gründe per Klick: immer dasselbe, kein Ziel, das zieht, zu viel Warten, das Thema an sich. **Angeln + Hafen als Herz ruht.** Lehre: Ein Handgriff allein trägt nicht; ein neues Herz braucht von Minute 1 an Entscheidungen mit Folgen und ein Ziel, das zieht.
 
 ## Fragen für den nächsten Chat (mit Klick-Fragen)
 1. ~~**Bestehendes Spiel**~~: erledigt 27.10., eigenes Spiel daneben.
