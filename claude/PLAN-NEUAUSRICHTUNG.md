@@ -46,13 +46,29 @@ Felix per Klick:
 - **Sammlung:** Fische als Katalog/Aquarium wie das Museum in Animal Crossing (die Vitrine kann das werden).
 Damit verschiebt sich der erste kleine Test: **ein Angel-Tag im Hafen** (Uhrzeit zählt, ein paar Arten, ein Bewohner-Wunsch) statt eines Expeditionstags. Die Expedition kommt danach.
 
+## Update 27.10. (49. Chat): Entscheidungen per Klick
+- **Eigenes Spiel neben Grandline** (neue Adresse/Ordner, Technik wird übernommen). Grandline bleibt unverändert spielbar, keine Spielstände in Gefahr. (Frage 1 erledigt.)
+- **Angel-Handgriff: Biss abwarten, tippen** (wie Animal Crossing): auswerfen, Schwimmer zuckt als Fehlalarm, beim echten Biss rechtzeitig tippen. Ein Daumen, handytauglich. Kein Drill-Balken, keine Reusen.
+- **Entscheidungen beim Angeln: Stelle und Uhrzeit** (andere Fische je Ort und echter Tageszeit). Schatten lesen, Köder und Bewohner-Wünsche als Angel-Tiefe vorerst nicht (Bewohner-Wunsch bleibt aber im Test als Ziel, siehe unten).
+- **Erster Test, Umfang „etwas mehr“:**
+  - Hafen-Steg im Pixel-Look, drei Angelstellen (Steg, Strand, Felsen), Himmel nach echter Uhrzeit (Morgen, Tag, Abend, Nacht).
+  - Auswerfen per Tipp, Schwimmer zuckt 1–3× (Fehlalarm), echter Biss = abtauchen, ca. 0,6 s Fenster zum Tippen. Fang zappelt kurz, landet mit Name und Größe im Eimer.
+  - 8 Fischarten an Stelle und Tageszeit gebunden, 1–2 davon selten.
+  - Ökosystem einfach: nach 5 Fängen an einer Stelle wird es dort eine Weile ruhig („Woanders probieren?“).
+  - **Zwei Bewohner** (vorhandene Figuren) mit je einem Fisch-Wunsch pro Tag, Belohnung Bauteile.
+  - **Kleiner Hafen-Bau aus mehreren Bauteilen** (z. B. Laterne, Bank, Bootssteg-Verlängerung), sichtbar am Steg.
+  - Katalog (gefangen / noch offen), gespeichert nur im Browser, kein Konto, keine Datenbank.
+- **Ort:** eine einzelne Seite als **privater Artefakt-Link fürs Handy**, Kopie im Repo unter `prototyp/angeltag/` auf diesem Zweig. Nichts geht live.
+- **Uhrzeit:** echt, plus kleiner versteckter **Testregler** (Morgen/Tag/Abend/Nacht).
+- Ziel des Tests: 5 Minuten spielen, dann die Frage „Will ich morgen wieder rein?“. Bauen mit **Opus** (Pixel-Art, Gefühl).
+
 ## Fragen für den nächsten Chat (mit Klick-Fragen)
-1. **Bestehendes Spiel:** Grandline ersetzen (gleiche Adresse, alte Spielstände übernehmen, was passt) oder als neuer Modus daneben, oder als eigenes neues Spiel (neue Adresse)?
+1. ~~**Bestehendes Spiel**~~: erledigt 27.10., eigenes Spiel daneben.
 2. **Name und Welt:** Wie heißt das Spiel, wie sieht die Entdeckerwelt aus (Pixel-Look bleibt?)
 3. **Was genau tut jede Rolle pro Tag?** Für jede Rolle eine konkrete Handlung mit Entscheidung, sonst fühlt sich wieder alles gleich an.
 4. **Hafen:** Was baut man, wie wächst er (Stardew: Jahreszeiten, Feste, Freundschaften mit Bewohnern?)
 5. **Erster kleiner Test:** **ein Angel-Tag im Hafen** zum Anklicken (echte Uhrzeit, ein paar Fischarten, ein Bewohner-Wunsch, ein Bauteil für den Hafen). Nur wenn das Spaß macht, wird groß gebaut. Danach ein Expeditionstag mit Rollen.
-6. **Angeln selbst:** Wie fühlt es sich an (Timing-Spiel, Köder und Stellen wählen, Geduld)? Das ist der wichtigste Handgriff des ganzen Spiels.
+6. ~~**Angeln selbst**~~: erledigt 27.10., Biss abwarten und tippen, Stelle und Uhrzeit entscheiden.
 7. **Zusammen im Alltag:** Was macht der Kumpel im Hafen, wenn keine Expedition ist (gemeinsamer Hafen, Geschenke, Fische tauschen, Besuch)?
 
 ## Regeln
