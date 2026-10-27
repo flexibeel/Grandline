@@ -62,6 +62,9 @@ Damit verschiebt sich der erste kleine Test: **ein Angel-Tag im Hafen** (Uhrzeit
 - **Uhrzeit:** echt, plus kleiner versteckter **Testregler** (Morgen/Tag/Abend/Nacht).
 - Ziel des Tests: 5 Minuten spielen, dann die Frage „Will ich morgen wieder rein?“. Bauen mit **Opus** (Pixel-Art, Gefühl).
 
+## Update 27.10. (50. Chat): Test gebaut
+- `prototyp/angeltag/index.html` steht, privater Artefakt-Link im Fahrplan („Letzte Übergabe“). Offen: Felix' Urteil nach 5 Minuten am Handy.
+
 ## Fragen für den nächsten Chat (mit Klick-Fragen)
 1. ~~**Bestehendes Spiel**~~: erledigt 27.10., eigenes Spiel daneben.
 2. **Name und Welt:** Wie heißt das Spiel, wie sieht die Entdeckerwelt aus (Pixel-Look bleibt?)
