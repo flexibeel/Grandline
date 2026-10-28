@@ -34,6 +34,11 @@ Felix: Angeln ging, war aber langweilig, **immer dasselbe**, **kein Ziel, das zi
 - Bauen mit Opus (Pixel-Art, Gefühl).
 - Testfragen danach: „Willst du sofort nochmal schneller?“ und „Hat es dich ein bisschen schlecht fühlen lassen?“
 
+## Update 28.10. (51. Chat): Test gebaut
+- Felix per Klick: Test bauen statt weiter grübeln; Ansicht **kleine Kugel** (Frage 1 erledigt).
+- `prototyp/planet/index.html`, privater Artefakt-Link im Fahrplan („Letzte Übergabe“). Arbeitstitel im Test: „Planet B“ (Planeten heißen B, C, D …). Boni und Rangliste als einfache Platzhalter-Antwort auf Frage 2 und 3 (6 Boni, Quote wächst je Planet um 45 %, kein Ende).
+- Offen: Felix' Urteil nach 2–3 Planeten am Handy.
+
 ## Offene Fragen (per Klick im nächsten Chat)
 1. **Ansicht:** Planet von oben als runde Scheibe, oder Seitenansicht als Streifen (wie Terraria)?
 2. **Was geht mit:** Welche Boni nimmt man mit, und wie viele Planeten gibt es?
