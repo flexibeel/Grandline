@@ -65,6 +65,14 @@ Felix per Klick: alle 4 Punkte so bauen, viertes Gebäude **Fabrik**. Gleicher L
 - **Tempo (Bot, spielt fehlerfrei):** Planet B gierig 2:50, schonend 2:44, Planet C gierig 3:12, schonend 3:47. Echte Spieler brauchen etwas länger, unter 3:00 auf B ist also mit Übung drin.
 - **Testfragen wie abgemacht:** „Willst du sofort nochmal schneller?“ und „Hat es dich schlecht fühlen lassen?“. Wenn „nochmal schneller?“ nicht klar Ja ist, ruht das Spiel.
 
+## Update 28.10. (54. Chat, Sonnet): Urteil zum Umbau, Planet B ruht
+Felix hat die umgebaute Version 2 am Handy gespielt, per Klick, dieselben zwei Fragen wie abgemacht:
+- **„Willst du sofort nochmal schneller?“** → *Eher so la la.* Nicht klar Ja.
+- **„Hat es dich schlecht fühlen lassen?“** → *Gar nicht.*
+- **Abbruchregel greift: Planet B ruht** (wie Angeln). Kein Feinschliff, kein Ausbau. Der Prototyp bleibt unter `prototyp/planet/` liegen, der private Link bleibt erhalten.
+- **Gelernt (für das nächste Spiel):** Mehr Karten, Nachbarschaft, Geist und Boni-Wahl haben den Sog nicht gebracht, und der Spiegel wirkt auch mit Paula-Sätzen und Spuren im Bild nicht. Zwei Anläufe in Folge (Angeln, Planet) wurden als „geht, zieht aber nicht“ beurteilt. Vor dem nächsten Prototyp sollte Felix zuerst sagen, **was ihn an einem Spiel wirklich zieht** (Beispiele aus Spielen, die er gern spielt), statt dass Claude ein Thema vorschlägt.
+- Felix' Langzeit-Idee (Demokratie, Sozial- und Gesundheitssystem im Verlauf) bleibt unten als Notiz stehen, wird aber nicht weiterverfolgt, solange der Kern nicht zieht.
+
 ## Idee von Felix für später (28.10., 15:06): richtig tief im Verlauf
 Im Verlauf (über viele Planeten) soll das Spiel richtig tief werden: **Demokratie und Regierungen, Sozialsystem, Gesundheitssystem** „und und und“. Noch nicht geplant, erst wenn der Kern im Test zieht. Möglicher Weg: jeder neue Planet schaltet ein neues System frei (z. B. Planet D: Wahlen, die Bewohner können dich abwählen; Planet F: Krankenhaus und Gesundheit).
 
