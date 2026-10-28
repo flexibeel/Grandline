@@ -47,3 +47,16 @@ Technik: eigener Canvas für den Kampf (das DOM schafft keine hunderten Gegner a
   3. **Schiff mit Deck-Raster:** Piraten auf Deck-Plätze setzen (nah an Wanderburg/Ocean Survivors).
   4. **Rivalen, die sich erinnern:** Wer dich schlägt, steigt im Kopfgeld und kommt wieder (nur einfache Form, das volle Nemesis-System ist patentiert).
 - Claudes Gedanke dazu: Die vier passen als **eine Schleife** zusammen (Schiff = Zuhause mit Deck-Raster, Insel = Survivor mit eigenwilliger Crew, Ende jeder Insel = rechtzeitig ablegen, Rivalen kehren über mehrere Inseln wieder). Aber nicht alles auf einmal bauen: zuerst das testen, was am neuesten und unsichersten ist (Crew mit eigenem Willen).
+
+## Trends, Schmied, Sozialsystem, Questgeber (28.10., 17:36, Felix fragt ehrlich und kritisch)
+**Was die beliebten Spiele gerade zeigen (Recherche):**
+- **Megabonk** (1 Mio. in ca. 2 Wochen): sofort Spaß, Zahlen explodieren, Bewegung macht selbst Spaß. → Den Kern nicht verkomplizieren.
+- **Koop mit Freunden („Friendslop“: PEAK, R.E.P.O., Schedule I)** ist der größte Indie-Trend. → Passt zu S4/BF Heroes, technisch im Browser aber ein großer Brocken, erst später.
+- **ARC Raiders** (stark steigend): rausholen oder alles verlieren. → Stützt „Plündern & ablegen“.
+- **CloverPit / Balatro:** eine einfache Maschine, viele Gegenstände, die sie verbiegen, eine wachsende Schuld als Druck. → Klares Ziel mit Druck.
+- **Hades II, Cult of the Lamb, Moonlighter 2, HAWKER:** Basis zwischen den Runs wächst mit. → Hafen mit Schmied passt.
+- **Darkest Dungeon:** Stress und Ausraster der Helden, Helden können für immer verloren gehen. → „Crew mit eigenem Willen“ ist also nicht ganz neu, im Survivor aber schon.
+**Schmied à la Metin2:** passt (Felix mag es, langes Ziel, Grandline hat schon Ausrüstung in `gear.js`/`crewgear.js`). Kritik: Zerstören bei Fehlschlag frustriert, Dauer-Stärke macht Runs leicht, Grind verdrängt Entscheidungen. Vorschlag: Ausrüstung der **Crew** schmieden (+1 bis +9 mit sinkender Chance, Fehlschlag = Riss statt Zerstörung), Boni neu würfeln mit Festhalten, nichts gegen Echtgeld. Erst bauen, wenn der Run-Kern zieht.
+**Sozial-/Gesundheitssystem:** Planet B hat gezeigt, dass ein Spiegel ohne Spielfolge nicht wirkt. Nicht als Predigt einbauen, sondern als **Piratenkodex** im Hafen: Echte Piraten hatten Beuteanteile, eine Kasse für Verletzte (Roberts: 800 Achterstücke für ein verlorenes Glied) und wählten den Kapitän per Mehrheit ab (Wikipedia „Pirate code“). Im Spiel: Beute teilen, Verletztenkasse und Lazarett zahlen oder sparen (Geld für den Schmied), die Crew stimmt über dich ab. Hängt direkt an „Crew mit eigenem Willen“ und Felix' Idee mit Demokratie.
+**Questgeber auf der Karte:** in kleiner Form gut (Aufträge auf der Insel geben dem Survivor eine Richtung, z. B. „Rette den Fischer“, „3 Scheren für die Köchin“), große Questgeber im Hafen zwischen den Runs. Gefahr: Text lesen mitten im Getümmel.
+**Größte Gefahr: Funktionswucher.** Deshalb ein Kernsatz, an dem sich alles messen lassen muss, und eine feste Test-Reihenfolge (siehe Antwort im 54. Chat).
