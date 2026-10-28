@@ -64,3 +64,9 @@ Technik: eigener Canvas für den Kampf (das DOM schafft keine hunderten Gegner a
 ## Stand 28.10., 17:45
 - **Schmied à la Metin2 ist raus** (Felix: nicht überladen).
 - Reihenfolge abgesegnet (1 Crew-Wille, 2 Ablegen, 3 Hafen/Kodex, 4 Rivalen/Questgeber, 5 Koop), **der Kernsatz aber noch nicht**: Felix hat „Crew-Wille als Kern“ und „Schiff auf Pump: plündern, Beute an Bord, Rate zahlen“ (Trend-Mix aus CloverPit-Schuld, Megabonk-Getümmel, ARC-Raiders-Rückweg) beide mit Nein beantwortet, ohne Begründung. Nächster Schritt: herausfinden, was ihn stört, bevor etwas gebaut wird.
+
+## Wer spielt es (28.10., 17:42–17:50, Felix)
+- Freunde sind meist **ADHS-Spieler**, zocken gerade **World of Warcraft** („also cozy“).
+- Per Klick: **PC und Handy**; Gruppe **5 oder mehr, aber auch allein** („Megabonk zockt man allein, aber über die Bestenliste“); **gemeinsamer Hafen, Runden allein** (Koop später); Richtung „WoW-Dungeon in 10 Minuten mit Rollen“: **Nein**.
+- Felix fragt: **Muss es die Piratenwelt sein, oder gibt es Besseres?**
+- Folgerung: Sozial heißt hier **asynchron** (Bestenliste, gemeinsamer Hafen, Spuren der Freunde), nicht Live-Koop. Das ist billiger und passt zu Grandlines vorhandener Tagesfahrt/Rangliste.
