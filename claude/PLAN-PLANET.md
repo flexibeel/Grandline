@@ -55,6 +55,19 @@ Felix hat Planet B am Handy gespielt, per Klick:
 - **Abbruchregel:** Dieselben zwei Fragen nochmal. Wenn „nochmal schneller?“ nicht klar *Ja* ist, ruht das Spiel.
 - **Modell:** Bauen mit Opus.
 
+## Update 28.10. (53. Chat, Opus): Umbau gebaut
+Felix per Klick: alle 4 Punkte so bauen, viertes Gebäude **Fabrik**. Gleicher Link wie bisher (Version 2), Datei `prototyp/planet/index.html`. Speicher heißt jetzt `planetb.v2`, alte Bestzeiten fangen neu an.
+- **Hausmitteilungen:** 19 Karten (davon 3 Folgekarten: Nachtschicht → Streik, Gutachten verschwinden lassen → Journalistin, Dorf umsiedeln → Enge Container), erste nach 7 s, danach 10 s Pause. Viele kommen nur bei bestimmtem Zustand (See leer, Smog unter 50 %, zu wenig Leute, Fabrik steht …). Jede Seite hat einen eigenen Vorteil, einige kosten Geld (Knopf grau, wenn zu wenig). Ablaufbalken: nach 15 s ohne Antwort entscheidet die Abteilung (schnelle Seite). Reihenfolge je Planet fest, damit man einen Planeten lernen kann. Im Bot-Test 14–16 Karten pro Lauf.
+- **Bewohner sind Arbeitskraft:** Leistung hängt an den Leuten (Arbeitskraft 20–100 %). Wer gehen muss, entscheidet vor allem die Stimmung, also die Kartenwahl, weniger der Planetenzustand. Das macht die sanfte Seite zu einer echten Option.
+- **Bauen:** Nachbarn links und rechts zählen (Säge +30 % je Wald daneben, Mine +40 % je Dorf daneben, Bohrturm +25 % je Bohrturm daneben, Fabrik +50 % je Säge/Mine/Bohrturm daneben). Gebäude neben Dörfern drücken die Stimmung (außer Säge). **Fabrik** auf Wiese oder Asche. Ausbau mit Wahl: **A** (z. B. Doppelblatt) mehr Leistung, braucht Leute, mehr Dreck, Schornstein im Bild; **B** (z. B. Vollernter) weniger Leistung, läuft ohne Leute, kaum Dreck, etwas teurer, Zahnrad im Bild.
+- **Sog:** Geist = eigene Bestzeit auf diesem Planeten (Strich auf dem Quotenbalken, unter der Uhr „Geist −2,3 s“), Zwischenzeiten bei 25/50/75 % mit Ton, Tabelle am Ende. „Nochmal, gegen deinen Geist“. Bonuswahl aus 3 von 10 Boni (stärker als vorher, z. B. Sägen +60 %, Raumplaner: Nachbar-Boni doppelt, Roboter-Leasing, erste Fabrik gratis), unter 3:00 zwei.
+- **Paula:** nach jeder Antwort ein kurzer Satz, bei der schnellen Seite kurz erschrocken. Fast jede Entscheidung hinterlässt etwas im Bild (Plakat, Container, Bank-Fahne, Zaun, Hochsitz, Roboter, Lampions, lila See …).
+- **Tempo (Bot, spielt fehlerfrei):** Planet B gierig 2:50, schonend 2:44, Planet C gierig 3:12, schonend 3:47. Echte Spieler brauchen etwas länger, unter 3:00 auf B ist also mit Übung drin.
+- **Testfragen wie abgemacht:** „Willst du sofort nochmal schneller?“ und „Hat es dich schlecht fühlen lassen?“. Wenn „nochmal schneller?“ nicht klar Ja ist, ruht das Spiel.
+
+## Idee von Felix für später (28.10., 15:06): richtig tief im Verlauf
+Im Verlauf (über viele Planeten) soll das Spiel richtig tief werden: **Demokratie und Regierungen, Sozialsystem, Gesundheitssystem** „und und und“. Noch nicht geplant, erst wenn der Kern im Test zieht. Möglicher Weg: jeder neue Planet schaltet ein neues System frei (z. B. Planet D: Wahlen, die Bewohner können dich abwählen; Planet F: Krankenhaus und Gesundheit).
+
 ## Offene Fragen (per Klick im nächsten Chat)
 1. **Ansicht:** Planet von oben als runde Scheibe, oder Seitenansicht als Streifen (wie Terraria)?
 2. **Was geht mit:** Welche Boni nimmt man mit, und wie viele Planeten gibt es?

@@ -34,12 +34,18 @@ button:focus-visible, #stage:focus-visible { outline: 3px solid var(--profit); o
 .clock { font-family: var(--f-display); font-size: 1.9rem; line-height: 1; font-variant-numeric: tabular-nums; text-align: right; grid-row: span 2; }
 .clock small { display: block; font-family: var(--f-body); font-size: .7rem; font-weight: 700; color: var(--ink-soft); letter-spacing: .05em; text-transform: uppercase; margin-top: 3px; }
 .quota { display: flex; align-items: center; gap: 8px; min-width: 0; }
-.bar { flex: 1; height: 10px; background: var(--panel-2); border: 2px solid var(--line); border-radius: 3px; overflow: hidden; }
+.bar { position: relative; flex: 1; height: 10px; background: var(--panel-2); border: 2px solid var(--line); border-radius: 3px; overflow: hidden; }
 .bar i { display: block; height: 100%; width: 0; background: repeating-linear-gradient(90deg, var(--profit) 0 6px, #e8962a 6px 8px); }
+.bar em { position: absolute; top: 0; bottom: 0; width: 2px; margin-left: -1px; background: #dfe4ff; box-shadow: 0 0 0 1px rgba(7, 8, 20, .6); }
+.clock small.ahead { color: var(--nature); }
+.clock small.behind { color: var(--harm); }
 .quota span { font-family: var(--f-display); font-size: .9rem; font-variant-numeric: tabular-nums; white-space: nowrap; color: var(--ink-soft); }
 .cash { display: flex; gap: 14px; align-items: baseline; font-variant-numeric: tabular-nums; }
 .cash b { font-family: var(--f-display); font-weight: 600; font-size: 1.25rem; color: var(--profit); }
 .cash span { color: var(--ink-soft); font-weight: 700; font-size: .85rem; }
+.boni-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: -4px; }
+.boni-row:empty { display: none; }
+.chip.bon { color: var(--nature); }
 .snd { margin-left: auto; background: none; border: 2px solid var(--line); border-radius: 6px; padding: 2px 8px; font-size: .78rem; font-weight: 700; color: var(--ink-soft); }
 
 #stage { position: relative; border-radius: 12px; overflow: hidden; border: 2px solid var(--line); background: #070814; touch-action: manipulation; user-select: none; -webkit-user-select: none; }
@@ -77,6 +83,10 @@ button:focus-visible, #stage:focus-visible { outline: 3px solid var(--profit); o
 .opt .fine { font-size: .72rem; font-style: italic; color: #a04a3a; }
 .opt.fast { background: var(--profit); border-color: #a8661a; box-shadow: 0 3px 0 #a8661a; }
 .opt.fast .fine { color: #7a2a1a; }
+.opt:disabled { opacity: .45; cursor: default; }
+.memo .tick { height: 4px; background: #e2d6b2; border-radius: 2px; overflow: hidden; }
+.memo .tick i { display: block; height: 100%; width: 100%; background: #b0603a; transform-origin: left; }
+.memo .chain { color: #a04a3a; }
 
 .field { background: var(--panel); border-radius: 10px; padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; }
 .field h3 { font-family: var(--f-display); font-weight: 600; font-size: 1.1rem; margin: 0; display: flex; justify-content: space-between; gap: 8px; }
@@ -89,6 +99,12 @@ button:focus-visible, #stage:focus-visible { outline: 3px solid var(--profit); o
 .build .gain { font-size: .8rem; font-weight: 700; color: var(--nature); }
 .build:disabled { opacity: .5; cursor: default; }
 .build:disabled .cost { color: var(--ink-soft); }
+.build .nb { font-size: .76rem; font-weight: 800; color: var(--profit); }
+.build .nb.off { color: var(--ink-soft); font-weight: 700; }
+.upg { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.upg .build { grid-template-columns: 1fr; align-content: start; }
+.upg .build .cost { grid-row: auto; }
+.field .info { display: flex; gap: 6px; flex-wrap: wrap; }
 
 .sheet { position: fixed; inset: 0; z-index: 20; background: var(--bg); overflow-y: auto; }
 .sheet .in { max-width: 520px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: calc(16px + env(safe-area-inset-top, 0px)) calc(28px + env(safe-area-inset-bottom, 0px)); display: flex; flex-direction: column; gap: 14px; }
@@ -114,6 +130,13 @@ button:focus-visible, #stage:focus-visible { outline: 3px solid var(--profit); o
 .pick small { color: var(--ink-soft); }
 .pick[aria-pressed="true"] { border-color: var(--profit); background: #2e2a2a; }
 .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.splits { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+.splits td { padding: 5px 8px; background: var(--panel); border-top: 2px solid var(--bg); }
+.splits td:first-child { color: var(--ink-soft); font-weight: 800; font-size: .8rem; border-radius: 6px 0 0 6px; }
+.splits td:last-child { text-align: right; border-radius: 0 6px 6px 0; font-weight: 800; }
+.splits .t { font-family: var(--f-display); font-weight: 600; }
+.d-ahead { color: var(--nature); }
+.d-behind { color: var(--harm); }
 .foot { font-size: .74rem; color: var(--ink-soft); text-align: center; margin: 0; }
 
 .fig .p24-blink { opacity: 0; animation: blink 4.6s steps(1) infinite; }
@@ -127,9 +150,10 @@ button:focus-visible, #stage:focus-visible { outline: 3px solid var(--profit); o
   <header class="hud">
     <div class="pname"><span id="pname">Planet B</span><small id="pquota">Quote 5.000</small></div>
     <div class="clock" id="clock">0:00.0<small>Zeit</small></div>
-    <div class="quota"><div class="bar"><i id="qbar"></i></div><span id="qtxt">0 %</span></div>
+    <div class="quota"><div class="bar"><i id="qbar"></i><em id="qghost" hidden></em></div><span id="qtxt">0 %</span></div>
   </header>
   <div class="cash"><span>Kasse <b id="cash">0</b></span><span id="rate">+0/s</span><button class="snd" id="snd" aria-pressed="true">Ton an</button></div>
+  <div class="boni-row" id="boniRow"></div>
 
   <div id="stage" tabindex="0" aria-label="Der Planet. Tippe auf ein Feld am Rand.">
     <canvas id="scene" width="112" height="112"></canvas>
@@ -151,7 +175,7 @@ button:focus-visible, #stage:focus-visible { outline: 3px solid var(--profit); o
     <div style="min-width:0">
       <div class="who">Paula, Bürgermeisterin</div>
       <p class="say" id="say"></p>
-      <div class="chips"><span class="chip" id="cVill">Bewohner 24</span><span class="chip" id="cFauna">Tierarten 3</span></div>
+      <div class="chips"><span class="chip" id="cVill">Bewohner 24</span><span class="chip" id="cFauna">Tierarten 3</span><span class="chip" id="cWork">Arbeitskraft 100 %</span></div>
     </div>
   </section>
 
@@ -170,58 +194,116 @@ const PAULA = {"froh":"<svg viewBox=\"-2 -1 28 32\" class=\"fig\" shape-renderin
 const $ = id => document.getElementById(id);
 const fmtN = n => Math.floor(n).toLocaleString('de-DE');
 const fmtT = s => { const m = Math.floor(s / 60), r = s - m * 60; return m + ':' + String(Math.floor(r)).padStart(2, '0') + '.' + Math.floor((r % 1) * 10); };
+const fmtD = d => (d < 0 ? '−' : '+') + Math.abs(d).toFixed(1).replace('.', ',') + ' s';
+const f1 = n => n.toLocaleString('de-DE', { maximumFractionDigits: 1 });
+const pct = n => Math.round(n * 100) + ' %';
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 function hashStr(s) { let h = 2166136261; for (const ch of String(s)) { h ^= ch.charCodeAt(0); h = Math.imul(h, 16777619); } return h >>> 0; }
 function rng(seed) { let a = seed >>> 0; return () => { a = (a + 0x6D2B79F5) >>> 0; let t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+const shuffle = (arr, r) => { const a = arr.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 
 // ===================== Spieldaten =====================
+// Jedes Gebäude mag bestimmte Nachbarn (Feld links und rechts). Ausbau: A = mehr Leistung, braucht Leute, mehr Dreck.
+// B = Automatik: weniger Leistung, läuft auch ohne Leute, kaum Dreck, etwas teurer.
 const BUILD = {
-  saege: { name: 'Säge', on: ['wald'], rate: 1, cost: 25, dmg: 3, pol: .015, fine: 'Der Wald ist dann weg.' },
-  mine:  { name: 'Mine', on: ['berg', 'erz'], rate: 3, cost: 70, dmg: 5, pol: .035, fine: 'Der Berg wird hohl.' },
-  bohr:  { name: 'Bohrturm', on: ['wiese', 'asche', 'see'], rate: 7, cost: 160, dmg: 7, pol: .07, fine: 'Riecht ein bisschen.' }
+  saege:  { name: 'Säge', on: ['wald'], rate: 1, cost: 25, dmg: 3, pol: .015, fine: 'Der Wald ist dann weg.',
+            nb: .3, nbText: 'je Wald daneben', A: 'Doppelblatt', B: 'Vollernter' },
+  mine:   { name: 'Mine', on: ['berg', 'erz'], rate: 3, cost: 70, dmg: 5, pol: .035, fine: 'Der Berg wird hohl.',
+            nb: .4, nbText: 'je Dorf daneben', A: 'Sprengladung', B: 'Förderband' },
+  bohr:   { name: 'Bohrturm', on: ['wiese', 'asche', 'see'], rate: 6, cost: 150, dmg: 7, pol: .065, fine: 'Riecht ein bisschen.',
+            nb: .25, nbText: 'je Bohrturm daneben', A: 'Tiefbohrung', B: 'Pumpautomat' },
+  fabrik: { name: 'Fabrik', on: ['wiese', 'asche'], rate: 4, cost: 110, dmg: 6, pol: .05, fine: 'Verqualmt die Nachbarn.',
+            nb: .5, nbText: 'je Säge, Mine, Bohrturm daneben', A: 'Dritte Schicht', B: 'Fließband' }
 };
+const UP = { A: { wk: 1.2, pu: 1.4, costM: 1, dmgM: 1, f: "Braucht Leute, mehr Dreck" }, B: { au: .6, pu: .3, costM: 1.25, dmgM: .4, f: 'Läuft ohne Leute, kaum Dreck' } };
 const TERRAIN = { pad: 'Landeplatz', wald: 'Wald', berg: 'Berg', erz: 'Erzgrube', wiese: 'Wiese', asche: 'Asche', see: 'See', dorf: 'Dorf' };
-const UP_FINE = ['Lauter.', 'Noch lauter. Und dreckiger.'];
 const BONI = {
-  turbo: { name: 'Turbobohrer', text: 'Bohrtürme +25 %' },
-  lobby: { name: 'Lobbyist', text: 'Bauen 15 % billiger' },
-  kapital: { name: 'Startkapital', text: '+80 in der Kasse zu Beginn' },
-  kette: { name: 'Kettensägen-Abo', text: 'Sägen +40 %' },
-  schicht: { name: 'Schichtplan', text: 'Alles +10 %' },
-  agentur: { name: 'Werbeagentur', text: 'Die Bewohner merken alles etwas später' }
+  turbo:   { name: 'Turbobohrer', text: 'Bohrtürme +40 %' },
+  kette:   { name: 'Kettensägen-Abo', text: 'Sägen +60 %' },
+  spreng:  { name: 'Sprengmeister', text: 'Minen +50 %' },
+  fertig:  { name: 'Fertigteil-Fabrik', text: 'Die erste Fabrik ist gratis' },
+  lobby:   { name: 'Lobbyist', text: 'Bauen 20 % billiger' },
+  kapital: { name: 'Startkapital', text: '+150 in der Kasse zu Beginn' },
+  schicht: { name: 'Schichtplan', text: 'Alles +12 %' },
+  pakt:    { name: 'Raumplaner', text: 'Nachbar-Boni doppelt so stark' },
+  robo:    { name: 'Roboter-Leasing', text: 'Arbeitskraft nie unter 85 %' },
+  agentur: { name: 'Werbeagentur', text: 'Die Bewohner merken alles später' }
 };
 const PLANET_NAMES = ['B', 'C', 'D', 'E', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N'];
-const PAR = 180;
-const quotaOf = n => Math.round(5000 * Math.pow(1.45, n - 1) / 100) * 100;
+const PAR = 180, CARD_GAP = 10, CARD_WAIT = 15, FIRST_CARD = 7;
+const SPLITS = [.25, .5, .75, 1];
+const quotaOf = n => Math.round(QUOTA * Math.pow(1.45, n - 1) / 100) * 100;
+let QUOTA = 7000;
 const nameOf = n => 'Planet ' + (PLANET_NAMES[n - 1] || ('B' + n));
 
-// Hausmitteilungen. Rechts steht immer die schnelle Seite.
+// ===================== Hausmitteilungen =====================
+// Rechts (fast) steht die Seite, die die Abteilung Wachstum gern hätte. Links (slow) die andere, mit eigenem Vorteil.
+// cost = braucht so viel in der Kasse. p = was Paula danach sagt. chain = kommt nur als Folge einer anderen Karte.
+const slotOf = pred => { const s = G.slots.find(pred); return s ? s.i : -1; };
+const anyB = k => slotOf(s => s.b === k);
+const dorfI = () => slotOf(s => s.t === 'dorf');
+const seeI = () => slotOf(s => s.t === 'see');
+const builtN = () => G.slots.filter(s => s.b).length;
 const CARDS = [
   { id: 'nacht', t: 'Nachtschicht einführen', x: 'Die Maschinen könnten auch nachts laufen. Die Leute schlafen eh schlecht.',
-    fast: { l: 'Einführen', g: '+20 % auf alles', f: 'Augenringe für alle', run: () => { G.mAll *= 1.2; hurt(5); G.moodOff -= 10; } },
-    slow: { l: 'Lieber nicht', g: 'Alles bleibt, wie es ist', f: '', run: () => {} } },
+    fast: { l: 'Einführen', g: '+20 % auf alles', f: 'Stimmung −12, Streik möglich', p: 'Nachts auch? Und wann schlafen wir?', run: () => { G.mAll *= 1.2; G.moodOff -= 12; chain('streik', 30); mark('lampe', builtAny()); } },
+    slow: { l: 'Feierabend lassen', g: 'Stimmung +6', f: '', p: 'Danke. Ehrlich.', run: () => { G.moodOff += 6; } } },
+  { id: 'streik', chain: 1, t: 'Die Nachtschicht streikt', x: 'Vor den Toren stehen Leute mit Schildern. Sie wollen schlafen. Und Geld.', on: () => mark('streik', builtAny()),
+    fast: { l: 'Ersetzen', g: 'Läuft sofort weiter', f: '5 Bewohner werden entlassen', p: 'Fünf Familien packen gerade ihre Sachen.', run: () => { G.vill = Math.max(0, G.vill - 5); G.moodOff -= 4; } },
+    slow: { l: 'Lohn erhöhen', g: 'Stimmung +12', f: 'Kostet ein Viertel der Kasse', p: 'Na also. Geht doch.', run: () => { G.cash *= .75; G.moodOff += 12; } } },
+  { id: 'kredit', t: 'Kredit der Zentrale', x: 'Die Bank der Zentrale bietet frisches Geld an. Zu fairen Konditionen, sagt die Bank.',
+    fast: { l: 'Nehmen', g: '+300 sofort in die Kasse', f: 'Für immer gehen 10 % an die Bank', p: 'Wem gehört jetzt eigentlich der Planet?', run: () => { G.cash += 300; G.cut += .1; mark('bank', 0); } },
+    slow: { l: 'Ablehnen', g: 'Alles bleibt bei dir', f: '', p: 'Schulden machen mir Angst.', run: () => {} } },
   { id: 'gutachten', t: 'Umweltgutachten', x: 'Das Gutachten zur Mine ist … unpraktisch ausgefallen.',
-    fast: { l: 'Verschwinden lassen', g: 'Bauen 20 % billiger', f: 'Niemand liest es je', run: () => { G.costM *= .8; hurt(4); } },
-    slow: { l: 'Veröffentlichen', g: 'Bauen 10 % teurer', f: '', run: () => { G.costM *= 1.1; heal(3); } } },
-  { id: 'see', t: 'Schutzgebiet aufheben', cond: () => G.slots.some(s => s.t === 'see' && s.prot), x: 'Der See steht seit 300 Jahren unter Schutz. Darunter: Öl.',
-    fast: { l: 'Aufheben', g: 'Der See wird Bauplatz', f: 'Die Enten wissen nichts davon', run: () => { G.slots.forEach(s => { if (s.t === 'see') s.prot = false; }); hurt(6); dirty(); } },
-    slow: { l: 'Schützen', g: 'Der See bleibt', f: '', run: () => {} } },
-  { id: 'dorf', t: 'Dorf umsiedeln', cond: () => G.slots.some(s => s.t === 'dorf'), x: 'Unter dem Dorf am Hang liegt Erz. Die Leute können ja woanders wohnen.',
-    fast: { l: 'Umsiedeln', g: 'Neuer Bauplatz für eine Mine', f: '12 Bewohner ziehen in Container', run: () => { const s = G.slots.find(s => s.t === 'dorf'); s.t = 'erz'; G.moved += 12; hurt(6); dirty(); } },
-    slow: { l: 'Bleiben lassen', g: 'Das Dorf bleibt', f: '', run: () => {} } },
-  { id: 'fluss', t: 'Fluss umleiten', cond: () => G.slots.some(s => s.b === 'bohr'), x: 'Die Bohrtürme brauchen Kühlwasser. Der Fluss ist praktisch direkt daneben.',
-    fast: { l: 'Umleiten', g: '+30 % für Bohrtürme', f: 'Die Fische ziehen um. Ins Nichts.', run: () => { G.mBohr *= 1.3; G.fauna.fisch = false; hurt(8); } },
-    slow: { l: 'Lassen', g: 'Der Fluss fließt weiter', f: '', run: () => {} } },
-  { id: 'filter', t: 'Filter einbauen?', cond: () => G.slots.filter(s => s.b).length >= 3, x: 'Die Ingenieurin hat Filter entworfen. Sie kosten etwas, und alles läuft ein bisschen langsamer.',
-    fast: { l: 'Zu teuer', g: 'Kein Tempoverlust', f: 'Die Ingenieurin kündigt', run: () => {} },
-    slow: { l: 'Einbauen', g: 'Halb so viel Dreck', f: 'Kostet ein Viertel der Kasse, −10 % Tempo', run: () => { G.cash *= .75; G.mAll *= .9; G.polM *= .5; heal(6); } } },
-  { id: 'brand', t: 'Brandrodung', cond: () => G.slots.some(s => s.t === 'wald' && !s.b), x: 'Sägen dauert. Feuer ist schneller.',
-    fast: { l: 'Anzünden', g: '+60 sofort pro Wald, Platz für Bohrtürme', f: 'Die Hirsche rennen', run: () => { let n = 0; G.slots.forEach(s => { if (s.t === 'wald' && !s.b) { s.t = 'asche'; n++; } }); earn(60 * n); hurt(15); G.fire = 3; dirty(); } },
-    slow: { l: 'Weiter sägen', g: 'Der Wald bleibt (vorerst)', f: '', run: () => {} } },
-  { id: 'werbung', t: 'Werbekampagne', x: '„Grün ist unsere Farbe.“ Plakate in jedem Dorf, Radiospot inklusive.',
-    fast: { l: 'Plakate kleben', g: 'Bewohner 30 Sekunden lang zufrieden', f: 'Kostet 60. Am Planeten ändert sich nichts.', run: () => { G.cash -= 60; G.ad = 30; } },
-    slow: { l: 'Spar dir das', g: 'Keine Kosten', f: '', run: () => {} } }
+    fast: { l: 'Verschwinden lassen', g: 'Bauen 20 % billiger', f: 'Niemand liest es je. Oder?', p: 'Was wird da hinten verbrannt?', run: () => { G.costM *= .8; hurt(4); chain('presse', 35); mark('tonne', 0); } },
+    slow: { l: 'Veröffentlichen', g: '+120 Fördergeld', f: 'Bauen 10 % teurer', p: 'Endlich sagt es mal jemand.', run: () => { G.cash += 120; G.costM *= 1.1; heal(3); mark('aushang', dorfI()); } } },
+  { id: 'presse', chain: 1, t: 'Eine Journalistin fragt nach', x: 'Sie hat Fotos von einer brennenden Tonne. Und sehr viele Fragen.',
+    fast: { l: 'Anzeigen schalten', cost: 100, g: 'Bewohner 25 s ruhig', f: 'Kostet 100', p: 'Im Radio sagen sie, alles ist gut. Dann ist ja gut.', run: () => { pay(100); G.ad = 25; mark('plakat', dorfI()); } },
+    slow: { l: 'Interview geben', g: 'Stimmung +10, Planet +5', f: 'Der Rabatt ist wieder weg', p: 'Sie war nett. Und sie hatte recht.', run: () => { G.costM /= .8; G.moodOff += 10; heal(5); } } },
+  { id: 'see', t: 'Schutzgebiet aufheben', cond: () => G.time > 20 && G.slots.some(s => s.t === 'see' && s.prot), x: 'Der See steht seit 300 Jahren unter Schutz. Darunter: Öl.',
+    fast: { l: 'Aufheben', g: 'Der See wird Bauplatz', f: 'Die Enten wissen nichts davon', p: 'Der See? Da hab ich schwimmen gelernt.', run: () => { G.slots.forEach(s => { if (s.t === 'see') s.prot = false; }); hurt(6); } },
+    slow: { l: 'Schützen', g: 'Bootsverleih: +3 pro Sekunde', f: 'Solange es Fische gibt', p: 'Am Wochenende kommen Leute zum Rudern!', run: () => { G.tour = true; mark('boot', seeI()); } } },
+  { id: 'seeleer', t: 'Der See ist still', cond: () => !G.fauna.fisch && seeI() >= 0, x: 'Die Fischer haben nichts mehr zu fangen. Sie stehen am Ufer und schauen aufs Wasser.',
+    fast: { l: 'Umschulen', g: 'Bohrtürme +15 %', f: 'Die Fischer werden Bohrarbeiter', p: 'Mein Opa war Fischer. Jetzt bohrt er.', run: () => { G.mBohr *= 1.15; G.moodOff -= 6; mark('helm', seeI()); } },
+    slow: { l: 'Entschädigen', cost: 80, g: 'Stimmung +10', f: 'Kostet 80', p: 'Das Geld hilft. Der See kommt nicht wieder.', run: () => { pay(80); G.moodOff += 10; } } },
+  { id: 'dorf', t: 'Dorf umsiedeln', cond: () => G.built.mine > 0 && dorfI() >= 0, x: 'Unter einem Dorf liegt reiches Erz. Die Leute können ja in Container ziehen.',
+    fast: { l: 'Umsiedeln', g: 'Erzgrube: Mine dort +50 %', f: 'Das Dorf zieht in Container', p: 'Mein Haus. Mit dem Apfelbaum davor.', run: () => { const s = G.slots[pickDorf()]; s.t = 'erz'; G.moodOff -= 12; hurt(5); mark('container', 0); chain('container', 30); } },
+    slow: { l: 'Bleiben lassen', g: 'Minen daneben weiter +40 %', f: '', p: 'Danke, dass wir bleiben dürfen.', run: () => { G.moodOff += 4; } } },
+  { id: 'container', chain: 1, t: 'Enge Container', x: 'In den Containern ist es heiß und eng. Die Kinder spielen auf dem Landeplatz.',
+    fast: { l: 'Wird schon', g: 'Kostet nichts', f: 'Stimmung −8', p: 'Gestern hat es reingeregnet.', run: () => { G.moodOff -= 8; } },
+    slow: { l: 'Wohnungen bauen', cost: 150, g: 'Stimmung +12', f: 'Kostet 150', p: 'Wohnungen! Mit Fenstern!', run: () => { pay(150); G.moodOff += 12; mark('haus', 0); } } },
+  { id: 'fluss', t: 'Fluss umleiten', cond: () => G.built.bohr > 0, x: 'Die Bohrtürme brauchen Kühlwasser. Der Fluss ist praktisch direkt daneben.',
+    fast: { l: 'Umleiten', g: 'Bohrtürme +30 %', f: 'Die Fische ziehen um. Ins Nichts.', p: 'Wo ist denn der Fluss hin?', run: () => { G.mBohr *= 1.3; G.fauna.fisch = false; hurt(8); mark('rohr', seeI()); } },
+    slow: { l: 'Wasser kaufen', cost: 90, g: 'Bohrtürme +15 %', f: 'Kostet 90', p: 'Der Fluss gluckert noch.', run: () => { pay(90); G.mBohr *= 1.15; mark('tank', anyB('bohr')); } } },
+  { id: 'filter', t: 'Filter einbauen?', cond: () => builtN() >= 3, x: 'Die Ingenieurin hat Filter entworfen. Sie kosten etwas, und alles läuft ein bisschen langsamer.',
+    fast: { l: 'Zu teuer', g: 'Kein Tempoverlust', f: 'Die Ingenieurin kündigt', p: 'Die Luft schmeckt nach Münzen.', run: () => { hurt(2); } },
+    slow: { l: 'Einbauen', g: 'Halb so viel Dreck, Planet +6', f: 'Ein Viertel der Kasse, −10 % Tempo', p: 'Ich sehe die Berge wieder!', run: () => { G.cash *= .75; G.mAll *= .9; G.polM *= .5; heal(6); mark('filter', builtAny()); } } },
+  { id: 'brand', t: 'Brandrodung', cond: () => G.slots.filter(s => s.t === 'wald' && !s.b).length >= 2, x: 'Sägen dauert. Feuer ist schneller.',
+    fast: { l: 'Anzünden', g: '+50 je Wald sofort, Platz für Bohrtürme', f: 'Sägen verlieren ihren Wald daneben', p: 'Es riecht nach Lagerfeuer. Überall.', run: () => { let n = 0; G.slots.forEach(s => { if (s.t === 'wald' && !s.b) { s.t = 'asche'; n++; } }); earn(50 * n); hurt(15); G.fire = 3; } },
+    slow: { l: 'Förster einstellen', cost: 40, g: 'Sägen +25 %', f: 'Kostet 40', p: 'Der Förster hat mir einen Setzling geschenkt.', run: () => { pay(40); G.mSaege *= 1.25; mark('setzling', slotOf(s => s.t === 'wald' && !s.b)); } } },
+  { id: 'hirsche', t: 'Hirsche im Weg', cond: () => G.fauna.hirsch && G.built.saege > 0, x: 'Die Hirsche knabbern an den Holzstapeln und stehen in der Zufahrt.',
+    fast: { l: 'Jagd freigeben', g: '+80 in die Kasse', f: 'Keine Hirsche mehr', p: 'Ich hab heute keinen Hirsch gesehen.', run: () => { G.cash += 80; G.fauna.hirsch = false; hurt(3); mark('hochsitz', slotOf(s => s.t === 'wald') >= 0 ? slotOf(s => s.t === 'wald') : anyB('saege')); } },
+    slow: { l: 'Zaun bauen', cost: 40, g: 'Die Hirsche bleiben', f: 'Kostet 40', p: 'Die Kinder füttern sie am Zaun.', run: () => { pay(40); mark('zaun', anyB('saege')); } } },
+  { id: 'werbung', t: 'Werbekampagne', cond: () => mood() === 'besorgt' || mood() === 'muede', x: '„Grün ist unsere Farbe.“ Plakate in jedem Dorf, Radiospot inklusive.',
+    fast: { l: 'Plakate kleben', cost: 60, g: 'Bewohner 30 s ruhig, keiner zieht weg', f: 'Kostet 60. Am Planeten ändert sich nichts.', p: 'Grün ist unsere Farbe! Steht da.', run: () => { pay(60); G.ad = 30; mark('plakat', dorfI()); } },
+    slow: { l: 'Spar dir das', g: 'Die Kasse bleibt voll', f: '', p: 'Wenigstens lügt ihr nicht auch noch.', run: () => {} } },
+  { id: 'smog', t: 'Smogalarm', cond: () => G.hp < 50, x: 'Die Kinder husten. Die Schule will heute zu bleiben.',
+    fast: { l: 'Messgerät abschalten', g: 'Kein Alarm mehr', f: 'Stimmung −6', p: 'Das Messgerät ist kaputt, sagen sie.', run: () => { G.moodOff -= 6; mark('messgeraet', dorfI()); } },
+    slow: { l: 'Drosseln', g: 'Planet +12, Stimmung +6', f: '15 s nur halbe Kraft', p: 'Heute sieht man die Sonne.', run: () => { heal(12); G.moodOff += 6; G.halt = 15; G.haltF = .5; } } },
+  { id: 'fest', t: 'Dorffest', cond: () => G.time > 30 && G.vill >= 16 && dorfI() >= 0, x: 'Paula lädt alle zum Dorffest ein. Dafür müssten die Maschinen kurz still stehen.',
+    fast: { l: 'Absagen', g: 'Keine Pause', f: 'Stimmung −8', p: 'Die Lampions hängen noch. Für nichts.', run: () => { G.moodOff -= 8; } },
+    slow: { l: 'Hingehen', g: 'Stimmung +15', f: '8 s Stillstand', p: 'Du bist gekommen! Probier den Kuchen.', run: () => { G.moodOff += 15; G.halt = 8; G.haltF = 0; mark('lampions', dorfI()); } } },
+  { id: 'abwasser', t: 'Wohin mit dem Abwasser?', cond: () => G.built.fabrik > 0, x: 'Die Fabrik produziert eine Brühe in einem sehr schönen Lila.',
+    fast: { l: 'In den See', g: 'Fabriken +25 %', f: 'Planet −10. Der See wird lila.', p: 'Der See ist lila. Ist das normal?', run: () => { G.mFab *= 1.25; hurt(10); G.fauna.fisch = false; G.lila = true; } },
+    slow: { l: 'Klärwerk', cost: 120, g: 'Alles bleibt sauber', f: 'Kostet 120', p: 'Das Klärwerk brummt so beruhigend.', run: () => { pay(120); mark('klaer', anyB('fabrik')); } } },
+  { id: 'roboter', t: 'Zu wenig Leute', cond: () => G.time > 30 && !G.robo && G.vill <= 15, x: 'Es sind zu viele weggezogen. Die Maschinen stehen halb leer.',
+    fast: { l: 'Roboter kaufen', cost: 200, g: 'Arbeitskraft immer 100 %', f: 'Kostet 200. Die Übrigen braucht keiner mehr.', p: 'Der Roboter sitzt auf meinem Platz in der Kantine.', run: () => { pay(200); G.robo = true; G.moodOff -= 10; mark('robo', builtAny()); } },
+    slow: { l: 'Lohn erhöhen', g: 'Stimmung +15', f: 'Kostet ein Fünftel der Kasse', p: 'Vielleicht bleiben wir doch.', run: () => { G.cash *= .8; G.moodOff += 15; } } },
+  { id: 'anzug', t: 'Besuch von der Zentrale', cond: () => G.time > 45, x: 'Ein Herr im Anzug fragt, ob man die Quote nicht „gemeinsam gestalten“ könnte.',
+    fast: { l: 'Spenden', g: 'Quote −8 %', f: 'Kostet ein Drittel der Kasse', p: 'Ein Herr im Anzug hat mir zugezwinkert.', run: () => { G.cash *= 2 / 3; G.quota = Math.round(G.quota * .92); mark('koffer', 0); } },
+    slow: { l: 'Höflich ablehnen', g: 'Stimmung +4', f: '', p: 'Der hatte so komische Schuhe.', run: () => { G.moodOff += 4; } } }
 ];
+const CARD = {}; CARDS.forEach(c => { CARD[c.id] = c; });
 
 const LINES = {
   froh: ['Willkommen auf unserem Planeten!', 'Was für ein schöner Morgen.', 'Kommt ihr heute Abend zum Dorffest?', 'Die Hirsche sind ganz zutraulich hier.'],
@@ -232,8 +314,8 @@ const LINES = {
 };
 
 // ===================== Speicher =====================
-const KEY = 'planetb.v1';
-const freshSave = () => ({ planet: 1, boni: [], best: {}, sound: true });
+const KEY = 'planetb.v2';
+const freshSave = () => ({ planet: 1, boni: [], best: {}, ghost: {}, sound: true });
 let S = freshSave();
 try { const raw = localStorage.getItem(KEY); if (raw) S = Object.assign(freshSave(), JSON.parse(raw)); } catch (e) {}
 const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} };
@@ -252,33 +334,66 @@ function newPlanet() {
     if (Math.abs(d[0] - d[1]) > 1) break;
   }
   const slots = [{ t: 'pad' }].concat(order.map(t => ({ t, prot: t === 'see' })));
-  slots.forEach((s, i) => { s.i = i; s.b = null; s.lv = 0; });
+  slots.forEach((s, i) => { s.i = i; s.b = null; s.lv = 0; s.wk = 0; s.au = 0; s.pu = 0; s.path = ''; });
+  const deck = shuffle(CARDS.filter(c => !c.chain).map(c => c.id), rng(hashStr('deck' + n)));
   G = {
     n, quota: quotaOf(n), seed: hashStr('p' + n), hue: r(),
-    slots, cash: 40 + 80 * bonusCount('kapital'), total: 0, hp: 100, pol: 0,
-    mAll: Math.pow(1.1, bonusCount('schicht')), mBohr: Math.pow(1.25, bonusCount('turbo')), mSaege: Math.pow(1.4, bonusCount('kette')),
-    costM: Math.pow(.85, bonusCount('lobby')), polM: 1, moodOff: 10 * bonusCount('agentur'),
-    built: { saege: 0, mine: 0, bohr: 0 }, moved: 0, vill: 24, fauna: { hirsch: true, vogel: true, fisch: true },
-    used: {}, card: null, nextCard: 12, ad: 0, fire: 0,
+    slots, cash: CASH0 + 150 * bonusCount('kapital'), total: 0, hp: 100,
+    mAll: Math.pow(1.12, bonusCount('schicht')), mBohr: Math.pow(1.4, bonusCount('turbo')), mSaege: Math.pow(1.6, bonusCount('kette')),
+    mMine: Math.pow(1.5, bonusCount('spreng')), mFab: 1,
+    costM: Math.pow(.8, bonusCount('lobby')), polM: 1, moodOff: 15 * bonusCount('agentur'),
+    nbM: 1 + bonusCount('pakt'), wfMin: bonusCount('robo') ? .85 : 0, freeFab: bonusCount('fertig'),
+    built: { saege: 0, mine: 0, bohr: 0, fabrik: 0 }, vill: 24, fauna: { hirsch: true, vogel: true, fisch: true },
+    deck, used: {}, queue: [], card: null, cardT: 0, nextCard: FIRST_CARD, answered: 0,
+    ad: 0, fire: 0, halt: 0, haltF: 1, cut: 0, robo: false, tour: false, lila: false, marks: [], faceT: 0,
+    samp: [0], sampT: 0, split: [], splitIdx: 0,
     phase: 'start', time: 0, anim: 0, sel: slots.findIndex(s => s.t === 'wald'), before: null, after: null
   };
-  dirty();
 }
-const rateOf = () => {
-  let r = 1;
-  G.slots.forEach(s => { if (!s.b) return; const B = BUILD[s.b]; let x = B.rate * s.lv; if (s.b === 'bohr') x *= G.mBohr; if (s.b === 'saege') x *= G.mSaege; r += x; });
-  return r * G.mAll;
-};
-const costOf = k => Math.round(BUILD[k].cost * Math.pow(1.3, G.built[k]) * G.costM);
-const upCostOf = s => Math.round(BUILD[s.b].cost * Math.pow(2.2, s.lv) * G.costM);
+// Nachbarn: das Feld links und rechts am Rand
+const nbr = i => [(i + 11) % 12, (i + 1) % 12].map(j => G.slots[j]);
+const isInd = o => !!o.b;
+function nbCount(s, k) {
+  const N = nbr(s.i);
+  if (k === 'saege') return N.filter(o => o.t === 'wald' && !o.b).length;
+  if (k === 'mine') return G.vill > 0 ? N.filter(o => o.t === 'dorf').length : 0;
+  if (k === 'bohr') return N.filter(o => o.b === 'bohr').length;
+  if (k === 'fabrik') return N.filter(o => o.b && o.b !== 'fabrik').length;
+  return 0;
+}
+const nbMult = (s, k) => 1 + BUILD[k].nb * G.nbM * nbCount(s, k);
+const typeM = k => ({ saege: G.mSaege, mine: G.mMine, bohr: G.mBohr, fabrik: G.mFab })[k];
+const erzM = (s, k) => (k === 'mine' && s.t === 'erz') ? 1.5 : 1;
+let WF0 = .2, CASH0 = 60, BASE = 3;
+const wf = () => G.robo ? 1 : Math.max(G.wfMin, WF0 + (1 - WF0) * G.vill / 24);
+const globalM = () => G.mAll * (1 - G.cut) * (G.halt > 0 ? G.haltF : 1);
+// Leistung je Feld, wk = Arbeitsplätze (hängen an den Leuten), au = Automatik
+const rawRate = (s, k) => BUILD[k].rate * typeM(k) * nbMult(s, k) * erzM(s, k);
+const unitRate = (s, k) => rawRate(s, k) * globalM();
+const slotRate = s => s.b ? unitRate(s, s.b) * (s.wk * wf() + s.au) : 0;
+function rateOf() {
+  let r = BASE;
+  G.slots.forEach(s => { if (s.b) r += rawRate(s, s.b) * (s.wk * wf() + s.au); });
+  if (G.tour && G.fauna.fisch) r += 3;
+  return r * globalM();
+}
+const costOf = k => (k === 'fabrik' && G.freeFab > G.built.fabrik) ? 0 : Math.round(BUILD[k].cost * Math.pow(1.3, G.built[k]) * G.costM);
+const upCostOf = (s, p) => Math.round(BUILD[s.b].cost * Math.pow(2.2, s.lv) * G.costM * UP[p].costM);
 function hurt(n) { G.hp = Math.max(0, G.hp - n); }
 function heal(n) { G.hp = Math.min(100, G.hp + n); }
 function earn(n) { G.cash += n; G.total += n; }
+function pay(n) { G.cash = Math.max(0, G.cash - n); }
+function chain(id, inSec) { if (!G.used[id]) G.queue.push({ id, at: G.time + inSec }); }
+function builtAny() { const s = G.slots.filter(s => s.b).sort((a, b) => b.lv - a.lv)[0]; return s ? s.i : 0; }
+function pickDorf() { const d = G.slots.filter(s => s.t === 'dorf'); const m = d.find(s => nbr(s.i).some(o => o.b === 'mine')); return (m || d[0]).i; }
+// Gebäude neben einem Dorf machen die Leute unruhig
+const dorfStress = () => G.slots.filter(s => s.t === 'dorf').reduce((a, s) => a + nbr(s.i).filter(o => o.b && o.b !== 'saege').length, 0);
+const moodEff = () => G.moodOff - 4 * dorfStress();
 
 function mood() {
   if (G.vill <= 0) return 'weg';
   if (G.ad > 0) return 'werbung';
-  const m = G.hp + G.moodOff;
+  const m = G.hp + moodEff();
   return m >= 70 ? 'froh' : m >= 45 ? 'besorgt' : 'muede';
 }
 function faunaCheck() {
@@ -288,10 +403,13 @@ function faunaCheck() {
   if (F.fisch && (G.hp < 30 || G.slots.some(s => s.t === 'see' && s.b))) F.fisch = false;
 }
 function villCheck() {
-  const total = 24 - G.moved;
-  const want = Math.round(total * clamp((G.hp + G.moodOff * .5 - 12) / 52, 0, 1));
-  G.vill = Math.min(G.vill, want, total);
+  if (G.ad > 0) return;
+  // Ob die Leute bleiben, hängt mehr an der Stimmung (Entscheidungen) als am Planetenzustand
+  const want = Math.round(24 * clamp((G.hp * .45 + moodEff() + 22) / 50, 0, 1));
+  G.vill = Math.min(G.vill, want);
 }
+// Spuren im Bild: kleine Dinge am Planetenrand, die eine Entscheidung hinterlässt
+function mark(k, i) { if (i == null || i < 0) return; const n = G.marks.filter(m => m.i === i).length; G.marks.push({ k, i, du: [-7, 7, -3, 3, 0][n % 5] }); }
 
 // ===================== Ton =====================
 let AC = null, master = null;
@@ -311,6 +429,8 @@ function sfx(kind) {
   if (kind === 'build') { note(120, t, .25, 'square', .08); note(90, t + .06, .3, 'triangle', .1); }
   if (kind === 'up') { note(330, t, .08, 'square', .05); note(495, t + .08, .12, 'square', .05); }
   if (kind === 'memo') { note(880, t, .15, 'sine', .07); note(1320, t + .12, .2, 'sine', .05); }
+  if (kind === 'ahead') { note(988, t, .09, 'square', .045); note(1319, t + .09, .16, 'square', .045); }
+  if (kind === 'behind') { note(440, t, .12, 'square', .04); note(370, t + .12, .2, 'square', .04); }
   if (kind === 'launch') { const o = ac.createOscillator(), g = ac.createGain(); o.type = 'sawtooth'; o.frequency.setValueAtTime(60, t); o.frequency.exponentialRampToValueAtTime(400, t + 2.4); g.gain.setValueAtTime(.06, t); g.gain.exponentialRampToValueAtTime(.0001, t + 2.6); o.connect(g).connect(master); o.start(t); o.stop(t + 2.7); }
   if (kind === 'no') note(160, t, .15, 'triangle', .08);
 }
@@ -353,7 +473,8 @@ const PAL = {
   a: '#3f9a4a', b: '#2b6e3a', t: '#6a4628', n: '#a8723e', N: '#6a4424', R: '#8c879a', r: '#5f5a6e', s: '#f2f4fa', z: '#a9a4aa',
   v: '#5ab64a', V: '#3f8a3a', f: '#ff6a7a', y: '#ffd84a', w: '#efe2c8', W: '#c4b090', o: '#d0543a', O: '#4a6ab0', l: '#ffd86a', L: '#2a2a3a', d: '#7a4a2a',
   m: '#a0a6b6', M: '#5a6072', k: '#14141c', x: '#100c14', c: '#4aa8e0', C: '#2f7ab8', e: '#6a9a3a', g: '#7a7e8e', G: '#4a4e5e',
-  p: '#f2f2f6', q: '#e0483b', u: '#7ad0ff', F: '#ffb43a', Y: '#fff0a0', A: '#4a4440', S: '#7a5a3a', h: '#b0703e', j: '#e8c8a0', i: '#5a8ad0', X: '#a03a2a', E: '#ffb070'
+  p: '#f2f2f6', q: '#e0483b', u: '#7ad0ff', F: '#ffb43a', Y: '#fff0a0', A: '#4a4440', S: '#7a5a3a', h: '#b0703e', j: '#e8c8a0', i: '#5a8ad0', X: '#a03a2a', E: '#ffb070',
+  B: '#9a5236', D: '#6e3826', P: '#a65ad0', Q: '#6e3a9a', T: '#3a7a8a'
 };
 const NATURE = 'abvVfyceshS';
 const PRGB = {}; Object.keys(PAL).forEach(k => { PRGB[k] = rgb(PAL[k]); });
@@ -384,10 +505,39 @@ SPR.bohr = { base: 14, rows: [
 SPR.bohrSee = { base: 14, rows: SPR.bohr.rows.slice(0, 13).concat(['.MMMMMMMMMMMMMMM.', 'CxcccxcccxcccxccC', '.CxcccccxcccccxC.', '..CCcccxccccCC...', '....CCCCCCCC.....']) };
 SPR.mine = { base: 11, rows: [
   '.......zzz.......', '......zzzzz......', '.....zzRzzzR...MM', '....zRRRRzRRr..MM', '...RRRRRRRRRRr.MM', '..RRRRRrRRRRRrrMM', '..RRRRnnnnRRrRRMM', '.RRRRnkkkknRRRrMM', 'RRRRRnkkkknRRRrMM', 'RRRRRnkkkknRRRRrr', 'mmmmmmmmmmmmRRRRr'] };
+// Fabrik: Halle mit Sägezahndach und hohem Schornstein
+SPR.fabrik = { base: 12, rows: [
+  '..............MM.', '..............XX.', '..............MM.', '.o...o...o....MM.', '.oo..oo..oo...MM.', '.ooo.ooo.ooo..MM.', '.oooooooooooo.MM.',
+  '.BBBBBBBBBBBBBMM.', '.BlBBlBBlBBlBBMM.', '.BBBBBBBBBBBBBBB.', '.BlBBlBBkkkBBlBB.', '.DDDDDDDkkkDDDDD.', 'GGGGGGGGGGGGGGGGG'] };
 SPR.pad = { base: 2, rows: ['..q.........q..', 'ggggggggggggggg', 'GGGGGGGGGGGGGGG'] };
 SPR.rocket = { base: 13, rows: ['...q...', '..qqq..', '..ppp..', '.ppppp.', '.ppupp.', '.ppppp.', '.pqqqp.', '.ppppp.', '.ppppp.', 'qpppppq', 'qqpppqq', 'q..k..q', '.......'] };
 SPR.flame = { base: 0, rows: ['..YYY..', '..FYF..', '...F...'] };
 SPR.stack = { base: 6, rows: ['MM', 'XX', 'MM', 'MM', 'MM', 'MM'] };
+SPR.gear = { base: 3, rows: ['.T.', 'TmT', '.T.'] };
+// Spuren der Hausmitteilungen
+const MARK = {
+  lampe:     { base: 6, rows: ['YYY', 'MYM', '.M.', '.M.', '.M.', '.M.'] },
+  streik:    { base: 7, rows: ['qqqqq', 'qpppq', 'qqqqq', '..N..', '..N..', '..N..', '..N..'] },
+  bank:      { base: 7, rows: ['NFFF', 'NFyF', 'NFFF', 'N...', 'N...', 'N...', 'N...'] },
+  tonne:     { base: 4, rows: ['.Y.', 'FqF', 'GGG', 'GGG'] },
+  aushang:   { base: 5, rows: ['ppp', 'pkp', 'ppp', '.N.', '.N.'] },
+  plakat:    { base: 6, rows: ['yyyyy', 'yvvvy', 'yvVvy', 'yyyyy', '.N.N.', '.N.N.'] },
+  boot:      { base: 3, rows: ['..p..', '..pp.', 'nnnnn'] },
+  helm:      { base: 3, rows: ['.yy.', 'yyyy', 'j..j'] },
+  container: { base: 3, rows: ['OOOOqqqq', 'OkOOqkqq', 'OOOOqqqq'] },
+  haus:      { base: 5, rows: ['.ooo.', 'ooooo', 'wlwlw', 'wwdww', 'wwdww'] },
+  rohr:      { base: 2, rows: ['MMMMMMM', 'M.....M'] },
+  tank:      { base: 4, rows: ['.mm.', 'mccm', 'mccm', 'mmmm'] },
+  filter:    { base: 3, rows: ['uuu', 'mum', 'mmm'] },
+  setzling:  { base: 3, rows: ['.a.', 'aaa', '.t.'] },
+  hochsitz:  { base: 6, rows: ['nnnnn', 'n...n', 'nnnnn', '.n.n.', '.n.n.', '.n.n.'] },
+  zaun:      { base: 3, rows: ['n.n.n.n', 'nnnnnnn', 'n.n.n.n'] },
+  messgeraet:{ base: 4, rows: ['GGG', 'GkG', 'GGG', '.G.'] },
+  lampions:  { base: 4, rows: ['NNNNNNN', 'q.y.f.q', 'N.....N', 'N.....N'] },
+  klaer:     { base: 3, rows: ['.CCC.', 'CcccC', 'GGGGG'] },
+  robo:      { base: 5, rows: ['.mm.', 'mkkm', '.mm.', 'mmmm', 'm..m'] },
+  koffer:    { base: 3, rows: ['.kk.', 'kFFk', 'kkkk'] }
+};
 
 // Ein Sprite am Planetenrand, nach außen gedreht (nächster Nachbar, keine Weichzeichnung)
 function drawOnRim(spr, ang, h, opt) {
@@ -433,7 +583,7 @@ function buildBase() {
   // Planet: Farben je nach Planet etwas verschoben
   const hueShift = G.hue;
   const grass = [rgb('#4f9e4c'), rgb('#5db457'), rgb('#3c8644')].map(c => hueShift > .66 ? mixA(c, rgb('#5aa8a0'), .35) : hueShift > .33 ? mixA(c, rgb('#9ab040'), .25) : c);
-  const lake = [rgb('#3f9ad6'), rgb('#2f7fc0')], crack = rgb('#5a4a3e'), shore = rgb('#d8c58a');
+  const lake = G.lila ? [rgb('#a65ad0'), rgb('#7a3aa8')] : [rgb('#3f9ad6'), rgb('#2f7fc0')], crack = rgb('#5a4a3e'), shore = rgb('#d8c58a');
   for (let y = CY - R - 1; y <= CY + R + 1; y++) for (let x = CX - R - 1; x <= CX + R + 1; x++) {
     const dx = x + .5 - CX, dy = y + .5 - CY, d = Math.hypot(dx, dy);
     if (d > R) continue;
@@ -445,7 +595,7 @@ function buildBase() {
     if (n1 > .7) c = n1 > .77 ? lake[1] : lake[0];
     else if (n1 > .675) c = shore;
     else c = n2 > .62 ? grass[2] : n2 > .4 ? grass[0] : grass[1];
-    c = tint(c, h);
+    if (!(G.lila && n1 > .7)) c = tint(c, h);
     if (h < .45 && n2 > .74 && n1 <= .675) c = crack;
     // Licht von links oben, mit Raster-Stufen
     const lite = (-zx * .55 - zy * .6 + zz * .58);
@@ -462,7 +612,7 @@ function buildBase() {
   for (let a = 0; a < 720; a++) { const t = a / 720 * Math.PI * 2; const x = Math.floor(CX + Math.sin(t) * (R + 1.2)), y = Math.floor(CY - Math.cos(t) * (R + 1.2)); const i = y * W + x; const o = base[i]; const r0 = o & 255, g0 = (o >> 8) & 255, b0 = (o >> 16) & 255; const k = .45; base[i] = pack(Math.round(r0 + (atm[0] - r0) * k), Math.round(g0 + (atm[1] - g0) * k), Math.round(b0 + (atm[2] - b0) * k)); }
   baseKey = keyNow();
 }
-const keyNow = () => Math.round(G.hp / 2) + '|' + G.seed;
+const keyNow = () => Math.round(G.hp / 2) + '|' + G.seed + '|' + G.lila;
 
 // Teilchen: Rauch, Funken, Vögel
 let parts = [];
@@ -472,30 +622,37 @@ function slotAng(i) { return i * Math.PI * 2 / 12; }
 function drawSlot(s, t) {
   const ang = slotAng(s.i), h = G.hp / 100;
   const leafy = (ch, col, row) => { if (ch === 'f' && h < .6) return 'v'; if (ch === 'y' && h < .5) return 'v'; if ((ch === 'a' || ch === 'b') && h < .35 && ((col * 7 + row * 3 + s.i) % 3 === 0)) return '.'; return ch; };
+  const purple = ch => G.lila ? (ch === 'c' ? 'P' : ch === 'C' ? 'Q' : ch) : ch;
   const vill = G.vill > 0;
   if (s.t === 'pad') { drawOnRim(SPR.pad, ang, h); return; }
   if (s.b === 'saege') {
     drawOnRim(SPR.saege, ang, h, { map: ch => ch === 'o' ? 'N' : ch });
     // Sägeblatt dreht sich: Zähne wechseln
-    const f = Math.floor(t * 8) % 2;
+    const f = Math.floor(t * 8 * (G.halt > 0 && !G.haltF ? 0 : 1)) % 2;
     drawOnRim({ base: 7, rows: f ? ['.m.m.', 'mmMmm', '.MkM.', 'mmMmm', '.m.m.', '.....', '.....'] : ['m.m.m', '.mMm.', 'mMkMm', '.mMm.', 'm.m.m', '.....', '.....'] }, ang, h, { du: -5 });
   } else if (s.b === 'mine') {
     drawOnRim(SPR.mine, ang, h);
   } else if (s.b === 'bohr') {
     const flick = Math.floor(t * 10) % 3;
-    drawOnRim(s.t === 'see' ? SPR.bohrSee : SPR.bohr, ang, h, { map: ch => ch === 'F' ? (flick === 0 ? 'Y' : 'F') : ch });
+    drawOnRim(s.t === 'see' ? SPR.bohrSee : SPR.bohr, ang, h, { map: ch => ch === 'F' ? (flick === 0 ? 'Y' : 'F') : purple(ch) });
+  } else if (s.b === 'fabrik') {
+    const lit = Math.floor(t * 2 + s.i) % 4;
+    drawOnRim(SPR.fabrik, ang, h, { map: (ch, col) => ch === 'l' && (col + lit) % 4 === 0 ? 'Y' : ch });
   } else if (s.t === 'wald') {
     drawOnRim(SPR.wald, ang, h, { map: leafy });
     if (G.fauna.hirsch && s.i % 2 === 0) drawOnRim(SPR.hirsch, ang, h, { du: 7 });
   } else if (s.t === 'dorf') {
     drawOnRim(SPR.dorf, ang, h, { map: ch => ch === 'l' ? (vill && G.hp > 20 ? 'l' : 'L') : (ch === 'v' ? 'v' : ch) });
   } else if (SPR[s.t]) {
-    drawOnRim(SPR[s.t], ang, h, { map: leafy });
+    drawOnRim(SPR[s.t], ang, h, { map: ch => purple(leafy(ch)) });
     if (s.t === 'see' && s.prot) drawOnRim(SPR.schild, ang, h, { du: -8 });
   }
-  // Ausbaustufen: Schornsteine
-  if (s.b && s.lv >= 2) drawOnRim(SPR.stack, ang, h, { du: 8 });
-  if (s.b && s.lv >= 3) drawOnRim(SPR.stack, ang, h, { du: -8 });
+  // Ausbaustufen: A = Schornstein, B = Zahnrad (Automatik)
+  if (s.b) [...s.path].forEach((p, k) => {
+    const du = k === 0 ? 8 : -8;
+    if (p === 'A') drawOnRim(SPR.stack, ang, h, { du });
+    else drawOnRim(SPR.gear, ang, h, { du, lift: 1, map: ch => ch === 'T' && Math.floor(t * 4) % 2 ? 'm' : ch });
+  });
 }
 
 let lastSmoke = 0;
@@ -506,8 +663,9 @@ function draw(dt, now) {
   // Sterne funkeln
   STARS.forEach(([x, y, r], i) => { if (r > .7 && Math.sin(t * 2 + i) > .7 && Math.hypot(x - CX, y - CY) > R + 3) put(x, y, [255, 255, 255]); });
   const h = G.hp / 100, smog = clamp(1 - h, 0, 1);
-  // Smog hinter dem Rand
   G.slots.forEach(s => drawSlot(s, t));
+  // Spuren der Entscheidungen
+  G.marks.forEach(m => drawOnRim(MARK[m.k], slotAng(m.i), h, { du: m.du, map: ch => (m.k === 'messgeraet' && ch === 'k') ? 'k' : ch }));
   // Bewohner laufen am Dorf hin und her
   const dorfs = G.slots.filter(s => s.t === 'dorf');
   if (dorfs.length && G.vill > 0) {
@@ -525,15 +683,15 @@ function draw(dt, now) {
   // Fische springen aus dem See
   const see = G.slots.find(s => s.t === 'see');
   if (see && G.fauna.fisch) { const k = (t % 4.5) / 1.1; if (k < 1) { const [x, y] = rimPoint(slotAng(see.i), Math.sin(k * Math.PI) * 5 - 1, (k - .5) * 8); put(x, y, [255, 150, 90]); put(x + 1, y, [240, 120, 70]); } }
-  // Rauch aus Gebäuden und Dorf-Schornsteinen
+  // Rauch aus Gebäuden und Dorf-Schornsteinen (bei Stillstand ruhig)
   lastSmoke += dt;
+  const still = G.halt > 0 && !G.haltF;
   if (lastSmoke > .12) {
     lastSmoke = 0;
     G.slots.forEach(s => {
       const ang = slotAng(s.i), nx = Math.sin(ang), ny = -Math.cos(ang);
-      if (s.b && Math.random() < .12 + .12 * s.lv) { const lift = s.b === 'bohr' ? 14 : s.b === 'mine' ? 11 : 9; const du = s.b === 'mine' ? 7 : s.b === 'saege' ? -6 : 0; const [x, y] = rimPoint(ang, lift, du); emitSmoke(x, y, nx, ny, s.b !== 'saege'); }
-      if (s.b && s.lv >= 2 && Math.random() < .25) { const [x, y] = rimPoint(ang, 7, 8.5); emitSmoke(x, y, nx, ny, true); }
-      if (s.b && s.lv >= 3 && Math.random() < .25) { const [x, y] = rimPoint(ang, 7, -7.5); emitSmoke(x, y, nx, ny, true); }
+      if (s.b && !still && Math.random() < .1 + .05 * s.pu) { const lift = s.b === 'bohr' ? 14 : s.b === 'mine' ? 11 : s.b === 'fabrik' ? 13 : 9; const du = s.b === 'mine' ? 7 : s.b === 'saege' ? -6 : s.b === 'fabrik' ? 6 : 0; const [x, y] = rimPoint(ang, lift, du); emitSmoke(x, y, nx, ny, s.b !== 'saege'); }
+      if (s.b && !still) [...s.path].forEach((p, k) => { if (p === 'A' && Math.random() < .25) { const [x, y] = rimPoint(ang, 7, k === 0 ? 8.5 : -7.5); emitSmoke(x, y, nx, ny, true); } });
       if (s.t === 'dorf' && !s.b && G.vill > 0 && Math.random() < .12) { const [x, y] = rimPoint(ang, 10, -6); emitSmoke(x, y, nx, ny, false); }
       if (s.t === 'asche' && G.fire > 0 && Math.random() < .8) { const [x, y] = rimPoint(ang, 2 + Math.random() * 4, (Math.random() - .5) * 14); parts.push({ x, y, vx: nx * 6, vy: ny * 6, life: .7, age: 0, c: Math.random() < .5 ? [255, 180, 60] : [255, 110, 50], a: 1 }); }
     });
@@ -579,6 +737,13 @@ function draw(dt, now) {
   ctx.putImageData(img, 0, 0);
 }
 
+// ===================== Geist (eigene Bestzeit) =====================
+// Der Geist ist der beste Lauf auf diesem Planeten: alle 2 s der Anteil an der Quote, dazu die Zwischenzeiten.
+const SAMP = 2;
+const ghost = () => S.ghost[G.n] || null;
+function ghostFracAt(t) { const g = ghost(); if (!g) return null; if (t >= g.t) return 1; const i = t / SAMP, a = Math.floor(i); const p0 = g.samp[a] || 0, p1 = g.samp[a + 1] != null ? g.samp[a + 1] : 1; return p0 + (p1 - p0) * (i - a); }
+function ghostTimeAt(p) { const g = ghost(); if (!g) return null; const s = g.samp; for (let i = 1; i < s.length; i++) if (s[i] >= p) { const k = (p - s[i - 1]) / Math.max(1e-9, s[i] - s[i - 1]); return (i - 1 + k) * SAMP; } return g.t; }
+
 // ===================== Ablauf =====================
 function snapshot() {
   const c = document.createElement('canvas'); c.width = W; c.height = H;
@@ -594,18 +759,23 @@ function frame(now) {
 }
 document.addEventListener('visibilitychange', () => { if (!document.hidden) { last = performance.now(); requestAnimationFrame(frame); } });
 
-let uiT = 0, lineT = 0, lineIdx = 0, lastMood = '';
+let uiT = 0, lineT = 0, lineIdx = 0, lastMood = '', lastFace = '';
 function step_(dt) {
   if (G.phase === 'landing') { G.anim = Math.min(1, G.anim + dt / 1.6); if (G.anim >= 1) { G.phase = 'play'; G.before = null; setTimeout(() => { G.before = snapshot(); }, 60); toast('Gelandet. Die Uhr läuft.'); renderField(); } }
   else if (G.phase === 'play') {
     G.time += dt;
     const r = rateOf(); earn(r * dt);
-    let pol = 0; G.slots.forEach(s => { if (s.b) pol += BUILD[s.b].pol * s.lv; });
-    hurt(pol * G.polM * dt);
+    if (!(G.halt > 0 && !G.haltF)) { let pol = 0; G.slots.forEach(s => { if (s.b) pol += BUILD[s.b].pol * s.pu; }); hurt(pol * G.polM * dt * (G.halt > 0 ? G.haltF : 1)); }
     if (G.ad > 0) G.ad -= dt;
     if (G.fire > 0) G.fire -= dt;
+    if (G.halt > 0) { G.halt -= dt; if (G.halt <= 0) { G.haltF = 1; toast('Die Maschinen laufen wieder.'); } }
+    if (G.faceT > 0) G.faceT -= dt;
     villCheck(); faunaCheck();
-    if (!G.card) { G.nextCard -= dt; if (G.nextCard <= 0) dealCard(); }
+    // Geist: Verlauf mitschreiben, Zwischenzeiten prüfen
+    G.sampT += dt; if (G.sampT >= SAMP) { G.sampT -= SAMP; G.samp.push(clamp(G.total / G.quota, 0, 1)); }
+    while (G.splitIdx < SPLITS.length && G.total >= G.quota * SPLITS[G.splitIdx]) splitHit();
+    if (G.card) { G.cardT += dt; if (G.cardT >= CARD_WAIT) timeoutCard(); }
+    else { G.nextCard -= dt; if (G.nextCard <= 0) dealCard(); }
     if (G.total >= G.quota) finish();
   } else if (G.phase === 'launch') {
     G.anim = Math.min(1, G.anim + dt / 2.6);
@@ -614,100 +784,155 @@ function step_(dt) {
   uiT += dt; lineT += dt;
   if (uiT > .1) { uiT = 0; renderHud(); }
 }
-function dealCard() {
-  const c = CARDS.find(c => !G.used[c.id] && (!c.cond || c.cond()));
-  if (!c) { G.nextCard = 9999; return; }
-  G.used[c.id] = 1; G.card = c; sfx('memo'); renderMemo();
+function splitHit() {
+  const k = G.splitIdx++, g = ghost();
+  G.split[k] = +G.time.toFixed(1);
+  if (k === SPLITS.length - 1) return; // das Ziel zeigt der Abflug
+  const lbl = Math.round(SPLITS[k] * 100) + ' %: ' + fmtT(G.time);
+  if (g && g.split && g.split[k] != null) { const d = G.time - g.split[k]; toast(lbl + ' · ' + fmtD(d)); sfx(d <= 0 ? 'ahead' : 'behind'); }
+  else toast('Zwischenzeit ' + lbl);
 }
-function answer(side) {
+const canPay = side => !side.cost || G.cash >= side.cost;
+function pickCard() {
+  const qi = G.queue.findIndex(q => q.at <= G.time && !G.used[q.id]);
+  if (qi >= 0) return CARD[G.queue.splice(qi, 1)[0].id];
+  for (const id of G.deck) { const c = CARD[id]; if (!G.used[id] && (!c.cond || c.cond())) return c; }
+  return null;
+}
+function dealCard() {
+  const c = pickCard();
+  if (!c) { G.nextCard = 3; return; }
+  G.used[c.id] = 1; G.card = c; G.cardT = 0; if (c.on) c.on(); sfx('memo'); renderMemo();
+}
+function answer(k, auto) {
   const c = G.card; if (!c) return;
-  c[side].run(); G.card = null; G.nextCard = 16;
-  $('memo').hidden = true; dirty(); renderField(); renderHud(true);
+  const side = c[k]; if (!canPay(side)) { sfx('no'); return; }
+  side.run(); G.card = null; G.nextCard = CARD_GAP; G.answered++;
+  if (k === 'fast') G.faceT = 4;
+  $('memo').hidden = true;
+  if (side.p && G.vill > 0) { $('say').textContent = side.p; lineT = -5; }
+  if (auto) toast('Keine Antwort. Die Abteilung hat entschieden.');
+  faunaCheck(); renderField(); renderHud(true);
+}
+function timeoutCard() {
+  const c = G.card;
+  if (canPay(c.fast)) answer('fast', true);
+  else if (canPay(c.slow)) answer('slow', true);
+  else { G.card = null; G.nextCard = CARD_GAP; $('memo').hidden = true; }
 }
 function finish() {
   G.phase = 'launch'; G.anim = 0; G.card = null; $('memo').hidden = true; sfx('launch');
+  G.samp.push(1);
   G.after = snapshot(); toast('Quote erfüllt! Abflug.');
   renderField();
 }
 function act(slotI, kind) {
   const s = G.slots[slotI]; if (G.phase !== 'play') return;
-  if (kind === 'up') {
-    const c = upCostOf(s); if (G.cash < c || s.lv >= 3) { sfx('no'); return; }
-    G.cash -= c; s.lv++; hurt(BUILD[s.b].dmg); sfx('up'); toast(`${BUILD[s.b].name} auf Stufe ${s.lv}.`);
+  if (kind === 'A' || kind === 'B') {
+    const c = upCostOf(s, kind); if (G.cash < c || s.lv >= 3) { sfx('no'); return; }
+    const U = UP[kind];
+    G.cash -= c; s.lv++; s.path += kind; s.wk += U.wk || 0; s.au += U.au || 0; s.pu += U.pu;
+    hurt(BUILD[s.b].dmg * U.dmgM); sfx('up'); toast(`${BUILD[s.b][kind]} eingebaut. Stufe ${s.lv}.`);
   } else {
     const c = costOf(kind); if (G.cash < c) { sfx('no'); return; }
-    G.cash -= c; s.b = kind; s.lv = 1; G.built[kind]++; hurt(BUILD[kind].dmg); sfx('build');
-    toast({ saege: 'Säge steht. Wald wird Brennholz.', mine: 'Mine läuft. Der Berg brummt.', bohr: 'Bohrturm steht. Es blubbert.' }[kind]);
+    G.cash -= c; s.b = kind; s.lv = 1; s.wk = 1; s.au = 0; s.pu = 1; s.path = ''; G.built[kind]++; hurt(BUILD[kind].dmg); sfx('build');
+    toast({ saege: 'Säge steht. Wald wird Brennholz.', mine: 'Mine läuft. Der Berg brummt.', bohr: 'Bohrturm steht. Es blubbert.', fabrik: 'Fabrik steht. Der Schornstein qualmt.' }[kind]);
   }
-  faunaCheck(); dirty(); renderField(); renderHud(true);
+  faunaCheck(); renderField(); renderHud(true);
 }
-function dirty() { /* Grundbild wird über den Zustand neu berechnet */ }
 
 // ===================== Oberfläche =====================
 function renderHud(force) {
   const q = G.quota;
   $('pname').textContent = nameOf(G.n);
   $('pquota').textContent = 'Quote ' + fmtN(q);
-  $('clock').innerHTML = fmtT(G.time) + '<small>' + (G.phase === 'play' ? 'Zeit läuft' : G.phase === 'start' ? 'bereit' : 'Zeit') + '</small>';
   const p = clamp(G.total / q, 0, 1);
+  // Uhr mit Abstand zum Geist
+  let sub = G.phase === 'play' ? 'Zeit läuft' : G.phase === 'start' ? 'bereit' : 'Zeit', cls = '';
+  const g = ghost();
+  if (g && G.phase === 'play' && G.time > 3) { const d = G.time - ghostTimeAt(p); sub = 'Geist ' + fmtD(d); cls = d <= 0 ? 'ahead' : 'behind'; }
+  else if (g && G.phase === 'start') sub = 'Bestzeit ' + fmtT(g.t);
+  $('clock').innerHTML = fmtT(G.time) + `<small class="${cls}">${sub}</small>`;
   $('qbar').style.width = (p * 100).toFixed(1) + '%';
+  const gq = $('qghost'), gf = g && G.phase === 'play' ? ghostFracAt(G.time) : null;
+  gq.hidden = gf == null; if (gf != null) gq.style.left = (gf * 100).toFixed(1) + '%';
   $('qtxt').textContent = fmtN(Math.min(G.total, q)) + ' / ' + fmtN(q);
   $('cash').textContent = fmtN(G.cash);
-  $('rate').textContent = '+' + rateOf().toLocaleString('de-DE', { maximumFractionDigits: 1 }) + ' pro Sekunde';
+  $('rate').textContent = '+' + f1(rateOf()) + ' pro Sekunde' + (G.halt > 0 ? (G.haltF ? ' (gedrosselt)' : ' (Pause)') : '');
   $('cVill').textContent = 'Bewohner ' + G.vill;
-  const fa = Object.values(G.fauna).filter(Boolean).length;
-  $('cFauna').textContent = 'Tierarten ' + fa;
+  $('cFauna').textContent = 'Tierarten ' + Object.values(G.fauna).filter(Boolean).length;
+  $('cWork').textContent = G.robo ? 'Roboter 100 %' : 'Arbeitskraft ' + pct(wf());
   const m = mood();
-  if (m !== lastMood || lineT > 7 || force === 'line') {
+  if (m !== lastMood || lineT > 8 || force === 'line') {
     if (m !== lastMood) lineIdx = 0; else lineIdx++;
     lineT = 0; lastMood = m;
     const L = LINES[m]; $('say').textContent = L[lineIdx % L.length];
-    const fm = { froh: 'froh', werbung: 'froh', besorgt: 'schreck', muede: 'muede' }[m];
-    $('face').innerHTML = fm && typeof PAULA !== 'undefined' ? PAULA[fm] : '<span class="empty">leer</span>';
   }
-  // Kosten-Knöpfe aktuell halten
-  if (G.phase === 'play') document.querySelectorAll('#field [data-cost]').forEach(b => { b.disabled = G.cash < +b.dataset.cost; });
+  const fm = m === 'weg' ? '' : (G.faceT > 0 && m !== 'muede') ? 'schreck' : ({ froh: 'froh', werbung: 'froh', besorgt: 'schreck', muede: 'muede' }[m]);
+  if (fm !== lastFace) { lastFace = fm; $('face').innerHTML = fm && typeof PAULA !== 'undefined' ? PAULA[fm] : '<span class="empty">leer</span>'; }
+  // Knöpfe aktuell halten
+  if (G.phase === 'play') {
+    document.querySelectorAll('#field [data-cost]').forEach(b => { b.disabled = G.cash < +b.dataset.cost; });
+    if (G.card) {
+      document.querySelectorAll('#memo [data-ans]').forEach(b => { b.disabled = !canPay(G.card[b.dataset.ans]); });
+      const ti = document.querySelector('#memo .tick i'); if (ti) ti.style.transform = `scaleX(${clamp(1 - G.cardT / CARD_WAIT, 0, 1).toFixed(3)})`;
+    }
+  }
 }
 function renderMemo() {
   const c = G.card, el = $('memo');
-  const opt = (side, k) => `<button class="opt${k === 'fast' ? ' fast' : ''}" data-ans="${k}"><b>${c[k].l}</b><span class="gain">${c[k].g}</span>${c[k].f ? `<span class="fine">${c[k].f}</span>` : ''}</button>`;
-  el.innerHTML = `<div class="from"><span>Hausmitteilung</span><span>Abteilung Wachstum</span></div><h2>${c.t}</h2><p>${c.x}</p><div class="opts">${opt(0, 'slow')}${opt(1, 'fast')}</div>`;
+  const opt = k => `<button class="opt${k === 'fast' ? ' fast' : ''}" data-ans="${k}" ${canPay(c[k]) ? '' : 'disabled'}><b>${c[k].l}</b><span class="gain">${c[k].g}</span>${c[k].f ? `<span class="fine">${c[k].f}</span>` : ''}</button>`;
+  el.innerHTML = `<div class="from"><span>Hausmitteilung ${G.answered + 1}${c.chain ? ' · <span class="chain">Folge</span>' : ''}</span><span>Abteilung Wachstum</span></div><h2>${c.t}</h2><p>${c.x}</p><div class="opts">${opt('slow')}${opt('fast')}</div><div class="tick" title="Ohne Antwort entscheidet die Abteilung"><i></i></div>`;
   el.hidden = false; el.style.animation = 'none'; void el.offsetWidth; el.style.animation = '';
+}
+function nbLine(s, k) {
+  const n = nbCount(s, k), B = BUILD[k];
+  if (n > 0) return `<span class="nb">Nachbarn +${Math.round(B.nb * G.nbM * n * 100)} % (${B.nbText})</span>`;
+  return `<span class="nb off">Mag: ${B.nbText} (+${Math.round(B.nb * G.nbM * 100)} %)</span>`;
 }
 function renderField() {
   const el = $('field');
-  if (G.phase === 'start' || G.phase === 'landing') { el.innerHTML = `<h3>Bauplatz</h3><p>Tippe nach der Landung auf ein Feld am Planetenrand. Säge auf Wald, Mine auf Berg, Bohrturm auf Wiese.</p>`; return; }
+  if (G.phase === 'start' || G.phase === 'landing') { el.innerHTML = `<h3>Bauplatz</h3><p>Tippe nach der Landung auf ein Feld am Planetenrand. Säge auf Wald, Mine auf Berg, Bohrturm und Fabrik auf Wiese. Die Nachbarn links und rechts zählen.</p>`; return; }
   if (G.phase !== 'play') { el.innerHTML = `<h3>Abflug</h3><p>Die Rakete hebt ab. Unten winkt niemand.</p>`; return; }
   const s = G.slots[G.sel];
   if (!s) { el.innerHTML = `<h3>Bauplatz</h3><p>Tippe auf ein Feld am Planetenrand.</p>`; return; }
   const head = s.b ? `${BUILD[s.b].name} <small>Stufe ${s.lv} von 3</small>` : `${TERRAIN[s.t]} <small>Feld ${s.i}</small>`;
   let body = '';
   if (s.b) {
-    const B = BUILD[s.b], per = B.rate * (s.b === 'bohr' ? G.mBohr : s.b === 'saege' ? G.mSaege : 1) * G.mAll;
-    body += `<p>Bringt ${(per * s.lv).toLocaleString('de-DE', { maximumFractionDigits: 1 })} pro Sekunde.</p>`;
-    if (s.lv < 3) { const c = upCostOf(s); body += `<button class="build" data-up="${s.i}" data-cost="${c}" ${G.cash < c ? 'disabled' : ''}><b>Ausbauen auf Stufe ${s.lv + 1}</b><span class="cost">${fmtN(c)}</span><span><span class="gain">+${(per).toLocaleString('de-DE', { maximumFractionDigits: 1 })} pro Sekunde</span> · <span class="fine">${UP_FINE[s.lv - 1]}</span></span></button>`; }
-    else body += `<p>Voll ausgebaut. Mehr geht hier nicht raus.</p>`;
+    const B = BUILD[s.b], u = unitRate(s, s.b);
+    const bits = [`<span class="chip">Nachbarn ×${f1(nbMult(s, s.b))}</span>`];
+    if (s.wk > 0) bits.push(`<span class="chip">Leute ${pct(G.robo ? 1 : wf())}</span>`);
+    if (s.path) bits.push(`<span class="chip">${[...s.path].map(p => B[p]).join(' + ')}</span>`);
+    body += `<p>Bringt ${f1(slotRate(s))} pro Sekunde.</p><div class="info">${bits.join('')}</div>`;
+    if (s.lv < 3) {
+      body += '<div class="upg">' + ['A', 'B'].map(p => {
+        const U = UP[p], c = upCostOf(s, p), add = u * ((U.wk || 0) * wf() + (U.au || 0));
+        return `<button class="build" data-up="${p}" data-cost="${c}" ${G.cash < c ? 'disabled' : ''}><b>${B[p]}</b><span class="cost">${fmtN(c)}</span><span class="gain">+${f1(add)} pro Sekunde</span><span class="fine">${U.f}</span></button>`;
+      }).join('') + '</div>';
+    } else body += `<p>Voll ausgebaut. Mehr geht hier nicht raus.</p>`;
   } else if (s.t === 'pad') body = `<p>Euer Landeplatz. Sobald die Quote steht, startet hier die Rakete.</p>`;
-  else if (s.t === 'dorf') body = `<p>Hier wohnen Leute. Bauen geht nicht. Jedenfalls nicht offiziell.</p>`;
-  else if (s.t === 'see' && s.prot) body = `<p>Naturschutzgebiet. Hier darf nicht gebaut werden.</p>`;
+  else if (s.t === 'dorf') body = `<p>Hier wohnen Leute. Minen daneben laufen besser, aber Gebäude neben dem Dorf drücken die Stimmung.</p>`;
+  else if (s.t === 'see' && s.prot) body = `<p>Naturschutzgebiet. Hier darf nicht gebaut werden. Noch nicht.</p>`;
   else {
     Object.keys(BUILD).filter(k => BUILD[k].on.includes(s.t)).forEach(k => {
-      const B = BUILD[k], c = costOf(k), per = B.rate * (k === 'bohr' ? G.mBohr : k === 'saege' ? G.mSaege : 1) * G.mAll;
-      body += `<button class="build" data-build="${k}" data-cost="${c}" ${G.cash < c ? 'disabled' : ''}><b>${B.name} bauen</b><span class="cost">${fmtN(c)}</span><span><span class="gain">+${per.toLocaleString('de-DE', { maximumFractionDigits: 1 })} pro Sekunde</span> · <span class="fine">${B.fine}</span></span></button>`;
+      const B = BUILD[k], c = costOf(k), per = unitRate(s, k) * wf();
+      body += `<button class="build" data-build="${k}" data-cost="${c}" ${G.cash < c ? 'disabled' : ''}><b>${B.name} bauen${s.t === 'erz' && k === 'mine' ? ' (Erzgrube +50 %)' : ''}</b><span class="cost">${c ? fmtN(c) : 'gratis'}</span><span><span class="gain">+${f1(per)} pro Sekunde</span> · <span class="fine">${B.fine}</span></span>${nbLine(s, k)}</button>`;
     });
   }
   el.innerHTML = `<h3>${head}</h3>${body}`;
 }
 let toastT = 0;
-function toast(msg) { const el = $('toast'); el.textContent = msg; el.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => el.classList.remove('on'), 2200); }
+function toast(msg) { const el = $('toast'); el.textContent = msg; el.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => el.classList.remove('on'), 2400); }
 
+function boniList() { return Object.keys(BONI).filter(k => bonusCount(k)).map(k => BONI[k].name + (bonusCount(k) > 1 ? ' ×' + bonusCount(k) : '')); }
 function renderStart() {
   $('sTitle').textContent = nameOf(G.n);
   $('sText').textContent = `Die Zentrale erwartet ${fmtN(G.quota)} Einheiten. So schnell wie möglich.`;
-  const bn = S.boni.length ? 'Mitgebracht: ' + Object.keys(BONI).filter(k => bonusCount(k)).map(k => BONI[k].name + (bonusCount(k) > 1 ? ' ×' + bonusCount(k) : '')).join(', ') : '';
+  const bl = boniList(), bn = bl.length ? 'Mitgebracht: ' + bl.join(', ') : '';
   $('sBoni').textContent = bn; $('sBoni').hidden = !bn;
-  const best = (S.best[G.n] || [])[0];
-  $('sBest').textContent = best ? `Deine Bestzeit hier: ${fmtT(best.t)}` : `Unter ${fmtT(PAR).slice(0, 4)} gibt es zwei Boni statt einem.`;
+  $('boniRow').innerHTML = Object.keys(BONI).filter(k => bonusCount(k)).map(k => `<span class="chip bon" title="${BONI[k].text}">${BONI[k].name}${bonusCount(k) > 1 ? ' ×' + bonusCount(k) : ''}</span>`).join('');
+  const g = ghost();
+  $('sBest').textContent = g ? `Deine Bestzeit hier: ${fmtT(g.t)}. Dein Geist fliegt mit.` : `Unter ${fmtT(PAR).slice(0, 4)} gibt es zwei Boni statt einem.`;
   $('startOver').hidden = false;
 }
 
@@ -716,21 +941,30 @@ let picks = [], offer = [], allowed = 1;
 function showEnd() {
   const n = G.n, list = (S.best[n] = S.best[n] || []);
   const entry = { t: +G.time.toFixed(1), hp: Math.round(G.hp), v: G.vill, d: new Date().toLocaleDateString('de-DE') };
+  const old = ghost();
   const prevBest = list[0] ? list[0].t : null;
-  list.push(entry); list.sort((a, b) => a.t - b.t); S.best[n] = list.slice(0, 5); save();
+  list.push(entry); list.sort((a, b) => a.t - b.t); S.best[n] = list.slice(0, 5);
   const rec = prevBest === null || entry.t < prevBest;
+  if (rec) S.ghost[n] = { t: entry.t, samp: G.samp.map(v => +v.toFixed(4)), split: G.split.slice() };
+  save();
   allowed = G.time <= PAR ? 2 : 1;
-  const r = rng(hashStr('offer' + n + Date.now())); offer = Object.keys(BONI).sort(() => r() - .5).slice(0, 3); picks = [];
+  const r = rng(hashStr('offer' + n + Date.now())); offer = shuffle(Object.keys(BONI), r).slice(0, 3); picks = [];
   const fauna = [['hirsch', 'Hirsche'], ['vogel', 'Vögel'], ['fisch', 'Fische']];
   const left = fauna.filter(([k]) => G.fauna[k]).map(([, l]) => l);
+  const splitRows = SPLITS.map((sp, k) => {
+    const t = G.split[k], o = old && old.split ? old.split[k] : null;
+    const d = t != null && o != null ? t - o : null;
+    return `<tr><td>${Math.round(sp * 100)} %</td><td class="t">${t != null ? fmtT(t) : '–'}</td><td class="${d == null ? '' : d <= 0 ? 'd-ahead' : 'd-behind'}">${d == null ? '' : fmtD(d)}</td></tr>`;
+  }).join('');
   $('endIn').innerHTML = `
     <div><div class="eyebrow">${nameOf(n)} · Quote erfüllt</div><div class="big">${fmtT(G.time)}</div>
-      <div>${rec ? '<span class="rec">Neue Bestzeit!</span>' : `Bestzeit ${fmtT(prevBest)}`} · ${G.time <= PAR ? 'Unter 3:00, zwei Boni.' : 'Über 3:00, ein Bonus.'}</div></div>
+      <div>${rec ? '<span class="rec">Neue Bestzeit!</span>' : `Bestzeit ${fmtT(prevBest)} · ${fmtD(G.time - prevBest)}`} · ${G.time <= PAR ? 'Unter 3:00, zwei Boni.' : 'Über 3:00, ein Bonus.'}</div></div>
+    <div><div class="eyebrow">Zwischenzeiten${old ? ' gegen deinen Geist' : ''}</div><table class="splits">${splitRows}</table></div>
     <div class="pair"><figure>${G.before ? `<img src="${G.before}" alt="Der Planet bei der Landung">` : ''}<figcaption>Bei der Landung</figcaption></figure><figure><img src="${G.after}" alt="Der Planet beim Abflug"><figcaption>Beim Abflug</figcaption></figure></div>
     <div class="stats"><div class="stat"><b>${G.vill} / 24</b><small>Bewohner geblieben</small></div><div class="stat"><b>${left.length} / 3</b><small>${left.length ? left.join(', ') : 'Tierarten'}</small></div><div class="stat"><b>${Math.round(G.hp)} %</b><small>Planet beim Abflug</small></div></div>
-    <div><div class="eyebrow">Deine Zeiten auf ${nameOf(n)}</div><ol class="rank">${S.best[n].map((b, i) => `<li class="${b === entry ? 'me' : ''}"><span>${i + 1}.</span><span class="t">${fmtT(b.t)}</span><span class="h">Planet ${b.hp} %</span></li>`).join('')}</ol></div>
-    <div><div class="eyebrow">Für den nächsten Planeten: wähle ${allowed}</div><div class="picks" id="picks">${offer.map(k => `<button class="pick" data-pick="${k}" aria-pressed="false"><b>${BONI[k].name}</b><small>${BONI[k].text}</small></button>`).join('')}</div></div>
-    <div class="row"><button class="go" id="next" disabled>Weiter zu ${nameOf(n + 1)}</button><button class="link" id="again">${nameOf(n)} nochmal, ohne Bonus</button></div>`;
+    <div><div class="eyebrow">Für ${nameOf(n + 1)}: wähle ${allowed} von 3</div><div class="picks" id="picks">${offer.map(k => `<button class="pick" data-pick="${k}" aria-pressed="false"><b>${BONI[k].name}${bonusCount(k) ? ` <small>(hast du ${bonusCount(k)}×)</small>` : ''}</b><small>${BONI[k].text}</small></button>`).join('')}</div></div>
+    <div class="row"><button class="go" id="next" disabled>Weiter zu ${nameOf(n + 1)}</button><button class="link" id="again">${nameOf(n)} nochmal, gegen deinen Geist</button></div>
+    <div><div class="eyebrow">Deine Zeiten auf ${nameOf(n)}</div><ol class="rank">${S.best[n].map((b, i) => `<li class="${b === entry ? 'me' : ''}"><span>${i + 1}.</span><span class="t">${fmtT(b.t)}</span><span class="h">Planet ${b.hp} %</span></li>`).join('')}</ol></div>`;
   $('end').hidden = false; $('end').scrollTop = 0;
   musicOn = false;
 }
@@ -763,10 +997,13 @@ $('stage').addEventListener('pointerdown', e => {
   G.sel = Math.round(a / (Math.PI * 2 / 12)) % 12; renderField();
 });
 $('stage').addEventListener('keydown', e => { if (G.phase !== 'play') return; if (e.key === 'ArrowRight') { G.sel = (G.sel + 1) % 12; renderField(); } if (e.key === 'ArrowLeft') { G.sel = (G.sel + 11) % 12; renderField(); } });
-$('field').addEventListener('click', e => { const b = e.target.closest('[data-build]'), u = e.target.closest('[data-up]'); if (b) act(G.sel, b.dataset.build); if (u) act(+u.dataset.up, 'up'); });
-$('memo').addEventListener('click', e => { const b = e.target.closest('[data-ans]'); if (b) answer(b.dataset.ans); });
+$('field').addEventListener('click', e => { const b = e.target.closest('[data-build]'), u = e.target.closest('[data-up]'); if (b && !b.disabled) act(G.sel, b.dataset.build); if (u && !u.disabled) act(G.sel, u.dataset.up); });
+$('memo').addEventListener('click', e => { const b = e.target.closest('[data-ans]'); if (b && !b.disabled) answer(b.dataset.ans); });
 $('snd').addEventListener('click', () => { S.sound = !S.sound; save(); $('snd').textContent = S.sound ? 'Ton an' : 'Ton aus'; $('snd').setAttribute('aria-pressed', String(S.sound)); if (S.sound) audio(); else if (AC) AC.suspend(); });
 $('snd').textContent = S.sound ? 'Ton an' : 'Ton aus'; $('snd').setAttribute('aria-pressed', String(S.sound));
+
+// Nur für den Test-Bot (?bot): Zugriff auf den Zustand
+if (/[?&]bot\b/.test(location.search)) window.PB = { get G() { return G; }, get S() { return S; }, step: step_, act, answer, newPlanet, rateOf, costOf, upCostOf, unitRate, wf, nbMult, BUILD, UP, CARD, tune: o => { if (o.quota) QUOTA = o.quota; if (o.wf0 != null) WF0 = o.wf0; if (o.auB != null) UP.B.au = o.auB; if (o.cash0 != null) CASH0 = o.cash0; if (o.base != null) BASE = o.base; } };
 
 newPlanet(); renderStart(); renderField(); renderHud('line');
 requestAnimationFrame(frame);
