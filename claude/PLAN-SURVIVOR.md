@@ -70,3 +70,10 @@ Technik: eigener Canvas für den Kampf (das DOM schafft keine hunderten Gegner a
 - Per Klick: **PC und Handy**; Gruppe **5 oder mehr, aber auch allein** („Megabonk zockt man allein, aber über die Bestenliste“); **gemeinsamer Hafen, Runden allein** (Koop später); Richtung „WoW-Dungeon in 10 Minuten mit Rollen“: **Nein**.
 - Felix fragt: **Muss es die Piratenwelt sein, oder gibt es Besseres?**
 - Folgerung: Sozial heißt hier **asynchron** (Bestenliste, gemeinsamer Hafen, Spuren der Freunde), nicht Live-Koop. Das ist billiger und passt zu Grandlines vorhandener Tagesfahrt/Rangliste.
+
+## Neue Richtung: „echte Welt“ (28.10., ca. 17:55)
+- „Teuer“ erklärt: Live-Koop kostet wenig Geld (grob 40.000 Supabase-Nachrichten pro 10-Min-Runde zu fünft; Free 2 Mio./Monat, Pro 25 $ mit 5 Mio.), aber viel Bauaufwand (Schätzung 4–8 Chats). **Spuren der Freunde** (Felix' Wahl, per Klick): ein paar KB pro Runde, praktisch kostenlos, ca. 1–2 Chats.
+- Welten vorgeschlagen: Ameisenvolk (Claudes Favorit: Schwärme, Duftspuren, Pflege von Verletzten wie bei Matabele-Ameisen), Waschbärenbande, Spielzeug, Supermarkt am Black Friday, Spukhaus, Piraten.
+- **Felix feiert den Supermarkt-Gedanken: „echte“ Welt mit verschiedenen Maps** (Stadt, Supermarkt, Naturschutzgebiet …).
+- Marktcheck: Büro-/Mindestlohn-Survivors gibt es schon (Don't Forget to Smile, Tech Survivor mit Moral statt Leben), Supermarkt-Roguelike auch (Aisle Survive). Eigen wäre: **jede Map spiegelt ein System des Alltags mit eigener Regel** (Amt, Krankenhaus, Wohnungsmarkt, Natur, Bahn), Alltagshumor aus dem deutschsprachigen Raum, Spuren der Freunde als Post-its/Notizen.
+- Leitplanke: Gegner sind **Dinge des Systems** (Formulare, Prospekte, Wartenummern, Mieterhöhungen, Bagger), nicht Gruppen von Menschen.
