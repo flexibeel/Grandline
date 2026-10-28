@@ -67,3 +67,11 @@ Geht als Seite im Browser am PC (Karten malen, Items aus Bausteinen bauen, Gegne
 - **Testregler:** dreimal auf die Uhr tippen.
 - **Bot-Test** (8 Läufe, Ausweich-Bot mit Wegsuche): 5 Siege, Feierabend meist um 14:55–15:07, Boss 55–67 s, Niederlagen meist zwischen 11:00 und 14:40. Geprüft: Headless 390 px, keine Skriptfehler, kein Querscrollen.
 - **Testfragen:** Willst du sofort nochmal? Musstest du lachen? Würdest du es deinen Freunden zeigen?
+
+## Urteil zu Test 2 (28.10., 54. Chat, Sonnet, per Klick)
+- **Willst du sofort nochmal?** *Eher ja.*
+- **Musstest du lachen?** *Kaum.*
+- **Würdest du es Freunden zeigen?** *Vielleicht später.*
+- **Lesart:** Der Sog trägt (Lastenrad, Schwung, Rammen, Wellen), aber der Witz, der laut Konzept das Alleinstellungsmerkmal sein soll („albern mit Biss“), zündet noch nicht. Zum Herzeigen reicht es erst mit mehr drin.
+- **Entscheidung (Felix, per Klick):** **Humor gezielt nachschärfen**, einmal umbauen, dann nochmal dieselben drei Fragen. Wenn „Musstest du lachen?“ danach nicht klar *Ja* ist und „nochmal?“ nicht mindestens *Eher ja* bleibt: ruhen lassen (Abbruchregel wie bei Angeln und Planet B).
+- **Hebel für den Umbau (Vorschlag, vor dem Bauen kurz per Klick bestätigen):** Durchsagen mit mehr Biss und öfter, Gegner-Gags (Wackelaugen-Reaktionen, Sprechblasen beim Treffer), Lohnzettel als Pointe (mehr absurde Abzüge, Kommentar zur Schicht), Tod und Spuren witziger (Umriss, Kaffeebecher-Notiz), Boss „Mega-Deal“ mit Sprüchen. Offen: **was genau fehlte**, Felix kann das beim nächsten Mal in einem Satz nennen.
