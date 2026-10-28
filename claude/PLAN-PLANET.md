@@ -39,6 +39,22 @@ Felix: Angeln ging, war aber langweilig, **immer dasselbe**, **kein Ziel, das zi
 - `prototyp/planet/index.html`, privater Artefakt-Link im Fahrplan („Letzte Übergabe“). Arbeitstitel im Test: „Planet B“ (Planeten heißen B, C, D …). Boni und Rangliste als einfache Platzhalter-Antwort auf Frage 2 und 3 (6 Boni, Quote wächst je Planet um 45 %, kein Ende).
 - Offen: Felix' Urteil nach 2–3 Planeten am Handy.
 
+## Update 28.10. (52. Chat, Sonnet): Urteil zum Test und Entscheidung
+Felix hat Planet B am Handy gespielt, per Klick:
+- **„Willst du sofort nochmal schneller?“** → *Eher so la la.* Der Sog fehlt.
+- **„Hat es dich schlecht fühlen lassen?“** → *Gar nicht.* Der Spiegel wirkt noch nicht.
+- **Was fehlte:** mehr Entscheidungen, mehr Tiefe beim Bauen, mehr Antrieb zum Wiederholen. (Nicht angekreuzt: stärkerer Spiegel.)
+- **Entscheidung: einmal gezielt umbauen, danach nochmal testen.** Wenn es dann nicht zieht: ruhen lassen (wie Angeln).
+
+**Vorschlag für den Umbau (noch nicht abgesegnet, vor dem Bauen kurz per Klick bestätigen):**
+1. **Mehr und härtere Entscheidungen:** 14–16 statt 8 Karten, alle ca. 10 s, jede mit echtem Zielkonflikt. Einige Karten hängen an Zuständen (kommt nur, wenn der See schon leer ist) oder haben Folgekarten (Kette).
+2. **Tiefe beim Bauen:** Nachbarschaft zählt (Säge neben Wald, Mine neben Dorf), ein viertes Gebäude, beim Ausbau eine Wahl zwischen zwei Wegen statt nur „besser“.
+3. **Sog zum Wiederholen:** Zwischenzeiten wie beim Speedrun (Meilensteine mit Vergleich zur eigenen Bestzeit, „Geist“), Bonus aus 3 wählen statt automatisch, die Wahl wirkt spürbar im nächsten Planeten.
+4. **Spiegel nur eine Stellschraube, nicht ausbauen:** Paula bekommt kurze Sätze und eine Folge im Bild pro Karte. Erst sehen, ob 1–3 allein schon ziehen.
+- **Kein Ausbau ins Große:** gleiche Größe (ca. 3–5 Minuten pro Planet), weiter nur im Browser, Prototyp `prototyp/planet/`.
+- **Abbruchregel:** Dieselben zwei Fragen nochmal. Wenn „nochmal schneller?“ nicht klar *Ja* ist, ruht das Spiel.
+- **Modell:** Bauen mit Opus.
+
 ## Offene Fragen (per Klick im nächsten Chat)
 1. **Ansicht:** Planet von oben als runde Scheibe, oder Seitenansicht als Streifen (wie Terraria)?
 2. **Was geht mit:** Welche Boni nimmt man mit, und wie viele Planeten gibt es?
