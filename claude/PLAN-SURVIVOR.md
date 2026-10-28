@@ -1,0 +1,39 @@
+# Survivor-Idee: Inselsturm (Konzept v0)
+
+Stand 28.10.2026 (54. Chat, Opus). **Erster schlichter Test gebaut**, Live-Spiel unverändert.
+
+## Wie es dazu kam
+- Angeln und Planet B ruhen (beide „geht, zieht aber nicht“). Felix hat danach seine Lieblingsspiele genannt: Pixel-Sandbox, Megabonk, Dwarves: Glory, Death and Loot, Wanderburg, Roguelikes (Pokelike), Cyberpunk, CoD, S4 League, Terrascape, Megaloot, Cossacks, Battlefield Heroes, Metin2.
+- Gemeinsame Muster: **Loot und Builds, die stärker machen**, **selbst Action**, **gegen/mit Freunden**, **aufbauen/Armee**. Nichts Cozy oder Satirisches.
+- Claudes ehrliche Einschätzung: Ein Survivor à la Megabonk bringt im Verhältnis zum Aufwand den meisten Spaß. Ein Arena-Shooter à la S4 hätte den höchsten Gipfel, lebt aber nur online mit Menschen (großer Brocken, ein Bot-Test sagt wenig).
+- Felix' Idee aus dem Gespräch: den Survivor **in Grandline** bringen, weil Figuren, Rollen, Synergien, Formen, Bosse und Fortschritt schon da sind.
+
+## Entscheidungen von Felix (28.10., per Klick)
+- **Survivor wird der Kern von Grandline**, falls der Test zieht (jeder Kampf wird Action, die Fahrt bleibt als Karte). Weg 1 (eigener Modus im Hafen) und Weg 2 (nur einzelne Stationen spielbar) wären vorsichtiger gewesen.
+- **Erster Test ganz schlicht:** Platzhalter-Grafik, um nur das Grundgefühl zu prüfen.
+
+## Test 1 (gebaut)
+- `prototyp/survivor/index.html` auf `feature/neuausrichtung`, privater Link https://claude.ai/artifact/Ly6PKehSwzTQbPjzaEh8Jr. Speicher nur im Browser (`inselsturm.v1`). Nur Deutsch.
+- **Steuerung:** Daumen irgendwo aufs Feld und ziehen (schwebender Stick), am PC WASD/Pfeile. Angegriffen wird von selbst.
+- **Waffen (je 5 Stufen):** Säbel (Startwaffe, Hieb zum nächsten Gegner), Pistole, Pulverfass, Kreisanker.
+- **Verbesserungen (je 5 Stufen):** Schaden, Lauftempo, Feuertempo, Höchstleben, Sammelradius, Heilung pro Sekunde.
+- **Crew (höchstens 4, je ★1–★3):** Bulle (Brecher, zieht Gegner auf sich, rammt), Klinge und Funke (Kämpfer, springen hin, Funke lässt brennen), Auge und Möwe (Schützen), Doc (Helfer, heilt).
+- **Boni (wie die Rollen-Stufen in Grandline):** Sturmtrupp (2 Kämpfer), Salve (2 Schützen), Bollwerk (Bulle + Doc), Volle Crew (4 Piraten). Die Level-up-Karte zeigt, was ein Pirat aktivieren würde („Aktiviert: Sturmtrupp“ bzw. „Mit Doc: Bollwerk“).
+- **Level-up:** 1 von 3, zweimal neu würfeln pro Lauf. In den ersten Leveln ist immer ein neuer Pirat dabei.
+- **Ablauf:** Krabben, Matrosen, Brocken. 1:00 Krabbenflut, 2:00 und 3:30 Bootsmann Grimm (Schatztruhe = freie Wahl), 3:00 Brocken-Welle, 4:30 Umzingelt, **5:00 Kapitän Eisenbart** mit Warnflächen (Stampfer-Kreis, Ansturm-Linie, ruft Matrosen; ab halbem Leben schneller und doppelt).
+- **Ende:** Zeit, Gegner, Level, Waffen, Crew, Boni, Bestwerte (schnellster Sieg, längstes Überleben, meiste Gegner).
+- **Testregler:** dreimal schnell auf die Uhr tippen (+1 Minute, Boss jetzt, Level-up, unverwundbar).
+- **Bot-Test** (9 Läufe, einfacher Ausweich-Bot, drei Wahl-Strategien): 6 Siege, 1 Niederlage, 2× Boss nicht geschafft; Sieg meist bei 5:55–6:50, Level 26–34, 1300–1900 Gegner. Crew-lastige und Waffen-lastige Builds liegen nah beieinander.
+- Geprüft: Headless 390 px, keine Skriptfehler, kein Querscrollen.
+
+## Testfragen an Felix
+1. „Willst du sofort nochmal?“ (Abbruch wie bisher, wenn nicht klar Ja)
+2. „Hat sich das Wählen beim Level-up spannend angefühlt, vor allem die Crew und die Boni?“
+3. „Fühlt sich das schon nach Grandline an, oder nach etwas ganz anderem?“
+
+## Wenn es zieht: grob der Weg (noch nicht abgestimmt)
+1. Echte Grandline-Figuren (24 × 30) mit Lauf-Wippen statt Platzhaltern, dein eigener Pirat als Kapitän.
+2. Das Deck wird der Piraten-Pool, Rollen-Stufen, Duos und Banden aus den Daten werden die Boni.
+3. Die Fahrt (Kurswahl, Meere, Bosse) bleibt als Karte, jeder Kampf ist eine kurze Survivor-Runde.
+4. Später vielleicht Koop mit Freunden.
+Technik: eigener Canvas für den Kampf (das DOM schafft keine hunderten Gegner am Handy), Replays und Duelle müssen neu gedacht werden.
