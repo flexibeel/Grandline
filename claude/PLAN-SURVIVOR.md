@@ -77,3 +77,8 @@ Technik: eigener Canvas für den Kampf (das DOM schafft keine hunderten Gegner a
 - **Felix feiert den Supermarkt-Gedanken: „echte“ Welt mit verschiedenen Maps** (Stadt, Supermarkt, Naturschutzgebiet …).
 - Marktcheck: Büro-/Mindestlohn-Survivors gibt es schon (Don't Forget to Smile, Tech Survivor mit Moral statt Leben), Supermarkt-Roguelike auch (Aisle Survive). Eigen wäre: **jede Map spiegelt ein System des Alltags mit eigener Regel** (Amt, Krankenhaus, Wohnungsmarkt, Natur, Bahn), Alltagshumor aus dem deutschsprachigen Raum, Spuren der Freunde als Post-its/Notizen.
 - Leitplanke: Gegner sind **Dinge des Systems** (Formulare, Prospekte, Wartenummern, Mieterhöhungen, Bagger), nicht Gruppen von Menschen.
+
+## Entscheidungen 28.10., ca. 18 Uhr (Felix, per Klick)
+- **Erste Map: Supermarkt am Black Friday.** Spieler: **eigene Figur bauen**. Ton: **albern mit Biss**.
+- Bauaufwand ist okay („hab das Abo … ich will ja ein geiles Game“). **Online und Koop kommen, wenn das Spiel steht.**
+- Vorschlag Test 2 liegt vor (Figur bauen, Supermarkt mit Regalgängen, Gegner als Dinge: Prospekte, Einkaufswagen, Rabatt-Schilder, Kassenbon-Schlangen; Waffen: Preisauszeichner, Wischmopp, Durchsage, Korbwurf; alle 60 s „PREISSTURZ!“; Boss „Der Mega-Deal“ nach 5 Min; Spuren der eigenen früheren Runden als Post-its, ohne Server). Felix will vor dem Bauen **noch reden**.
