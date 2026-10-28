@@ -3,15 +3,16 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&family=Nunito:wght@400..800&display=swap">
 <style>
-/* Ein Bildschirm: Spielfeld (Canvas) randlos, Fenster als HTML darüber. Bewusst hässlich-witzig: Discounter-Gelb/Rot, dicke wackelige Striche, Handschrift. Ein fester Look. */
+/* Test 2b: Montag auf dem Bahnsteig. Spielfeld (Canvas) randlos, Fenster als HTML darüber. Bewusst hässlich-witzig: dicke wackelige Striche, Handschrift, Gelb/Rot. Ein fester Look. */
 :root {
   --ink: #1d1a24;
   --paper: #fffdf3;
   --yellow: #ffd400;
   --red: #e3262f;
-  --floor: #e9e4d4;
+  --floor: #d8d4cc;
   --muted: #6b6474;
   --green: #2fa84f;
+  --board: #1b2b63;
   --f-hand: "Gaegu", "Comic Sans MS", "Chalkboard SE", cursive;
   --f-body: "Nunito", system-ui, -apple-system, "Segoe UI", sans-serif;
   color-scheme: light;
@@ -40,9 +41,16 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--red); outli
 .hl { display: flex; gap: 6px; align-items: center; }
 .hr { justify-self: end; display: flex; gap: 6px; align-items: center; }
 #pauseBtn { pointer-events: auto; width: 40px; height: 40px; background: var(--paper); border: 3px solid var(--ink); border-radius: 6px 10px 5px 9px; font-family: var(--f-hand); font-weight: 700; font-size: 20px; }
-#sub { display: flex; flex-wrap: wrap; gap: 4px; font-size: 17px; }
+#board {
+  justify-self: center; width: min(100%, 360px); background: var(--board); color: #fff; border: 3px solid var(--ink);
+  border-radius: 6px 3px 7px 4px; padding: 2px 10px 3px; font-family: var(--f-body); font-weight: 800; transform: rotate(1deg); min-width: 0;
+}
+#board .b1 { display: flex; justify-content: space-between; gap: 10px; font-size: 17px; }
+#eta { color: var(--yellow); font-variant-numeric: tabular-nums; white-space: nowrap; }
+#ticker { font-size: 13px; color: #ffe680; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#board.flash { background: var(--red); }
+#sub { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; }
 #sub .chip { font-size: 17px; }
-#order.bring { background: var(--yellow); }
 #bossbar { text-align: center; font-size: 22px; }
 #bossbar .bar { height: 12px; margin-top: 2px; background: var(--paper); border: 3px solid var(--ink); }
 #bossbar i { display: block; height: 100%; width: 100%; background: var(--red); }
@@ -56,8 +64,9 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--red); outli
 #say {
   position: fixed; left: 50%; bottom: calc(env(safe-area-inset-bottom, 0px) + 18px); transform: translateX(-50%) rotate(-1deg);
   z-index: 6; pointer-events: none; width: min(92vw, 420px); background: var(--paper); border: 3px solid var(--ink);
-  border-radius: 10px 4px 12px 5px; padding: 6px 12px; font-family: var(--f-hand); font-weight: 700; font-size: 19px; line-height: 1.15;
+  border-radius: 10px 4px 12px 5px; padding: 6px 12px 6px 40px; font-family: var(--f-hand); font-weight: 700; font-size: 19px; line-height: 1.15;
 }
+#say::before { content: "📢"; position: absolute; left: 9px; top: 6px; font-size: 20px; }
 #say b { color: var(--red); }
 #phone {
   position: fixed; left: 0; right: 0; bottom: 0; height: 42%; z-index: 7; pointer-events: none;
@@ -114,7 +123,7 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--red); outli
 .hab b { font-family: var(--f-hand); font-size: 22px; }
 .hab .plus { color: var(--green); font-weight: 800; font-size: 13.5px; grid-column: 1; }
 .hab .minus { color: var(--red); font-weight: 800; font-size: 13.5px; grid-column: 1; }
-.hab .mark { grid-row: 1 / span 3; grid-column: 2; align-self: center; font-family: var(--f-hand); font-weight: 700; font-size: 26px; }
+.hab .mark { grid-row: 1 / span 3; grid-column: 2; align-self: center; font-family: var(--f-hand); font-weight: 700; font-size: 22px; text-align: right; }
 .hab.on { background: var(--yellow); box-shadow: 3px 3px 0 var(--ink); }
 .wage { font-family: var(--f-hand); font-weight: 700; font-size: 22px; }
 
@@ -127,12 +136,15 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--red); outli
 .card .tx { font-size: 14.5px; line-height: 1.3; }
 .card.new { background: #fff6bf; }
 
-/* Lohnzettel */
-.slip { background: #fff; border: 2px dashed var(--ink); padding: 10px 12px; font-family: "Courier New", monospace; font-size: 14px; display: grid; gap: 2px; font-variant-numeric: tabular-nums; }
+/* Kontoauszug */
+.slip { background: #fff; border: 2px dashed var(--ink); padding: 10px 12px; font-family: "Courier New", monospace; font-size: 14px; display: grid; gap: 3px; font-variant-numeric: tabular-nums; }
 .slip div { display: flex; justify-content: space-between; gap: 10px; }
+.slip div span:last-child { text-align: right; flex: none; }
 .slip .sum { border-top: 2px solid var(--ink); margin-top: 4px; padding-top: 4px; font-weight: 700; font-size: 16px; }
 .slip .neg { color: var(--red); }
-@media (prefers-reduced-motion: reduce) { .btn:active, .card:active { transform: none; } #clock, .box h1 { transform: none; } }
+.slip .note { color: var(--muted); }
+.chef { font-family: var(--f-hand); font-weight: 700; font-size: 20px; line-height: 1.2; background: #fff6bf; border: 3px solid var(--ink); border-radius: 8px 3px 9px 4px; padding: 6px 10px; transform: rotate(-1deg); }
+@media (prefers-reduced-motion: reduce) { .btn:active, .card:active { transform: none; } #clock, .box h1, #board, .chef { transform: none; } }
 </style>
 
 <canvas id="cv" aria-label="Spielfeld"></canvas>
@@ -140,12 +152,13 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--red); outli
 <div id="hud" hidden>
   <div class="xp"><i id="xpf"></i></div>
   <div class="hrow">
-    <div class="hl"><span class="chip" id="wage">0,00 €</span></div>
-    <div class="chip" id="clock">FR 09:00</div>
-    <div class="hr"><span class="chip" id="lvl">Lv 1</span><button id="pauseBtn" aria-label="Pause">II</button></div>
+    <div class="hl"><span class="chip" id="lvl">Lv 1</span></div>
+    <div class="chip" id="clock">MO 07:31</div>
+    <div class="hr"><button id="pauseBtn" aria-label="Pause">II</button></div>
   </div>
-  <div id="sub"><span class="chip" id="order">📦 Paket holen</span></div>
-  <div id="bossbar" hidden>Der Mega-Deal<div class="bar"><i id="bossf"></i></div></div>
+  <div id="board" role="status"><div class="b1"><span>RE 7 → Arbeit</span><span id="eta">in 5 Min</span></div><div id="ticker">pünktlich (noch)</div></div>
+  <div id="sub"></div>
+  <div id="bossbar" hidden>Schienenersatzverkehr<div class="bar"><i id="bossf"></i></div></div>
 </div>
 <div id="banner" hidden></div>
 <div id="say" hidden></div>
@@ -153,11 +166,11 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--red); outli
 
 <div class="ov" id="title">
   <div class="box">
-    <span class="tag">Test 2 · Freitag · Supermarkt</span>
+    <span class="tag">Test 2b · Montag · Bahnsteig</span>
     <h1>Montag bis Sonntag</h1>
-    <p>Black Friday. Du lieferst mit dem Lastenrad durch einen Supermarkt, der komplett eskaliert. Überleb die Schicht bis zum Feierabend.</p>
+    <p>Montag, 07:31. Schichtbeginn 08:00. Dein Zug kommt in 5 Minuten. Angeblich. Überleb den Bahnsteig, bis du irgendwie zur Arbeit kommst.</p>
     <p class="small" id="bestTitle"></p>
-    <button class="btn" id="goBtn">Schicht antreten</button>
+    <button class="btn" id="goBtn">Ab zum Bahnhof</button>
     <button class="btn ghost" id="editBtn">Figur ändern</button>
   </div>
 </div>
@@ -179,12 +192,12 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--red); outli
 
 <div class="ov" id="morning" hidden>
   <div class="box">
-    <span class="tag">Freitag, 08:12 · Küche</span>
-    <h2>Wie startest du in den Tag?</h2>
-    <p class="small">Bis zu 2 Angewohnheiten. Jede macht dich stärker, hat einen Haken und bringt +30 % Lohn („Gefahrenzulage“).</p>
+    <span class="tag">Montag, 06:48 · Küche</span>
+    <h2>Wie startest du in die Woche?</h2>
+    <p class="small">Bis zu 2 Angewohnheiten. Jede macht dich stärker, hat einen Haken und kostet natürlich was.</p>
     <div class="habits" id="habits"></div>
     <div class="wage" id="wagePrev"></div>
-    <button class="btn" id="startDay">Los, ab zur Schicht</button>
+    <button class="btn" id="startDay">Los, zum Bahnhof</button>
   </div>
 </div>
 
@@ -198,7 +211,7 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--red); outli
 
 <div class="ov" id="pause" hidden>
   <div class="box">
-    <h2>Kurze Pause</h2>
+    <h2>Kurz durchatmen</h2>
     <p id="pauseInfo"></p>
     <div class="btns">
       <button class="btn" id="resumeBtn">Weiter</button>
@@ -210,11 +223,12 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--red); outli
 
 <div class="ov" id="end" hidden>
   <div class="box">
-    <span class="tag" id="endTag">Feierabend</span>
+    <span class="tag" id="endTag">Angekommen</span>
     <h2 id="endTitle">Geschafft</h2>
     <div class="slip" id="slip"></div>
+    <div class="chef" id="chef"></div>
     <p class="small" id="endInfo"></p>
-    <button class="btn" id="againBtn">Nächster Freitag</button>
+    <button class="btn" id="againBtn">Nächster Montag</button>
     <button class="btn ghost" id="endEdit">Figur ändern</button>
   </div>
 </div>
@@ -223,8 +237,9 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--red); outli
   <div class="box">
     <h2>Testregler</h2>
     <div class="btns">
-      <button class="btn ghost" data-dev="min">+1 Stunde</button>
+      <button class="btn ghost" data-dev="min">+1 Minute</button>
       <button class="btn ghost" data-dev="boss">Boss jetzt</button>
+      <button class="btn ghost" data-dev="train">Zug jetzt</button>
       <button class="btn ghost" data-dev="lvl">Level-up</button>
       <button class="btn ghost" data-dev="god">Unverwundbar: aus</button>
     </div>
@@ -239,18 +254,20 @@ const $ = id => document.getElementById(id);
 const cv = $('cv'); let ctx = cv.getContext('2d');
 const R = Math.random, TAU = Math.PI * 2, INK = '#1d1a24';
 const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
-const euro = v => (v < 0 ? '−' : '') + Math.abs(v).toFixed(2).replace('.', ',') + ' €';
+const pick = a => a[(R() * a.length) | 0];
+const euro = v => (v < -0.004 ? '−' : '') + Math.abs(v).toFixed(2).replace('.', ',') + ' €';
 
 /* =========================================================
    DATEN (alles hier ist später im Baukasten änderbar)
    ========================================================= */
 const D = {
   rate: 13.90,                 // Mindestlohn DE 2026, € pro Stunde
-  secPerHour: 60,              // 1 echte Minute = 1 Arbeitsstunde
-  shiftStart: 9,               // Schicht ab 09:00
-  bossAt: 300,                 // um 14:00 kommt der Boss
-  habitBonus: 0.30,            // +30 % Lohn je Angewohnheit
-  deductions: [['Lastenrad-Miete', 8.00], ['Gebühr Liefer-App', 2.50]],
+  clockStart: 7 * 60 + 31,     // Montag 07:31
+  shiftAt: 8 * 60,             // Schichtbeginn 08:00
+  gameSpeed: 12,               // 1 echte Sekunde = 12 Bahnhofs-Sekunden
+  etaReal: 25,                 // „in 5 Minuten“ = 25 echte Sekunden, dann neu
+  bossAt: 300,
+  fixedCosts: [['Deutschlandticket (anteilig)', 2.10], ['Fahrrad-Tageskarte', 6.00]],
   cap: 260,
   look: {
     skin: [['Hell', '#f6d3b3'], ['Mittel', '#e2ad84'], ['Braun', '#b9784e'], ['Dunkel', '#6e432b'], ['Grün (?)', '#8fdc6a'], ['Blau (??)', '#7cc6ff']],
@@ -260,29 +277,29 @@ const D = {
     extra: ['Nichts', 'Brille', 'Schnurrbart', 'Sonnenbrille', 'Kopfhörer', 'Pflaster']
   },
   classes: [
-    { id: 'liefer', name: 'Lieferfahrer', txt: 'Lastenrad mit Schwung. Mit Tempo rammen, Pakete zustellen.', open: true },
+    { id: 'liefer', name: 'Lieferfahrer', txt: 'Lastenrad mit Schwung, mit Tempo rammen. (Fahrradmitnahme im Berufsverkehr: verboten.)', open: true },
     { id: 'kasse', name: 'Kassiererin', txt: 'Scanner und Kasse. Kommt später.', open: false },
     { id: 'pflege', name: 'Pflegekraft', txt: 'Heilt sich, Desi-Spray. Kommt später.', open: false },
     { id: 'hand', name: 'Handwerker', txt: 'Baut Fallen und Türme. Kommt später.', open: false }
   ],
   habits: [
-    { id: 'energy', name: 'Energy-Drink', plus: '+30 % Tempo', minus: 'Alle 25 s Herzrasen: Lenkung spinnt' },
-    { id: 'kaffee', name: 'Dritter Kaffee', plus: 'Waffen 25 % schneller', minus: 'Ohne Kaffee-Nachschub (Becher) nur halb so schnell' },
-    { id: 'kippe', name: 'Raucherpause', plus: 'Nach jeder Pause 10 s +40 % Schaden', minus: 'Alle 45 s bleibst du kurz stehen' },
-    { id: 'bier', name: 'Feierabendbier (gestern)', plus: '+40 Leben', minus: 'Lenkung schwammig' },
-    { id: 'doom', name: 'Doomscrolling', plus: '+50 % Sammelradius', minus: 'Ab und zu verdeckt das Handy den Bildschirm' },
-    { id: 'ueber', name: 'Überstunden', plus: '+25 % Schaden', minus: 'Keine Heilung, gar keine' },
-    { id: 'folge', name: '„Nur noch eine Folge“', plus: 'Start mit 2 Level-ups', minus: 'Start mit halbem Leben' },
-    { id: 'burger', name: 'Fast Food', plus: 'Burger liegen öfter rum und heilen viel', minus: 'Nach jedem Burger 12 s langsam' }
+    { id: 'energy', name: 'Energy-Drink', plus: '+30 % Tempo', minus: 'Alle 25 s Herzrasen: Lenkung spinnt', cost: 2.49 },
+    { id: 'kaffee', name: 'Kaffee to go', plus: 'Waffen 25 % schneller', minus: 'Ohne Nachschub (Becher) nur halb so schnell', cost: 4.80 },
+    { id: 'kippe', name: 'Raucherpause', plus: 'Nach jeder Pause 10 s +40 % Schaden', minus: 'Alle 45 s bleibst du kurz stehen', cost: 0.45 },
+    { id: 'bier', name: 'Feierabendbier (gestern)', plus: '+40 Leben', minus: 'Lenkung schwammig', cost: 1.29 },
+    { id: 'doom', name: 'Doomscrolling', plus: '+50 % Sammelradius', minus: 'Ab und zu verdeckt das Handy den Bildschirm', cost: 0, note: 'bezahlt mit Daten' },
+    { id: 'ueber', name: 'Überstunden (gestern)', plus: '+25 % Schaden', minus: 'Keine Heilung, gar keine', cost: 0, note: 'unbezahlt' },
+    { id: 'folge', name: '„Nur noch eine Folge“', plus: 'Start mit 2 Level-ups', minus: 'Start mit halbem Leben', cost: 0.43, note: 'Streaming-Abo, anteilig' },
+    { id: 'burger', name: 'Fast Food', plus: 'Burger liegen öfter rum und heilen viel', minus: 'Nach jedem Burger 12 s langsam', cost: 8.90 }
   ],
   weapons: {
     paket: { name: 'Paketwurf', kind: 'lob', txt: ['Wirft Pakete, die aufplatzen', 'Größerer Knall', 'Zwei Pakete', 'Mehr Schaden', 'Drei Pakete, schneller'],
       cd: [1.1, 1.0, 0.95, 0.85, 0.75], dmg: [18, 22, 26, 33, 40], rad: [44, 54, 56, 62, 70], n: [1, 1, 2, 2, 3] },
-    preis: { name: 'Preisauszeichner', kind: 'shot', txt: ['Schießt Preisetiketten', 'Etikett geht durch 1 Gegner', 'Zwei Etiketten', 'Mehr Schaden, durch 2', 'Drei Etiketten, schneller'],
+    knips: { name: 'Fahrschein-Knipser', kind: 'shot', txt: ['Schießt entwertete Fahrscheine', 'Fahrschein geht durch 1 Gegner', 'Zwei Fahrscheine', 'Mehr Schaden, durch 2', 'Drei Fahrscheine, schneller'],
       cd: [0.8, 0.75, 0.7, 0.62, 0.55], dmg: [9, 11, 13, 16, 20], n: [1, 1, 2, 2, 3], pierce: [0, 1, 1, 2, 2] },
-    mopp: { name: 'Wischmopp', kind: 'orbit', txt: ['Ein Mopp kreist um dich', 'Zweiter Mopp', 'Mehr Schaden, schneller', 'Dritter Mopp', 'Größerer Kreis'],
+    schirm: { name: 'Regenschirm', kind: 'orbit', txt: ['Ein Schirm kreist um dich', 'Zweiter Schirm', 'Mehr Schaden, schneller', 'Dritter Schirm', 'Größerer Kreis'],
       n: [1, 2, 2, 3, 3], dmg: [9, 11, 14, 17, 21], orb: [70, 74, 80, 86, 98], spd: [2.8, 3.0, 3.3, 3.4, 3.7] },
-    durchsage: { name: 'Durchsage', kind: 'pulse', txt: ['„Kasse 3 bitte!“ Druckwelle um dich', 'Lauter', 'Öfter', 'Noch lauter', 'Durchsage in Dauerschleife'],
+    durchsage: { name: 'Durchsage', kind: 'pulse', txt: ['„Bitte zurückbleiben!“ Druckwelle um dich', 'Lauter', 'Öfter', 'Noch lauter', 'Durchsage in Dauerschleife'],
       cd: [3.2, 3.0, 2.7, 2.5, 2.1], dmg: [16, 21, 25, 31, 38], rad: [92, 104, 110, 124, 142] },
     klingel: { name: 'Fahrradklingel', kind: 'cone', txt: ['Klingelt nach vorne, schubst weg', 'Mehr Schaden', 'Weiter', 'Breiter', 'RRRING!'],
       cd: [1.4, 1.3, 1.2, 1.1, 0.95], dmg: [12, 16, 19, 23, 29], rng: [84, 88, 96, 102, 114], arc: [1.1, 1.1, 1.2, 1.5, 1.7] }
@@ -296,50 +313,72 @@ const D = {
     brot: { name: 'Pausenbrot', txt: 'Heilt 0,8 Leben pro Sekunde' }
   },
   foes: {
-    prospekt: { name: 'Prospekt', r: 10, hp: 10, spd: 100, dmg: 5, xp: 1, col: '#ffffff' },
-    bon: { name: 'Kassenbon', r: 8, hp: 13, spd: 92, dmg: 7, xp: 1, col: '#f7f3e3' },
-    wagen: { name: 'Einkaufswagen', r: 14, hp: 42, spd: 250, dmg: 10, xp: 3, col: '#b8c2cc' },
-    schild: { name: 'Rabattschild', r: 17, hp: 110, spd: 46, dmg: 11, xp: 6, col: '#ffd400', heavy: true },
-    boss: { name: 'Der Mega-Deal', r: 42, hp: 5200, spd: 52, dmg: 22, xp: 0, col: '#ffd400', heavy: true, boss: true }
+    spaet: { name: 'Verspätung', r: 10, hp: 10, spd: 100, dmg: 5, xp: 1, col: '#ffffff' },
+    zug: { name: 'Anschlusszug', r: 9, hp: 13, spd: 92, dmg: 6, xp: 1, col: '#e9ecef' },
+    koffer: { name: 'Rollkoffer', r: 13, hp: 42, spd: 250, dmg: 10, xp: 3, col: '#8b4fd0' },
+    automat: { name: 'Fahrkartenautomat', r: 17, hp: 110, spd: 46, dmg: 11, xp: 6, col: '#5d7fa3', heavy: true },
+    boss: { name: 'Schienenersatzverkehr', r: 50, hp: 5200, spd: 52, dmg: 22, xp: 0, col: '#f3ead2', heavy: true, boss: true }
   },
-  // Ablauf eines Freitags (Sekunden seit Schichtbeginn)
+  // Ablauf eines Montags (echte Sekunden seit 07:31)
   timeline: [
-    { at: 30, ev: 'snake', n: 1 },
-    { at: 60, ev: 'sturz' }, { at: 75, ev: 'snake', n: 1 },
-    { at: 120, ev: 'sturz' }, { at: 135, ev: 'snake', n: 2 },
-    { at: 180, ev: 'sturz' }, { at: 210, ev: 'kassen' },
-    { at: 240, ev: 'sturz' }, { at: 270, ev: 'ring' },
-    { at: 296, ev: 'warn' }, { at: 300, ev: 'boss' }
+    { at: 20, ev: 'snake', n: 1 }, { at: 38, ev: 'train' },
+    { at: 60, ev: 'welle' }, { at: 75, ev: 'snake', n: 1 },
+    { at: 120, ev: 'welle' }, { at: 135, ev: 'snake', n: 2 }, { at: 145, ev: 'chef' },
+    { at: 180, ev: 'welle' }, { at: 210, ev: 'koffer' },
+    { at: 240, ev: 'welle' }, { at: 270, ev: 'ring' },
+    { at: 292, ev: 'warn' }, { at: 300, ev: 'boss' }
   ],
   says: [
-    'Liebe Kundschaft, Ihr Selbstwert ist heute um <b>30 %</b> reduziert.',
-    'Kasse 3 ist geschlossen. Kasse 4 auch. Eigentlich <b>alle</b>.',
-    'Wir suchen Verstärkung! Mindestlohn, flexible Arbeitszeiten (<b>für uns</b>).',
-    'Heute im Angebot: <b>Hoffnung</b>, 2 für 1. Solange der Vorrat reicht.',
-    'Klopapier ist aus. Aber wir haben <b>Klopapier-Duft</b> im Angebot.',
-    'Bitte beachten Sie: Unsere Mitarbeitenden sind auch nur Menschen. <b>Leider.</b>',
-    'Kaufen Sie jetzt, bereuen Sie <b>später</b>. Ratenzahlung möglich.',
-    'Neu im Sortiment: <b>Freizeit</b>. Leider nur für Führungskräfte.',
-    'Die Abholstation ist besetzt von einem Paket, das <b>niemand</b> abholt. Seit 2019.'
+    'Information zu RE 7: Heute ca. <b>5 Minuten</b> später. Wie gestern. Und morgen.',
+    'Wir bitten um Ihr Verständnis. <b>Ihr Verständnis</b> ist alles, was wir noch haben.',
+    'Grund der Verzögerung: Verzögerungen im Betriebsablauf. Grund dafür: <b>Betrieb</b>.',
+    'Bitte lassen Sie Ihr Gepäck nicht unbeaufsichtigt. <b>Es greift sonst an.</b>',
+    'Der Kaffee am Kiosk kostet jetzt <b>4,80 €</b>. Das Warten bleibt vorerst kostenlos.',
+    'Die Toilette an Gleis 2 ist <b>gesperrt</b>. Seit der Eröffnung.',
+    'Reisende nach Arbeit: Bitte nutzen Sie alternativ Ihre <b>Beine</b>.',
+    'Ihr Anschluss in Arbeit wartet nicht. <b>Ihr Chef schon.</b>',
+    'Fahrräder werden im Berufsverkehr <b>nicht befördert</b>. Viel Spaß noch.',
+    'Mit dem Deutschlandticket kommen Sie <b>überall</b> hin. Theoretisch.',
+    'Heute in umgekehrter Wagenreihung. Die <b>1. Klasse</b> hält trotzdem direkt vor dem Aufzug.',
+    'Der Aufzug ist <b>außer Betrieb</b>. Die Rolltreppe auch. Die Treppe überlegt noch.',
+    'Wir wünschen Ihnen trotzdem einen <b>schönen Montag</b>. Haha. Entschuldigung.',
+    'Ihr Chef wurde automatisch informiert. Er hat mit <b>„👍“</b> reagiert. Was auch immer das heißt.',
+    'Bitte beachten Sie: Pünktlichkeit ist <b>Ihre</b> Aufgabe. Nicht unsere.'
   ],
-  feed: ['<b>Eilmeldung:</b> Mieten steigen (wieder)', '10 Gründe, warum du nie Urlaub machst (Nr. 7 tut weh)', 'Jemand aus deiner Schule ist jetzt Millionär', 'Wetter: wieder Montag', 'Du wurdest in einem Beitrag markiert: „lol“', '<b>Live:</b> Jemand frühstückt. 40.000 schauen zu.'],
-  shelfLabels: ['NUDELN', 'KLOPAPIER (aus)', 'BIO?', 'DOSEN', 'SNACKS', 'ENERGY', 'HEFE (aus)', 'SONDERPOSTEN', 'WÜRSTCHEN', 'ALLES −70%', 'TIEFKÜHL', 'SÜSSKRAM', 'KAFFEE', 'GRILLKOHLE']
+  talk: {
+    spaet: ['+5!', 'Gleich!', 'Bin unterwegs!', 'Ca. 5 Min!', 'Hehe', 'Grund: Laub', 'Noch 5!'],
+    zug: ['Anschluss weg!', 'Wagenreihung umgekehrt!', 'Fällt aus!', 'Tschu-tschu?', 'Ersatzlos!', 'Heute ohne Bordbistro'],
+    koffer: ['RATTATATT', 'Pardon!', 'Unbeaufsichtigt!', '23 kg!', 'Ich roll dich!', 'Rollen kaputt!'],
+    automat: ['AUSSER BETRIEB', 'Nur passend!', 'Karte nicht lesbar', 'Bitte warten …', 'Haha, nein.', 'Kein Wechselgeld'],
+    hurt: ['AUA!', 'Beschwerde!', 'Ich ruf die Hotline!', 'Unverschämt!', 'Mein Rücken!', 'Rezension: 1 Stern', 'Hallo?!']
+  },
+  rams: ['BONK!', 'KLONK!', 'ZACK!', 'PLONK!', 'WUMMS!', 'DONG!'],
+  reasons: ['Laub auf den Gleisen', 'Montag', 'Verzögerungen im Betriebsablauf', 'Reparatur an der Ausrede', 'Tauben auf der Oberleitung', 'Zu warm. Oder zu kalt.',
+    'Ein Zug vor uns (auch zu spät)', 'Lokführer sucht seinen Schlüssel', 'Bauarbeiten bis 2031', 'Signalstörung (Signal ist beleidigt)', 'Wetter (irgendeins)', 'Wagen 7 fehlt. Seit 2019.',
+    'Weiche hat keine Lust', 'Zug wurde umgeleitet. Über Polen.', 'Stellwerk macht Mittag'],
+  feed: ['<b>Eilmeldung:</b> Mieten steigen (wieder)', '10 Gründe, warum du nie Urlaub machst (Nr. 7 tut weh)', 'Jemand aus deiner Schule ist jetzt Millionär', 'Wetter: wieder Montag', 'Dein Chef ist jetzt online', '<b>Live:</b> Jemand frühstückt. 40.000 schauen zu.'],
+  bossLines: ['Bitte alle einsteigen!', 'Fährt über alle Dörfer!', 'Nächster Halt: irgendwo', 'Ankunft: ungewiss', 'Haltestelle: 800 m Fußweg', 'Ersatz für den Ersatz!'],
+  chef: {
+    late: ['„Die Bahn ist keine Ausrede.“ – Dein Chef, der mit dem Dienstwagen kommt.', 'Chef: „Schön, dass du auch mal da bist.“ Es ist 08:{m}.', 'Chef hat dir einen Termin geschickt: „Gespräch über Pünktlichkeit“. Morgen, 07:30.', 'Fahrgastrechte-Formular ausgefüllt. 9 Seiten. Bearbeitung: 6–8 Wochen.'],
+    early: ['Pünktlich! Der Chef ist irritiert und fragt, ob alles okay ist.'],
+    lose: ['Krankmeldung geschickt. Chef antwortet: „Und morgen?“', 'Du hast es nicht zur Arbeit geschafft. Die Arbeit hat es trotzdem zu dir geschafft: 14 neue Mails.', 'Kolleg:innen im Gruppenchat: „Wo bleibt denn …“ „Bahn.“ „Ah.“']
+  }
 };
 
-/* ---------- Karte: Supermarkt ---------- */
+/* ---------- Karte: Bahnhof mit 3 Gleisen und 2 Bahnsteigen ---------- */
 const MAP = (() => {
-  const W = 1600, H = 1040, rects = [], labels = [];
+  const W = 1800, H = 1150, rects = [];
   rects.push({ x: 0, y: 0, w: W, h: 40, k: 'wall' }, { x: 0, y: H - 40, w: W, h: 40, k: 'wall' }, { x: 0, y: 0, w: 40, h: H, k: 'wall' }, { x: W - 40, y: 0, w: 40, h: H, k: 'wall' });
-  let li = 0;
-  for (let i = 0; i < 7; i++) {
-    const x = 230 + i * 172;
-    rects.push({ x, y: 190, w: 48, h: 270, k: 'shelf', lab: D.shelfLabels[li++ % D.shelfLabels.length] });
-    rects.push({ x, y: 540, w: 48, h: 230, k: 'shelf', lab: D.shelfLabels[li++ % D.shelfLabels.length] });
-  }
-  for (let i = 0; i < 4; i++) rects.push({ x: 200 + i * 320, y: 70, w: 250, h: 40, k: 'fridge' });
-  for (let k = 0; k < 5; k++) rects.push({ x: 380 + k * 220, y: 870, w: 92, h: 38, k: 'kasse', lab: 'KASSE ' + (k + 1) });
-  const station = { x: 70, y: 880, w: 120, h: 110 };
-  return { W, H, rects, station };
+  const tracks = [{ y: 40, h: 150, n: 1 }, { y: 500, h: 150, n: 2 }, { y: 960, h: 150, n: 3 }];
+  const plats = [{ y: 190, h: 310, a: 1, b: 2 }, { y: 650, h: 310, a: 2, b: 3 }];
+  const o = (k, x, y, w, h, lab) => rects.push({ k, x, y, w, h, lab });
+  // Bahnsteig A
+  o('bench', 180, 250, 110, 26); o('automat', 430, 330, 44, 44); o('pillar', 620, 250, 34, 34, 'RAUCHERBEREICH'); o('kiosk', 820, 300, 160, 80);
+  o('bin', 1060, 250, 26, 26); o('bench', 1150, 420, 110, 26); o('pillar', 1360, 300, 34, 34, 'WAGEN 7 (fehlt)'); o('automat', 1560, 240, 44, 44); o('bin', 300, 440, 26, 26);
+  // Bahnsteig B
+  o('bench', 240, 880, 110, 26); o('pillar', 470, 760, 34, 34, 'GLEIS 2 → 3 (geändert)'); o('automat', 700, 700, 44, 44); o('bench', 900, 820, 110, 26);
+  o('bin', 1110, 700, 26, 26); o('pillar', 1220, 860, 34, 34, 'WLAN (nein)'); o('automat', 1420, 760, 44, 44); o('bench', 1580, 880, 110, 26);
+  return { W, H, rects, tracks, plats };
 })();
 const C = 40, GW = Math.ceil(MAP.W / C), GH = Math.ceil(MAP.H / C);
 const blocked = new Uint8Array(GW * GH);
@@ -348,32 +387,35 @@ for (let gy = 0; gy < GH; gy++) for (let gx = 0; gx < GW; gx++) {
   for (const r of MAP.rects) if (cx > r.x - 12 && cx < r.x + r.w + 12 && cy > r.y - 12 && cy < r.y + r.h + 12) { blocked[gy * GW + gx] = 1; break; }
 }
 const freeCells = []; for (let i = 0; i < GW * GH; i++) if (!blocked[i]) freeCells.push(i);
-const pickupSpots = freeCells.filter(i => { const gx = i % GW, gy = (i / GW) | 0; return gy > 4 && gy < 20 && (blocked[i - 1] || blocked[i + 1]); });
+const laneOf = y => { for (const t of MAP.tracks) if (y > t.y - 4 && y < t.y + t.h + 4) return t; return null; };
 
 /* ---------- Zustand ---------- */
 let G = null, VW = 390, VH = 844, DPR = 1, ZOOM = 1, god = false, eid = 0, BT = 0;
 const store = {
-  get() { try { return JSON.parse(localStorage.getItem('moso.v1')) || {}; } catch (e) { return {}; } },
-  set(v) { try { localStorage.setItem('moso.v1', JSON.stringify(v)); } catch (e) {} }
+  get() { try { return JSON.parse(localStorage.getItem('moso.v2')) || {}; } catch (e) { return {}; } },
+  set(v) { try { localStorage.setItem('moso.v2', JSON.stringify(v)); } catch (e) {} },
+  old() { try { return JSON.parse(localStorage.getItem('moso.v1')) || {}; } catch (e) { return {}; } }
 };
 let SAVE = store.get();
-if (!SAVE.char) SAVE.char = { skin: 0, hair: 1, hairCol: 1, shirt: 0, extra: 0, name: '', cls: 'liefer' };
+if (!SAVE.char) { const o = store.old(); SAVE.char = o.char || { skin: 0, hair: 1, hairCol: 1, shirt: 0, extra: 0, name: '', cls: 'liefer' }; if (o.wallet && SAVE.wallet === undefined) SAVE.wallet = o.wallet; }
 let chosenHabits = [];
 
-function need(l) { return Math.round(4 + (l - 1) * 3 + Math.pow(l - 1, 1.5) * 0.6); }
+function need(l) { return Math.round((4 + (l - 1) * 3 + Math.pow(l - 1, 1.5) * 0.6) * 0.8); }
 const has = id => G.habits.includes(id);
 
 function newGame(habits) {
   eid = 0;
   G = {
     t: 0, kills: 0, level: 1, xp: 0, need: need(1), mode: 'play', endT: 0, won: false, habits: habits || [],
-    pl: { x: 110, y: 820, vx: 0, vy: 0, r: 12, hp: 120, max: 120, inv: 0, hurt: 0, ang: -Math.PI / 2, carry: false },
+    pl: { x: 700, y: 430, vx: 0, vy: 0, r: 12, hp: 130, max: 130, inv: 0, hurt: 0, ang: 0 },
     st: { dmg: 1, cd: 1, spd: 1, magnet: 80, regen: 0 },
-    weps: { paket: 1 }, ups: {}, enemies: [], bul: [], ebul: [], gems: [], parts: [], texts: [], fx: [], tele: [],
+    weps: { paket: 1 }, ups: {}, enemies: [], bul: [], gems: [], parts: [], texts: [], fx: [], tele: [],
     cds: {}, spawnAcc: 0, tl: 0, boss: null, rerolls: 2, shake: 0, pending: 0, offers: [], mopA: 0,
-    sturz: 0, tips: 0, deliveries: 0, order: { st: 'wait', t: 3 }, items: [], itemT: { kaffee: 20, burger: 30 },
+    sturz: 0, found: 0, items: [], itemT: { kaffee: 20, burger: 22 },
     hab: { heart: 25, heartOn: 0, heartA: 0, caf: 60, smoke: 45, smokeOn: 0, buff: 0, doom: 40, doomOn: 0, slow: 0 },
-    sayT: 14, ghosts: (SAVE.ghosts || []).map(g => Object.assign({ bag: true }, g)), dmgDone: 0, bossStart: 0
+    sayT: 12, ghosts: (SAVE.ghosts || []).map(g => Object.assign({ bag: true }, g)), dmgDone: 0, bossStart: 0,
+    board: { eta: D.etaReal, delay: 0, reason: '', flash: 0, gone: false },
+    trains: [], trainT: 999, trainKills: 0, flyers: [], eyesF: [], bubs: [], bubT: 3, lowSaid: false, hurtBy: {}, lastHurt: ''
   };
   const p = G.pl;
   if (has('bier')) { p.max += 40; p.hp = p.max; }
@@ -393,18 +435,22 @@ function tone(f0, f1, dur, type, vol, delay) {
 }
 function sfx(k) {
   if (muted || !AC || (G && G.sim)) return;
-  const now = performance.now(), gap = { hit: 45, coin: 35, hurt: 120, boom: 80, ram: 70 }[k] || 0;
+  const now = performance.now(), gap = { hit: 45, coin: 35, hurt: 120, boom: 80, ram: 70, honk: 300 }[k] || 0;
   if (sfxLast[k] && now - sfxLast[k] < gap) return; sfxLast[k] = now;
   try {
     if (k === 'hit') tone(300, 150, 0.05, 'square', 0.03);
     else if (k === 'coin') tone(1200, 1800, 0.05, 'sine', 0.035);
     else if (k === 'hurt') tone(200, 70, 0.18, 'sawtooth', 0.08);
     else if (k === 'boom') tone(130, 45, 0.22, 'triangle', 0.12);
-    else if (k === 'ram') tone(90, 60, 0.08, 'square', 0.07);
-    else if (k === 'ding') { tone(1568, 1568, 0.25, 'sine', 0.06); tone(1318, 1318, 0.3, 'sine', 0.05, 0.12); }
+    else if (k === 'ram') { tone(140, 70, 0.1, 'square', 0.08); tone(900, 1400, 0.04, 'sine', 0.03, 0.02); }
+    else if (k === 'ding') { tone(784, 784, 0.25, 'sine', 0.06); tone(659, 659, 0.35, 'sine', 0.06, 0.22); tone(523, 523, 0.45, 'sine', 0.05, 0.44); }
     else if (k === 'gong') { tone(660, 660, 0.35, 'sine', 0.06); tone(523, 523, 0.45, 'sine', 0.06, 0.3); }
     else if (k === 'lvl') { tone(523, 523, 0.08, 'square', 0.05); tone(784, 1046, 0.16, 'square', 0.05, 0.09); }
     else if (k === 'tele') tone(110, 70, 0.3, 'square', 0.06);
+    else if (k === 'bell') for (let i = 0; i < 4; i++) tone(i % 2 ? 740 : 880, i % 2 ? 740 : 880, 0.14, 'square', 0.035, i * 0.22);
+    else if (k === 'zoom') { tone(380, 70, 0.9, 'sawtooth', 0.07); tone(190, 50, 0.9, 'square', 0.04); }
+    else if (k === 'honk') { tone(330, 320, 0.25, 'square', 0.06); tone(415, 405, 0.25, 'square', 0.05); }
+    else if (k === 'pop') tone(700, 1500, 0.06, 'sine', 0.04);
     else if (k === 'win') [523, 659, 784, 1046].forEach((f, i) => tone(f, f, 0.18, 'square', 0.06, i * 0.12));
   } catch (e) {}
 }
@@ -417,7 +463,7 @@ function buildGrid() {
   for (const e of G.enemies) { if (e.dead) continue; const k = gk(Math.floor(e.x / CELL), Math.floor(e.y / CELL)); let a = grid.get(k); if (!a) { a = []; grid.set(k, a); } a.push(e); }
 }
 function query(x, y, r, cb) {
-  const x0 = Math.floor((x - r - 44) / CELL), x1 = Math.floor((x + r + 44) / CELL), y0 = Math.floor((y - r - 44) / CELL), y1 = Math.floor((y + r + 44) / CELL);
+  const x0 = Math.floor((x - r - 54) / CELL), x1 = Math.floor((x + r + 54) / CELL), y0 = Math.floor((y - r - 54) / CELL), y1 = Math.floor((y + r + 54) / CELL);
   for (let cx = x0; cx <= x1; cx++) for (let cy = y0; cy <= y1; cy++) {
     const a = grid.get(gk(cx, cy)); if (!a) continue;
     for (let i = 0; i < a.length; i++) { const e = a[i]; if (e.dead) continue; const dx = e.x - x, dy = e.y - y, rr = r + e.r; if (dx * dx + dy * dy <= rr * rr) cb(e); }
@@ -429,7 +475,7 @@ function nearest(x, y, maxD) {
   return best;
 }
 
-/* ---------- Wegfeld (Gegner laufen um Regale herum) ---------- */
+/* ---------- Wegfeld (Gegner laufen um Bänke und Automaten herum) ---------- */
 const dist = new Int16Array(GW * GH), queue = new Int32Array(GW * GH);
 let flowT = 0;
 function buildFlow() {
@@ -475,16 +521,17 @@ function pushOut(o, bounce) {
 function hitsWall(x, y) { for (const r of MAP.rects) if (x > r.x && x < r.x + r.w && y > r.y && y < r.y + r.h) return true; return false; }
 
 /* ---------- Kampf ---------- */
-function addText(x, y, s, col, big) { if (G.sim || G.texts.length > 70) return; G.texts.push({ x: x + (R() - 0.5) * 8, y, s: String(s), col: col || '#fff', t: 0, big }); }
+function addText(x, y, s, col, big) { if (G.sim || G.texts.length > 70) return; G.texts.push({ x: x + (R() - 0.5) * 8, y, s: String(s), col: col || '#fff', t: 0, big, rot: big ? (R() - 0.5) * 0.4 : 0 }); }
 function burst(x, y, col, n, sp) { if (G.sim) return; for (let i = 0; i < n && G.parts.length < 420; i++) { const a = R() * TAU, v = (sp || 90) * (0.4 + R()); G.parts.push({ x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, t: 0, life: 0.35 + R() * 0.3, col, s: 3 + (R() * 3 | 0) }); } }
 function heal(n) { if (has('ueber')) return; const p = G.pl, h = Math.min(n, p.max - p.hp); if (h > 0) { p.hp += h; if (h >= 3) addText(p.x, p.y - 30, '+' + Math.round(h), '#2fa84f'); } }
 function dmgMul() { return G.st.dmg * (G.hab.buff > 0 ? 1.4 : 1); }
 function cdMul() { let m = G.st.cd; if (has('kaffee')) m *= G.hab.caf > 0 ? 0.75 : 1.5; return m; }
+function bubble(e, s, dur) { if (G.sim || !e) return; G.bubs = G.bubs.filter(b => b.e !== e); if (G.bubs.length >= 3) G.bubs.shift(); G.bubs.push({ e, s, t: 0, dur: dur || 1.7 }); }
 
 function hit(e, dmg, kx, ky, kb) {
   if (e.dead) return;
   e.hp -= dmg; e.flash = 0.08; G.dmgDone += dmg;
-  if (kb) { const f = e.boss ? 0 : e.heavy ? 0.3 : 1; e.kvx += kx * kb * f; e.kvy += ky * kb * f; }
+  if (kb) { const f = e.boss ? 0 : e.heavy ? 0.3 : 1; e.kvx += kx * kb * f; e.kvy += ky * kb * f; e.lkx = kx; e.lky = ky; }
   addText(e.x, e.y - e.r - 4, Math.round(dmg), dmg >= 30 ? '#ffd400' : '#fff');
   sfx('hit');
   if (e.hp <= 0) kill(e);
@@ -494,12 +541,17 @@ function kill(e) {
   e.dead = true; G.kills++;
   burst(e.x, e.y, e.col, e.boss ? 60 : e.heavy ? 14 : 7, e.boss ? 240 : 100);
   if (e.xp) dropGem(e.x, e.y, e.xp);
-  if (e.type === 'schild' && R() < 0.08) G.items.push({ k: 'brot', x: e.x, y: e.y });
+  if (e.type === 'automat' && R() < 0.1) G.items.push({ k: 'brot', x: e.x, y: e.y });
+  if (!e.boss && !G.sim) {
+    // Slapstick: wegfliegen und Wackelaugen verlieren
+    const v = e.flyV || 380, kx = e.lkx !== undefined ? e.lkx : R() - 0.5, ky = e.lky !== undefined ? e.lky : R() - 0.5, kd = Math.hypot(kx, ky) || 1;
+    if (G.flyers.length < 45) { e.fly = { vx: kx / kd * v + (R() - 0.5) * 120, vy: ky / kd * v - 120 - R() * 80, vr: (R() < 0.5 ? -1 : 1) * (8 + R() * 10), rot: 0, t: 0 }; G.flyers.push(e); }
+    if (G.eyesF.length < 40 && (e.heavy || R() < 0.3)) for (const k of [-1, 1]) G.eyesF.push({ x: e.x + k * 5, y: e.y, vx: (R() - 0.5) * 160 + k * 40, vy: (R() - 0.5) * 160, t: 0, s: e.heavy ? 4.5 : 3.5, pa: R() * TAU, va: (R() - 0.5) * 6 });
+  }
   if (e.boss) {
-    G.won = true; G.mode = 'ending'; G.endT = 2; G.boss = null; G.shake = 0.6; sfx('win');
-    banner('FEIERABEND!', 'Der Mega-Deal ist ausverkauft');
+    G.won = true; G.mode = 'ending'; G.endT = 2.4; G.boss = null; G.shake = 0.6; sfx('win');
+    banner('ANGEKOMMEN!', 'Um ' + clockStr(G.t).slice(3) + '. Schichtbeginn war 08:00.');
     for (const o of G.enemies) if (!o.dead) { o.dead = true; burst(o.x, o.y, o.col, 4); }
-    G.ebul.length = 0;
   }
 }
 function dropGem(x, y, v) {
@@ -512,11 +564,15 @@ function explode(x, y, rad, dmg) {
 }
 function hurtPlayer(dmg, src) {
   const p = G.pl; if (p.inv > 0 || god || G.mode !== 'play') return;
-  G.hurtBy = G.hurtBy || {}; G.hurtBy[src || '?'] = (G.hurtBy[src || '?'] || 0) + dmg;
+  G.hurtBy[src || '?'] = (G.hurtBy[src || '?'] || 0) + dmg; G.lastHurt = src || '?';
   p.hp -= dmg; p.inv = 0.6; p.hurt = 0.25; G.shake = Math.max(G.shake, 0.18);
   addText(p.x, p.y - 30, '−' + Math.round(dmg), '#e3262f'); sfx('hurt');
-  if (p.hp <= 0) { p.hp = 0; G.mode = 'ending'; G.endT = 1.3; G.won = false; burst(p.x, p.y, '#ffd400', 30, 220); banner('Umgekippt.', 'Zum Glück zahlt die Krankenkasse. Oder?'); }
+  if (p.hp <= 0) {
+    p.hp = 0; G.mode = 'ending'; G.endT = 1.8; G.won = false; burst(p.x, p.y, '#ffd400', 30, 220);
+    banner('Umgekippt.', 'Todesursache: ' + causeName(G.lastHurt));
+  }
 }
+function causeName(k) { return k === 'halt' ? 'verlegte Haltestelle' : (D.foes[k] && D.foes[k].name) || 'Montag'; }
 
 /* ---------- Gegner ---------- */
 function spawn(type, x, y, extra) {
@@ -536,20 +592,15 @@ function farCell(minD) {
 }
 function pickType() {
   const t = G.t, r = R();
-  if (t < 90) return r < 0.85 ? 'prospekt' : 'bon';
-  if (t < 150) return r < 0.66 ? 'prospekt' : r < 0.86 ? 'bon' : 'wagen';
-  return r < 0.5 ? 'prospekt' : r < 0.64 ? 'bon' : r < 0.82 ? 'wagen' : 'schild';
+  if (t < 90) return r < 0.85 ? 'spaet' : 'zug';
+  if (t < 150) return r < 0.66 ? 'spaet' : r < 0.86 ? 'zug' : 'koffer';
+  return r < 0.5 ? 'spaet' : r < 0.64 ? 'zug' : r < 0.82 ? 'koffer' : 'automat';
 }
-function snake(n) {
-  for (let s = 0; s < n; s++) {
-    const [x, y] = farCell(Math.min(viewR(), 520));
-    let lead = null; const seg = 8;
-    for (let i = 0; i < seg; i++) { const e = spawn('bon', x, y, { lead, hist: [] }); lead = e; }
-  }
-}
+function snakeOf(x, y, n) { let lead = null; for (let i = 0; i < n; i++) lead = spawn('zug', x, y, { lead }); }
+function snake(n) { for (let s = 0; s < n; s++) { const [x, y] = farCell(Math.min(viewR(), 520)); snakeOf(x, y, 8); } }
 function spawnUpdate(dt) {
   const m = G.t / 60;
-  let rate = 0.7 + m * 1.0 + m * m * 0.16;
+  let rate = 0.6 + m * 0.92 + m * m * 0.15;
   if (G.sturz > 0) rate *= 1.8;
   if (G.boss) rate *= 0.25;
   G.spawnAcc += rate * dt;
@@ -557,43 +608,114 @@ function spawnUpdate(dt) {
     G.spawnAcc -= 1;
     if (G.enemies.length >= D.cap) { G.spawnAcc = 0; break; }
     const [x, y] = farCell(Math.min(viewR() * 0.8, 480)); const ty = pickType();
-    if (ty === 'bon') snakeOf(x, y, 5); else spawn(ty, x, y);
+    if (ty === 'zug') snakeOf(x, y, 5); else spawn(ty, x, y);
   }
 }
-function snakeOf(x, y, n) { let lead = null; for (let i = 0; i < n; i++) lead = spawn('bon', x, y, { lead, hist: [] }); }
+
+/* ---------- Anzeigetafel: „in 5 Minuten“, immer wieder ---------- */
+function boardReset() {
+  const B = G.board; B.eta = D.etaReal; B.delay += 5; B.reason = pick(D.reasons); B.flash = 0.9; sfx('pop');
+}
+function boardUpdate(dt) {
+  const B = G.board; if (B.flash > 0) B.flash -= dt;
+  if (B.gone) return;
+  B.eta -= dt; if (B.eta <= 0) boardReset();
+}
+
 function timeline() {
   while (G.tl < D.timeline.length && G.t >= D.timeline[G.tl].at) {
-    const ev = D.timeline[G.tl++];
-    if (ev.ev === 'snake') { snake(ev.n); say('Achtung: <b>Kassenbon-Schlange</b> im Gang!'); }
-    else if (ev.ev === 'sturz') { G.sturz = 10; sfx('gong'); banner('PREISSTURZ!', '−70 % auf alles. Auch auf deine Nerven.'); }
-    else if (ev.ev === 'kassen') { snake(3); banner('Kasse 3 öffnet!', 'Alle Bons auf einmal'); }
-    else if (ev.ev === 'ring') { const p = G.pl; for (let i = 0; i < 26; i++) { const a = i / 26 * TAU, x = p.x + Math.cos(a) * 280, y = p.y + Math.sin(a) * 280; if (!hitsWall(x, y)) spawn('prospekt', x, y); } banner('Prospekt-Lawine!', 'Wer bestellt die eigentlich?'); }
-    else if (ev.ev === 'warn') { banner('Gleich 14 Uhr …', 'Der Mega-Deal kommt'); sfx('gong'); }
-    else if (ev.ev === 'boss') { const [x, y] = farCell(300); const b = spawn('boss', x, y); b.act = 'chase'; b.at = 2.2; b.seq = 0; b.phase = 1; b.line = 0; G.boss = b; G.bossStart = G.t; }
+    const ev = D.timeline[G.tl++], p = G.pl;
+    if (ev.ev === 'snake') { snake(ev.n); say('Achtung: Ihr <b>Anschlusszug</b> fährt heute über den Bahnsteig.'); }
+    else if (ev.ev === 'train') startTrain(nearLane(), true);
+    else if (ev.ev === 'welle') { boardReset(); G.sturz = 10; sfx('gong'); banner('VERSPÄTUNG +' + G.board.delay + ' MIN!', 'Grund: ' + G.board.reason); }
+    else if (ev.ev === 'chef') { banner('08:00. Schichtbeginn.', 'Du stehst noch am Bahnsteig.'); sfx('gong'); setTimeout(() => say('Ihr Chef hat Sie im Kalender als <b>„zu spät“</b> markiert. Vorausschauend.'), 1800); }
+    else if (ev.ev === 'koffer') {
+      const pl = MAP.plats[p.y < 575 ? 0 : 1], fromL = p.x > MAP.W / 2;
+      for (let i = 0; i < 12; i++) { const y = pl.y + 20 + i / 11 * (pl.h - 40); const e = spawn('koffer', fromL ? 60 : MAP.W - 60, y); e.dir = [fromL ? 1 : -1, 0]; e.v = 0; e.wait = 0; }
+      banner('Gepäck-Lawine!', 'Ein Reisebus hat seine Koffer verloren');
+    }
+    else if (ev.ev === 'ring') { for (let i = 0; i < 26; i++) { const a = i / 26 * TAU, x = p.x + Math.cos(a) * 280, y = p.y + Math.sin(a) * 280; if (!hitsWall(x, y)) spawn('spaet', x, y); } banner('Verspätungs-Kreisel!', 'Alle auf einmal, keine pünktlich'); }
+    else if (ev.ev === 'warn') { G.board.gone = true; G.board.flash = 2; banner('RE 7 fällt aus.', 'Es fährt: Schienenersatzverkehr'); sfx('gong'); }
+    else if (ev.ev === 'boss') { const [x, y] = farCell(320); const b = spawn('boss', x, y); b.act = 'chase'; b.at = 2.2; b.seq = 0; b.phase = 1; b.line = 0; b.lineT = 2.8; b.face = 1; G.boss = b; G.bossStart = G.t; sfx('honk'); }
   }
 }
-const BOSS_LINES = ['NUR HEUTE!', 'ALLES MUSS RAUS!', 'KAUF MICH!', 'SPAR DICH ARM!', 'JETZT ODER NIE!', 'GRATIS*! *nicht gratis'];
-function bossUpdate(b, dt) {
+
+/* ---------- Durchfahrende Züge: hält hier nicht ---------- */
+function nearLane() { const p = G.pl; let best = MAP.tracks[0], bd = 1e9; for (const t of MAP.tracks) { const d = Math.abs(t.y + t.h / 2 - p.y); if (d < bd) { bd = d; best = t; } } return best; }
+function startTrain(lane, first) {
+  if (G.trains.some(t => t.lane === lane)) return;
+  const dir = R() < 0.5 ? 1 : -1;
+  G.trains.push({ lane, dir, warn: first ? 2.6 : 2.0, front: dir > 0 ? -40 : MAP.W + 40, len: 1300, kills: 0, hitPl: false, hitBoss: false });
+  sfx('bell');
+  say(first ? 'Vorsicht an Gleis ' + lane.n + ', ein Zug fährt durch. <b>Es ist nicht Ihrer.</b> (Tipp: Gegner aufs Gleis locken)'
+    : pick(['Vorsicht an Gleis ' + lane.n + ', ein Zug fährt durch. <b>Es ist nicht Ihrer.</b>', 'Gleis ' + lane.n + ': Durchfahrt. Dieser Zug ist <b>pünktlich</b>. Er hält nur nicht.', 'Gleis ' + lane.n + ': Bitte zurückbleiben. <b>Er hält hier nicht.</b> Nie.']));
+}
+function trainsUpdate(dt) {
+  if (G.t > 40 && (G.t < 288 || G.boss)) { G.trainT -= dt; if (G.trainT <= 0) { G.trainT = (G.boss ? 18 : 26) + R() * 8; startTrain(pick(MAP.tracks)); } }
+  else if (G.t <= 40) G.trainT = 30;
   const p = G.pl;
-  b.lineT = (b.lineT || 0) - dt; if (b.lineT <= 0) { b.lineT = 2.6; b.line = (b.line + 1) % BOSS_LINES.length; }
-  if (b.phase === 1 && b.hp < b.max * 0.5) { b.phase = 2; banner('Mega-Deal wird zum GIGA-DEAL!', 'Schneller und doppelt'); }
+  for (const tr of G.trains) {
+    if (tr.warn > 0) { tr.warn -= dt; if (tr.warn <= 0) sfx('zoom'); continue; }
+    tr.front += tr.dir * 2400 * dt;
+    const a = Math.min(tr.front, tr.front - tr.dir * tr.len), b = Math.max(tr.front, tr.front - tr.dir * tr.len), L = tr.lane;
+    const inLane = y => y > L.y - 6 && y < L.y + L.h + 6;
+    for (const e of G.enemies) {
+      if (e.dead || !inLane(e.y) || e.x < a || e.x > b) continue;
+      if (e.boss) {
+        if (!tr.hitBoss) { tr.hitBoss = true; hit(e, 700, 0, 0, 0); G.shake = 0.5; sfx('boom'); banner('Bus gegen Zug: 0 : 1', 'Der Ersatzverkehr braucht Ersatz'); bubble(e, 'AUTSCH! Beschwerde!', 2); }
+        continue;
+      }
+      e.lkx = tr.dir; e.lky = (e.y < L.y + L.h / 2 ? -1 : 1) * 0.6; e.flyV = 1000; tr.kills++; G.trainKills++; kill(e);
+    }
+    if (!tr.hitPl && inLane(p.y) && p.x > a && p.x < b) {
+      tr.hitPl = true;
+      if (!god && G.mode === 'play') { const d = Math.min(25, p.hp - 1); if (d > 0) { p.hp -= d; addText(p.x, p.y - 30, '−' + d, '#e3262f'); } }
+      const up = p.y < L.y + L.h / 2 ? -1 : 1; p.vx = tr.dir * 420; p.vy = up * 520; p.inv = Math.max(p.inv, 0.8); p.hurt = 0.3; G.shake = 0.35; sfx('hurt');
+      addText(p.x, p.y - 44, 'PLONK!', '#ffd400', true);
+      say('<b>Bitte zurückbleiben!</b> Gilt auch für Ihre Karriere.');
+    }
+    if ((tr.dir > 0 && a > MAP.W + 40) || (tr.dir < 0 && b < -40)) {
+      tr.done = true;
+      if (tr.kills >= 6 && G.mode === 'play') { addText(p.x, p.y - 60, tr.kills >= 12 ? 'STRIKE!' : 'ABGERÄUMT!', '#ffd400', true); say('Der Zug hat <b>' + tr.kills + ' Probleme</b> mitgenommen. Nur Sie nicht.'); }
+    }
+  }
+  G.trains = G.trains.filter(t => !t.done);
+}
+
+/* ---------- Boss: der Schienenersatzverkehr ---------- */
+function bossUpdate(b, dt) {
+  const p = G.pl, M = 40 + b.r;
+  b.lineT -= dt; if (b.lineT <= 0) { b.lineT = 2.8; b.line = (b.line + 1) % D.bossLines.length; }
+  if (b.phase === 1 && b.hp < b.max * 0.5) { b.phase = 2; banner('Der SEV bekommt einen SEV!', 'Schneller, mit Umweg'); sfx('honk'); }
   const fast = b.phase === 2 ? 0.78 : 1;
-  if (b.act === 'wait') { b.at -= dt; if (b.at <= 0) { b.act = 'chase'; b.at = 1.7 * fast; } return true; }
+  if (b.act === 'dash') {
+    b.x += b.dir[0] * b.dv * dt; b.y += b.dir[1] * b.dv * dt; b.dashT -= dt; b.face = b.dir[0] || b.face;
+    let bonk = false;
+    if (b.x < M) { b.x = M; bonk = true; } if (b.x > MAP.W - M) { b.x = MAP.W - M; bonk = true; }
+    if (b.y < M) { b.y = M; bonk = true; } if (b.y > MAP.H - M) { b.y = MAP.H - M; bonk = true; }
+    query(b.x, b.y, b.r, e => { if (!e.boss) { e.lkx = b.dir[0]; e.lky = b.dir[1]; e.flyV = 700; kill(e); } });
+    if (bonk) { b.act = 'wait'; b.at = 1.5 * fast; G.shake = 0.45; sfx('boom'); addText(b.x, b.y - 70, 'BONK!', '#ffd400', true); burst(b.x, b.y, '#f3ead2', 16, 200); bubble(b, pick(['Umleitung …', 'Wer hat die Wand verlegt?', 'Navi sagt geradeaus!']), 2); }
+    else if (b.dashT <= 0) { b.act = 'wait'; b.at = 0.9 * fast; }
+    return true;
+  }
+  if (b.act === 'aim') { b.at -= dt; if (b.at <= 0) { b.act = 'dash'; b.dashT = b.dlen / b.dv; sfx('honk'); } return true; }
+  if (b.act === 'wait') { b.at -= dt; if (b.at <= 0) { b.act = 'chase'; b.at = 1.6 * fast; } return true; }
   b.at -= dt; if (b.at > 0) return false;
-  const mv = ['bombe', 'flyer', 'wagen', 'bombe', 'wagen'][b.seq++ % 5];
+  const mv = ['halt', 'dash', 'raus', 'dash', 'halt'][b.seq++ % 5];
   sfx('tele');
-  if (mv === 'bombe') {
-    G.tele.push({ k: 'circle', x: p.x, y: p.y, r: 100, t: 0, dur: 1.1 * fast, dmg: 26, lab: 'PREISBOMBE' });
-    if (b.phase === 2) G.tele.push({ k: 'circle', x: p.x + p.vx * 0.7, y: p.y + p.vy * 0.7, r: 100, t: -0.35, dur: 1.1 * fast, dmg: 26, lab: 'PREISBOMBE' });
-    b.act = 'wait'; b.at = 1.2 * fast;
-  } else if (mv === 'flyer') {
+  if (mv === 'halt') {
+    G.tele.push({ k: 'circle', x: p.x, y: p.y, r: 100, t: 0, dur: 1.1 * fast, dmg: 26, lab: 'HALTESTELLE' });
+    if (b.phase === 2) G.tele.push({ k: 'circle', x: p.x + p.vx * 0.7, y: p.y + p.vy * 0.7, r: 100, t: -0.35, dur: 1.1 * fast, dmg: 26, lab: '(verlegt)' });
+    bubble(b, 'Haltestelle verlegt!'); b.act = 'wait'; b.at = 1.2 * fast;
+  } else if (mv === 'raus') {
     const n = b.phase === 2 ? 18 : 12;
-    for (let i = 0; i < n; i++) { const a = i / n * TAU, e = spawn('prospekt', b.x + Math.cos(a) * 50, b.y + Math.sin(a) * 50); e.kvx = Math.cos(a) * 320; e.kvy = Math.sin(a) * 320; }
-    say('<b>Mega-Deal:</b> „Nehmen Sie ein Prospekt! Nehmen Sie ALLE!“'); b.act = 'wait'; b.at = 0.8;
+    for (let i = 0; i < n; i++) { const a = i / n * TAU, e = spawn('spaet', b.x + Math.cos(a) * 60, b.y + Math.sin(a) * 60); e.kvx = Math.cos(a) * 320; e.kvy = Math.sin(a) * 320; }
+    say('<b>SEV:</b> „Bitte alle aussteigen! Und wieder einsteigen! Und wieder aus…“'); b.act = 'wait'; b.at = 0.8;
   } else {
     const dx = p.x - b.x, dy = p.y - b.y, d = Math.hypot(dx, dy) || 1;
-    G.tele.push({ k: 'line', x: b.x, y: b.y, dx: dx / d, dy: dy / d, len: 640, w: 70, t: 0, dur: 1.0 * fast, carts: b.phase === 2 ? 7 : 5 });
-    b.act = 'wait'; b.at = 1.6 * fast;
+    b.dir = [dx / d, dy / d]; b.dv = b.phase === 2 ? 700 : 580; b.dlen = 760;
+    G.tele.push({ k: 'line', x: b.x, y: b.y, dx: dx / d, dy: dy / d, len: b.dlen, w: b.r * 2 + 10, t: 0, dur: 0.95 * fast });
+    bubble(b, 'UMLEITUNG!', 1.2); b.act = 'aim'; b.at = 0.95 * fast;
   }
   return true;
 }
@@ -605,13 +727,13 @@ function enemiesUpdate(dt) {
     if (e.flash > 0) e.flash -= dt;
     let busy = false;
     if (e.boss) busy = bossUpdate(e, dt);
-    if (e.type === 'bon' && e.lead && !e.lead.dead) {
-      // folgt dem Vordermann wie eine Schlange
+    if (e.type === 'zug' && e.lead && !e.lead.dead) {
+      // Wagen folgt dem Vorderwagen
       const L = e.lead, dx = L.x - e.x, dy = L.y - e.y, d = Math.hypot(dx, dy) || 1;
-      if (d > 15) { e.x += dx / d * (d - 15); e.y += dy / d * (d - 15); }
-      busy = true;
-    } else if (e.type === 'bon' && e.lead) e.lead = null;
-    if (e.type === 'wagen' && !busy) {
+      if (d > 19) { e.x += dx / d * (d - 19); e.y += dy / d * (d - 19); }
+      e.face = dx; busy = true;
+    } else if (e.type === 'zug' && e.lead) e.lead = null;
+    if (e.type === 'koffer' && !busy) {
       // rollt geradeaus auf die Stelle zu, wo du warst
       if (!e.dir || e.wait > 0) {
         e.wait = (e.wait || 0) - dt;
@@ -625,16 +747,17 @@ function enemiesUpdate(dt) {
     if (!busy) {
       const [fx, fy] = e.boss ? [p.x - e.x, p.y - e.y] : flowDir(e), d = Math.hypot(fx, fy) || 1;
       let vx = fx / d * e.spd * sMul, vy = fy / d * e.spd * sMul;
-      if (e.type === 'prospekt') { e.ph += dt * 7; vx += -fy / d * Math.sin(e.ph) * 40; vy += fx / d * Math.sin(e.ph) * 40; }
+      if (e.type === 'spaet') { e.ph += dt * 7; vx += -fy / d * Math.sin(e.ph) * 40; vy += fx / d * Math.sin(e.ph) * 40; }
       e.x += vx * dt; e.y += vy * dt; e.face = vx;
+      if (e.boss) { e.x = clamp(e.x, 40 + e.r, MAP.W - 40 - e.r); e.y = clamp(e.y, 40 + e.r, MAP.H - 40 - e.r); }
     }
     e.x += e.kvx * dt; e.y += e.kvy * dt; e.kvx *= damp; e.kvy *= damp;
     if (!e.boss) {
       const ox = e.x, oy = e.y;
       pushOut(e);
-      if (e.type === 'wagen' && e.dir && (Math.abs(ox - e.x) + Math.abs(oy - e.y) > 0.5)) { e.dir = null; e.wait = 0.7; burst(e.x, e.y, '#b8c2cc', 4); }
+      if (e.type === 'koffer' && e.dir && (Math.abs(ox - e.x) + Math.abs(oy - e.y) > 0.5)) { e.dir = null; e.wait = 0.7; burst(e.x, e.y, '#b8c2cc', 4); if (R() < 0.3) bubble(e, 'Rollen kaputt!'); }
       query(e.x, e.y, e.r, o => {
-        if (o === e || o.boss || (e.type === 'bon' && o.type === 'bon')) return;
+        if (o === e || o.boss || (e.type === 'zug' && o.type === 'zug')) return;
         const dx = e.x - o.x, dy = e.y - o.y, dd = Math.hypot(dx, dy) || 0.01, ov = e.r + o.r - dd;
         if (ov > 0) { const push = ov * (o.heavy && !e.heavy ? 0.5 : 0.25); e.x += dx / dd * push; e.y += dy / dd * push; }
       });
@@ -642,14 +765,34 @@ function enemiesUpdate(dt) {
     // Berührung mit dir: Rammen oder getroffen werden
     const dx = e.x - p.x, dy = e.y - p.y, pd = Math.hypot(dx, dy);
     if (pd < e.r + p.r) {
+      if (e.boss && e.act === 'dash') { hurtPlayer(30, 'boss'); p.vx += e.dir[0] * 520; p.vy += e.dir[1] * 520; continue; }
       if (ramming && e.ram <= G.t) {
         e.ram = G.t + 0.3;
         const dmg = (6 + sp * 0.07) * dmgMul() * (e.boss ? 1.5 : 1);
+        e.flyV = 650 + sp;
         hit(e, dmg, dx / (pd || 1), dy / (pd || 1), 260); sfx('ram'); G.shake = Math.max(G.shake, 0.06);
+        if (R() < 0.45) addText(e.x, e.y - e.r - 16, pick(D.rams), '#ffd400', true);
+        if (!e.dead && R() < 0.3) bubble(e, pick(D.talk.hurt));
         if (e.boss || e.heavy) { p.vx *= -0.5; p.vy *= -0.5; } else { p.vx *= 0.9; p.vy *= 0.9; }
       } else if (!ramming) hurtPlayer(e.dmg, e.type);
     }
   }
+}
+function chatUpdate(dt) {
+  if (G.sim) return;
+  G.bubT -= dt;
+  if (G.bubT <= 0) {
+    G.bubT = 1.6 + R() * 1.6;
+    const p = G.pl, vr = viewR() * 0.75;
+    for (let k = 0; k < 10 && G.enemies.length; k++) {
+      const e = G.enemies[(R() * G.enemies.length) | 0];
+      if (e.dead || e.boss || (e.type === 'zug' && e.lead) || Math.hypot(e.x - p.x, e.y - p.y) > vr) continue;
+      bubble(e, pick(D.talk[e.type])); break;
+    }
+  }
+  for (const b of G.bubs) b.t += dt;
+  G.bubs = G.bubs.filter(b => b.t < b.dur && !b.e.dead);
+  if (G.boss && !G.bubs.some(b => b.e === G.boss) && G.boss.lineT > 2.6) bubble(G.boss, D.bossLines[G.boss.line], 2.2);
 }
 
 /* ---------- Waffen ---------- */
@@ -662,7 +805,7 @@ function weaponsUpdate(dt) {
       G.mopA += W.spd[l] * dt;
       for (let i = 0; i < W.n[l]; i++) {
         const a = G.mopA + i / W.n[l] * TAU, ax = p.x + Math.cos(a) * W.orb[l], ay = p.y + Math.sin(a) * W.orb[l];
-        query(ax, ay, 13, e => { if (e.mop > G.t) return; e.mop = G.t + 0.45; const d = Math.hypot(e.x - p.x, e.y - p.y) || 1; hit(e, W.dmg[l] * dm, (e.x - p.x) / d, (e.y - p.y) / d, 140); });
+        query(ax, ay, 14, e => { if (e.mop > G.t) return; e.mop = G.t + 0.45; const d = Math.hypot(e.x - p.x, e.y - p.y) || 1; hit(e, W.dmg[l] * dm, (e.x - p.x) / d, (e.y - p.y) / d, 140); });
       }
       continue;
     }
@@ -685,7 +828,7 @@ function weaponsUpdate(dt) {
       G.cds[id] = W.cd[l] * cm;
       G.fx.push({ k: 'pulse', x: p.x, y: p.y, r: W.rad[l], t: 0, dur: 0.35 });
       query(p.x, p.y, W.rad[l], e => { const d = Math.hypot(e.x - p.x, e.y - p.y) || 1; hit(e, W.dmg[l] * dm, (e.x - p.x) / d, (e.y - p.y) / d, 260); });
-      if (!G.sim && R() < 0.3) addText(p.x, p.y - 44, ['KASSE 3!', 'BITTE!', 'DURCHSAGE!', 'ACHTUNG!'][(R() * 4) | 0], '#e3262f', true);
+      if (!G.sim && R() < 0.3) addText(p.x, p.y - 44, pick(['ZURÜCKBLEIBEN!', 'BITTE!', 'DURCHSAGE!', 'ACHTUNG!']), '#e3262f', true);
     } else if (W.kind === 'cone') {
       const a = p.ang, rng = W.rng[l], arc = W.arc[l];
       let any = false;
@@ -710,12 +853,6 @@ function bulletsUpdate(dt) {
       if (b.pierce-- <= 0) b.dead = true;
     });
   }
-  const p = G.pl;
-  for (const c of G.ebul) {
-    c.x += c.vx * dt; c.y += c.vy * dt; c.life -= dt;
-    if (c.life <= 0) { c.dead = true; continue; }
-    if (Math.hypot(c.x - p.x, c.y - p.y) < 14 + p.r) { hurtPlayer(c.dmg); c.dead = true; burst(c.x, c.y, '#b8c2cc', 6); }
-  }
 }
 
 /* ---------- Spieler: Lastenrad mit Schwung ---------- */
@@ -733,12 +870,12 @@ function playerUpdate(dt) {
   // Angewohnheiten
   if (has('energy')) { H.heart -= dt; if (H.heart <= 0) { H.heart = 25; H.heartOn = 2; H.heartA = (R() < 0.5 ? 1 : -1) * (0.8 + R() * 0.6); addText(p.x, p.y - 40, 'HERZRASEN!', '#e3262f', true); } }
   if (H.heartOn > 0) { H.heartOn -= dt; const a = H.heartA + Math.sin(G.t * 9) * 0.6, c = Math.cos(a), s = Math.sin(a); [mx, my] = [mx * c - my * s, mx * s + my * c]; }
-  if (has('kippe')) { H.smoke -= dt; if (H.smoke <= 0) { H.smoke = 45; H.smokeOn = 1.5; say('Kurz eine rauchen … <b>Die Welt wartet</b>. Tut sie nicht.'); } }
+  if (has('kippe')) { H.smoke -= dt; if (H.smoke <= 0) { H.smoke = 45; H.smokeOn = 1.5; say('Kurz eine rauchen … <b>Der Zug wartet ja eh nicht.</b>'); } }
   if (H.smokeOn > 0) { H.smokeOn -= dt; mx = my = 0; p.vx *= 0.8; p.vy *= 0.8; if (H.smokeOn <= 0) { H.buff = 10; addText(p.x, p.y - 40, 'FRISCH GEQUALMT +40 %', '#e3262f', true); } }
   if (H.buff > 0) H.buff -= dt;
   if (has('kaffee')) { const before = H.caf; H.caf -= dt; if (before > 0 && H.caf <= 0) say('Kaffee alle. <b>Alles</b> ist schwer.'); }
   if (H.slow > 0) H.slow -= dt;
-  let maxS = 225 * G.st.spd * (has('energy') ? 1.3 : 1) * (H.slow > 0 ? 0.7 : 1);
+  const maxS = 225 * G.st.spd * (has('energy') ? 1.3 : 1) * (H.slow > 0 ? 0.7 : 1);
   const acc = 3.6 * (has('bier') ? 0.5 : 1);
   const tx = mx * maxS, ty = my * maxS;
   if (mx || my) { p.vx += (tx - p.vx) * Math.min(1, acc * dt); p.vy += (ty - p.vy) * Math.min(1, acc * dt); }
@@ -749,27 +886,15 @@ function playerUpdate(dt) {
   if (sp > 20) p.ang = Math.atan2(p.vy, p.vx);
   if (p.inv > 0) p.inv -= dt; if (p.hurt > 0) p.hurt -= dt;
   if (G.st.regen) heal(G.st.regen * dt);
+  if (!G.lowSaid && p.hp < p.max * 0.3 && p.hp > 0) { G.lowSaid = true; say('Reisende/r an Gleis 2 sieht nicht gut aus. <b>Bitte trotzdem pünktlich zur Arbeit.</b>'); }
   if (!G.sim && sp > 150 && R() < 0.4) G.parts.push({ x: p.x - Math.cos(p.ang) * 16, y: p.y - Math.sin(p.ang) * 16, vx: 0, vy: 0, t: 0, life: 0.3, col: 'rgba(29,26,36,.25)', s: 4 });
 }
 
-/* ---------- Zustellungen, Gegenstände, Spuren ---------- */
-function orderUpdate(dt) {
-  const o = G.order, p = G.pl, S = MAP.station;
-  if (o.st === 'wait') { o.t -= dt; if (o.t <= 0) { const i = pickupSpots[(R() * pickupSpots.length) | 0]; o.st = 'pick'; o.x = (i % GW) * C + C / 2; o.y = ((i / GW) | 0) * C + C / 2; } }
-  else if (o.st === 'pick') { if (Math.hypot(p.x - o.x, p.y - o.y) < 26) { o.st = 'bring'; o.t = 25; p.carry = true; sfx('coin'); say('Paket für <b>Frau Ungeduld</b>. Sie wartet schon seit 3 Minuten. Empört.'); } }
-  else if (o.st === 'bring') {
-    o.t -= dt;
-    if (p.x > S.x && p.x < S.x + S.w && p.y > S.y && p.y < S.y + S.h) {
-      const tip = Math.round((1 + R() * 2.5 + o.t * 0.06) * 10) / 10;
-      G.tips += tip; G.deliveries++; p.carry = false; o.st = 'wait'; o.t = 6;
-      G.xp += 8; heal(15); sfx('ding'); banner('Zugestellt!', '+' + euro(tip) + ' Trinkgeld'); levelCheck();
-    } else if (o.t <= 0) { p.carry = false; o.st = 'wait'; o.t = 8; say('Kundin hat storniert. <b>Bewertung: 1 Stern.</b> „Fahrer hat geatmet.“'); }
-  }
-}
+/* ---------- Gegenstände, Spuren ---------- */
 function itemsUpdate(dt) {
   const p = G.pl, T = G.itemT;
   if (has('kaffee')) { T.kaffee -= dt; if (T.kaffee <= 0 && G.items.filter(i => i.k === 'kaffee').length < 2) { T.kaffee = 28; const [x, y] = farCell(160); G.items.push({ k: 'kaffee', x, y }); } }
-  T.burger -= dt; if (T.burger <= 0) { T.burger = has('burger') ? 18 : 50; if (G.items.filter(i => i.k === 'burger').length < 3) { const [x, y] = farCell(160); G.items.push({ k: 'burger', x, y }); } }
+  T.burger -= dt; if (T.burger <= 0) { T.burger = has('burger') ? 18 : 34; if (G.items.filter(i => i.k === 'burger').length < 3) { const [x, y] = farCell(160); G.items.push({ k: 'burger', x, y }); } }
   for (const it of G.items) {
     if (it.dead) continue;
     if (Math.hypot(p.x - it.x, p.y - it.y) < 24) {
@@ -782,7 +907,7 @@ function itemsUpdate(dt) {
   G.items = G.items.filter(i => !i.dead);
   for (const g of G.ghosts) {
     if (!g.bag) continue;
-    if (Math.hypot(p.x - g.x, p.y - g.y) < 24) { g.bag = false; G.xp += 6; G.tips += 1; sfx('coin'); say('Tüte von <b>' + esc(g.name) + '</b> gefunden: 1,00 € und etwas Erfahrung.'); levelCheck(); }
+    if (Math.hypot(p.x - g.x, p.y - g.y) < 24) { g.bag = false; G.xp += 6; G.found += 0.25; sfx('coin'); say('Pfandflasche von <b>' + esc(g.name) + '</b> gefunden: 0,25 €. <b>Altersvorsorge</b> gesichert.'); levelCheck(); }
   }
 }
 function esc(s) { return String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
@@ -792,7 +917,7 @@ function gemsUpdate(dt) {
     if (g.dead) continue;
     const dx = p.x - g.x, dy = p.y - g.y, d = Math.hypot(dx, dy);
     if (g.pull || d < mag) { g.pull = true; g.sp = (g.sp || 0) + dt * 700; const s = Math.min(d, (400 + g.sp) * dt); g.x += dx / (d || 1) * s; g.y += dy / (d || 1) * s; }
-    if (d < p.r + 8) { g.dead = true; G.xp += g.v; sfx('coin'); }
+    if (d < p.r + 8) { g.dead = true; G.xp += g.v; G.found += g.v * 0.01; sfx('coin'); }
   }
   levelCheck();
 }
@@ -805,11 +930,8 @@ function fxUpdate(dt) {
       tl.done = true; const p = G.pl;
       if (tl.k === 'circle') {
         G.fx.push({ k: 'pulse', x: tl.x, y: tl.y, r: tl.r, t: 0, dur: 0.35, col: '#e3262f' }); burst(tl.x, tl.y, '#ffd400', 18, 220); sfx('boom'); G.shake = Math.max(G.shake, 0.25);
-        if (Math.hypot(p.x - tl.x, p.y - tl.y) < tl.r + p.r * 0.5) hurtPlayer(tl.dmg);
+        if (Math.hypot(p.x - tl.x, p.y - tl.y) < tl.r + p.r * 0.5) hurtPlayer(tl.dmg, 'halt');
         query(tl.x, tl.y, tl.r, e => { if (!e.boss) hit(e, 40, 0, 0, 0); });
-      } else if (tl.k === 'line') {
-        for (let i = 0; i < tl.carts; i++) G.ebul.push({ x: tl.x + (R() - 0.5) * 30, y: tl.y + (R() - 0.5) * 30, vx: tl.dx * (430 + i * 25) + (R() - 0.5) * 40, vy: tl.dy * (430 + i * 25) + (R() - 0.5) * 40, life: 1.8, dmg: 18, a: Math.atan2(tl.dy, tl.dx) });
-        sfx('boom');
       }
     }
   }
@@ -819,32 +941,37 @@ function fxUpdate(dt) {
 function partsUpdate(dt) {
   for (const q of G.parts) { q.t += dt; q.x += q.vx * dt; q.y += q.vy * dt; q.vx *= 0.92; q.vy *= 0.92; }
   for (const t of G.texts) { t.t += dt; t.y -= 34 * dt; }
+  for (const e of G.flyers) { const f = e.fly; f.t += dt; e.x += f.vx * dt; e.y += f.vy * dt; f.vx *= 0.985; f.vy *= 0.985; f.rot += f.vr * dt; }
+  for (const q of G.eyesF) { q.t += dt; q.x += q.vx * dt; q.y += q.vy * dt; q.vx *= 0.9; q.vy *= 0.9; q.pa += q.va * dt; q.va *= 0.97; }
 }
 function cleanup() {
   const keep = a => a.filter(o => !o.dead);
-  G.enemies = keep(G.enemies); G.bul = keep(G.bul); G.ebul = keep(G.ebul); G.gems = keep(G.gems);
+  G.enemies = keep(G.enemies); G.bul = keep(G.bul); G.gems = keep(G.gems);
   G.parts = G.parts.filter(q => q.t < q.life); G.texts = G.texts.filter(t => t.t < (t.big ? 0.9 : 0.6));
   G.fx = G.fx.filter(f => f.t < f.dur + 0.01); G.tele = G.tele.filter(t => !t.done);
+  G.flyers = G.flyers.filter(e => e.fly.t < 0.8); G.eyesF = G.eyesF.filter(q => q.t < 6);
 }
 function step(dt) {
   if (G.mode === 'ending') { G.endT -= dt; partsUpdate(dt); fxUpdate(dt); cleanup(); if (G.endT <= 0) showEnd(); return; }
   if (G.mode !== 'play') return;
   G.t += dt;
   timeline();
+  boardUpdate(dt);
   flowT -= dt; if (flowT <= 0) { flowT = 0.2; buildFlow(); }
   buildGrid();
   playerUpdate(dt);
   weaponsUpdate(dt);
   enemiesUpdate(dt);
   bulletsUpdate(dt);
+  trainsUpdate(dt);
   fxUpdate(dt);
   gemsUpdate(dt);
-  orderUpdate(dt);
   itemsUpdate(dt);
   partsUpdate(dt);
+  chatUpdate(dt);
   cleanup();
   if (G.mode === 'play') spawnUpdate(dt);
-  if (!G.sim && G.mode === 'play') { G.sayT -= dt; if (G.sayT <= 0) { G.sayT = 30 + R() * 12; say('<b>Durchsage:</b> ' + D.says[(R() * D.says.length) | 0]); } doomUpdate(dt); }
+  if (!G.sim && G.mode === 'play') { G.sayT -= dt; if (G.sayT <= 0) { G.sayT = 15 + R() * 8; sfx('ding'); say(D.says[(R() * D.says.length) | 0]); } doomUpdate(dt); }
   if (G.mode === 'play' && G.pending > 0) openLevel();
 }
 
@@ -909,9 +1036,9 @@ function banner(a, b) {
   if (G && G.sim) return;
   const el = $('banner'); el.textContent = a;
   if (b) { const s = document.createElement('small'); s.textContent = b; el.appendChild(s); }
-  el.hidden = false; bannerT = 2.4;
+  el.hidden = false; bannerT = 2.6;
 }
-function say(html) { if (G && G.sim) return; const el = $('say'); el.innerHTML = html; el.hidden = false; sayT = 5; }
+function say(html) { if (G && G.sim) return; const el = $('say'); el.innerHTML = html; el.hidden = false; sayT = 5.5; }
 let phoneT = 0;
 function doomUpdate(dt) {
   if (!has('doom')) return;
@@ -922,20 +1049,21 @@ function doomUpdate(dt) {
 }
 const lastHud = {};
 function hudSet(id, v) { if (lastHud[id] !== v) { lastHud[id] = v; $(id).textContent = v; } }
-function clockStr(t) { const h = D.shiftStart + t / D.secPerHour, hh = Math.floor(h), mm = Math.floor((h - hh) * 60); return 'FR ' + String(hh).padStart(2, '0') + ':' + String(mm).padStart(2, '0'); }
-function grossWage() { return G.t / D.secPerHour * D.rate * (1 + D.habitBonus * G.habits.length); }
+function clockMin(t) { return D.clockStart + t * D.gameSpeed / 60; }
+function clockStr(t) { const m = clockMin(t), hh = Math.floor(m / 60), mm = Math.floor(m % 60); return 'MO ' + String(hh).padStart(2, '0') + ':' + String(mm).padStart(2, '0'); }
 function hud(dt) {
   if (bannerT > 0) { bannerT -= dt; if (bannerT <= 0) $('banner').hidden = true; }
   if (sayT > 0) { sayT -= dt; if (sayT <= 0) $('say').hidden = true; }
-  hudSet('clock', clockStr(G.t)); hudSet('wage', euro(grossWage() + G.tips)); hudSet('lvl', 'Lv ' + G.level);
+  hudSet('clock', clockStr(G.t)); hudSet('lvl', 'Lv ' + G.level);
   $('xpf').style.width = (G.xp / G.need * 100).toFixed(1) + '%';
-  const o = G.order, oe = $('order');
-  const ot = o.st === 'pick' ? '📦 Paket abholen (Pfeil)' : o.st === 'bring' ? '📦 Zur Abholstation · ' + Math.ceil(o.t) + ' s' : '📦 Warte auf Auftrag …';
-  hudSet('order', ot); oe.className = 'chip' + (o.st === 'bring' ? ' bring' : '');
+  const B = G.board;
+  hudSet('eta', B.gone ? 'fällt aus' : 'in ' + Math.max(1, Math.ceil(B.eta * D.gameSpeed / 60)) + ' Min');
+  hudSet('ticker', B.gone ? 'Ersatz: Schienenersatzverkehr (SEV) · Ankunft ungewiss' : B.delay ? '+' + B.delay + ' Min · Grund: ' + B.reason : 'pünktlich (noch)');
+  const fl = B.flash > 0 && Math.floor(B.flash * 6) % 2 === 0; if (lastHud.bf !== fl) { lastHud.bf = fl; $('board').classList.toggle('flash', fl); }
   let sub = '';
   if (has('kaffee')) sub += G.hab.caf > 0 ? '☕ ' + Math.ceil(G.hab.caf) + ' s' : '☕ LEER';
   if (G.hab.buff > 0) sub += (sub ? ' · ' : '') + '🔥 ' + Math.ceil(G.hab.buff) + ' s';
-  if (G.sturz > 0) sub += (sub ? ' · ' : '') + 'PREISSTURZ ' + Math.ceil(G.sturz) + ' s';
+  if (G.sturz > 0) sub += (sub ? ' · ' : '') + 'VERSPÄTUNGSWELLE ' + Math.ceil(G.sturz) + ' s';
   let ex = $('extraChip'); if (!ex) { ex = document.createElement('span'); ex.className = 'chip'; ex.id = 'extraChip'; $('sub').appendChild(ex); }
   ex.hidden = !sub; hudSet('extraChip', sub);
   const bb = $('bossbar');
@@ -968,6 +1096,12 @@ function txt(s, x, y, size, col, rot) {
   ctx.font = '700 ' + size + 'px Gaegu, "Comic Sans MS", cursive'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
   ctx.lineWidth = Math.max(2, size / 6); ctx.strokeStyle = INK; ctx.strokeText(s, 0, 0); ctx.fillStyle = col; ctx.fillText(s, 0, 0); ctx.restore();
 }
+function speech(x, y, s, seed) {
+  ctx.font = '700 15px Gaegu, cursive'; const w = Math.max(30, ctx.measureText(s).width + 14);
+  rough([[x - 6, y + 12], [x + 2, y + 20], [x + 4, y + 12]], '#fff', seed + 3, 0.8, 2);
+  rrect(x - w / 2, y - 12, w, 24, '#fff', seed, 1, 2.5);
+  ctx.fillStyle = INK; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(s, x, y + 1);
+}
 
 function drawRider(x, y, ang, ch, scale, carry, seed) {
   const L = D.look, skin = L.skin[ch.skin][1], hc = L.hairCol[ch.hairCol][1], sh = L.shirt[ch.shirt][1];
@@ -997,86 +1131,124 @@ function drawRider(x, y, ang, ch, scale, carry, seed) {
   if (ex === 5) { ctx.save(); ctx.translate(5, -19); ctx.rotate(0.6); ctx.fillStyle = '#f2c79b'; ctx.fillRect(-5, -2, 10, 4); ctx.strokeStyle = INK; ctx.lineWidth = 1.5; ctx.strokeRect(-5, -2, 10, 4); ctx.restore(); }
   ctx.restore();
 }
+const KOFFER = ['#8b4fd0', '#2f6fe0', '#ff6fb5', '#2fa84f', '#e3262f'];
 function drawEnemy(e, p) {
   const s = e.id, fl = e.flash > 0;
-  if (e.type === 'prospekt') {
-    const tilt = Math.sin(G.t * 8 + e.ph) * 0.3;
+  if (e.type === 'spaet') {
+    const tilt = Math.sin(G.t * 8 + e.ph) * 0.25;
     ctx.save(); ctx.translate(e.x, e.y); ctx.rotate(tilt);
-    rrect(-11, -13, 22, 26, fl ? '#ffd400' : '#fff', s, 1.5, 2.5);
-    ctx.fillStyle = '#e3262f'; ctx.fillRect(-9, 4, 18, 6);
-    ctx.restore(); eyes(e.x, e.y - 4, 4, p.x, p.y, s, 4.5);
-  } else if (e.type === 'bon') {
-    rrect(e.x - 8, e.y - 9, 16, 18, fl ? '#ffd400' : '#f7f3e3', s, 1.2, 2);
-    ctx.strokeStyle = 'rgba(29,26,36,.5)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(e.x - 5, e.y + 1); ctx.lineTo(e.x + 5, e.y + 1); ctx.moveTo(e.x - 5, e.y + 5); ctx.lineTo(e.x + 3, e.y + 5); ctx.stroke();
-    if (!e.lead) eyes(e.x, e.y - 3, 3.5, p.x, p.y, s, 4);
-  } else if (e.type === 'wagen') {
-    ctx.save(); ctx.translate(e.x, e.y); if ((e.face || 1) < 0) ctx.scale(-1, 1);
-    rough([[-14, -10], [14, -12], [11, 8], [-11, 8]], fl ? '#ffd400' : '#b8c2cc', s, 1.4, 2.5);
-    ctx.strokeStyle = INK; ctx.lineWidth = 1.5; for (let i = -8; i <= 8; i += 6) { ctx.beginPath(); ctx.moveTo(i, -10); ctx.lineTo(i * 0.8, 7); ctx.stroke(); }
-    rcirc(-8, 12, 3, INK, s + 1, 0.5, 6, 1); rcirc(8, 12, 3, INK, s + 2, 0.5, 6, 1);
-    ctx.restore(); eyes(e.x, e.y - 14, 4.5, p.x, p.y, s, 5);
-  } else if (e.type === 'schild') {
-    const pts = []; for (let i = 0; i < 14; i++) { const a = i / 14 * TAU, r = i % 2 ? e.r * 0.72 : e.r * 1.1; pts.push([e.x + Math.cos(a) * r, e.y + Math.sin(a) * r]); }
-    rough(pts, fl ? '#fff' : '#ffd400', s, 1.6, 3);
-    txt('−70%', e.x, e.y + 6, 13, '#e3262f'); eyes(e.x, e.y - 7, 4.5, p.x, p.y, s, 5);
+    rcirc(0, 0, 11, fl ? '#ffd400' : '#fff', s, 1.2, 10, 2.5);
+    ctx.strokeStyle = INK; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(0, 2); ctx.lineTo(Math.cos(G.t * 6 + s) * 7, 2 + Math.sin(G.t * 6 + s) * 7); ctx.moveTo(0, 2); ctx.lineTo(0, 7); ctx.stroke();
+    ctx.restore(); eyes(e.x, e.y - 4, 3.5, p.x, p.y, s, 4); txt('+5', e.x, e.y + 17, 12, '#e3262f');
+  } else if (e.type === 'zug') {
+    rrect(e.x - 10, e.y - 8, 20, 16, fl ? '#ffd400' : '#e9ecef', s, 1.2, 2);
+    ctx.fillStyle = '#e3262f'; ctx.fillRect(e.x - 9, e.y + 2, 18, 3);
+    ctx.fillStyle = '#3a4a6b'; ctx.fillRect(e.x - 7, e.y - 5, 5, 4); ctx.fillRect(e.x + 2, e.y - 5, 5, 4);
+    if (!e.lead) { eyes(e.x, e.y - 4, 3.5, p.x, p.y, s, 4); txt('RE', e.x, e.y - 15, 11, '#ffd400'); }
+  } else if (e.type === 'koffer') {
+    const col = KOFFER[s % KOFFER.length];
+    ctx.strokeStyle = INK; ctx.lineWidth = 2.5; ctx.strokeRect(e.x - 5, e.y - 17, 10, 7);
+    rrect(e.x - 12, e.y - 10, 24, 20, fl ? '#ffd400' : col, s, 1.3, 2.5);
+    ctx.fillStyle = '#fff'; ctx.fillRect(e.x + 4, e.y + 1, 6, 5);
+    rcirc(e.x - 8, e.y + 12, 3, INK, s + 1, 0.5, 6, 1); rcirc(e.x + 8, e.y + 12, 3, INK, s + 2, 0.5, 6, 1);
+    eyes(e.x - 2, e.y - 3, 4, p.x, p.y, s, 4.5);
+  } else if (e.type === 'automat') {
+    rrect(e.x - 15, e.y - 19, 30, 38, fl ? '#fff' : '#5d7fa3', s, 1.4, 3);
+    rrect(e.x - 11, e.y - 15, 22, 14, '#bfe6ff', s + 1, 0.8, 2);
+    ctx.fillStyle = INK; ctx.fillRect(e.x - 6, e.y + 6, 12, 3); ctx.fillRect(e.x - 3, e.y + 12, 6, 3);
+    eyes(e.x, e.y - 8, 4, p.x, p.y, s, 5);
   } else if (e.type === 'boss') {
-    const pts = []; const r0 = e.r; for (let i = 0; i < 20; i++) { const a = i / 20 * TAU + G.t * 0.3, r = i % 2 ? r0 * 0.75 : r0 * 1.15; pts.push([e.x + Math.cos(a) * r, e.y + Math.sin(a) * r]); }
-    rough(pts, fl ? '#fff' : (e.phase === 2 ? '#ff8a00' : '#ffd400'), s, 2.4, 4);
-    txt(e.phase === 2 ? '−99%' : '−90%', e.x, e.y + 14, 26, '#e3262f', Math.sin(G.t * 3) * 0.08);
-    eyes(e.x, e.y - 12, 10, p.x, p.y, s, 12);
-    // Sprechblase
-    const line = BOSS_LINES[e.line || 0];
-    ctx.font = '700 18px Gaegu, cursive'; const w = ctx.measureText(line).width + 18;
-    rrect(e.x - w / 2, e.y - e.r - 46, w, 28, '#fff', s + 5, 1.2, 2.5);
-    txt(line, e.x, e.y - e.r - 32, 18, '#1d1a24');
+    const f = (e.face || 1) < 0 ? -1 : 1, body = fl ? '#fff' : (e.phase === 2 ? '#ffd27a' : '#f3ead2');
+    ctx.save(); ctx.translate(e.x, e.y); ctx.scale(f, 1);
+    if (e.act === 'dash') ctx.rotate(Math.sin(G.t * 40) * 0.03);
+    rrect(-62, -30, 124, 60, body, s, 2.2, 4);
+    ctx.fillStyle = '#ff8a00'; ctx.fillRect(-60, 8, 120, 8);
+    for (let i = 0; i < 4; i++) rrect(-54 + i * 24, -22, 18, 16, '#3a4a6b', s + 10 + i, 1, 2);
+    rrect(42, -24, 16, 26, '#bfe6ff', s + 20, 1, 2.5);
+    rcirc(-36, 31, 10, '#444', s + 21, 1, 9, 3); rcirc(36, 31, 10, '#444', s + 22, 1, 9, 3);
+    ctx.restore();
+    txt('SEV', e.x - f * 14, e.y - 42, 26, '#ffd400');
+    eyes(e.x + f * 46, e.y - 12, 7, p.x, p.y, s, 8);
+    txt(e.phase === 2 ? 'Ziel: noch ungewisser' : 'Ziel: ungewiss', e.x, e.y + 2, 13, '#fff');
   }
+}
+function drawTrain(tr) {
+  const L = tr.lane, y0 = L.y + 26, h = L.h - 52, a = Math.min(tr.front, tr.front - tr.dir * tr.len), b = Math.max(tr.front, tr.front - tr.dir * tr.len);
+  const x0 = Math.max(a, -60), x1 = Math.min(b, MAP.W + 60); if (x1 <= x0) return;
+  // Fahrtwind
+  ctx.strokeStyle = 'rgba(29,26,36,.25)'; ctx.lineWidth = 3;
+  for (let i = 0; i < 5; i++) { const yy = y0 + 8 + i * (h - 16) / 4, xs = tr.dir > 0 ? x0 - 60 - i * 30 : x1 + 60 + i * 30; ctx.beginPath(); ctx.moveTo(xs, yy); ctx.lineTo(xs - tr.dir * 160, yy); ctx.stroke(); }
+  rrect(x0, y0, x1 - x0, h, '#e8eaee', 5, 2, 4);
+  ctx.fillStyle = '#e3262f'; ctx.fillRect(x0 + 3, y0 + h - 22, x1 - x0 - 6, 9);
+  ctx.fillStyle = '#3a4a6b'; for (let x = a + 30; x < b - 40; x += 46) if (x > x0 && x < x1 - 30) ctx.fillRect(x, y0 + 12, 30, 22);
+  for (let x = a + 260; x < b - 200; x += 520) if (x > x0 - 100 && x < x1 + 100) txt('HÄLT HIER NICHT', x + 120, y0 + h / 2 + 4, 22, '#ffd400');
+  if (tr.front > -60 && tr.front < MAP.W + 60) { const fx = tr.front - tr.dir * 24; eyes(fx, y0 + 26, 9, G.pl.x, G.pl.y, 7, 11); }
 }
 
 function render() {
   const p = G.pl;
   BT = Math.floor(performance.now() / 160);
   ctx.setTransform(1, 0, 0, 1, 0, 0);
-  ctx.fillStyle = '#cfc8b4'; ctx.fillRect(0, 0, cv.width, cv.height);
+  ctx.fillStyle = '#7d786e'; ctx.fillRect(0, 0, cv.width, cv.height);
   const sh = G.shake > 0 ? G.shake * 18 : 0;
   const hw = VW / 2 / ZOOM, hh = VH / 2 / ZOOM;
-  // Kamera bleibt im Laden
+  // Kamera bleibt im Bahnhof
   const cx = clamp(p.x, Math.min(hw, MAP.W / 2), Math.max(MAP.W - hw, MAP.W / 2)) + (R() - 0.5) * sh;
   const cy = clamp(p.y, Math.min(hh - 60, MAP.H / 2), Math.max(MAP.H - hh + 40, MAP.H / 2)) + (R() - 0.5) * sh;
   const sc = DPR * ZOOM;
   ctx.setTransform(sc, 0, 0, sc, cv.width / 2 - cx * sc, cv.height / 2 - cy * sc);
   const L = cx - hw - 40, Rr = cx + hw + 40, T = cy - hh - 40, B = cy + hh + 40;
-  // Boden
-  for (let ty = Math.max(0, Math.floor(T / 40)); ty <= Math.min(GH - 1, Math.floor(B / 40)); ty++) for (let tx = Math.max(0, Math.floor(L / 40)); tx <= Math.min(GW - 1, Math.floor(Rr / 40)); tx++) {
-    ctx.fillStyle = (tx + ty) % 2 ? '#e9e4d4' : '#dfd8c4'; ctx.fillRect(tx * 40, ty * 40, 40, 40);
-    const hv = h2(tx, ty * 7 + 3);
-    if (hv < 0.04) { ctx.fillStyle = 'rgba(120,90,40,.18)'; ctx.beginPath(); ctx.ellipse(tx * 40 + 20, ty * 40 + 20, 12, 7, hv * 40, 0, TAU); ctx.fill(); }
+  const xa = Math.max(0, L), xb = Math.min(MAP.W, Rr);
+  // Gleise: Schotter, Schwellen, Schienen
+  for (const tk of MAP.tracks) {
+    if (tk.y > B || tk.y + tk.h < T) continue;
+    ctx.fillStyle = '#a8a297'; ctx.fillRect(xa, tk.y, xb - xa, tk.h);
+    for (let x = Math.floor(xa / 20) * 20; x < xb; x += 20) for (let y = tk.y + 6; y < tk.y + tk.h; y += 18) { const hv = h2(x, y); if (hv < 0.35) { ctx.fillStyle = hv < 0.17 ? '#8f897d' : '#bdb7ab'; ctx.fillRect(x + hv * 30, y, 5, 4); } }
+    const r1 = tk.y + tk.h * 0.33, r2 = tk.y + tk.h * 0.67;
+    ctx.fillStyle = '#7a5a3a'; for (let x = Math.floor(xa / 28) * 28; x < xb; x += 28) ctx.fillRect(x, r1 - 14, 12, r2 - r1 + 28);
+    ctx.fillStyle = '#5a5560'; ctx.fillRect(xa, r1 - 3, xb - xa, 6); ctx.fillRect(xa, r2 - 3, xb - xa, 6);
+    // Warnung vor Durchfahrt
+    const tr = G.trains.find(t => t.lane === tk && t.warn > 0);
+    if (tr && Math.floor(tr.warn * 5) % 2 === 0) {
+      ctx.fillStyle = 'rgba(227,38,47,.35)'; ctx.fillRect(xa, tk.y, xb - xa, tk.h);
+      for (let x = Math.floor(xa / 420) * 420 + 210; x < xb; x += 420) txt(tr.dir > 0 ? 'ZUG ››› HÄLT NICHT' : 'HÄLT NICHT ‹‹‹ ZUG', x, tk.y + tk.h / 2, 26, '#ffd400');
+    }
   }
-  // Abholstation
-  const S = MAP.station;
-  rrect(S.x, S.y, S.w, S.h, G.order.st === 'bring' ? 'rgba(255,212,0,.6)' : 'rgba(47,168,79,.25)', 991, 1.5, 3);
-  txt('ABHOL-', S.x + S.w / 2, S.y + 34, 22, '#fff'); txt('STATION', S.x + S.w / 2, S.y + 60, 22, '#fff');
-  // Spuren früherer Schichten
+  // Bahnsteige
+  for (const pl of MAP.plats) {
+    if (pl.y > B || pl.y + pl.h < T) continue;
+    for (let ty = Math.floor(pl.y / 40); ty * 40 < pl.y + pl.h; ty++) for (let tx = Math.floor(xa / 40); tx * 40 < xb; tx++) {
+      ctx.fillStyle = (tx + ty) % 2 ? '#d8d4cc' : '#cdc8be'; ctx.fillRect(tx * 40, Math.max(pl.y, ty * 40), 40, Math.min(40, pl.y + pl.h - ty * 40, ty * 40 + 40 - pl.y));
+      const hv = h2(tx, ty * 7 + 3); if (hv < 0.05) { ctx.fillStyle = 'rgba(80,60,40,.25)'; ctx.beginPath(); ctx.ellipse(tx * 40 + 20, ty * 40 + 20, 7, 4, hv * 40, 0, TAU); ctx.fill(); }
+    }
+    // Kante: weiße Linie und Rillenplatten
+    ctx.fillStyle = '#f2efe6'; ctx.fillRect(xa, pl.y, xb - xa, 10); ctx.fillRect(xa, pl.y + pl.h - 10, xb - xa, 10);
+    ctx.fillStyle = '#fff'; ctx.fillRect(xa, pl.y + 26, xb - xa, 3); ctx.fillRect(xa, pl.y + pl.h - 29, xb - xa, 3);
+    for (let x = Math.floor(xa / 600) * 600 + 120; x < xb; x += 600) { txt('GLEIS ' + pl.a, x, pl.y + 44, 18, '#fff'); txt('GLEIS ' + pl.b, x + 300, pl.y + pl.h - 44, 18, '#fff'); }
+  }
+  // Spuren früherer Montage: Kreideumriss mit Kaffeebecher
   for (const g of G.ghosts) {
     if (g.x < L || g.x > Rr || g.y < T || g.y > B) continue;
-    ctx.strokeStyle = 'rgba(255,255,255,.85)'; ctx.lineWidth = 3; ctx.setLineDash([6, 5]);
-    ctx.beginPath(); ctx.ellipse(g.x, g.y, 20, 12, 0.3, 0, TAU); ctx.stroke(); ctx.setLineDash([]);
-    rrect(g.x + 12, g.y - 18, 10, 13, '#fff', 77, 0.8, 2);
-    txt((g.name || 'Du') + ', ' + g.clock, g.x, g.y - 30, 15, '#fff');
-    if (g.bag) { rrect(g.x - 9, g.y + 6, 18, 16, '#c98a4b', 78, 1, 2.5); txt('€', g.x, g.y + 14, 13, '#ffd400'); }
+    ctx.strokeStyle = 'rgba(255,255,255,.9)'; ctx.lineWidth = 3; ctx.setLineDash([5, 4]);
+    ctx.beginPath(); ctx.arc(g.x - 22, g.y + 4, 9, 0, TAU); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(g.x - 12, g.y - 2); ctx.lineTo(g.x + 14, g.y - 6); ctx.lineTo(g.x + 26, g.y - 16); ctx.moveTo(g.x + 14, g.y - 6); ctx.lineTo(g.x + 28, g.y + 2);
+    ctx.moveTo(g.x - 12, g.y + 8); ctx.lineTo(g.x + 12, g.y + 6); ctx.lineTo(g.x + 20, g.y + 18); ctx.moveTo(g.x + 12, g.y + 6); ctx.lineTo(g.x + 4, g.y + 20); ctx.stroke();
+    ctx.beginPath(); ctx.arc(g.x - 6, g.y + 22, 8, 0, TAU); ctx.arc(g.x + 26, g.y + 22, 8, 0, TAU); ctx.stroke(); ctx.setLineDash([]);
+    rrect(g.x + 30, g.y - 26, 11, 14, '#fff', 77, 0.8, 2);
+    txt((g.name || 'Du') + ', ' + g.clock, g.x, g.y - 40, 15, '#fff');
+    txt(g.won ? '✓ angekommen' : '† ' + (g.why || 'Montag'), g.x, g.y - 24, 13, g.won ? '#8ff09f' : '#ffd400');
+    if (g.bag) { rrect(g.x - 5, g.y + 30, 9, 20, '#2fa84f', 78, 0.8, 2.5); ctx.fillStyle = '#2fa84f'; ctx.fillRect(g.x - 2, g.y + 25, 3, 6); }
   }
-  // Regale, Kassen, Truhen
+  // Bänke, Automaten, Säulen, Kiosk, Mülleimer
   for (const r of MAP.rects) {
     if (r.x > Rr || r.x + r.w < L || r.y > B || r.y + r.h < T) continue;
     const sd = r.x * 7 + r.y;
-    if (r.k === 'wall') { ctx.fillStyle = '#8b8577'; ctx.fillRect(r.x, r.y, r.w, r.h); continue; }
-    if (r.k === 'shelf') {
-      rrect(r.x, r.y, r.w, r.h, '#c9673f', sd, 1.2, 3);
-      for (let yy = r.y + 8; yy < r.y + r.h - 8; yy += 22) for (let xx = r.x + 6; xx < r.x + r.w - 8; xx += 13) {
-        const hv = h2(xx, yy); ctx.fillStyle = ['#ffd400', '#2f6fe0', '#2fa84f', '#fff', '#e3262f', '#8b4fd0'][(hv * 6) | 0]; ctx.fillRect(xx, yy, 9, 15);
-      }
-      txt(r.lab, r.x + r.w / 2, r.y - 12, 14, '#fff');
-    } else if (r.k === 'fridge') { rrect(r.x, r.y, r.w, r.h, '#bfe6ff', sd, 1.2, 3); txt('TIEFKÜHL (ausverkauft)', r.x + r.w / 2, r.y + 20, 13, '#fff'); }
-    else if (r.k === 'kasse') { rrect(r.x, r.y, r.w, r.h, '#7a7f8a', sd, 1.2, 3); txt(r.lab + (r.lab.endsWith('3') ? ' (zu)' : ''), r.x + r.w / 2, r.y + 19, 13, '#fff'); }
+    if (r.k === 'wall') { ctx.fillStyle = '#5f5a52'; ctx.fillRect(r.x, r.y, r.w, r.h); continue; }
+    if (r.k === 'bench') { rrect(r.x, r.y, r.w, r.h, '#8a5a2b', sd, 1.2, 3); ctx.strokeStyle = INK; ctx.lineWidth = 1.5; for (let yy = r.y + 7; yy < r.y + r.h; yy += 7) { ctx.beginPath(); ctx.moveTo(r.x + 4, yy); ctx.lineTo(r.x + r.w - 4, yy); ctx.stroke(); } }
+    else if (r.k === 'automat') { rrect(r.x, r.y, r.w, r.h, '#c6463a', sd, 1.2, 3); rrect(r.x + 7, r.y + 6, r.w - 14, 14, '#222', sd + 1, 0.8, 2); txt('AUSSER BETRIEB', r.x + r.w / 2, r.y - 10, 12, '#ffd400'); }
+    else if (r.k === 'pillar') { rrect(r.x, r.y, r.w, r.h, '#9aa3ad', sd, 1.2, 3); if (r.lab) txt(r.lab, r.x + r.w / 2, r.y - 12, 13, '#fff'); }
+    else if (r.k === 'kiosk') { rrect(r.x, r.y, r.w, r.h, '#f2c79b', sd, 1.5, 3); ctx.fillStyle = '#e3262f'; for (let i = 0; i < 8; i++) if (i % 2 === 0) ctx.fillRect(r.x + 3 + i * (r.w - 6) / 8, r.y + 3, (r.w - 6) / 8, 18); txt('KIOSK', r.x + r.w / 2, r.y + 38, 20, '#fff'); txt('Kaffee 4,80 €', r.x + r.w / 2, r.y + 60, 14, '#ffd400'); }
+    else if (r.k === 'bin') rcirc(r.x + r.w / 2, r.y + r.h / 2, r.w / 2, '#6b7280', sd, 1, 8, 2.5);
   }
   // Münzen, Sachen
   for (const g of G.gems) {
@@ -1088,7 +1260,14 @@ function render() {
     else if (it.k === 'burger') { rcirc(it.x, it.y - 3, 9, '#d99a3e', 42, 1, 8, 2.5); ctx.fillStyle = '#6b3f22'; ctx.fillRect(it.x - 9, it.y, 18, 4); ctx.fillStyle = '#2fa84f'; ctx.fillRect(it.x - 9, it.y - 2, 18, 2); }
     else rrect(it.x - 8, it.y - 6, 16, 12, '#e9c48a', 43, 1, 2.5);
   }
-  if (G.order.st === 'pick') { const o = G.order; rrect(o.x - 11, o.y - 11, 22, 22, '#c98a4b', 50, 1.5, 3); txt('!', o.x, o.y - 24 + Math.sin(G.t * 6) * 3, 22, '#ffd400'); }
+  // verlorene Wackelaugen
+  for (const q of G.eyesF) {
+    if (q.x < L || q.x > Rr || q.y < T || q.y > B) continue;
+    ctx.globalAlpha = q.t > 5 ? 6 - q.t : 1;
+    ctx.beginPath(); ctx.arc(q.x, q.y, q.s, 0, TAU); ctx.fillStyle = '#fff'; ctx.fill(); ctx.lineWidth = 1.5; ctx.strokeStyle = INK; ctx.stroke();
+    ctx.beginPath(); ctx.arc(q.x + Math.cos(q.pa) * q.s * 0.45, q.y + Math.sin(q.pa) * q.s * 0.45, q.s * 0.5, 0, TAU); ctx.fillStyle = INK; ctx.fill();
+  }
+  ctx.globalAlpha = 1;
   // Warnflächen
   for (const tl of G.tele) {
     if (tl.t < 0) continue;
@@ -1098,7 +1277,7 @@ function render() {
       ctx.fillStyle = 'rgba(227,38,47,.2)'; ctx.beginPath(); ctx.arc(tl.x, tl.y, tl.r, 0, TAU); ctx.fill();
       ctx.fillStyle = 'rgba(227,38,47,.35)'; ctx.beginPath(); ctx.arc(tl.x, tl.y, tl.r * f, 0, TAU); ctx.fill();
       ctx.strokeStyle = '#e3262f'; ctx.lineWidth = 4; ctx.setLineDash([10, 6]); ctx.beginPath(); ctx.arc(tl.x, tl.y, tl.r, 0, TAU); ctx.stroke();
-      ctx.restore(); txt(tl.lab, tl.x, tl.y, 20, '#ffd400'); continue;
+      ctx.restore(); txt('🚏 ' + tl.lab, tl.x, tl.y, 20, '#ffd400'); continue;
     }
     ctx.translate(tl.x, tl.y); ctx.rotate(Math.atan2(tl.dy, tl.dx));
     ctx.fillStyle = 'rgba(227,38,47,.2)'; ctx.fillRect(0, -tl.w / 2, tl.len, tl.w);
@@ -1108,26 +1287,41 @@ function render() {
   }
   // Figuren nach Höhe
   const list = [];
-  for (const e of G.enemies) if (e.x > L && e.x < Rr && e.y > T && e.y < B + 40) list.push(e);
+  for (const e of G.enemies) if (e.x > L - 60 && e.x < Rr + 60 && e.y > T && e.y < B + 40) list.push(e);
   list.push({ me: true, y: p.y });
   list.sort((a, b) => a.y - b.y);
   for (const o of list) {
     if (o.me) {
-      if (G.mode === 'ending' && !G.won) { rrect(p.x - 20, p.y - 6, 40, 12, '#fff', 5, 2, 3); continue; }
+      if (G.mode === 'ending' && !G.won) {
+        // umgekippt: Rad auf der Seite, Kreideumriss
+        ctx.strokeStyle = '#fff'; ctx.lineWidth = 3; ctx.setLineDash([5, 4]); ctx.beginPath(); ctx.ellipse(p.x, p.y, 34, 18, 0.2, 0, TAU); ctx.stroke(); ctx.setLineDash([]);
+        drawRider(p.x, p.y, 0.3, SAVE.char, 1, true, 300); txt('x_x', p.x, p.y - 46, 18, '#fff');
+        continue;
+      }
       if (p.inv > 0 && Math.floor(p.inv * 20) % 2 && G.mode === 'play') continue;
       const sp = Math.hypot(p.vx, p.vy);
       if (sp >= 110) { ctx.strokeStyle = 'rgba(255,212,0,.9)'; ctx.lineWidth = 4; ctx.beginPath(); ctx.arc(p.x, p.y, 24, 0, TAU); ctx.stroke(); }
-      drawRider(p.x, p.y, p.ang, SAVE.char, 1, p.carry, 300);
+      drawRider(p.x, p.y, p.ang, SAVE.char, 1, true, 300);
       const f = p.hp / p.max; rrect(p.x - 18, p.y + 16, 36, 6, '#fff', 301, 0.5, 2); ctx.fillStyle = f > 0.35 ? '#2fa84f' : '#e3262f'; ctx.fillRect(p.x - 17, p.y + 17, 34 * f, 4);
     } else drawEnemy(o, p);
   }
-  // Mopps
-  if (G.weps.mopp && G.mode === 'play') {
-    const W = D.weapons.mopp, l = G.weps.mopp - 1;
+  // davonfliegende Dinge
+  for (const e of G.flyers) {
+    const f = e.fly, s = 1 - f.t / 0.8 * 0.5;
+    ctx.save(); ctx.globalAlpha = Math.min(1, (0.8 - f.t) * 4); ctx.translate(e.x, e.y); ctx.rotate(f.rot); ctx.scale(s, s); ctx.translate(-e.x, -e.y);
+    drawEnemy(e, { x: e.x + Math.cos(G.t * 30 + e.id) * 50, y: e.y + Math.sin(G.t * 30 + e.id) * 50 }); ctx.restore();
+  }
+  // Durchfahrende Züge
+  for (const tr of G.trains) if (tr.warn <= 0) drawTrain(tr);
+  // Regenschirme
+  if (G.weps.schirm && G.mode === 'play') {
+    const W = D.weapons.schirm, l = G.weps.schirm - 1;
     for (let i = 0; i < W.n[l]; i++) {
       const a = G.mopA + i / W.n[l] * TAU, ax = p.x + Math.cos(a) * W.orb[l], ay = p.y + Math.sin(a) * W.orb[l];
-      ctx.strokeStyle = '#8a5a2b'; ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(p.x + Math.cos(a) * 20, p.y + Math.sin(a) * 20); ctx.lineTo(ax, ay); ctx.stroke();
-      rcirc(ax, ay, 10, '#dfe7ef', 60 + i, 2.5, 9, 2.5);
+      ctx.strokeStyle = INK; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(ax - Math.cos(a) * 16, ay - Math.sin(a) * 16); ctx.stroke();
+      ctx.save(); ctx.translate(ax, ay); ctx.rotate(a + Math.PI / 2);
+      const pts = []; for (let k = 0; k <= 8; k++) { const b = Math.PI + k / 8 * Math.PI; pts.push([Math.cos(b) * 14, Math.sin(b) * 14 + (k % 2 ? 0 : 3)]); }
+      rough(pts, ['#e3262f', '#2f6fe0', '#ffd400'][i % 3], 60 + i, 1.2, 2.5); ctx.restore();
     }
   }
   for (const f of G.fx) {
@@ -1139,11 +1333,12 @@ function render() {
     else if (f.k === 'pulse') { ctx.globalAlpha = 1 - k; ctx.strokeStyle = f.col || '#2f6fe0'; ctx.lineWidth = 6; ctx.beginPath(); ctx.arc(f.x, f.y, f.r * (0.4 + 0.6 * k), 0, TAU); ctx.stroke(); ctx.globalAlpha = 1; }
     else if (f.k === 'cone') { ctx.globalAlpha = 1 - k; ctx.fillStyle = 'rgba(255,212,0,.5)'; ctx.beginPath(); ctx.moveTo(f.x, f.y); ctx.arc(f.x, f.y, f.r, f.a - f.arc / 2, f.a + f.arc / 2); ctx.closePath(); ctx.fill(); ctx.globalAlpha = 1; }
   }
-  for (const b of G.bul) { ctx.save(); ctx.translate(b.x, b.y); ctx.rotate(b.a); ctx.fillStyle = '#fff'; ctx.fillRect(-6, -3, 12, 6); ctx.strokeStyle = INK; ctx.lineWidth = 1.5; ctx.strokeRect(-6, -3, 12, 6); ctx.fillStyle = '#e3262f'; ctx.fillRect(-4, -1, 5, 2); ctx.restore(); }
-  for (const c of G.ebul) { ctx.save(); ctx.translate(c.x, c.y); ctx.rotate(c.a); rough([[-14, -10], [14, -12], [11, 8], [-11, 8]], '#b8c2cc', 88, 1.4, 2.5); ctx.restore(); }
+  for (const b of G.bul) { ctx.save(); ctx.translate(b.x, b.y); ctx.rotate(b.a); ctx.fillStyle = '#ffb27a'; ctx.fillRect(-7, -4, 14, 8); ctx.strokeStyle = INK; ctx.lineWidth = 1.5; ctx.strokeRect(-7, -4, 14, 8); ctx.fillStyle = INK; ctx.beginPath(); ctx.arc(2, 0, 1.6, 0, TAU); ctx.fill(); ctx.restore(); }
   for (const q of G.parts) { ctx.fillStyle = q.col; ctx.fillRect(q.x, q.y, q.s, q.s); }
-  for (const t of G.texts) { ctx.globalAlpha = 1 - t.t / (t.big ? 0.9 : 0.6); txt(t.s, t.x, t.y, t.big ? 20 : 15, t.col); }
+  for (const t of G.texts) { ctx.globalAlpha = 1 - t.t / (t.big ? 0.9 : 0.6); txt(t.s, t.x, t.y, t.big ? 22 : 15, t.col, t.rot); }
   ctx.globalAlpha = 1;
+  // Sprechblasen
+  for (const b of G.bubs) { const e = b.e; if (e.x < L - 60 || e.x > Rr + 60 || e.y < T || e.y > B) continue; speech(e.x, e.y - e.r - (e.boss ? 62 : 26) - Math.min(1, b.t * 8) * 4, b.s, e.id); }
   // Pfeile
   const arrowTo = (x, y, col) => {
     const dx = x - cx, dy = y - cy; if (Math.abs(dx) < hw - 40 && Math.abs(dy) < hh - 90) return;
@@ -1151,11 +1346,9 @@ function render() {
     ctx.save(); ctx.translate(p.x + Math.cos(a) * Math.min(r, 120), p.y + Math.sin(a) * Math.min(r, 120)); ctx.rotate(a);
     rough([[18, 0], [-8, -12], [-3, 0], [-8, 12]], col, 99, 1, 3); ctx.restore();
   };
-  if (G.order.st === 'pick') arrowTo(G.order.x, G.order.y, '#c98a4b');
-  if (G.order.st === 'bring') arrowTo(S.x + S.w / 2, S.y + S.h / 2, '#ffd400');
   if (G.boss) arrowTo(G.boss.x, G.boss.y, '#e3262f');
   ctx.setTransform(1, 0, 0, 1, 0, 0);
-  // Ränder bei Treffer / Preissturz
+  // Ränder bei Treffer / Verspätungswelle
   const edge = (col) => { const b = 16 * DPR; ctx.fillStyle = col; ctx.fillRect(0, 0, cv.width, b); ctx.fillRect(0, cv.height - b, cv.width, b); ctx.fillRect(0, 0, b, cv.height); ctx.fillRect(cv.width - b, 0, b, cv.height); };
   if (G.sturz > 0 && Math.floor(G.t * 4) % 2) edge('rgba(227,38,47,.45)');
   if (p.hurt > 0) edge('rgba(227,38,47,' + (p.hurt * 1.6) + ')');
@@ -1199,28 +1392,28 @@ function buildBuilder() {
 }
 function drawPreview() {
   const pv = $('pv'), c2 = pv.getContext('2d'), old = ctx;
-  c2.setTransform(1, 0, 0, 1, 0, 0); c2.fillStyle = '#e9e4d4'; c2.fillRect(0, 0, pv.width, pv.height);
+  c2.setTransform(1, 0, 0, 1, 0, 0); c2.fillStyle = '#d8d4cc'; c2.fillRect(0, 0, pv.width, pv.height);
   ctx = c2; // dieselben Zeichen-Hilfen auf die Vorschau
   try { drawRider(120, 200, 0, SAVE.char, 3, true, 300); } finally { ctx = old; }
 }
 
 function bestText() {
   const b = SAVE.best || {}, bits = [];
-  if (b.net) bits.push('Bester Tageslohn: ' + euro(b.net));
-  if (b.win) bits.push('Schnellster Feierabend: ' + clockStr(b.win).slice(3));
-  if (SAVE.wallet) bits.push('Erspart: ' + euro(SAVE.wallet));
+  if (b.win) bits.push('Früheste Ankunft: ' + clockStr(b.win).slice(3));
+  if (SAVE.wallet !== undefined) bits.push('Kontostand: ' + euro(SAVE.wallet));
   return bits.join(' · ');
 }
 function showTitle() { ['builder', 'morning', 'end', 'lvlup', 'pause'].forEach(id => $(id).hidden = true); $('hud').hidden = true; $('bestTitle').textContent = bestText(); $('title').hidden = false; }
 function showBuilder() { ['title', 'end'].forEach(id => $(id).hidden = true); buildBuilder(); $('builder').hidden = false; }
+function habCostTxt(h) { return h.cost ? '−' + euro(h.cost) : '0 €'; }
 function showMorning() {
   ['title', 'builder', 'end'].forEach(id => $(id).hidden = true);
   const box = $('habits'); box.innerHTML = '';
   D.habits.forEach(h => {
-    const b = document.createElement('button'); b.className = 'hab' + (chosenHabits.includes(h.id) ? ' on' : '');
+    const on = chosenHabits.includes(h.id), b = document.createElement('button'); b.className = 'hab' + (on ? ' on' : '');
     b.innerHTML = '<b></b><span class="plus"></span><span class="minus"></span><span class="mark"></span>';
     b.querySelector('b').textContent = h.name; b.querySelector('.plus').textContent = '+ ' + h.plus; b.querySelector('.minus').textContent = '− ' + h.minus;
-    b.querySelector('.mark').textContent = chosenHabits.includes(h.id) ? '✓' : '';
+    b.querySelector('.mark').textContent = (on ? '✓ ' : '') + habCostTxt(h);
     b.addEventListener('click', () => {
       if (chosenHabits.includes(h.id)) chosenHabits = chosenHabits.filter(x => x !== h.id);
       else { if (chosenHabits.length >= 2) chosenHabits.shift(); chosenHabits.push(h.id); }
@@ -1228,7 +1421,8 @@ function showMorning() {
     });
     box.appendChild(b);
   });
-  $('wagePrev').textContent = 'Stundenlohn heute: ' + euro(D.rate * (1 + D.habitBonus * chosenHabits.length)) + (chosenHabits.length ? ' (mit Gefahrenzulage)' : ' (Mindestlohn)');
+  const cost = chosenHabits.reduce((s, id) => s + D.habits.find(h => h.id === id).cost, 0);
+  $('wagePrev').textContent = chosenHabits.length ? 'Kostet dich heute: ' + euro(cost) : 'Ganz ohne? Respekt.';
   $('morning').hidden = false;
 }
 let wake = null;
@@ -1239,30 +1433,38 @@ function startDay() {
   ['morning', 'end', 'lvlup', 'pause', 'title'].forEach(id => $(id).hidden = true);
   $('hud').hidden = false; $('banner').hidden = true; $('say').hidden = true; $('phone').hidden = true;
   buildFlow();
-  banner('Freitag, 09:00', 'Black Friday. Viel Glück.');
-  setTimeout(() => say('<b>Durchsage:</b> Liebe Kundschaft, heute ist <b>alles</b> reduziert. Vor allem das Personal.'), 2600);
+  banner('Montag, 07:31', 'Schichtbeginn 08:00. Dein Zug kommt in 5 Minuten.');
+  setTimeout(() => { if (G && G.mode === 'play') { sfx('ding'); say('Information zu RE 7 nach Arbeit: Der Zug kommt in <b>5 Minuten</b>. Das sagen wir ab jetzt öfter.'); } }, 2700);
   try { navigator.wakeLock && navigator.wakeLock.request('screen').then(w => wake = w).catch(() => {}); } catch (e) {}
 }
 function showEnd() {
   G.mode = 'over';
-  const hours = G.t / D.secPerHour, base = hours * D.rate, zul = base * D.habitBonus * G.habits.length;
-  let net = base + zul + G.tips; const rows = [['Arbeitszeit', hours.toFixed(1).replace('.', ',') + ' h × ' + euro(D.rate)], ['Grundlohn', euro(base)]];
-  if (zul) rows.push(['Gefahrenzulage (' + G.habits.length + ' Angewohnh.)', euro(zul)]);
-  rows.push(['Trinkgeld (' + G.deliveries + ' Zustellungen)', euro(G.tips)]);
-  D.deductions.forEach(([n, v]) => { rows.push([n, euro(-v), 1]); net -= v; });
+  const arrive = Math.floor(clockMin(G.t)), pend = Math.round(G.t * D.gameSpeed / 60), late = Math.max(0, arrive - D.shiftAt);
+  const rows = []; let net = 0;
+  const add = (a, v, txtOverride, note) => { rows.push([a, txtOverride || (v > 0 ? '+' : '') + euro(v), v < 0 ? 'neg' : note ? 'note' : '']); net += v; };
+  add('Pendelzeit (' + pend + ' Min)', 0, '0,00 € (keine Arbeitszeit)', 1);
+  add('Kleingeld vom Bahnsteig', Math.round(G.found * 100) / 100);
+  G.habits.forEach(id => { const h = D.habits.find(x => x.id === id); h.cost ? add(h.name, -h.cost) : add(h.name, 0, '0,00 € (' + h.note + ')', 1); });
+  D.fixedCosts.forEach(([n, v]) => add(n, -v));
+  if (G.won) {
+    if (late > 0) add('Lohnabzug: ' + late + ' Min zu spät', -Math.round(late / 60 * D.rate * 100) / 100);
+    late >= 60 ? add('Fahrgastrechte (25 %, in 8 Wochen)', 0.53) : add('Fahrgastrechte-Entschädigung', 0, '0,00 € (erst ab 60 Min)', 1);
+  } else add('Lohn heute', 0, '0,00 € (nie angekommen)', 1);
   const slip = $('slip'); slip.innerHTML = '';
-  rows.forEach(([a, b, neg]) => { const d = document.createElement('div'); if (neg) d.className = 'neg'; const s1 = document.createElement('span'), s2 = document.createElement('span'); s1.textContent = a; s2.textContent = b; d.append(s1, s2); slip.appendChild(d); });
-  const sum = document.createElement('div'); sum.className = 'sum'; sum.innerHTML = '<span>Auszahlung</span><span></span>'; sum.lastChild.textContent = euro(net); slip.appendChild(sum);
+  rows.forEach(([a, b, cls]) => { const d = document.createElement('div'); if (cls) d.className = cls; const s1 = document.createElement('span'), s2 = document.createElement('span'); s1.textContent = a; s2.textContent = b; d.append(s1, s2); slip.appendChild(d); });
+  const sum = document.createElement('div'); sum.className = 'sum'; sum.innerHTML = '<span>Montag unterm Strich</span><span></span>'; sum.lastChild.textContent = euro(net); slip.appendChild(sum);
   SAVE.best = SAVE.best || {};
   const rec = [];
-  if (!SAVE.best.net || net > SAVE.best.net) { SAVE.best.net = net; rec.push('Neuer Rekord-Tageslohn!'); }
-  if (G.won && (!SAVE.best.win || G.t < SAVE.best.win)) { SAVE.best.win = G.t; rec.push('Schnellster Feierabend!'); }
-  SAVE.wallet = (SAVE.wallet || 0) + Math.max(0, net);
-  SAVE.ghosts = (SAVE.ghosts || []).concat([{ x: Math.round(G.pl.x), y: Math.round(G.pl.y), clock: clockStr(G.t).slice(3), name: SAVE.char.name || 'Du' }]).slice(-6);
+  if (G.won && (!SAVE.best.win || G.t < SAVE.best.win)) { SAVE.best.win = G.t; rec.push('Früheste Ankunft bisher!'); }
+  SAVE.wallet = Math.round(((SAVE.wallet || 0) + net) * 100) / 100;
+  const why = G.won ? '' : causeName(G.lastHurt);
+  SAVE.ghosts = (SAVE.ghosts || []).concat([{ x: Math.round(G.pl.x), y: Math.round(G.pl.y), clock: clockStr(G.t).slice(3), name: SAVE.char.name || 'Du', why, won: G.won }]).slice(-6);
   store.set(SAVE);
-  $('endTag').textContent = G.won ? 'Feierabend' : 'Schicht vorbei';
-  $('endTitle').textContent = G.won ? 'Feierabend um ' + clockStr(G.t).slice(3) + '!' : 'Umgekippt um ' + clockStr(G.t).slice(3);
-  $('endInfo').textContent = (rec.length ? rec.join(' ') + ' ' : '') + G.kills + ' Dinge besiegt, Level ' + G.level + '. Erspart insgesamt: ' + euro(SAVE.wallet) + ' (fürs Wochenende). Deine Spur liegt ab jetzt im Laden.';
+  const cl = G.won ? (late > 0 ? D.chef.late : D.chef.early) : D.chef.lose;
+  $('chef').textContent = pick(cl).replace('{m}', String(arrive % 60).padStart(2, '0'));
+  $('endTag').textContent = G.won ? 'Angekommen' : 'Nie angekommen';
+  $('endTitle').textContent = G.won ? 'Bei der Arbeit um ' + clockStr(G.t).slice(3) + '!' : 'Umgekippt um ' + clockStr(G.t).slice(3) + ' (' + why + ')';
+  $('endInfo').textContent = (rec.length ? rec.join(' ') + ' ' : '') + G.kills + ' Probleme beseitigt, davon ' + G.trainKills + ' vom Zug. Verspätung insgesamt: +' + G.board.delay + ' Min. Kontostand: ' + euro(SAVE.wallet) + '. Deine Spur bleibt am Gleis.';
   $('end').hidden = false; $('hud').hidden = true;
   try { wake && wake.release(); } catch (e) {}
 }
@@ -1280,7 +1482,7 @@ $('startDay').addEventListener('click', startDay);
 $('againBtn').addEventListener('click', showMorning);
 $('pauseBtn').addEventListener('click', pause);
 $('resumeBtn').addEventListener('click', () => { $('pause').hidden = true; G.mode = 'play'; last = performance.now(); });
-$('quitBtn').addEventListener('click', () => { $('pause').hidden = true; G.mode = 'ending'; G.endT = 0.01; G.won = false; });
+$('quitBtn').addEventListener('click', () => { $('pause').hidden = true; G.lastHurt = 'krank'; G.mode = 'ending'; G.endT = 0.01; G.won = false; });
 $('muteBtn').addEventListener('click', () => { muted = !muted; $('muteBtn').textContent = 'Ton: ' + (muted ? 'aus' : 'an'); });
 document.addEventListener('visibilitychange', () => { if (document.hidden) pause(); });
 window.addEventListener('blur', pause);
@@ -1298,11 +1500,14 @@ $('clock').addEventListener('pointerdown', e => {
 $('dev').addEventListener('click', e => {
   const k = e.target.dataset && e.target.dataset.dev; if (!k) return;
   if (k === 'min') G.t += 60;
-  else if (k === 'boss') { G.t = D.bossAt - 5; G.tl = D.timeline.findIndex(x => x.ev === 'warn'); }
+  else if (k === 'boss') { G.t = D.bossAt - 9; G.tl = D.timeline.findIndex(x => x.ev === 'warn'); }
+  else if (k === 'train') startTrain(nearLane());
   else if (k === 'lvl') { G.pending++; G.level++; G.need = need(G.level); }
   else if (k === 'god') { god = !god; e.target.textContent = 'Unverwundbar: ' + (god ? 'an' : 'aus'); return; }
   $('dev').hidden = true; G.mode = 'play'; last = performance.now();
 });
+// Todesursache „krank“ (aufgegeben)
+D.foes.krank = { name: 'Krankmeldung' };
 
 let last = performance.now();
 function frame(now) {
@@ -1311,14 +1516,15 @@ function frame(now) {
   requestAnimationFrame(frame);
 }
 showTitle();
-// Startbild: der Laden mit ein paar Prospekten
-newGame([]); G.mode = 'demo'; G.pl.x = 800; G.pl.y = 500; buildFlow();
-for (let i = 0; i < 16; i++) { const [x, y] = farCell(60); spawn(i % 4 ? 'prospekt' : 'wagen', x, y); }
+// Startbild: der Bahnsteig mit ein paar Verspätungen
+newGame([]); G.mode = 'demo'; G.pl.x = 900; G.pl.y = 600; buildFlow();
+for (let i = 0; i < 16; i++) { const [x, y] = farCell(60); spawn(i % 4 ? 'spaet' : 'koffer', x, y); }
 requestAnimationFrame(frame);
 
 window.__mo = {
   dmg() { return G.dmgDone / Math.max(1, G.t); },
-  // Weg-Hilfe für den Test-Bot: Richtung zum Ziel um die Regale herum
+  state() { return G; },
+  // Weg-Hilfe für den Test-Bot: Richtung zum Ziel um Hindernisse herum
   path(x, y, tx, ty) {
     const d2 = new Int16Array(GW * GH).fill(-1), q = new Int32Array(GW * GH);
     const s = clamp(Math.floor(ty / C), 0, GH - 1) * GW + clamp(Math.floor(tx / C), 0, GW - 1); let h = 0, t = 0; d2[s] = 0; q[t++] = s;
@@ -1328,14 +1534,15 @@ window.__mo = {
     if (best < 0 || bd <= 1) return [tx - x, ty - y];
     return [(best % GW) * C + C / 2 - x, ((best / GW) | 0) * C + C / 2 - y];
   },
-  run(sec, pick, habits) {
+  laneOf,
+  run(sec, pickFn, habits) {
     newGame(habits || []); G.sim = true; buildFlow(); let n = 0; const dt = 1 / 30;
     while (n++ < sec * 30 && G.mode !== 'over') {
-      if (G.mode === 'lvl') { choose(pick ? pick(G.offers, G) : 0); continue; }
+      if (G.mode === 'lvl') { choose(pickFn ? pickFn(G.offers, G) : 0); continue; }
       step(dt);
       if (G.mode === 'ending' && G.endT <= dt) break;
     }
-    return { t: +G.t.toFixed(1), won: G.won, dead: G.pl.hp <= 0, level: G.level, kills: G.kills, hp: Math.round(G.pl.hp), weps: Object.assign({}, G.weps), del: G.deliveries, boss: G.boss ? Math.round(G.boss.hp) : null, bossTime: G.bossStart ? +(G.t - G.bossStart).toFixed(1) : null, hurt: G.hurtBy, enemies: G.enemies.length, dps: Math.round(G.dmgDone / Math.max(1, G.t)) };
+    return { t: +G.t.toFixed(1), clock: clockStr(G.t), won: G.won, dead: G.pl.hp <= 0, level: G.level, kills: G.kills, trainKills: G.trainKills, hp: Math.round(G.pl.hp), weps: Object.assign({}, G.weps), boss: G.boss ? Math.round(G.boss.hp) : null, bossTime: G.bossStart ? +(G.t - G.bossStart).toFixed(1) : null, hurt: G.hurtBy, enemies: G.enemies.length, dps: Math.round(G.dmgDone / Math.max(1, G.t)) };
   }
 };
 })();
