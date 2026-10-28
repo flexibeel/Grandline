@@ -37,3 +37,13 @@ Stand 28.10.2026 (54. Chat, Opus). **Erster schlichter Test gebaut**, Live-Spiel
 3. Die Fahrt (Kurswahl, Meere, Bosse) bleibt als Karte, jeder Kampf ist eine kurze Survivor-Runde.
 4. Später vielleicht Koop mit Freunden.
 Technik: eigener Canvas für den Kampf (das DOM schafft keine hunderten Gegner am Handy), Replays und Duelle müssen neu gedacht werden.
+
+## Urteil zu Test 1 und Suche nach dem eigenen System (28.10., 17:30)
+- Felix: „Zocken kann man es, aber gibt's so ein Game nicht schon tausend mal? Es muss was Neues rein oder ein eigenes System.“
+- Marktcheck: Survivor mit Piratenschiff gibt es (Ocean Survivors), fahrende Festung als Survivor auch (Wanderburg), Extraction-Survivors auch (Hellforged, Survivor Mercs). Neu wird es nur durch eine Kombination, die Grandline hat.
+- Vier Kandidaten, **Felix findet alle vier reizvoll** (per Klick), will aber erst weiter reden statt bauen:
+  1. **Crew mit eigenem Willen:** Launen, Wünsche mitten in der Runde („Den Brocken krieg ich!“), Duos entstehen durchs Nebeneinander-Kämpfen, Vernachlässigte schmollen oder gehen von Bord, die Nähe des Kapitäns feuert an. (Claudes Favorit, so nicht gefunden.)
+  2. **Plündern und rechtzeitig ablegen:** Beute als Ladung, länger bleiben = mehr, aber gefährlicher; wer beim Ablegen fehlt, bleibt zurück.
+  3. **Schiff mit Deck-Raster:** Piraten auf Deck-Plätze setzen (nah an Wanderburg/Ocean Survivors).
+  4. **Rivalen, die sich erinnern:** Wer dich schlägt, steigt im Kopfgeld und kommt wieder (nur einfache Form, das volle Nemesis-System ist patentiert).
+- Claudes Gedanke dazu: Die vier passen als **eine Schleife** zusammen (Schiff = Zuhause mit Deck-Raster, Insel = Survivor mit eigenwilliger Crew, Ende jeder Insel = rechtzeitig ablegen, Rivalen kehren über mehrere Inseln wieder). Aber nicht alles auf einmal bauen: zuerst das testen, was am neuesten und unsichersten ist (Crew mit eigenem Willen).
