@@ -60,3 +60,7 @@ Technik: eigener Canvas für den Kampf (das DOM schafft keine hunderten Gegner a
 **Sozial-/Gesundheitssystem:** Planet B hat gezeigt, dass ein Spiegel ohne Spielfolge nicht wirkt. Nicht als Predigt einbauen, sondern als **Piratenkodex** im Hafen: Echte Piraten hatten Beuteanteile, eine Kasse für Verletzte (Roberts: 800 Achterstücke für ein verlorenes Glied) und wählten den Kapitän per Mehrheit ab (Wikipedia „Pirate code“). Im Spiel: Beute teilen, Verletztenkasse und Lazarett zahlen oder sparen (Geld für den Schmied), die Crew stimmt über dich ab. Hängt direkt an „Crew mit eigenem Willen“ und Felix' Idee mit Demokratie.
 **Questgeber auf der Karte:** in kleiner Form gut (Aufträge auf der Insel geben dem Survivor eine Richtung, z. B. „Rette den Fischer“, „3 Scheren für die Köchin“), große Questgeber im Hafen zwischen den Runs. Gefahr: Text lesen mitten im Getümmel.
 **Größte Gefahr: Funktionswucher.** Deshalb ein Kernsatz, an dem sich alles messen lassen muss, und eine feste Test-Reihenfolge (siehe Antwort im 54. Chat).
+
+## Stand 28.10., 17:45
+- **Schmied à la Metin2 ist raus** (Felix: nicht überladen).
+- Reihenfolge abgesegnet (1 Crew-Wille, 2 Ablegen, 3 Hafen/Kodex, 4 Rivalen/Questgeber, 5 Koop), **der Kernsatz aber noch nicht**: Felix hat „Crew-Wille als Kern“ und „Schiff auf Pump: plündern, Beute an Bord, Rate zahlen“ (Trend-Mix aus CloverPit-Schuld, Megabonk-Getümmel, ARC-Raiders-Rückweg) beide mit Nein beantwortet, ohne Begründung. Nächster Schritt: herausfinden, was ihn stört, bevor etwas gebaut wird.
