@@ -1,6 +1,13 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-29d', date: '29.10.', title: 'Beute aus dem Duell', items: [
+    '🎁 Unter „Gegner suchen“ hängt jetzt eine Duell-Kiste mit drei Schlössern. Jeder Sieg öffnet eins, und beim dritten springt sie auf',
+    '⚔ Aus der Kiste kommt sicher ein Ausrüstungsteil, dazu Meersplitter. Je höher deine Liga, desto seltener und besser das Teil',
+    '📅 Jede Crew zählt einmal am Tag. Die Kronwacht-Übungscrew gibt dir bis zu dreimal ein Schloss. Crews, die weit unter deiner Kampfkraft liegen, öffnen keins, damit sich niemand an Schwachen hochfarmt',
+    '🛡 Auch Verteidigen lohnt sich: Zwei abgewehrte Angriffe zählen wie ein Sieg, höchstens zwei Schlösser am Tag',
+    '🔹 Verloren? Dann gibt es wenigstens zwei Meersplitter als Trost',
+    '🏆 Deine Duell-Liga steht wieder oben in der Stammcrew, mit Punkten. Nach jedem Duell siehst du, wie viele Liga-Punkte du gewonnen oder verloren hast' ] },
   { v: '2026-10-29c', date: '29.10.', title: 'Kämpfe, die kippen können', items: [
     '🩸 Letzter steht: Bleibt im Duell nur noch eine Figur übrig, beißt sie die Zähne zusammen, übersteht einen tödlichen Schlag und haut danach härter zu. Aus aussichtslos wird manchmal ein Comeback',
     '💥 Ulti-Duell: Sind auf beiden Seiten die Ultis gleichzeitig voll, krachen sie aufeinander. Tempo und ein bisschen Glück entscheiden, wessen Ulti stärker trifft und wessen zerschellt',
