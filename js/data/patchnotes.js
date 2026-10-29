@@ -1,6 +1,10 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-29a', date: '29.10.', title: 'Woher kommt die Kraft?', items: [
+    '⚔ Die Stärke deiner Stammcrew heißt jetzt Kampfkraft. Tipp auf die Zahl, und du siehst, woher sie kommt: Figuren, Stufe & Vertrautheit, Werft und Ausrüstung, je mit Balken',
+    '🔍 Jede Figur lässt sich aufklappen. So siehst du auf einen Blick, wer am meisten zieht und wo noch Luft ist',
+    '🥊 Vor dem Duell zeigt „Gegner gefunden“ jetzt den Vergleich nach Quellen: wo du vorne liegst, wo der Gegner, und was den größten Unterschied macht' ] },
   { v: '2026-10-25h', date: '25.10.', title: 'Kurs auf den Horizont', items: [
     '🌊 Über der Kurswahl segelt jetzt dein Schiff: Ein Meeresband mit Wolken, Wellen und Horizont-Inseln zieht beim Wischen mit, als würdest du wirklich auf die nächste Insel zusteuern',
     '🏝️ Die Insel der mittleren Karte liegt immer am Horizont. Wisch weiter, und sie rückt vorbei, die nächste taucht auf',
