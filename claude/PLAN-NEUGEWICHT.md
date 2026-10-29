@@ -110,6 +110,19 @@ Felix: „Es soll sich nicht vorprogrammiert anfühlen, wie die Kämpfe sind. Es
 - **Messziele** (Bot, echte Crews wie in Häppchen 2): gleich starke Crews 40–60 %; Crew mit 20 % weniger Kampfkraft gewinnt etwa jedes 4. Mal; passender Taktik-Konter verschiebt spürbar (Richtwert +15 Punkte). Heute: ~70 % der Paarungen einseitig.
 - **Technik-Hinweise:** Duell wird heute vorab berechnet (`GL.squad.fight` → `GL.battle.simulate`, `kind 'duel'`) und abgespielt; Eingriffe laufen schon als `cmds` mit Zeitpunkt (`at`) und am Ende wird neu gerechnet (`startSquadDuel` in `main.js`). Der Tipp wird genauso ein `cmd`, Würfel nur aus dem Kampf-Seed, also replay-sicher. Fahrt-Kämpfe und Bosse bleiben unberührt (`duel: true` als Schalter). Streuung (etwas mehr Glück) nur so weit, wie die Messziele es brauchen.
 
+**Stand „Kämpfe offen“ (29.10., 60. Chat, Opus): gebaut auf `feature/kaempfe-offen` (von `main` 29b), nicht live.**
+- Alles aus der Skizze ist drin (nur Duelle, Letzter steht, Ulti-Duell, Tipp im Ring, Verteidiger halber Bonus, Konter, Zeile + Bild). Details und Zahlen im Fahrplan unter „Wartet“.
+- **Fund:** Die Momente allein ändern wenig (einseitig 69 → 65 %). Ursache war die Kampfkraft: Sie zählte Leben und Angriff linear und kannte weder Fähigkeiten (Anfeuern, Ramp, Bremse) noch Synergien. Bei gleicher Zahl gewann eine Crew 94 % ihrer Duelle, eine andere 7 %. Mehr Glück (Schadensstreuung) und weichere Typ-Vorteile halfen gemessen kaum.
+- **Felix per Klick (9:45):** Fairness über **Kampfkraft eichen** (Alternativen: Gegnersuche nach echter Siegchance, mehr Glück), **Konter 30 %** (gemessen +14 bis +18 Punkte).
+- **Ergebnis:** einseitig 69 → 44 %, 30–70 % bei 26 → 45 %, Abweichung je Crew 24 → 14 Punkte, −20 %-Crew gewinnt mit Tipp 23 %. 40–60 % nur bei 21 % der Paarungen: Der Rest ist Aufstellung gegen Aufstellung (Typen-Dreieck). Wenn das stört, wäre der nächste Hebel die Siegchance-Suche (gemessen 61 % bei 40–60 %), zusätzlich zur geeichten Zahl.
+
+### Hafen à la Banished (Felix, 29.10., 9:21, per Klick)
+Felix: „Wenn man das Game so umstrukturiert, dass man eine Basis bauen kann im Stil von Banished, in Pixel-Optik mit kleinen Figuren, und man dennoch auf Exkurs gehen kann, um Items zu farmen?“ Claude: passt, aber nicht als echte Siedlungs-Sim (wäre ein neues Spiel). Per Klick:
+- **Hafen wächst sichtbar:** kleine Pixel-Siedlung, die Crew lebt und arbeitet dort, Gebäude kosten Beute. **Ohne** Hunger, Sterben, Jahreszeiten.
+- **Reihenfolge:** erst „Kämpfe offen“ fertig, dann Skizze.
+- **Exkursionen: beides.** Selbst fahren (Runs bringen Baumaterial und Ausrüstung) und Trupps offline losschicken (Grundmaterial).
+- Skizze läuft parallel in einem Sonnet-Chat in Claude Code → `claude/PLAN-HAFEN.md` auf `feature/hafen-skizze`. Ebenso die Liste „Altes ausmisten“ → `claude/PLAN-AUSMISTEN.md` auf `feature/ausmisten-liste`. Beide fassen den Fahrplan nicht an, der nächste Chat sammelt ein.
+
 **Neue feste Regel „Gegen das KI-Gefühl“** (gilt für alles Neue):
 - Lieber wenig, dafür von Hand durchdacht. Jedes neue Teil, jede Regel braucht eine eigene Idee (von Felix, Jan oder klar begründet), nicht „aus einer Liste aufgefüllt“.
 - Texte kurz, mit eigenem Witz, keine glatten Allzweck-Sätze.
