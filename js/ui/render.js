@@ -2650,7 +2650,7 @@ window.GL = window.GL || {};
   // Kampfkraft mit Herkunft (PLAN-NEUGEWICHT Häppchen 1): woraus sich die Zahl der Stammcrew zusammensetzt.
   // Rechnet nichts selbst, liest GL.meta.powerParts (gleiche Formel wie die Gegnersuche).
   const KK_SRC = [
-    { k: 'fig', ico: '👤', de: 'Figuren', en: 'Characters', tde: 'Grundwerte der Figuren auf dem Deck. Andere Figur, andere Zahl.', ten: 'Base stats of the characters on deck. Other character, other number.' },
+    { k: 'fig', ico: '👤', de: 'Figuren', en: 'Characters', tde: 'Grundwerte, Fähigkeiten und Zusammenspiel der Figuren auf dem Deck. Andere Figur, andere Zahl.', ten: 'Base stats, abilities and teamwork of the characters on deck. Other character, other number.' },
     { k: 'lvl', ico: '★', de: 'Stufe & Vertrautheit', en: 'Level & bond', tde: 'Der Piratenrang hebt alle, Duelle und Proviant einzelne.', ten: 'Pirate rank lifts everyone, duels and snacks lift single ones.' },
     { k: 'werft', ico: '⚓', de: 'Werft', en: 'Shipyard', tde: 'Schiffs-Upgrades gelten für jede Figur.', ten: 'Ship upgrades count for every character.' },
     { k: 'gear', ico: '⚙', de: 'Ausrüstung', en: 'Gear', tde: 'Angelegte Teile, samt Krit, Ausweichen und Co.', ten: 'Equipped pieces, including crit, dodge and the like.' }
@@ -2676,7 +2676,7 @@ window.GL = window.GL || {};
       <div class="kk-srcs">${src}</div>
       <p class="kk-lead">${en ? 'Per character (tap to open):' : 'Je Figur (antippen zum Aufklappen):'}</p>
       <div class="kk-units">${K.units.map(unit).join('')}</div>
-      <small class="kk-note">${en ? 'HP counts half, attack ×4, speed ×2, plus crit, dodge and the like from gear. Story forms, mastery and the treasury only work on voyages, not in the squad.' : 'Leben zählt halb, Angriff ×4, Tempo ×2, dazu Krit, Ausweichen und Co. aus der Ausrüstung. Story-Formen, Meisterschaft und Schatzkammer wirken nur auf Fahrt, nicht in der Stammcrew.'}</small>
+      <small class="kk-note">${en ? 'Durability times damage of the whole squad, calibrated on real duels: armor, dodge, crit, abilities and how well your line-up works together all count. Double HP and attack, double the number. Story forms, mastery and the treasury only work on voyages, not in the squad.' : 'Ausdauer mal Schaden der ganzen Stammcrew, geeicht an echten Duellen: Rüstung, Ausweichen, Krit, Fähigkeiten und wie gut die Aufstellung zusammenspielt zählen mit. Doppelt so viel Leben und Angriff, doppelte Zahl. Story-Formen, Meisterschaft und Schatzkammer wirken nur auf Fahrt, nicht in der Stammcrew.'}</small>
       <button class="btn ghost kk-x" data-act="pop-close">${en ? 'Close' : 'Schließen'}</button>
     </div>`;
   }
@@ -2965,11 +2965,23 @@ window.GL = window.GL || {};
       <div class="dr-chest"><div class="dr-chest-h"><b>${pxIco('chest')}Truhe</b><small>${bag.length}/${GL.data.crewGear.bagMax} · 🔹 ${profile.shards || 0}</small></div>${fl}<div class="dr-grid">${chest}</div></div>
     </div>`;
   }
+  // Kämpfe offen: eine Zeile, was das Duell entschieden hat, mit der Figur des Moments im Bild
+  function duelKey(res) {
+    const k = res && res.key;
+    if (!k) return '';
+    const en = !!(GL.i18n && GL.i18n.lang && GL.i18n.lang() === 'en');
+    const r = (k.side === 'crew' ? res.me : res.foe)[k.i] || {};
+    const ico = { last: '✊', clash: '⚡', mvp: '⭐', fight: '💪', tac: GL.squad.TACTICS[k.side === 'crew' ? res.tac.me : res.tac.foe] ? GL.squad.TACTICS[k.side === 'crew' ? res.tac.me : res.tac.foe].icon : '🎯' }[k.m] || '⭐';
+    return `<div class="duel-key ${k.side === 'crew' ? 'us' : 'them'}"><span class="dk-pic"><i class="dk-spr">${squadSprite(r)}</i><em aria-hidden="true">${ico}</em></span>
+      <p>${esc(en ? k.en : k.de)}${k.tipped ? `<br><span class="dk-tip">🎯 ${en ? 'Your tap landed' : 'Dein Tipp saß'}</span>` : ''}</p></div>`;
+  }
   function duelReport(res, theirName) {
     const lines = [];
     const nm = (side, i) => { const r = (side === 'crew' ? res.me : res.foe)[i]; return r ? r.name : '?'; };
     res.events.forEach(e => {
       if (lines.length >= 8) return;
+      if (e.k === 'moment' && e.ph === 'end' && e.m === 'last') lines.push(`<li class="${e.side === 'crew' ? 'us' : 'them'}">✊ ${esc(nm(e.side, e.to))}: <b>${GL.i18n && GL.i18n.lang() === 'en' ? 'last one standing' : 'Letzter steht'}</b></li>`);
+      if (e.k === 'moment' && e.ph === 'end' && e.m === 'clash') lines.push(`<li class="${e.win === 'crew' ? 'us' : 'them'}">⚡ <b>${GL.i18n && GL.i18n.lang() === 'en' ? 'Ult clash' : 'Ulti-Duell'}</b>: ${esc(nm(e.win, e.win === 'crew' ? e.a : e.b))} ${GL.i18n && GL.i18n.lang() === 'en' ? 'wins' : 'gewinnt'}</li>`);
       if (e.k === 'ult') lines.push(`<li class="${e.side === 'crew' ? 'us' : 'them'}">⚡ ${esc(nm(e.side, e.from))}: <b>${esc(e.name)}</b></li>`);
       if (e.k === 'cmd') lines.push(`<li class="us">${{ cheer: '📣 Kommando: <b>Anfeuern</b>', food: '🍖 Kommando: <b>Proviant</b>', dice: { salvo: '🎲 Glückswurf: <b>Volltreffer</b>', trip: '🎲 Glückswurf: <b>Stolperfalle</b>', flop: '🎲 Glückswurf: <b>nichts</b>' }[e.res] }[e.cmd] || ''}</li>`);
       if (e.k === 'hit' && e.hp <= 0) lines.push(`<li class="${e.side === 'crew' ? 'us' : 'them'}">✖ ${esc(nm(e.side === 'crew' ? 'enemy' : 'crew', e.to))} ist k.o.</li>`);
@@ -2979,6 +2991,7 @@ window.GL = window.GL || {};
     return `<div class="duel-res ${res.win ? 'won' : 'lost'}">
       <b class="duel-verdict">${res.win ? 'Sieg!' : 'Niederlage'}</b>
       <small>${res.win ? `Deine Stammcrew hat ${esc(theirName)} geschlagen.` : `${esc(theirName)} war diesmal stärker. Probier eine andere Reihenfolge.`}</small>
+      ${duelKey(res)}
       <div class="duel-teams"><div><span class="lbl">Du</span>${squadRow(res.me, res.me.map(r => r.hp))}</div>
         <div><span class="lbl">${esc(theirName)}</span>${squadRow(res.foe, res.foe.map(r => r.hp))}</div></div>
       ${mvp ? `<p class="duel-mvp">MVP: <b>${esc(mvp.name)}</b> mit ${res.dealt.crew[res.mvp]} Schaden</p>` : ''}

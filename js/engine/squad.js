@@ -73,7 +73,47 @@ window.GL = window.GL || {};
       }
     });
     const mvp = dealt.crew.indexOf(Math.max(...dealt.crew));
-    return { win: res.win, events: res.events, me, foe, dealt, mvp };
+    const out = { win: res.win, events: res.events, me, foe, dealt, mvp, tac: { me: tm, foe: tf } };
+    out.key = keyMoment(out);
+    return out;
+  }
+
+  // Kämpfe offen: Was hat das Duell entschieden? Eine Zeile (DE/EN) und wer im Bild steht.
+  // Reihenfolge: Letzter steht der Siegerseite, Ulti-Duell der Siegerseite, Taktik-Konter, sonst wer am meisten austeilte.
+  // Ergebnis: { m: 'last'|'clash'|'tac'|'mvp'|'fight', side: 'crew'|'enemy', i, de, en, tipped }
+  const TAC_N = {   // [Nominativ dein, Akkusativ dein, Nominativ ihr, Akkusativ ihr, englisch]
+    sturm: ['Dein Sturm', 'deinen Sturm', 'Ihr Sturm', 'ihren Sturm', 'Storm'],
+    mauer: ['Deine Mauer', 'deine Mauer', 'Ihre Mauer', 'ihre Mauer', 'Wall'],
+    list:  ['Deine List', 'deine List', 'Ihre List', 'ihre List', 'Cunning']
+  };
+  const TAC_V = { sturm: ['überrannt', 'overran'], list: ['ausgetrickst', 'outwitted'], mauer: ['auflaufen lassen', 'stopped cold'] };
+  function keyMoment(r) {
+    const nm = (side, i) => { const u = (side === 'crew' ? r.me : r.foe)[i]; return String((u && u.name) || '?').split(' ')[0]; };
+    const ends = r.events.filter(e => e.k === 'moment' && e.ph === 'end');
+    const won = r.win ? 'crew' : 'enemy', lost = r.win ? 'enemy' : 'crew';
+    const last = ends.find(e => e.m === 'last' && e.side === won);
+    const clash = ends.slice().reverse().find(e => e.m === 'clash' && e.win === won);
+    if (last) {
+      const n = nm(won, last.to), t = won === 'crew' && last.tipped > 0;
+      return r.win ? { m: 'last', side: won, i: last.to, tipped: t, de: `Gewonnen, weil ${n} einfach nicht umfallen wollte.`, en: `Won because ${n} simply refused to fall over.` }
+        : { m: 'last', side: won, i: last.to, de: `Verloren: ${n} wollte einfach nicht umfallen.`, en: `Lost: ${n} simply refused to fall over.` };
+    }
+    if (clash) {
+      const a = nm('crew', clash.a), b = nm('enemy', clash.b);
+      return r.win ? { m: 'clash', side: 'crew', i: clash.a, tipped: clash.tipped > 0, de: `Gewonnen: Im Ulti-Duell war ${a} schneller als ${b}.`, en: `Won: ${a} beat ${b} to the punch in the ult clash.` }
+        : { m: 'clash', side: 'enemy', i: clash.b, de: `Verloren: Im Ulti-Duell war ${b} schneller als ${a}.`, en: `Lost: ${b} beat ${a} to the punch in the ult clash.` };
+    }
+    const tm = r.tac.me, tf = r.tac.foe;
+    if (tm && tf && r.win && TACTICS[tm].beats === tf) return { m: 'tac', side: 'crew', i: r.mvp, de: `Gewonnen: ${TAC_N[tm][0]} hat ${TAC_N[tf][3]} ${TAC_V[tm][0]}.`, en: `Won: your ${TAC_N[tm][4]} ${TAC_V[tm][1]} their ${TAC_N[tf][4]}.` };
+    if (tm && tf && !r.win && TACTICS[tf].beats === tm) {
+      const fi = r.dealt.enemy.indexOf(Math.max(...r.dealt.enemy));
+      return { m: 'tac', side: 'enemy', i: fi, de: `Verloren: ${TAC_N[tm][1].replace(/^d/, 'D')} hat ${TAC_N[tf][2].toLowerCase()} ${TAC_V[tf][0]}.`, en: `Lost: their ${TAC_N[tf][4]} ${TAC_V[tf][1]} your ${TAC_N[tm][4]}.` };
+    }
+    if (r.win) return { m: 'mvp', side: 'crew', i: r.mvp, de: `Gewonnen, vor allem dank ${nm('crew', r.mvp)} (${r.dealt.crew[r.mvp]} Schaden).`, en: `Won, mostly thanks to ${nm('crew', r.mvp)} (${r.dealt.crew[r.mvp]} damage).` };
+    const mine = ends.find(e => e.m === 'last' && e.side === 'crew');
+    if (mine) return { m: 'fight', side: 'crew', i: mine.to, de: `Verloren, obwohl ${nm('crew', mine.to)} sich bis zuletzt gewehrt hat.`, en: `Lost, even though ${nm('crew', mine.to)} fought to the very end.` };
+    const fi = r.dealt.enemy.indexOf(Math.max(...r.dealt.enemy));
+    return { m: 'mvp', side: 'enemy', i: fi, de: `Verloren: ${nm('enemy', fi)} war heute nicht zu bremsen.`, en: `Lost: ${nm('enemy', fi)} was unstoppable today.` };
   }
 
   // Gegnersuche nach Kampfkraft-Band: nur Crews zwischen (1 - band) und (1 + band) der eigenen Kampfkraft.

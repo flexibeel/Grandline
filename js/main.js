@@ -1136,6 +1136,43 @@
     const b = document.querySelector(`.dx-btn[data-c="${k}"]`); if (b) { b.classList.add('used'); setTimeout(() => b.classList.remove('used'), 500); }
   }
 
+  // Kämpfe offen: Tipp im Zeitfenster. Der äußere Ring schrumpft über TIP_MS auf den inneren zu.
+  // Getroffen ist, wer tippt, während beide sich decken (TIP_WIN, Anteil der Zeit). Dann wird ab dem Moment neu gerechnet:
+  // Alles davor ist Ereignis für Ereignis gleich (Befehl { cmd: 'tip', n }), die Wiedergabe läuft nahtlos weiter.
+  const TIP_MS = 1100, TIP_WIN = [0.55, 0.9];
+  function tipRing(f, ev) {
+    const field = document.querySelector('.duel-play #field') || document.querySelector('.duel-play');
+    const go = ms => { f.timer = setTimeout(playDuel, ms); };
+    if (!field) { go(900); return; }
+    const en = GL.i18n && GL.i18n.lang() === 'en';
+    field.querySelectorAll('.tip-ring').forEach(x => x.remove());
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'tip-ring ' + (ev.m === 'clash' ? 'clash' : 'last');
+    b.setAttribute('aria-label', en ? 'Tap when the rings meet' : 'Tippen, wenn sich die Ringe treffen');
+    b.style.setProperty('--tip-ms', TIP_MS + 'ms');
+    b.innerHTML = `<i class="tr-out" aria-hidden="true"></i><i class="tr-in" aria-hidden="true"></i><b class="tr-txt">${ev.m === 'clash' ? '⚡' : '✊'}</b><small class="tr-hint">${en ? 'Tap!' : 'Tippen!'}</small>`;
+    const t0 = performance.now();
+    let done = false;
+    const close = (cls, txt) => { b.classList.add(cls); b.querySelector('.tr-hint').textContent = txt; setTimeout(() => b.remove(), 520); };
+    b.addEventListener('pointerdown', e => {
+      e.preventDefault(); e.stopPropagation();
+      if (done || f.done || !f.playing) return;
+      done = true;
+      const t = (performance.now() - t0) / TIP_MS;
+      if (t >= TIP_WIN[0] && t <= TIP_WIN[1]) {
+        f.cmds.push({ cmd: 'tip', n: ev.n });
+        const res = GL.squad.fight(f.refs, f.foeSquad, f.seed, Object.assign({}, f.tac, { cmds: f.cmds.slice() }));
+        f.res = res; f.dRun.battle.events = res.events;
+        f.tips = (f.tips || 0) + 1;
+        close('hit', en ? 'Perfect!' : 'Perfekt!');
+        if (GL.sfx) GL.sfx.play('level');
+      } else close('miss', t < TIP_WIN[0] ? (en ? 'Too early' : 'Zu früh') : (en ? 'Too late' : 'Zu spät'));
+    });
+    field.appendChild(b);
+    setTimeout(() => { if (!done) { done = true; close('miss', en ? 'Missed' : 'Verpasst'); } }, TIP_MS * TIP_WIN[1] + 60);
+    go(TIP_MS + 250);
+  }
+
   // Stammcrew-Duell im Kampffeld abspielen (eigene kleine Schleife, unabhängig vom Run)
   function playDuel() {
     const f = ui.squadFight;
@@ -1144,6 +1181,8 @@
     if (!ev) { finishDuel(f); document.querySelectorAll('.dx-btn').forEach(b => { b.disabled = true; b.classList.remove('full'); }); if (GL.sfx) GL.sfx.play(f.res.win ? 'win' : 'lose'); f.timer = setTimeout(() => { f.playing = false; draw(); }, 900); return; }
     if (ev.k === 'turn') { f.turn = ev.t; DUEL_CMDS.forEach(k => { f.charge[k] = (f.charge[k] || 0) + 1; }); duelCharge(f); f.timer = setTimeout(playDuel, 0); return; }
     GL.arena.play(ev);
+    // Kämpfe offen: Wendepunkt mit Tipp-Fenster (Ring zieht sich zusammen). Das Duell wartet so lange.
+    if (ev.k === 'moment' && ev.ph === 'start' && ev.tip) { tipRing(f, ev); return; }
     if (GL.sfx) GL.sfx.battle(ev, f.fast ? 3 : 1);
     const rb = document.getElementById('duel-log');
     if (rb && ev.k === 'ult') rb.textContent = `⚡ ${ev.name}!`;

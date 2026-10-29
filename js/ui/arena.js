@@ -1236,6 +1236,31 @@ window.GL = window.GL || {};
         pulse(el('enemy', ev.to), 'debuffed'); pulse($('#field'), 'perfect-hit');
         fieldFloat('enemy', ev.to, 'Wut!', 'debuff');
         setEn('enemy', ev.to, ev.ea);
+      } else if (ev.k === 'moment') {
+        // Kämpfe offen (Duell): Wendepunkte. Start = Ankündigung (hier kann man tippen), end = Ausgang, hold = der eine Schlag, der nicht fällt
+        const nmOf = (side, i) => { const r = window.__glRun, u = r && (side === 'crew' ? r.crew[i] : r.battle && r.battle.enemies[i]); return String((u && (u.name || (u.def && u.def.name))) || '').split(' ')[0]; };
+        const us = ev.side === 'crew';
+        if (ev.m === 'last' && ev.ph === 'start') {
+          banner('moment ' + (us ? 'us' : 'them'), `<small>${L('Letzter steht', 'Last one standing')}</small><b>${nmOf(ev.side, ev.to)} ${L('gibt nicht auf!', 'won\u2019t give up!')}</b>`, 1500);
+          pulse(fu(ev.side, ev.to), 'rise'); pulse($('#field'), 'perfect-hit');
+          if (GL.sfx && GL.sfx.sting) GL.sfx.sting('dramatic');
+        } else if (ev.m === 'last' && ev.ph === 'end') {
+          fieldFloat(ev.side, ev.to, '+' + ev.add + ' ⚔', 'buff');
+          if (ev.heal) { setHp(ev.side, ev.to, ev.hp); fieldFloat(ev.side, ev.to, '+' + ev.heal, 'heal'); }
+          if (us && ev.tipped) tagAt(ev.side, ev.to, L('Tipp sitzt!', 'Nailed it!'), 'buff', 70);
+        } else if (ev.m === 'last' && ev.ph === 'hold') {
+          setHp(ev.side, ev.to, 1); fieldFloat(ev.side, ev.to, L('Hält stand!', 'Still standing!'), 'buff');
+          pulse(fu(ev.side, ev.to), 'rise'); juice('stop');
+        } else if (ev.m === 'clash' && ev.ph === 'start') {
+          banner('moment clash', `<small>${L('Ulti-Duell', 'Ult clash')}</small><b>${nmOf('crew', ev.a)} ⚡ ${nmOf('enemy', ev.b)}</b>`, 1500);
+          pulse(fu('crew', ev.a), 'atk'); pulse(fu('enemy', ev.b), 'atk'); pulse($('#field'), 'shake');
+          if (GL.sfx && GL.sfx.sting) GL.sfx.sting('dramatic');
+        } else if (ev.m === 'clash' && ev.ph === 'end') {
+          const w = ev.win === 'crew' ? ['crew', ev.a] : ['enemy', ev.b], l = ev.win === 'crew' ? ['enemy', ev.b] : ['crew', ev.a];
+          fieldFloat(w[0], w[1], L('Gewinnt!', 'Wins!'), 'buff'); fieldFloat(l[0], l[1], L('Zerschellt', 'Shattered'), 'debuff');
+          setEn(l[0], l[1], ev.el); pulse(fu(l[0], l[1]), 'hurt');
+          if (ev.tipped) tagAt('crew', ev.a, L('Tipp sitzt!', 'Nailed it!'), 'buff', 70);
+        }
       } else if (ev.k === 'will') {
         banner('us will', `<small>Letzter Wille</small><b>Die Crew gibt nicht auf!</b><em>Ulti-Leisten laden, Mut</em>`, 1700);
         ev.list.forEach(x => { pulse(fu('crew', x.to), 'rise'); fx('fx-heal', center(fu('crew', x.to)), 900); setEn('crew', x.to, x.en); });
