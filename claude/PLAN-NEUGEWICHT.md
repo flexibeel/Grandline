@@ -70,3 +70,10 @@ Keine neuen Inhalte und keine neuen Regeln in: Werft, Gemütlichkeit, Formen/Wah
 - Kontor erzeugt nie Kopfgeld-Marken oder Kampfkraft (Gesamtplan, „Was wohin fließt“). Gilt weiter, bis Felix es ändert; Punkt 3 oben nutzt deshalb Duell-Beute, nicht das Kontor.
 - Raritäten bleiben rein kosmetisch.
 - Replay-sicher, neue Texte DE/EN, neue Namen in `js/world/neutral.js` absichern.
+
+## 8. Welt-Freiheit (Felix, 29.10., 8:13, im Gespräch)
+Die Welt muss **nicht „die Piratenwelt“** sein, eine eigene erfundene Welt ist ausdrücklich okay. Das gibt bei Beute, Grafik und Design mehr Freiheit. **Nicht alles umbauen.**
+- **Regel für alles Neue** (Häppchen 1 bis 5): Beute, Effekte, Teile, Namen und Grafik werden **frei erfunden gedacht**, nicht automatisch mit Piraten-Vokabular (kein Säbel/Entermesser/Kopfgeld-Reflex). Zum Beispiel Teile und Effekte, die zur eigenen Welt passen (Sturmmöwen, Kronwacht, Flossenvolk aus Weltbau A bis C), oder ganz neue Kategorien.
+- **Bestehendes bleibt:** Schiff, Hafen, Kopfgeld, Crew und die 65 Figuren werden jetzt nicht umgebaut. Das Gerüst darf piratig bleiben, solange das Neue nicht daran klebt.
+- **Nebeneffekt, der Arbeit spart:** Was von Anfang an in der eigenen Welt geschrieben wird, braucht **keinen Eintrag in `js/world/neutral.js`** und keine zweite Fassung (Gesamtplan-Grundsatz „Zwei Welten verdoppeln jeden Inhalt“). Es sinkt auch das Rechte-Risiko.
+- **Offen, später per Klick:** Soll das Gerüst (Schiff, Hafen, Kopfgeld) langfristig auch aus dem Piraten-Look heraus? Das wäre ein eigener, großer Plan (Weltbau D), nicht Teil dieser Häppchen.
