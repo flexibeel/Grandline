@@ -1,6 +1,13 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-29c', date: '29.10.', title: 'Kämpfe, die kippen können', items: [
+    '🩸 Letzter steht: Bleibt im Duell nur noch eine Figur übrig, beißt sie die Zähne zusammen, übersteht einen tödlichen Schlag und haut danach härter zu. Aus aussichtslos wird manchmal ein Comeback',
+    '💥 Ulti-Duell: Sind auf beiden Seiten die Ultis gleichzeitig voll, krachen sie aufeinander. Tempo und ein bisschen Glück entscheiden, wessen Ulti stärker trifft und wessen zerschellt',
+    '⭕ In beiden Momenten zieht sich ein Ring zusammen. Triffst du ihn, wird dein Moment noch stärker. Wer nur zuschaut, verliert wenig',
+    '🧠 Die passende Taktik gegen den Gegner zählt jetzt richtig: Wer mit Sturm, List oder Mauer den Konter trifft, schlägt 30 % härter zu statt ein paar Krümel',
+    '📜 Nach dem Duell steht in einer Zeile mit Bild, was es entschieden hat, zum Beispiel wer als Letzte stand',
+    '⚖ Die Kampfkraft ist neu geeicht, an echten Duellen. Sie kennt jetzt auch Fähigkeiten, Zusammenspiel, Rüstung und Ausweichen. Deine Zahl ändert sich deshalb, sagt aber viel besser, wer wirklich stärker ist' ] },
   { v: '2026-10-29b', date: '29.10.', title: 'Faire Duelle', items: [
     '🛡 Deine Ausrüstung zählt im Duell jetzt voll. Bisher wurde sie halbiert, jetzt merkt man jedes gute Teil',
     '⚖ „Gegner suchen“ findet nur noch Crews, deren Kampfkraft höchstens ein Viertel über oder unter deiner liegt. Kein Neuling landet mehr vor einer prall gefüllten Schatzkammer',
