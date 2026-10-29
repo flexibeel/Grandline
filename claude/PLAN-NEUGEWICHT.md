@@ -55,7 +55,7 @@ Alle drei wie empfohlen:
 
 Zurückgestellt (nicht verworfen): Richtung „Der Hafen wächst“ (Wirtschafts-Sim) kommt danach, hängt an Punkt 1 (Beute muss erst etwas wert sein).
 
-## 5. Einfrieren heißt konkret
+## 5. Einfrieren heißt konkret (seit 29.10., 8:47: dazu „Altes ausmisten“, siehe Abschnitt 6 unten)
 Keine neuen Inhalte und keine neuen Regeln in: Werft, Gemütlichkeit, Formen/Wahl-Boni, Meisterschaft, Schatzkammer, Schmiede, Landgang, Dungeon-Liga, Offene See, Seekarte, Pets, Crew-Gefühle, Weltgedächtnis, Folgen, Kampf-Zustände. Fehler werden weiter behoben. Fertige, aber nicht live geschaltete Zweige bleiben liegen (`feature/zuhause-schaufenster` 9f A, `feature/kampfton-einbau` 9e C), bis Felix etwas anderes sagt.
 
 ## 6. Vorschlag für die Häppchen (noch nichts bestätigt, vor dem Bauen kurz per Klick)
@@ -85,6 +85,25 @@ Häppchen 1 ist seit **29a „Woher kommt die Kraft?“** live (59. Chat).
 
 ### Taverne mitten in der Fahrt (Felix, 29.10., 8:35)
 Felix: „Brauch man die Taverne zwischen den Kämpfen? Ist es nicht besser, wenn man die Crew am Anfang hat, die man sich aussucht, und mit den Items verbessert?“ Claude: Ja, seit dem Deck (22m) sucht man die Crew am Start aus, die Taverne ist ein zweites Crew-System neben der Beute. Haken: Dort passieren auch **Zusammenlegen** (Figuren stärker machen) und das **Taler-Ausgeben**, beides braucht einen neuen Platz. Felix per Klick: **mit Häppchen 4 angehen**, Taverne wird zu einem Ausrüstungs-Halt (kaufen/verbessern), Zusammenlegen zieht um. Vorher kurz vorschlagen.
+
+### Kämpfe nicht vorherbestimmt, kein KI-Gefühl (Felix, 29.10., 8:47, per Klick)
+Felix: „Es soll sich nicht vorprogrammiert anfühlen, wie die Kämpfe sind. Es gibt so viele kack KI-Games, das möchte ich nicht, dass meins auch so wird.“ Was für ihn ein KI-Game ausmacht (alle vier gewählt): **alles fühlt sich gleich an**, **generische Grafik**, **zu viele Systeme ohne Seele**, **Texte wirken generiert**.
+
+**Leitsatz:** Kampfkraft legt die Chancen fest, **Momente entscheiden** den Kampf. Gleich starke Crews sollen bei etwa 40–60 % liegen, Überraschungen müssen möglich sein, und man versteht hinterher, warum.
+
+**Richtung per Klick: B + C + D** (nicht A „nur mehr Glück“):
+- **B · Wendepunkte:** 2–3 sichtbare Momente pro Kampf, in denen es kippen kann (Ideen: Ulti-Duell, „letzter Mann steht“ mit Aufbäumen, Kapitänsruf). Man sieht sie kommen.
+- **C · Vorher entscheiden zählt:** Taktik und Aufstellung gegen genau diesen Gegner bringen deutlich mehr als heute (+6 % bei Sturm/List/Mauer).
+- **D · Ehrliche Zusammenfassung:** „Gewonnen, weil …“ mit dem Moment, der es gedreht hat (deckt sich mit Häppchen 5).
+- Nächster Schritt: **Skizze** (welche Wendepunkte genau, wie stark Taktik wirkt, Ziel der Messung), Felix klickt ab, dann bauen (Opus). Replay-sicher, Würfel nur aus dem Kampf-Seed.
+
+**Neue feste Regel „Gegen das KI-Gefühl“** (gilt für alles Neue):
+- Lieber wenig, dafür von Hand durchdacht. Jedes neue Teil, jede Regel braucht eine eigene Idee (von Felix, Jan oder klar begründet), nicht „aus einer Liste aufgefüllt“.
+- Texte kurz, mit eigenem Witz, keine glatten Allzweck-Sätze.
+- Grafik mit erkennbarer Pixel-Handschrift, nicht austauschbar.
+- Jedes System muss im Spiel spürbar sein (Moment, Zahl, Bild), sonst kommt es nicht rein.
+
+**Altes ausmisten (Felix per Klick, ändert Abschnitt 5 „einfrieren, nichts löschen“):** Bestehende Systeme werden geprüft, Seelenloses kommt raus. Vorgehen: erst eine Liste mit Vorschlag je System (behalten / zusammenlegen / raus) und was mit Spielständen passiert, **jedes Raus einzeln per Klick**, nie still. Spielstände dürfen dabei nicht kaputtgehen (Werte, die wegfallen, sauber auslaufen lassen).
 
 ## 7. Regeln, die gelten bleiben
 - Fair: keine Bezahl-Abkürzungen, keine künstliche Energie.
