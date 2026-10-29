@@ -38,7 +38,7 @@ window.GL = window.GL || {};
       else if (tac === 'mauer') { x.max = Math.round(x.max * (r.role === 'brecher' ? 1.18 : 1.1)); x.atk = Math.max(1, Math.round(x.atk * 0.96)); }
       else if (tac === 'list') { x.max = Math.max(1, Math.round(x.max * 0.94)); x.gb = Object.assign({}, x.gb || {}); x.gb.dodge = (+x.gb.dodge || 0) + 0.05; x.gb.crit = (+x.gb.crit || 0) + 0.05; }
       else { x.atk = Math.round(x.atk * 1.04); x.max = Math.round(x.max * 1.03); }   // ausgewogen: wer nichts wählt, verliert nichts
-      if (edge) x.atk = Math.round(x.atk * 1.06);
+      if (edge) x.atk = Math.round(x.atk * (1 + ((GL.config.duel || {}).counter != null ? GL.config.duel.counter : 0.15)));   // Taktik-Konter (Kämpfe offen: 15 % statt 6 %)
       x.hp = x.max;
       if (r.id === 'self') {
         // eigener Pirat: Fähigkeit "Wille des Kapitäns" mitnehmen, Name aus dem Eintrag
@@ -59,7 +59,8 @@ window.GL = window.GL || {};
     // "self" der eigenen Crew nutzt die eingetragene Figur (Name/Aussehen stimmen schon)
     const run = { rng: (seed >>> 0) || 1, crew: me, relics: [], arts: [], items: [], crit: 0, bounties: 0,
       captain: me[0] && me[0].id, mod: { atk: 0, hp: 0, spd: 0 } };
-    const res = GL.battle.simulate(run, me, foe, 'duel', { duel: true, cmds: opt && Array.isArray(opt.cmds) ? opt.cmds.filter(c => c && ['cheer', 'food', 'dice'].includes(c.cmd) && Number.isInteger(c.at)).slice(0, 30) : [] });
+    const cmds = opt && Array.isArray(opt.cmds) ? opt.cmds.filter(c => c && ((['cheer', 'food', 'dice'].includes(c.cmd) && Number.isInteger(c.at)) || (c.cmd === 'tip' && Number.isInteger(c.n)))).slice(0, 40) : [];
+    const res = GL.battle.simulate(run, me, foe, 'duel', { duel: true, cmds, tipAll: !!(opt && opt.tipAll) });
     // Schaden pro Figur zählen (für MVP und Bericht)
     const dealt = { crew: me.map(() => 0), enemy: foe.map(() => 0) };
     res.events.forEach(e => {
@@ -80,13 +81,13 @@ window.GL = window.GL || {};
   function inBand(rows, mine, myRating) {
     const D = (GL.config && GL.config.duel) || {}, band = D.band == null ? 0.25 : D.band;
     const lo = mine * (1 - band), hi = mine * (1 + band);
-    return (rows || []).map(x => ({ x, p: x.squadPower || GL.meta.squadPower(x.squad) }))
+    return (rows || []).map(x => ({ x, p: GL.meta.squadPower(x.squad) }))   // immer neu rechnen: gespeicherte Zahlen können von der alten Formel sein
       .filter(o => o.p >= lo && o.p <= hi)
       .map(o => ({ x: o.x, d: Math.abs(o.p - mine) + Math.abs((o.x.squadRating || 1000) - myRating) / 4 }))
       .sort((p, q) => p.d - q.d).slice(0, 5);
   }
   // Übungscrew der Kronwacht, wenn niemand im Band ist: so viele Figuren wie du, auf deiner Stufe,
-  // Werte so gestreckt, dass ihre Kampfkraft deiner entspricht (GL.config.duel.trainer, 1 = genau gleich).
+  // Werte so gestreckt, dass ihre Kampfkraft trainer × deiner ist (GL.config.duel.trainer; 1.1 = gemessen etwa 50 % Siegchance).
   // rnd: Zufallsfunktion (fürs Messen festlegbar). Ergebnis: Liste wie squadRefs, mit .tactic.
   function trainer(lvl, n, mine, rnd) {
     rnd = rnd || Math.random;
@@ -97,14 +98,17 @@ window.GL = window.GL || {};
       const d = GL.data.crew.find(c => c.id === id); const max = d.hp + (lvl - 1) * 3;
       return { id, name: d.name, type: d.type, role: d.role, faction: d.faction, lvl, hp: max, max, atk: d.atk + Math.floor((lvl - 1) * 0.45), spd: d.spd };
     });
-    // Leben und Angriff strecken (Tempo bleibt), nach oben wie nach unten, aber nie unter die Hälfte
-    const base = squad.reduce((t, r) => t + r.max * 0.5 + r.atk * 4, 0), spdP = squad.reduce((t, r) => t + r.spd * 2, 0);
-    const f = base > 0 ? Math.max(0.5, (aim - spdP) / base) : 1;
-    squad.forEach(r => { r.max = r.hp = Math.max(1, Math.round(r.max * f)); r.atk = Math.max(1, Math.round(r.atk * f)); });
+    // Leben und Angriff strecken (Tempo bleibt), nach oben wie nach unten, aber nie unter die Hälfte.
+    // Die Kampfkraft ist nicht linear (geeichte Formel), deshalb wird der Faktor gesucht.
+    const at = f => squad.map(r => Object.assign({}, r, { max: Math.max(1, Math.round(r.max * f)), atk: Math.max(1, Math.round(r.atk * f)) }));
+    let lo = 0.5, hi = 20;
+    if (GL.meta.squadPower(at(lo)) >= aim) hi = lo;
+    else for (let k = 0; k < 24; k++) { const m = (lo + hi) / 2; if (GL.meta.squadPower(at(m)) < aim) lo = m; else hi = m; }
+    at(hi).forEach((x, i) => { squad[i].max = squad[i].hp = x.max; squad[i].atk = x.atk; });
     // Die Kronwacht hat auch eine Taktik (meistens). Sie steht in der Vorschau, damit man kontern kann.
     squad.tactic = ['sturm', 'mauer', 'list', null][Math.floor(rnd() * 4)];
     return squad;
   }
 
-  GL.squad = { fight, TACTICS, tacOf, traitOf, traitTier, inBand, trainer };
+  GL.squad = { fight, TACTICS, tacOf, traitOf, traitTier, inBand, trainer, prep: list => prep(list, false, null, false) };
 })();

@@ -543,44 +543,93 @@ window.GL = window.GL || {};
         return r;
       }).filter(Boolean);
     },
-    // Kampfkraft einer Figur (ungerundet). Die Summe über die Stammcrew ist die Kampfkraft der Crew,
-    // nach ihr sucht „Gegner suchen“ aus. Formel unverändert seit der alten „Stärke“.
-    unitPower(r) {
-      const g = r.gb || {};
-      return r.max * 0.5 + r.atk * 4 + r.spd * 2 + (g.crit || 0) * 150 + (g.dodge || 0) * 150 + (g.armor || 0) * 4 + (g.dmgPct || 0) * 120 + (g.critMult || 0) * 60 + (g.regen || 0) * 6 + (g.ultStart || 0) * 0.4;
+    // Kampfkraft (geeicht an echten Duellen, seit „Kämpfe offen“): Leben mal Schaden der ganzen Stammcrew, daraus die Wurzel.
+    //   Leben zählt mit Ausweichen, Schutz und Rüstung, Schaden mit Krit, Schaden %, Extra-Zügen, Konter, Fähigkeiten und Zuständen.
+    //   Gerechnet wird mit genau den Werten, die im Duell kämpfen (GL.squad.prep: Zusammenhalt-Deckel, Kapitäns-Anfeuern)
+    //   samt Synergien der Aufstellung (GL.effects.setup). Doppelt so viel Leben und Angriff = doppelte Kampfkraft.
+    //   Gewichte in GL.config.kk. Ergebnis: { total, h: [], d: [] } je Figur (h = Leben-Wert, d = Schaden-Wert).
+    powerCore(refs) {
+      const list = (refs || []).filter(Boolean).map(r => Object.assign({}, r, { max: Math.max(1, num(r.max)), atk: Math.max(1, num(r.atk)), spd: num(r.spd) }));
+      if (!list.length) return { total: 0, h: [], d: [] };
+      const W = Object.assign({ k: 2, armor: 1, regen: 1, dmg: 1.1, crit: 1.1, extra: 8, riposte: 1.2, spd: 0.25, ult: 0.3,
+        helferD: 0.85, helferH: 0.85, brecherH: 0.85, rally: 1, ramp: 2.6, slow: 0.8, burn: 2.2, chain: 1.3, double: 0.8,
+        lifesteal: 1, oasis: 1.9, medic: 3.6, thorns: 8, revive: 1, execute: 0.5, status: 0.25 }, (GL.config && GL.config.kk) || {});
+      let us = null;
+      try {
+        const prepped = GL.squad && GL.squad.prep ? GL.squad.prep(list) : list;
+        us = GL.effects.setup({ rng: 1, crew: [], relics: [], arts: [], items: [], crit: 0, bounties: 0, mod: { atk: 0, hp: 0, spd: 0 } }, prepped, []).crew;
+      } catch (e) { us = null; }
+      if (!us) us = list.map(r => Object.assign({ critMult: 2 }, r.gb || {}, { id: r.id, role: r.role, max: r.max, atk: r.atk, spd: r.spd }));
+      const A = Math.max(1, us.reduce((t, u) => t + num(u.atk), 0) / us.length);   // Rüstung zählt im Verhältnis zum Angriff
+      const rallyAll = us.reduce((t, u) => t + (u.ability === 'rally' ? num(u.power) : 0), 0);
+      const AB = (GL.data && GL.data.abilities) || {};
+      const h = [], d = [];
+      us.forEach((u, i) => {
+        const pw = num(u.power), ab = u.ability, n = us.length;
+        let hh = num(u.max) / (1 - Math.min(0.6, num(u.dodge))) / (1 - Math.min(0.6, num(u.guard))) * (1 + W.armor * num(u.armor) / A) + W.regen * num(u.regen);
+        let dd = num(u.atk) * (1 + num(u.dmgPct) * W.dmg) * (1 + Math.min(0.6, num(u.crit)) * ((u.critMult || 2) - 1) * W.crit)
+          * (1 + W.extra * num(u.extraTurn) + W.riposte * num(u.riposte) + W.spd * num(u.spd) / 10);
+        dd *= 1 + W.ult * num((list[i] && list[i].gb && list[i].gb.ultStart) || 0) / 100;
+        dd += W.rally * rallyAll;
+        if (ab === 'ramp') dd += W.ramp * pw;
+        if (ab === 'slow') dd += W.slow * pw;
+        if (ab === 'burn') dd *= 1 + W.burn * pw;
+        if (ab === 'chain') dd *= 1 + W.chain * pw;
+        if (ab === 'double') dd *= 1 + W.double;
+        if (ab === 'execute') dd *= 1 + W.execute * pw;
+        if (ab === 'lifesteal') hh *= 1 + W.lifesteal * pw;
+        if (ab === 'revive') hh *= 1 + W.revive * pw;
+        if (ab === 'oasis') hh += W.oasis * pw * n;
+        if (ab === 'medic') hh += W.medic * pw;
+        if (ab === 'thorns') hh += W.thorns * pw;
+        const st = AB[u.id] && AB[u.id].status;
+        if (st) dd *= 1 + W.status * (st.when === 'hit' ? (st.chance || 1) : 0.5);
+        if (u.role === 'helfer') { dd *= W.helferD; hh *= W.helferH; }
+        if (u.role === 'brecher') hh *= W.brecherH;
+        h.push(Math.max(0, hh)); d.push(Math.max(0, dd));
+      });
+      const H = h.reduce((a, b) => a + b, 0), D = d.reduce((a, b) => a + b, 0);
+      return { total: W.k * Math.sqrt(H * D), h, d };
     },
+    // Anteil jeder Figur an der Kampfkraft (Summe = total): halb über ihr Leben, halb über ihren Schaden
+    powerShares(core) {
+      const H = core.h.reduce((a, b) => a + b, 0) || 1, D = core.d.reduce((a, b) => a + b, 0) || 1;
+      return core.h.map((x, i) => core.total * (x / H + core.d[i] / D) / 2);
+    },
+    // Kampfkraft einer einzelnen Figur (ungerundet, allein gerechnet)
+    unitPower(r) { return GL.meta.powerCore([r]).total; },
     squadPower(refs) {
-      return Math.round((refs || []).reduce((s, r) => s + GL.meta.unitPower(r), 0));
+      return Math.round(GL.meta.powerCore(refs).total);
     },
-    // Herkunft der Kampfkraft: fig (Grundwert der Figur), lvl (Stufe & Vertrautheit, beim eigenen Piraten auch der Rang),
-    // werft (nur mit profile, sonst steckt sie in lvl), gear (Ausrüstung samt Zusatzwerten).
-    // Nur Anzeige, ändert nichts. Klappt auch mit fremden Crews aus der Rangliste (dann ohne Werft-Anteil).
+    // Herkunft der Kampfkraft: fig (Grundwert der Figur samt Fähigkeit und Zusammenspiel), lvl (Stufe & Vertrautheit,
+    // beim eigenen Piraten auch der Rang), werft (nur mit profile, sonst steckt sie in lvl), gear (Ausrüstung samt Zusatzwerten).
+    // Gerechnet wird schrittweise: alles, dann ohne Ausrüstung, ohne Werft, nur Grundwerte. Die Differenzen sind die Quellen,
+    // je Figur über ihren Anteil (powerShares). Nur Anzeige, ändert nichts. Klappt auch mit fremden Crews (dann ohne Werft).
     // Ergebnis: { total, parts, units: [{ id, name, total, parts }] }, alles ganze Zahlen, Teile ergeben genau die Summe.
     powerParts(refs, profile) {
-      const P = (hp, atk, spd) => num(hp) * 0.5 + num(atk) * 4 + num(spd) * 2;
+      refs = (refs || []).filter(Boolean);
       const up = profile ? (profile.upgrades || {}) : null;
-      const werft = up ? P(GL.run.upgradeTotal(up, 'hp'), GL.run.upgradeTotal(up, 'atk'), GL.run.upgradeTotal(up, 'spd')) : 0;
+      const wm = up ? { hp: GL.run.upgradeTotal(up, 'hp'), atk: GL.run.upgradeTotal(up, 'atk'), spd: GL.run.upgradeTotal(up, 'spd') } : { hp: 0, atk: 0, spd: 0 };
+      const noGear = refs.map(r => { const gw = r.gw || {}; const x = Object.assign({}, r, { max: num(r.max) - num(gw.hp), atk: num(r.atk) - num(gw.atk), spd: num(r.spd) - num(gw.spd) }); delete x.gb; delete x.gw; return x; });
+      const noWerft = noGear.map(r => Object.assign({}, r, { max: r.max - num(wm.hp), atk: r.atk - num(wm.atk), spd: r.spd - num(wm.spd) }));
+      const fig = refs.map(r => {
+        const self = r.id === 'self' || r.id === 'rival';
+        const d = self ? (Object.prototype.hasOwnProperty.call(SELF_BASE, r.type) ? SELF_BASE[r.type] : SELF_DEF) : (GL.data.crew || []).find(c => c.id === r.id);
+        const x = Object.assign({}, r, d ? { max: d.hp, atk: d.atk, spd: d.spd, lvl: 1 } : {}); delete x.gb; delete x.gw; delete x.bond; return x;
+      });
+      const stage = l => GL.meta.powerShares(GL.meta.powerCore(l));
+      const sF = stage(refs), sG = stage(noGear), sW = stage(noWerft), sB = stage(fig);
       const keys = ['fig', 'lvl', 'werft', 'gear'];
       const sum = { fig: 0, lvl: 0, werft: 0, gear: 0 };
-      const units = (refs || []).map(r => {
-        r = r || {};
-        const self = r.id === 'self' || r.id === 'rival';
-        const d = self ? (Object.prototype.hasOwnProperty.call(SELF_BASE, r.type) ? SELF_BASE[r.type] : SELF_DEF)
-          : (GL.data.crew || []).find(c => c.id === r.id);
-        const total = num(GL.meta.unitPower(r));
-        const gw = r.gw || {};
-        const p = {
-          fig: d ? P(d.hp, d.atk, d.spd) : 0,
-          werft,
-          gear: num(GL.meta.unitPower({ max: num(gw.hp), atk: num(gw.atk), spd: num(gw.spd), gb: r.gb }))
-        };
-        p.lvl = total - p.fig - p.werft - p.gear;
+      const units = refs.map((r, i) => {
+        const p = { gear: sF[i] - sG[i], werft: sG[i] - sW[i], fig: sB[i] };
+        p.lvl = sW[i] - sB[i];
         if (p.lvl < 0) { p.fig = Math.max(0, p.fig + p.lvl); p.lvl = 0; }   // fremde Daten oder Übungscrew: nie negativ
         keys.forEach(k => { sum[k] += p[k] || 0; });
-        return { id: r.id, name: r.name, total, parts: p };
+        return { id: r.id, name: r.name, total: sF[i], parts: p };
       });
       // Runden so, dass die Teile genau die angezeigte Summe ergeben (Rest landet bei Stufe)
-      const whole = (p, total) => { const o = {}; ['fig', 'werft', 'gear'].forEach(k => { o[k] = Math.round(p[k] || 0); });
+      const whole = (p, total) => { const o = {}; ['fig', 'werft', 'gear'].forEach(k => { o[k] = Math.max(0, Math.round(p[k] || 0)); });
         o.lvl = Math.round(total) - o.fig - o.werft - o.gear;
         if (o.lvl < 0) { o.fig += o.lvl; o.lvl = 0; }
         return o; };

@@ -45,6 +45,21 @@ window.GL = window.GL || {};
     let PL = null;   // FIGHT: Plan der Gegnergruppe (GL.data.foePlans), höchstens einer pro Kampf
     let LX = null;   // FIGHT: Kampf-Laune (Kampfwetter mit eigener Mechanik)
     let M = null;    // NEXT: Landgang-Endgegner mit Mechanik (o.mech, nur Landgang)
+    // ---------- Kämpfe offen (nur Stammcrew-Duell, o.duel): Momente, in denen es kippen kann ----------
+    //   Letzter steht: Bleibt einer Seite nur eine Figur, bäumt sie sich auf (übersteht einen tödlichen Schlag, schlägt härter zu).
+    //   Ulti-Duell: Sind auf beiden Seiten Ultis voll, prallen sie aufeinander. Tempo und etwas Glück entscheiden.
+    //   Tipp: Ein Moment hat die Nummer n. Ein Befehl { cmd: 'tip', n } macht ihn für die Crew stärker. Alles vor dem Moment
+    //   bleibt gleich (Würfel werden immer gleich gezogen), deshalb kann die Wiedergabe nahtlos weiterlaufen.
+    //   Der Verteidiger ist offline und bekommt automatisch einen Teil des Tipp-Bonus (config.duel.def).
+    const DM = o.duel ? Object.assign({}, C.duel || {}) : null;
+    const DML = DM ? Object.assign({ atk: 0.15, tipAtk: 0.2, tipHeal: 0.15 }, DM.last || {}) : null;
+    const DMC = DM ? Object.assign({ spd: 0.04, tip: 0.2, power: 0.3, keep: 0.25, max: 2 }, DM.clash || {}) : null;
+    let momN = 0, clashN = 0, ultBoost = 1;
+    const lastDone = { crew: false, enemy: false };
+    function tipOf(side, n) {
+      if (side !== 'crew') return DM.def == null ? 0.5 : DM.def;
+      return o.tipAll || (Array.isArray(o.cmds) && o.cmds.some(c => c && c.cmd === 'tip' && c.n === n)) ? 1 : 0;
+    }
 
     function damage(u, amount) {
       // NEXT: Trommler (Boss nimmt kaum Schaden, solange der Takt läuft) und Tekkai-Runde (gar keinen)
@@ -59,6 +74,8 @@ window.GL = window.GL || {};
       if (M && M.id === 'larvae' && !M.c && u.ref && u.ref.larva && amount > 0) amount = Math.max(1, Math.round(amount * 0.35));
       const before = u.hp;
       u.hp = Math.max(0, u.hp - amount);
+      // Letzter steht: der eine tödliche Schlag, den die letzte Figur übersteht
+      if (DM && u.lastStand === 1 && u.hp <= 0 && before > 0) { u.hp = 1; u.lastStand = 2; events.push({ k: 'moment', m: 'last', ph: 'hold', side: u.side, to: idx(u) }); }
       // 2c-1 Unterbrechen: Schaden am Boss, der gerade eine Signatur auflädt, füllt den Balken
       if (u.sigCharge && u.sigPending && before > u.hp) u.sigCharge.dealt += (before - u.hp) * (FOCUS === u ? 1 : SG.noFocus);
       return u.hp;
@@ -104,6 +121,39 @@ window.GL = window.GL || {};
       }
       if (PL) planFall();
       if (KT) routCheck();
+      if (DM) lastCheck();
+    }
+    // Kämpfe offen: Letzter steht (einmal je Seite, nur wenn die Seite mit mindestens zwei Figuren angefangen hat)
+    function lastCheck() {
+      ['crew', 'enemy'].forEach(side => {
+        if (lastDone[side]) return;
+        const team = sideOf(side), up = alive(team);
+        if (team.length < 2 || up.length !== 1 || !alive(sideOf(side === 'crew' ? 'enemy' : 'crew')).length) return;
+        lastDone[side] = true;
+        const u = up[0], n = ++momN;
+        events.push({ k: 'moment', m: 'last', ph: 'start', n, side, to: idx(u), tip: side === 'crew' || undefined });
+        const t = tipOf(side, n);
+        const add = Math.max(1, Math.round(u.atk * (DML.atk + DML.tipAtk * t)));
+        u.atk += add; u.lastStand = 1;
+        const got = t > 0 ? heal(u, Math.round(u.max * DML.tipHeal * t)) : 0;
+        events.push({ k: 'moment', m: 'last', ph: 'end', n, side, to: idx(u), tipped: t, add, heal: got, hp: u.hp });
+      });
+    }
+    // Kämpfe offen: Ulti-Duell. Wer gewinnt, zündet seine Ulti stärker, beim anderen zerschellt sie (etwas Energie bleibt).
+    function fireUlt(u) {
+      const v = DM && clashN < DMC.max ? alive(foesOf(u)).filter(f => f.ult && f.energy >= U.max && !f.status.stun).sort((a, b) => spdOf(b) - spdOf(a))[0] : null;
+      if (!v) { doUlt(u); return; }
+      clashN++;
+      const n = ++momN, c = u.side === 'crew' ? u : v, e = c === u ? v : u;
+      events.push({ k: 'moment', m: 'clash', ph: 'start', n, a: idx(c), b: idx(e), tip: true });
+      const r = R.float(run);
+      const t = tipOf('crew', n);
+      const p = Math.max(0.15, Math.min(0.85, 0.5 + (spdOf(c) - spdOf(e)) * DMC.spd + DMC.tip * (t - tipOf('enemy', n))));
+      const w = r < p ? c : e, l = w === c ? e : c;
+      l.energy = Math.round(U.max * DMC.keep); l.ultWait = 0;
+      events.push({ k: 'moment', m: 'clash', ph: 'end', n, win: w.side, a: idx(c), b: idx(e), tipped: t, p: Math.round(p * 100), el: l.energy });
+      ultBoost = 1 + DMC.power;
+      try { doUlt(w); } finally { ultBoost = 1; }
     }
 
     // ---------- Zustände (halten mehrere Runden) ----------
@@ -179,7 +229,7 @@ window.GL = window.GL || {};
       let m = typeMult(u.type, t.type);
       if (m < 1 && u.ignoreWeak) m = 1;
       if (m > 1 && u.side === 'crew') m += flags.effBonus;
-      let d = u.atk * mult * m * (1 + (u.dmgPct || 0)) * (inUlt ? (U.power || 1) : 1);   // KAMPF-UPDATE: Ultis seltener, dafür stärker
+      let d = u.atk * mult * m * (1 + (u.dmgPct || 0)) * (inUlt ? (U.power || 1) * ultBoost : 1);   // KAMPF-UPDATE: Ultis seltener, dafür stärker
       if (t.boss || t.mini) d *= 1 + (u.bossPct || 0);
       if (u.status.fear) d *= 0.65;
       if (t.status.weak) d *= 1.25;
@@ -988,7 +1038,7 @@ window.GL = window.GL || {};
         if (MU && u.side === 'crew' && u.ult) {
           if (u.energy >= U.max) { u.held = (u.held || 0) + 1; if (u.held > (U.holdMax || 4)) { doUlt(u); continue; } }
         } else if (u.ult && u.energy >= U.max) {
-          if ((u.ultWait || 0) >= (U.maxWait || 2) || R.float(run) < (U.fireChance || 0.6)) { doUlt(u); continue; }
+          if ((u.ultWait || 0) >= (U.maxWait || 2) || R.float(run) < (U.fireChance || 0.6)) { fireUlt(u); continue; }
           u.ultWait = (u.ultWait || 0) + 1;
         } else if (u.ult && u.energy >= U.max * 0.5 && R.float(run) < (U.spark || 0)) { doUlt(u, true); continue; }
         const foes = foesOf(u);
@@ -1037,7 +1087,7 @@ window.GL = window.GL || {};
           if (mult > 1 && u.side === 'crew') mult += flags.effBonus;
 
           // Schaden schwankt prozentual (±dmgSpreadPct), dazu eine kleine Grund-Krit-Chance für alle
-          const sp = C.dmgSpreadPct != null ? C.dmgSpreadPct : 0.18;
+          const sp = DM && DM.spread != null ? DM.spread : C.dmgSpreadPct != null ? C.dmgSpreadPct : 0.18;
           let dmg = u.atk * (1 + (R.float(run) * 2 - 1) * sp) * mult * (1 + u.dmgPct);
           if (target.boss || target.mini) dmg *= 1 + u.bossPct;
           if (u.side === 'crew') dmg *= 1 + wxDmg;

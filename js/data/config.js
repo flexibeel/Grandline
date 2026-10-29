@@ -106,7 +106,15 @@ GL.config = {
   // FUN: Kapitänsbefehle im Run-Kampf (Ladung in Zügen; ein Zug = eine Figur ist dran)
   runCmds: { charge: { rally: 4, guard: 6, burst: 9 }, rallyAtk: 0.18, rallyTurns: 6, guard: 0.25, guardTurns: 6, strike: 2, mend: 0.2 },
   // Gegnersuche im Duell: nur Crews mit ±band Kampfkraft, sonst Übungscrew mit trainer × deiner Kampfkraft
-  duel: { band: 0.25, trainer: 1 },
+  // Kämpfe offen (nur Duelle): counter = Angriff für den Taktik-Konter (30 %, Felix per Klick), spread = Schadensstreuung im Duell,
+  // last = „Letzter steht“ (atk, dazu mit Tipp tipAtk und tipHeal), clash = Ulti-Duell (spd = Gewicht je Tempo-Punkt,
+  // tip = Vorsprung durch Tipp, power = Mehrschaden der Sieger-Ulti, keep = Rest-Energie des Verlierers, max = höchstens so oft),
+  // def = Anteil des Tipp-Bonus, den der Verteidiger (offline) automatisch bekommt
+  // Kampfkraft-Gewichte (GL.meta.powerCore), geeicht am 29.10. mit 18 echten Stammcrews: bei gleicher Zahl liegt jede Crew
+  // im Schnitt deutlich näher an 50 % (Abweichung je Crew 24 → 14 Punkte), einseitige Paarungen 69 → 40 %.
+  kk: { k: 2, armor: 0.944, regen: 0.699, crit: 1.056, status: 0.279, brecherH: 1.027, rally: 1.572, ramp: 1.655, slow: 3.468, burn: 2.815, oasis: 2.517 },
+  duel: { band: 0.25, trainer: 1.1, counter: 0.3, spread: 0.18,
+    last: { atk: 0.15, tipAtk: 0.2, tipHeal: 0.15 }, clash: { spd: 0.04, tip: 0.2, power: 0.3, keep: 0.25, max: 2 }, def: 0.5 },
   duelCmds: { charge: { cheer: 10, food: 13, dice: 18 }, cheerAtk: 0.08, cheerTurns: 5, food: 0.2, salvoP: 0.3, salvo: 0.22, tripP: 0.28 },
   enemyScale: 0.9,        // wie schnell normale Gegner pro Etappe stärker werden (längere Insel-Kapitel -> langsamer hochskalieren)
   eliteMult: 1.3,         // Kopfgeldjäger sind um diesen Faktor stärker

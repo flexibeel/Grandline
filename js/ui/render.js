@@ -2701,7 +2701,7 @@ window.GL = window.GL || {};
   }
   function matchPop(row, profile, chance) {
     const mineR = GL.meta.squadRefs(profile), foeR = row.squad || [];
-    const mine = GL.meta.squadPower(mineR), theirs = row.squadPower || GL.meta.squadPower(foeR);
+    const mine = GL.meta.squadPower(mineR), theirs = GL.meta.squadPower(foeR);
     const ch = chance >= 65 ? 'gut' : chance >= 40 ? 'offen' : 'schwer';
     const pw = r => r.max * 0.5 + r.atk * 4 + r.spd * 2;
     // Kompakt: zwei Reihen kleiner Figuren, Platz gegen Platz. Pfeil = wer auf dem Platz stärker ist. Details per Hover/Finger halten.
@@ -2717,8 +2717,8 @@ window.GL = window.GL || {};
       <div class="mp-head"><span class="fpop-kicker">Gegner gefunden</span>
         <h3 id="fpop-t">${esc(row.name || 'Pirat')}</h3>${GL.dliga ? GL.dliga.chip(row.dlRating || 0, true) : ''}</div>
       ${row.npc ? `<p class="hint mp-npc">${GL.i18n && GL.i18n.lang() === 'en'
-        ? `Nobody with similar battle power (±${Math.round(100 * ((GL.config.duel || {}).band || 0.25))} %) is out at sea right now. The Crown Watch trains with you instead, at exactly your strength.`
-        : `Gerade ist niemand mit ähnlicher Kampfkraft (±${Math.round(100 * ((GL.config.duel || {}).band || 0.25))} %) auf See. Die Kronwacht übt mit dir, genau auf deiner Stärke.`}</p>` : ''}
+        ? `Nobody with similar battle power (±${Math.round(100 * ((GL.config.duel || {}).band || 0.25))} %) is out at sea right now. The Crown Watch trains with you instead. Measured in real duels, it's about as strong as you.`
+        : `Gerade ist niemand mit ähnlicher Kampfkraft (±${Math.round(100 * ((GL.config.duel || {}).band || 0.25))} %) auf See. Die Kronwacht übt mit dir. In echten Duellen gemessen ist sie etwa so stark wie du.`}</p>` : ''}
       <div class="mp-teams">
         <span class="mp-lbl">Du <b>⚔ ${mine}</b></span><div class="mp-row">${idx.map(i => tile(mineR[i], foeR[i], false)).join('')}</div>
         <span class="mp-lbl foe">${esc(String(row.name || 'Gegner').slice(0, 14))} <b>⚔ ${theirs}</b></span><div class="mp-row">${idx.map(i => tile(foeR[i], null, true)).join('')}</div>
@@ -3062,7 +3062,7 @@ window.GL = window.GL || {};
     }
     const meOn = GL.meta.squadUnlocked(ui && ui.profile ? ui.profile : {});
     const sq = (x.squadOn || x.npc) && (x.squad || []).length
-      ? `<div class="pcard-sec"><b>Stammcrew ${GL.dliga ? GL.dliga.chip(x.dlRating || 0, true) : ''} ${x.squadPower ? `<small>⚔ ${x.squadPower} ${GL.i18n && GL.i18n.lang() === 'en' ? 'battle power' : 'Kampfkraft'}</small>` : ''}</b>${squadMinis(x)}
+      ? `<div class="pcard-sec"><b>Stammcrew ${GL.dliga ? GL.dliga.chip(x.dlRating || 0, true) : ''} ${(x.squad || []).length ? `<small>⚔ ${GL.meta.squadPower(x.squad)} ${GL.i18n && GL.i18n.lang() === 'en' ? 'battle power' : 'Kampfkraft'}</small>` : ''}</b>${squadMinis(x)}
           ${isMe ? '' : meOn ? `<button class="btn pcard-duel" data-act="squad-fight" data-id="${esc(x.id)}">⚔ ${res ? 'Nochmal herausfordern' : 'Herausfordern'}</button>` : '<small class="muted">Herausfordern geht nach deinem ersten gewonnenen Run oder ab Rang 5.</small>'}</div>`
       : '';
     if (res) return `<div class="pcard-bg" data-act="lb-view-close"><div class="pcard" data-act="noop">
