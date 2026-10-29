@@ -4,6 +4,10 @@ window.GL = window.GL || {};
 
 (function () {
   const add = (list, id) => { if (id && !list.includes(id)) { list.push(id); return true; } return false; };
+  // Grundwerte des eigenen Piraten je Kampfstil (ohne Rang und Vertrautheit)
+  const SELF_BASE = { kraft: { hp: 33, atk: 8, spd: 5 }, klinge: { hp: 31, atk: 9, spd: 6 }, technik: { hp: 32, atk: 9, spd: 7 } };
+  const SELF_DEF = { hp: 30, atk: 8, spd: 6 };
+  const num = v => { v = +v; return isFinite(v) ? v : 0; };
 
   GL.meta = {
     newProfile() {
@@ -124,7 +128,7 @@ window.GL = window.GL || {};
       const ch = profile.char;
       if (!ch || !profile.nickname) return null;
       const k = GL.meta.rankIndex(profile);
-      const base = { kraft: { hp: 33, atk: 8, spd: 5 }, klinge: { hp: 31, atk: 9, spd: 6 }, technik: { hp: 32, atk: 9, spd: 7 } }[ch.type] || { hp: 30, atk: 8, spd: 6 };
+      const base = SELF_BASE[ch.type] || SELF_DEF;
       // Du bist immer Kapitän: dein Pirat wächst mit dem Piratenrang und mit der Vertrautheit deiner Crew zu dir
       const g = GL.meta.selfGrowth(profile);
       return {
@@ -539,9 +543,50 @@ window.GL = window.GL || {};
         return r;
       }).filter(Boolean);
     },
+    // Kampfkraft einer Figur (ungerundet). Die Summe über die Stammcrew ist die Kampfkraft der Crew,
+    // nach ihr sucht „Gegner suchen“ aus. Formel unverändert seit der alten „Stärke“.
+    unitPower(r) {
+      const g = r.gb || {};
+      return r.max * 0.5 + r.atk * 4 + r.spd * 2 + (g.crit || 0) * 150 + (g.dodge || 0) * 150 + (g.armor || 0) * 4 + (g.dmgPct || 0) * 120 + (g.critMult || 0) * 60 + (g.regen || 0) * 6 + (g.ultStart || 0) * 0.4;
+    },
     squadPower(refs) {
-      return Math.round((refs || []).reduce((s, r) => { const g = r.gb || {};
-        return s + r.max * 0.5 + r.atk * 4 + r.spd * 2 + (g.crit || 0) * 150 + (g.dodge || 0) * 150 + (g.armor || 0) * 4 + (g.dmgPct || 0) * 120 + (g.critMult || 0) * 60 + (g.regen || 0) * 6 + (g.ultStart || 0) * 0.4; }, 0));
+      return Math.round((refs || []).reduce((s, r) => s + GL.meta.unitPower(r), 0));
+    },
+    // Herkunft der Kampfkraft: fig (Grundwert der Figur), lvl (Stufe & Vertrautheit, beim eigenen Piraten auch der Rang),
+    // werft (nur mit profile, sonst steckt sie in lvl), gear (Ausrüstung samt Zusatzwerten).
+    // Nur Anzeige, ändert nichts. Klappt auch mit fremden Crews aus der Rangliste (dann ohne Werft-Anteil).
+    // Ergebnis: { total, parts, units: [{ id, name, total, parts }] }, alles ganze Zahlen, Teile ergeben genau die Summe.
+    powerParts(refs, profile) {
+      const P = (hp, atk, spd) => num(hp) * 0.5 + num(atk) * 4 + num(spd) * 2;
+      const up = profile ? (profile.upgrades || {}) : null;
+      const werft = up ? P(GL.run.upgradeTotal(up, 'hp'), GL.run.upgradeTotal(up, 'atk'), GL.run.upgradeTotal(up, 'spd')) : 0;
+      const keys = ['fig', 'lvl', 'werft', 'gear'];
+      const sum = { fig: 0, lvl: 0, werft: 0, gear: 0 };
+      const units = (refs || []).map(r => {
+        r = r || {};
+        const self = r.id === 'self' || r.id === 'rival';
+        const d = self ? (Object.prototype.hasOwnProperty.call(SELF_BASE, r.type) ? SELF_BASE[r.type] : SELF_DEF)
+          : (GL.data.crew || []).find(c => c.id === r.id);
+        const total = num(GL.meta.unitPower(r));
+        const gw = r.gw || {};
+        const p = {
+          fig: d ? P(d.hp, d.atk, d.spd) : 0,
+          werft,
+          gear: num(GL.meta.unitPower({ max: num(gw.hp), atk: num(gw.atk), spd: num(gw.spd), gb: r.gb }))
+        };
+        p.lvl = total - p.fig - p.werft - p.gear;
+        if (p.lvl < 0) { p.fig = Math.max(0, p.fig + p.lvl); p.lvl = 0; }   // fremde Daten oder Übungscrew: nie negativ
+        keys.forEach(k => { sum[k] += p[k] || 0; });
+        return { id: r.id, name: r.name, total, parts: p };
+      });
+      // Runden so, dass die Teile genau die angezeigte Summe ergeben (Rest landet bei Stufe)
+      const whole = (p, total) => { const o = {}; ['fig', 'werft', 'gear'].forEach(k => { o[k] = Math.round(p[k] || 0); });
+        o.lvl = Math.round(total) - o.fig - o.werft - o.gear;
+        if (o.lvl < 0) { o.fig += o.lvl; o.lvl = 0; }
+        return o; };
+      const total = units.reduce((s, u) => s + u.total, 0);
+      units.forEach(u => { u.parts = whole(u.parts, u.total); u.total = Math.round(u.total); });
+      return { total: Math.round(total), parts: whole(sum, total), units };
     },
 
     // ---------- Lebenszeit-Zähler für Aufträge ----------

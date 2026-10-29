@@ -36,7 +36,7 @@ window.GL = window.GL || {};
     'Brecher vorne': 'Breakers in front', 'Die Grand Line gehört dir': 'The Grand Line is yours', 'Die Crew ist untergegangen': 'Your crew went down',
     'Rang-Aufstieg!': 'Rank up!', 'Piratenrang:': 'Pirate rank:', 'Neue Ausrüstung für die Schmiede': 'New gear for the forge', 'Beute für deine Stammcrew': 'Loot for your squad',
     'Neu in der Schatzkammer': 'New in the treasury', 'Code teilen': 'Share code', 'Als Nächstes freischalten': 'Unlock next', 'Gegner gefunden': 'Opponent found',
-    'Siegchance': 'Win chance', '⚔ Angreifen': '⚔ Attack', 'Anderer': 'Another', 'Deine Stammcrew': 'Your squad', '⚔ Gegner suchen': '⚔ Find opponent', 'ähnliche Stärke': 'similar strength',
+    'Siegchance': 'Win chance', '⚔ Angreifen': '⚔ Attack', 'Anderer': 'Another', 'Deine Stammcrew': 'Your squad', '⚔ Gegner suchen': '⚔ Find opponent', 'ähnliche Stärke': 'similar strength', 'ähnliche Kampfkraft': 'similar battle power',
     'Neu würfeln': 'Reroll', 'Kopfgeld-Ziel': 'Bounty target', 'Gefahr gering': 'Low danger', 'Gefahr mittel': 'Medium danger', 'Gefahr hoch': 'High danger', 'GEFAHR HOCH': 'HIGH DANGER',
     'Tippen zum Starten': 'Tap to start', 'Raid-Boss': 'Raid boss', 'Wille des Kapitäns!': 'Captain’s will!', 'Ausgewichen': 'Dodged', 'Geblockt': 'Blocked', 'Betäubt': 'Stunned',
     'Wut!': 'Rage!', 'Fast geschafft!': 'Almost done!', 'Konter!': 'Counter!', 'Letzter Wille': 'Last will', 'Die Crew gibt nicht auf!': 'The crew won’t give up!',

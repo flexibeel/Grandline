@@ -2647,6 +2647,58 @@ window.GL = window.GL || {};
       <div class="sq-tcs">${['sturm', 'mauer', 'list'].map(card).join('')}</div>
       <small class="sq-hint">${esc(hint)}</small></div>`;
   }
+  // Kampfkraft mit Herkunft (PLAN-NEUGEWICHT Häppchen 1): woraus sich die Zahl der Stammcrew zusammensetzt.
+  // Rechnet nichts selbst, liest GL.meta.powerParts (gleiche Formel wie die Gegnersuche).
+  const KK_SRC = [
+    { k: 'fig', ico: '👤', de: 'Figuren', en: 'Characters', tde: 'Grundwerte der Figuren auf dem Deck. Andere Figur, andere Zahl.', ten: 'Base stats of the characters on deck. Other character, other number.' },
+    { k: 'lvl', ico: '★', de: 'Stufe & Vertrautheit', en: 'Level & bond', tde: 'Der Piratenrang hebt alle, Duelle und Proviant einzelne.', ten: 'Pirate rank lifts everyone, duels and snacks lift single ones.' },
+    { k: 'werft', ico: '⚓', de: 'Werft', en: 'Shipyard', tde: 'Schiffs-Upgrades gelten für jede Figur.', ten: 'Ship upgrades count for every character.' },
+    { k: 'gear', ico: '⚙', de: 'Ausrüstung', en: 'Gear', tde: 'Angelegte Teile, samt Krit, Ausweichen und Co.', ten: 'Equipped pieces, including crit, dodge and the like.' }
+  ];
+  function kkPop(profile, open) {
+    const en = !!(GL.i18n && GL.i18n.lang && GL.i18n.lang() === 'en');
+    const refs = GL.meta.squadRefs(profile), K = GL.meta.powerParts(refs, profile);
+    const T = Math.max(1, K.total);
+    const top = KK_SRC.reduce((a, b) => (K.parts[b.k] > K.parts[a.k] ? b : a));
+    const src = KK_SRC.map(x => `<div class="kk-src${x === top && K.total ? ' top' : ''}">
+        <span class="kk-ico" aria-hidden="true">${x.ico}</span><span class="kk-nm"><b>${en ? x.en : x.de}</b><small>${en ? x.ten : x.tde}</small></span>
+        <b class="kk-v">${K.parts[x.k]}</b><i class="kk-bar" style="width:${Math.max(0, Math.min(100, Math.round(K.parts[x.k] / T * 100)))}%"></i></div>`).join('');
+    const unit = u => {
+      const r = refs.find(x => x.id === u.id) || u, on = open === u.id;
+      return `<button class="kk-unit${on ? ' on' : ''}" data-act="kk-unit" data-id="${esc(u.id)}" aria-expanded="${on}">
+          <i class="kk-spr">${squadSprite(r)}</i><span class="kk-un">${esc(String(u.name || '?'))}</span><b class="kk-v">${u.total}</b><span class="kk-chev" aria-hidden="true">${on ? '▴' : '▾'}</span>
+          ${on ? `<span class="kk-parts">${KK_SRC.map(x => `<em title="${en ? x.en : x.de}"><i aria-hidden="true">${x.ico}</i><small>${en ? x.en : x.de}</small><b>${u.parts[x.k]}</b></em>`).join('')}</span>` : ''}</button>`;
+    };
+    return `<div class="fpop-card kk-pop" role="dialog" aria-labelledby="fpop-t">
+      <span class="fpop-kicker">${en ? 'Your squad' : 'Deine Stammcrew'}</span>
+      <h3 id="fpop-t" class="kk-total">⚔ <b>${K.total}</b> <small>${en ? 'Battle power' : 'Kampfkraft'}</small></h3>
+      <p class="kk-lead">${en ? 'Where the number comes from:' : 'Woher die Zahl kommt:'}</p>
+      <div class="kk-srcs">${src}</div>
+      <p class="kk-lead">${en ? 'Per character (tap to open):' : 'Je Figur (antippen zum Aufklappen):'}</p>
+      <div class="kk-units">${K.units.map(unit).join('')}</div>
+      <small class="kk-note">${en ? 'HP counts half, attack ×4, speed ×2, plus crit, dodge and the like from gear. Story forms, mastery and the treasury only work on voyages, not in the squad.' : 'Leben zählt halb, Angriff ×4, Tempo ×2, dazu Krit, Ausweichen und Co. aus der Ausrüstung. Story-Formen, Meisterschaft und Schatzkammer wirken nur auf Fahrt, nicht in der Stammcrew.'}</small>
+      <button class="btn ghost kk-x" data-act="pop-close">${en ? 'Close' : 'Schließen'}</button>
+    </div>`;
+  }
+  // Vor dem Duell: wo kommt der Unterschied her? Ohne fremdes Profil lässt sich die Werft nicht trennen,
+  // deshalb steckt sie auf beiden Seiten in „Stufe & Werft“.
+  function kkCompare(mineR, foeR, profile) {
+    if (!mineR.length || !foeR.length) return '';
+    const en = !!(GL.i18n && GL.i18n.lang && GL.i18n.lang() === 'en');
+    const a = GL.meta.powerParts(mineR, profile).parts, b = GL.meta.powerParts(foeR, null).parts;
+    a.lvl += a.werft; a.werft = 0;
+    const rows = [
+      { k: 'fig', ico: '👤', de: 'Figuren', en: 'Characters' },
+      { k: 'lvl', ico: '★', de: 'Stufe & Werft', en: 'Level & shipyard' },
+      { k: 'gear', ico: '⚙', de: 'Ausrüstung', en: 'Gear' }
+    ];
+    const big = rows.reduce((x, y) => (Math.abs(a[y.k] - b[y.k]) > Math.abs(a[x.k] - b[x.k]) ? y : x));
+    const d = a[big.k] - b[big.k];
+    return `<div class="kk-cmp" aria-label="${en ? 'Battle power compared' : 'Kampfkraft im Vergleich'}">
+      ${rows.map(x => `<div class="kk-cr${x === big && d ? ' big' : ''}"><span class="kk-ico" aria-hidden="true">${x.ico}</span><span class="kk-nm">${en ? x.en : x.de}</span><b>${a[x.k]}</b>${cmpArrow(a[x.k], b[x.k])}<b class="foe">${b[x.k]}</b></div>`).join('')}
+      ${d ? `<small class="kk-gap ${d > 0 ? 'up' : 'dn'}"><span>${d > 0 ? (en ? 'Your biggest edge:' : 'Dein größter Vorsprung:') : (en ? 'Biggest gap:' : 'Größter Rückstand:')}</span> <b>${en ? big.en : big.de}</b> <b>${d > 0 ? '+' : '−'}${Math.abs(d)}</b></small>` : ''}
+    </div>`;
+  }
   function matchPop(row, profile, chance) {
     const mineR = GL.meta.squadRefs(profile), foeR = row.squad || [];
     const mine = GL.meta.squadPower(mineR), theirs = row.squadPower || GL.meta.squadPower(foeR);
@@ -2668,6 +2720,7 @@ window.GL = window.GL || {};
         <span class="mp-lbl">Du <b>⚔ ${mine}</b></span><div class="mp-row">${idx.map(i => tile(mineR[i], foeR[i], false)).join('')}</div>
         <span class="mp-lbl foe">${esc(String(row.name || 'Gegner').slice(0, 14))} <b>⚔ ${theirs}</b></span><div class="mp-row">${idx.map(i => tile(foeR[i], null, true)).join('')}</div>
       </div>
+      ${kkCompare(mineR, foeR, profile)}
       ${tacRow(profile, row)}
       <div class="mp-chance ch-${ch}"><span>Siegchance</span><b>${chance} %</b><i style="width:${chance}%"></i></div>
       <div class="mp-btns"><button class="btn" data-act="squad-attack">⚔ Angreifen</button><button class="btn ghost" data-act="squad-match">Anderer</button><button class="btn ghost mp-x" data-act="pop-close" aria-label="Abbrechen">✕</button></div>
@@ -2747,14 +2800,14 @@ window.GL = window.GL || {};
     return `<section class="hq-sec squad-sec sq2">
       <div class="squad-head">
         <div><span class="event-kicker">Deine Stammcrew</span>
-          <b class="squad-power">⚔ ${GL.meta.squadPower(refs)} ${GL.i18n && GL.i18n.lang() === 'en' ? 'power' : 'Stärke'}</b>
+          <button class="squad-power kk-btn" data-act="kk-open" aria-haspopup="dialog">⚔ <b>${GL.meta.squadPower(refs)}</b> <small>${GL.i18n && GL.i18n.lang() === 'en' ? 'Battle power' : 'Kampfkraft'}</small><i class="kk-i" aria-hidden="true">i</i></button>
           <small>${GL.i18n && GL.i18n.lang() === 'en' ? `Level ${GL.meta.squadLevel(profile)} · ${w} ${w === 1 ? 'win' : 'wins'}, ${l} ${l === 1 ? 'loss' : 'losses'}` : `Level ${GL.meta.squadLevel(profile)} · ${w} Siege, ${l} Niederlagen`}</small></div>
         <div class="sq-league"><em class="league-chip lg-friend" title="Duelle sind Freundschaftsspiele: Spaß, Taktik, kein Rang">🤝 Freundschaftsduelle</em><small>Rang gibt es jetzt in der Dungeon-Liga (Landgang)</small></div>
       </div>
       <div class="sqd-deck${pick ? ' picking' : ''}">${deck}</div>
       ${pick ? `<div class="sq-pickbar"><i>${GL.sprites.render(pd)}</i><span><b>${esc(pd.name)}</b> einsetzen: tipp oben auf einen Platz</span><button class="btn mini ghost" data-act="sq-pick" data-id="${esc(pick)}">Abbrechen</button></div>`
         : `<p class="sq-tip">Karte antippen zum Ankleiden. Aus der Sammlung eine Karte auf einen Platz ziehen oder antippen. <b>Vorne</b> steht, wer zuerst getroffen wird.</p>`}
-      <button class="btn squad-match" data-act="squad-match">${pxIco('swords')}Gegner suchen <small>ähnliche Stärke</small></button>
+      <button class="btn squad-match" data-act="squad-match">${pxIco('swords')}Gegner suchen <small>ähnliche Kampfkraft</small></button>
       ${GL.cgear && GL.cgear.upgrades && refs.some(x => Object.keys(GL.cgear.upgrades(profile, x.id)).length) ? `<div class="sq-best-hint">${PX_UPG}<b>${refs.reduce((n, x) => n + Object.keys(GL.cgear.upgrades(profile, x.id)).length, 0)} Verbesserungen in der Truhe</b><small>Grüne Pfeile zeigen, wer etwas Besseres tragen kann. Antippen zum Ankleiden.</small></div>` : ''}
       ${GL.cgear ? `<button class="sq-chest" data-act="dress" data-id="${esc((refs[0] || {}).id || 'self')}"><i class="sq-chest-ico">${pxIco('chest')}</i><span><b>Truhe & Ankleiden</b><small>${bag.length}/${GL.data.crewGear.bagMax} Teile · 🔹 ${profile.shards || 0}${(profile.gearNew || []).length ? ` · <em class="sq-new">${profile.gearNew.length} neu</em>` : ''}</small></span><span class="sq-chest-go">›</span></button>
         <button class="sq-chest sq-atlas" data-act="atlas-open"><i class="sq-chest-ico">🎯</i><span><b>Beute-Atlas</b><small>${Object.keys(GL.cgear.atlas(profile)).length}/${GL.cgear.sigs().length} Fundstücke${GL.cgear.wishes(profile).length ? ` · 🎯 ${GL.cgear.wishes(profile).length} gesucht` : ''}</small></span><span class="sq-chest-go">›</span></button>` : ''}
@@ -3006,7 +3059,7 @@ window.GL = window.GL || {};
     }
     const meOn = GL.meta.squadUnlocked(ui && ui.profile ? ui.profile : {});
     const sq = (x.squadOn || x.npc) && (x.squad || []).length
-      ? `<div class="pcard-sec"><b>Stammcrew ${GL.dliga ? GL.dliga.chip(x.dlRating || 0, true) : ''} ${x.squadPower ? `<small>⚔ ${x.squadPower} ${GL.i18n && GL.i18n.lang() === 'en' ? 'power' : 'Stärke'}</small>` : ''}</b>${squadMinis(x)}
+      ? `<div class="pcard-sec"><b>Stammcrew ${GL.dliga ? GL.dliga.chip(x.dlRating || 0, true) : ''} ${x.squadPower ? `<small>⚔ ${x.squadPower} ${GL.i18n && GL.i18n.lang() === 'en' ? 'battle power' : 'Kampfkraft'}</small>` : ''}</b>${squadMinis(x)}
           ${isMe ? '' : meOn ? `<button class="btn pcard-duel" data-act="squad-fight" data-id="${esc(x.id)}">⚔ ${res ? 'Nochmal herausfordern' : 'Herausfordern'}</button>` : '<small class="muted">Herausfordern geht nach deinem ersten gewonnenen Run oder ab Rang 5.</small>'}</div>`
       : '';
     if (res) return `<div class="pcard-bg" data-act="lb-view-close"><div class="pcard" data-act="noop">
@@ -5669,7 +5722,7 @@ window.GL = window.GL || {};
     endlessPop,
     huntPop,
     dailyPop,
-    matchPop,
+    matchPop, kkPop,
     updatePop,
     gearPick,
     gearView,

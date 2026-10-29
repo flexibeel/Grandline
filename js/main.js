@@ -2037,6 +2037,17 @@
       case 'dress': ui.sqPick = null; showDress({ id: el.dataset.id, slot: null, uid: null }); break;
       case 'sk-polish': if (GL.skills.polishUp(profile, el.dataset.k)) { saveProfile(); if (GL.sfx) GL.sfx.play('found'); ui.lastStage = null; draw(); } break;
       case 'atlas-open': openGearPop(GL.ui.atlasPop(profile)); break;
+      // Kampfkraft mit Herkunft: Fenster öffnen, Figur auf-/zuklappen (nur Anzeige)
+      case 'kk-open': ui.kkOpen = null; openGearPop(GL.ui.kkPop(profile, null)); break;
+      case 'kk-unit': {
+        ui.kkOpen = ui.kkOpen === el.dataset.id ? null : el.dataset.id;
+        const fp = document.getElementById('fpop'), html = GL.ui.kkPop(profile, ui.kkOpen);
+        if (!fp) { openGearPop(html); break; }
+        const sc = fp.querySelector('.fpop-card'), top = sc ? sc.scrollTop : 0;
+        fp.innerHTML = html;   // ohne neues Einblenden, Scrollstelle bleibt
+        const nc = fp.querySelector('.fpop-card'); if (nc) nc.scrollTop = top;
+        break;
+      }
       case 'atlas-wish': {
         const was = GL.cgear.wishes(profile).includes(el.dataset.id);
         if (!GL.cgear.toggleWish(profile, el.dataset.id)) { toast(GL.i18n && GL.i18n.lang() === 'en' ? '<span><b>Wish list is full</b>Three at a time. Even pirates have limits.</span>' : '<span><b>Wunschliste voll</b>Drei auf einmal. Auch Piraten haben Grenzen.</span>'); break; }
