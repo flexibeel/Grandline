@@ -65,6 +65,11 @@ Keine neuen Inhalte und keine neuen Regeln in: Werft, Gemütlichkeit, Formen/Wah
 4. **Ausrüstung mit Effekten** (Opus): Effekt-Zusatzwerte aus den vorhandenen Zuständen (Brand, Gift, Blutung, Lebensraub, Dornen), 6 Seltenheiten, mehr Grundteile, Waffe an der Figur sichtbar (Kampf-Update, Baustein 4).
 5. **Auto-Kampf mit Zusammenfassung** (Opus, Kampfsystem): Ereignisse des Kampfes zu „Was gab den Ausschlag“ aufbereiten (Kampfkraft-Vorsprung, Ausrüstungs-Effekt, Tempo, Ulti). Replay-sicher, keine neuen Würfel.
 
+### Stand Häppchen 1 (29.10., 58. Chat, Opus): gebaut auf `feature/kampfkraft`, nicht live
+- Felix per Klick: Grundlage ist die vorhandene „⚔ Stärke“ (`GL.meta.squadPower`, gleiche Formel, steuert schon die Gegnersuche), sie heißt jetzt **Kampfkraft**. Zu sehen in der Stammcrew (antippen: vier Quellen Figuren / Stufe & Vertrautheit / Werft / Ausrüstung, je Figur aufklappbar) und im Fenster „Gegner gefunden“ (Vergleich nach Quellen, größter Vorsprung oder Rückstand). Die Duell-Halbierung wird **nicht** angezeigt, sie fällt mit Häppchen 2 weg.
+- Fund: In der Stammcrew zählen nur Figur, Stufe/Vertrautheit, Werft und Ausrüstung. Formen, Wahl-Boni, Meisterschaft und Schatzkammer wirken nur auf Fahrt. Für den Kreislauf „Beute → stärker → Duell“ heißt das: Im Duell ist Ausrüstung schon heute der einzige Hebel, den man selbst sammelt, und genau der wird halbiert.
+- Technik: `GL.meta.unitPower`, `GL.meta.powerParts` (auch für fremde Crews ohne Profil), `kkPop`/`kkCompare` in `render.js`. Häppchen 2 kann das Kampfkraft-Band direkt aus `squadPower` nehmen.
+
 ## 7. Regeln, die gelten bleiben
 - Fair: keine Bezahl-Abkürzungen, keine künstliche Energie.
 - Kontor erzeugt nie Kopfgeld-Marken oder Kampfkraft (Gesamtplan, „Was wohin fließt“). Gilt weiter, bis Felix es ändert; Punkt 3 oben nutzt deshalb Duell-Beute, nicht das Kontor.
