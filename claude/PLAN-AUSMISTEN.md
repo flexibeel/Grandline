@@ -154,19 +154,26 @@ Vorschlag, jeder Punkt ein eigener Bauauftrag auf eigenem Zweig (Opus für Engin
 Gilt für alles: Antwort „raus“ heißt nur „darf raus“. Gebaut wird erst, wenn Felix den Bauauftrag freigibt, und jeder Schritt ist einzeln live-schaltbar.
 
 ## 5. Klick-Entscheidungen (Felix, 29.10.)
-Antworten werden nach der Klick-Runde hier eingetragen.
+Alle neun Fragen einzeln per Klick beantwortet, jedes Mal wie vorgeschlagen. Damit ist jedes Raus abgesegnet, **gebaut ist noch nichts**. Jeder Schritt braucht einen eigenen Bauauftrag (Abschnitt 4).
 
-| Nr. | Raus | Vorschlag | Antwort |
+| Nr. | Raus | Vorschlag | Antwort Felix |
 |---|---|---|---|
-| 1 | Gemütlichkeit (Skilltree, Feinschliff, Marken-Skillpunkte) | raus | offen |
-| 2 | Meisterschaft: Gold-Kampfwirkung | raus, Rest in Formen | offen |
-| 3 | Schatzkammer: Artefakte als eigenes System | raus, Ideen in Ausrüstung | offen |
-| 4 | Schmiede: Run-Items als eigene Beute-Sorte | raus, in Ausrüstung | offen |
-| 5 | Dungeon-Liga mit Marken-Laden | raus | offen |
-| 6 | Offene See | raus (löschen) | offen |
-| 7 | Seekarte | raus (Landgang direkt) | offen |
-| 8 | Weltgedächtnis: tote Felder | raus | offen |
-| 9 | Kampf-Zustände: Frost, Schock, Blind | raus | offen |
+| 1 | Gemütlichkeit (Skilltree, Feinschliff, Marken-Skillpunkte) | raus | **Raus.** Baum, Feinschliff und Raum fallen, Skillpunkte-Käufe gehen als Marken zurück. |
+| 2 | Meisterschaft: Gold-Kampfwirkung | nur Wirkung raus, Rest in Formen | **Nur Wirkung raus.** EP-Leiste, Rahmen, Zweit-Outfit und Titel bleiben und ziehen zu den Formen. |
+| 3 | Schatzkammer: Artefakte als eigenes System | raus, geht in Ausrüstung auf | **Raus, geht in Ausrüstung auf** (mit Häppchen 4). |
+| 4 | Schmiede: Run-Items als eigene Beute-Sorte | raus, geht in Ausrüstung auf | **Raus, geht in Ausrüstung auf** (mit Häppchen 4). Lager und Händler bleiben. |
+| 5 | Dungeon-Liga mit Marken-Laden | raus, Gekauftes bleibt | **Raus, Gekauftes bleibt.** Marken als Meersplitter zurück, Kosmetik, Flaggen und Pets bleiben. |
+| 6 | Offene See | raus (löschen) | **Raus, löschen.** Notausgang für alte laufende Runs. |
+| 7 | Seekarte | raus, Landgang direkt | **Raus, Landgang direkt.** Die Welt-Karte aus PLAN-FOLGEN wird später neu gedacht. |
+| 8 | Weltgedächtnis: tote Felder | raus | **Raus** (`orte`, `ruf`, `taten`, `lastMerk`). |
+| 9 | Kampf-Zustände: Frost, Schock, Blind | raus, Ultis bekommen vorhandene Zustände | **Raus.** Erst nach „Kämpfe offen“, mit Versions-Flag. |
+
+**Bleibt (kein Raus, nicht gefragt):** Werft, Formen/Wahl-Boni, Landgang, Pets, Crew-Gefühle, Folgen. Zusammenlegungen: Meisterschaft → Formen (Nr. 2), Weltgedächtnis ↔ Folgen (Nr. 8).
+
+**Offen für später (kein Klick nötig, kommt beim jeweiligen Bauauftrag):**
+- Die zwei Marken-Laden-Pets (Laternenmotte, Münzkrabbe) sind nach Nr. 5 nirgends mehr erwerbbar, anders vergeben (z. B. Album-Belohnung).
+- Umrechnungs-Verhältnisse (Marken, Funde, Run-Items in Meersplitter oder Berry) mit Bot-Messung.
+- Welche vorhandenen Zustände die Ultis von Aokiji, Nami, Enel und Kizaru bekommen (Nr. 9).
 
 ## 6. Unklar oder nicht geprüft
 - **Werden Replays je nachgespielt?** Im Repo ruft nichts `GL.run.replay` auf. `online.js` lädt `{seed, start, actions}` hoch, ob Supabase oder ein Werkzeug sie prüft, ist unklar. Bis das geklärt ist, gilt Regel 2 (alte `run.start`-Felder lesbar lassen).
