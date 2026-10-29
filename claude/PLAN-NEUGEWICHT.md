@@ -62,13 +62,29 @@ Keine neuen Inhalte und keine neuen Regeln in: Werft, Gemütlichkeit, Formen/Wah
 1. **Kampfkraft-Zahl mit Herkunft** (Anzeige, kein Spielstand-Feld, Sonnet/Opus): Summe aus Leben, Angriff, Tempo je Figur, aufgeschlüsselt in Grundwert, Form, Ausrüstung, Werft usw. Die Werte-Tafel im Kampf (22q) kennt die Herkunft schon, daran anknüpfen. Macht die Duelle vergleichbar.
 2. **Duell-Ausgleich neu** (`squad.js`, Opus, Balance messen): Halbierung raus, dafür Gegnerwahl nach Kampfkraft-Band, damit Neulinge nicht gegen volle Vitrinen antreten. Messung per Bot wie bei Ulti und Taverne (vorher/nachher).
 3. **Duell-Beute** (Opus): Sieg bringt Ausrüstung oder Meersplitter, Stärke der Beute nach Liga. Keine Energie, keine Bezahl-Abkürzung, kein Tageslimit-Zwang.
-4. **Ausrüstung mit Effekten** (Opus): Effekt-Zusatzwerte aus den vorhandenen Zuständen (Brand, Gift, Blutung, Lebensraub, Dornen), 6 Seltenheiten, mehr Grundteile, Waffe an der Figur sichtbar (Kampf-Update, Baustein 4).
+4. **Ausrüstung mit Effekten** (Opus, dazu die Taverne als Ausrüstungs-Halt, siehe unten): Effekt-Zusatzwerte aus den vorhandenen Zuständen (Brand, Gift, Blutung, Lebensraub, Dornen), 6 Seltenheiten, mehr Grundteile, Waffe an der Figur sichtbar (Kampf-Update, Baustein 4).
 5. **Auto-Kampf mit Zusammenfassung** (Opus, Kampfsystem): Ereignisse des Kampfes zu „Was gab den Ausschlag“ aufbereiten (Kampfkraft-Vorsprung, Ausrüstungs-Effekt, Tempo, Ulti). Replay-sicher, keine neuen Würfel.
 
 ### Stand Häppchen 1 (29.10., 58. Chat, Opus): gebaut auf `feature/kampfkraft`, nicht live
 - Felix per Klick: Grundlage ist die vorhandene „⚔ Stärke“ (`GL.meta.squadPower`, gleiche Formel, steuert schon die Gegnersuche), sie heißt jetzt **Kampfkraft**. Zu sehen in der Stammcrew (antippen: vier Quellen Figuren / Stufe & Vertrautheit / Werft / Ausrüstung, je Figur aufklappbar) und im Fenster „Gegner gefunden“ (Vergleich nach Quellen, größter Vorsprung oder Rückstand). Die Duell-Halbierung wird **nicht** angezeigt, sie fällt mit Häppchen 2 weg.
 - Fund: In der Stammcrew zählen nur Figur, Stufe/Vertrautheit, Werft und Ausrüstung. Formen, Wahl-Boni, Meisterschaft und Schatzkammer wirken nur auf Fahrt. Für den Kreislauf „Beute → stärker → Duell“ heißt das: Im Duell ist Ausrüstung schon heute der einzige Hebel, den man selbst sammelt, und genau der wird halbiert.
 - Technik: `GL.meta.unitPower`, `GL.meta.powerParts` (auch für fremde Crews ohne Profil), `kkPop`/`kkCompare` in `render.js`. Häppchen 2 kann das Kampfkraft-Band direkt aus `squadPower` nehmen.
+
+Häppchen 1 ist seit **29a „Woher kommt die Kraft?“** live (59. Chat).
+
+### Stand Häppchen 2 (29.10., 59. Chat, Opus): gebaut auf `feature/duell-ausgleich` (von `main` 29a), nicht live
+- Felix per Klick (alle wie empfohlen): Band **±25 %**, ist niemand im Band → **Übungscrew** der Kronwacht genau auf deiner Kampfkraft, **nur die Ausrüstungs-Halbierung fällt weg**, der Zusammenhalt-Deckel (+5 Stufen) bleibt.
+- Technik: `squad.js` `prep()` ohne Halbierung (Zusatzwerte nur noch gegen negative Fremddaten abgesichert), neu `GL.squad.inBand(rows, mine, rating)` und `GL.squad.trainer(lvl, n, mine, rnd)` (Übungscrew streckt Leben/Angriff jetzt nach oben **und** unten, nie unter die Hälfte; vorher 90 % und nur nach oben). Stellschrauben `GL.config.duel = { band: 0.25, trainer: 1 }`. `main.js` `squad-match` nutzt beides. Im Fenster „Gegner gefunden“ steht bei der Übungscrew ein Satz, warum (DE/EN).
+- **Echte Lage (Rangliste, nur gelesen):** 39 Stammcrews in zwei Haufen, 22 um 330 Kampfkraft (fast ohne Ausrüstung) und 15 um 1.800–2.600. Dazwischen fast niemand. Ausrüstung macht oben samt Zusatzwerten **rund zwei Drittel** der Kampfkraft aus.
+- **Messung** (vorher/nachher, gleiche Würfel, 20 verschiedene echte Crews, je 40 Kämpfe gegen die ersten drei Gegner der Suche, im Browser mit dem echten Kampfsystem; Skript lag nur im Scratchpad):
+  - Wer allein in seiner Gegend ist, wird nicht mehr verheizt: Die Crew mit 1.063 traf vorher 530/439 (100 %) und 1.638 (30 %), jetzt die Übungscrew (35/88/65 %). Die stärkste Crew (2.603) trifft nur noch die 2.468er statt zweimal 1.946 (100 %).
+  - Beute zählt spürbar mehr: unten gewinnt eine Crew mit Ausrüstung gegen dieselbe ohne 68–90 % → 78–100 %.
+  - Gegner im Schnitt 9 % → 7 % von der eigenen Kampfkraft entfernt.
+- **Wichtiger Fund, nicht angefasst:** Auch bei fast gleicher Kampfkraft ist ein Duell **fast schon vorher entschieden**. Rund 70 % der Paarungen liegen unter 25 % oder über 75 % Siegchance, vorher wie nachher (zum Beispiel 307 gegen 309: 98 % / 0 % je nach Gegner). Das Kampfsystem würfelt im Duell wenig, kleine Vorteile (Kampfstil, Rolle, Taktik) kippen das Ergebnis ganz. Die Kampfkraft sagt den Sieger also nur grob voraus. Kandidat für ein eigenes Häppchen: **Kampfkraft eichen** (Gewichte der Formel an echten Kampfausgängen ausrichten) oder mehr Glück im Duell. Gehört zu „Kämpfe: unklar, was zählt“.
+- Offen: Patchnote und `bump-version.py` beim Live-Gang (nächste Kennung `2026-10-29b`). Am Handy „Gegner suchen“ antippen.
+
+### Taverne mitten in der Fahrt (Felix, 29.10., 8:35)
+Felix: „Brauch man die Taverne zwischen den Kämpfen? Ist es nicht besser, wenn man die Crew am Anfang hat, die man sich aussucht, und mit den Items verbessert?“ Claude: Ja, seit dem Deck (22m) sucht man die Crew am Start aus, die Taverne ist ein zweites Crew-System neben der Beute. Haken: Dort passieren auch **Zusammenlegen** (Figuren stärker machen) und das **Taler-Ausgeben**, beides braucht einen neuen Platz. Felix per Klick: **mit Häppchen 4 angehen**, Taverne wird zu einem Ausrüstungs-Halt (kaufen/verbessern), Zusammenlegen zieht um. Vorher kurz vorschlagen.
 
 ## 7. Regeln, die gelten bleiben
 - Fair: keine Bezahl-Abkürzungen, keine künstliche Energie.
