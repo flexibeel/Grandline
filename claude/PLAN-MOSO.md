@@ -92,3 +92,10 @@ Geht als Seite im Browser am PC (Karten malen, Items aus Bausteinen bauen, Gegne
 - **Balance:** ohne Zustellungen fehlten Heilung und Erfahrung. Ausgleich: Level schneller (Bedarf × 0,8), 130 statt 120 Leben, Burger öfter, Anschlusszug 6 statt 7 Schaden, etwas weniger Gegner am Anfang. Gleicher grober Test-Bot (8 Läufe): Freitag hält im Schnitt ~145 s, Montag jetzt ~154 s.
 - Geprüft: Headless 390 px, keine Skriptfehler, Durchfahrt mit wegfliegenden Gegnern, Boss, Tafel „fällt aus“. Testregler (dreimal auf die Uhr) hat jetzt auch „Zug jetzt“.
 - **Testfragen wie vorher:** Willst du sofort nochmal? Musstest du lachen? Würdest du es deinen Freunden zeigen? **Abbruchregel:** Ist „lachen?“ nicht klar *Ja* oder „nochmal?“ schlechter als *Eher ja*, ruht Montag bis Sonntag.
+
+## Urteil zu Test 2b (29.10., 56. Chat, per Klick)
+- **Willst du sofort nochmal?** *Eher ja* (gehalten). **Musstest du lachen?** *Eher ja* (vorher *kaum*). **Freunden zeigen?** *Vielleicht später*. Kein klares Highlight gewählt.
+- Abbruchregel greift knapp („lachen?“ nicht klar *Ja*). Felix per Klick zuerst: **Ausnahme, weiterbauen.** Danach im Gespräch: „Das Game hat was, auch Grandline hat was, aber nichts gibt mir das Gefühl ‚boah, ja, das isses‘.“
+- Felix ist gerade am Handy süchtig nach **Shakes & Fidget**. Was daran zieht (per Klick): **Beute und Werte steigen** und **gegen echte Spieler**. Nicht gewählt: kurzes Reinschauen mit Timern, Humor.
+- **Lesart:** Alle Tests seit 26.10. (Angeln, Planet B, Freitag, Montag) haben vor allem Thema und Witz geprüft, also das, was Felix nicht hält. Was ihn hält (passt zu seiner Lieblingsspiele-Liste: Megaloot, Metin2, S4 League), ist **Beute, die die Figur dauerhaft stärker macht, und Kräftemessen mit echten Leuten**. Montag hat nur Level-ups innerhalb einer Runde.
+- **Entscheidung (Felix, per Klick):** Diesen Kreislauf **in Grandline** schärfen. **Montag bis Sonntag ruht damit** (nicht verworfen, Prototyp bleibt unter `prototyp/montag/`, Link https://claude.ai/artifact/PpegWbC65jdVCv7L9uQEih).
