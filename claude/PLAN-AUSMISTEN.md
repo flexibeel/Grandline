@@ -154,19 +154,19 @@ Vorschlag, jeder Punkt ein eigener Bauauftrag auf eigenem Zweig (Opus für Engin
 Gilt für alles: Antwort „raus“ heißt nur „darf raus“. Gebaut wird erst, wenn Felix den Bauauftrag freigibt, und jeder Schritt ist einzeln live-schaltbar.
 
 ## 5. Klick-Entscheidungen (Felix, 29.10.)
-Antworten werden nach der Klick-Runde hier eingetragen.
+Felix per Klick am 29.10. (61. Chat), **alle neun wie empfohlen**. „Raus“ heißt „darf raus“: Gebaut wird jeder Punkt als eigener Bauauftrag in der Reihenfolge aus Abschnitt 4, je einzeln live-schaltbar. Hinweis zu Nr. 1: Weil die Dungeon-Liga (Nr. 5) mit raus geht, werden gekaufte Skillpunkte direkt in Meersplitter erstattet, nicht in Marken. Nr. 9 darf jetzt, „Kämpfe offen“ ist seit 29c live.
 
 | Nr. | Raus | Vorschlag | Antwort |
 |---|---|---|---|
-| 1 | Gemütlichkeit (Skilltree, Feinschliff, Marken-Skillpunkte) | raus | offen |
-| 2 | Meisterschaft: Gold-Kampfwirkung | raus, Rest in Formen | offen |
-| 3 | Schatzkammer: Artefakte als eigenes System | raus, Ideen in Ausrüstung | offen |
-| 4 | Schmiede: Run-Items als eigene Beute-Sorte | raus, in Ausrüstung | offen |
-| 5 | Dungeon-Liga mit Marken-Laden | raus | offen |
-| 6 | Offene See | raus (löschen) | offen |
-| 7 | Seekarte | raus (Landgang direkt) | offen |
-| 8 | Weltgedächtnis: tote Felder | raus | offen |
-| 9 | Kampf-Zustände: Frost, Schock, Blind | raus | offen |
+| 1 | Gemütlichkeit (Skilltree, Feinschliff, Marken-Skillpunkte) | raus | **raus** (wie empfohlen) |
+| 2 | Meisterschaft: Gold-Kampfwirkung | raus, Rest in Formen | **zusammenlegen** (wie empfohlen) |
+| 3 | Schatzkammer: Artefakte als eigenes System | raus, Ideen in Ausrüstung | **in Ausrüstung** (wie empfohlen, mit Häppchen 4) |
+| 4 | Schmiede: Run-Items als eigene Beute-Sorte | raus, in Ausrüstung | **in Ausrüstung** (wie empfohlen, mit Häppchen 4) |
+| 5 | Dungeon-Liga mit Marken-Laden | raus | **raus** (wie empfohlen) |
+| 6 | Offene See | raus (löschen) | **löschen** (wie empfohlen) |
+| 7 | Seekarte | raus (Landgang direkt) | **raus** (wie empfohlen) |
+| 8 | Weltgedächtnis: tote Felder | raus | **tote Teile raus** (wie empfohlen) |
+| 9 | Kampf-Zustände: Frost, Schock, Blind | raus | **raus** (wie empfohlen) |
 
 ## 6. Unklar oder nicht geprüft
 - **Werden Replays je nachgespielt?** Im Repo ruft nichts `GL.run.replay` auf. `online.js` lädt `{seed, start, actions}` hoch, ob Supabase oder ein Werkzeug sie prüft, ist unklar. Bis das geklärt ist, gilt Regel 2 (alte `run.start`-Felder lesbar lassen).

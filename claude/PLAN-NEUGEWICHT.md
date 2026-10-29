@@ -116,6 +116,16 @@ Felix: „Es soll sich nicht vorprogrammiert anfühlen, wie die Kämpfe sind. Es
 - **Felix per Klick (9:45):** Fairness über **Kampfkraft eichen** (Alternativen: Gegnersuche nach echter Siegchance, mehr Glück), **Konter 30 %** (gemessen +14 bis +18 Punkte).
 - **Ergebnis:** einseitig 69 → 44 %, 30–70 % bei 26 → 45 %, Abweichung je Crew 24 → 14 Punkte, −20 %-Crew gewinnt mit Tipp 23 %. 40–60 % nur bei 21 % der Paarungen: Der Rest ist Aufstellung gegen Aufstellung (Typen-Dreieck). Wenn das stört, wäre der nächste Hebel die Siegchance-Suche (gemessen 61 % bei 40–60 %), zusätzlich zur geeichten Zahl.
 
+**„Kämpfe offen“ ist seit 29c „Kämpfe, die kippen können“ live (61. Chat).**
+
+### Skizze Häppchen 3 Duell-Beute (Felix per Klick, 29.10., 61. Chat, alles wie empfohlen)
+- **Beutekiste** neben „Gegner suchen“ in der Stammcrew: Pixel-Kiste mit **3 Schlössern**. Jeder Sieg öffnet ein Schloss (Moment nach dem Duell), beim dritten springt sie auf: **sicher ein Ausrüstungsteil plus Meersplitter**.
+- **Stärke nach Liga:** Bronze meist Gewöhnlich/Selten, ab Gold öfter Episch, Legende auch Legendär. Aufsteigen lohnt sich.
+- **Gegen Farmen (keine Energie):** echte Crews zählen **je einmal am Tag**, die Übungscrew **bis zu 3 Siege am Tag**. Danach gibt es weiter Rating und Erfahrung, nur kein Schloss.
+- **Verteidigung:** Abgewehrte Angriffe, während man weg ist, zählen als **halber Sieg** (zwei Abwehren = ein Schloss, höchstens 2 Schlösser am Tag), Meldung beim nächsten Öffnen.
+- **Niederlage:** ein paar Meersplitter als Trost, die Kiste bleibt.
+- Fair: keine Energie, keine Bezahl-Abkürzung, Pausen kosten nichts (die Kiste behält ihre Schlösser).
+
 ### Hafen à la Banished (Felix, 29.10., 9:21, per Klick)
 Felix: „Wenn man das Game so umstrukturiert, dass man eine Basis bauen kann im Stil von Banished, in Pixel-Optik mit kleinen Figuren, und man dennoch auf Exkurs gehen kann, um Items zu farmen?“ Claude: passt, aber nicht als echte Siedlungs-Sim (wäre ein neues Spiel). Per Klick:
 - **Hafen wächst sichtbar:** kleine Pixel-Siedlung, die Crew lebt und arbeitet dort, Gebäude kosten Beute. **Ohne** Hunger, Sterben, Jahreszeiten.
