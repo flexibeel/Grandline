@@ -1,6 +1,10 @@
 // Neuigkeiten im Spiel. Neueste zuerst. v = Versionskennung (auch in version.json eintragen!)
 window.GL = window.GL || {};
 GL.patchNotes = [
+  { v: '2026-10-29b', date: '29.10.', title: 'Faire Duelle', items: [
+    '🛡 Deine Ausrüstung zählt im Duell jetzt voll. Bisher wurde sie halbiert, jetzt merkt man jedes gute Teil',
+    '⚖ „Gegner suchen“ findet nur noch Crews, deren Kampfkraft höchstens ein Viertel über oder unter deiner liegt. Kein Neuling landet mehr vor einer prall gefüllten Schatzkammer',
+    '🎖 Ist gerade niemand in deiner Gewichtsklasse auf See, übt die Kronwacht mit dir, genau auf deiner Kampfkraft. Im Fenster steht dann, warum' ] },
   { v: '2026-10-29a', date: '29.10.', title: 'Woher kommt die Kraft?', items: [
     '⚔ Die Stärke deiner Stammcrew heißt jetzt Kampfkraft. Tipp auf die Zahl, und du siehst, woher sie kommt: Figuren, Stufe & Vertrautheit, Werft und Ausrüstung, je mit Balken',
     '🔍 Jede Figur lässt sich aufklappen. So siehst du auf einen Blick, wer am meisten zieht und wo noch Luft ist',
