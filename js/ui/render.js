@@ -2805,12 +2805,13 @@ window.GL = window.GL || {};
         <div><span class="event-kicker">Deine Stammcrew</span>
           <button class="squad-power kk-btn" data-act="kk-open" aria-haspopup="dialog">⚔ <b>${GL.meta.squadPower(refs)}</b> <small>${GL.i18n && GL.i18n.lang() === 'en' ? 'Battle power' : 'Kampfkraft'}</small><i class="kk-i" aria-hidden="true">i</i></button>
           <small>${GL.i18n && GL.i18n.lang() === 'en' ? `Level ${GL.meta.squadLevel(profile)} · ${w} ${w === 1 ? 'win' : 'wins'}, ${l} ${l === 1 ? 'loss' : 'losses'}` : `Level ${GL.meta.squadLevel(profile)} · ${w} Siege, ${l} Niederlagen`}</small></div>
-        <div class="sq-league"><em class="league-chip lg-friend" title="Duelle sind Freundschaftsspiele: Spaß, Taktik, kein Rang">🤝 Freundschaftsduelle</em><small>Rang gibt es jetzt in der Dungeon-Liga (Landgang)</small></div>
+        <div class="sq-league">${(lg => `<em class="league-chip lg-${lg.id}">${esc(lg.name)}</em><small>${r0} ${GL.i18n && GL.i18n.lang() === 'en' ? 'points' : 'Punkte'}${nx ? ` · <span>${esc(nx.name)}</span> ${GL.i18n && GL.i18n.lang() === 'en' ? 'from' : 'ab'} ${nx.min}` : ''}</small>`)(GL.meta.league(r0))}</div>
       </div>
       <div class="sqd-deck${pick ? ' picking' : ''}">${deck}</div>
       ${pick ? `<div class="sq-pickbar"><i>${GL.sprites.render(pd)}</i><span><b>${esc(pd.name)}</b> einsetzen: tipp oben auf einen Platz</span><button class="btn mini ghost" data-act="sq-pick" data-id="${esc(pick)}">Abbrechen</button></div>`
         : `<p class="sq-tip">Karte antippen zum Ankleiden. Aus der Sammlung eine Karte auf einen Platz ziehen oder antippen. <b>Vorne</b> steht, wer zuerst getroffen wird.</p>`}
       <button class="btn squad-match" data-act="squad-match">${pxIco('swords')}Gegner suchen <small>ähnliche Kampfkraft</small></button>
+      ${dlBox(profile)}
       ${GL.cgear && GL.cgear.upgrades && refs.some(x => Object.keys(GL.cgear.upgrades(profile, x.id)).length) ? `<div class="sq-best-hint">${PX_UPG}<b>${refs.reduce((n, x) => n + Object.keys(GL.cgear.upgrades(profile, x.id)).length, 0)} Verbesserungen in der Truhe</b><small>Grüne Pfeile zeigen, wer etwas Besseres tragen kann. Antippen zum Ankleiden.</small></div>` : ''}
       ${GL.cgear ? `<button class="sq-chest" data-act="dress" data-id="${esc((refs[0] || {}).id || 'self')}"><i class="sq-chest-ico">${pxIco('chest')}</i><span><b>Truhe & Ankleiden</b><small>${bag.length}/${GL.data.crewGear.bagMax} Teile · 🔹 ${profile.shards || 0}${(profile.gearNew || []).length ? ` · <em class="sq-new">${profile.gearNew.length} neu</em>` : ''}</small></span><span class="sq-chest-go">›</span></button>
         <button class="sq-chest sq-atlas" data-act="atlas-open"><i class="sq-chest-ico">🎯</i><span><b>Beute-Atlas</b><small>${Object.keys(GL.cgear.atlas(profile)).length}/${GL.cgear.sigs().length} Fundstücke${GL.cgear.wishes(profile).length ? ` · 🎯 ${GL.cgear.wishes(profile).length} gesucht` : ''}</small></span><span class="sq-chest-go">›</span></button>` : ''}
@@ -2965,6 +2966,48 @@ window.GL = window.GL || {};
       <div class="dr-chest"><div class="dr-chest-h"><b>${pxIco('chest')}Truhe</b><small>${bag.length}/${GL.data.crewGear.bagMax} · 🔹 ${profile.shards || 0}</small></div>${fl}<div class="dr-grid">${chest}</div></div>
     </div>`;
   }
+  // ---------- Duell-Beute (Häppchen 3): Kiste mit drei Schlössern ----------
+  // Eigene Pixel-Kiste (23 × 15): Eisenband oben, drei Vorhängeschlösser vorn. Zu = Eisen mit Schlüsselloch, offen = Gold, Bügel springt auf.
+  const DL_BODY = ['KWWWWWWWWWWWWWWWWWWWWWK', 'KWWWWWWWWWWWWWWWWWWWWWK', 'KwwwwwwwwwwwwwwwwwwwwwK', 'KWWWWWWWWWWWWWWWWWWWWWK', 'KWWWWWWWWWWWWWWWWWWWWWK', 'KwwwwwwwwwwwwwwwwwwwwwK', 'KKKKKKKKKKKKKKKKKKKKKKK', '.KK.................KK.'];
+  const DL_SHUT = ['...KKKKKKKKKKKKKKKKK...', '.KKWWWWWWWWWWWWWWWWWKK.', 'KWWWWWWWWWWWWWWWWWWWWWK', 'KwwwwwwwwwwwwwwwwwwwwwK', 'KKKKKKKKKKKKKKKKKKKKKKK', 'KIIIIIIIIIIIIIIIIIIIIIK', 'KIIIIIIIIIIIIIIIIIIIIIK'];
+  const DL_OPEN = ['..KKKKKKKKKKKKKKKKKKK..', '..KwwwwwwwwwwwwwwwwwK..', '..KwwwwwwOYYYYOwwwwwK..', 'KOYYOYYYOYYYYYOYYYOYYOK', 'KKKKKKKKKKKKKKKKKKKKKKK', 'KIIIIIIIIIIIIIIIIIIIIIK', 'KIIIIIIIIIIIIIIIIIIIIIK'];
+  const DL_LOCK = { shut: ['.....', '.ccc.', 'c...c', 'c...c', 'KLLLK', 'KLKLK', 'KLLLK', '.KKK.'], open: ['.ccc.', 'c...c', 'c....', 'c....', 'KGGGK', 'KGKGK', 'KGGGK', '.KKK.'] };
+  const DL_COL = { K: '#3a2416', W: '#a8693a', w: '#7a4a24', I: '#4a525c', Y: '#f2d24a', O: '#c99a1e', G: '#f2d24a', c: '#dfe6ee', L: '#7d8894' };
+  function dlChest(n, burst) {
+    const px = (rows, ox, oy) => rows.map((row, y) => [...row].map((ch, x) => DL_COL[ch] ? `<rect x="${x + ox}" y="${y + oy}" width="1" height="1" fill="${DL_COL[ch]}"/>` : '').join('')).join('');
+    const locks = [3, 9, 15].map((x, i) => px(burst || i < n ? DL_LOCK.open : DL_LOCK.shut, x, 5)).join('');   // 8 hoch ab Zeile 5: Bügel über dem Eisenband, Körper auf dem Holz
+    return `<svg class="dl-svg${burst ? ' burst' : ''}" viewBox="0 0 23 15" shape-rendering="crispEdges" aria-hidden="true">${px(burst ? DL_OPEN : DL_SHUT, 0, 0)}${px(DL_BODY, 0, 7)}${locks}</svg>`;
+  }
+  // Anteil Episch oder besser je Liga (aus den Gewichten, damit die Zahl ehrlich ist)
+  function dlEpic(id) { const w = (GL.config.dloot.rar || {})[id] || [1, 0, 0, 0], s = w.reduce((a, b) => a + b, 0); return Math.round(100 * (w[2] + w[3]) / s); }
+  function dlBox(profile) {
+    if (!GL.squad.chest || !GL.config.dloot) return '';
+    const en = !!(GL.i18n && GL.i18n.lang && GL.i18n.lang() === 'en'), C = GL.config.dloot;
+    const L = GL.squad.chest(profile), { lg } = GL.squad.lootLeague(profile), nx = GL.meta.leagues[GL.meta.leagues.indexOf(lg) + 1];
+    const left = C.locks - L.n;
+    return `<div class="dl-box"><i class="dl-art">${dlChest(L.n)}</i><span class="dl-txt">
+        <b>${en ? 'Duel chest' : 'Duell-Kiste'} <em class="dl-n">${L.n}/${C.locks}</em></b>
+        <small>${en ? `${left === 1 ? 'One more win' : left + ' more wins'} and it bursts open: a piece of gear for sure` : `Noch ${left === 1 ? 'ein Sieg' : left + ' Siege'}, dann springt sie auf: sicher ein Ausrüstungsteil`}</small>
+        <small class="dl-lg"><em class="league-chip lg-${lg.id}">${esc(lg.name)}</em> ${en ? 'Epic or better' : 'Episch oder besser'} ${dlEpic(lg.id)} %${nx ? ` · <span>${esc(nx.name)}</span>: ${dlEpic(nx.id)} %` : ''}</small>
+        <small class="dl-day">${en ? `Today: every crew counts once, practice ${L.prac}/${C.prac}` : `Heute: jede Crew zählt einmal, Übung ${L.prac}/${C.prac}`}</small></span></div>`;
+  }
+  function dlResult(lo, theirName) {
+    if (!lo) return '';
+    const en = !!(GL.i18n && GL.i18n.lang && GL.i18n.lang() === 'en'), C = GL.config.dloot;
+    if (lo.open) {
+      const it = lo.open;
+      return `<div class="dl-res dl-won"><i class="dl-art">${dlChest(C.locks, true)}</i><span class="dl-txt"><b>${en ? 'The chest bursts open!' : 'Die Kiste springt auf!'}</b>
+        <span class="dl-item cr-${GL.cgear.RID[it.r]}"><i>${cgArt(it)}</i><span><b>${esc(GL.cgear.name(it))}</b><small>${GL.cgear.RNAME[it.r]} · ⚔ ${GL.cgear.power(it)}${lo.shards ? ` · +${lo.shards} 🔹` : ''}</small></span></span>
+        <small>${en ? 'It is in your trunk now.' : 'Liegt jetzt in deiner Truhe.'}</small></span></div>`;
+    }
+    if (lo.lock) return `<div class="dl-res"><i class="dl-art">${dlChest(lo.n)}</i><span class="dl-txt"><b>${en ? 'A lock clicks open!' : 'Ein Schloss springt auf!'} <em class="dl-n">${lo.n}/${C.locks}</em></b>
+        <small>${C.locks - lo.n === 1 ? (en ? 'One more win and the chest is yours.' : 'Noch ein Sieg, dann gehört die Kiste dir.') : (en ? `${C.locks - lo.n} more wins to go.` : `Noch ${C.locks - lo.n} Siege.`)}</small></span></div>`;
+    const why = { npc: en ? 'The Crown Guard has nothing left in the chest today. Real crews still count.' : 'Die Kronwacht hat heute nichts mehr für die Kiste übrig. Echte Crews zählen weiter.',
+      again: en ? `You already got a lock off ${theirName} today. Try someone new.` : `Bei ${theirName} hast du heute schon ein Schloss geholt. Such dir wen Neues.`,
+      weak: en ? 'Too easy a target: crews far below your battle power don’t open locks.' : 'Zu leichte Beute: Crews weit unter deiner Kampfkraft öffnen kein Schloss.' }[lo.why];
+    if (why) return `<div class="dl-res dl-quiet"><i class="dl-art">${dlChest(lo.n)}</i><span class="dl-txt"><small>${esc(why)}</small></span></div>`;
+    return lo.shards ? `<div class="dl-res dl-quiet"><i class="dl-art">${dlChest(lo.n)}</i><span class="dl-txt"><small>${en ? `+${lo.shards} 🔹 sea shards to soothe the pain. The chest keeps its locks.` : `+${lo.shards} 🔹 Meersplitter als Trostpflaster. Die Kiste behält ihre Schlösser.`}</small></span></div>` : '';
+  }
   // Kämpfe offen: eine Zeile, was das Duell entschieden hat, mit der Figur des Moments im Bild
   function duelKey(res) {
     const k = res && res.key;
@@ -3081,7 +3124,8 @@ window.GL = window.GL || {};
     if (res) return `<div class="pcard-bg" data-act="lb-view-close"><div class="pcard" data-act="noop">
         <button class="link pcard-close" data-act="lb-view-close">✕</button>
         ${duelReport(res, x.name || 'Gegner')}
-        ${sf && sf.ratingDelta != null ? `<p class="duel-rating">🤝 Freundschaftsduell · zählt nicht für die Liga</p>` : sf && sf.practice ? `<p class="duel-rating">Übungskampf: Ab 1100 zählt die Kronwacht nicht mehr für die Liga.</p>` : ''}
+        ${sf && !sf.playing ? dlResult(sf.loot, x.name || 'Gegner') : ''}
+        ${sf && sf.ratingDelta != null ? `<p class="duel-rating">${GL.i18n && GL.i18n.lang() === 'en' ? 'League points' : 'Liga-Punkte'} ${sf.ratingDelta >= 0 ? '+' : ''}${sf.ratingDelta}</p>` : sf && sf.practice ? `<p class="duel-rating">Übungskampf: Ab 1100 zählt die Kronwacht nicht mehr für die Liga.</p>` : ''}
         ${sf && sf.xp ? `<p class="duel-xp">Stammcrew-EP: +${sf.xp.gain} für jede Figur${sf.xp.ups.length ? ` · <b>Level-up: ${sf.xp.ups.map(esc).join(', ')}</b>` : ''}</p>` : ''}
         <div class="duel-actions"><button class="btn" data-act="squad-match">⚔ Nächster Gegner</button><button class="btn ghost" data-act="squad-fight" data-id="${esc(x.id)}">Nochmal</button>
           <button class="btn ghost" data-act="squad-back">Zur Visitenkarte</button></div>

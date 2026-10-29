@@ -108,7 +108,7 @@ window.GL = window.GL || {};
     const f = it.f || {};
     const d = f.at ? new Date(f.at) : null;
     const when = d ? `${d.getDate()}.${d.getMonth() + 1}.${String(d.getFullYear()).slice(2)}, ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')} Uhr` : '';
-    return { who: f.gift ? `Flaschenpost von ${f.gift}` : f.name ? `${f.raid ? 'Raid' : 'Boss'}: ${f.name}` : 'Unbekannt', where: f.sea || '', when, loop: f.loop || 0 };
+    return { who: f.gift ? `Flaschenpost von ${f.gift}` : f.duel ? `Duell-Kiste (${f.duel})` : f.name ? `${f.raid ? 'Raid' : 'Boss'}: ${f.name}` : 'Unbekannt', where: f.sea || '', when, loop: f.loop || 0 };
   }
 
   // ---------- Profil: Tasche und angelegte Teile ----------

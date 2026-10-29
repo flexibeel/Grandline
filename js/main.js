@@ -1107,6 +1107,8 @@
         if (o.x) profile.squadXp = o.x; else delete profile.squadXp; if (o.p) profile.pairXp = o.p; else delete profile.pairXp; } catch (e) { /* bleibt vorläufig */ }
       const b = f.book(f.res.win); f.ratingDelta = b.ratingDelta; f.xp = b.xp;
     }
+    // Duell-Beute: erst mit dem Endergebnis (Kommandos und Tipps können den Ausgang noch drehen)
+    try { f.loot = GL.squad.lootDuel(profile, f.row, f.res.win, GL.meta.squadPower(f.refs), GL.meta.squadPower(f.foeSquad || [])); } catch (e) { f.loot = null; }
     if (!f.row.npc && GL.online.duelReport) GL.online.duelReport(f.row.id, f.res.win, Math.abs(f.ratingDelta || 0), profile.nickname);
     saveProfile();
     if (GL.online && GL.online.register) GL.online.register(profile);
@@ -2923,6 +2925,13 @@
         list.forEach(x => { if (x.attacker_won) { lost++; change -= x.delta; } else { held++; change += Math.max(1, Math.round(x.delta / 2)); } });
         profile.squadRating = Math.max(0, (profile.squadRating == null ? 1000 : profile.squadRating) + change);
         profile.squadDef = { held: (profile.squadDef && profile.squadDef.held || 0) + held, lost: (profile.squadDef && profile.squadDef.lost || 0) + lost };
+        // Duell-Beute: zwei abgewehrte Angriffe öffnen ein Schloss der Kiste
+        let kiste = '';
+        if (held && GL.squad.lootDefense) {
+          const o = GL.squad.lootDefense(profile, held);
+          if (o.open.length) kiste = ` <em class="dl-toast">🗝 Deine Duell-Kiste ist aufgesprungen: ${o.open.map(it => esc2(GL.cgear.name(it))).join(', ')}!</em>`;
+          else if (o.locks) kiste = ` <em class="dl-toast">🗝 Fürs Halten springt ein Schloss deiner Duell-Kiste auf (${GL.squad.chest(profile).n}/${GL.config.dloot.locks}).</em>`;
+        }
         saveProfile();
         if (GL.online.register) GL.online.register(profile);
         const last = list[list.length - 1];
@@ -2933,7 +2942,7 @@
         const body = list.length === 1
           ? (last.attacker_won ? 'und gewonnen.' : 'und verloren. Deine Crew hat gehalten!')
           : `${held}× gehalten, ${lost}× verloren.`;
-        toast(`<span><b>${head}</b>${body} Crew-Rating ${change >= 0 ? '+' : ''}${change}.</span>`);
+        toast(`<span><b>${head}</b>${body} Crew-Rating ${change >= 0 ? '+' : ''}${change}.${kiste}</span>`);
         ui.lastStage = null; draw();
       });
     };

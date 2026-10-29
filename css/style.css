@@ -10773,3 +10773,31 @@ body.dk-dragging, body.dk-dragging * { cursor: grabbing !important; }
 .duel-key .dk-pic em { position: absolute; right: 2px; bottom: 1px; font-style: normal; font-size: 15px; filter: drop-shadow(0 1px 0 #000); }
 .duel-key p { margin: 0; font-size: 13.5px; line-height: 1.3; color: #3a2a18; }
 .duel-key .dk-tip { display: inline-block; margin-top: 3px; padding: 1px 7px; border-radius: 999px; background: #2f6d45; color: #fff; font-size: 11px; font-weight: 800; }
+
+/* ===== Duell-Beute (Häppchen 3): Kiste mit drei Schlössern ===== */
+.dl-box, .dl-res { display: flex; align-items: center; gap: 10px; margin: 10px 0; padding: 8px 12px; text-align: left;
+  background: linear-gradient(#fff4dc, #f2deb4); border: 2px solid #8a5a2a; box-shadow: 0 4px 0 #8a5a2a; border-radius: 6px; color: #3a2416; }
+.dl-art { flex: 0 0 auto; display: block; line-height: 0; }
+.dl-svg { width: 69px; height: 45px; image-rendering: pixelated; }
+.dl-txt { display: flex; flex-direction: column; gap: 2px; min-width: 0; text-align: left; }
+.dl-txt > b { text-align: left; }
+.dl-txt > b { font-size: .9rem; }
+.dl-txt small { font-size: .72rem; line-height: 1.3; color: #7a6a52; }
+.dl-n { font-style: normal; font-family: var(--px); font-size: .8rem; margin-left: 4px; padding: 0 5px; border-radius: 4px; background: #3a2416; color: #f2d24a; }
+.dl-lg .league-chip { color: #fff; background: var(--lc, #8a7a66); font-size: .6rem; padding: 1px 6px; vertical-align: 1px; }
+.dl-day { opacity: .75; }
+.dl-res { margin: 10px 0 6px; }
+.dl-res.dl-quiet { box-shadow: none; border-style: dashed; opacity: .9; }
+.dl-res.dl-quiet .dl-svg { width: 46px; height: 30px; }
+.dl-item { display: flex; align-items: center; gap: 8px; margin: 4px 0 2px; padding: 4px 8px; border-radius: 6px; border: 2px solid #b8a890; background: #fffaf0; }
+.dl-item i svg { width: 30px; height: 30px; }
+.dl-item b { font-size: .82rem; } .dl-item small { display: block; }
+.dl-item.cr-rare { border-color: #4f86c6; } .dl-item.cr-epic { border-color: #9a5bd0; background: #faf3ff; }
+.dl-item.cr-legendary { border-color: #e0a030; background: #fff6df; box-shadow: 0 0 10px rgba(224,160,48,.45); }
+.dl-toast { display: block; font-style: normal; margin-top: 2px; }
+/* Moment: Schloss klickt (kurzer Ruck), Kiste springt auf (hüpft, goldener Schein) */
+#stage .dl-res:not(.dl-quiet) .dl-svg { animation: dl-click .5s steps(4) .25s both; }
+#stage .dl-res.dl-won .dl-svg { animation: dl-burst .7s cubic-bezier(.3,1.6,.5,1) .2s both; filter: drop-shadow(0 0 6px rgba(242,210,74,.8)); }
+@keyframes dl-click { 0% { transform: translateX(0); } 25% { transform: translateX(-2px) rotate(-3deg); } 50% { transform: translateX(2px) rotate(3deg); } 100% { transform: none; } }
+@keyframes dl-burst { 0% { transform: scale(.6) translateY(6px); } 60% { transform: scale(1.15) translateY(-4px); } 100% { transform: none; } }
+@media (prefers-reduced-motion: reduce) { #stage .dl-res .dl-svg { animation: none !important; } }

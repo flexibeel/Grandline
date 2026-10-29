@@ -115,6 +115,11 @@ GL.config = {
   kk: { k: 2, armor: 0.944, regen: 0.699, crit: 1.056, status: 0.279, brecherH: 1.027, rally: 1.572, ramp: 1.655, slow: 3.468, burn: 2.815, oasis: 2.517 },
   duel: { band: 0.25, trainer: 1.1, counter: 0.3, spread: 0.18,
     last: { atk: 0.15, tipAtk: 0.2, tipHeal: 0.15 }, clash: { spd: 0.04, tip: 0.2, power: 0.3, keep: 0.25, max: 2 }, def: 0.5 },
+  // Duell-Beute (Häppchen 3, Felix per Klick 29.10.): Kiste mit locks Schlössern, jeder Sieg öffnet eins. Echte Crews je einmal am Tag,
+  // Übungscrew bis prac Siege am Tag, Gegner unter (1 − band) deiner Kampfkraft zählen nicht. Abwehr offline = halber Sieg, höchstens def Schlösser am Tag.
+  // rar = Gewichte Gewöhnlich/Selten/Episch/Legendär je Liga (planke … legende), shards = Meersplitter beim Öffnen je Seltenheit, loss = Trost bei Niederlage
+  dloot: { locks: 3, prac: 3, def: 2, loss: 2, shards: [2, 3, 4, 6],
+    rar: { planke: [75, 23, 2, 0], bronze: [62, 33, 5, 0], silber: [45, 42, 12, 1], gold: [28, 44, 25, 3], diamant: [14, 42, 36, 8], legende: [5, 35, 45, 15] } },
   duelCmds: { charge: { cheer: 10, food: 13, dice: 18 }, cheerAtk: 0.08, cheerTurns: 5, food: 0.2, salvoP: 0.3, salvo: 0.22, tripP: 0.28 },
   enemyScale: 0.9,        // wie schnell normale Gegner pro Etappe stärker werden (längere Insel-Kapitel -> langsamer hochskalieren)
   eliteMult: 1.3,         // Kopfgeldjäger sind um diesen Faktor stärker

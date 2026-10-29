@@ -150,5 +150,73 @@ window.GL = window.GL || {};
     return squad;
   }
 
-  GL.squad = { fight, TACTICS, tacOf, traitOf, traitTier, inBand, trainer, prep: list => prep(list, false, null, false) };
+  // ---------- Duell-Beute (Häppchen 3) ----------
+  // profile.dloot = { n: offene Schlösser, h: halbe Abwehr (0/1), d: Tag, beat: [heute geschlagene Crews], prac: Übungssiege heute, def: Schlösser aus Abwehr heute }
+  // Läuft nur im Hauptquartier (nicht im Run-Replay), daher Math.random wie bei GL.cgear.roll.
+  const LC = () => (GL.config && GL.config.dloot) || { locks: 3, prac: 3, def: 2, loss: 2, shards: [2, 3, 4, 6], rar: {} };
+  function chest(profile) {
+    const L = profile.dloot = profile.dloot && typeof profile.dloot === 'object' ? profile.dloot : {};
+    L.n = Math.max(0, Math.min(LC().locks - 1, +L.n || 0)); L.h = L.h ? 1 : 0;
+    const day = GL.meta.dayKey();
+    if (L.d !== day) { L.d = day; L.beat = []; L.prac = 0; L.def = 0; }
+    if (!Array.isArray(L.beat)) L.beat = [];
+    return L;
+  }
+  function lootLeague(profile) {
+    const lg = GL.meta.league(profile.squadRating);
+    return { lg, i: Math.max(0, GL.meta.leagues.indexOf(lg)), w: (LC().rar || {})[lg.id] || [70, 27, 3, 0] };
+  }
+  // Kiste öffnen: ein Teil nach Liga (Qualität wie Beute aus dem Meer mit dem Index der Liga) plus Meersplitter
+  function openChest(profile) {
+    const { lg, i, w } = lootLeague(profile);
+    let x = Math.random() * w.reduce((a, b) => a + b, 0), r = 0;
+    for (; r < w.length - 1; r++) { x -= w[r]; if (x < 0) break; }
+    const it = GL.cgear.roll({ r, sea: Math.max(0, i - 1) });
+    it.f.duel = lg.name;   // Herkunft „Duell-Kiste (Silber-Liga)“
+    const B = GL.cgear.bag(profile); B.push(it);
+    const max = GL.data.crewGear.bagMax || 40;
+    while (B.length > max) {   // Tasche voll: wie bei der Fahrt-Beute wird das schwächste freie Teil zerlegt
+      const free = B.filter(g => g.uid !== it.uid && !GL.cgear.wornBy(profile, g.uid)).sort((a, b) => a.r - b.r || GL.cgear.power(a) - GL.cgear.power(b));
+      if (!free.length) break;
+      GL.cgear.scrap(profile, free[0].uid);
+    }
+    const sh = LC().shards[r] || 0;
+    profile.shards = (profile.shards || 0) + sh;
+    profile.gearNew = (profile.gearNew || []).concat(it.uid);
+    return { it, shards: sh };
+  }
+  function addLock(profile, L) {
+    L.n++;
+    if (L.n < LC().locks) return null;
+    L.n = 0;
+    return openChest(profile);
+  }
+  // Nach einem Duell (Endergebnis). row = Gegner-Zeile, mine/theirs = Kampfkraft beider Crews.
+  // Ergebnis: { lock, why, n, open, shards }  why: 'npc' (Übungssiege voll), 'again' (heute schon geschlagen), 'weak' (unter dem Band)
+  function lootDuel(profile, row, win, mine, theirs) {
+    const L = chest(profile), C = LC();
+    if (!win) { profile.shards = (profile.shards || 0) + (C.loss || 0); return { lock: false, n: L.n, shards: C.loss || 0 }; }
+    const band = (GL.config.duel && GL.config.duel.band) || 0.25;
+    let why = null;
+    if (row.npc) { if (L.prac >= C.prac) why = 'npc'; }
+    else if (L.beat.includes(row.id)) why = 'again';
+    else if (theirs < mine * (1 - band)) why = 'weak';
+    if (why) return { lock: false, why, n: L.n };
+    if (row.npc) L.prac++; else { L.beat.push(row.id); if (L.beat.length > 60) L.beat.shift(); }
+    const o = addLock(profile, L);
+    return { lock: true, n: o ? C.locks : L.n, open: o && o.it, shards: o ? o.shards : 0 };
+  }
+  // Abgewehrte Angriffe seit dem letzten Besuch: zwei = ein Schloss, höchstens C.def Schlösser am Tag
+  function lootDefense(profile, held) {
+    const L = chest(profile), C = LC(), out = { locks: 0, open: [] };
+    let half = L.h + Math.max(0, held | 0);
+    while (half >= 2 && L.def < C.def) {
+      half -= 2; L.def++; out.locks++;
+      const o = addLock(profile, L); if (o) out.open.push(o.it);
+    }
+    L.h = Math.min(1, half);
+    return out;
+  }
+
+  GL.squad = { fight, TACTICS, tacOf, traitOf, traitTier, inBand, trainer, prep: list => prep(list, false, null, false), chest, lootLeague, lootDuel, lootDefense };
 })();
