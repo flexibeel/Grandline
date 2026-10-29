@@ -1,6 +1,6 @@
 # Der Hafen wächst: Skizze
 
-Stand 29.10.2026, **nichts gebaut**, nur Skizze. Zweig `feature/hafen-skizze` (von `feature/neuausrichtung`). `FAHRPLAN.md` ist bewusst nicht angefasst, der Eintrag dort kommt später.
+Stand 29.10.2026, **nichts gebaut**, nur Skizze. Zweig `feature/hafen-skizze` (von `feature/neuausrichtung`). **Alle offenen Punkte per Klick entschieden (60. Chat, Abschnitt 6)**, Eintrag im `FAHRPLAN.md` (Warteschlange Punkt 0 und Planungs-Tabelle).
 
 Gelesen: `FAHRPLAN.md` (Jans Idee 2), `PLAN-NEUGEWICHT.md`, `HAFEN-SKIZZE.md` (Schritt 1), Design-Fläche „Grand Line: Gesamtplan“ (Tafeln Kontor, Was wohin fließt, So passt alles zusammen, Seltenheiten & Taverne; die Fläche wurde nur gelesen), Code `js/engine/kontor.js`, `crewgear.js`, `meta.js`, `js/data/roles.js`.
 
@@ -82,8 +82,8 @@ Von deiner Liste und dem Bestand. Jedes Haus braucht seine **eigene Idee**, nich
 | Taverne | Bestand | Stammcrew, Rangliste, Freunde (wie heute) | |
 | Dock | Bestand | Schiff, Upgrades, Endlos, Tageskarte. **Werft und Gemütlichkeit** werden Stufen hier (Haus-Stufen) | Migration, siehe 5 |
 | Auftragstafel | Bestand | Raids, Bosse, Gemeinschaft, Landgang, Seekarte | |
-| Trupp-Steg | neu | Hier legen Trupps ab, hier landen ihre Funde, bis du sie abholst | ob eigenes Haus oder Teil des Kontors |
-| Wohnhaus (mehrere) | neu | Hier wohnt die Crew sichtbar | wer wohnt, siehe 6 |
+| Trupp-Steg | Teil des Kontor-Hauses | Hier legen Trupps ab, hier landen ihre Funde, bis du sie abholst | entschieden: kein eigenes Haus (6.1) |
+| Wohnhaus (mehrere) | neu | Hier wohnt die Crew sichtbar, jedes Haus gibt Betten | entschieden: Mitgefahrene, so viele wie Betten (6.2) |
 | Werkstatt | neu | Effekte der Ausrüstung aufwerten (nach „Ausrüstung mit Effekten“) | was genau, wie teuer |
 | weitere 3–6 | offen | **bewusst leer.** Nur wer eine eigene Idee hat (Felix, Jan, klar begründet), bekommt hier ein Haus | |
 
@@ -136,13 +136,18 @@ Figuren laufen auf Wegen zwischen den Häusern, sitzen vor der Taverne, **legen 
 - **Zerlegen als Preis:** Ausrüstung, die im Duell zählt, wird zugleich Bauteil. Gewollt (Entscheidung), aber die Preise dürfen Duelle nicht aushöhlen. Messen wie bei Häppchen 2.
 - **Trupp unterwegs fehlt im Deck:** Wer die Stammcrew verschickt, hat im Duell weniger Auswahl. **Duell-Crews sind gespeicherte Stände anderer Spieler**, die bleiben, wie sie sind. Für dich selbst als Verteidiger offen, siehe 6.
 
-## 6. Offen (nur Klick nötig, nicht alles auf einmal)
-1. **Kontor und Steg: ein Haus oder zwei?** Du hast „Kontor wird zum Trupp-Haus“ und „Trupp-Steg“ gewählt. Meine Lesart: **ein Haus.** Der Steg ist sein Anlegeplatz, die Kontor-Stufe wird die Trupp-Stufe. Das spart ein System. Sag, wenn du zwei Häuser willst.
-2. **Wer wohnt dort?** Stammcrew sind nur vier, das Deck sechs. Möglich: alle freigeschalteten Figuren, Wohnhäuser geben Plätze. Oder nur, wer schon einmal gefahren ist. Hängt an „wie viele Figuren sind unterwegs oder im Dorf“.
-3. **Genaue Kostenform eines Hauses:** alle drei Teile (Meersplitter, Bernstein, zerlegtes Teil) bei jedem Haus oder je nach Haus ein anderer Mix? Anders gefragt: Soll jedes Haus sich anders „teuer“ anfühlen?
-4. **Verteidiger-Crew in Duellen:** Duell-Crews sind Schnappschüsse. Zählt eine Crew, deren Figuren gerade auf Trupp sind, voll? Meine Empfehlung: ja, Schnappschuss bleibt wie er war.
-5. **Tab-Leiste und Kapitänsbuch:** Die Leiste (Hafen · Tafel · Taverne · Kapitän) entfällt mit dem Menü. Wo wohnt das Kapitänsbuch? Haus oder fester Knopf?
-6. **Was macht das Zuschauen lebendig?** Nur das Notwendige (Wege, Ablegen, Bauen) oder mehr (Tageszeit, Wetter)? Mehr heißt: mehr Pixel, mehr Regeln, Gefahr von Beliebigkeit.
+## 6. Entschieden (Felix per Klick, 29.10., 60. Chat)
+
+| Frage | Antwort | Folge für den Bau |
+|---|---|---|
+| 1. Kontor und Steg | **Ein Haus** (wie empfohlen) | Der Steg ist der Anlegeplatz des Kontor-Hauses, die Kontor-Stufe ist die Trupp-Stufe (Trupp-Plätze, Lager am Steg). Kein eigenes Steg-Haus, kein zweites Stufen-System. |
+| 2. Wer wohnt dort | **Mitgefahrene, so viele wie Betten** (wie empfohlen) | Eine Figur zieht ein, sobald sie einmal auf einer Fahrt dabei war. Wohnhäuser geben Betten, wer keins hat, gilt als „auf See“ und ist nicht im Bild. Bauen lohnt also sichtbar. Braucht eine Merkliste „schon mitgefahren“ im Profil (Herleitung aus vorhandenen Daten prüfen, bevor ein Feld dazukommt). |
+| 3. Kosten eines Hauses | **Je Haus eigener Mix** (wie empfohlen) | Jedes Haus hat seinen eigenen Preis aus Meersplittern, Bernstein und zerlegten Teilen, z. B. Wohnhaus vor allem Bernstein, Werkstatt vor allem zerlegte Ausrüstung. Zahlen weiter Platzhalter. |
+| 4. Verteidiger-Crew | **Schnappschuss zählt voll** (wie empfohlen) | Trupps schwächen dich beim Verteidigen nicht. Duell-Code bleibt unberührt. |
+| 5. Kapitänsbuch | **Fester Knopf unten** (wie empfohlen) | Untere Leiste: [Bauen] [Trupp] [Kapitän]. Kein Kapitänshaus. |
+| 6. Lebendigkeit | **Plus Tageszeit** (gegen Empfehlung „nur das Nötige“) | Wege, Ablegen, Bauen **und** Licht nach Geräteuhr (Morgen, Tag, Abend, Nacht mit Laternen). Kein Wetter. Folge: je Haus und Figur ein Farbsatz mehr oder eine Licht-Ebene darüber. **Gehört in die Pixel-Probe A**: ein Haus in zwei Tageszeiten, damit Felix sieht, ob Ebene oder eigene Farben. |
+
+Damit ist die Skizze komplett. Nächster Schritt bleibt laut Abschnitt 7: erst nach PLAN-NEUGEWICHT Häppchen 3 und 4, dann **Häppchen A (Pixel-Probe)**.
 
 ## 7. Häppchen (Vorschlag, Reihenfolge nach deiner Wahl)
 
@@ -150,8 +155,8 @@ Figuren laufen auf Wegen zwischen den Häusern, sitzen vor der Taverne, **legen 
 
 | Häppchen | Inhalt | Größe | Modell |
 |---|---|---|---|
-| **A · Pixel-Probe** | Mischung testen: ein schräges Haus, 3 Figuren, Laufen, Tiefe. Nur Probe, Spiel unverändert. Du urteilst per Klick, bevor etwas gebaut wird | S | Opus |
-| **B · Kleiner Schnitt** (dein „beides in einem“) | Raster-Bild mit **drei Häusern** (Kontor/Trupp-Haus, Steg, ein Wohnhaus), ein Trupp mit **einem** Ziel, die zwei Stoffe als Zähler, ein Haus bauen mit Kosten. Menü bleibt vorerst daneben | M–L | Opus |
+| **A · Pixel-Probe** | Mischung testen: ein schräges Haus, 3 Figuren, Laufen, Tiefe, **dasselbe Haus in zwei Tageszeiten** (6.6). Nur Probe, Spiel unverändert. Du urteilst per Klick, bevor etwas gebaut wird | S | Opus |
+| **B · Kleiner Schnitt** (dein „beides in einem“) | Raster-Bild mit **zwei Häusern** (Kontor/Trupp-Haus mit Steg, ein Wohnhaus mit Betten), ein Trupp mit **einem** Ziel, die zwei Stoffe als Zähler, ein Haus bauen mit Kosten. Menü bleibt vorerst daneben | M–L | Opus |
 | **C · Menü ersetzen** | Taverne, Dock, Tafel als Häuser, Tab-Leiste und Pop-up-Sprünge anpassen, Kapitänsbuch | L | Opus |
 | **D · Werkstatt und Haus-Stufen** | Werkstatt (Effekte aufwerten), Werft und Gemütlichkeit als Stufen, Migration, Liste „Altes ausmisten“ | M–L | Opus |
 | **E · Ziele und Texte** | Die echten Trupp-Ziele, Hausnamen, DE/EN. **Ideen von Felix oder Jan**, kein Auffüllen | S–M | Sonnet nach Vorlage |
