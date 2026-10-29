@@ -95,7 +95,20 @@ Felix: „Es soll sich nicht vorprogrammiert anfühlen, wie die Kämpfe sind. Es
 - **B · Wendepunkte:** 2–3 sichtbare Momente pro Kampf, in denen es kippen kann (Ideen: Ulti-Duell, „letzter Mann steht“ mit Aufbäumen, Kapitänsruf). Man sieht sie kommen.
 - **C · Vorher entscheiden zählt:** Taktik und Aufstellung gegen genau diesen Gegner bringen deutlich mehr als heute (+6 % bei Sturm/List/Mauer).
 - **D · Ehrliche Zusammenfassung:** „Gewonnen, weil …“ mit dem Moment, der es gedreht hat (deckt sich mit Häppchen 5).
-- Nächster Schritt: **Skizze** (welche Wendepunkte genau, wie stark Taktik wirkt, Ziel der Messung), Felix klickt ab, dann bauen (Opus). Replay-sicher, Würfel nur aus dem Kampf-Seed.
+- Skizze steht (siehe unten), als Nächstes bauen (Opus).
+
+**Skizze „Kämpfe offen“ (Felix per Klick, 29.10., 8:50, zwei Fragerunden, alles wie empfohlen) – fertig zum Bauen:**
+- **Wo:** zuerst **nur Duelle** (Stammcrew). Fahrt-Kämpfe später, wenn es sich gut anfühlt.
+- **Wendepunkte (2):**
+  - **Letzter steht:** Bleibt einer Seite nur noch eine Figur, bäumt sie sich auf: überlebt einmal einen tödlichen Schlag, schlägt danach härter zu. Comebacks werden möglich.
+  - **Ulti-Duell:** Sind auf beiden Seiten Ultis gleichzeitig bereit, prallen sie aufeinander. Wer gewinnt, hängt von Tempo und etwas Glück ab.
+  - Nicht gewählt: Kapitänsruf, Konter.
+- **Eingreifen:** ein freiwilliger Tipp im **Zeitfenster** (Ring zieht sich zusammen, ~1 s). Getroffen = Moment stärker. Wer nur zuschaut, verliert wenig.
+- **Verteidiger** (offline, kann nicht tippen) bekommt automatisch den **halben** Tipp-Bonus.
+- **Vorbereitung:** Taktik wird ein **echter Konter**, etwa ±15 % statt 6 %. Die Gegner-Taktik steht vorher im Fenster (ist schon so).
+- **Danach:** **eine Zeile + Bild des Moments**, z. B. „Gewonnen, weil Mira als Letzte stand“.
+- **Messziele** (Bot, echte Crews wie in Häppchen 2): gleich starke Crews 40–60 %; Crew mit 20 % weniger Kampfkraft gewinnt etwa jedes 4. Mal; passender Taktik-Konter verschiebt spürbar (Richtwert +15 Punkte). Heute: ~70 % der Paarungen einseitig.
+- **Technik-Hinweise:** Duell wird heute vorab berechnet (`GL.squad.fight` → `GL.battle.simulate`, `kind 'duel'`) und abgespielt; Eingriffe laufen schon als `cmds` mit Zeitpunkt (`at`) und am Ende wird neu gerechnet (`startSquadDuel` in `main.js`). Der Tipp wird genauso ein `cmd`, Würfel nur aus dem Kampf-Seed, also replay-sicher. Fahrt-Kämpfe und Bosse bleiben unberührt (`duel: true` als Schalter). Streuung (etwas mehr Glück) nur so weit, wie die Messziele es brauchen.
 
 **Neue feste Regel „Gegen das KI-Gefühl“** (gilt für alles Neue):
 - Lieber wenig, dafür von Hand durchdacht. Jedes neue Teil, jede Regel braucht eine eigene Idee (von Felix, Jan oder klar begründet), nicht „aus einer Liste aufgefüllt“.
