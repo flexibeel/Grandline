@@ -2716,6 +2716,9 @@ window.GL = window.GL || {};
     return `<div class="fpop-card match-pop" role="dialog" aria-labelledby="fpop-t">
       <div class="mp-head"><span class="fpop-kicker">Gegner gefunden</span>
         <h3 id="fpop-t">${esc(row.name || 'Pirat')}</h3>${GL.dliga ? GL.dliga.chip(row.dlRating || 0, true) : ''}</div>
+      ${row.npc ? `<p class="hint mp-npc">${GL.i18n && GL.i18n.lang() === 'en'
+        ? `Nobody with similar battle power (±${Math.round(100 * ((GL.config.duel || {}).band || 0.25))} %) is out at sea right now. The Crown Watch trains with you instead, at exactly your strength.`
+        : `Gerade ist niemand mit ähnlicher Kampfkraft (±${Math.round(100 * ((GL.config.duel || {}).band || 0.25))} %) auf See. Die Kronwacht übt mit dir, genau auf deiner Stärke.`}</p>` : ''}
       <div class="mp-teams">
         <span class="mp-lbl">Du <b>⚔ ${mine}</b></span><div class="mp-row">${idx.map(i => tile(mineR[i], foeR[i], false)).join('')}</div>
         <span class="mp-lbl foe">${esc(String(row.name || 'Gegner').slice(0, 14))} <b>⚔ ${theirs}</b></span><div class="mp-row">${idx.map(i => tile(foeR[i], null, true)).join('')}</div>

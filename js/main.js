@@ -1811,8 +1811,8 @@
         const mine = GL.meta.squadPower(GL.meta.squadRefs(profile));
         const me = String(profile.nickname || '').trim().toLowerCase();
         const myR = profile.squadRating == null ? 1000 : profile.squadRating;
-        const pool = (st.rows || []).filter(x => x.id !== st.uid && x.squadOn && (x.squad || []).length && String(x.name || '').trim().toLowerCase() !== me)
-          .map(x => ({ x, d: Math.abs((x.squadPower || GL.meta.squadPower(x.squad)) - mine) + Math.abs((x.squadRating || 1000) - myR) / 4 })).sort((p, q) => p.d - q.d).slice(0, 5);
+        // Nur Crews im Kampfkraft-Band (GL.config.duel.band), sonst Übungscrew
+        const pool = GL.squad.inBand((st.rows || []).filter(x => x.id !== st.uid && x.squadOn && (x.squad || []).length && String(x.name || '').trim().toLowerCase() !== me), mine, myR);
         // Abwechslung: zuletzt gezeigte Gegner zuerst überspringen (falls es andere passende gibt)
         ui.recentFoes = ui.recentFoes || [];
         const fresh = pool.filter(p => !ui.recentFoes.includes(p.x.id));
@@ -1820,17 +1820,8 @@
         let row = pickFrom.length ? pickFrom[Math.floor(Math.random() * Math.min(3, pickFrom.length))].x : null;
         if (row) { ui.recentFoes.push(row.id); if (ui.recentFoes.length > 3) ui.recentFoes.shift(); }
         if (!row) {
-          // Niemand passendes online: Übungscrew der Marine auf deinem Niveau
-          const lvl = GL.meta.squadLevel(profile);
-          const ids = ['koby', 'tashigi', 'hina', 'garp', 'smoker'].sort(() => Math.random() - 0.5).slice(0, GL.meta.squadIds(profile).length);
-          const squad = ids.map(id => { const d = GL.data.crew.find(c => c.id === id); const max = d.hp + (lvl - 1) * 3;
-            return { id, name: d.name, type: d.type, role: d.role, faction: d.faction, lvl, hp: max, max, atk: d.atk + Math.floor((lvl - 1) * 0.45), spd: d.spd }; });
-          // Die Marine trainiert mit: etwa 90 % deiner Stärke statt nur Grundwerte (sonst war sie ein Punktesparschwein)
-          const base = squad.reduce((t, r) => t + r.max * 0.5 + r.atk * 4, 0), spdP = squad.reduce((t, r) => t + r.spd * 2, 0);
-          const f = base > 0 ? (mine * 0.9 - spdP) / base : 1;
-          if (f > 1) squad.forEach(r => { r.max = r.hp = Math.round(r.max * f); r.atk = Math.round(r.atk * f); });
-          // Die Marine hat auch eine Taktik (meistens). Sie steht in der Vorschau, damit man kontern kann.
-          squad.tactic = ['sturm', 'mauer', 'list', null][Math.floor(Math.random() * 4)];
+          // Niemand im Kampfkraft-Band: Übungscrew der Kronwacht auf deiner Kampfkraft
+          const squad = GL.squad.trainer(GL.meta.squadLevel(profile), GL.meta.squadIds(profile).length, mine);
           row = ui.npcRow = { id: 'npc-marine', squadTactic: squad.tactic, name: 'Übungscrew der Kronwacht', rank: 'Ausbilder der Kronwacht', squad, squadPower: GL.meta.squadPower(squad), npc: true };
         }
         // Erst zeigen, wer es ist und wie die Chancen stehen, dann angreifen oder weitersuchen

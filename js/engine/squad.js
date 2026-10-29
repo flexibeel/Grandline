@@ -26,13 +26,10 @@ window.GL = window.GL || {};
     tac = tacOf(tac);
     return (list || []).map(r => {
       const x = Object.assign({}, r);
-      // Duell-Ausgleich: Ausrüstung zählt nur zur Hälfte, Zusammenhalt höchstens +5 Stufen.
-      // So entscheidet eher die Aufstellung als die Schatzkammer.
-      const g = r.gw;
-      const nn = v => Math.max(0, Math.min(1e5, +v || 0));   // Fremddaten: nie negativ
-      if (g && typeof g === 'object') { x.max = Math.max(1, r.max - Math.floor(nn(g.hp) / 2)); x.atk = Math.max(1, r.atk - Math.floor(nn(g.atk) / 2)); x.spd = r.spd - Math.floor(nn(g.spd) / 2); }
+      // Ausrüstung zählt im Duell voll (seit 29b, vorher halbiert). Fair bleibt es über die Gegnersuche
+      // nach Kampfkraft-Band (GL.config.duel). Zusammenhalt zählt höchstens +5 Stufen.
       if (+r.bond > 5 && +r.bond <= 10) { const cut = Math.round(+r.bond) - 5; x.lvl = (r.lvl || 1) - cut; x.max = Math.max(1, x.max - cut * 3); x.atk = Math.max(1, x.atk - Math.floor(cut * 0.45)); }
-      if (r.gb) { x.gb = {}; Object.keys(r.gb).forEach(k => { x.gb[k] = typeof r.gb[k] === 'number' ? r.gb[k] / 2 : r.gb[k]; }); }
+      if (r.gb) { x.gb = {}; Object.keys(r.gb).forEach(k => { const v = r.gb[k]; x.gb[k] = typeof v === 'number' ? Math.max(0, Math.min(1e4, v)) : v; }); }   // Fremddaten: nie negativ
       // Zusammenhalt-Eigenschaft (nach dem Ausgleich, wird nicht halbiert)
       const tr = traitOf(r.role, r.bond);
       if (tr) { x.gb = Object.assign({}, x.gb || {}); x.gb[tr.k] = (+x.gb[tr.k] || 0) + tr.v; }
@@ -78,5 +75,36 @@ window.GL = window.GL || {};
     return { win: res.win, events: res.events, me, foe, dealt, mvp };
   }
 
-  GL.squad = { fight, TACTICS, tacOf, traitOf, traitTier };
+  // Gegnersuche nach Kampfkraft-Band: nur Crews zwischen (1 - band) und (1 + band) der eigenen Kampfkraft.
+  // rows: Ranglisten-Zeilen (schon ohne einen selbst). Ergebnis: bis zu 5, die nächsten zuerst.
+  function inBand(rows, mine, myRating) {
+    const D = (GL.config && GL.config.duel) || {}, band = D.band == null ? 0.25 : D.band;
+    const lo = mine * (1 - band), hi = mine * (1 + band);
+    return (rows || []).map(x => ({ x, p: x.squadPower || GL.meta.squadPower(x.squad) }))
+      .filter(o => o.p >= lo && o.p <= hi)
+      .map(o => ({ x: o.x, d: Math.abs(o.p - mine) + Math.abs((o.x.squadRating || 1000) - myRating) / 4 }))
+      .sort((p, q) => p.d - q.d).slice(0, 5);
+  }
+  // Übungscrew der Kronwacht, wenn niemand im Band ist: so viele Figuren wie du, auf deiner Stufe,
+  // Werte so gestreckt, dass ihre Kampfkraft deiner entspricht (GL.config.duel.trainer, 1 = genau gleich).
+  // rnd: Zufallsfunktion (fürs Messen festlegbar). Ergebnis: Liste wie squadRefs, mit .tactic.
+  function trainer(lvl, n, mine, rnd) {
+    rnd = rnd || Math.random;
+    const D = (GL.config && GL.config.duel) || {}, aim = mine * (D.trainer == null ? 1 : D.trainer);
+    const pool = ['koby', 'tashigi', 'hina', 'garp', 'smoker'].slice();
+    for (let i = pool.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [pool[i], pool[j]] = [pool[j], pool[i]]; }
+    const squad = pool.slice(0, Math.max(1, Math.min(5, n))).map(id => {
+      const d = GL.data.crew.find(c => c.id === id); const max = d.hp + (lvl - 1) * 3;
+      return { id, name: d.name, type: d.type, role: d.role, faction: d.faction, lvl, hp: max, max, atk: d.atk + Math.floor((lvl - 1) * 0.45), spd: d.spd };
+    });
+    // Leben und Angriff strecken (Tempo bleibt), nach oben wie nach unten, aber nie unter die Hälfte
+    const base = squad.reduce((t, r) => t + r.max * 0.5 + r.atk * 4, 0), spdP = squad.reduce((t, r) => t + r.spd * 2, 0);
+    const f = base > 0 ? Math.max(0.5, (aim - spdP) / base) : 1;
+    squad.forEach(r => { r.max = r.hp = Math.max(1, Math.round(r.max * f)); r.atk = Math.max(1, Math.round(r.atk * f)); });
+    // Die Kronwacht hat auch eine Taktik (meistens). Sie steht in der Vorschau, damit man kontern kann.
+    squad.tactic = ['sturm', 'mauer', 'list', null][Math.floor(rnd() * 4)];
+    return squad;
+  }
+
+  GL.squad = { fight, TACTICS, tacOf, traitOf, traitTier, inBand, trainer };
 })();
